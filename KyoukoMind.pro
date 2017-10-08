@@ -1,4 +1,6 @@
 QT += core
+QT += sql
+QT += xml
 QT -= gui
 
 CONFIG += c++11
@@ -9,7 +11,29 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += main.cpp
+LIBS += -L../libKyoChanNetwork -lKyoChanNetwork
+LIBS += -L../libKyoChanNetwork/debug -lKyoChanNetwork
+LIBS += -L../libKyoChanNetwork/release -lKyoChanNetwork
+INCLUDEPATH += ../libKyoChanNetwork/include/libKyoChanNetwork
+
+LIBS += -L../libKyoChanMQ -lKyoChanMQ
+LIBS += -L../libKyoChanMQe/debug -lKyoChanMQ
+LIBS += -L../libKyoChanMQ/release -lKyoChanMQ
+INCLUDEPATH += ../libKyoChanMQ/include/libKyoChanMQ
+
+LIBS += -L../libKyoChanPersistence -lKyoChanPersistence
+LIBS += -L../libKyoChanPersistence/debug -lKyoChanPersistence
+LIBS += -L../libKyoChanPersistence/release -lKyoChanPersistence
+INCLUDEPATH += ../libKyoChanPersistence/include/libKyoChanPersistence
+
+LIBS += -L../libPersistence -lPersistence
+LIBS += -L../libPersistence/debug -lPersistence
+LIBS += -L../libPersistence/release -lPersistence
+INCLUDEPATH += ../libPersistence/include/libPersistence
+
+INCLUDEPATH += $$PWD
+
+SOURCES += src/main.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
