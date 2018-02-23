@@ -1,8 +1,6 @@
 #ifndef INITLOGGER_H
 #define INITLOGGER_H
 
-#include "KyoChanNetwork_global.h"
-
 namespace Persistence {
 class Logger;
 }
@@ -10,7 +8,7 @@ class Logger;
 namespace KyoChan_Network
 {
 
-class KyoChanNetworkSHARED_EXPORT InitLogger
+class InitLogger
 {
 public:
     InitLogger();

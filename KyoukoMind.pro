@@ -1,6 +1,7 @@
 QT += core
 QT += sql
 QT += xml
+QT += testlib
 QT -= gui
 
 CONFIG += c++11
@@ -11,10 +12,6 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-LIBS += -L../libNetworkConnection -lNetworkConnection
-LIBS += -L../libNetworkConnection/debug -lPNetworkConnection
-LIBS += -L../libNetworkConnection/release -lNetworkConnection
-INCLUDEPATH += ../libNetworkConnection/include/libNetworkConnection
 
 LIBS += -L../libCrypto -lCrypto
 LIBS += -L../libCrypto/debug -lCrypto
@@ -26,44 +23,50 @@ LIBS += -L../libPersistence/debug -lPersistence
 LIBS += -L../libPersistence/release -lPersistence
 INCLUDEPATH += ../libPersistence/include/libPersistence
 
-INCLUDEPATH += $$PWD
+LIBS += -L../libNetworkConnection -lNetworkConnection
+LIBS += -L../libNetworkConnection/debug -lNetworkConnection
+LIBS += -L../libNetworkConnection/release -lNetworkConnection
+INCLUDEPATH += ../libNetworkConnection/include/libNetworkConnection
 
-SOURCES += src/main.cpp \
-            core/cluster/cluster.cpp \
-            core/networkManager.cpp \
-            core/cluster/emptyCluster.cpp \
-            core/cluster/nodeCluster.cpp \
-            core/cluster/edgeCluster.cpp \
-            core/processing/cpuProcessingUnit.cpp \
-            core/processing/processingUnit.cpp \
-            KyoChanNetwork.cpp \
-            core/cluster/clusterHandler.cpp \
-            core/processing/processingUnitHandler.cpp \
-            persistence/initLogger.cpp \
-            persistence/initialFileInput.cpp \
-            persistence/database.cpp \
-            persistence/config.cpp \
-            control/statusreporter.cpp \
+INCLUDEPATH += $$PWD \
+            src
+
+SOURCES += main.cpp \
+            src/core/cluster/cluster.cpp \
+            src/core/networkManager.cpp \
+            src/core/cluster/emptyCluster.cpp \
+            src/core/cluster/nodeCluster.cpp \
+            src/core/cluster/edgeCluster.cpp \
+            src/core/processing/cpuProcessingUnit.cpp \
+            src/core/processing/processingUnit.cpp \
+            src/KyoChanNetwork.cpp \
+            src/core/cluster/clusterHandler.cpp \
+            src/core/processing/processingUnitHandler.cpp \
+            src/persistence/initLogger.cpp \
+            src/persistence/initialFileInput.cpp \
+            src/persistence/database.cpp \
+            src/persistence/config.cpp \
+            src/control/statusreporter.cpp \
             tests/clusterTest.cpp
 
 HEADERS +=\
-            core/cluster/cluster.h \
-            core/networkManager.h \
-            common/typedefs.h \
-            core/cluster/emptyCluster.h \
-            core/cluster/nodeCluster.h \
-            core/cluster/edgeCluster.h \
-            core/processing/processingUnit.h \
-            core/processing/cpuProcessingUnit.h \
-            KyoChanNetwork.h \
-            core/cluster/clusterHandler.h \
-            core/processing/processingUnitHandler.h \
-            common/structs.h \
-            persistence/initLogger.h \
-            persistence/initialFileInput.h \
-            persistence/database.h \
-            persistence/config.h \
-            control/statusreporter.h \
+            src/core/cluster/cluster.h \
+            src/core/networkManager.h \
+            src/common/typedefs.h \
+            src/core/cluster/emptyCluster.h \
+            src/core/cluster/nodeCluster.h \
+            src/core/cluster/edgeCluster.h \
+            src/core/processing/processingUnit.h \
+            src/core/processing/cpuProcessingUnit.h \
+            src/KyoChanNetwork.h \
+            src/core/cluster/clusterHandler.h \
+            src/core/processing/processingUnitHandler.h \
+            src/common/structs.h \
+            src/persistence/initLogger.h \
+            src/persistence/initialFileInput.h \
+            src/persistence/database.h \
+            src/persistence/config.h \
+            src/control/statusreporter.h \
             tests/clusterTest.h
 
 # The following define makes your compiler emit warnings if you use

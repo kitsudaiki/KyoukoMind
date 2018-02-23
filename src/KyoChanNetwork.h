@@ -10,14 +10,12 @@
 #include <log/logger.h>
 #include <persistence/database.h>
 
-#include <KyoChanNetwork_global.h>
-
 namespace KyoChan_Network
 {
 
 class NetworkManager;
 
-class KyoChanNetworkSHARED_EXPORT KyoChanNetwork : public QObject
+class KyoChanNetwork : public QObject
 {
     Q_OBJECT
 

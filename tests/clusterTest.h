@@ -7,12 +7,10 @@
 #include <QFile>
 #include <core/cluster/nodeCluster.h>
 
-#include <KyoChanNetwork_global.h>
-
 namespace KyoChan_Network
 {
 
-class KyoChanNetworkSHARED_EXPORT ClusterTest : public QObject
+class ClusterTest : public QObject
 {
     Q_OBJECT
 
