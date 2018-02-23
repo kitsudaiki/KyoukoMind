@@ -11,20 +11,15 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-LIBS += -L../libKyoChanNetwork -lKyoChanNetwork
-LIBS += -L../libKyoChanNetwork/debug -lKyoChanNetwork
-LIBS += -L../libKyoChanNetwork/release -lKyoChanNetwork
-INCLUDEPATH += ../libKyoChanNetwork/include/libKyoChanNetwork
+LIBS += -L../libNetworkConnection -lNetworkConnection
+LIBS += -L../libNetworkConnection/debug -lPNetworkConnection
+LIBS += -L../libNetworkConnection/release -lNetworkConnection
+INCLUDEPATH += ../libNetworkConnection/include/libNetworkConnection
 
-LIBS += -L../libKyoChanMQ -lKyoChanMQ
-LIBS += -L../libKyoChanMQe/debug -lKyoChanMQ
-LIBS += -L../libKyoChanMQ/release -lKyoChanMQ
-INCLUDEPATH += ../libKyoChanMQ/include/libKyoChanMQ
-
-LIBS += -L../libKyoChanPersistence -lKyoChanPersistence
-LIBS += -L../libKyoChanPersistence/debug -lKyoChanPersistence
-LIBS += -L../libKyoChanPersistence/release -lKyoChanPersistence
-INCLUDEPATH += ../libKyoChanPersistence/include/libKyoChanPersistence
+LIBS += -L../libCrypto -lCrypto
+LIBS += -L../libCrypto/debug -lCrypto
+LIBS += -L../libCrypto/release -lCrypto
+INCLUDEPATH += ../libCrypto/include/libCrypto
 
 LIBS += -L../libPersistence -lPersistence
 LIBS += -L../libPersistence/debug -lPersistence
@@ -33,7 +28,43 @@ INCLUDEPATH += ../libPersistence/include/libPersistence
 
 INCLUDEPATH += $$PWD
 
-SOURCES += src/main.cpp
+SOURCES += src/main.cpp \
+            core/cluster/cluster.cpp \
+            core/networkManager.cpp \
+            core/cluster/emptyCluster.cpp \
+            core/cluster/nodeCluster.cpp \
+            core/cluster/edgeCluster.cpp \
+            core/processing/cpuProcessingUnit.cpp \
+            core/processing/processingUnit.cpp \
+            KyoChanNetwork.cpp \
+            core/cluster/clusterHandler.cpp \
+            core/processing/processingUnitHandler.cpp \
+            persistence/initLogger.cpp \
+            persistence/initialFileInput.cpp \
+            persistence/database.cpp \
+            persistence/config.cpp \
+            control/statusreporter.cpp \
+            tests/clusterTest.cpp
+
+HEADERS +=\
+            core/cluster/cluster.h \
+            core/networkManager.h \
+            common/typedefs.h \
+            core/cluster/emptyCluster.h \
+            core/cluster/nodeCluster.h \
+            core/cluster/edgeCluster.h \
+            core/processing/processingUnit.h \
+            core/processing/cpuProcessingUnit.h \
+            KyoChanNetwork.h \
+            core/cluster/clusterHandler.h \
+            core/processing/processingUnitHandler.h \
+            common/structs.h \
+            persistence/initLogger.h \
+            persistence/initialFileInput.h \
+            persistence/database.h \
+            persistence/config.h \
+            control/statusreporter.h \
+            tests/clusterTest.h
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
