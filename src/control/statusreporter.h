@@ -1,7 +1,7 @@
 #ifndef STATUSREPORTER_H
 #define STATUSREPORTER_H
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class StatusReporter

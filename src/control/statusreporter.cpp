@@ -1,6 +1,6 @@
 #include <control/statusreporter.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 StatusReporter::StatusReporter()

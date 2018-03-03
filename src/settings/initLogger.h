@@ -5,13 +5,13 @@ namespace Persistence {
 class Logger;
 }
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
-class InitLogger
+class Logger
 {
 public:
-    InitLogger();
+    Logger();
     Persistence::Logger *initLogger(bool *ok);
 
 };

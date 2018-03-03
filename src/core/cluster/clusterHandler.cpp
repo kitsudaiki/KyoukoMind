@@ -1,6 +1,6 @@
 #include <core/cluster/clusterHandler.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 ClusterManager::ClusterManager()

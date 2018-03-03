@@ -3,7 +3,7 @@
 
 #include "cluster.h"
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class NodeCluster : public Cluster

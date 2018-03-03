@@ -1,6 +1,6 @@
 #include <core/cluster/emptyCluster.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 EmptyCluster::EmptyCluster(ClusterID clusterId)

@@ -7,7 +7,7 @@
 #include <QFile>
 #include <core/cluster/nodeCluster.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class ClusterTest : public QObject

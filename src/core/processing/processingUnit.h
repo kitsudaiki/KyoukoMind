@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 class Cluster;
 class ClusterHandler;

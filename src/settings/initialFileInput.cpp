@@ -6,7 +6,7 @@
 #include <core/cluster/nodeCluster.h>
 #include <KyoChanNetwork.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 InitialFileInput::InitialFileInput()

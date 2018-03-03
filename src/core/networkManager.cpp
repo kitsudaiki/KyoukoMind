@@ -5,7 +5,7 @@
 #include <settings/config.h>
 #include <KyoChanNetwork.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 /**

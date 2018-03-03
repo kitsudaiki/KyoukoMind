@@ -33,7 +33,7 @@ struct ClusterID
     }
 } __attribute__((packed));
 
-struct neighbor
+struct Neighbor
 {
     ClusterID clusterId;
     quint32 targetId = 0;
@@ -44,7 +44,7 @@ struct CluserMetaData
 {
     ClusterID clusterId;
     ClusterType clusterType = EDGECLUSTER;
-    neighbor neighors[9];
+    Neighbor neighors[9];
     quint32 numberOfNodes = 0;
     quint32 positionNodeBlock = 0;
     quint32 numberOfNodeBlocks = 0;
@@ -71,7 +71,7 @@ struct KyoChanEdgeSection
 struct KyoChanNode
 {
     float currentState = 0;
-    qint32 border = 0;
+    float border = 0;
 
     float nodePosInCluster[3];
 

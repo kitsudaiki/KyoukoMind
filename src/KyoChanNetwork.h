@@ -12,7 +12,7 @@
 #include <settings/initLogger.h>
 
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class NetworkManager;
@@ -24,9 +24,9 @@ class KyoChanNetwork : public QObject
 public:
     KyoChanNetwork(const QString &configPath);
 
-    static KyoChan_Network::Config *m_config;
+    static KyoukoMind::Config *m_config;
     static Persistence::Logger *m_logger;
-    static KyoChan_Network::DatabaseController *m_dbCon;
+    static KyoukoMind::DatabaseController *m_dbCon;
 
 private:
     NetworkManager *m_netThreadManager = nullptr;

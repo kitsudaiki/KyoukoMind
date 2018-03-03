@@ -1,6 +1,6 @@
 #include <core/processing/processingUnit.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 ProcessingUnit::ProcessingUnit()

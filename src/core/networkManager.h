@@ -6,7 +6,7 @@
 #include <QVector>
 #include <common/typedefs.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class NetIO;

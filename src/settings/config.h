@@ -9,7 +9,7 @@ namespace Persistence {
 class ConfigFileIO;
 }
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class Config

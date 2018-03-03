@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVector>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 class ProcessingUnit;
 

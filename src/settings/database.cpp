@@ -1,8 +1,8 @@
-#include <persistence/database.h>
+#include <settings/database.h>
 #include <database/databaseconnection.h>
-#include <persistence/config.h>
+#include <settings/config.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 /**

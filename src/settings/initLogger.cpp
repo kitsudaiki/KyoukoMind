@@ -4,15 +4,15 @@
 #include <settings/config.h>
 #include <log/logger.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
-InitLogger::InitLogger()
+Logger::Logger()
 {
 
 }
 
-Persistence::Logger* InitLogger::initLogger(bool *ok)
+Persistence::Logger* Logger::initLogger(bool *ok)
 {
     Persistence::Logger* logger = nullptr;
 

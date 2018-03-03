@@ -1,7 +1,7 @@
-#include <persistence/config.h>
+#include <settings/config.h>
 #include <config/configfileio.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 /**

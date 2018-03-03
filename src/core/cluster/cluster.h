@@ -16,7 +16,7 @@ namespace KyoChanMQ
 class KyoChanMqClient;
 }
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class Cluster : public QObject
@@ -31,7 +31,7 @@ public:
     ClusterID getClusterId() const;
     ClusterType getClusterType() const;
 
-    bool addNeighbor(const quint8 side, const quint32 targetId);
+    bool addNeighbor(const quint8 side, const Neighbor target);
 
     // get network-pointer from buffer
     CluserMetaData* getMetaData();

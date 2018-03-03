@@ -10,7 +10,7 @@ namespace Persistence {
 class DatabaseConnection;
 }
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class Config;

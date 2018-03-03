@@ -3,7 +3,7 @@
 #include <files/ioBuffer.h>
 #include <QDebug>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 /**

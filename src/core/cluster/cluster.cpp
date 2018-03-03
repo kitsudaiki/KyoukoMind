@@ -1,7 +1,7 @@
 #include <core/cluster/cluster.h>
 #include <files//ioBuffer.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 /**
@@ -48,14 +48,13 @@ ClusterType Cluster::getClusterType() const
  * @param side
  * @return
  */
-bool Cluster::addNeighbor(const quint8 side, const quint32 targetId)
+bool Cluster::addNeighbor(const quint8 side, const Neighbor target)
 {
-    if(side > 6) {
+    if(side > 8) {
         return false;
     }
-
-    //getMetaData()->neighors[side] = targetId;
-    //m_buffer->syncBlocks(0, 0);
+    getMetaData()->neighors[side] = target;
+    m_buffer->syncBlocks(0, 0);
     return true;
 }
 

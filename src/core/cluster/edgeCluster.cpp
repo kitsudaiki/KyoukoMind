@@ -1,6 +1,6 @@
 #include <core/cluster/edgeCluster.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 EdgeCluster::EdgeCluster(ClusterID clusterId)

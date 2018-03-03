@@ -1,6 +1,6 @@
 #include <tests/clusterTest.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 ClusterTest::ClusterTest()

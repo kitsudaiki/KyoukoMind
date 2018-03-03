@@ -7,7 +7,7 @@
 #include <QMap>
 #include <QPair>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class ClusterManager;

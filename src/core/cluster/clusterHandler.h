@@ -6,7 +6,7 @@
 #include <QMap>
 #include <common/structs.h>
 
-namespace KyoChan_Network
+namespace KyoukoMind
 {
 
 class Cluster;
