@@ -3,11 +3,14 @@
 namespace KyoChan_Network
 {
 
-EdgeCluster::EdgeCluster(quint32 clusterId,
-                         Cluster *parentCluster)
+EdgeCluster::EdgeCluster(ClusterID clusterId)
     : Cluster(clusterId,
-              EDGECLUSTER,
-              parentCluster)
+              EDGECLUSTER)
+{
+
+}
+
+void EdgeCluster::processCluster()
 {
 
 }

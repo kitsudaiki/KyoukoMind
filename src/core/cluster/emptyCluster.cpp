@@ -3,11 +3,14 @@
 namespace KyoChan_Network
 {
 
-EmptyCluster::EmptyCluster(quint32 clusterId,
-                           Cluster *parentCluster)
+EmptyCluster::EmptyCluster(ClusterID clusterId)
     : Cluster(clusterId,
-              EMPTYCLUSTER,
-              parentCluster)
+              EMPTYCLUSTER)
+{
+
+}
+
+void EmptyCluster::processCluster()
 {
 
 }

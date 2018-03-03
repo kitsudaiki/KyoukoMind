@@ -1,4 +1,4 @@
-#include <persistence/initialFileInput.h>
+#include <settings/initialFileInput.h>
 #include <core/cluster/clusterHandler.h>
 #include <core/cluster/cluster.h>
 #include <core/cluster/emptyCluster.h>
@@ -22,11 +22,11 @@ InitialFileInput::InitialFileInput()
  */
 bool InitialFileInput::readInitialFile(QString filePath, ClusterManager* clusterManager)
 {
-    quint32 clusterId = 0;
+    ClusterID clusterId;
     bool ok = false;
     quint32 nodeNumberPerCluster = KyoChanNetwork::m_config->getNumberOfNodes(&ok);
 
-    QMap<QPair<int, int>, quint32> m_clusterStructure;
+    QMap<QPair<int, int>, ClusterID> m_clusterStructure;
 
     QFile initialFile(filePath);
     QByteArray content = initialFile.readAll();
@@ -56,7 +56,6 @@ bool InitialFileInput::readInitialFile(QString filePath, ClusterManager* cluster
             }
             m_clusterStructure.insert(qMakePair(i,j), clusterId);
             clusterManager->addCluster(clusterId, cluster);
-            clusterId++;
         }
     }
 
@@ -73,7 +72,6 @@ bool InitialFileInput::readInitialFile(QString filePath, ClusterManager* cluster
 
             m_clusterStructure.insert(qMakePair(i,j), clusterId);
             //clusterManager->addCluster(clusterId, cluster);
-            clusterId++;
         }
     }
     return true;

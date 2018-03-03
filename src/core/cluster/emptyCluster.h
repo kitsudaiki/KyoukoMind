@@ -11,8 +11,9 @@ class EmptyCluster : public Cluster
     Q_OBJECT
 
 public:
-    EmptyCluster(quint32 clusterId,
-                 Cluster* parentCluster = nullptr);
+    EmptyCluster(ClusterID clusterId);
+
+    void processCluster();
 
 };
 

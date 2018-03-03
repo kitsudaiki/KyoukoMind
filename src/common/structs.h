@@ -3,12 +3,48 @@
 
 #include <QObject>
 
-struct KyoChanMetaData
+enum ClusterType
 {
-    quint8 toggleFlag = 0;
-    quint32 clusterId = 0;
-    quint8 clusterType = 0;
-    quint32 neighors[7];
+    EMPTYCLUSTER = 0,
+    EDGECLUSTER = 1,
+    NODECLUSTER = 2
+};
+
+struct ClusterID
+{
+    quint32 x = 0;
+    quint32 y = 0;
+    quint32 z = 0;
+
+    bool operator<(const ClusterID& rhs) const
+    {
+        if (x < rhs.x) {
+           return true;
+        }
+        else if (x == rhs.x) {
+            if (y < rhs.y) {
+                return true;
+            }
+            else if (y == rhs.y) {
+                return z < rhs.z;
+            }
+        }
+        return false;
+    }
+} __attribute__((packed));
+
+struct neighbor
+{
+    ClusterID clusterId;
+    quint32 targetId = 0;
+    ClusterType neighborType = EDGECLUSTER;
+} __attribute__((packed));
+
+struct CluserMetaData
+{
+    ClusterID clusterId;
+    ClusterType clusterType = EDGECLUSTER;
+    neighbor neighors[9];
     quint32 numberOfNodes = 0;
     quint32 positionNodeBlock = 0;
     quint32 numberOfNodeBlocks = 0;
@@ -19,27 +55,36 @@ struct KyoChanMetaData
 
 struct KyoChanEdge
 {
-    qint16 weight = 0;
-    quint16 targetClusterId = 0;
+    float weight = 0.0;
+    quint32 targetClusterId = 0;
     quint16 targetNodeId = 0;
 } __attribute__((packed));
 
 struct KyoChanEdgeSection
 {
-    quint16 nodeNumberInCluster = 0;
-    KyoChanEdge edges[85];
+    quint16 axonIdInCluster = 0;
+    quint16 numberOfActiveEdges = 0;
+    KyoChanEdge edges[50];
+    quint64 padding = 0;
 } __attribute__((packed));
 
 struct KyoChanNode
 {
-    qint32 currentState = 0;
-    qint32 border = 1;
-    bool outputNode = false;
+    float currentState = 0;
+    qint32 border = 0;
 
     float nodePosInCluster[3];
 
-    quint32 axonClusterId = 0;
-    float axonPosInCLuster[3];
+    // Axon
+    quint32 targetClusterId = 0;
+    quint16 targetAxonId = 0;
 } __attribute__((packed));
+
+struct KyoChanAxon
+{
+    float currentState = 0;
+    float nodePosInCluster[3];
+} __attribute__((packed));
+
 
 #endif // STRUCTS_H

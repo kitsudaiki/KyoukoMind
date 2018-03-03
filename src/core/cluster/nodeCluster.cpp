@@ -10,18 +10,18 @@ namespace KyoChan_Network
  * @brief NodeCluster::NodeCluster
  * @param clusterId
  * @param numberOfNodes
+ * @param directoryPath
  * @param parentCluster
  */
-NodeCluster::NodeCluster(quint32 clusterId,
+NodeCluster::NodeCluster(ClusterID clusterId,
                          quint32 numberOfNodes,
-                         QString directoryPath,
-                         Cluster* parentCluster)
+                         QString directoryPath)
     : Cluster(clusterId,
-              NODECLUSTER,
-              parentCluster)
+              NODECLUSTER)
 {
-    // TODO
-    QString path = "/tmp/poi" + QString::number(clusterId);
+    QString path = directoryPath + "/cluster_" + QString::number(clusterId.x)
+                                         + "_" + QString::number(clusterId.y)
+                                         + "_" + QString::number(clusterId.z);
     m_buffer = new Persistence::IOBuffer(path);
     m_buffer->allocateBlocks(1);
 
@@ -32,11 +32,6 @@ NodeCluster::NodeCluster(quint32 clusterId,
 
     m_buffer->allocateBlocks(getMetaData()->numberOfNodeBlocks
                              + getMetaData()->numberOfEdgeBlocks);
-
-    /*for(int i = 0; i < 7; i++) {
-        m_borderConnections[i] = KyoChanNetwork::m_mq->createClient(clusterId,
-                                                                    i);
-    }*/
 }
 
 /**
@@ -104,6 +99,14 @@ void NodeCluster::syncEdgeSections(quint32 startSection, quint32 endSection)
     startSection += getMetaData()->positionOfEdgeBlock;
     endSection += getMetaData()->positionOfEdgeBlock;
     m_buffer->syncBlocks(startSection, endSection);
+}
+
+/**
+ * @brief NodeCluster::processCluster
+ */
+void NodeCluster::processCluster()
+{
+
 }
 
 }

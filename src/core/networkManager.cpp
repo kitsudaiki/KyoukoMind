@@ -1,8 +1,8 @@
 #include <core/networkManager.h>
 #include <core/cluster/clusterHandler.h>
 #include <core/cluster/cluster.h>
-#include <persistence/initialFileInput.h>
-#include <persistence/config.h>
+#include <settings/initialFileInput.h>
+#include <settings/config.h>
 #include <KyoChanNetwork.h>
 
 namespace KyoChan_Network

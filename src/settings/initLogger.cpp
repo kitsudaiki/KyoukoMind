@@ -1,7 +1,7 @@
-#include <persistence/initLogger.h>
+#include <settings/initLogger.h>
 
 #include <KyoChanNetwork.h>
-#include <persistence/config.h>
+#include <settings/config.h>
 #include <log/logger.h>
 
 namespace KyoChan_Network

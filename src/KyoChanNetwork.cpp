@@ -1,6 +1,6 @@
 #include <KyoChanNetwork.h>
 #include <core/networkManager.h>
-#include <persistence/initLogger.h>
+
 
 namespace KyoChan_Network
 {

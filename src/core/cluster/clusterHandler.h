@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector>
 #include <QMap>
+#include <common/structs.h>
 
 namespace KyoChan_Network
 {
@@ -15,11 +16,11 @@ class ClusterManager
 public:
     ClusterManager();
 
-    bool addCluster(const quint32 clusterId, Cluster* cluster);
-    Cluster* getCluster(const quint32 clusterId);
+    bool addCluster(const ClusterID clusterId, Cluster* cluster);
+    Cluster* getCluster(const ClusterID clusterId);
 
 private:
-    QMap<quint32, Cluster*> m_allClusters;
+    QMap<ClusterID, Cluster*> m_allClusters;
 };
 
 }

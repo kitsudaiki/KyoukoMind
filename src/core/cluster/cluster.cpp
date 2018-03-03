@@ -8,19 +8,12 @@ namespace KyoChan_Network
  * @brief Cluster::Cluster
  * @param clusterId
  * @param clusterType
- * @param parentCluster
  */
-Cluster::Cluster(quint32 clusterId,
-                 ClusterType clusterType,
-                 Cluster *parentCluster)
+Cluster::Cluster(ClusterID clusterId,
+                 ClusterType clusterType)
 {
     m_clusterId = clusterId;
     m_clusterType = clusterType;
-    m_parentCluster = parentCluster;
-
-    if(m_parentCluster != nullptr) {
-        m_clusterLevel = m_parentCluster->getClusterLevel() + 1;
-    }
 }
 
 /**
@@ -32,32 +25,10 @@ Cluster::~Cluster()
 }
 
 /**
- * @brief Cluster::getChildCluster
- * @param clusterId
- * @return
- */
-Cluster *Cluster::getChildCluster(quint8 clusterId)
-{
-    if(clusterId > 7) {
-        return nullptr;
-    }
-    return m_childClusterIds[clusterId];
-}
-
-/**
- * @brief Cluster::getParentCluster
- * @return
- */
-Cluster *Cluster::getParentCluster()
-{
-    return m_parentCluster;
-}
-
-/**
  * @brief Cluster::getClusterId
  * @return
  */
-quint32 Cluster::getClusterId() const
+ClusterID Cluster::getClusterId() const
 {
     return m_clusterId;
 }
@@ -72,15 +43,6 @@ ClusterType Cluster::getClusterType() const
 }
 
 /**
- * @brief Cluster::getClusterLevel
- * @return
- */
-quint16 Cluster::getClusterLevel() const
-{
-    return m_clusterLevel;
-}
-
-/**
  * @brief Cluster::addNeighbor
  * @param clusterId
  * @param side
@@ -92,8 +54,8 @@ bool Cluster::addNeighbor(const quint8 side, const quint32 targetId)
         return false;
     }
 
-    getMetaData()->neighors[side] = targetId;
-    m_buffer->syncBlocks(0, 0);
+    //getMetaData()->neighors[side] = targetId;
+    //m_buffer->syncBlocks(0, 0);
     return true;
 }
 
@@ -101,9 +63,9 @@ bool Cluster::addNeighbor(const quint8 side, const quint32 targetId)
  * @brief Cluster::getMetaData
  * @return
  */
-KyoChanMetaData *Cluster::getMetaData()
+CluserMetaData *Cluster::getMetaData()
 {
-    return (KyoChanMetaData*)m_buffer->getBlock(0);
+    return (CluserMetaData*)m_buffer->getBlock(0);
 }
 
 

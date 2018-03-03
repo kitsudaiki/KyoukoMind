@@ -2,6 +2,7 @@ QT += core
 QT += sql
 QT += xml
 QT += testlib
+QT += network
 QT -= gui
 
 CONFIG += c++11
@@ -32,42 +33,44 @@ INCLUDEPATH += $$PWD \
             src
 
 SOURCES += main.cpp \
+            src/KyoChanNetwork.cpp \
             src/core/cluster/cluster.cpp \
-            src/core/networkManager.cpp \
             src/core/cluster/emptyCluster.cpp \
             src/core/cluster/nodeCluster.cpp \
             src/core/cluster/edgeCluster.cpp \
+            src/core/cluster/clusterHandler.cpp \
             src/core/processing/cpuProcessingUnit.cpp \
             src/core/processing/processingUnit.cpp \
-            src/KyoChanNetwork.cpp \
-            src/core/cluster/clusterHandler.cpp \
             src/core/processing/processingUnitHandler.cpp \
-            src/persistence/initLogger.cpp \
-            src/persistence/initialFileInput.cpp \
-            src/persistence/database.cpp \
-            src/persistence/config.cpp \
+            src/core/networkManager.cpp \
+            src/settings/initLogger.cpp \
+            src/settings/initialFileInput.cpp \
+            src/settings/database.cpp \
+            src/settings/config.cpp \
             src/control/statusreporter.cpp \
-            tests/clusterTest.cpp
+            tests/clusterTest.cpp \
+    src/core/messaging/messageQueue.cpp
 
 HEADERS +=\
-            src/core/cluster/cluster.h \
-            src/core/networkManager.h \
             src/common/typedefs.h \
+            src/common/structs.h \
+            src/KyoChanNetwork.h \
+            src/core/cluster/clusterHandler.h \
+            src/core/cluster/cluster.h \
             src/core/cluster/emptyCluster.h \
             src/core/cluster/nodeCluster.h \
             src/core/cluster/edgeCluster.h \
+            src/core/networkManager.h \
             src/core/processing/processingUnit.h \
             src/core/processing/cpuProcessingUnit.h \
-            src/KyoChanNetwork.h \
-            src/core/cluster/clusterHandler.h \
             src/core/processing/processingUnitHandler.h \
-            src/common/structs.h \
-            src/persistence/initLogger.h \
-            src/persistence/initialFileInput.h \
-            src/persistence/database.h \
-            src/persistence/config.h \
+            src/settings/initLogger.h \
+            src/settings/initialFileInput.h \
+            src/settings/database.h \
+            src/settings/config.h \
             src/control/statusreporter.h \
-            tests/clusterTest.h
+            tests/clusterTest.h \
+    src/core/messaging/messageQueue.h
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

@@ -8,7 +8,7 @@ ClusterManager::ClusterManager()
 
 }
 
-bool ClusterManager::addCluster(const quint32 clusterId, Cluster *cluster)
+bool ClusterManager::addCluster(const ClusterID clusterId, Cluster *cluster)
 {
     if(m_allClusters.contains(clusterId)) {
         return false;
@@ -17,7 +17,7 @@ bool ClusterManager::addCluster(const quint32 clusterId, Cluster *cluster)
     return true;
 }
 
-Cluster *ClusterManager::getCluster(const quint32 clusterId)
+Cluster *ClusterManager::getCluster(const ClusterID clusterId)
 {
     return  m_allClusters.value(clusterId, nullptr);
 }

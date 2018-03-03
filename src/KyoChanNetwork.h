@@ -6,9 +6,11 @@
 #include <QString>
 #include <QHash>
 #include <link.h>
-#include <persistence/config.h>
 #include <log/logger.h>
-#include <persistence/database.h>
+#include <settings/config.h>
+#include <settings/database.h>
+#include <settings/initLogger.h>
+
 
 namespace KyoChan_Network
 {

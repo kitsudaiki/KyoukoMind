@@ -11,8 +11,9 @@ class EdgeCluster : public Cluster
     Q_OBJECT
 
 public:
-    EdgeCluster(quint32 clusterId,
-                Cluster* parentCluster = nullptr);
+    EdgeCluster(ClusterID clusterId);
+
+    void processCluster();
 
 };
 
