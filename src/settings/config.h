@@ -22,6 +22,7 @@ public:
     int getNumberOfNodes(bool *ok) const;
     int getPort(bool *ok) const;
     QString getDirectoryPath(bool *ok) const;
+    QString getInitialFilePath(bool *ok) const;
 
     //cpu
     int getNumberOfThreads(bool *ok) const;

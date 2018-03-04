@@ -62,9 +62,9 @@ bool Cluster::addNeighbor(const quint8 side, const Neighbor target)
  * @brief Cluster::getMetaData
  * @return
  */
-CluserMetaData *Cluster::getMetaData()
+ClusterMetaData *Cluster::getMetaData()
 {
-    return (CluserMetaData*)m_buffer->getBlock(0);
+    return (ClusterMetaData*)m_buffer->getBlock(0);
 }
 
 /**

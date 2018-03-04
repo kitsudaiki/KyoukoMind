@@ -41,7 +41,7 @@ struct Neighbor
     quint32 numberOfConnections = 0;
 } __attribute__((packed));
 
-struct CluserMetaData
+struct ClusterMetaData
 {
     ClusterID clusterId;
     ClusterType clusterType = EMPTYCLUSTER;

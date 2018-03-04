@@ -45,7 +45,7 @@ int Config::getNumberOfNodes(bool *ok) const
 int Config::getPort(bool *ok) const
 {
     return m_configFile->getInt("port",
-                                QStringList()<<"GENERAL",
+                                QStringList()<<"NETWORK",
                                 ok);
 }
 
@@ -62,6 +62,18 @@ QString Config::getDirectoryPath(bool *ok) const
 }
 
 /**
+ * @brief Config::getInitialFilePath
+ * @param ok
+ * @return
+ */
+QString Config::getInitialFilePath(bool *ok) const
+{
+    return m_configFile->getEntry("initial_file_path",
+                                  QStringList()<<"GENERAL",
+                                  ok);
+}
+
+/**
  * @brief Config::getIpAdresses
  * @param ok
  * @return
@@ -69,7 +81,7 @@ QString Config::getDirectoryPath(bool *ok) const
 QStringList Config::getIpAdresses(bool *ok) const
 {
     return m_configFile->getStringList("ips",
-                                       QStringList()<<"GENERAL",
+                                       QStringList()<<"NETWORK",
                                        ok);
 }
 

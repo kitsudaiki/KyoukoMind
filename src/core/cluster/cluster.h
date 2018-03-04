@@ -29,7 +29,7 @@ public:
     bool addNeighbor(const quint8 side, const Neighbor target);
 
     // get network-pointer from buffer
-    CluserMetaData* getMetaData();
+    ClusterMetaData* getMetaData();
     ClusterID convertId(const quint32 clusterId);
 
 private:
