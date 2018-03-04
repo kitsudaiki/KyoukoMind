@@ -13,12 +13,6 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-
-LIBS += -L../libCrypto -lCrypto
-LIBS += -L../libCrypto/debug -lCrypto
-LIBS += -L../libCrypto/release -lCrypto
-INCLUDEPATH += ../libCrypto/include/libCrypto
-
 LIBS += -L../libPersistence -lPersistence
 LIBS += -L../libPersistence/debug -lPersistence
 LIBS += -L../libPersistence/release -lPersistence
@@ -70,7 +64,8 @@ HEADERS +=\
             src/settings/config.h \
             src/control/statusreporter.h \
             tests/clusterTest.h \
-    src/core/messaging/messageQueue.h
+    src/core/messaging/messageQueue.h \
+    src/common/enums.h
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

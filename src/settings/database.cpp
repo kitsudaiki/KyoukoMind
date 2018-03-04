@@ -9,7 +9,7 @@ namespace KyoukoMind
  * @brief DatabaseController::DatabaseController
  * @param conf
  */
-DatabaseController::DatabaseController(Config *conf)
+Database::Database(Config *conf)
 {
     //TODO: db-name richtig setzen
     bool ok;
@@ -30,7 +30,7 @@ DatabaseController::DatabaseController(Config *conf)
 /**
  * @brief DatabaseController::~DatabaseController
  */
-DatabaseController::~DatabaseController()
+Database::~Database()
 {
     m_dbConnection->deleteLater();
 }
@@ -40,7 +40,7 @@ DatabaseController::~DatabaseController()
  * @param content
  * @return
  */
-bool DatabaseController::writeLogToDatabase(const QString &content)
+bool Database::writeLogToDatabase(const QString &content)
 {
     //TODO
     return false;
@@ -49,7 +49,7 @@ bool DatabaseController::writeLogToDatabase(const QString &content)
 /**
  * @brief DatabaseController::initClusterDatabase
  */
-void DatabaseController::initClusterDatabase()
+void Database::initClusterDatabase()
 {
     QString command;
     command.sprintf("CREATE TABLE IF NOT EXISTS cluster ("
@@ -65,7 +65,7 @@ void DatabaseController::initClusterDatabase()
  * @param clusterId
  * @return
  */
-bool DatabaseController::containsClusterId(const quint32 clusterId)
+bool Database::containsClusterId(const quint32 clusterId)
 {
     QString command;
     command.sprintf("SELECT id FROM cluster WHERE %i = id;", clusterId);
@@ -86,7 +86,7 @@ bool DatabaseController::containsClusterId(const quint32 clusterId)
  * @param ip
  * @return
  */
-bool DatabaseController::addCluster(const quint32 clusterId, const QString &ip)
+bool Database::addCluster(const quint32 clusterId, const QString &ip)
 {
     if(containsClusterId(clusterId)) {
         return false;
@@ -108,7 +108,7 @@ bool DatabaseController::addCluster(const quint32 clusterId, const QString &ip)
  * @param clusterId
  * @return
  */
-QString DatabaseController::getClusterIp(const quint32 clusterId)
+QString Database::getClusterIp(const quint32 clusterId)
 {
     QString ip = "";
     if(!containsClusterId(clusterId)) {
@@ -134,7 +134,7 @@ QString DatabaseController::getClusterIp(const quint32 clusterId)
  * @param value
  * @return
  */
-QString DatabaseController::stringToDbValue(const QString &value) const
+QString Database::stringToDbValue(const QString &value) const
 {
     if (value.isNull()) {
         return "NULL";

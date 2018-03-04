@@ -17,16 +17,16 @@ namespace KyoukoMind
 
 class NetworkManager;
 
-class KyoChanNetwork : public QObject
+class KyoukoNetwork : public QObject
 {
     Q_OBJECT
 
 public:
-    KyoChanNetwork(const QString &configPath);
+    KyoukoNetwork(const QString &configPath);
 
     static KyoukoMind::Config *m_config;
     static Persistence::Logger *m_logger;
-    static KyoukoMind::DatabaseController *m_dbCon;
+    static KyoukoMind::Database *m_db;
 
 private:
     NetworkManager *m_netThreadManager = nullptr;

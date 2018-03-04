@@ -12,9 +12,6 @@ class EdgeCluster : public Cluster
 
 public:
     EdgeCluster(ClusterID clusterId);
-
-    void processCluster();
-
 };
 
 }

@@ -11,16 +11,11 @@ class NodeCluster : public Cluster
     Q_OBJECT
 
 public:
-    NodeCluster(ClusterID clusterId,
-                quint32 numberOfNodes,
-                QString directoryPath = "");
+    NodeCluster(const ClusterID clusterId,
+                const QString directoryPath,
+                const quint32 numberOfNodes);
+    NodeCluster(const ClusterID clusterId, const QString directoryPath);
     ~NodeCluster();
-
-    void processCluster();
-
-private:
-    // node-stuff
-    KyoChanNode* m_nodes = nullptr;
 
     quint32 getNumberOfEdgeBlocks();
     KyoChanEdgeSection *getEdgeBlock();
@@ -28,6 +23,13 @@ private:
                           quint32 endSection = 0);
     quint32 getNumberOfNodeBlocks();
     KyoChanNode* getNodeBlock();
+
+private:
+    // node-stuff
+    KyoChanNode* m_nodes = nullptr;
+
+    void initFile(const ClusterID clusterId,
+                  const QString directoryPath);
 };
 
 }

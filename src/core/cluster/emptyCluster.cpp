@@ -10,9 +10,4 @@ EmptyCluster::EmptyCluster(ClusterID clusterId)
 
 }
 
-void EmptyCluster::processCluster()
-{
-
-}
-
 }

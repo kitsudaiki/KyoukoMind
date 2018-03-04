@@ -17,30 +17,30 @@ Persistence::Logger* Logger::initLogger(bool *ok)
     Persistence::Logger* logger = nullptr;
 
     //read config for standard-output
-    bool useStdOutput = KyoChanNetwork::m_config->useStdOutputForLogging(ok);
+    bool useStdOutput = KyoukoNetwork::m_config->useStdOutputForLogging(ok);
 
     //read config for file-output
-    bool useFileOutput = KyoChanNetwork::m_config->useFileForLogging(ok);
+    bool useFileOutput = KyoukoNetwork::m_config->useFileForLogging(ok);
     QString dir = "";
     QString name = "";
     if(useFileOutput)
     {
-        dir = KyoChanNetwork::m_config->getLogFileDirPath(ok);
+        dir = KyoukoNetwork::m_config->getLogFileDirPath(ok);
         if(*ok == false) {
             return nullptr;
         }
-        name = KyoChanNetwork::m_config->getLogFileName(ok);
+        name = KyoukoNetwork::m_config->getLogFileName(ok);
         if(*ok == false) {
             return nullptr;
         }
     }
 
     //read config for database-output
-    bool useDbOutput = KyoChanNetwork::m_config->useDatabaseForLogging(ok);
+    bool useDbOutput = KyoukoNetwork::m_config->useDatabaseForLogging(ok);
     QStringList databaseCon;
     if(useDbOutput)
     {
-        databaseCon = KyoChanNetwork::m_config->getDatabaseConnection(ok);
+        databaseCon = KyoukoNetwork::m_config->getDatabaseConnection(ok);
         if(*ok == false)
         {
             return nullptr;
@@ -51,7 +51,7 @@ Persistence::Logger* Logger::initLogger(bool *ok)
     QStringList logLevels;
     if(useStdOutput || useFileOutput || useDbOutput)
     {
-        logLevels = KyoChanNetwork::m_config->getLogLevels(ok);
+        logLevels = KyoukoNetwork::m_config->getLogLevels(ok);
         if(*ok == false) {
             return nullptr;
         }

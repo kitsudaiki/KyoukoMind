@@ -15,11 +15,11 @@ namespace KyoukoMind
 
 class Config;
 
-class DatabaseController
+class Database
 {
 public:
-    DatabaseController(Config *conf);
-    ~DatabaseController();
+    Database(Config *conf);
+    ~Database();
 
     bool writeLogToDatabase(const QString &content);
 

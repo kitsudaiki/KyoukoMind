@@ -13,7 +13,6 @@ namespace KyoukoMind
  */
 NetworkManager::NetworkManager()
 {
-    bool ok = false;
     initNodeNetwork();
 }
 

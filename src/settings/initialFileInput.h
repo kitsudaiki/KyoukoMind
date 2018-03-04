@@ -10,14 +10,16 @@
 namespace KyoukoMind
 {
 
-class ClusterManager;
+class ClusterHandler;
 
 class InitialFileInput
 {
 public:
     InitialFileInput();
 
-    bool readInitialFile(QString filePath, ClusterManager *clusterManager);
+    bool readInitialFile(const QString filePath,
+                         ClusterHandler *clusterManager,
+                         const QString directoryPath);
 
 };
 

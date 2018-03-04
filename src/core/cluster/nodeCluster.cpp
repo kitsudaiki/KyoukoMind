@@ -9,20 +9,16 @@ namespace KyoukoMind
 /**
  * @brief NodeCluster::NodeCluster
  * @param clusterId
- * @param numberOfNodes
  * @param directoryPath
- * @param parentCluster
+ * @param numberOfNodes
  */
-NodeCluster::NodeCluster(ClusterID clusterId,
-                         quint32 numberOfNodes,
-                         QString directoryPath)
+NodeCluster::NodeCluster(const ClusterID clusterId,
+                         const QString directoryPath,
+                         const quint32 numberOfNodes)
     : Cluster(clusterId,
               NODECLUSTER)
 {
-    QString path = directoryPath + "/cluster_" + QString::number(clusterId.x)
-                                         + "_" + QString::number(clusterId.y)
-                                         + "_" + QString::number(clusterId.z);
-    m_buffer = new Persistence::IOBuffer(path);
+    initFile(clusterId, directoryPath);
     m_buffer->allocateBlocks(1);
 
     getMetaData()->numberOfNodes = numberOfNodes;
@@ -35,6 +31,18 @@ NodeCluster::NodeCluster(ClusterID clusterId,
 }
 
 /**
+ * @brief NodeCluster::NodeCluster
+ * @param filePath
+ */
+NodeCluster::NodeCluster(const ClusterID clusterId,
+                         const QString directoryPath)
+    : Cluster(clusterId,
+              NODECLUSTER)
+{
+    initFile(clusterId, directoryPath);
+}
+
+/**
  * @brief NodeCluster::~NodeCluster
  */
 NodeCluster::~NodeCluster()
@@ -43,6 +51,21 @@ NodeCluster::~NodeCluster()
         m_buffer->closeBuffer();
         m_buffer = nullptr;
     }
+}
+
+/**
+ * @brief NodeCluster::initFile
+ * @param clusterId
+ * @param directoryPath
+ */
+void NodeCluster::initFile(const ClusterID clusterId,
+                           const QString directoryPath)
+{
+    QString filePath = directoryPath
+                     + "/cluster_" + QString::number(clusterId.x)
+                             + "_" + QString::number(clusterId.y)
+                             + "_" + QString::number(clusterId.z);
+    m_buffer = new Persistence::IOBuffer(filePath);
 }
 
 /**
@@ -88,7 +111,8 @@ KyoChanEdgeSection *NodeCluster::getEdgeBlock()
  * @param startSection
  * @param endSection
  */
-void NodeCluster::syncEdgeSections(quint32 startSection, quint32 endSection)
+void NodeCluster::syncEdgeSections(quint32 startSection,
+                                   quint32 endSection)
 {
     if(endSection >= getNumberOfEdgeBlocks()){
         endSection = getNumberOfEdgeBlocks() - 1;
@@ -99,14 +123,6 @@ void NodeCluster::syncEdgeSections(quint32 startSection, quint32 endSection)
     startSection += getMetaData()->positionOfEdgeBlock;
     endSection += getMetaData()->positionOfEdgeBlock;
     m_buffer->syncBlocks(startSection, endSection);
-}
-
-/**
- * @brief NodeCluster::processCluster
- */
-void NodeCluster::processCluster()
-{
-
 }
 
 }

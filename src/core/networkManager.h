@@ -11,7 +11,7 @@ namespace KyoukoMind
 
 class NetIO;
 class Config;
-class ClusterManager;
+class ClusterHandler;
 
 class NetworkManager : public QObject
 {
@@ -28,7 +28,7 @@ signals:
     void processNetwork_Signal();
 
 private:
-    ClusterManager* m_clusterManager = nullptr;
+    ClusterHandler* m_clusterManager = nullptr;
     quint32 m_numberOfThreads = 0;
     QThread *m_thread = nullptr;
     NetIO *m_netIO = nullptr;

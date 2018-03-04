@@ -12,9 +12,6 @@ class EmptyCluster : public Cluster
 
 public:
     EmptyCluster(ClusterID clusterId);
-
-    void processCluster();
-
 };
 
 }

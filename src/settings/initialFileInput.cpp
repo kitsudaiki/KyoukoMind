@@ -20,25 +20,32 @@ InitialFileInput::InitialFileInput()
  * @param clusterManager
  * @return
  */
-bool InitialFileInput::readInitialFile(QString filePath, ClusterManager* clusterManager)
+bool InitialFileInput::readInitialFile(const QString filePath,
+                                       ClusterHandler* clusterManager,
+                                       const QString directoryPath)
 {
-    ClusterID clusterId;
     bool ok = false;
-    quint32 nodeNumberPerCluster = KyoChanNetwork::m_config->getNumberOfNodes(&ok);
-
-    QMap<QPair<int, int>, ClusterID> m_clusterStructure;
+    quint32 nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes(&ok);
 
     QFile initialFile(filePath);
     QByteArray content = initialFile.readAll();
     content = content.replace(" ", "");
     QList<QByteArray> allLines = content.split('\n');
 
-    for(int i = 0; i < allLines.size(); i++)
+
+    for(int lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
     {
-        QList<QByteArray> splittedLine = allLines[i].split('|');
-        for(int j = 0; j < splittedLine.size(); j++)
+        QList<QByteArray> splittedLine = allLines[lineNumber].split('|');
+        for(int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
-            int number = splittedLine[j].toInt();
+            int number = splittedLine[linePartNumber].toInt();
+
+            ClusterID clusterId;
+            clusterId.x = lineNumber;
+            clusterId.y = linePartNumber;
+            // TODO: add z-dimension
+            clusterId.z = 0;
+
             Cluster* cluster = nullptr;
             switch (number) {
             case 0:
@@ -48,30 +55,13 @@ bool InitialFileInput::readInitialFile(QString filePath, ClusterManager* cluster
                 cluster = new EdgeCluster(clusterId);
                 break;
             case 2:
-                cluster = new NodeCluster(clusterId, nodeNumberPerCluster);
+                cluster = new NodeCluster(clusterId, directoryPath, nodeNumberPerCluster);
                 break;
             default:
                 cluster = new EmptyCluster(clusterId);
                 break;
             }
-            m_clusterStructure.insert(qMakePair(i,j), clusterId);
             clusterManager->addCluster(clusterId, cluster);
-        }
-    }
-
-    //TODO: schönere Lösung finden
-    for(int i = 0; i < allLines.size(); i++)
-    {
-        QList<QByteArray> splittedLine = allLines[i].split('|');
-        for(int j = 0; j < splittedLine.size(); j++)
-        {
-            for(int z = 0; z < 6; z++)
-            {
-                QPair<int, int> pos = qMakePair(i,j);
-            }
-
-            m_clusterStructure.insert(qMakePair(i,j), clusterId);
-            //clusterManager->addCluster(clusterId, cluster);
         }
     }
     return true;

@@ -5,15 +5,15 @@
 namespace KyoukoMind
 {
 
-Config* KyoChanNetwork::m_config = nullptr;
-Persistence::Logger* KyoChanNetwork::m_logger = nullptr;
-KyoukoMind::DatabaseController* KyoChanNetwork::m_dbCon = nullptr;
+Config* KyoukoNetwork::m_config = nullptr;
+Persistence::Logger* KyoukoNetwork::m_logger = nullptr;
+KyoukoMind::Database* KyoukoNetwork::m_db = nullptr;
 
 /**
  * @brief KyoChanNetwork::KyoChanNetwork
  * @param configPath
  */
-KyoChanNetwork::KyoChanNetwork(const QString &configPath)
+KyoukoNetwork::KyoukoNetwork(const QString &configPath)
 {
     m_config = new Config(configPath);
 
@@ -21,7 +21,7 @@ KyoChanNetwork::KyoChanNetwork(const QString &configPath)
 
     bool ok = false;
     //TODO: ok mit übergeben und überprüfen
-    m_dbCon = new KyoukoMind::DatabaseController(m_config);
+    m_db = new KyoukoMind::Database(m_config);
     Logger initLogger;
     m_logger = initLogger.initLogger(&ok);
 }

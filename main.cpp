@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    KyoukoMind::KyoChanNetwork* network = new KyoukoMind::KyoChanNetwork("../../config.ini");
+    KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../config.ini");
 
     return a.exec();
 }

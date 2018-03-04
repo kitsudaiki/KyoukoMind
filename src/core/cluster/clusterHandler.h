@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector>
 #include <QMap>
+#include <iterator>
 #include <common/structs.h>
 
 namespace KyoukoMind
@@ -11,13 +12,16 @@ namespace KyoukoMind
 
 class Cluster;
 
-class ClusterManager
+class ClusterHandler
 {
 public:
-    ClusterManager();
+    ClusterHandler();
+    ~ClusterHandler();
 
     bool addCluster(const ClusterID clusterId, Cluster* cluster);
     Cluster* getCluster(const ClusterID clusterId);
+    bool deleteCluster(const ClusterID clusterId);
+    void clearAllCluster();
 
 private:
     QMap<ClusterID, Cluster*> m_allClusters;

@@ -10,9 +10,4 @@ EdgeCluster::EdgeCluster(ClusterID clusterId)
 
 }
 
-void EdgeCluster::processCluster()
-{
-
-}
-
 }

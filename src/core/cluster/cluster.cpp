@@ -67,6 +67,14 @@ CluserMetaData *Cluster::getMetaData()
     return (CluserMetaData*)m_buffer->getBlock(0);
 }
 
+/**
+ * @brief Cluster::convertId
+ * @param clusterId
+ * @return
+ */
+ClusterID Cluster::convertId(const quint32 clusterId)
+{
 
+}
 
 }

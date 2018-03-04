@@ -11,11 +11,6 @@ namespace Persistence
 class IOBuffer;
 }
 
-namespace KyoChanMQ
-{
-class KyoChanMqClient;
-}
-
 namespace KyoukoMind
 {
 
@@ -35,9 +30,7 @@ public:
 
     // get network-pointer from buffer
     CluserMetaData* getMetaData();
-
-    virtual void processCluster() = 0;
-
+    ClusterID convertId(const quint32 clusterId);
 
 private:
     // cluster-metadata

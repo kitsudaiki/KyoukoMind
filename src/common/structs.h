@@ -2,13 +2,7 @@
 #define STRUCTS_H
 
 #include <QObject>
-
-enum ClusterType
-{
-    EMPTYCLUSTER = 0,
-    EDGECLUSTER = 1,
-    NODECLUSTER = 2
-};
+#include <common/enums.h>
 
 struct ClusterID
 {
@@ -31,19 +25,26 @@ struct ClusterID
         }
         return false;
     }
+    bool operator=(const ClusterID& rhs) const
+    {
+        if (x == rhs.x && y == rhs.y && z == rhs.z) {
+           return true;
+        }
+        return false;
+    }
 } __attribute__((packed));
 
 struct Neighbor
 {
-    ClusterID clusterId;
-    quint32 targetId = 0;
-    ClusterType neighborType = EDGECLUSTER;
+    ClusterID targetClusterId;
+    ClusterType neighborType = EMPTYCLUSTER;
+    quint32 numberOfConnections = 0;
 } __attribute__((packed));
 
 struct CluserMetaData
 {
     ClusterID clusterId;
-    ClusterType clusterType = EDGECLUSTER;
+    ClusterType clusterType = EMPTYCLUSTER;
     Neighbor neighors[9];
     quint32 numberOfNodes = 0;
     quint32 positionNodeBlock = 0;
@@ -56,6 +57,15 @@ struct CluserMetaData
 struct KyoChanEdge
 {
     float weight = 0.0;
+    quint32 targetClusterId = 0;
+    quint16 targetNodeId = 0;
+} __attribute__((packed));
+
+struct KyoChanNewEdge
+{
+    float weight = 0.0;
+    quint32 sourceClusterId = 0;
+    quint16 sourceNodeId = 0;
     quint32 targetClusterId = 0;
     quint16 targetNodeId = 0;
 } __attribute__((packed));
@@ -85,6 +95,11 @@ struct KyoChanAxon
     float currentState = 0;
     float nodePosInCluster[3];
 } __attribute__((packed));
+
+struct KyoChanMessage
+{
+
+};
 
 
 #endif // STRUCTS_H
