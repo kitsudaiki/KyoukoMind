@@ -1,6 +1,7 @@
 #ifndef INITIALFILEINPUT_H
 #define INITIALFILEINPUT_H
 
+#include <QObject>
 #include <QString>
 #include <QFile>
 #include <QByteArray>

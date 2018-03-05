@@ -12,14 +12,11 @@ namespace KyoukoMind
 Database::Database(Config *conf)
 {
     //TODO: db-name richtig setzen
-    bool ok;
-    QStringList dbData = conf->getDatabaseConnection(&ok);
+    bool ok = true;
+    //QStringList dbData = conf->getDatabaseConnection(&ok);
     if(ok) {
-        m_dbConnection = new Persistence::DatabaseConnection(dbData.at(0),
-                                                             dbData.at(1),
-                                                             dbData.at(2),
-                                                             dbData.at(3),
-                                                             dbData.at(4),
+        // TODO: connection-datas from config-file
+        m_dbConnection = new Persistence::DatabaseConnection("QSQLITE", "/tmp/database"
                                                              "db");
     }
     assert(m_dbConnection->isInit());

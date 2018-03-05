@@ -11,7 +11,8 @@ class EdgeCluster : public Cluster
     Q_OBJECT
 
 public:
-    EdgeCluster(ClusterID clusterId);
+    EdgeCluster(ClusterID clusterId,
+                const QString directoryPath);
 };
 
 }

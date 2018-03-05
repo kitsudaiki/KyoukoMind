@@ -16,18 +16,11 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
                          const QString directoryPath,
                          const quint32 numberOfNodes)
     : Cluster(clusterId,
-              NODECLUSTER)
+              NODECLUSTER,
+              directoryPath,
+              numberOfNodes)
 {
-    initFile(clusterId, directoryPath);
-    m_buffer->allocateBlocks(1);
 
-    getMetaData()->numberOfNodes = numberOfNodes;
-    getMetaData()->numberOfNodes = numberOfNodes;
-    getMetaData()->numberOfNodeBlocks = (numberOfNodes/4) + 1;
-    getMetaData()->numberOfEdgeBlocks = (numberOfNodes/4) + 1;
-
-    m_buffer->allocateBlocks(getMetaData()->numberOfNodeBlocks
-                             + getMetaData()->numberOfEdgeBlocks);
 }
 
 /**
@@ -37,9 +30,10 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
 NodeCluster::NodeCluster(const ClusterID clusterId,
                          const QString directoryPath)
     : Cluster(clusterId,
-              NODECLUSTER)
+              NODECLUSTER,
+              directoryPath,
+              0)
 {
-    initFile(clusterId, directoryPath);
 }
 
 /**
@@ -54,27 +48,12 @@ NodeCluster::~NodeCluster()
 }
 
 /**
- * @brief NodeCluster::initFile
- * @param clusterId
- * @param directoryPath
- */
-void NodeCluster::initFile(const ClusterID clusterId,
-                           const QString directoryPath)
-{
-    QString filePath = directoryPath
-                     + "/cluster_" + QString::number(clusterId.x)
-                             + "_" + QString::number(clusterId.y)
-                             + "_" + QString::number(clusterId.z);
-    m_buffer = new Persistence::IOBuffer(filePath);
-}
-
-/**
  * @brief NodeCluster::getNumberOfNode
  * @return
  */
 quint32 NodeCluster::getNumberOfNodeBlocks()
 {
-    return getMetaData()->numberOfNodeBlocks;
+    return m_metaData.numberOfNodeBlocks;
 }
 
 /**
@@ -83,7 +62,7 @@ quint32 NodeCluster::getNumberOfNodeBlocks()
  */
 quint32 NodeCluster::getNumberOfEdgeBlocks()
 {
-    return getMetaData()->numberOfEdgeBlocks;
+    return m_metaData.numberOfEdgeBlocks;
 }
 
 /**
@@ -92,7 +71,7 @@ quint32 NodeCluster::getNumberOfEdgeBlocks()
  */
 KyoChanNode *NodeCluster::getNodeBlock()
 {
-    quint32 positionNodeBlock = getMetaData()->positionNodeBlock;
+    quint32 positionNodeBlock = m_metaData.positionNodeBlock;
     return (KyoChanNode*)m_buffer->getBlock(positionNodeBlock);
 }
 
@@ -102,7 +81,7 @@ KyoChanNode *NodeCluster::getNodeBlock()
  */
 KyoChanEdgeSection *NodeCluster::getEdgeBlock()
 {
-    quint32 positionEdgeBlock = getMetaData()->positionOfEdgeBlock;
+    quint32 positionEdgeBlock = m_metaData.positionOfEdgeBlock;
     return (KyoChanEdgeSection*)m_buffer->getBlock(positionEdgeBlock);
 }
 
@@ -120,8 +99,8 @@ void NodeCluster::syncEdgeSections(quint32 startSection,
     if(endSection < startSection) {
         startSection = 0;
     }
-    startSection += getMetaData()->positionOfEdgeBlock;
-    endSection += getMetaData()->positionOfEdgeBlock;
+    startSection += m_metaData.positionOfEdgeBlock;
+    endSection += m_metaData.positionOfEdgeBlock;
     m_buffer->syncBlocks(startSection, endSection);
 }
 

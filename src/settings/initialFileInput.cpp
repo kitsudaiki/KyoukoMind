@@ -28,14 +28,24 @@ bool InitialFileInput::readInitialFile(const QString filePath,
     quint32 nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes(&ok);
 
     QFile initialFile(filePath);
+    if(!initialFile.open(QIODevice::ReadOnly)) {
+        return false;
+    }
     QByteArray content = initialFile.readAll();
-    content = content.replace(" ", "");
-    QList<QByteArray> allLines = content.split('\n');
-
+    QString string_content(content);
+    string_content = string_content.replace(" ", "");
+    QStringList allLines = string_content.split('\n');
 
     for(int lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
     {
-        QList<QByteArray> splittedLine = allLines[lineNumber].split('|');
+        QStringList splittedLine = allLines[lineNumber].split('|');
+        for(int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
+        {
+            if(splittedLine.at(linePartNumber).isEmpty()) {
+                splittedLine.removeAt(linePartNumber);
+                linePartNumber--;
+            }
+        }
         for(int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
             int number = splittedLine[linePartNumber].toInt();
@@ -49,16 +59,16 @@ bool InitialFileInput::readInitialFile(const QString filePath,
             Cluster* cluster = nullptr;
             switch (number) {
             case 0:
-                cluster = new EmptyCluster(clusterId);
+                cluster = new EmptyCluster(clusterId, directoryPath);
                 break;
             case 1:
-                cluster = new EdgeCluster(clusterId);
+                cluster = new EdgeCluster(clusterId, directoryPath);
                 break;
             case 2:
                 cluster = new NodeCluster(clusterId, directoryPath, nodeNumberPerCluster);
                 break;
             default:
-                cluster = new EmptyCluster(clusterId);
+                cluster = new EmptyCluster(clusterId, directoryPath);
                 break;
             }
             clusterManager->addCluster(clusterId, cluster);

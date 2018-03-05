@@ -28,8 +28,6 @@ private:
     // node-stuff
     KyoChanNode* m_nodes = nullptr;
 
-    void initFile(const ClusterID clusterId,
-                  const QString directoryPath);
 };
 
 }

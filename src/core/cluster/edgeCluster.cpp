@@ -3,9 +3,12 @@
 namespace KyoukoMind
 {
 
-EdgeCluster::EdgeCluster(ClusterID clusterId)
+EdgeCluster::EdgeCluster(ClusterID clusterId,
+                         const QString directoryPath)
     : Cluster(clusterId,
-              EDGECLUSTER)
+              EDGECLUSTER,
+              directoryPath,
+              0)
 {
 
 }

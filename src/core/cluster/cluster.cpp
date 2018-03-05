@@ -8,12 +8,30 @@ namespace KyoukoMind
  * @brief Cluster::Cluster
  * @param clusterId
  * @param clusterType
+ * @param directoryPath
+ * @param numberOfNodes
  */
 Cluster::Cluster(ClusterID clusterId,
-                 ClusterType clusterType)
+                 ClusterType clusterType,
+                 const QString directoryPath,
+                 const quint32 numberOfNodes)
 {
     m_clusterId = clusterId;
     m_clusterType = clusterType;
+
+    initFile(clusterId, directoryPath);
+    m_buffer->allocateBlocks(1);
+
+    m_metaData.numberOfNodes = numberOfNodes;
+    m_metaData.numberOfNodes = numberOfNodes;
+    if(numberOfNodes > 0) {
+        m_metaData.numberOfNodeBlocks = (numberOfNodes/4) + 1;
+        m_metaData.numberOfEdgeBlocks = (numberOfNodes/4) + 1;
+
+        m_buffer->allocateBlocks(m_metaData.numberOfNodeBlocks
+                                 + m_metaData.numberOfEdgeBlocks);
+    }
+    updateMetaData(m_metaData);
 }
 
 /**
@@ -53,18 +71,30 @@ bool Cluster::addNeighbor(const quint8 side, const Neighbor target)
     if(side > 8) {
         return false;
     }
-    getMetaData()->neighors[side] = target;
-    m_buffer->syncBlocks(0, 0);
+    m_metaData.neighors[side] = target;
+    updateMetaData(m_metaData);
     return true;
 }
 
 /**
- * @brief Cluster::getMetaData
- * @return
+ * @brief Cluster::updateMetaData
+ * @param metaData
  */
-ClusterMetaData *Cluster::getMetaData()
+void Cluster::updateMetaData(ClusterMetaData metaData)
 {
-    return (ClusterMetaData*)m_buffer->getBlock(0);
+    int size = sizeof(ClusterMetaData);
+    void* metaDataBlock = m_buffer->getBlock(0);
+    memcpy(metaDataBlock, &metaData, size);
+    m_buffer->syncBlocks(0, 0);
+}
+
+/**
+ * @brief Cluster::getMetaData
+ */
+void Cluster::getMetaData()
+{
+    ClusterMetaData* metaDataPointer = (ClusterMetaData*)m_buffer->getBlock(0);
+    m_metaData = *metaDataPointer;
 }
 
 /**
@@ -76,5 +106,21 @@ ClusterID Cluster::convertId(const quint32 clusterId)
 {
 
 }
+
+/**
+ * @brief Cluster::initFile
+ * @param clusterId
+ * @param directoryPath
+ */
+void Cluster::initFile(const ClusterID clusterId,
+                       const QString directoryPath)
+{
+    QString filePath = directoryPath
+                     + "/cluster_" + QString::number(clusterId.x)
+                             + "_" + QString::number(clusterId.y)
+                             + "_" + QString::number(clusterId.z);
+    m_buffer = new Persistence::IOBuffer(filePath);
+}
+
 
 }

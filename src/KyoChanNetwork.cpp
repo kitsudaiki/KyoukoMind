@@ -1,6 +1,7 @@
 #include <KyoChanNetwork.h>
 #include <core/networkManager.h>
-
+#include <settings/initialFileInput.h>
+#include <core/cluster/clusterHandler.h>
 
 namespace KyoukoMind
 {
@@ -19,11 +20,18 @@ KyoukoNetwork::KyoukoNetwork(const QString &configPath)
 
     m_netThreadManager = new NetworkManager();
 
-    bool ok = false;
+    ClusterHandler tempHandler;
+    KyoukoMind::InitialFileInput input;
+    input.readInitialFile("/home/neptune/Schreibtisch/Projekte/Deskchan/KyoukoMind/test_cluster",
+                          &tempHandler,
+                          "/tmp/test/");
+    ClusterID poi;
+    tempHandler.getCluster(poi);
+    //bool ok = false;
     //TODO: ok mit übergeben und überprüfen
-    m_db = new KyoukoMind::Database(m_config);
-    Logger initLogger;
-    m_logger = initLogger.initLogger(&ok);
+    //m_db = new KyoukoMind::Database(m_config);
+    //Logger initLogger;
+    //m_logger = initLogger.initLogger(&ok);
 }
 
 }

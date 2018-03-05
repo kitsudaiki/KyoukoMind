@@ -11,7 +11,8 @@ class EmptyCluster : public Cluster
     Q_OBJECT
 
 public:
-    EmptyCluster(ClusterID clusterId);
+    EmptyCluster(ClusterID clusterId,
+                 const QString directoryPath);
 };
 
 }

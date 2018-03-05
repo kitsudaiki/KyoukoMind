@@ -20,7 +20,7 @@ class Cluster : public QObject
 
 public:
     Cluster(ClusterID clusterId,
-            ClusterType clusterType);
+            ClusterType clusterType, const QString directoryPath, const quint32 numberOfNodes);
     ~Cluster();
 
     ClusterID getClusterId() const;
@@ -28,8 +28,8 @@ public:
 
     bool addNeighbor(const quint8 side, const Neighbor target);
 
-    // get network-pointer from buffer
-    ClusterMetaData* getMetaData();
+    void getMetaData();
+    void updateMetaData(ClusterMetaData metaData);
     ClusterID convertId(const quint32 clusterId);
 
 private:
@@ -39,6 +39,10 @@ private:
     
 protected:
     Persistence::IOBuffer* m_buffer = nullptr;
+    ClusterMetaData m_metaData;
+
+    void initFile(const ClusterID clusterId,
+                  const QString directoryPath);
 };
 
 }
