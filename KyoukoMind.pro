@@ -43,7 +43,8 @@ SOURCES += main.cpp \
             src/settings/config.cpp \
             src/control/statusreporter.cpp \
             tests/clusterTest.cpp \
-    src/core/messaging/messageQueue.cpp
+    src/core/messaging/messageQueue.cpp \
+    tests/test.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -65,7 +66,8 @@ HEADERS +=\
             src/control/statusreporter.h \
             tests/clusterTest.h \
     src/core/messaging/messageQueue.h \
-    src/common/enums.h
+    src/common/enums.h \
+    tests/test.h
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

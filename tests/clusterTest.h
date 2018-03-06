@@ -6,6 +6,8 @@
 #include <QtTest>
 #include <QFile>
 #include <core/cluster/nodeCluster.h>
+#include <core/cluster/edgeCluster.h>
+#include <core/cluster/emptyCluster.h>
 
 namespace KyoukoMind
 {
@@ -19,11 +21,15 @@ public:
 
 private slots:
     void initTestCase();
-    void checkSizeAfterInit();
+    void checkNodeCluster();
+    void checkEdgeCluster();
+    void checkEmptyCluster();
     void cleanupTestCase();
 
 private:
-    NodeCluster *m_cluster = nullptr;
+    NodeCluster *m_noteCluster = nullptr;
+    EdgeCluster *m_edgeCluster = nullptr;
+    EmptyCluster *m_emptyCluster = nullptr;
 };
 
 }
