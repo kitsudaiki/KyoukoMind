@@ -7,8 +7,7 @@ EmptyCluster::EmptyCluster(ClusterID clusterId,
                            const QString directoryPath)
     : Cluster(clusterId,
               EMPTYCLUSTER,
-              directoryPath,
-              0)
+              directoryPath)
 {
 
 }

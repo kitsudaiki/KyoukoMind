@@ -20,7 +20,7 @@ class Cluster : public QObject
 
 public:
     Cluster(ClusterID clusterId,
-            ClusterType clusterType, const QString directoryPath, const quint32 numberOfNodes);
+            ClusterType clusterType, const QString directoryPath);
     ~Cluster();
 
     ClusterID getClusterId() const;

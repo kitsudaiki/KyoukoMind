@@ -17,10 +17,18 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
                          const quint32 numberOfNodes)
     : Cluster(clusterId,
               NODECLUSTER,
-              directoryPath,
-              numberOfNodes)
+              directoryPath)
 {
+    m_metaData.numberOfNodes = numberOfNodes;
+    m_metaData.numberOfNodes = numberOfNodes;
 
+    quint32 blockSize = m_buffer->getBlockSize();
+    m_metaData.numberOfNodeBlocks = (numberOfNodes * sizeof(KyoChanNode)) / blockSize + 1;
+    m_metaData.numberOfEdgeBlocks = numberOfNodes;
+
+    m_buffer->allocateBlocks(m_metaData.numberOfNodeBlocks
+                             + m_metaData.numberOfEdgeBlocks);
+    updateMetaData(m_metaData);
 }
 
 /**
@@ -31,8 +39,7 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
                          const QString directoryPath)
     : Cluster(clusterId,
               NODECLUSTER,
-              directoryPath,
-              0)
+              directoryPath)
 {
 }
 

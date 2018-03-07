@@ -7,8 +7,7 @@ EdgeCluster::EdgeCluster(ClusterID clusterId,
                          const QString directoryPath)
     : Cluster(clusterId,
               EDGECLUSTER,
-              directoryPath,
-              0)
+              directoryPath)
 {
 
 }

@@ -9,29 +9,16 @@ namespace KyoukoMind
  * @param clusterId
  * @param clusterType
  * @param directoryPath
- * @param numberOfNodes
  */
 Cluster::Cluster(ClusterID clusterId,
                  ClusterType clusterType,
-                 const QString directoryPath,
-                 const quint32 numberOfNodes)
+                 const QString directoryPath)
 {
     m_clusterId = clusterId;
     m_clusterType = clusterType;
 
     initFile(clusterId, directoryPath);
     m_buffer->allocateBlocks(1);
-
-    m_metaData.numberOfNodes = numberOfNodes;
-    m_metaData.numberOfNodes = numberOfNodes;
-    if(numberOfNodes > 0) {
-        m_metaData.numberOfNodeBlocks = (numberOfNodes/4) + 1;
-        m_metaData.numberOfEdgeBlocks = (numberOfNodes/4) + 1;
-
-        m_buffer->allocateBlocks(m_metaData.numberOfNodeBlocks
-                                 + m_metaData.numberOfEdgeBlocks);
-    }
-    updateMetaData(m_metaData);
 }
 
 /**
