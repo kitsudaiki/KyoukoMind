@@ -46,6 +46,8 @@ struct ClusterMetaData
     ClusterID clusterId;
     ClusterType clusterType = EMPTYCLUSTER;
     Neighbor neighors[9];
+    Neighbor* neighors_list[9];
+    quint32 numberOfNeighbors = 1;
     quint32 numberOfNodes = 0;
     quint32 positionNodeBlock = 0;
     quint32 numberOfNodeBlocks = 0;

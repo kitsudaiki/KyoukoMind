@@ -38,7 +38,6 @@ SOURCES += main.cpp \
             src/core/processing/processingUnitHandler.cpp \
             src/core/networkManager.cpp \
             src/settings/initLogger.cpp \
-            src/settings/initialFileInput.cpp \
             src/settings/database.cpp \
             src/settings/config.cpp \
             src/control/statusreporter.cpp \
@@ -60,7 +59,6 @@ HEADERS +=\
             src/core/processing/cpuProcessingUnit.h \
             src/core/processing/processingUnitHandler.h \
             src/settings/initLogger.h \
-            src/settings/initialFileInput.h \
             src/settings/database.h \
             src/settings/config.h \
             src/control/statusreporter.h \
