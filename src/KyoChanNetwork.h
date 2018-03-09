@@ -5,11 +5,11 @@
 #include <QVector>
 #include <QString>
 #include <QHash>
+#include <QFile>
 #include <link.h>
 #include <log/logger.h>
 #include <settings/config.h>
 #include <settings/database.h>
-#include <settings/initLogger.h>
 
 
 namespace KyoukoMind
@@ -31,7 +31,7 @@ public:
 private:
     NetworkManager *m_netThreadManager = nullptr;
 
-    bool initLogger();
+    bool initLogger(bool *ok);
 };
 
 }

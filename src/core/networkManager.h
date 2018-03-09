@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QByteArray>
 #include <QMap>
+#include <QDir>
 #include <QPair>
 
 #include <common/typedefs.h>
@@ -43,8 +44,8 @@ private:
     quint32 m_mindDimensions[3];
 
     bool readInitialFile(const QString filePath,
-                         ClusterHandler *clusterManager,
-                         const QString directoryPath);
+                         const QString directoryPath,
+                         ClusterHandler *clusterManager);
 };
 }
 

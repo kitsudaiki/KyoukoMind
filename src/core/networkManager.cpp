@@ -20,6 +20,29 @@ NetworkManager::NetworkManager()
 {
     m_clusterManager = new ClusterHandler();
     m_processingUnitHandler = new ProcessingUnitHandler();
+
+    bool ok = false;
+    QString initialFile = KyoukoNetwork::m_config->getInitialFilePath(&ok);
+    QString directoryPath = KyoukoNetwork::m_config->getDirectoryPath(&ok);
+
+    QFileInfoList clusterFiles = QDir(directoryPath).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries);
+    if(clusterFiles.count() == 0)
+    {
+        KyoukoNetwork::m_logger->logDebug("init new cluster from file " + initialFile);
+        bool successfulInit = readInitialFile(initialFile,
+                                              directoryPath,
+                                              m_clusterManager);
+        if(successfulInit) {
+            KyoukoNetwork::m_logger->logError("initial File is invalid");
+        }
+        assert(successfulInit);
+    }
+    else {
+        for(quint32 i = 0; i < clusterFiles.length(); i++) {
+            QFileInfo info = clusterFiles.at(i);
+            // TODO
+        }
+    }
 }
 
 /**
@@ -27,20 +50,7 @@ NetworkManager::NetworkManager()
  */
 void NetworkManager::startLoops()
 {
-    for(unsigned int i = 0; i < m_numberOfThreads; i++)
-    {
-        //NetThread* netThread = new NetThread(i);
-        //m_netThreads.push_back(netThread);
-        //netThread->startThread();
-    }
 
-    /*m_loopEnd = chronoClock::now();
-    long timeSpan = std::chrono::duration_cast<chronoMicroSec>(m_loopEnd-m_loopStart).count();
-    long timeDiff = (1000000 / LOOP_RUNS_PER_SECOND) - timeSpan;
-    if(timeDiff > 0)
-    {
-        std::this_thread::sleep_for(chronoMicroSec(timeDiff));
-    }*/
 }
 
 /**
@@ -70,16 +80,18 @@ quint32 *NetworkManager::getMindDimension()
 /**
  * @brief NetworkManager::readInitialFile
  * @param filePath
+ * @param directoryPath
  * @param clusterManager
  * @return
  */
 bool NetworkManager::readInitialFile(const QString filePath,
-                                     ClusterHandler* clusterManager,
-                                     const QString directoryPath)
+                                     const QString directoryPath,
+                                     ClusterHandler* clusterManager)
 {
     bool ok = false;
     quint32 nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes(&ok);
 
+    // read and split the file
     QFile initialFile(filePath);
     if(!initialFile.open(QIODevice::ReadOnly)) {
         return false;
@@ -89,9 +101,13 @@ bool NetworkManager::readInitialFile(const QString filePath,
     string_content = string_content.replace(" ", "");
     QStringList allLines = string_content.split('\n');
 
+    // read the single lines
     for(int lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
     {
+        // split line
         QStringList splittedLine = allLines[lineNumber].split('|');
+
+        // remove empty entries from the list
         for(int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
             if(splittedLine.at(linePartNumber).isEmpty()) {
@@ -99,6 +115,7 @@ bool NetworkManager::readInitialFile(const QString filePath,
                 linePartNumber--;
             }
         }
+        // process the splitted line
         for(int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
             int number = splittedLine[linePartNumber].toInt();
@@ -110,19 +127,19 @@ bool NetworkManager::readInitialFile(const QString filePath,
             clusterId.z = 0;
 
             Cluster* cluster = nullptr;
+            // create cluster
             switch (number) {
-            case 0:
-                cluster = new EmptyCluster(clusterId, directoryPath);
-                break;
-            case 1:
-                cluster = new EdgeCluster(clusterId, directoryPath);
-                break;
-            case 2:
-                cluster = new NodeCluster(clusterId, directoryPath, nodeNumberPerCluster);
-                break;
-            default:
-                cluster = new EmptyCluster(clusterId, directoryPath);
-                break;
+                case 0:
+                    cluster = new EmptyCluster(clusterId, directoryPath);
+                    break;
+                case 1:
+                    cluster = new EdgeCluster(clusterId, directoryPath);
+                    break;
+                case 2:
+                    cluster = new NodeCluster(clusterId, directoryPath, nodeNumberPerCluster);
+                    break;
+                default:
+                    return false;
             }
             clusterManager->addCluster(clusterId, cluster);
         }

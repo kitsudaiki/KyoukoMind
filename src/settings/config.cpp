@@ -102,24 +102,16 @@ QStringList Config::getDatabaseConnection(bool *ok) const
     databaseCon.push_back(m_configFile->getEntry("ip",
                                   QStringList()<<"DATABASE",
                                   ok));
-    if(*ok == false) {
-        return databaseCon;
-    }
     databaseCon.push_back(m_configFile->getEntry("name",
                                   QStringList()<<"DATABASE",
                                   ok));
-    if(*ok == false) {
-        return databaseCon;
-    }
     databaseCon.push_back(m_configFile->getEntry("user",
                                   QStringList()<<"DATABASE",
                                   ok));
-    if(*ok == false) {
-        return databaseCon;
-    }
     databaseCon.push_back(m_configFile->getEntry("password",
                                   QStringList()<<"DATABASE",
                                   ok));
+    *ok = true;
     return databaseCon;
 }
 
