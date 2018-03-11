@@ -10,8 +10,8 @@ namespace KyoukoMind
  * @param clusterType
  * @param directoryPath
  */
-Cluster::Cluster(ClusterID clusterId,
-                 ClusterType clusterType,
+Cluster::Cluster(const ClusterID &clusterId,
+                 const ClusterType clusterType,
                  const QString directoryPath)
 {
     m_clusterId = clusterId;

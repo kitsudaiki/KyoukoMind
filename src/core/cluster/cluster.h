@@ -19,8 +19,9 @@ class Cluster : public QObject
     Q_OBJECT
 
 public:
-    Cluster(ClusterID clusterId,
-            ClusterType clusterType, const QString directoryPath);
+    Cluster(const ClusterID &clusterId,
+            const ClusterType clusterType,
+            const QString directoryPath);
     ~Cluster();
 
     ClusterID getClusterId() const;
@@ -34,6 +35,7 @@ public:
 
 private:
     // cluster-metadata
+    quint64 m_messageIdCounter = 0;
     ClusterID m_clusterId;
     ClusterType m_clusterType = EMPTYCLUSTER;
     

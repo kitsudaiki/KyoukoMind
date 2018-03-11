@@ -41,8 +41,14 @@ SOURCES += main.cpp \
             src/settings/config.cpp \
             src/control/statusreporter.cpp \
             tests/clusterTest.cpp \
-    src/core/messaging/messageQueue.cpp \
-    tests/test.cpp
+            src/core/messaging/messageQueue.cpp \
+            tests/test.cpp \
+            src/core/messaging/messages/message.cpp \
+            src/core/messaging/messages/datamessage.cpp \
+    src/core/messaging/messages/replymessage.cpp \
+    src/core/messaging/messages/learningmessage.cpp \
+    src/core/messaging/messages/learningreplymessage.cpp \
+    src/core/messaging/timeouthandler.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -61,11 +67,17 @@ HEADERS +=\
             src/settings/config.h \
             src/control/statusreporter.h \
             tests/clusterTest.h \
-    src/core/messaging/messageQueue.h \
-    src/common/enums.h \
-    tests/test.h
+            src/core/messaging/messageQueue.h \
+            src/common/enums.h \
+            tests/test.h \
+            src/core/messaging/messages/message.h \
+            src/core/messaging/messages/datamessage.h \
+    src/core/messaging/messages/replymessage.h \
+    src/core/messaging/messages/learningmessage.h \
+    src/core/messaging/messages/learningreplymessage.h \
+    src/core/messaging/timeouthandler.h
 
-# The following define makes your compiler emit warnings if you use
+        # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
