@@ -1,5 +1,8 @@
 #include "learningmessage.h"
 
+namespace KyoukoMind
+{
+
 /**
  * @brief LearningMessage::LearningMessage
  * @param clusterId
@@ -12,7 +15,7 @@ LearningMessage::LearningMessage(const quint32 clusterId,
     Message(clusterId, messageIdCounter, site)
 {
     m_metaData.type = LEARNINGMESSAGE;
-    m_metaData.requiredReploy = 1;
+    m_metaData.requiredReply = 1;
 }
 
 /**
@@ -52,7 +55,42 @@ QByteArray LearningMessage::convertToByteArray()
 {
     // TODO: avoid too much data-copy
     QByteArray data = convertCommonToByteArray();
-    data.append((char*)m_numberOfNewEdges, 1);
+    data.append((char*)(&m_numberOfNewEdges), 1);
     data.append((char*)m_newEdges, sizeof(KyoChanNewEdge) * m_numberOfNewEdges);
     return data;
+}
+
+/**
+ * @brief LearningMessage::addNewEdge
+ * @param newEdge
+ * @return
+ */
+bool LearningMessage::addNewEdge(const KyoChanNewEdge &newEdge)
+{
+    if(m_numberOfNewEdges < m_maxNumberOfNewEdges) {
+        m_newEdges[m_numberOfNewEdges] = newEdge;
+        m_numberOfNewEdges++;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief LearningMessage::getNumberOfEdges
+ * @return
+ */
+quint8 LearningMessage::getNumberOfEdges() const
+{
+    return m_numberOfNewEdges;
+}
+
+/**
+ * @brief LearningMessage::getNewEdges
+ * @return
+ */
+KyoChanNewEdge *LearningMessage::getNewEdges() const
+{
+    return (KyoChanNewEdge*)(&m_newEdges);
+}
+
 }

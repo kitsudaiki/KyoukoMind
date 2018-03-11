@@ -1,5 +1,8 @@
 #include "datamessage.h"
 
+namespace KyoukoMind
+{
+
 /**
  * @brief DataMessage::DataMessage
  * @param clusterId
@@ -12,7 +15,7 @@ DataMessage::DataMessage(const quint32 clusterId,
     Message(clusterId, messageIdCounter, site)
 {
     m_metaData.type = DATAMESSAGE;
-    m_metaData.requiredReploy = 1;
+    m_metaData.requiredReply = 1;
 }
 
 /**
@@ -52,7 +55,7 @@ QByteArray DataMessage::convertToByteArray()
 {
     // TODO: avoid too much data-copy
     QByteArray data = convertCommonToByteArray();
-    data.append((char*)m_numberOfEdges, 1);
+    data.append((char*)(&m_numberOfEdges), 1);
     data.append((char*)m_edges, sizeof(KyoChanEdge) * m_numberOfEdges);
     return data;
 }
@@ -70,4 +73,24 @@ bool DataMessage::addEdge(const KyoChanEdge &newEdge)
         return true;
     }
     return false;
+}
+
+/**
+ * @brief DataMessage::getNumberOfEdges
+ * @return
+ */
+quint8 DataMessage::getNumberOfEdges() const
+{
+    return m_numberOfEdges;
+}
+
+/**
+ * @brief DataMessage::getEdges
+ * @return
+ */
+KyoChanEdge *DataMessage::getEdges() const
+{
+    return (KyoChanEdge*)(&m_edges);
+}
+
 }

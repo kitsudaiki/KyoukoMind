@@ -1,5 +1,8 @@
 #include "message.h"
 
+namespace KyoukoMind
+{
+
 /**
  * @brief Message::Message
  * @param clusterId
@@ -35,6 +38,15 @@ Message::Message()
 {}
 
 /**
+ * @brief Message::metaData
+ * @return
+ */
+CommonMessageData Message::getMetaData() const
+{
+    return m_metaData;
+}
+
+/**
  * @brief Message::convertCommonToByteArray
  * @return
  */
@@ -53,4 +65,6 @@ quint32 Message::convertCommonFromByteArray(const uint8_t* data)
 {
     memcpy((void*)(&m_metaData), (void*)data, sizeof(CommonMessageData));
     return sizeof(CommonMessageData);
+}
+
 }

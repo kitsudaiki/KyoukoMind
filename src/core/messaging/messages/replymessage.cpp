@@ -1,5 +1,8 @@
 #include "replymessage.h"
 
+namespace KyoukoMind
+{
+
 /**
  * @brief ReplyMessage::ReplyMessage
  * @param messageId
@@ -10,7 +13,7 @@ ReplyMessage::ReplyMessage(const quint32 messageId,
     Message(messageId, site)
 {
     m_metaData.type = REPLYMESSAGE;
-    m_metaData.requiredReploy = 0;
+    m_metaData.requiredReply = 0;
 }
 
 /**
@@ -40,4 +43,6 @@ bool ReplyMessage::convertFromByteArray(const QByteArray &data)
 QByteArray ReplyMessage::convertToByteArray()
 {
     return convertCommonToByteArray();
+}
+
 }

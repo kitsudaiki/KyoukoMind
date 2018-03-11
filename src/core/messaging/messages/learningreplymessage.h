@@ -3,6 +3,9 @@
 
 #include "message.h"
 
+namespace KyoukoMind
+{
+
 class LearningReplyMessage : public Message
 {
 public:
@@ -13,5 +16,7 @@ public:
     bool convertFromByteArray(const QByteArray &data);
     QByteArray convertToByteArray();
 };
+
+}
 
 #endif // LEARNINGREPLYMESSAGE_H

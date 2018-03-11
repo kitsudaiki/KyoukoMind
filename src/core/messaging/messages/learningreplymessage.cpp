@@ -1,5 +1,8 @@
 #include "learningreplymessage.h"
 
+namespace KyoukoMind
+{
+
 /**
  * @brief LearningReplyMessage::LearningReplyMessage
  * @param messageId
@@ -10,7 +13,7 @@ LearningReplyMessage::LearningReplyMessage(const quint32 messageId,
     Message(messageId, site)
 {
     m_metaData.type = LEARNINGREPLYMESSAGE;
-    m_metaData.requiredReploy = 0;
+    m_metaData.requiredReply = 0;
 }
 
 /**
@@ -40,4 +43,6 @@ bool LearningReplyMessage::convertFromByteArray(const QByteArray &data)
 QByteArray LearningReplyMessage::convertToByteArray()
 {
     return convertCommonToByteArray();
+}
+
 }

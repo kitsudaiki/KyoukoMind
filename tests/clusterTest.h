@@ -5,12 +5,14 @@
 #include <QString>
 #include <QtTest>
 #include <QFile>
-#include <core/cluster/nodeCluster.h>
-#include <core/cluster/edgeCluster.h>
-#include <core/cluster/emptyCluster.h>
+
 
 namespace KyoukoMind
 {
+
+class NodeCluster;
+class EdgeCluster;
+class EmptyCluster;
 
 class ClusterTest : public QObject
 {
