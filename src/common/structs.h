@@ -66,6 +66,14 @@ struct KyoChanEdge
 struct KyoChanNewEdge
 {
     float weight = 0.0;
+    quint32 newEdgeId = 0;
+    quint32 sourceClusterId = 0;
+    quint16 sourceNodeId = 0;
+} __attribute__((packed));
+
+struct KyoChanNewEdgeReply
+{
+    quint32 newEdgeId = 0;
     quint32 sourceClusterId = 0;
     quint16 sourceNodeId = 0;
     quint32 targetClusterId = 0;
