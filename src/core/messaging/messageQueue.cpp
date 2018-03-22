@@ -5,7 +5,11 @@ namespace KyoukoMind
 
 MessageQueue::MessageQueue()
 {
-    m_networkConnection = new NetworkConnection::NetworkConnection();
+}
+
+bool MessageQueue::addMessageToQueue(Message *message)
+{
+
 }
 
 }

@@ -49,7 +49,8 @@ SOURCES += main.cpp \
     src/core/messaging/messages/learningmessage.cpp \
     src/core/messaging/messages/learningreplymessage.cpp \
     src/core/messaging/timeouthandler.cpp \
-    tests/messagetest.cpp
+    tests/messagetest.cpp \
+    src/core/messaging/messagecontroller.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -77,7 +78,8 @@ HEADERS +=\
     src/core/messaging/messages/learningmessage.h \
     src/core/messaging/messages/learningreplymessage.h \
     src/core/messaging/timeouthandler.h \
-    tests/messagetest.h
+    tests/messagetest.h \
+    src/core/messaging/messagecontroller.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
