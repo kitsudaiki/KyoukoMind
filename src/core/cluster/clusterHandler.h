@@ -1,8 +1,6 @@
 #ifndef CLUSTERQUEUE_H
 #define CLUSTERQUEUE_H
 
-#include <QVector>
-#include <QMap>
 #include <iterator>
 #include <common.h>
 
@@ -23,7 +21,7 @@ public:
     void clearAllCluster();
 
 private:
-    QMap<ClusterID, Cluster*> m_allClusters;
+    std::map<ClusterID, Cluster*> m_allClusters;
 };
 
 }

@@ -14,5 +14,7 @@
 #include <ctype.h>
 #include <algorithm>
 #include <iterator>
+#include <map>
+#include <assert.h>
 
 #endif // INCLUDES_H

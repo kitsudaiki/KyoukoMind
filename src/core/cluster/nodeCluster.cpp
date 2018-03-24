@@ -1,7 +1,6 @@
 #include <core/cluster/nodeCluster.h>
 #include <KyoChanNetwork.h>
 #include <files/ioBuffer.h>
-#include <QDebug>
 
 namespace KyoukoMind
 {

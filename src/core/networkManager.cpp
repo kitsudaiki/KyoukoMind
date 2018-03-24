@@ -51,29 +51,6 @@ NetworkManager::NetworkManager()
 }
 
 /**
- * @brief NetManager::startLoops
- */
-void NetworkManager::startLoops()
-{
-
-}
-
-/**
- * @brief NetManager::setThread
- * @param thread
- * @return
- */
-bool NetworkManager::setThread(QThread *thread)
-{
-    if(m_thread == nullptr)
-    {
-        m_thread = thread;
-        return true;
-    }
-    return false;
-}
-
-/**
  * @brief NetworkManager::getMindDimension
  * @return
  */

@@ -26,12 +26,12 @@ ClusterHandler::~ClusterHandler()
  * @param cluster
  * @return
  */
-bool ClusterHandler::addCluster(const ClusterID clusterId, Cluster *cluster)
+bool ClusterHandler::addCluster(const ClusterID clusterId, Cluster* cluster)
 {
-    if(m_allClusters.contains(clusterId)) {
+    if(m_allClusters.find(clusterId) != m_allClusters.end()) {
         return false;
     }
-    m_allClusters.insert(clusterId, cluster);
+    m_allClusters.insert(std::pair<ClusterID, Cluster*>(clusterId, cluster));
     return true;
 }
 
@@ -42,7 +42,10 @@ bool ClusterHandler::addCluster(const ClusterID clusterId, Cluster *cluster)
  */
 Cluster *ClusterHandler::getCluster(const ClusterID clusterId)
 {
-    return m_allClusters.value(clusterId, nullptr);
+    if(m_allClusters.find(clusterId) != m_allClusters.end()) {
+        return m_allClusters.find(clusterId)->second;
+    }
+    return nullptr;
 }
 
 /**
@@ -52,13 +55,13 @@ Cluster *ClusterHandler::getCluster(const ClusterID clusterId)
  */
 bool ClusterHandler::deleteCluster(const ClusterID clusterId)
 {
-    if(m_allClusters.contains(clusterId)) {
-        return false;
+    std::map<ClusterID, Cluster*>::iterator it;
+    it = m_allClusters.find(clusterId);
+    if(it != m_allClusters.end()) {
+        m_allClusters.erase(it);
+        return true;
     }
-    Cluster* tempCluster = m_allClusters.value(clusterId);
-    m_allClusters.remove(clusterId);
-    delete tempCluster;
-    return true;
+    return false;
 }
 
 /**
@@ -66,9 +69,9 @@ bool ClusterHandler::deleteCluster(const ClusterID clusterId)
  */
 void ClusterHandler::clearAllCluster()
 {
-    QMap<ClusterID, Cluster*>::iterator it;
-    for (it = m_allClusters.begin(); it != m_allClusters.end(); ++it) {
-        Cluster* tempCluster = it.value();
+    std::map<ClusterID, Cluster*>::iterator it;
+    for(it = m_allClusters.begin(); it != m_allClusters.end(); ++it) {
+        Cluster* tempCluster = it->second;
         delete tempCluster;
     }
     m_allClusters.clear();

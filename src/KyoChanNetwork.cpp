@@ -6,7 +6,6 @@ namespace KyoukoMind
 {
 
 Config* KyoukoNetwork::m_config = nullptr;
-KyoukoMind::Database* KyoukoNetwork::m_db = nullptr;
 
 /**
  * @brief KyoChanNetwork::KyoChanNetwork

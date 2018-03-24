@@ -1,9 +1,7 @@
 #ifndef CONFIG
 #define CONFIG
 
-#include <string>
-#include <QVector>
-
+#include <common.h>
 
 namespace Persistence {
 //class ConfigFileIO;

@@ -51,7 +51,6 @@ HEADERS +=\
             src/core/processing/processingUnit.h \
             src/core/processing/cpuProcessingUnit.h \
             src/core/processing/processingUnitHandler.h \
-            src/settings/database.h \
             src/settings/config.h \
             src/control/statusreporter.h \
             src/core/messaging/messageQueue.h \

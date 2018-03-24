@@ -1,7 +1,7 @@
 #ifndef PROCESSINGUNITHANDLER_H
 #define PROCESSINGUNITHANDLER_H
 
-#include <QVector>
+#include <common.h>
 
 namespace KyoukoMind
 {
@@ -13,7 +13,7 @@ public:
     ProcessingUnitHandler();
 
 private:
-    QVector<ProcessingUnit*> m_allProcessingUnits;
+    std::vector<ProcessingUnit*> m_allProcessingUnits;
 };
 
 }
