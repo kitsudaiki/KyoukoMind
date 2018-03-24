@@ -6,6 +6,5 @@
 #include <common/messagestructs.h>
 #include <common/clusterstructs.h>
 #include <common/netstructs.h>
-#include <common/templates.h>
 
 #endif // COMMON_H

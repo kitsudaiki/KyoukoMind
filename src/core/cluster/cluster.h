@@ -27,7 +27,6 @@ public:
 
     void getMetaData();
     void updateMetaData(ClusterMetaData metaData);
-    ClusterID convertId(const uint32_t clusterId);
 
 private:
     // cluster-metadata

@@ -2,8 +2,8 @@
 #define MESSAGECONTROLLER_H
 
 #include <common.h>
+#include <core/messaging/messages/message.h>
 
-class Message;
 class DataMessage;
 class ReplyMessage;
 class LearningMessage;
@@ -18,6 +18,7 @@ public:
     MessageController();
 
 private:
+    Message* convertToMessage(uint8_t *data);
     //NetworkConnection::NetworkConnection *m_networkConnection = nullptr;
 };
 

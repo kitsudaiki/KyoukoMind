@@ -66,7 +66,6 @@ HEADERS +=\
             src/common/messagestructs.h \
             src/common/netstructs.h \
             src/common/includes.h \
-            src/common/templates.h \
             common.h
 
         # The following define makes your compiler emit warnings if you use

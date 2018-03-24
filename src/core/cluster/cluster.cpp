@@ -85,16 +85,6 @@ void Cluster::getMetaData()
 }
 
 /**
- * @brief Cluster::convertId
- * @param clusterId
- * @return
- */
-ClusterID Cluster::convertId(const uint32_t clusterId)
-{
-
-}
-
-/**
  * @brief Cluster::initFile
  * @param clusterId
  * @param directoryPath
