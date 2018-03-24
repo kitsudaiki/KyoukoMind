@@ -1,11 +1,7 @@
-QT += core
-QT += sql
-QT += xml
-QT += testlib
-QT += network
+QT -= core
 QT -= gui
 
-CONFIG += c++11
+CONFIG += c++17
 
 TARGET = KyoukoMind
 CONFIG += console
@@ -13,15 +9,10 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-LIBS += -L../libPersistence -lPersistence
-LIBS += -L../libPersistence/debug -lPersistence
-LIBS += -L../libPersistence/release -lPersistence
-INCLUDEPATH += ../libPersistence/include/libPersistence
-
-LIBS += -L../libNetworkConnection -lNetworkConnection
-LIBS += -L../libNetworkConnection/debug -lNetworkConnection
-LIBS += -L../libNetworkConnection/release -lNetworkConnection
-INCLUDEPATH += ../libNetworkConnection/include/libNetworkConnection
+LIBS += -L../libPerformanceIO -lPerformanceIO
+LIBS += -L../libPerformanceIO/debug -lPerformanceIO
+LIBS += -L../libPerformanceIO/release -lPerformanceIO
+INCLUDEPATH += ../libPerformanceIO/include/libPerformanceIO
 
 INCLUDEPATH += $$PWD \
             src
@@ -37,24 +28,19 @@ SOURCES += main.cpp \
             src/core/processing/processingUnit.cpp \
             src/core/processing/processingUnitHandler.cpp \
             src/core/networkManager.cpp \
-            src/settings/database.cpp \
             src/settings/config.cpp \
             src/control/statusreporter.cpp \
-            tests/clusterTest.cpp \
             src/core/messaging/messageQueue.cpp \
-            tests/test.cpp \
             src/core/messaging/messages/message.cpp \
             src/core/messaging/messages/datamessage.cpp \
-    src/core/messaging/messages/replymessage.cpp \
-    src/core/messaging/messages/learningmessage.cpp \
-    src/core/messaging/messages/learningreplymessage.cpp \
-    src/core/messaging/timeouthandler.cpp \
-    tests/messagetest.cpp \
-    src/core/messaging/messagecontroller.cpp
+            src/core/messaging/messages/replymessage.cpp \
+            src/core/messaging/messages/learningmessage.cpp \
+            src/core/messaging/messages/learningreplymessage.cpp \
+            src/core/messaging/timeouthandler.cpp \
+            src/core/messaging/messagecontroller.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
-            src/common/structs.h \
             src/KyoChanNetwork.h \
             src/core/cluster/clusterHandler.h \
             src/core/cluster/cluster.h \
@@ -68,18 +54,21 @@ HEADERS +=\
             src/settings/database.h \
             src/settings/config.h \
             src/control/statusreporter.h \
-            tests/clusterTest.h \
             src/core/messaging/messageQueue.h \
             src/common/enums.h \
-            tests/test.h \
             src/core/messaging/messages/message.h \
             src/core/messaging/messages/datamessage.h \
-    src/core/messaging/messages/replymessage.h \
-    src/core/messaging/messages/learningmessage.h \
-    src/core/messaging/messages/learningreplymessage.h \
-    src/core/messaging/timeouthandler.h \
-    tests/messagetest.h \
-    src/core/messaging/messagecontroller.h
+            src/core/messaging/messages/replymessage.h \
+            src/core/messaging/messages/learningmessage.h \
+            src/core/messaging/messages/learningreplymessage.h \
+            src/core/messaging/timeouthandler.h \
+            src/core/messaging/messagecontroller.h \
+            src/common/clusterstructs.h \
+            src/common/messagestructs.h \
+            src/common/netstructs.h \
+            src/common/includes.h \
+            src/common/templates.h \
+            common.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

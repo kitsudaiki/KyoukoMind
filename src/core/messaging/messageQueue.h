@@ -1,9 +1,7 @@
 #ifndef MESSAGEQUEUE_H
 #define MESSAGEQUEUE_H
 
-#include <QObject>
-
-#include <common/structs.h>
+#include <common.h>
 
 class Message;
 class DataMessage;

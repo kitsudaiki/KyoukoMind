@@ -1,11 +1,7 @@
 #ifndef MESSAGECONTROLLER_H
 #define MESSAGECONTROLLER_H
 
-
-#include <QObject>
-
-#include <common/structs.h>
-#include <networkConnection.h>
+#include <common.h>
 
 class Message;
 class DataMessage;
@@ -22,7 +18,7 @@ public:
     MessageController();
 
 private:
-    NetworkConnection::NetworkConnection *m_networkConnection = nullptr;
+    //NetworkConnection::NetworkConnection *m_networkConnection = nullptr;
 };
 
 }

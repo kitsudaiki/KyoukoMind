@@ -13,8 +13,8 @@ namespace KyoukoMind
  * @param numberOfNodes
  */
 NodeCluster::NodeCluster(const ClusterID clusterId,
-                         const QString directoryPath,
-                         const quint32 numberOfNodes)
+                         const std::string directoryPath,
+                         const uint32_t numberOfNodes)
     : Cluster(clusterId,
               NODECLUSTER,
               directoryPath)
@@ -22,7 +22,7 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
     m_metaData.numberOfNodes = numberOfNodes;
     m_metaData.numberOfNodes = numberOfNodes;
 
-    quint32 blockSize = m_buffer->getBlockSize();
+    uint32_t blockSize = m_buffer->getBlockSize();
     m_metaData.numberOfNodeBlocks = (numberOfNodes * sizeof(KyoChanNode)) / blockSize + 1;
     m_metaData.numberOfEdgeBlocks = numberOfNodes;
 
@@ -36,7 +36,7 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
  * @param filePath
  */
 NodeCluster::NodeCluster(const ClusterID clusterId,
-                         const QString directoryPath)
+                         const std::string directoryPath)
     : Cluster(clusterId,
               NODECLUSTER,
               directoryPath)
@@ -58,7 +58,7 @@ NodeCluster::~NodeCluster()
  * @brief NodeCluster::getNumberOfNode
  * @return
  */
-quint32 NodeCluster::getNumberOfNodeBlocks()
+uint32_t NodeCluster::getNumberOfNodeBlocks()
 {
     return m_metaData.numberOfNodeBlocks;
 }
@@ -67,7 +67,7 @@ quint32 NodeCluster::getNumberOfNodeBlocks()
  * @brief NodeCluster::getNumberOfEdgeBlocks
  * @return
  */
-quint32 NodeCluster::getNumberOfEdgeBlocks()
+uint32_t NodeCluster::getNumberOfEdgeBlocks()
 {
     return m_metaData.numberOfEdgeBlocks;
 }
@@ -78,7 +78,7 @@ quint32 NodeCluster::getNumberOfEdgeBlocks()
  */
 KyoChanNode *NodeCluster::getNodeBlock()
 {
-    quint32 positionNodeBlock = m_metaData.positionNodeBlock;
+    uint32_t positionNodeBlock = m_metaData.positionNodeBlock;
     return (KyoChanNode*)m_buffer->getBlock(positionNodeBlock);
 }
 
@@ -88,7 +88,7 @@ KyoChanNode *NodeCluster::getNodeBlock()
  */
 KyoChanEdgeSection *NodeCluster::getEdgeBlock()
 {
-    quint32 positionEdgeBlock = m_metaData.positionOfEdgeBlock;
+    uint32_t positionEdgeBlock = m_metaData.positionOfEdgeBlock;
     return (KyoChanEdgeSection*)m_buffer->getBlock(positionEdgeBlock);
 }
 
@@ -97,8 +97,8 @@ KyoChanEdgeSection *NodeCluster::getEdgeBlock()
  * @param startSection
  * @param endSection
  */
-void NodeCluster::syncEdgeSections(quint32 startSection,
-                                   quint32 endSection)
+void NodeCluster::syncEdgeSections(uint32_t startSection,
+                                   uint32_t endSection)
 {
     if(endSection >= getNumberOfEdgeBlocks()){
         endSection = getNumberOfEdgeBlocks() - 1;

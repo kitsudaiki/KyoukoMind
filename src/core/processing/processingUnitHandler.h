@@ -1,7 +1,6 @@
 #ifndef PROCESSINGUNITHANDLER_H
 #define PROCESSINGUNITHANDLER_H
 
-#include <QObject>
 #include <QVector>
 
 namespace KyoukoMind

@@ -1,5 +1,5 @@
 #include <settings/config.h>
-#include <config/configfileio.h>
+//#include <config/configfileio.h>
 
 namespace KyoukoMind
 {
@@ -8,9 +8,9 @@ namespace KyoukoMind
  * @brief Config::Config
  * @param path path to the config-file
  */
-Config::Config(const QString &path)
+Config::Config(const std::string &path)
 {
-    m_configFile = new Persistence::ConfigFileIO(path);
+    //m_configFile = new Persistence::ConfigFileIO(path);
 }
 
 /**
@@ -20,9 +20,10 @@ Config::Config(const QString &path)
  */
 int Config::getNumberOfThreads(bool *ok) const
 {
-    return m_configFile->getInt("number_of_processing_threads",
-                                QStringList()<<"CPU",
-                                ok);
+    return 1;
+    //return m_configFile->getInt("number_of_processing_threads",
+    //                            std::stringList()<<"CPU",
+    //                            ok);
 }
 
 /**
@@ -32,9 +33,10 @@ int Config::getNumberOfThreads(bool *ok) const
  */
 int Config::getNumberOfNodes(bool *ok) const
 {
-    return m_configFile->getInt("number_of_nodes_per_cluster",
-                                QStringList()<<"GENERAL",
-                                ok);
+    return 42;
+    //return m_configFile->getInt("number_of_nodes_per_cluster",
+    //                            std::stringList()<<"GENERAL",
+    //                            ok);
 }
 
 /**
@@ -44,9 +46,10 @@ int Config::getNumberOfNodes(bool *ok) const
  */
 int Config::getPort(bool *ok) const
 {
-    return m_configFile->getInt("port",
-                                QStringList()<<"NETWORK",
-                                ok);
+    return 1234;
+    //return m_configFile->getInt("port",
+    //                            std::stringList()<<"NETWORK",
+    //                            ok);
 }
 
 /**
@@ -54,11 +57,12 @@ int Config::getPort(bool *ok) const
  * @param ok
  * @return
  */
-QString Config::getDirectoryPath(bool *ok) const
+std::string Config::getDirectoryPath(bool *ok) const
 {
-    return m_configFile->getEntry("directorypath",
-                                  QStringList()<<"GENERAL",
-                                  ok);
+    return "/tmp/test/";
+    //return m_configFile->getEntry("directorypath",
+    //                              std::stringList()<<"GENERAL",
+    //                              ok);
 }
 
 /**
@@ -66,11 +70,12 @@ QString Config::getDirectoryPath(bool *ok) const
  * @param ok
  * @return
  */
-QString Config::getInitialFilePath(bool *ok) const
+std::string Config::getInitialFilePath(bool *ok) const
 {
-    return m_configFile->getEntry("initial_file_path",
-                                  QStringList()<<"GENERAL",
-                                  ok);
+    return "/home/neptune/Schreibtisch/Projekte/Deskchan/KyoukoMind/test_cluster";
+    //return m_configFile->getEntry("initial_file_path",
+    //                              std::stringList()<<"GENERAL",
+    //                              ok);
 }
 
 /**
@@ -78,11 +83,13 @@ QString Config::getInitialFilePath(bool *ok) const
  * @param ok
  * @return
  */
-QStringList Config::getIpAdresses(bool *ok) const
+std::vector<std::string> Config::getIpAdresses(bool *ok) const
 {
-    return m_configFile->getStringList("ips",
-                                       QStringList()<<"NETWORK",
-                                       ok);
+    std::vector<std::string> ips;
+    return ips;
+    //return m_configFile->getStringList("ips",
+    //                                   std::stringList()<<"NETWORK",
+    //                                   ok);
 }
 
 /**
@@ -90,28 +97,28 @@ QStringList Config::getIpAdresses(bool *ok) const
  * @param ok flag to check if method was successfull
  * @return list with all infos
  */
-QStringList Config::getDatabaseConnection(bool *ok) const
+std::vector<std::string> Config::getDatabaseConnection(bool *ok) const
 {
-    QStringList databaseCon;
-    databaseCon.push_back(m_configFile->getEntry("type",
-                                  QStringList()<<"DATABASE",
-                                  ok));
-    if(*ok == false) {
-        return databaseCon;
-    }
-    databaseCon.push_back(m_configFile->getEntry("ip",
-                                  QStringList()<<"DATABASE",
-                                  ok));
-    databaseCon.push_back(m_configFile->getEntry("name",
-                                  QStringList()<<"DATABASE",
-                                  ok));
-    databaseCon.push_back(m_configFile->getEntry("user",
-                                  QStringList()<<"DATABASE",
-                                  ok));
-    databaseCon.push_back(m_configFile->getEntry("password",
-                                  QStringList()<<"DATABASE",
-                                  ok));
-    *ok = true;
+    std::vector<std::string> databaseCon;
+    //databaseCon.push_back(m_configFile->getEntry("type",
+    //                              std::stringList()<<"DATABASE",
+    //                              ok));
+    //if(*ok == false) {
+    //    return databaseCon;
+    //}
+    //databaseCon.push_back(m_configFile->getEntry("ip",
+    //                              std::stringList()<<"DATABASE",
+    //                              ok));
+    //databaseCon.push_back(m_configFile->getEntry("name",
+    //                              std::stringList()<<"DATABASE",
+    //                              ok));
+    //databaseCon.push_back(m_configFile->getEntry("user",
+    //                              std::stringList()<<"DATABASE",
+    //                              ok));
+    //databaseCon.push_back(m_configFile->getEntry("password",
+    //                              std::stringList()<<"DATABASE",
+    //                              ok));
+    //*ok = true;
     return databaseCon;
 }
 
@@ -121,11 +128,12 @@ QStringList Config::getDatabaseConnection(bool *ok) const
  * @param ok validation-flag
  * @return
  */
-QString Config::getLogFileDirPath(bool *ok) const
+std::string Config::getLogFileDirPath(bool *ok) const
 {
-    return m_configFile->getEntry("dictionary",
-                                  QStringList()<<"LOG",
-                                  ok);
+    return "/tmp/";
+    //return m_configFile->getEntry("dictionary",
+    //                              std::stringList()<<"LOG",
+    //                              ok);
 }
 
 /**
@@ -133,11 +141,12 @@ QString Config::getLogFileDirPath(bool *ok) const
  * @param ok validation-flag
  * @return
  */
-QString Config::getLogFileName(bool *ok) const
+std::string Config::getLogFileName(bool *ok) const
 {
-    return m_configFile->getEntry("filename",
-                                  QStringList()<<"LOG",
-                                  ok);
+    return "testlog";
+    //return m_configFile->getEntry("filename",
+    //                              std::stringList()<<"LOG",
+    //                              ok);
 }
 
 /**
@@ -147,9 +156,10 @@ QString Config::getLogFileName(bool *ok) const
  */
 bool Config::useStdOutputForLogging(bool *ok) const
 {
-    return m_configFile->getBool("useStdOutput",
-                                 QStringList()<<"LOG",
-                                 ok);
+    return false;
+    //return m_configFile->getBool("useStdOutput",
+    //                             std::stringList()<<"LOG",
+    //                             ok);
 }
 
 /**
@@ -159,9 +169,10 @@ bool Config::useStdOutputForLogging(bool *ok) const
  */
 bool Config::useFileForLogging(bool *ok) const
 {
-    return m_configFile->getBool("useLogFile",
-                                 QStringList()<<"LOG",
-                                 ok);
+    return false;
+    //return m_configFile->getBool("useLogFile",
+    //                             std::stringList()<<"LOG",
+    //                             ok);
 }
 
 /**
@@ -171,9 +182,10 @@ bool Config::useFileForLogging(bool *ok) const
  */
 bool Config::useDatabaseForLogging(bool *ok) const
 {
-    return m_configFile->getBool("useDatabase",
-                                 QStringList()<<"LOG",
-                                 ok);
+    return false;
+    //return m_configFile->getBool("useDatabase",
+    //                             std::stringList()<<"LOG",
+    //                             ok);
 }
 
 /**
@@ -181,11 +193,13 @@ bool Config::useDatabaseForLogging(bool *ok) const
  * @param ok validation-flag
  * @return
  */
-QStringList Config::getLogLevels(bool *ok) const
+std::vector<std::string> Config::getLogLevels(bool *ok) const
 {
-    return m_configFile->getStringList("logLevel",
-                                       QStringList()<<"LOG",
-                                       ok);
+    std::vector<std::string> loglevel;
+    return loglevel;
+    //return m_configFile->getStringList("logLevel",
+    //                                   std::stringList()<<"LOG",
+    //                                   ok);
 }
 
 }

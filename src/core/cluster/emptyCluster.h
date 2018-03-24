@@ -8,11 +8,10 @@ namespace KyoukoMind
 
 class EmptyCluster : public Cluster
 {
-    Q_OBJECT
 
 public:
     EmptyCluster(ClusterID clusterId,
-                 const QString directoryPath);
+                 const std::string directoryPath);
 };
 
 }

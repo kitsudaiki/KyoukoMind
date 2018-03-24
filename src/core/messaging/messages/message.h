@@ -1,42 +1,38 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <QObject>
-#include <QByteArray>
-#include <common/structs.h>
-#include <common/enums.h>
-
+#include <common.h>
 
 namespace KyoukoMind
 {
 
 struct CommonMessageData
 {
-    quint8 type = UNDEFINED;
-    quint64 messageId = 0;
-    quint8 site = 0;
-    quint8 requiredReply = 0;
+    uint8_t type = UNDEFINED;
+    uint64_t messageId = 0;
+    uint8_t site = 0;
+    uint8_t requiredReply = 0;
 };
 
 class Message
 {
 public:
-    Message(const quint32 clusterId,
-            const quint32 messageIdCounter,
-            const quint8 site);
-    Message(const quint64 messageId,
-            const quint8 site);
+    Message(const uint32_t clusterId,
+            const uint32_t messageIdCounter,
+            const uint8_t site);
+    Message(const uint64_t messageId,
+            const uint8_t site);
     Message();
 
-    virtual QByteArray convertToByteArray() = 0;
+    virtual uint8_t* convertToByteArray() = 0;
 
     CommonMessageData getMetaData() const;
 
 protected:
     CommonMessageData m_metaData;
 
-    QByteArray convertCommonToByteArray();
-    quint32 convertCommonFromByteArray(const uint8_t *data);
+    uint8_t* convertCommonToByteArray(const uint32_t size);
+    uint32_t convertCommonFromByteArray(const uint8_t *data);
 };
 
 }

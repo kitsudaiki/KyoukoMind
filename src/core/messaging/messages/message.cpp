@@ -9,9 +9,9 @@ namespace KyoukoMind
  * @param messageIdCounter
  * @param site
  */
-Message::Message(const quint32 clusterId,
-                 const quint32 messageIdCounter,
-                 const quint8 site)
+Message::Message(const uint32_t clusterId,
+                 const uint32_t messageIdCounter,
+                 const uint8_t site)
 {
     m_metaData.messageId = messageIdCounter;
     m_metaData.messageId = m_metaData.messageId << 32;
@@ -24,8 +24,8 @@ Message::Message(const quint32 clusterId,
  * @param messageId
  * @param site
  */
-Message::Message(const quint64 messageId,
-                 const quint8 site)
+Message::Message(const uint64_t messageId,
+                 const uint8_t site)
 {
     m_metaData.messageId = messageId;
     m_metaData.site = site;
@@ -48,12 +48,13 @@ CommonMessageData Message::getMetaData() const
 
 /**
  * @brief Message::convertCommonToByteArray
+ * @param size
  * @return
  */
-QByteArray Message::convertCommonToByteArray()
+uint8_t* Message::convertCommonToByteArray(const uint32_t size)
 {
-    QByteArray data;
-    data.append((char*)(&m_metaData), sizeof(CommonMessageData));
+    uint8_t* data = new uint8_t[sizeof(CommonMessageData) + size];
+    memcpy((void*)(data), (void*)(&m_metaData), sizeof(CommonMessageData));
     return data;
 }
 
@@ -61,7 +62,7 @@ QByteArray Message::convertCommonToByteArray()
  * @brief Message::convertCommonFromByteArray
  * @return
  */
-quint32 Message::convertCommonFromByteArray(const uint8_t* data)
+uint32_t Message::convertCommonFromByteArray(const uint8_t* data)
 {
     memcpy((void*)(&m_metaData), (void*)data, sizeof(CommonMessageData));
     return sizeof(CommonMessageData);

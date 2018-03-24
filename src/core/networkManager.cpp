@@ -22,24 +22,29 @@ NetworkManager::NetworkManager()
     m_processingUnitHandler = new ProcessingUnitHandler();
 
     bool ok = false;
-    QString initialFile = KyoukoNetwork::m_config->getInitialFilePath(&ok);
-    QString directoryPath = KyoukoNetwork::m_config->getDirectoryPath(&ok);
+    std::string initialFile = KyoukoNetwork::m_config->getInitialFilePath(&ok);
+    std::string directoryPath = KyoukoNetwork::m_config->getDirectoryPath(&ok);
 
-    QFileInfoList clusterFiles = QDir(directoryPath).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries);
-    if(clusterFiles.count() == 0)
+    std::vector<std::string> clusterFiles;
+    // get all files in the directory
+    DIR *dir;
+    struct dirent *ent;
+    if((dir = opendir(directoryPath.c_str())) != nullptr) {
+        while((ent = readdir(dir)) != nullptr) {
+            clusterFiles.push_back(ent->d_name);
+        }
+        closedir (dir);
+    }
+
+    if(clusterFiles.size() == 0)
     {
-        KyoukoNetwork::m_logger->logDebug("init new cluster from file " + initialFile);
         bool successfulInit = readInitialFile(initialFile,
                                               directoryPath,
                                               m_clusterManager);
-        if(successfulInit) {
-            KyoukoNetwork::m_logger->logError("initial File is invalid");
-        }
         assert(successfulInit);
     }
     else {
-        for(quint32 i = 0; i < clusterFiles.length(); i++) {
-            QFileInfo info = clusterFiles.at(i);
+        for(uint32_t i = 0; i < clusterFiles.size(); i++) {
             // TODO
         }
     }
@@ -72,9 +77,39 @@ bool NetworkManager::setThread(QThread *thread)
  * @brief NetworkManager::getMindDimension
  * @return
  */
-quint32 *NetworkManager::getMindDimension()
+uint32_t *NetworkManager::getMindDimension()
 {
     return m_mindDimensions;
+}
+
+/**
+ * @brief NetworkManager::splitString
+ * @param s
+ * @param delim
+ * @return
+ */
+std::vector<std::string> NetworkManager::splitString(const std::string &s, char delim) {
+    std::stringstream ss(s);
+    std::string item;
+    std::vector<std::string> tokens;
+    while(std::getline(ss, item, delim)) {
+        tokens.push_back(item);
+    }
+    return tokens;
+}
+
+/**
+ * @brief NetworkManager::removeEmptyStrings
+ * @param strings
+ */
+void NetworkManager::removeEmptyStrings(std::vector<std::string>& strings)
+{
+    std::vector<std::string>::iterator it = std::remove_if(
+              strings.begin(),
+              strings.end(),
+              std::mem_fun_ref(&std::string::empty));
+    // erase the removed elements
+    strings.erase(it, strings.end());
 }
 
 /**
@@ -84,41 +119,42 @@ quint32 *NetworkManager::getMindDimension()
  * @param clusterManager
  * @return
  */
-bool NetworkManager::readInitialFile(const QString filePath,
-                                     const QString directoryPath,
+bool NetworkManager::readInitialFile(const std::string filePath,
+                                     const std::string directoryPath,
                                      ClusterHandler* clusterManager)
 {
     bool ok = false;
-    quint32 nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes(&ok);
+    uint32_t nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes(&ok);
 
-    // read and split the file
-    QFile initialFile(filePath);
-    if(!initialFile.open(QIODevice::ReadOnly)) {
-        return false;
-    }
-    QByteArray content = initialFile.readAll();
-    QString string_content(content);
-    string_content = string_content.replace(" ", "");
-    QStringList allLines = string_content.split('\n');
+    // read into string
+    std::ifstream inFile;
+    inFile.open(filePath);
+    std::stringstream strStream;
+    strStream << inFile.rdbuf();
+    std::string string_content = strStream.str();
+
+    // erase whitespaces
+    string_content.erase(std::remove_if(string_content.begin(),
+                                        string_content.end(),
+                                        isspace),
+                         string_content.end());
+
+    // split string
+    std::vector<std::string> allLines = splitString(string_content, '\n');
 
     // read the single lines
     for(int lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
     {
         // split line
-        QStringList splittedLine = allLines[lineNumber].split('|');
+        std::vector<std::string> splittedLine = splitString(allLines[lineNumber], '|');
 
         // remove empty entries from the list
-        for(int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
-        {
-            if(splittedLine.at(linePartNumber).isEmpty()) {
-                splittedLine.removeAt(linePartNumber);
-                linePartNumber--;
-            }
-        }
+        removeEmptyStrings(splittedLine);
+
         // process the splitted line
         for(int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
-            int number = splittedLine[linePartNumber].toInt();
+            int number = std::stoi(splittedLine[linePartNumber]);
 
             ClusterID clusterId;
             clusterId.x = lineNumber;

@@ -1,10 +1,9 @@
 #ifndef NETTHREADMANAGER_H
 #define NETTHREADMANAGER_H
 
-#include <QObject>
 #include <QThread>
 #include <QVector>
-#include <QString>
+#include <string>
 #include <QFile>
 #include <QByteArray>
 #include <QMap>
@@ -20,16 +19,15 @@ class Config;
 class ClusterHandler;
 class ProcessingUnitHandler;
 
-class NetworkManager : public QObject
+class NetworkManager
 {
-    Q_OBJECT
 
 public:
     NetworkManager();
     void startLoops();
     bool setThread(QThread *thread);
 
-    quint32* getMindDimension();
+    uint32_t* getMindDimension();
 
 signals:
     void processNetwork_Signal();
@@ -38,14 +36,17 @@ private:
     ClusterHandler* m_clusterManager = nullptr;
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
 
-    quint32 m_numberOfThreads = 0;
+    uint32_t m_numberOfThreads = 0;
     QThread *m_thread = nullptr;
 
-    quint32 m_mindDimensions[3];
+    uint32_t m_mindDimensions[3];
 
-    bool readInitialFile(const QString filePath,
-                         const QString directoryPath,
+    bool readInitialFile(const std::string filePath,
+                         const std::string directoryPath,
                          ClusterHandler *clusterManager);
+
+    std::vector<std::string> splitString(const std::string &s, char delim);
+    void removeEmptyStrings(std::vector<std::string> &strings);
 };
 }
 

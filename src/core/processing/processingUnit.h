@@ -1,16 +1,13 @@
 #ifndef PROCESSINGUNIT_H
 #define PROCESSINGUNIT_H
 
-#include <QObject>
-
 namespace KyoukoMind
 {
 class Cluster;
 class ClusterHandler;
 
-class ProcessingUnit : public QObject
+class ProcessingUnit
 {
-    Q_OBJECT
 
 public:
     ProcessingUnit();

@@ -11,21 +11,21 @@ namespace KyoukoMind
 class LearningReplyMessage : public Message
 {
 public:
-    LearningReplyMessage(const quint32 clusterId,
-                         const quint32 messageIdCounter,
-                         const quint8 site);
+    LearningReplyMessage(const uint32_t clusterId,
+                         const uint32_t messageIdCounter,
+                         const uint8_t site);
     LearningReplyMessage();
 
-    bool convertFromByteArray(const QByteArray &data);
-    QByteArray convertToByteArray();
+    bool convertFromByteArray(uint8_t* data);
+    uint8_t* convertToByteArray();
 
     bool addNewEdgeReply(const KyoChanNewEdgeReply& newEdgeReply);
-    quint8 getNumberOfEdgeReplys() const;
+    uint8_t getNumberOfEdgeReplys() const;
     KyoChanNewEdgeReply* getNewEdgeReplys() const;
 
 private:
-    quint8 m_maxNumberOfNewEdgeReplys = MAX_NUMBER_OF_NEW_EDGES;
-    quint8 m_numberOfNewEdgeReplys = 0;
+    uint8_t m_maxNumberOfNewEdgeReplys = MAX_NUMBER_OF_NEW_EDGES;
+    uint8_t m_numberOfNewEdgeReplys = 0;
     KyoChanNewEdgeReply m_newEdgeReplys[MAX_NUMBER_OF_NEW_EDGES];
 };
 

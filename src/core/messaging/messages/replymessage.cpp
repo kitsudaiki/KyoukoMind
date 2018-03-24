@@ -8,8 +8,8 @@ namespace KyoukoMind
  * @param messageId
  * @param site
  */
-ReplyMessage::ReplyMessage(const quint32 messageId,
-                           const quint8 site) :
+ReplyMessage::ReplyMessage(const uint32_t messageId,
+                           const uint8_t site) :
     Message(messageId, site)
 {
     m_metaData.type = REPLYMESSAGE;
@@ -27,12 +27,12 @@ ReplyMessage::ReplyMessage() : Message()
  * @param data
  * @return
  */
-bool ReplyMessage::convertFromByteArray(const QByteArray &data)
+bool ReplyMessage::convertFromByteArray(uint8_t *data)
 {
-    if(data.length() < sizeof(CommonMessageData)) {
+    if(data == nullptr) {
         return false;
     }
-    convertCommonFromByteArray((uint8_t*)data.data());
+    convertCommonFromByteArray(data);
     return true;
 }
 
@@ -40,9 +40,9 @@ bool ReplyMessage::convertFromByteArray(const QByteArray &data)
  * @brief ReplyMessage::convertToByteArray
  * @return
  */
-QByteArray ReplyMessage::convertToByteArray()
+uint8_t *ReplyMessage::convertToByteArray()
 {
-    return convertCommonToByteArray();
+    return convertCommonToByteArray(0);
 }
 
 }

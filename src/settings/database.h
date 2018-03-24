@@ -1,7 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <QString>
+#include <string>
 #include <QVector>
 #include <QStringList>
 #include <assert.h>
@@ -21,17 +21,17 @@ public:
     Database(Config *conf);
     ~Database();
 
-    bool writeLogToDatabase(const QString &content);
+    bool writeLogToDatabase(const std::string &content);
 
     void initClusterDatabase();
-    bool containsClusterId(const quint32 clusterId);
-    bool addCluster(const quint32 clusterId, const QString &ip);
-    QString getClusterIp(const quint32 clusterId);
+    bool containsClusterId(const uint32_t clusterId);
+    bool addCluster(const uint32_t clusterId, const std::string &ip);
+    std::string getClusterIp(const uint32_t clusterId);
 
 private:
     Persistence::DatabaseConnection* m_dbConnection = nullptr;
 
-    QString stringToDbValue(const QString &value) const;
+    std::string stringToDbValue(const std::string &value) const;
 };
 
 }

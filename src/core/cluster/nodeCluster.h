@@ -8,20 +8,19 @@ namespace KyoukoMind
 
 class NodeCluster : public Cluster
 {
-    Q_OBJECT
 
 public:
     NodeCluster(const ClusterID clusterId,
-                const QString directoryPath,
-                const quint32 numberOfNodes);
-    NodeCluster(const ClusterID clusterId, const QString directoryPath);
+                const std::string directoryPath,
+                const uint32_t numberOfNodes);
+    NodeCluster(const ClusterID clusterId, const std::string directoryPath);
     ~NodeCluster();
 
-    quint32 getNumberOfEdgeBlocks();
+    uint32_t getNumberOfEdgeBlocks();
     KyoChanEdgeSection *getEdgeBlock();
-    void syncEdgeSections(quint32 startSection = 0,
-                          quint32 endSection = 0);
-    quint32 getNumberOfNodeBlocks();
+    void syncEdgeSections(uint32_t startSection = 0,
+                          uint32_t endSection = 0);
+    uint32_t getNumberOfNodeBlocks();
     KyoChanNode* getNodeBlock();
 
 private:

@@ -1,10 +1,7 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
-#include <QObject>
-#include <QVector>
-
-#include <common/structs.h>
+#include <common.h>
 
 namespace Persistence
 {
@@ -14,28 +11,27 @@ class IOBuffer;
 namespace KyoukoMind
 {
 
-class Cluster : public QObject
+class Cluster
 {
-    Q_OBJECT
 
 public:
     Cluster(const ClusterID &clusterId,
             const ClusterType clusterType,
-            const QString directoryPath);
+            const std::string directoryPath);
     ~Cluster();
 
     ClusterID getClusterId() const;
     ClusterType getClusterType() const;
 
-    bool addNeighbor(const quint8 side, const Neighbor target);
+    bool addNeighbor(const uint8_t side, const Neighbor target);
 
     void getMetaData();
     void updateMetaData(ClusterMetaData metaData);
-    ClusterID convertId(const quint32 clusterId);
+    ClusterID convertId(const uint32_t clusterId);
 
 private:
     // cluster-metadata
-    quint64 m_messageIdCounter = 0;
+    uint64_t m_messageIdCounter = 0;
     ClusterID m_clusterId;
     ClusterType m_clusterType = EMPTYCLUSTER;
     
@@ -44,7 +40,7 @@ protected:
     ClusterMetaData m_metaData;
 
     void initFile(const ClusterID clusterId,
-                  const QString directoryPath);
+                  const std::string directoryPath);
 };
 
 }

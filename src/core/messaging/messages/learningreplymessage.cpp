@@ -9,9 +9,9 @@ namespace KyoukoMind
  * @param messageIdCounter
  * @param site
  */
-LearningReplyMessage::LearningReplyMessage(const quint32 clusterId,
-                                           const quint32 messageIdCounter,
-                                           const quint8 site) :
+LearningReplyMessage::LearningReplyMessage(const uint32_t clusterId,
+                                           const uint32_t messageIdCounter,
+                                           const uint8_t site) :
     Message(clusterId, messageIdCounter, site)
 {
     m_metaData.type = LEARNINGREPLYMESSAGE;
@@ -29,20 +29,19 @@ LearningReplyMessage::LearningReplyMessage() : Message()
  * @param data
  * @return
  */
-bool LearningReplyMessage::convertFromByteArray(const QByteArray &data)
+bool LearningReplyMessage::convertFromByteArray(uint8_t *data)
 {
-    if(data.length() < sizeof(CommonMessageData) + 1) {
+    if(data == nullptr) {
         return false;
     }
-    const uint8_t* dataPointer = (uint8_t*)data.data();
-    quint32 offset = convertCommonFromByteArray(dataPointer);
-    m_numberOfNewEdgeReplys = dataPointer[offset];
+    uint32_t offset = convertCommonFromByteArray(data);
+    m_numberOfNewEdgeReplys = data[offset];
     if(m_numberOfNewEdgeReplys > m_maxNumberOfNewEdgeReplys) {
         m_numberOfNewEdgeReplys = 0;
         return false;
     }
     memcpy((void*)(&m_newEdgeReplys),
-           (void*)(dataPointer + offset + 1),
+           (void*)(data + offset + 1),
            sizeof(KyoChanNewEdgeReply) * m_numberOfNewEdgeReplys);
     return true;
 }
@@ -51,12 +50,16 @@ bool LearningReplyMessage::convertFromByteArray(const QByteArray &data)
  * @brief LearningReplyMessage::convertToByteArray
  * @return
  */
-QByteArray LearningReplyMessage::convertToByteArray()
+uint8_t *LearningReplyMessage::convertToByteArray()
 {
-    // TODO: avoid too much data-copy
-    QByteArray data = convertCommonToByteArray();
-    data.append((char*)(&m_numberOfNewEdgeReplys), 1);
-    data.append((char*)m_newEdgeReplys, sizeof(KyoChanNewEdgeReply) * m_numberOfNewEdgeReplys);
+    uint32_t size = (sizeof(KyoChanNewEdgeReply) * m_numberOfNewEdgeReplys) + 1;
+    uint8_t* data = convertCommonToByteArray(size);
+    memcpy((void*)(data+sizeof(CommonMessageData)),
+           (void*)(&m_numberOfNewEdgeReplys),
+           1);
+    memcpy((void*)(data+sizeof(CommonMessageData)+1),
+           m_newEdgeReplys,
+           sizeof(KyoChanNewEdgeReply) * m_numberOfNewEdgeReplys);
     return data;
 }
 
@@ -79,7 +82,7 @@ bool LearningReplyMessage::addNewEdgeReply(const KyoChanNewEdgeReply &newEdgeRep
  * @brief LearningReplyMessage::getNumberOfEdgeReplys
  * @return
  */
-quint8 LearningReplyMessage::getNumberOfEdgeReplys() const
+uint8_t LearningReplyMessage::getNumberOfEdgeReplys() const
 {
     return m_numberOfNewEdgeReplys;
 }

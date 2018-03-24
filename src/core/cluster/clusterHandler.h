@@ -1,11 +1,10 @@
 #ifndef CLUSTERQUEUE_H
 #define CLUSTERQUEUE_H
 
-#include <QObject>
 #include <QVector>
 #include <QMap>
 #include <iterator>
-#include <common/structs.h>
+#include <common.h>
 
 namespace KyoukoMind
 {

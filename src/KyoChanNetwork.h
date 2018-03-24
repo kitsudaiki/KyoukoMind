@@ -1,13 +1,11 @@
 #ifndef KYSANETWORK_H
 #define KYSANETWORK_H
 
-#include <QObject>
 #include <QVector>
-#include <QString>
+#include <string>
 #include <QHash>
 #include <QFile>
 #include <link.h>
-#include <log/logger.h>
 #include <settings/config.h>
 #include <settings/database.h>
 
@@ -17,15 +15,13 @@ namespace KyoukoMind
 
 class NetworkManager;
 
-class KyoukoNetwork : public QObject
+class KyoukoNetwork
 {
-    Q_OBJECT
 
 public:
-    KyoukoNetwork(const QString &configPath);
+    KyoukoNetwork(const std::string &configPath);
 
     static KyoukoMind::Config *m_config;
-    static Persistence::Logger *m_logger;
     static KyoukoMind::Database *m_db;
 
 private:

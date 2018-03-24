@@ -4,7 +4,7 @@ namespace KyoukoMind
 {
 
 EmptyCluster::EmptyCluster(ClusterID clusterId,
-                           const QString directoryPath)
+                           const std::string directoryPath)
     : Cluster(clusterId,
               EMPTYCLUSTER,
               directoryPath)

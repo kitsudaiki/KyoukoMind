@@ -12,7 +12,7 @@ namespace KyoukoMind
  */
 Cluster::Cluster(const ClusterID &clusterId,
                  const ClusterType clusterType,
-                 const QString directoryPath)
+                 const std::string directoryPath)
 {
     m_clusterId = clusterId;
     m_clusterType = clusterType;
@@ -53,7 +53,7 @@ ClusterType Cluster::getClusterType() const
  * @param side
  * @return
  */
-bool Cluster::addNeighbor(const quint8 side, const Neighbor target)
+bool Cluster::addNeighbor(const uint8_t side, const Neighbor target)
 {
     if(side > 8) {
         return false;
@@ -89,7 +89,7 @@ void Cluster::getMetaData()
  * @param clusterId
  * @return
  */
-ClusterID Cluster::convertId(const quint32 clusterId)
+ClusterID Cluster::convertId(const uint32_t clusterId)
 {
 
 }
@@ -100,12 +100,12 @@ ClusterID Cluster::convertId(const quint32 clusterId)
  * @param directoryPath
  */
 void Cluster::initFile(const ClusterID clusterId,
-                       const QString directoryPath)
+                       const std::string directoryPath)
 {
-    QString filePath = directoryPath
-                     + "/cluster_" + QString::number(clusterId.x)
-                             + "_" + QString::number(clusterId.y)
-                             + "_" + QString::number(clusterId.z);
+    std::string filePath = directoryPath
+                         + "/cluster_" + std::to_string(clusterId.x)
+                                 + "_" + std::to_string(clusterId.y)
+                                 + "_" + std::to_string(clusterId.z);
     m_buffer = new Persistence::IOBuffer(filePath);
 }
 

@@ -4,7 +4,7 @@ namespace KyoukoMind
 {
 
 EdgeCluster::EdgeCluster(ClusterID clusterId,
-                         const QString directoryPath)
+                         const std::string directoryPath)
     : Cluster(clusterId,
               EDGECLUSTER,
               directoryPath)

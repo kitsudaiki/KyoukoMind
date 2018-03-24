@@ -9,12 +9,12 @@ namespace KyoukoMind
 class ReplyMessage : public Message
 {
 public:
-    ReplyMessage(const quint32 messageId,
-                 const quint8 site);
+    ReplyMessage(const uint32_t messageId,
+                 const uint8_t site);
     ReplyMessage();
 
-    bool convertFromByteArray(const QByteArray &data);
-    QByteArray convertToByteArray();
+    bool convertFromByteArray(uint8_t* data);
+    uint8_t* convertToByteArray();
 };
 
 }

@@ -9,9 +9,9 @@ namespace KyoukoMind
  * @param messageIdCounter
  * @param site
  */
-DataMessage::DataMessage(const quint32 clusterId,
-                         const quint32 messageIdCounter,
-                         const quint8 site) :
+DataMessage::DataMessage(const uint32_t clusterId,
+                         const uint32_t messageIdCounter,
+                         const uint8_t site) :
     Message(clusterId, messageIdCounter, site)
 {
     m_metaData.type = DATAMESSAGE;
@@ -29,20 +29,19 @@ DataMessage::DataMessage() : Message()
  * @param data
  * @return
  */
-bool DataMessage::convertFromByteArray(const QByteArray &data)
+bool DataMessage::convertFromByteArray(uint8_t* data)
 {
-    if(data.length() < sizeof(CommonMessageData) + 1) {
+    if(data == nullptr) {
         return false;
     }
-    const uint8_t* dataPointer = (uint8_t*)data.data();
-    quint32 offset = convertCommonFromByteArray(dataPointer);
-    m_numberOfEdges = dataPointer[offset];
+    uint32_t offset = convertCommonFromByteArray(data);
+    m_numberOfEdges = data[offset];
     if(m_numberOfEdges > m_maxNumberOfEdges) {
         m_numberOfEdges = 0;
         return false;
     }
     memcpy((void*)(&m_edges),
-           (void*)(dataPointer + offset + 1),
+           (void*)(data + offset + 1),
            sizeof(KyoChanEdge) * m_numberOfEdges);
     return true;
 }
@@ -51,12 +50,16 @@ bool DataMessage::convertFromByteArray(const QByteArray &data)
  * @brief DataMessage::convertToByteArray
  * @return
  */
-QByteArray DataMessage::convertToByteArray()
+uint8_t* DataMessage::convertToByteArray()
 {
-    // TODO: avoid too much data-copy
-    QByteArray data = convertCommonToByteArray();
-    data.append((char*)(&m_numberOfEdges), 1);
-    data.append((char*)m_edges, sizeof(KyoChanEdge) * m_numberOfEdges);
+    uint32_t size = (sizeof(KyoChanEdge) * m_numberOfEdges) + 1;
+    uint8_t* data = convertCommonToByteArray(size);
+    memcpy((void*)(data+sizeof(CommonMessageData)),
+           (void*)(&m_numberOfEdges),
+           1);
+    memcpy((void*)(data+sizeof(CommonMessageData)+1),
+           m_edges,
+           sizeof(KyoChanEdge) * m_numberOfEdges);
     return data;
 }
 
@@ -79,7 +82,7 @@ bool DataMessage::addEdge(const KyoChanEdge &newEdge)
  * @brief DataMessage::getNumberOfEdges
  * @return
  */
-quint8 DataMessage::getNumberOfEdges() const
+uint8_t DataMessage::getNumberOfEdges() const
 {
     return m_numberOfEdges;
 }

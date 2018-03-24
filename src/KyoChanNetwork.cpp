@@ -6,18 +6,15 @@ namespace KyoukoMind
 {
 
 Config* KyoukoNetwork::m_config = nullptr;
-Persistence::Logger* KyoukoNetwork::m_logger = nullptr;
 KyoukoMind::Database* KyoukoNetwork::m_db = nullptr;
 
 /**
  * @brief KyoChanNetwork::KyoChanNetwork
  * @param configPath
  */
-KyoukoNetwork::KyoukoNetwork(const QString &configPath)
+KyoukoNetwork::KyoukoNetwork(const std::string &configPath)
 {
     // config-file
-    QFile configFile(configPath);
-    assert(configFile.exists());
     m_config = new Config(configPath);
 
     // logger
@@ -40,8 +37,8 @@ bool KyoukoNetwork::initLogger(bool *ok)
 
     // read config for file-output
     bool useFileOutput = KyoukoNetwork::m_config->useFileForLogging(ok);
-    QString dir = "";
-    QString name = "";
+    std::string dir = "";
+    std::string name = "";
     if(useFileOutput)
     {
         dir = KyoukoNetwork::m_config->getLogFileDirPath(ok);
@@ -55,7 +52,7 @@ bool KyoukoNetwork::initLogger(bool *ok)
     }
 
     // read config for database-output
-    bool useDbOutput = KyoukoNetwork::m_config->useDatabaseForLogging(ok);
+    /*bool useDbOutput = KyoukoNetwork::m_config->useDatabaseForLogging(ok);
     QStringList databaseCon;
     if(useDbOutput)
     {
@@ -63,20 +60,20 @@ bool KyoukoNetwork::initLogger(bool *ok)
         if(*ok == false) {
             return false;
         }
-    }
+    }*/
 
     // read config for log-levels
-    QStringList logLevels;
+    /*QStringList logLevels;
     if(useStdOutput || useFileOutput || useDbOutput)
     {
         logLevels = KyoukoNetwork::m_config->getLogLevels(ok);
         if(*ok == false) {
             return false;
         }
-    }
+    }*/
 
     // create logger
-    if(databaseCon.length() == 5)
+    /*if(databaseCon.length() == 5)
     {
         KyoukoNetwork::m_logger = new Persistence::Logger(logLevels,
                                                           useStdOutput,
@@ -96,7 +93,7 @@ bool KyoukoNetwork::initLogger(bool *ok)
                                                           dir,
                                                           name,
                                                           false);
-    }
+    }*/
 
     return true;
 }
