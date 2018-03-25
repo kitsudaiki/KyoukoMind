@@ -30,14 +30,16 @@ SOURCES += main.cpp \
             src/core/networkManager.cpp \
             src/settings/config.cpp \
             src/control/statusreporter.cpp \
-            src/core/messaging/messageQueue.cpp \
             src/core/messaging/messages/message.cpp \
             src/core/messaging/messages/datamessage.cpp \
             src/core/messaging/messages/replymessage.cpp \
             src/core/messaging/messages/learningmessage.cpp \
             src/core/messaging/messages/learningreplymessage.cpp \
             src/core/messaging/timeouthandler.cpp \
-            src/core/messaging/messagecontroller.cpp
+            src/core/messaging/messagecontroller.cpp \
+            src/core/messaging/messageQueues/messageQueue.cpp \
+            src/core/messaging/messageQueues/outgoingmessagequeue.cpp \
+            src/core/messaging/messageQueues/incomingmessagequeue.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -53,7 +55,6 @@ HEADERS +=\
             src/core/processing/processingUnitHandler.h \
             src/settings/config.h \
             src/control/statusreporter.h \
-            src/core/messaging/messageQueue.h \
             src/common/enums.h \
             src/core/messaging/messages/message.h \
             src/core/messaging/messages/datamessage.h \
@@ -66,7 +67,10 @@ HEADERS +=\
             src/common/messagestructs.h \
             src/common/netstructs.h \
             src/common/includes.h \
-            common.h
+            common.h \
+            src/core/messaging/messageQueues/messageQueue.h \
+            src/core/messaging/messageQueues/outgoingmessagequeue.h \
+            src/core/messaging/messageQueues/incomingmessagequeue.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

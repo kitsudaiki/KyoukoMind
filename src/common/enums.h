@@ -3,9 +3,10 @@
 
 enum ClusterType
 {
-    EMPTYCLUSTER = 0,
-    EDGECLUSTER = 1,
-    NODECLUSTER = 2
+    UNDEFINEDCLUSTER = 0,
+    EMPTYCLUSTER = 1,
+    EDGECLUSTER = 2,
+    NODECLUSTER = 3
 };
 
 enum MessageType

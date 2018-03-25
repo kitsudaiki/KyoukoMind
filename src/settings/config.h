@@ -3,7 +3,7 @@
 
 #include <common.h>
 
-namespace Persistence {
+namespace PerformanceIO {
 //class ConfigFileIO;
 }
 

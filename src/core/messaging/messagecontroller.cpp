@@ -19,34 +19,38 @@ Message* MessageController::convertToMessage(uint8_t *data)
     }
     uint8_t type = data[0];
     switch(type) {
-    case UNDEFINED:
-        break;
-    case DATAMESSAGE: {
-        DataMessage* message = new DataMessage();
-        message->convertFromByteArray(data);
-        delete data;
-        return message;
-    }
-    case REPLYMESSAGE: {
-        ReplyMessage* message = new ReplyMessage();
-        message->convertFromByteArray(data);
-        delete data;
-        return message;
-    }
-    case LEARNINGMESSAGE: {
-        LearningMessage* message = new LearningMessage();
-        message->convertFromByteArray(data);
-        delete data;
-        return message;
-    }
-    case LEARNINGREPLYMESSAGE: {
-        LearningReplyMessage* message = new LearningReplyMessage();
-        message->convertFromByteArray(data);
-        delete data;
-        return message;
-    }
-    default:
-        break;
+        case UNDEFINED:
+            break;
+        case DATAMESSAGE:
+            {
+                DataMessage* message = new DataMessage();
+                message->convertFromByteArray(data);
+                delete data;
+                return message;
+            }
+        case REPLYMESSAGE:
+            {
+                ReplyMessage* message = new ReplyMessage();
+                message->convertFromByteArray(data);
+                delete data;
+                return message;
+            }
+        case LEARNINGMESSAGE:
+            {
+                LearningMessage* message = new LearningMessage();
+                message->convertFromByteArray(data);
+                delete data;
+                return message;
+            }
+        case LEARNINGREPLYMESSAGE:
+            {
+                LearningReplyMessage* message = new LearningReplyMessage();
+                message->convertFromByteArray(data);
+                delete data;
+                return message;
+            }
+        default:
+            break;
     }
     return nullptr;
 }

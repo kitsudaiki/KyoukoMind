@@ -1,12 +1,12 @@
 #ifndef EDGECLUSTER_H
 #define EDGECLUSTER_H
 
-#include "cluster.h"
+#include "emptyCluster.h"
 
 namespace KyoukoMind
 {
 
-class EdgeCluster : public Cluster
+class EdgeCluster : public EmptyCluster
 {
 
 public:

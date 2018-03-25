@@ -14,10 +14,11 @@ namespace KyoukoMind
 NodeCluster::NodeCluster(const ClusterID clusterId,
                          const std::string directoryPath,
                          const uint32_t numberOfNodes)
-    : Cluster(clusterId,
-              NODECLUSTER,
-              directoryPath)
+    : EdgeCluster(clusterId,
+                  directoryPath)
 {
+    m_clusterType = NODECLUSTER;
+
     m_metaData.numberOfNodes = numberOfNodes;
     m_metaData.numberOfNodes = numberOfNodes;
 
@@ -36,10 +37,10 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
  */
 NodeCluster::NodeCluster(const ClusterID clusterId,
                          const std::string directoryPath)
-    : Cluster(clusterId,
-              NODECLUSTER,
-              directoryPath)
+    : EdgeCluster(clusterId,
+                  directoryPath)
 {
+    m_clusterType = NODECLUSTER;
 }
 
 /**

@@ -5,6 +5,8 @@
 
 namespace KyoukoMind
 {
+class IncomingMessageQueue;
+class OutgoingMessageQueue;
 
 class EmptyCluster : public Cluster
 {
@@ -12,6 +14,10 @@ class EmptyCluster : public Cluster
 public:
     EmptyCluster(ClusterID clusterId,
                  const std::string directoryPath);
+
+protected:
+    IncomingMessageQueue* m_incomingMessageQueue = nullptr;
+    OutgoingMessageQueue* m_outgoingMessageQueue = nullptr;
 };
 
 }

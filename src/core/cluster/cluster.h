@@ -3,7 +3,7 @@
 
 #include <common.h>
 
-namespace Persistence
+namespace PerformanceIO
 {
 class IOBuffer;
 }
@@ -16,7 +16,6 @@ class Cluster
 
 public:
     Cluster(const ClusterID &clusterId,
-            const ClusterType clusterType,
             const std::string directoryPath);
     ~Cluster();
 
@@ -32,11 +31,12 @@ private:
     // cluster-metadata
     uint64_t m_messageIdCounter = 0;
     ClusterID m_clusterId;
-    ClusterType m_clusterType = EMPTYCLUSTER;
     
 protected:
-    Persistence::IOBuffer* m_buffer = nullptr;
+    PerformanceIO::IOBuffer* m_buffer = nullptr;
+
     ClusterMetaData m_metaData;
+    ClusterType m_clusterType = UNDEFINEDCLUSTER;
 
     void initFile(const ClusterID clusterId,
                   const std::string directoryPath);

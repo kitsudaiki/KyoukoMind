@@ -1,5 +1,5 @@
 #include <core/cluster/cluster.h>
-#include <files//ioBuffer.h>
+#include <files/ioBuffer.h>
 
 namespace KyoukoMind
 {
@@ -7,15 +7,12 @@ namespace KyoukoMind
 /**
  * @brief Cluster::Cluster
  * @param clusterId
- * @param clusterType
  * @param directoryPath
  */
 Cluster::Cluster(const ClusterID &clusterId,
-                 const ClusterType clusterType,
                  const std::string directoryPath)
 {
     m_clusterId = clusterId;
-    m_clusterType = clusterType;
 
     initFile(clusterId, directoryPath);
     m_buffer->allocateBlocks(1);
@@ -55,7 +52,7 @@ ClusterType Cluster::getClusterType() const
  */
 bool Cluster::addNeighbor(const uint8_t side, const Neighbor target)
 {
-    if(side > 8) {
+    if(side > 9) {
         return false;
     }
     m_metaData.neighors[side] = target;
@@ -96,7 +93,7 @@ void Cluster::initFile(const ClusterID clusterId,
                          + "/cluster_" + std::to_string(clusterId.x)
                                  + "_" + std::to_string(clusterId.y)
                                  + "_" + std::to_string(clusterId.z);
-    m_buffer = new Persistence::IOBuffer(filePath);
+    m_buffer = new PerformanceIO::IOBuffer(filePath);
 }
 
 
