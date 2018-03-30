@@ -14,11 +14,19 @@ public:
                          MessageController *controller);
 
     bool addMessage(const uint8_t site, Message *message);
+    std::vector<Message*>* getMessageQueue(const uint8_t site);
+
     bool isFinished() const;
+    void resetFinishCounter();
 
 private:
+    std::mutex m_mutex;
     uint8_t m_finishCounter = 0;
-    std::vector<Message*> m_messages[10];
+
+    bool m_switchFlag = false;
+    // TODO: make it right!!!!!!!!!!!!
+    std::vector<Message*> m_messageQueue1[10];
+    std::vector<Message*> m_messageQueue2[10];
 };
 
 }
