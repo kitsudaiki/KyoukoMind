@@ -7,5 +7,6 @@
 #include <common/clusterstructs.h>
 #include <common/netstructs.h>
 #include <common/typedefs.h>
+#include <common/defines.h>
 
 #endif // COMMON_H

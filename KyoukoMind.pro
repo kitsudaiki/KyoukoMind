@@ -40,7 +40,9 @@ SOURCES += main.cpp \
             src/core/messaging/messageQueues/messageQueue.cpp \
             src/core/messaging/messageQueues/outgoingmessagequeue.cpp \
             src/core/messaging/messageQueues/incomingmessagequeue.cpp \
-    src/core/messaging/messages/cyclefinishmessage.cpp
+    src/core/messaging/messages/cyclefinishmessage.cpp \
+    tests/messagetest.cpp \
+    tests/clustertest.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -72,7 +74,10 @@ HEADERS +=\
             src/core/messaging/messageQueues/messageQueue.h \
             src/core/messaging/messageQueues/outgoingmessagequeue.h \
             src/core/messaging/messageQueues/incomingmessagequeue.h \
-    src/core/messaging/messages/cyclefinishmessage.h
+    src/core/messaging/messages/cyclefinishmessage.h \
+    tests/messagetest.h \
+    tests/clustertest.h \
+    src/common/defines.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

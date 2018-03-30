@@ -32,6 +32,8 @@ bool IncomingMessageQueue::addMessage(const uint8_t site, Message *message)
             m_finishCounter++;
             if(isFinished()) {
                 m_switchFlag = !m_switchFlag;
+                m_mutex.unlock();
+                return true;
             }
         } else {
             if(m_switchFlag) {
