@@ -9,7 +9,7 @@ namespace KyoukoMind
  * @param site
  */
 ReplyMessage::ReplyMessage(const ClusterID targetClusterId,
-                           const uint32_t messageId,
+                           const uint64_t messageId,
                            const uint8_t targetSite) :
     Message(targetClusterId, messageId, targetSite)
 {

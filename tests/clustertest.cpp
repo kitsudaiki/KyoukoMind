@@ -22,7 +22,7 @@ void ClusterTest::initTestCase()
     MessageController contr;
     ClusterID tempId;
     tempId = 0;
-    m_noteCluster = new NodeCluster(tempId, "/tmp", 1000, &contr);
+    m_nodeCluster = new NodeCluster(tempId, "/tmp", 1000, &contr);
     tempId = 1;
     m_edgeCluster = new EdgeCluster(tempId, "/tmp", &contr);
     tempId = 2;
@@ -31,8 +31,8 @@ void ClusterTest::initTestCase()
 
 void ClusterTest::checkNodeCluster()
 {
-    UNITTEST((int)m_noteCluster->getNumberOfNodeBlocks(), 7);
-    UNITTEST((int)m_noteCluster->getNumberOfEdgeBlocks(), 1000);
+    UNITTEST((int)m_nodeCluster->getNumberOfNodeBlocks(), 4);
+    UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 1000);
 }
 
 void ClusterTest::checkEdgeCluster()
@@ -47,7 +47,7 @@ void ClusterTest::checkEmptyCluster()
 
 void ClusterTest::cleanupTestCase()
 {
-    delete m_noteCluster;
+    delete m_nodeCluster;
     delete m_edgeCluster;
     delete m_emptyCluster;
     //QFile::remove("/tmp/cluster_0_0_0");

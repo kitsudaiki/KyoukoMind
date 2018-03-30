@@ -30,9 +30,9 @@ void MessageTest::checkDataMessage()
 
     CommonMessageData metaData = message.getMetaData();
 
-    UNITTEST(metaData.messageId, 8589934593);
+    UNITTEST(metaData.messageId, 12884901890);
     UNITTEST(metaData.requiredReply, 1);
-    UNITTEST(metaData.targetSite, 3);
+    UNITTEST((uint32_t)metaData.targetSite, 4);
     UNITTEST(metaData.type, DATAMESSAGE);
 
     KyoChanEdge testEdge;
@@ -55,9 +55,9 @@ void MessageTest::checkDataMessage()
 
     CommonMessageData metaData2 = newMessage.getMetaData();
 
-    UNITTEST(metaData2.messageId, 8589934593);
+    UNITTEST(metaData2.messageId, 12884901890);
     UNITTEST(metaData2.requiredReply, 1);
-    UNITTEST(metaData2.targetSite, 3);
+    UNITTEST((uint32_t)metaData2.targetSite, 4);
     UNITTEST(metaData2.type, DATAMESSAGE);
 
     UNITTEST(newMessage.getNumberOfEdges(), 2);
@@ -70,13 +70,13 @@ void MessageTest::checkDataMessage()
 
 void MessageTest::checkReplyMessage()
 {
-    ReplyMessage message(1, 3, 4);
+    ReplyMessage message(1, 12884901890, 3);
 
     CommonMessageData metaData = message.getMetaData();
 
-    UNITTEST(metaData.messageId, 1);
+    UNITTEST(metaData.messageId, 12884901890);
     UNITTEST(metaData.requiredReply, 0);
-    UNITTEST(metaData.targetSite, 3);
+    UNITTEST((uint32_t)metaData.targetSite, 3);
     UNITTEST(metaData.type, REPLYMESSAGE);
 }
 
@@ -86,9 +86,9 @@ void MessageTest::checkLerningMessage()
 
     CommonMessageData metaData = message.getMetaData();
 
-    UNITTEST(metaData.messageId, 8589934593);
+    UNITTEST(metaData.messageId, 12884901890);
     UNITTEST(metaData.requiredReply, 1);
-    UNITTEST(metaData.targetSite, 3);
+    UNITTEST((uint32_t)metaData.targetSite, 4);
     UNITTEST(metaData.type, LEARNINGMESSAGE);
 
     KyoChanNewEdge testEdge;
@@ -113,9 +113,9 @@ void MessageTest::checkLerningMessage()
 
     CommonMessageData metaData2 = newMessage.getMetaData();
 
-    UNITTEST(metaData2.messageId, 8589934593);
+    UNITTEST(metaData2.messageId, 12884901890);
     UNITTEST(metaData2.requiredReply, 1);
-    UNITTEST(metaData2.targetSite, 3);
+    UNITTEST((uint32_t)metaData2.targetSite, 4);
     UNITTEST(metaData2.type, LEARNINGMESSAGE);
 
     UNITTEST(newMessage.getNumberOfEdges(), 2);
@@ -129,13 +129,13 @@ void MessageTest::checkLerningMessage()
 
 void MessageTest::checkLearingReplyMessage()
 {
-    LearningReplyMessage message(1, 2, 3);
+    LearningReplyMessage message(1, 12884901890, 3);
 
     CommonMessageData metaData = message.getMetaData();
 
-    UNITTEST(metaData.messageId, 8589934593);
+    UNITTEST(metaData.messageId, 12884901890);
     UNITTEST(metaData.requiredReply, 1);
-    UNITTEST(metaData.targetSite, 3);
+    UNITTEST((uint32_t)metaData.targetSite, 3);
     UNITTEST(metaData.type, LEARNINGREPLYMESSAGE);
 
     KyoChanNewEdgeReply testEdge;
@@ -162,9 +162,9 @@ void MessageTest::checkLearingReplyMessage()
 
     CommonMessageData metaData2 = newMessage.getMetaData();
 
-    UNITTEST(metaData2.messageId, 8589934593);
+    UNITTEST(metaData2.messageId, 12884901890);
     UNITTEST(metaData2.requiredReply, 1);
-    UNITTEST(metaData2.targetSite, 3);
+    UNITTEST((uint32_t)metaData2.targetSite, 3);
     UNITTEST(metaData2.type, LEARNINGREPLYMESSAGE);
 
     UNITTEST(newMessage.getNumberOfEdgeReplys(), 2);

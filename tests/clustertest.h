@@ -24,7 +24,7 @@ protected:
     void cleanupTestCase();
 
 private:
-    NodeCluster *m_noteCluster = nullptr;
+    NodeCluster *m_nodeCluster = nullptr;
     EdgeCluster *m_edgeCluster = nullptr;
     EmptyCluster *m_emptyCluster = nullptr;
 };

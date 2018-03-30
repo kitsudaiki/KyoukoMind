@@ -12,7 +12,7 @@ class LearningReplyMessage : public Message
 {
 public:
     LearningReplyMessage(const ClusterID targetClusterId,
-                         const uint32_t messageIdCounter,
+                         const uint64_t messageId,
                          const uint8_t targetSite);
     LearningReplyMessage();
 
