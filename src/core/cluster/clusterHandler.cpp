@@ -42,8 +42,10 @@ bool ClusterHandler::addCluster(const ClusterID clusterId, Cluster* cluster)
  */
 Cluster *ClusterHandler::getCluster(const ClusterID clusterId)
 {
-    if(m_allClusters.find(clusterId) != m_allClusters.end()) {
-        return m_allClusters.find(clusterId)->second;
+    std::map<ClusterID, Cluster*>::iterator it;
+    it = m_allClusters.find(clusterId);
+    if(it != m_allClusters.end()) {
+        return it->second;
     }
     return nullptr;
 }

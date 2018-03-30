@@ -9,13 +9,15 @@ namespace KyoukoMind
  * @param messageIdCounter
  * @param site
  */
-Message::Message(const uint32_t clusterId,
+Message::Message(const ClusterID targetClusterId,
+                 const ClusterID sourceClusterId,
                  const uint32_t messageIdCounter,
                  const uint8_t site)
 {
+    m_metaData.targetClusterId = targetClusterId;
     m_metaData.messageId = messageIdCounter;
     m_metaData.messageId = m_metaData.messageId << 32;
-    m_metaData.messageId += clusterId;
+    m_metaData.messageId += sourceClusterId;
     m_metaData.site = site;
 }
 
@@ -24,9 +26,11 @@ Message::Message(const uint32_t clusterId,
  * @param messageId
  * @param site
  */
-Message::Message(const uint64_t messageId,
+Message::Message(const ClusterID targetClusterId,
+                 const uint64_t messageId,
                  const uint8_t site)
 {
+    m_metaData.targetClusterId = targetClusterId;
     m_metaData.messageId = messageId;
     m_metaData.site = site;
 }
@@ -44,6 +48,15 @@ Message::Message()
 CommonMessageData Message::getMetaData() const
 {
     return m_metaData;
+}
+
+/**
+ * @brief Message::getType
+ * @return
+ */
+uint8_t Message::getType() const
+{
+    return m_metaData.type;
 }
 
 /**

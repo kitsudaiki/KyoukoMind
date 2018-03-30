@@ -1,13 +1,18 @@
 #ifndef OUTGOINGMESSAGEQUEUE_H
 #define OUTGOINGMESSAGEQUEUE_H
 
+#include "messageQueue.h"
+
 namespace KyoukoMind
 {
+class MessageController;
 
-class OutgoingMessageQueue
+class OutgoingMessageQueue : public MessageQueue
 {
 public:
-    OutgoingMessageQueue();
+    OutgoingMessageQueue(const ClusterID clusterId,
+                         MessageController *controller);
+
 };
 
 }

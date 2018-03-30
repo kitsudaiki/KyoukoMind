@@ -1,15 +1,15 @@
 #include "messageQueue.h"
+#include <core/messaging/messagecontroller.h>
+#include <core/messaging/messages/message.h>
 
 namespace KyoukoMind
 {
 
-MessageQueue::MessageQueue()
+MessageQueue::MessageQueue(const ClusterID clusterId,
+                           MessageController *controller)
 {
-}
-
-bool MessageQueue::addMessageToQueue(Message *message)
-{
-
+    m_clusterId = clusterId;
+    m_controller = controller;
 }
 
 }

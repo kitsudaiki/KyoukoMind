@@ -9,7 +9,8 @@ namespace KyoukoMind
 class ReplyMessage : public Message
 {
 public:
-    ReplyMessage(const uint32_t messageId,
+    ReplyMessage(const ClusterID targetClusterId,
+                 const uint32_t messageId,
                  const uint8_t site);
     ReplyMessage();
 

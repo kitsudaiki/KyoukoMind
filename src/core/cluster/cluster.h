@@ -10,6 +10,7 @@ class IOBuffer;
 
 namespace KyoukoMind
 {
+class MessageController;
 
 class Cluster
 {

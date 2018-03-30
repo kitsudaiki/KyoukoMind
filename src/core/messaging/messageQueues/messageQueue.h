@@ -3,22 +3,25 @@
 
 #include <common.h>
 
+namespace KyoukoMind
+{
 class Message;
 class DataMessage;
 class ReplyMessage;
 class LearningMessage;
 class LearningReployMessage;
 
-namespace KyoukoMind
-{
+class MessageController;
 
 class MessageQueue
 {
 public:
-    MessageQueue();
+    MessageQueue(const ClusterID clusterId,
+                 MessageController *controller);
 
-    bool addMessageToQueue(Message* message);
-
+protected:
+    ClusterID m_clusterId;
+    MessageController *m_controller = nullptr;
 
 private:
 };

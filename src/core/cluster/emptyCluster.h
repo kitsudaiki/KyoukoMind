@@ -13,7 +13,8 @@ class EmptyCluster : public Cluster
 
 public:
     EmptyCluster(ClusterID clusterId,
-                 const std::string directoryPath);
+                 const std::string directoryPath,
+                 KyoukoMind::MessageController *controller);
 
 protected:
     IncomingMessageQueue* m_incomingMessageQueue = nullptr;

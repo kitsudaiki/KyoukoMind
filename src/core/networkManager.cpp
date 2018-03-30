@@ -4,6 +4,7 @@
 
 #include <core/cluster/clusterHandler.h>
 #include <core/processing/processingUnitHandler.h>
+#include <core/messaging/messagecontroller.h>
 
 #include <core/cluster/cluster.h>
 #include <core/cluster/emptyCluster.h>
@@ -20,6 +21,7 @@ NetworkManager::NetworkManager()
 {
     m_clusterManager = new ClusterHandler();
     m_processingUnitHandler = new ProcessingUnitHandler();
+    m_messageController = new MessageController();
 
     bool ok = false;
     std::string initialFile = KyoukoNetwork::m_config->getInitialFilePath(&ok);
@@ -100,6 +102,7 @@ bool NetworkManager::readInitialFile(const std::string filePath,
                                      const std::string directoryPath,
                                      ClusterHandler* clusterManager)
 {
+    ClusterID idCounter = 0;
     bool ok = false;
     uint32_t nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes(&ok);
 
@@ -120,7 +123,7 @@ bool NetworkManager::readInitialFile(const std::string filePath,
     std::vector<std::string> allLines = splitString(string_content, '\n');
 
     // read the single lines
-    for(int lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
+    for(unsigned int lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
     {
         // split line
         std::vector<std::string> splittedLine = splitString(allLines[lineNumber], '|');
@@ -129,32 +132,27 @@ bool NetworkManager::readInitialFile(const std::string filePath,
         removeEmptyStrings(splittedLine);
 
         // process the splitted line
-        for(int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
+        for(unsigned int linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
             int number = std::stoi(splittedLine[linePartNumber]);
-
-            ClusterID clusterId;
-            clusterId.x = lineNumber;
-            clusterId.y = linePartNumber;
-            // TODO: add z-dimension
-            clusterId.z = 0;
 
             Cluster* cluster = nullptr;
             // create cluster
             switch (number) {
                 case 0:
-                    cluster = new EmptyCluster(clusterId, directoryPath);
+                    cluster = new EmptyCluster(idCounter, directoryPath, m_messageController);
                     break;
                 case 1:
-                    cluster = new EdgeCluster(clusterId, directoryPath);
+                    cluster = new EdgeCluster(idCounter, directoryPath, m_messageController);
                     break;
                 case 2:
-                    cluster = new NodeCluster(clusterId, directoryPath, nodeNumberPerCluster);
+                    cluster = new NodeCluster(idCounter, directoryPath, nodeNumberPerCluster, m_messageController);
                     break;
                 default:
                     return false;
             }
-            clusterManager->addCluster(clusterId, cluster);
+            clusterManager->addCluster(idCounter, cluster);
+            idCounter++;
         }
     }
     return true;

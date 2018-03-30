@@ -11,7 +11,8 @@ namespace KyoukoMind
 class LearningReplyMessage : public Message
 {
 public:
-    LearningReplyMessage(const uint32_t clusterId,
+    LearningReplyMessage(const ClusterID targetClusterId,
+                         const uint32_t clusterId,
                          const uint32_t messageIdCounter,
                          const uint8_t site);
     LearningReplyMessage();

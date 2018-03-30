@@ -4,9 +4,11 @@ namespace KyoukoMind
 {
 
 EdgeCluster::EdgeCluster(ClusterID clusterId,
-                         const std::string directoryPath)
+                         const std::string directoryPath,
+                         MessageController *controller)
     : EmptyCluster(clusterId,
-                   directoryPath)
+                   directoryPath,
+                   controller)
 {
     m_clusterType = EDGECLUSTER;
 }

@@ -11,7 +11,8 @@ namespace KyoukoMind
 class DataMessage : public Message
 {
 public:
-    DataMessage(const uint32_t clusterId,
+    DataMessage(const ClusterID targetClusterId,
+                const ClusterID clusterId,
                 const uint32_t messageIdCounter,
                 const uint8_t site);
     DataMessage();

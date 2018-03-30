@@ -10,6 +10,7 @@ struct CommonMessageData
 {
     uint8_t type = UNDEFINED;
     uint64_t messageId = 0;
+    ClusterID targetClusterId = 0;
     uint8_t site = 0;
     uint8_t requiredReply = 0;
 };
@@ -17,16 +18,19 @@ struct CommonMessageData
 class Message
 {
 public:
-    Message(const uint32_t clusterId,
+    Message(const ClusterID targetClusterId,
+            const ClusterID sourceClusterId,
             const uint32_t messageIdCounter,
             const uint8_t site);
-    Message(const uint64_t messageId,
+    Message(const ClusterID targetClusterId,
+            const uint64_t messageId,
             const uint8_t site);
     Message();
 
     virtual uint8_t* convertToByteArray() = 0;
 
     CommonMessageData getMetaData() const;
+    uint8_t getType() const;
 
 protected:
     CommonMessageData m_metaData;

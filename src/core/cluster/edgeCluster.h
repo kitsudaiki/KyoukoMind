@@ -11,7 +11,8 @@ class EdgeCluster : public EmptyCluster
 
 public:
     EdgeCluster(ClusterID clusterId,
-                const std::string directoryPath);
+                const std::string directoryPath,
+                MessageController *controller);
 };
 
 }

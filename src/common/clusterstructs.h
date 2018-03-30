@@ -3,36 +3,7 @@
 
 #include <common/enums.h>
 #include <common/includes.h>
-
-struct ClusterID
-{
-    uint32_t x = 0;
-    uint32_t y = 0;
-    uint32_t z = 0;
-
-    bool operator<(const ClusterID& rhs) const
-    {
-        if (x < rhs.x) {
-           return true;
-        }
-        else if (x == rhs.x) {
-            if (y < rhs.y) {
-                return true;
-            }
-            else if (y == rhs.y) {
-                return z < rhs.z;
-            }
-        }
-        return false;
-    }
-    bool operator=(const ClusterID& rhs) const
-    {
-        if (x == rhs.x && y == rhs.y && z == rhs.z) {
-           return true;
-        }
-        return false;
-    }
-} __attribute__((packed));
+#include <common/typedefs.h>
 
 struct Neighbor
 {

@@ -1,5 +1,6 @@
 #include <core/cluster/cluster.h>
 #include <files/ioBuffer.h>
+#include <core/messaging/messagecontroller.h>
 
 namespace KyoukoMind
 {
@@ -90,9 +91,7 @@ void Cluster::initFile(const ClusterID clusterId,
                        const std::string directoryPath)
 {
     std::string filePath = directoryPath
-                         + "/cluster_" + std::to_string(clusterId.x)
-                                 + "_" + std::to_string(clusterId.y)
-                                 + "_" + std::to_string(clusterId.z);
+                         + "/cluster_" + std::to_string(clusterId);
     m_buffer = new PerformanceIO::IOBuffer(filePath);
 }
 

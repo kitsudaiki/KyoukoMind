@@ -8,9 +8,10 @@ namespace KyoukoMind
  * @param messageId
  * @param site
  */
-ReplyMessage::ReplyMessage(const uint32_t messageId,
+ReplyMessage::ReplyMessage(const ClusterID targetClusterId,
+                           const uint32_t messageId,
                            const uint8_t site) :
-    Message(messageId, site)
+    Message(targetClusterId, messageId, site)
 {
     m_metaData.type = REPLYMESSAGE;
     m_metaData.requiredReply = 0;
@@ -40,7 +41,7 @@ bool ReplyMessage::convertFromByteArray(uint8_t *data)
  * @brief ReplyMessage::convertToByteArray
  * @return
  */
-uint8_t *ReplyMessage::convertToByteArray()
+uint8_t* ReplyMessage::convertToByteArray()
 {
     return convertCommonToByteArray(0);
 }
