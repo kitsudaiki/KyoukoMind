@@ -12,13 +12,13 @@ namespace KyoukoMind
 Message::Message(const ClusterID targetClusterId,
                  const ClusterID sourceClusterId,
                  const uint32_t messageIdCounter,
-                 const uint8_t site)
+                 const uint8_t targetSite)
 {
     m_metaData.targetClusterId = targetClusterId;
     m_metaData.messageId = messageIdCounter;
     m_metaData.messageId = m_metaData.messageId << 32;
     m_metaData.messageId += sourceClusterId;
-    m_metaData.site = site;
+    m_metaData.targetSite = targetSite;
 }
 
 /**
@@ -28,11 +28,11 @@ Message::Message(const ClusterID targetClusterId,
  */
 Message::Message(const ClusterID targetClusterId,
                  const uint64_t messageId,
-                 const uint8_t site)
+                 const uint8_t targetSite)
 {
     m_metaData.targetClusterId = targetClusterId;
     m_metaData.messageId = messageId;
-    m_metaData.site = site;
+    m_metaData.targetSite = targetSite;
 }
 
 /**
@@ -57,6 +57,25 @@ CommonMessageData Message::getMetaData() const
 uint8_t Message::getType() const
 {
     return m_metaData.type;
+}
+
+/**
+ * @brief Message::setMetaData
+ * @param targetClusterId
+ * @param sourceClusterId
+ * @param messageIdCounter
+ * @param targetSite
+ */
+void Message::setMetaData(const ClusterID targetClusterId,
+                          const ClusterID sourceClusterId,
+                          const uint32_t messageIdCounter,
+                          const uint8_t targetSite)
+{
+    m_metaData.targetClusterId = targetClusterId;
+    m_metaData.messageId = messageIdCounter;
+    m_metaData.messageId = m_metaData.messageId << 32;
+    m_metaData.messageId += sourceClusterId;
+    m_metaData.targetSite = targetSite;
 }
 
 /**

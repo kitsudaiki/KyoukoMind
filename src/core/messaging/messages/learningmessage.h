@@ -12,9 +12,9 @@ class LearningMessage : public Message
 {
 public:
     LearningMessage(const ClusterID targetClusterId,
-                    const uint32_t clusterId,
+                    const uint32_t sourceClusterId,
                     const uint32_t messageIdCounter,
-                    const uint8_t site);
+                    const uint8_t targetSite);
     LearningMessage();
 
     bool convertFromByteArray(uint8_t* data);

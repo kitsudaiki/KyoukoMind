@@ -10,8 +10,8 @@ namespace KyoukoMind
  */
 CycleFinishMessage::CycleFinishMessage(const ClusterID targetClusterId,
                                        const uint32_t messageId,
-                                       const uint8_t site) :
-    Message(targetClusterId, messageId, site)
+                                       const uint8_t targetSite) :
+    Message(targetClusterId, messageId, targetSite)
 {
     m_metaData.type = CYCLEFINISHMESSAGE;
     m_metaData.requiredReply = 1;

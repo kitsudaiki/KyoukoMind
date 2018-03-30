@@ -10,10 +10,10 @@ namespace KyoukoMind
  * @param site
  */
 DataMessage::DataMessage(const ClusterID targetClusterId,
-                         const ClusterID clusterId,
+                         const ClusterID sourceClusterId,
                          const uint32_t messageIdCounter,
-                         const uint8_t site) :
-    Message(targetClusterId, clusterId, messageIdCounter, site)
+                         const uint8_t targetSite) :
+    Message(targetClusterId, sourceClusterId, messageIdCounter, targetSite)
 {
     m_metaData.type = DATAMESSAGE;
     m_metaData.requiredReply = 1;

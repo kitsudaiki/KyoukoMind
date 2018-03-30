@@ -11,7 +11,7 @@ class ReplyMessage : public Message
 public:
     ReplyMessage(const ClusterID targetClusterId,
                  const uint32_t messageId,
-                 const uint8_t site);
+                 const uint8_t targetSite);
     ReplyMessage();
 
     bool convertFromByteArray(uint8_t* data);

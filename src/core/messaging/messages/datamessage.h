@@ -12,9 +12,9 @@ class DataMessage : public Message
 {
 public:
     DataMessage(const ClusterID targetClusterId,
-                const ClusterID clusterId,
+                const ClusterID sourceClusterId,
                 const uint32_t messageIdCounter,
-                const uint8_t site);
+                const uint8_t targetSite);
     DataMessage();
 
     bool convertFromByteArray(uint8_t* data);

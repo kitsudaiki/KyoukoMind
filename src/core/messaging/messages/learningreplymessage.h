@@ -12,9 +12,8 @@ class LearningReplyMessage : public Message
 {
 public:
     LearningReplyMessage(const ClusterID targetClusterId,
-                         const uint32_t clusterId,
                          const uint32_t messageIdCounter,
-                         const uint8_t site);
+                         const uint8_t targetSite);
     LearningReplyMessage();
 
     bool convertFromByteArray(uint8_t* data);

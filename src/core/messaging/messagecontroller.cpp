@@ -15,9 +15,7 @@ namespace KyoukoMind
 /**
  * @brief MessageController::MessageController
  */
-MessageController::MessageController()
-{
-}
+MessageController::MessageController() {}
 
 /**
  * @brief MessageController::addIncomingMessageQueues
@@ -43,7 +41,7 @@ bool MessageController::addIncomingMessageQueue(const uint32_t clusterId,
 bool MessageController::sendMessage(Message *message)
 {
     uint32_t targetClusterId = message->getMetaData().targetClusterId;
-    uint8_t targetSite = 7 - message->getMetaData().site;
+    uint8_t targetSite = message->getMetaData().targetSite;
 
     std::map<ClusterID, IncomingMessageQueue*>::iterator it;
     it = m_messageQueues.find(targetClusterId);

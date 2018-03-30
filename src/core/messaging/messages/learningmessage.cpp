@@ -10,10 +10,10 @@ namespace KyoukoMind
  * @param site
  */
 LearningMessage::LearningMessage(const ClusterID targetClusterId,
-                                 const uint32_t clusterId,
+                                 const uint32_t sourceClusterId,
                                  const uint32_t messageIdCounter,
-                                 const uint8_t site) :
-    Message(targetClusterId, clusterId, messageIdCounter, site)
+                                 const uint8_t targetSite) :
+    Message(targetClusterId, sourceClusterId, messageIdCounter, targetSite)
 {
     m_metaData.type = LEARNINGMESSAGE;
     m_metaData.requiredReply = 1;
