@@ -43,7 +43,8 @@ SOURCES += main.cpp \
     src/core/messaging/messageQueues/incomingMessageBuffer.cpp \
     src/core/messaging/messageQueues/messageBuffer.cpp \
     src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
-    tests/messagebuffertest.cpp
+    tests/messagebuffertest.cpp \
+    tests/commontest.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -79,7 +80,8 @@ HEADERS +=\
     src/core/messaging/messageQueues/incomingMessageBuffer.h \
     src/core/messaging/messageQueues/messageBuffer.h \
     src/core/messaging/messageQueues/outgoingMessageBuffer.h \
-    tests/messagebuffertest.h
+    tests/messagebuffertest.h \
+    tests/commontest.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

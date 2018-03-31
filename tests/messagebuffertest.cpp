@@ -11,7 +11,7 @@ namespace KyoukoMind
 /**
  * @brief MessageBufferTest::MessageBufferTest
  */
-MessageBufferTest::MessageBufferTest()
+MessageBufferTest::MessageBufferTest() : CommonTest("MessageBufferTest")
 {
     initTestCase();
     checkMessageBuffer();

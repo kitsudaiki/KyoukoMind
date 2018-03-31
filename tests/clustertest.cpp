@@ -8,7 +8,7 @@
 namespace KyoukoMind
 {
 
-ClusterTest::ClusterTest()
+ClusterTest::ClusterTest() : CommonTest("ClusterTest")
 {
     initTestCase();
     checkNodeCluster();

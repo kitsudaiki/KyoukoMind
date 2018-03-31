@@ -2,6 +2,7 @@
 #define CLUSTERTEST_H
 
 #include <common.h>
+#include <tests/commontest.h>
 
 namespace KyoukoMind
 {
@@ -10,7 +11,7 @@ class NodeCluster;
 class EdgeCluster;
 class EmptyCluster;
 
-class ClusterTest
+class ClusterTest : public CommonTest
 {
 
 public:

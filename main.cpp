@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
     //KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
-    //KyoukoMind::ClusterTest();
-    //KyoukoMind::MessageTest();
+    KyoukoMind::ClusterTest();
+    KyoukoMind::MessageTest();
     KyoukoMind::MessageBufferTest();
 }

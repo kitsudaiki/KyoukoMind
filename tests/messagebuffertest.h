@@ -2,6 +2,7 @@
 #define MESSAGEBUFFERTEST_H
 
 #include <common.h>
+#include <tests/commontest.h>
 
 namespace KyoukoMind
 {
@@ -10,7 +11,7 @@ class IncomingMessageBuffer;
 class MessageBuffer;
 class OutgoingMessageBuffer;
 
-class MessageBufferTest
+class MessageBufferTest : public CommonTest
 {
 
 public:

@@ -2,6 +2,7 @@
 #define MESSAGETEST_H
 
 #include <common.h>
+#include <tests/commontest.h>
 
 namespace KyoukoMind
 {
@@ -12,7 +13,7 @@ class ReplyMessage;
 class LearningMessage;
 class LearningReplyMessage;
 
-class MessageTest
+class MessageTest : public CommonTest
 {
 
 public:

@@ -9,7 +9,7 @@
 namespace KyoukoMind
 {
 
-MessageTest::MessageTest()
+MessageTest::MessageTest() : CommonTest("MessageTest")
 {
     initTestCase();
     checkDataMessage();
