@@ -16,14 +16,13 @@ class ClusterTest
 public:
     ClusterTest();
 
-protected:
+private:
     void initTestCase();
     void checkNodeCluster();
     void checkEdgeCluster();
     void checkEmptyCluster();
     void cleanupTestCase();
 
-private:
     NodeCluster *m_nodeCluster = nullptr;
     EdgeCluster *m_edgeCluster = nullptr;
     EmptyCluster *m_emptyCluster = nullptr;

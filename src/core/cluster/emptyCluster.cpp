@@ -1,6 +1,6 @@
 #include <core/cluster/emptyCluster.h>
-#include <core/messaging/messageQueues/incomingmessagequeue.h>
-#include <core/messaging/messageQueues/outgoingmessagequeue.h>
+#include <core/messaging/messageQueues/incomingMessageBuffer.h>
+#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
 
 namespace KyoukoMind
 {
@@ -13,8 +13,8 @@ EmptyCluster::EmptyCluster(ClusterID clusterId,
 {
     m_clusterType = EMPTYCLUSTER;
 
-    m_incomingMessageQueue = new IncomingMessageQueue(clusterId, controller);
-    m_outgoingMessageQueue = new OutgoingMessageQueue(clusterId, controller);
+    m_incomingMessageQueue = new IncomingMessageBuffer(clusterId, controller);
+    m_outgoingMessageQueue = new OutgoingMessageBuffer(clusterId, controller);
 }
 
 }

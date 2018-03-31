@@ -1,30 +1,30 @@
-#include "incomingmessagequeue.h"
+#include "incomingMessageBuffer.h"
 
 #include <core/messaging/messages/message.h>
-
+#include <core/messaging/messagecontroller.h>
 
 namespace KyoukoMind
 {
 
 /**
- * @brief IncomingMessageQueue::IncomingMessageQueue
+ * @brief IncomingMessageBuffer::IncomingMessageBuffer
  * @param clusterId
  * @param controller
  */
-IncomingMessageQueue::IncomingMessageQueue(const ClusterID clusterId,
-                                           MessageController* controller):
-    MessageQueue(clusterId, controller)
+IncomingMessageBuffer::IncomingMessageBuffer(const ClusterID clusterId,
+                                             MessageController* controller):
+    MessageBuffer(clusterId, controller)
 {
-
+    controller->addIncomingMessageQueue(clusterId, this);
 }
 
 /**
- * @brief IncomingMessageQueue::addMessage
+ * @brief IncomingMessageBuffer::addMessage
  * @param site
  * @param message
  * @return
  */
-bool IncomingMessageQueue::addMessage(const uint8_t site, Message *message)
+bool IncomingMessageBuffer::addMessage(const uint8_t site, Message *message)
 {
     if(site <= 9) {
         m_mutex.lock();
@@ -49,10 +49,10 @@ bool IncomingMessageQueue::addMessage(const uint8_t site, Message *message)
 }
 
 /**
- * @brief IncomingMessageQueue::getMessageQueue
+ * @brief IncomingMessageBuffer::getMessageQueue
  * @return
  */
-std::vector<Message *> *IncomingMessageQueue::getMessageQueue(const uint8_t site)
+std::vector<Message *> *IncomingMessageBuffer::getMessageQueue(const uint8_t site)
 {
     if(m_switchFlag) {
         return &m_messageQueue1[site];
@@ -62,10 +62,10 @@ std::vector<Message *> *IncomingMessageQueue::getMessageQueue(const uint8_t site
 }
 
 /**
- * @brief IncomingMessageQueue::isFinished
+ * @brief IncomingMessageBuffer::isFinished
  * @return
  */
-bool IncomingMessageQueue::isFinished() const
+bool IncomingMessageBuffer::isFinished() const
 {
     if(m_finishCounter == 9) {
         return true;
@@ -74,9 +74,9 @@ bool IncomingMessageQueue::isFinished() const
 }
 
 /**
- * @brief IncomingMessageQueue::resetFinishCounter
+ * @brief IncomingMessageBuffer::resetFinishCounter
  */
-void IncomingMessageQueue::resetFinishCounter()
+void IncomingMessageBuffer::resetFinishCounter()
 {
     m_finishCounter = 0;
 }

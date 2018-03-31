@@ -37,12 +37,13 @@ SOURCES += main.cpp \
             src/core/messaging/messages/learningreplymessage.cpp \
             src/core/messaging/timeouthandler.cpp \
             src/core/messaging/messagecontroller.cpp \
-            src/core/messaging/messageQueues/messageQueue.cpp \
-            src/core/messaging/messageQueues/outgoingmessagequeue.cpp \
-            src/core/messaging/messageQueues/incomingmessagequeue.cpp \
     src/core/messaging/messages/cyclefinishmessage.cpp \
     tests/messagetest.cpp \
-    tests/clustertest.cpp
+    tests/clustertest.cpp \
+    src/core/messaging/messageQueues/incomingMessageBuffer.cpp \
+    src/core/messaging/messageQueues/messageBuffer.cpp \
+    src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
+    tests/messagebuffertest.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -71,13 +72,14 @@ HEADERS +=\
             src/common/netstructs.h \
             src/common/includes.h \
             common.h \
-            src/core/messaging/messageQueues/messageQueue.h \
-            src/core/messaging/messageQueues/outgoingmessagequeue.h \
-            src/core/messaging/messageQueues/incomingmessagequeue.h \
     src/core/messaging/messages/cyclefinishmessage.h \
     tests/messagetest.h \
     tests/clustertest.h \
-    src/common/defines.h
+    src/common/defines.h \
+    src/core/messaging/messageQueues/incomingMessageBuffer.h \
+    src/core/messaging/messageQueues/messageBuffer.h \
+    src/core/messaging/messageQueues/outgoingMessageBuffer.h \
+    tests/messagebuffertest.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

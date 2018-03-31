@@ -13,10 +13,10 @@ class LearningReployMessage;
 
 class MessageController;
 
-class MessageQueue
+class MessageBuffer
 {
 public:
-    MessageQueue(const ClusterID clusterId,
+    MessageBuffer(const ClusterID clusterId,
                  MessageController *controller);
 
 protected:

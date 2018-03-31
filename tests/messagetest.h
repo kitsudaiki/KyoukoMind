@@ -18,7 +18,7 @@ class MessageTest
 public:
     MessageTest();
 
-protected:
+private:
     void initTestCase();
     void checkDataMessage();
     void checkReplyMessage();

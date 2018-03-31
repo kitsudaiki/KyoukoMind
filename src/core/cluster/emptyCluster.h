@@ -5,8 +5,8 @@
 
 namespace KyoukoMind
 {
-class IncomingMessageQueue;
-class OutgoingMessageQueue;
+class IncomingMessageBuffer;
+class OutgoingMessageBuffer;
 
 class EmptyCluster : public Cluster
 {
@@ -17,8 +17,8 @@ public:
                  KyoukoMind::MessageController *controller);
 
 protected:
-    IncomingMessageQueue* m_incomingMessageQueue = nullptr;
-    OutgoingMessageQueue* m_outgoingMessageQueue = nullptr;
+    IncomingMessageBuffer* m_incomingMessageQueue = nullptr;
+    OutgoingMessageBuffer* m_outgoingMessageQueue = nullptr;
 };
 
 }

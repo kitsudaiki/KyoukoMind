@@ -1,7 +1,7 @@
 #ifndef OUTGOINGMESSAGEQUEUE_H
 #define OUTGOINGMESSAGEQUEUE_H
 
-#include "messageQueue.h"
+#include "messageBuffer.h"
 
 namespace KyoukoMind
 {
@@ -9,11 +9,11 @@ class MessageController;
 class DataMessage;
 class LearningMessage;
 
-class OutgoingMessageQueue : public MessageQueue
+class OutgoingMessageBuffer : public MessageBuffer
 {
 public:
-    OutgoingMessageQueue(const ClusterID clusterId,
-                         MessageController *controller);
+    OutgoingMessageBuffer(const ClusterID clusterId,
+                          MessageController *controller);
 
     bool addEdge(const ClusterID targetClusterId,
                  const uint8_t targetSite,

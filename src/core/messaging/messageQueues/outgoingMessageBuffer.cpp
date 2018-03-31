@@ -1,4 +1,4 @@
-﻿#include "outgoingmessagequeue.h"
+﻿#include "outgoingMessageBuffer.h"
 
 #include <core/messaging/messagecontroller.h>
 
@@ -13,13 +13,13 @@ namespace KyoukoMind
 {
 
 /**
- * @brief OutgoingMessageQueue::OutgoingMessageQueue
+ * @brief OutgoingMessageBuffer::OutgoingMessageBuffer
  * @param clusterId
  * @param controller
  */
-OutgoingMessageQueue::OutgoingMessageQueue(const ClusterID clusterId,
-                                           MessageController* controller):
-    MessageQueue(clusterId, controller)
+OutgoingMessageBuffer::OutgoingMessageBuffer(const ClusterID clusterId,
+                                             MessageController* controller):
+    MessageBuffer(clusterId, controller)
 {
     for(unsigned int i = 0; i < 10; i++) {
         m_dataMessageBuffer[i] = new DataMessage();
@@ -28,15 +28,15 @@ OutgoingMessageQueue::OutgoingMessageQueue(const ClusterID clusterId,
 }
 
 /**
- * @brief OutgoingMessageQueue::addEdge
+ * @brief OutgoingMessageBuffer::addEdge
  * @param targetClusterId
  * @param targetSite
  * @param newEdge
  * @return
  */
-bool OutgoingMessageQueue::addEdge(const ClusterID targetClusterId,
-                                   const uint8_t targetSite,
-                                   const KyoChanEdge newEdge)
+bool OutgoingMessageBuffer::addEdge(const ClusterID targetClusterId,
+                                    const uint8_t targetSite,
+                                    const KyoChanEdge newEdge)
 {
     if(targetSite <= 9) {
         if(m_dataMessageBuffer[targetSite]->addEdge(newEdge)) {
@@ -56,14 +56,14 @@ bool OutgoingMessageQueue::addEdge(const ClusterID targetClusterId,
 }
 
 /**
- * @brief OutgoingMessageQueue::addLearingEdge
+ * @brief OutgoingMessageBuffer::addLearingEdge
  * @param targetClusterId
  * @param targetSite
  * @return
  */
-bool OutgoingMessageQueue::addLearingEdge(const ClusterID targetClusterId,
-                                          const uint8_t targetSite,
-                                          const KyoChanNewEdge newEdge)
+bool OutgoingMessageBuffer::addLearingEdge(const ClusterID targetClusterId,
+                                           const uint8_t targetSite,
+                                           const KyoChanNewEdge newEdge)
 {
     if(targetSite <= 9) {
         if(m_learingMessageBuffer[targetSite]->addNewEdge(newEdge)) {
@@ -83,12 +83,12 @@ bool OutgoingMessageQueue::addLearingEdge(const ClusterID targetClusterId,
 }
 
 /**
- * @brief OutgoingMessageQueue::sendReplyMessage
+ * @brief OutgoingMessageBuffer::sendReplyMessage
  * @param targetClusterId
  * @param targetSite
  */
-void OutgoingMessageQueue::sendReplyMessage(const ClusterID targetClusterId,
-                                            const uint8_t targetSite)
+void OutgoingMessageBuffer::sendReplyMessage(const ClusterID targetClusterId,
+                                             const uint8_t targetSite)
 {
     ReplyMessage* replyMessage = new ReplyMessage(targetClusterId,
                                                   m_messageIdCounter,
@@ -98,12 +98,12 @@ void OutgoingMessageQueue::sendReplyMessage(const ClusterID targetClusterId,
 }
 
 /**
- * @brief OutgoingMessageQueue::sendLearningReplyMessage
+ * @brief OutgoingMessageBuffer::sendLearningReplyMessage
  * @param targetClusterId
  * @param targetSite
  */
-void OutgoingMessageQueue::sendLearningReplyMessage(const ClusterID targetClusterId,
-                                                    const uint8_t targetSite)
+void OutgoingMessageBuffer::sendLearningReplyMessage(const ClusterID targetClusterId,
+                                                     const uint8_t targetSite)
 {
     LearningReplyMessage* learningReplyMessage = new LearningReplyMessage(targetClusterId,
                                                                           m_messageIdCounter,
@@ -113,13 +113,21 @@ void OutgoingMessageQueue::sendLearningReplyMessage(const ClusterID targetCluste
 }
 
 /**
- * @brief OutgoingMessageQueue::sendFinishCycle
+ * @brief OutgoingMessageBuffer::sendFinishCycle
  * @param targetClusterId
  * @param targetSite
  */
-void OutgoingMessageQueue::sendFinishCycle(const ClusterID targetClusterId,
-                                           const uint8_t targetSite)
+void OutgoingMessageBuffer::sendFinishCycle(const ClusterID targetClusterId,
+                                            const uint8_t targetSite)
 {
+    m_dataMessageBuffer[targetSite]->setMetaData(targetClusterId,
+                                                 m_clusterId,
+                                                 m_messageIdCounter,
+                                                 targetSite);
+    m_controller->sendMessage(m_dataMessageBuffer[targetSite]);
+    m_dataMessageBuffer[targetSite] = new DataMessage();
+    m_messageIdCounter++;
+
     CycleFinishMessage* finishMessage = new CycleFinishMessage(targetClusterId,
                                                                m_messageIdCounter,
                                                                targetSite);

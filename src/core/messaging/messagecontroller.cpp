@@ -7,7 +7,7 @@
 #include <core/messaging/messages/learningreplymessage.h>
 #include <core/messaging/messages/cyclefinishmessage.h>
 
-#include <core/messaging/messageQueues/incomingmessagequeue.h>
+#include <core/messaging/messageQueues/incomingMessageBuffer.h>
 
 namespace KyoukoMind
 {
@@ -24,9 +24,10 @@ MessageController::MessageController() {}
  * @return
  */
 bool MessageController::addIncomingMessageQueue(const uint32_t clusterId,
-                                                IncomingMessageQueue *messageQueue)
+                                                IncomingMessageBuffer *messageQueue)
 {
     if(m_messageQueues.find(clusterId) == m_messageQueues.end()) {
+        // TODO: check if insert was successful
         m_messageQueues.insert(std::make_pair(clusterId, messageQueue));
         return true;
     }
@@ -43,10 +44,10 @@ bool MessageController::sendMessage(Message *message)
     uint32_t targetClusterId = message->getMetaData().targetClusterId;
     uint8_t targetSite = message->getMetaData().targetSite;
 
-    std::map<ClusterID, IncomingMessageQueue*>::iterator it;
+    std::map<ClusterID, IncomingMessageBuffer*>::iterator it;
     it = m_messageQueues.find(targetClusterId);
     if(it != m_messageQueues.end()) {
-        IncomingMessageQueue* targetQueue = it->second;
+        IncomingMessageBuffer* targetQueue = it->second;
         targetQueue->addMessage(targetSite, message);
         return true;
     }

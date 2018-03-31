@@ -13,7 +13,7 @@ class LearningMessage;
 class LearningReployMessage;
 class CycleFinishMessage;
 
-class IncomingMessageQueue;
+class IncomingMessageBuffer;
 
 class MessageController
 {
@@ -21,13 +21,13 @@ public:
     MessageController();
 
     bool addIncomingMessageQueue(const uint32_t clusterId,
-                                 IncomingMessageQueue *messageQueue);
+                                 IncomingMessageBuffer *messageQueue);
 
     bool sendMessage(Message* message);
 
 private:
     Message* convertToMessage(uint8_t *data);
-    std::map<uint32_t, IncomingMessageQueue*> m_messageQueues;
+    std::map<uint32_t, IncomingMessageBuffer*> m_messageQueues;
 };
 
 }

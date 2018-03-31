@@ -1,17 +1,17 @@
 #ifndef INCOMINGMESSAGEQUEUE_H
 #define INCOMINGMESSAGEQUEUE_H
 
-#include "messageQueue.h"
+#include "messageBuffer.h"
 
 namespace KyoukoMind
 {
 class MessageController;
 
-class IncomingMessageQueue : public MessageQueue
+class IncomingMessageBuffer : public MessageBuffer
 {
 public:
-    IncomingMessageQueue(const ClusterID clusterId,
-                         MessageController *controller);
+    IncomingMessageBuffer(const ClusterID clusterId,
+                          MessageController *controller);
 
     bool addMessage(const uint8_t site, Message *message);
     std::vector<Message*>* getMessageQueue(const uint8_t site);
