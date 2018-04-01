@@ -28,9 +28,6 @@ private:
     uint32_t m_numberOfThreads = 0;
 
     uint32_t m_mindDimensions[3];
-
-    std::vector<std::string> splitString(const std::string &s, char delim);
-    void removeEmptyStrings(std::vector<std::string> &strings);
 };
 }
 

@@ -32,36 +32,6 @@ NetworkInitializer::NetworkInitializer(const std::string filePath,
 }
 
 /**
- * @brief NetworkInitializer::splitString
- * @param s
- * @param delim
- * @return
- */
-std::vector<std::string> NetworkInitializer::splitString(const std::string &s, char delim) {
-    std::stringstream ss(s);
-    std::string item;
-    std::vector<std::string> tokens;
-    while(std::getline(ss, item, delim)) {
-        tokens.push_back(item);
-    }
-    return tokens;
-}
-
-/**
- * @brief NetworkInitializer::removeEmptyStrings
- * @param strings
- */
-void NetworkInitializer::removeEmptyStrings(std::vector<std::string>& strings)
-{
-    std::vector<std::string>::iterator it = std::remove_if(
-              strings.begin(),
-              strings.end(),
-              std::mem_fun_ref(&std::string::empty));
-    // erase the removed elements
-    strings.erase(it, strings.end());
-}
-
-/**
  * @brief NetworkInitializer::initNetwork
  * @return
  */
