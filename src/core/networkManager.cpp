@@ -34,7 +34,10 @@ NetworkManager::NetworkManager()
     struct dirent *ent;
     if((dir = opendir(directoryPath.c_str())) != nullptr) {
         while((ent = readdir(dir)) != nullptr) {
-            clusterFiles.push_back(ent->d_name);
+            std::string tempFileName = ent->d_name;
+            if(tempFileName.at(0) != '.') {
+                clusterFiles.push_back(ent->d_name);
+            }
         }
         closedir (dir);
     }
