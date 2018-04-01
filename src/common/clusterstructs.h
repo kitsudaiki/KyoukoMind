@@ -8,7 +8,7 @@
 struct Neighbor
 {
     ClusterID targetClusterId;
-    ClusterType neighborType = EMPTYCLUSTER;
+    uint8_t neighborType = EMPTYCLUSTER;
     uint32_t numberOfConnections = 0;
     uint32_t distantToNextNodeCluster = 0;
 } __attribute__((packed));
@@ -16,7 +16,7 @@ struct Neighbor
 struct ClusterMetaData
 {
     ClusterID clusterId;
-    ClusterType clusterType = EMPTYCLUSTER;
+    uint8_t clusterType = EMPTYCLUSTER;
     Neighbor neighors[9];
     uint32_t numberOfNeighbors = 1;
     uint32_t numberOfNodes = 0;

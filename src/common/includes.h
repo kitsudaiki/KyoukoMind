@@ -18,5 +18,6 @@
 #include <assert.h>
 #include <thread>
 #include <mutex>
+#include <istream>
 
 #endif // INCLUDES_H

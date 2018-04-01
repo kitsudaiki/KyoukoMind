@@ -29,10 +29,6 @@ private:
 
     uint32_t m_mindDimensions[3];
 
-    bool readInitialFile(const std::string filePath,
-                         const std::string directoryPath,
-                         ClusterHandler *clusterManager);
-
     std::vector<std::string> splitString(const std::string &s, char delim);
     void removeEmptyStrings(std::vector<std::string> &strings);
 };
