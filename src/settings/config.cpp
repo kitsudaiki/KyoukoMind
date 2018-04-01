@@ -72,7 +72,7 @@ std::string Config::getDirectoryPath(bool *ok) const
  */
 std::string Config::getInitialFilePath(bool *ok) const
 {
-    return "/home/neptune/Schreibtisch/Projekte/Deskchan/KyoukoMind/test_cluster";
+    return "/home/kyouko/Schreibtisch/Deskchan/KyoukoMind/test_cluster";
     //return m_configFile->getEntry("initial_file_path",
     //                              std::stringList()<<"GENERAL",
     //                              ok);

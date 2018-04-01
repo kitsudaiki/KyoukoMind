@@ -83,18 +83,18 @@ bool NetworkInitializer::getNetworkMetaStructure()
     strStream << inFile.rdbuf();
     std::string string_content = strStream.str();
 
-    // erase whitespaces
-    string_content.erase(std::remove_if(string_content.begin(),
-                                        string_content.end(),
-                                        isspace),
-                         string_content.end());
-
     // split string
     std::vector<std::string> allLines = splitString(string_content, '\n');
 
     // read the single lines
     for(uint32_t lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
     {
+        // erase whitespaces
+        allLines[lineNumber].erase(std::remove_if(allLines[lineNumber].begin(),
+                                                  allLines[lineNumber].end(),
+                                                  isspace),
+                                   allLines[lineNumber].end());
+
         // split line
         std::vector<std::string> splittedLine = splitString(allLines[lineNumber], '|');
 
@@ -181,6 +181,7 @@ bool NetworkInitializer::addCluster(const uint32_t x,
         default:
             return false;
     }
+    addNeighbors(x, y, cluster);
     m_clusterManager->addCluster(m_networkMetaStructure[x][y].second, cluster);
     return true;
 }
@@ -254,7 +255,7 @@ std::pair<uint32_t, uint32_t> NetworkInitializer::getNext(const uint32_t x,
         {
             result.first = x;
             if(y == 0) {
-                result.second = m_networkDimensions[1];
+                result.second = m_networkDimensions[1] - 1;
             } else {
                 result.second = y - 1;
             }
@@ -263,13 +264,25 @@ std::pair<uint32_t, uint32_t> NetworkInitializer::getNext(const uint32_t x,
     case 1:
         {
             result.first = (x + 1) % m_networkDimensions[0];
-            result.second = y;
+            if(y % 2 == 1) {
+                result.second = y;
+            } else {
+                if(y == 0) {
+                    result.second = m_networkDimensions[1] - 1;
+                } else {
+                    result.second = y - 1;
+                }
+            }
             break;
         }
     case 2:
         {
             result.first = (x + 1) % m_networkDimensions[0];
-            result.second = (y + 1) % m_networkDimensions[1];
+            if(y % 2 == 1) {
+                result.second = (y + 1) % m_networkDimensions[1];
+            } else {
+                result.second = y;
+            }
             break;
         }
     case 3:
@@ -281,21 +294,33 @@ std::pair<uint32_t, uint32_t> NetworkInitializer::getNext(const uint32_t x,
     case 4:
         {
             if(x == 0) {
-                result.first = m_networkDimensions[0];
+                result.first = m_networkDimensions[0] - 1;
             } else {
                 result.first = x - 1;
             }
-            result.second = (y + 1) % m_networkDimensions[1];
+            if(y % 2 == 1) {
+                result.second = (y + 1) % m_networkDimensions[1];
+            } else {
+                result.second = y;
+            }
             break;
         }
     case 5:
         {
             if(x == 0) {
-                result.first = m_networkDimensions[0];
+                result.first = m_networkDimensions[0] - 1;
             } else {
                 result.first = x - 1;
             }
-            result.second = y;
+            if(y % 2 == 1) {
+                result.second = y;
+            } else {
+                if(y == 0) {
+                    result.second = m_networkDimensions[1] - 1;
+                } else {
+                    result.second = y - 1;
+                }
+            }
             break;
         }
     default:
