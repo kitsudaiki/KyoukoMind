@@ -55,6 +55,9 @@ private:
     bool addCluster(const uint32_t x, const uint32_t y, const uint32_t nodeNumberPerCluster);
     bool addNeighbors(const uint32_t x, const uint32_t y, Cluster* cluster);
     bool createAxons();
+
+    std::pair<uint32_t, uint32_t> getNext(const uint32_t x, const uint32_t y, const uint8_t side);
+    uint32_t getDistantToNextNodeCluster(const uint32_t x, const uint32_t y, const uint8_t side);
 };
 
 }

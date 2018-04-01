@@ -197,67 +197,111 @@ bool NetworkInitializer::addNeighbors(const uint32_t x, const uint32_t y, Cluste
     for(uint32_t side = 0; side <= 9; side++)
     {
         Neighbor target;
-        uint32_t targetX = 0;
-        uint32_t targetY = 0;
 
-        switch (side) {
-        case 0:
-            {
-                targetX = x;
-                if(y == 0) {
-                    targetY = m_networkDimensions[1];
-                } else {
-                    targetY = y - 1;
-                }
-                break;
-            }
-        case 1:
-            {
-                targetX = (x + 1) % m_networkDimensions[0];
-                targetY = y;
-                break;
-            }
-        case 2:
-            {
-                targetX = (x + 1) % m_networkDimensions[0];
-                targetY = (y + 1) % m_networkDimensions[1];
-                break;
-            }
-        case 3:
-            {
-                targetX = x;
-                targetY = (y + 1) % m_networkDimensions[1];
-                break;
-            }
-        case 4:
-            {
-                if(x == 0) {
-                    targetX = m_networkDimensions[0];
-                } else {
-                    targetX = x - 1;
-                }
-                targetY = (y + 1) % m_networkDimensions[1];
-                break;
-            }
-        case 5:
-            {
-                if(x == 0) {
-                    targetX = m_networkDimensions[0];
-                } else {
-                    targetX = x - 1;
-                }
-                targetY = y;
-                break;
-            }
-        default:
-            break;
-        }
+        std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
-        target.targetClusterId = m_networkMetaStructure[targetX][targetY].second;
-        target.neighborType = m_networkMetaStructure[targetX][targetY].first;
+        target.targetClusterId = m_networkMetaStructure[next.first][next.second].second;
+        target.neighborType = m_networkMetaStructure[next.first][next.second].first;
+        target.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
+
         cluster->addNeighbor(side, target);
     }
     return true;
+}
+
+
+/**
+ * @brief NetworkInitializer::getDistantToNextNodeCluster
+ * @param x
+ * @param y
+ * @param side
+ * @return
+ */
+uint32_t NetworkInitializer::getDistantToNextNodeCluster(const uint32_t x,
+                                                         const uint32_t y,
+                                                         const uint8_t side)
+{
+    std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
+
+    // TODO: max abort-distance
+    for(uint32_t distance = 1; distance < m_networkMetaStructure.size(); distance++)
+    {
+        if(m_networkMetaStructure[next.first][next.second].first == (uint8_t)NODECLUSTER) {
+            return distance;
+        }
+        if(m_networkMetaStructure[next.first][next.second].first == (uint8_t)EMPTYCLUSTER) {
+            return 0;
+        }
+        next = getNext(next.first, next.second, side);
+    }
+    return 0;
+}
+
+/**
+ * @brief NetworkInitializer::getNext
+ * @param x
+ * @param y
+ * @param side
+ * @return
+ */
+std::pair<uint32_t, uint32_t> NetworkInitializer::getNext(const uint32_t x,
+                                                          const uint32_t y,
+                                                          const uint8_t side)
+{
+    std::pair<uint32_t, uint32_t> result;
+    switch (side) {
+    case 0:
+        {
+            result.first = x;
+            if(y == 0) {
+                result.second = m_networkDimensions[1];
+            } else {
+                result.second = y - 1;
+            }
+            break;
+        }
+    case 1:
+        {
+            result.first = (x + 1) % m_networkDimensions[0];
+            result.second = y;
+            break;
+        }
+    case 2:
+        {
+            result.first = (x + 1) % m_networkDimensions[0];
+            result.second = (y + 1) % m_networkDimensions[1];
+            break;
+        }
+    case 3:
+        {
+            result.first = x;
+            result.second = (y + 1) % m_networkDimensions[1];
+            break;
+        }
+    case 4:
+        {
+            if(x == 0) {
+                result.first = m_networkDimensions[0];
+            } else {
+                result.first = x - 1;
+            }
+            result.second = (y + 1) % m_networkDimensions[1];
+            break;
+        }
+    case 5:
+        {
+            if(x == 0) {
+                result.first = m_networkDimensions[0];
+            } else {
+                result.first = x - 1;
+            }
+            result.second = y;
+            break;
+        }
+    default:
+        break;
+    }
+    return result;
 }
 
 /**
