@@ -58,15 +58,4 @@ NetworkManager::NetworkManager()
     }
 }
 
-/**
- * @brief NetworkManager::getMindDimension
- * @return
- */
-uint32_t *NetworkManager::getMindDimension()
-{
-    return m_mindDimensions;
-}
-
-
-
 }

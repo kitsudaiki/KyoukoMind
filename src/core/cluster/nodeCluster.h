@@ -19,17 +19,29 @@ public:
                 MessageController *controller);
     ~NodeCluster();
 
-    uint32_t getNumberOfEdgeBlocks();
+    uint32_t getNumberOfNodeBlocks() const;
+    uint32_t getNumberOfAxonBlocks() const;
+    uint32_t getNumberOfEdgeBlocks() const;
+
+    KyoChanNode* getNodeBlock();
+    KyoChanAxon* getAxonBlock();
     KyoChanEdgeSection *getEdgeBlock();
+
+    bool addEdge(const KyoChanEdge newEdge);
+
+    bool initNodeBlocks(uint16_t numberOfNodes);
+    bool initAxonBlocks(uint32_t numberOfAxons);
+    bool initEdgeBlocks(uint32_t numberOfEdgeSections);
+
+
     void syncEdgeSections(uint32_t startSection = 0,
                           uint32_t endSection = 0);
-    uint32_t getNumberOfNodeBlocks();
-    KyoChanNode* getNodeBlock();
 
 private:
     // node-stuff
     KyoChanNode* m_nodes = nullptr;
 
+    bool addEmptyEdgeSection(const uint32_t axonId);
 };
 
 }

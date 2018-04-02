@@ -32,6 +32,9 @@ struct KyoChanNode
 struct KyoChanAxon
 {
     float currentState = 0;
+
+    uint32_t edgeSections[100];
+    uint8_t numberOfEdgeSections = 0;
 } __attribute__((packed));
 
 

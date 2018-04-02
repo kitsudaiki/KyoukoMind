@@ -19,9 +19,17 @@ struct ClusterMetaData
     uint8_t clusterType = EMPTYCLUSTER;
     Neighbor neighors[9];
     uint32_t numberOfNeighbors = 1;
+
     uint32_t numberOfNodes = 0;
-    uint32_t positionNodeBlock = 0;
+    uint32_t numberOfAxons = 0;
+    uint32_t numberOfEdgeSections = 0;
+
+    uint32_t positionNodeBlocks = 0;
     uint32_t numberOfNodeBlocks = 0;
+
+    uint32_t positionAxonBlocks = 0;
+    uint32_t numberOfAxonBlocks = 0;
+
     uint32_t positionOfEdgeBlock = 0;
     uint32_t numberOfEdgeBlocks = 0;
 

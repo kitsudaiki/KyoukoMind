@@ -22,12 +22,12 @@ namespace KyoukoMind
  */
 NetworkInitializer::NetworkInitializer(const std::string filePath,
                                        const std::string directoryPath,
-                                       ClusterHandler *clusterManager,
+                                       ClusterHandler *clusterHandler,
                                        MessageController *messageController)
 {
     m_filePath = filePath;
     m_directoryPath = directoryPath;
-    m_clusterManager = clusterManager;
+    m_clusterHandler = clusterHandler;
     m_messageController = messageController;
 }
 
@@ -38,7 +38,7 @@ NetworkInitializer::NetworkInitializer(const std::string filePath,
 bool NetworkInitializer::initNetwork()
 {
     // check if values are valid
-    if(m_clusterManager == nullptr
+    if(m_clusterHandler == nullptr
             || m_filePath == ""
             || m_directoryPath == "")
     {
@@ -102,7 +102,7 @@ bool NetworkInitializer::getNetworkMetaStructure()
         removeEmptyStrings(splittedLine);
 
         // add new line to meat-structure-vector
-        std::vector<std::pair<uint8_t, ClusterID>> newLine;
+        std::vector<MetaDataEntry> newLine;
         m_networkMetaStructure.push_back(newLine);
 
         // process the splitted line
@@ -116,8 +116,11 @@ bool NetworkInitializer::getNetworkMetaStructure()
                     return false;
                 }
             }
-            uint8_t number = std::stoi(splittedLine[linePartNumber]);
-            m_networkMetaStructure[lineNumber].push_back(std::make_pair(number,m_idCounter));
+            MetaDataEntry tempEntry;
+            tempEntry.type = std::stoi(splittedLine[linePartNumber]);
+            tempEntry.clusterId = m_idCounter;
+
+            m_networkMetaStructure[lineNumber].push_back(tempEntry);
             m_idCounter++;
         }
     }
@@ -161,19 +164,19 @@ bool NetworkInitializer::addCluster(const uint32_t x,
 {
     Cluster* cluster = nullptr;
     // create cluster
-    switch ((int)m_networkMetaStructure[x][y].first) {
+    switch ((int)m_networkMetaStructure[x][y].type) {
         case 0:
-            cluster = new EmptyCluster(m_networkMetaStructure[x][y].second,
+            cluster = new EmptyCluster(m_networkMetaStructure[x][y].clusterId,
                                        m_directoryPath,
                                        m_messageController);
             break;
         case 1:
-            cluster = new EdgeCluster(m_networkMetaStructure[x][y].second,
+            cluster = new EdgeCluster(m_networkMetaStructure[x][y].clusterId,
                                       m_directoryPath,
                                       m_messageController);
             break;
         case 2:
-            cluster = new NodeCluster(m_networkMetaStructure[x][y].second,
+            cluster = new NodeCluster(m_networkMetaStructure[x][y].clusterId,
                                       m_directoryPath,
                                       nodeNumberPerCluster,
                                       m_messageController);
@@ -182,7 +185,7 @@ bool NetworkInitializer::addCluster(const uint32_t x,
             return false;
     }
     addNeighbors(x, y, cluster);
-    m_clusterManager->addCluster(m_networkMetaStructure[x][y].second, cluster);
+    m_clusterHandler->addCluster(m_networkMetaStructure[x][y].clusterId, cluster);
     return true;
 }
 
@@ -197,19 +200,19 @@ bool NetworkInitializer::addNeighbors(const uint32_t x, const uint32_t y, Cluste
 {
     for(uint32_t side = 0; side <= 9; side++)
     {
-        Neighbor target;
+        Neighbor tempNeighbor;
 
         std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
-        target.targetClusterId = m_networkMetaStructure[next.first][next.second].second;
-        target.neighborType = m_networkMetaStructure[next.first][next.second].first;
-        target.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
+        tempNeighbor.targetClusterId = m_networkMetaStructure[next.first][next.second].clusterId;
+        tempNeighbor.neighborType = m_networkMetaStructure[next.first][next.second].type;
+        tempNeighbor.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
 
-        cluster->addNeighbor(side, target);
+        cluster->addNeighbor(side, tempNeighbor);
+        m_networkMetaStructure[next.first][next.second].neighbors[side] = tempNeighbor;
     }
     return true;
 }
-
 
 /**
  * @brief NetworkInitializer::getDistantToNextNodeCluster
@@ -227,16 +230,36 @@ uint32_t NetworkInitializer::getDistantToNextNodeCluster(const uint32_t x,
     // TODO: max abort-distance
     for(uint32_t distance = 1; distance < m_networkMetaStructure.size(); distance++)
     {
-        if(m_networkMetaStructure[next.first][next.second].first == (uint8_t)NODECLUSTER) {
+        if(m_networkMetaStructure[next.first][next.second].type == (uint8_t)NODECLUSTER) {
             return distance;
         }
-        if(m_networkMetaStructure[next.first][next.second].first == (uint8_t)EMPTYCLUSTER) {
+        if(m_networkMetaStructure[next.first][next.second].type == (uint8_t)EMPTYCLUSTER) {
             return 0;
         }
         next = getNext(next.first, next.second, side);
     }
     return 0;
 }
+
+/**
+ * @brief NetworkInitializer::createAxons
+ * @return
+ */
+bool NetworkInitializer::createAxons()
+{
+    bool ok = false;
+    uint32_t nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes(&ok);
+
+    for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
+    {
+        for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
+        {
+            addCluster(x, y, nodeNumberPerCluster);
+        }
+    }
+    return true;
+}
+
 
 /**
  * @brief NetworkInitializer::getNext
@@ -327,15 +350,6 @@ std::pair<uint32_t, uint32_t> NetworkInitializer::getNext(const uint32_t x,
         break;
     }
     return result;
-}
-
-/**
- * @brief NetworkInitializer::createAxons
- * @return
- */
-bool NetworkInitializer::createAxons()
-{
-    return true;
 }
 
 }

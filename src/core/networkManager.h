@@ -18,7 +18,6 @@ class NetworkManager
 
 public:
     NetworkManager();
-    uint32_t* getMindDimension();
 
 private:
     ClusterHandler* m_clusterManager = nullptr;
@@ -26,9 +25,8 @@ private:
     MessageController* m_messageController = nullptr;
 
     uint32_t m_numberOfThreads = 0;
-
-    uint32_t m_mindDimensions[3];
 };
+
 }
 
 #endif // MAINLOOP_H

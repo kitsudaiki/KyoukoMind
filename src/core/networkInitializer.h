@@ -14,7 +14,7 @@ class NetworkInitializer
 public:
     NetworkInitializer(const std::string filePath,
                        const std::string directoryPath,
-                       ClusterHandler *clusterManager,
+                       ClusterHandler *clusterHandler,
                        MessageController* messageController);
 
     bool initNetwork();
@@ -41,13 +41,19 @@ public:
     }
 
 private:
+    struct MetaDataEntry {
+        uint8_t type = 0;
+        ClusterID clusterId = 0;
+        Neighbor neighbors[10];
+    };
+
     std::string m_filePath = "";
     std::string m_directoryPath = "";
-    ClusterHandler* m_clusterManager = nullptr;
+    ClusterHandler* m_clusterHandler = nullptr;
     MessageController* m_messageController = nullptr;
     ClusterID m_idCounter = 1;
 
-    std::vector<std::vector<std::pair<uint8_t, ClusterID>>> m_networkMetaStructure;
+    std::vector<std::vector<MetaDataEntry>> m_networkMetaStructure;
     uint32_t m_networkDimensions[2];
 
     bool getNetworkMetaStructure();
