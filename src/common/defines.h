@@ -3,6 +3,9 @@
 
 #include <common/includes.h>
 
+#define EDGES_PER_EDGESECTION 51
+#define MAX_EDGESECTIONS_PER_AXON 100
+
 #define UNITTEST(IS_VAL, SHOULD_VAL) if(IS_VAL != SHOULD_VAL) \
 {  \
     m_failedTests++; \

@@ -108,6 +108,70 @@ KyoChanEdgeSection *NodeCluster::getEdgeBlock()
 }
 
 /**
+ * @brief NodeCluster::addEdge
+ * @param axonId
+ * @param newEdge
+ * @return
+ */
+bool NodeCluster::addEdge(const uint32_t axonId, const KyoChanEdge newEdge)
+{
+    if(m_metaData.numberOfAxons >= axonId) {
+        return false;
+    }
+
+    // get values
+    KyoChanAxon* axon = &getAxonBlock()[axonId];
+    uint32_t edgeSectionPos = axon->getLastEdgeSectionPos();
+    KyoChanEdgeSection* edgeSection = &getEdgeBlock()[edgeSectionPos];
+
+    // check if edge-section is full and add a new empty edge-section if necessary
+    if(edgeSection->isFull()) {
+        if(!addEmptyEdgeSection(axonId)) {
+            return false;
+        }
+        // update values
+        edgeSectionPos = axon->getLastEdgeSectionPos();
+        edgeSection = &getEdgeBlock()[edgeSectionPos];
+    }
+
+    // add the new edge to the edge-section
+    edgeSection->addEdge(newEdge);
+
+    return true;
+}
+
+/**
+ * @brief NodeCluster::addEmptyEdgeSection
+ * @param axonId
+ * @return
+ */
+bool NodeCluster::addEmptyEdgeSection(const uint32_t axonId)
+{
+    // prechecks
+    if(axonId >= m_metaData.numberOfAxons) {
+        return false;
+    }
+
+    // add edge-section to axon
+    KyoChanAxon* axon = &getAxonBlock()[axonId];
+    if(!axon->addEdgeSectionPos(m_metaData.numberOfEdgeSections)) {
+        return false;
+    }
+
+    // allocate a new block, if nesassary
+    if(m_metaData.numberOfEdgeSections % 4 == 0) {
+        m_buffer->allocateBlocks(1);
+    }
+
+    // add new edge-section
+    KyoChanEdgeSection newSection;
+    getEdgeBlock()[m_metaData.numberOfEdgeSections] = newSection;
+    m_metaData.numberOfEdgeSections++;
+
+    return true;
+}
+
+/**
  * @brief NodeCluster::syncEdgeSections
  * @param startSection
  * @param endSection
@@ -124,39 +188,6 @@ void NodeCluster::syncEdgeSections(uint32_t startSection,
     startSection += m_metaData.positionOfEdgeBlock;
     endSection += m_metaData.positionOfEdgeBlock;
     m_buffer->syncBlocks(startSection, endSection);
-}
-
-/**
- * @brief NodeCluster::addEmptyEdgeSection
- * @param axonId
- * @return
- */
-bool NodeCluster::addEmptyEdgeSection(const uint32_t axonId)
-{
-    if(axonId >= m_metaData.numberOfAxons) {
-        return false;
-    }
-    if(getAxonBlock()[axonId].numberOfEdgeSections == 99) {
-        return false;
-    }
-
-    // update values in axon
-    uint8_t pos = getAxonBlock()[axonId].numberOfEdgeSections;
-    getAxonBlock()[axonId].edgeSections[pos] = m_metaData.numberOfEdgeSections;
-
-    // allocate a new block, if nesassary
-    if(m_metaData.numberOfEdgeSections % 4 == 0) {
-        m_buffer->allocateBlocks(1);
-    }
-
-    // add new section
-    KyoChanEdgeSection newSection;
-    getEdgeBlock()[m_metaData.numberOfEdgeSections] = newSection;
-
-    // update counter
-    m_metaData.numberOfEdgeSections++;
-    getAxonBlock()[axonId].numberOfEdgeSections++;
-    return true;
 }
 
 /**

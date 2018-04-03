@@ -27,7 +27,7 @@ public:
     KyoChanAxon* getAxonBlock();
     KyoChanEdgeSection *getEdgeBlock();
 
-    bool addEdge(const KyoChanEdge newEdge);
+    bool addEdge(const uint32_t axonId, const KyoChanEdge newEdge);
 
     bool initNodeBlocks(uint16_t numberOfNodes);
     bool initAxonBlocks(uint32_t numberOfAxons);
@@ -41,6 +41,7 @@ private:
     // node-stuff
     KyoChanNode* m_nodes = nullptr;
 
+    bool isEdgeSectionFull(const uint32_t edgeSectionPos);
     bool addEmptyEdgeSection(const uint32_t axonId);
 };
 
