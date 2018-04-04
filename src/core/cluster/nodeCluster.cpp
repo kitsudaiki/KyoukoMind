@@ -130,6 +130,7 @@ bool NodeCluster::addEdge(const uint32_t axonId, const KyoChanEdge &newEdge)
             return false;
         }
         // update values
+        axon = &getAxonBlock()[axonId];
         edgeSectionPos = axon->getLastEdgeSectionPos();
         edgeSection = &getEdgeBlock()[edgeSectionPos];
     }
@@ -160,7 +161,10 @@ bool NodeCluster::addEmptyEdgeSection(const uint32_t axonId)
 
     // allocate a new block, if nesassary
     if(m_metaData.numberOfEdgeSections % 4 == 0) {
-        m_buffer->allocateBlocks(1);
+        if(!m_buffer->allocateBlocks(1)) {
+            return false;
+        }
+        m_metaData.numberOfEdgeBlocks++;
     }
 
     // add new edge-section

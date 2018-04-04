@@ -50,6 +50,16 @@ void ClusterTest::checkNodeCluster()
 
     UNITTEST((int)m_nodeCluster->getEdgeBlock()[42].numberOfEdges, 1)
     UNITTEST(m_nodeCluster->getEdgeBlock()[42].edges[0].targetClusterPath, 42);
+
+    for(int i = 0; i < 51; i++) {
+        KyoChanEdge newEdge;
+        newEdge.targetClusterPath = 42;
+        newEdge.targetNodeId = 3;
+        newEdge.weight = 3.14;
+        m_nodeCluster->addEdge(42, newEdge);
+    }
+
+    UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 251);
 }
 
 void ClusterTest::checkEdgeCluster()
