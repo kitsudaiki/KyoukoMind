@@ -70,9 +70,6 @@ HEADERS +=\
             src/core/messaging/messages/learningreplymessage.h \
             src/core/messaging/timeouthandler.h \
             src/core/messaging/messagecontroller.h \
-            src/common/clusterstructs.h \
-            src/common/messagestructs.h \
-            src/common/netstructs.h \
             src/common/includes.h \
             common.h \
     src/core/messaging/messages/cyclefinishmessage.h \
@@ -85,7 +82,11 @@ HEADERS +=\
     tests/messagebuffertest.h \
     tests/commontest.h \
     src/core/networkInitializer.h \
-    src/core/processing/commonthread.h
+    src/core/processing/commonthread.h \
+    src/core/structs/kyochanEdges.h \
+    src/core/structs/kyochanNodes.h \
+    src/core/structs/learningMessages.h \
+    src/core/structs/clusterMeta.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

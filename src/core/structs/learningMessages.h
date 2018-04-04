@@ -1,8 +1,7 @@
-#ifndef MESSAGESTRUCTS_H
-#define MESSAGESTRUCTS_H
+#ifndef LEARNINGMESSAGES_H
+#define LEARNINGMESSAGES_H
 
-#include <common/enums.h>
-#include <common/includes.h>
+#include <common.h>
 
 struct KyoChanNewEdge
 {
@@ -27,4 +26,4 @@ struct KyoChanMessage
 
 };
 
-#endif // MESSAGESTRUCTS_H
+#endif // LEARNINGMESSAGES_H

@@ -2,6 +2,8 @@
 #define NODECLUSTER_H
 
 #include "edgeCluster.h"
+#include <core/structs/kyochanEdges.h>
+#include <core/structs/kyochanNodes.h>
 
 namespace KyoukoMind
 {

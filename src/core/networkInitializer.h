@@ -2,6 +2,7 @@
 #define NETWORKINITIALIZER_H
 
 #include <common.h>
+#include <core/structs/clusterMeta.h>
 
 namespace KyoukoMind
 {

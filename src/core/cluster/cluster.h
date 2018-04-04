@@ -2,6 +2,7 @@
 #define CLUSTER_H
 
 #include <common.h>
+#include <core/structs/clusterMeta.h>
 
 namespace PerformanceIO
 {

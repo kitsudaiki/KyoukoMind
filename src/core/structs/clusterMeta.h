@@ -1,9 +1,7 @@
-#ifndef CLUSTERSTRUCTS_H
-#define CLUSTERSTRUCTS_H
+#ifndef CLUSTERMETA_H
+#define CLUSTERMETA_H
 
-#include <common/enums.h>
-#include <common/includes.h>
-#include <common/typedefs.h>
+#include <common.h>
 
 struct Neighbor
 {
@@ -35,4 +33,4 @@ struct ClusterMetaData
 
 } __attribute__((packed));
 
-#endif // CLUSTERSTRUCTS_H
+#endif // CLUSTERMETA_H

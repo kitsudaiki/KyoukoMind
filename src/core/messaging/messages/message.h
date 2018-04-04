@@ -2,6 +2,9 @@
 #define MESSAGE_H
 
 #include <common.h>
+#include <core/structs/clusterMeta.h>
+#include <core/structs/kyochanEdges.h>
+#include <core/structs/learningMessages.h>
 
 namespace KyoukoMind
 {
