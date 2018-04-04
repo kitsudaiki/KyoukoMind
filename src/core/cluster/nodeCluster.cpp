@@ -113,9 +113,9 @@ KyoChanEdgeSection *NodeCluster::getEdgeBlock()
  * @param newEdge
  * @return
  */
-bool NodeCluster::addEdge(const uint32_t axonId, const KyoChanEdge newEdge)
+bool NodeCluster::addEdge(const uint32_t axonId, const KyoChanEdge &newEdge)
 {
-    if(m_metaData.numberOfAxons >= axonId) {
+    if(axonId >= m_metaData.numberOfAxons) {
         return false;
     }
 
@@ -242,6 +242,7 @@ bool NodeCluster::initAxonBlocks(uint32_t numberOfAxons)
         KyoChanAxon* array = getAxonBlock();
         for(uint32_t i = 0; i < numberOfAxons; i++) {
             KyoChanAxon tempAxon;
+            tempAxon.addEdgeSectionPos(i);
             array[i] = tempAxon;
         }
         m_buffer->syncAll();
@@ -261,9 +262,14 @@ bool NodeCluster::initEdgeBlocks(uint32_t numberOfEdgeSections)
         m_metaData.numberOfEdgeSections = numberOfEdgeSections;
         m_metaData.positionOfEdgeBlock = m_metaData.positionAxonBlocks + m_metaData.numberOfAxonBlocks;
 
+        // calculate number of edge-blocks
         uint32_t blockSize = m_buffer->getBlockSize();
-        m_metaData.numberOfEdgeBlocks = (numberOfEdgeSections * sizeof(KyoChanEdgeSection)) / blockSize + 1;
+        m_metaData.numberOfEdgeBlocks = (numberOfEdgeSections * sizeof(KyoChanEdgeSection)) / blockSize;
+        if((numberOfEdgeSections * sizeof(KyoChanEdgeSection)) % blockSize != 0) {
+            m_metaData.numberOfEdgeBlocks++;
+        }
 
+        // update and persist buffer
         m_buffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
         updateMetaData(m_metaData);
 

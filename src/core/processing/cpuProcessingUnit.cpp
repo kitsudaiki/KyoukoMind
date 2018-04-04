@@ -3,11 +3,18 @@
 namespace KyoukoMind
 {
 
+/**
+ * @brief CpuProcessingUnit::CpuProcessingUnit
+ */
 CpuProcessingUnit::CpuProcessingUnit()
 {
 
 }
 
+/**
+ * @brief CpuProcessingUnit::processCluster
+ * @param cluster
+ */
 void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
     /*for(int i = m_startPoint; i < m_startPoint+m_offset; i++)

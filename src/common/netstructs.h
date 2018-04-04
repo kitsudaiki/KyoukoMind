@@ -37,7 +37,7 @@ struct KyoChanEdgeSection
      * @param newEdge
      * @return
      */
-    bool addEdge(const KyoChanEdge newEdge) {
+    bool addEdge(const KyoChanEdge &newEdge) {
         if(numberOfEdges >= EDGES_PER_EDGESECTION) {
             return false;
         }
