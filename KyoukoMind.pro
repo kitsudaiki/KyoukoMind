@@ -45,7 +45,8 @@ SOURCES += main.cpp \
     src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
     tests/messagebuffertest.cpp \
     tests/commontest.cpp \
-    src/core/networkInitializer.cpp
+    src/core/networkInitializer.cpp \
+    src/core/processing/commonthread.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -83,7 +84,8 @@ HEADERS +=\
     src/core/messaging/messageQueues/outgoingMessageBuffer.h \
     tests/messagebuffertest.h \
     tests/commontest.h \
-    src/core/networkInitializer.h
+    src/core/networkInitializer.h \
+    src/core/processing/commonthread.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
