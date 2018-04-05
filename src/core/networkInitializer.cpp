@@ -198,7 +198,7 @@ bool NetworkInitializer::addCluster(const uint32_t x,
  */
 bool NetworkInitializer::addNeighbors(const uint32_t x, const uint32_t y, Cluster* cluster)
 {
-    for(uint32_t side = 0; side <= 9; side++)
+    for(uint32_t side = 0; side < 6; side++)
     {
         Neighbor tempNeighbor;
 
@@ -254,7 +254,23 @@ bool NetworkInitializer::createAxons()
     {
         for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
         {
-            addCluster(x, y, nodeNumberPerCluster);
+            //TODO
+        }
+    }
+
+    for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
+    {
+        for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
+        {
+            Cluster* cluster = m_networkMetaStructure[x][y].cluster;
+            if(cluster->getClusterType() == EDGECLUSTER) {
+                EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
+                edgeCluster->initAxonBlocks(m_networkMetaStructure[x][y].numberOfAxons);
+            }
+            if(cluster->getClusterType() == NODECLUSTER) {
+                NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
+                nodeCluster->initAxonBlocks(m_networkMetaStructure[x][y].numberOfAxons);
+            }
         }
     }
     return true;

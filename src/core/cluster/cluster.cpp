@@ -24,7 +24,11 @@ Cluster::Cluster(const ClusterID &clusterId,
  */
 Cluster::~Cluster()
 {
-
+    if(m_buffer != nullptr) {
+        m_buffer->closeBuffer();
+        delete m_buffer;
+        m_buffer = nullptr;
+    }
 }
 
 /**

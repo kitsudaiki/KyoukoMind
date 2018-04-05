@@ -46,6 +46,8 @@ private:
         uint8_t type = 0;
         ClusterID clusterId = 0;
         Neighbor neighbors[10];
+        Cluster* cluster = nullptr;
+        uint32_t numberOfAxons = 0;
     };
 
     std::string m_filePath = "";
@@ -59,12 +61,20 @@ private:
 
     bool getNetworkMetaStructure();
     bool createNetwork();
-    bool addCluster(const uint32_t x, const uint32_t y, const uint32_t nodeNumberPerCluster);
-    bool addNeighbors(const uint32_t x, const uint32_t y, Cluster* cluster);
+    bool addCluster(const uint32_t x,
+                    const uint32_t y,
+                    const uint32_t nodeNumberPerCluster);
+    bool addNeighbors(const uint32_t x,
+                      const uint32_t y,
+                      Cluster* cluster);
     bool createAxons();
 
-    std::pair<uint32_t, uint32_t> getNext(const uint32_t x, const uint32_t y, const uint8_t side);
-    uint32_t getDistantToNextNodeCluster(const uint32_t x, const uint32_t y, const uint8_t side);
+    std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
+                                          const uint32_t y,
+                                          const uint8_t side);
+    uint32_t getDistantToNextNodeCluster(const uint32_t x,
+                                         const uint32_t y,
+                                         const uint8_t side);
 };
 
 }

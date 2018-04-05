@@ -46,7 +46,8 @@ SOURCES += main.cpp \
     tests/messagebuffertest.cpp \
     tests/commontest.cpp \
     src/core/networkInitializer.cpp \
-    src/core/processing/commonthread.cpp
+    src/core/processing/commonthread.cpp \
+    tests/proofOfConcept/demoio.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -86,7 +87,8 @@ HEADERS +=\
     src/core/structs/kyochanEdges.h \
     src/core/structs/kyochanNodes.h \
     src/core/structs/learningMessages.h \
-    src/core/structs/clusterMeta.h
+    src/core/structs/clusterMeta.h \
+    tests/proofOfConcept/demoio.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
