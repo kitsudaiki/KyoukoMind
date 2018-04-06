@@ -94,8 +94,10 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
  */
 bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster* cluster)
 {
-    for(uint32_t side = 0; side < 6; side++)
+    std::vector<uint8_t> sideOrder = {0,1,2,9,8,7};
+    for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
+        uint8_t side = sideOrder[i];
         // get new neighbor
         std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
@@ -188,13 +190,13 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
             }
             break;
         }
-    case 3:
+    case 9:
         {
             result.first = x;
             result.second = (y + 1) % m_networkDimensionY;
             break;
         }
-    case 4:
+    case 8:
         {
             if(x == 0) {
                 result.first = m_networkDimensionX - 1;
@@ -208,7 +210,7 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
             }
             break;
         }
-    case 5:
+    case 7:
         {
             if(x == 0) {
                 result.first = m_networkDimensionX - 1;

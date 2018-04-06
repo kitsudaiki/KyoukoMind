@@ -92,7 +92,8 @@ HEADERS +=\
             src/core/structs/clusterMeta.h \
             tests/proofOfConcept/demoio.h \
     src/core/initializing/axoninitializer.h \
-    src/core/initializing/clusterinitilizer.h
+    src/core/initializing/clusterinitilizer.h \
+    src/core/cluster/commonMethods.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

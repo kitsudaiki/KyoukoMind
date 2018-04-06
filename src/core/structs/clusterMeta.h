@@ -26,7 +26,7 @@ struct ClusterMetaData
     ClusterPos clusterPos;
 
     uint8_t clusterType = EMPTYCLUSTER;
-    Neighbor neighors[9];
+    Neighbor neighors[10];
     uint32_t numberOfNeighbors = 1;
 
     uint32_t numberOfNodes = 0;
