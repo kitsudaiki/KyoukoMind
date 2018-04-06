@@ -3,9 +3,18 @@
 
 #include <common.h>
 
+struct ClusterPos
+{
+    uint32_t x = 0;
+    uint32_t y = 0;
+    uint32_t z = 0;
+} __attribute__((packed));
+
 struct Neighbor
 {
     ClusterID targetClusterId;
+    ClusterPos targetClusterPos;
+
     uint8_t neighborType = EMPTYCLUSTER;
     uint32_t numberOfConnections = 0;
     uint32_t distantToNextNodeCluster = 0;
@@ -14,6 +23,8 @@ struct Neighbor
 struct ClusterMetaData
 {
     ClusterID clusterId;
+    ClusterPos clusterPos;
+
     uint8_t clusterType = EMPTYCLUSTER;
     Neighbor neighors[9];
     uint32_t numberOfNeighbors = 1;
@@ -32,5 +43,17 @@ struct ClusterMetaData
     uint32_t numberOfEdgeBlocks = 0;
 
 } __attribute__((packed));
+
+namespace KyoukoMind {
+class Cluster;
+}
+
+struct MetaDataEntry {
+    uint8_t type = 0;
+    ClusterID clusterId = 0;
+    Neighbor neighbors[10];
+    KyoukoMind::Cluster* cluster = nullptr;
+    uint32_t numberOfAxons = 0;
+};
 
 #endif // CLUSTERMETA_H

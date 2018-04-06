@@ -2,8 +2,8 @@
 #define INCLUDES_H
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <vector>
-#include <stdint.h>
 #include <string.h>
 #include <iostream>
 #include <string>
@@ -19,5 +19,6 @@
 #include <thread>
 #include <mutex>
 #include <istream>
+#include <time.h>
 
 #endif // INCLUDES_H

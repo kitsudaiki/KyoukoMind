@@ -5,7 +5,7 @@
 #include <core/cluster/clusterHandler.h>
 #include <core/processing/processingUnitHandler.h>
 #include <core/messaging/messagecontroller.h>
-#include <core/networkInitializer.h>
+#include <core/initializing/networkInitializer.h>
 
 #include <core/cluster/cluster.h>
 #include <core/cluster/emptyCluster.h>

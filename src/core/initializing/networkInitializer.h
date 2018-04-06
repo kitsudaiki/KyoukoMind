@@ -6,6 +6,7 @@
 
 namespace KyoukoMind
 {
+
 class ClusterHandler;
 class Cluster;
 class MessageController;
@@ -42,39 +43,19 @@ public:
     }
 
 private:
-    struct MetaDataEntry {
-        uint8_t type = 0;
-        ClusterID clusterId = 0;
-        Neighbor neighbors[10];
-        Cluster* cluster = nullptr;
-        uint32_t numberOfAxons = 0;
-    };
-
+    // initial values from constructor
     std::string m_filePath = "";
     std::string m_directoryPath = "";
     ClusterHandler* m_clusterHandler = nullptr;
     MessageController* m_messageController = nullptr;
-    ClusterID m_idCounter = 1;
 
+    // meta-data of the network
     std::vector<std::vector<MetaDataEntry>> m_networkMetaStructure;
     uint32_t m_networkDimensions[2];
+    ClusterID m_idCounter = 0;
 
+    // process initial file
     bool getNetworkMetaStructure();
-    bool createNetwork();
-    bool addCluster(const uint32_t x,
-                    const uint32_t y,
-                    const uint32_t nodeNumberPerCluster);
-    bool addNeighbors(const uint32_t x,
-                      const uint32_t y,
-                      Cluster* cluster);
-    bool createAxons();
-
-    std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
-                                          const uint32_t y,
-                                          const uint8_t side);
-    uint32_t getDistantToNextNodeCluster(const uint32_t x,
-                                         const uint32_t y,
-                                         const uint8_t side);
 };
 
 }

@@ -37,17 +37,19 @@ SOURCES += main.cpp \
             src/core/messaging/messages/learningreplymessage.cpp \
             src/core/messaging/timeouthandler.cpp \
             src/core/messaging/messagecontroller.cpp \
-    src/core/messaging/messages/cyclefinishmessage.cpp \
-    tests/messagetest.cpp \
-    tests/clustertest.cpp \
-    src/core/messaging/messageQueues/incomingMessageBuffer.cpp \
-    src/core/messaging/messageQueues/messageBuffer.cpp \
-    src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
-    tests/messagebuffertest.cpp \
-    tests/commontest.cpp \
-    src/core/networkInitializer.cpp \
-    src/core/processing/commonthread.cpp \
-    tests/proofOfConcept/demoio.cpp
+            src/core/messaging/messages/cyclefinishmessage.cpp \
+            tests/messagetest.cpp \
+            tests/clustertest.cpp \
+            src/core/messaging/messageQueues/incomingMessageBuffer.cpp \
+            src/core/messaging/messageQueues/messageBuffer.cpp \
+            src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
+            tests/messagebuffertest.cpp \
+            tests/commontest.cpp \
+            src/core/initializing/networkInitializer.cpp \
+            src/core/processing/commonthread.cpp \
+            tests/proofOfConcept/demoio.cpp \
+    src/core/initializing/axoninitializer.cpp \
+    src/core/initializing/clusterinitilizer.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -73,22 +75,24 @@ HEADERS +=\
             src/core/messaging/messagecontroller.h \
             src/common/includes.h \
             common.h \
-    src/core/messaging/messages/cyclefinishmessage.h \
-    tests/messagetest.h \
-    tests/clustertest.h \
-    src/common/defines.h \
-    src/core/messaging/messageQueues/incomingMessageBuffer.h \
-    src/core/messaging/messageQueues/messageBuffer.h \
-    src/core/messaging/messageQueues/outgoingMessageBuffer.h \
-    tests/messagebuffertest.h \
-    tests/commontest.h \
-    src/core/networkInitializer.h \
-    src/core/processing/commonthread.h \
-    src/core/structs/kyochanEdges.h \
-    src/core/structs/kyochanNodes.h \
-    src/core/structs/learningMessages.h \
-    src/core/structs/clusterMeta.h \
-    tests/proofOfConcept/demoio.h
+            src/core/messaging/messages/cyclefinishmessage.h \
+            tests/messagetest.h \
+            tests/clustertest.h \
+            src/common/defines.h \
+            src/core/messaging/messageQueues/incomingMessageBuffer.h \
+            src/core/messaging/messageQueues/messageBuffer.h \
+            src/core/messaging/messageQueues/outgoingMessageBuffer.h \
+            tests/messagebuffertest.h \
+            tests/commontest.h \
+            src/core/initializing/networkInitializer.h \
+            src/core/processing/commonthread.h \
+            src/core/structs/kyochanEdges.h \
+            src/core/structs/kyochanNodes.h \
+            src/core/structs/learningMessages.h \
+            src/core/structs/clusterMeta.h \
+            tests/proofOfConcept/demoio.h \
+    src/core/initializing/axoninitializer.h \
+    src/core/initializing/clusterinitilizer.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
