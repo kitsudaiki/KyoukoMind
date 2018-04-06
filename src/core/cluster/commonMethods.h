@@ -13,20 +13,21 @@ struct PossibleNext
 };
 
 /**
- * @brief getNext
+ * @brief getNextCluster
  * @param allNeighbors
  * @param initialSite
+ * @param whichoutProbability
  * @return
  */
-uint8_t getNext(Neighbor* allNeighbors,
-                const uint8_t initialSite,
-                bool whichoutProbability = false)
+uint8_t getNextCluster(Neighbor allNeighbors[10],
+                       const uint8_t initialSite,
+                       bool whichoutProbability = false)
 {
     if(initialSite > 9) {
         return 0xFF;
     }
-    srand(time(NULL));
-    std::vector<PossibleNext> result(3, PossibleNext);
+    PossibleNext temp;
+    std::vector<PossibleNext> result(3, temp);
 
     // get possible neighbors
     switch((int)initialSite) {

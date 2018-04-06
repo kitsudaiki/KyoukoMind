@@ -1,8 +1,11 @@
 #include "axoninitializer.h"
+
 #include <core/cluster/cluster.h>
 #include <core/cluster/emptyCluster.h>
 #include <core/cluster/edgeCluster.h>
 #include <core/cluster/nodeCluster.h>
+
+#include <core/cluster/commonMethods.h>
 
 namespace KyoukoMind
 {
@@ -79,31 +82,19 @@ uint32_t AxonInitializer::getNextAxonPathStep(const uint32_t x,
         return currentPath;
     }
 
-    // get all possible neighbors for the next step
-    std::vector<std::pair<Neighbor, uint8_t>> possibleNexts;
-    for(uint8_t side = inputSide + 2;
-        side < inputSide + 5;
-        side++) {
-        Neighbor next = (*m_networkMetaStructure)[x][y].neighbors[side];
-        if(next.neighborType == (uint8_t)EDGECLUSTER
-                || next.neighborType == (uint8_t)NODECLUSTER) {
-            possibleNexts.push_back(std::make_pair(next, side));
-        }
-    }
-
-    if(possibleNexts.size() == 0) {
+    Neighbor* ptr = (Neighbor*)&((*m_networkMetaStructure)[x][y].neighbors);
+    uint8_t nextSite = getNextCluster(ptr,
+                       inputSide,
+                       true);
+    if(nextSite == 0xFF) {
         return currentPath;
     }
+    Neighbor choosenOne = (*m_networkMetaStructure)[x][y].neighbors[nextSite];
 
-    // choose one of these neighbors
-    int choise = rand() % possibleNexts.size();
-    Neighbor choosenOne = possibleNexts[choise].first;
-    uint8_t side = possibleNexts[choise].second;
-
-    uint32_t newPath = (currentPath * 10) + side;
+    uint32_t newPath = (currentPath * 10) + nextSite;
     return getNextAxonPathStep(choosenOne.targetClusterPos.x,
                                choosenOne.targetClusterPos.y,
-                               9 - side,
+                               9 - nextSite,
                                newPath,
                                currentStep+1);
 }
