@@ -22,6 +22,9 @@ uint8_t getNext(Neighbor* allNeighbors,
                 const uint8_t initialSite,
                 bool whichoutProbability = false)
 {
+    if(initialSite > 9) {
+        return 0xFF;
+    }
     srand(time(NULL));
     std::vector<PossibleNext> result(3, PossibleNext);
 
@@ -76,6 +79,7 @@ uint8_t getNext(Neighbor* allNeighbors,
         result[2].side = 1;
         break;
     default:
+        return 0xFF;
         break;
     }
 
