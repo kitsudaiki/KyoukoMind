@@ -9,18 +9,20 @@ struct PossibleNext
     bool good = true;
     uint8_t side = 0;
     Neighbor neighbor;
-    uint8_t probability = 0;
+    uint8_t probability = 33;
 };
 
 /**
- * @brief getPosibleNext
+ * @brief getNext
  * @param allNeighbors
  * @param initialSite
  * @return
  */
-std::vector<PossibleNext> getPosibleNext(Neighbor* allNeighbors,
-                                         const uint8_t initialSite)
+uint8_t getNext(Neighbor* allNeighbors,
+                const uint8_t initialSite,
+                bool whichoutProbability = false)
 {
+    srand(time(NULL));
     std::vector<PossibleNext> result(3, PossibleNext);
 
     // get possible neighbors
@@ -77,27 +79,46 @@ std::vector<PossibleNext> getPosibleNext(Neighbor* allNeighbors,
         break;
     }
 
+    uint32_t totalDistance = 0;
     // check types
     if(result[0].neighbor.neighborType == EMPTYCLUSTER) {
         result[0].good = false;
-    }
+    } else { totalDistance+= result[0].neighbor.distantToNextNodeCluster; }
     if(result[1].neighbor.neighborType == EMPTYCLUSTER) {
         result[1].good = false;
-    }
+    } else { totalDistance+= result[1].neighbor.distantToNextNodeCluster; }
     if(result[2].neighbor.neighborType == EMPTYCLUSTER) {
         result[2].good = false;
-    }
+    } else { totalDistance+= result[2].neighbor.distantToNextNodeCluster; }
 
     //calculate possebility
-    uint32_t totalDistance = result[0].neighbor.distantToNextNodeCluster
-            + result[1].neighbor.distantToNextNodeCluster
-            + result[2].neighbor.distantToNextNodeCluster;
+    if(!whichoutProbability) {
+        if(result[0].good)
+            result[0].probability =
+                100 - (uint8_t)(((float)result[0].neighbor.distantToNextNodeCluster / (float)totalDistance) * 100.0);
+        if(result[1].good)
+            result[1].probability =
+                100 - (uint8_t)(((float)result[1].neighbor.distantToNextNodeCluster / (float)totalDistance) * 100.0);
+        if(result[2].good)
+            result[2].probability =
+                100 - (uint8_t)(((float)result[2].neighbor.distantToNextNodeCluster / (float)totalDistance) * 100.0);
+    }
 
-    result[0].probability = (uint32_t)(((float)result[0].neighbor.distantToNextNodeCluster / (float)totalDistance) * 100.0);
-    result[1].probability = (uint32_t)(((float)result[1].neighbor.distantToNextNodeCluster / (float)totalDistance) * 100.0);
-    result[2].probability = (uint32_t)(((float)result[2].neighbor.distantToNextNodeCluster / (float)totalDistance) * 100.0);
-
-    return result;
+    // choose a side
+    int randVal = rand() % 100;
+    uint8_t probability = result[0].probability;
+    if(result[0].good && probability <= randVal) {
+        return result[0].side;
+    }
+    probability += result[1].probability;
+    if(result[1].good && probability <= randVal) {
+        return result[1].side;
+    }
+    probability += result[2].probability;
+    if(result[2].good && probability <= randVal) {
+        return result[2].side;
+    }
+    return 0xFF;
 }
 
 #endif // COMMONMETHODS_H
