@@ -67,6 +67,15 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
                                        const uint8_t initialSite)
 {
     switch((int)initialSite) {
+    case 1:
+        m_possibleNext[0].neighbor = allNeighbors[2];
+        m_possibleNext[1].neighbor = allNeighbors[3];
+        m_possibleNext[2].neighbor = allNeighbors[4];
+        m_possibleNext[3].neighbor = allNeighbors[11];
+        m_possibleNext[4].neighbor = allNeighbors[12];
+        m_possibleNext[5].neighbor = allNeighbors[13];
+        m_numberOfNext = 6;
+        break;
     case 2:
         m_possibleNext[0].neighbor = allNeighbors[4];
         m_possibleNext[1].neighbor = allNeighbors[12];
@@ -103,6 +112,15 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         m_possibleNext[2].neighbor = allNeighbors[3];
         m_numberOfNext = 3;
         break;
+    case 14:
+        m_possibleNext[0].neighbor = allNeighbors[2];
+        m_possibleNext[1].neighbor = allNeighbors[3];
+        m_possibleNext[2].neighbor = allNeighbors[4];
+        m_possibleNext[3].neighbor = allNeighbors[11];
+        m_possibleNext[4].neighbor = allNeighbors[12];
+        m_possibleNext[5].neighbor = allNeighbors[13];
+        m_numberOfNext = 6;
+        break;
     default:
         break;
     }
@@ -116,16 +134,12 @@ uint32_t NextChooser::checkPossebilities()
 {
     uint32_t totalDistance = 0;
     // check types
-    if(m_possibleNext[0].neighbor.neighborType == EMPTYCLUSTER) {
-        m_possibleNext[0].good = false;
-    } else { totalDistance+= m_possibleNext[0].neighbor.distantToNextNodeCluster; }
-    if(m_possibleNext[1].neighbor.neighborType == EMPTYCLUSTER) {
-        m_possibleNext[1].good = false;
-    } else { totalDistance+= m_possibleNext[1].neighbor.distantToNextNodeCluster; }
-    if(m_possibleNext[2].neighbor.neighborType == EMPTYCLUSTER) {
-        m_possibleNext[2].good = false;
-    } else { totalDistance+= m_possibleNext[2].neighbor.distantToNextNodeCluster; }
-
+    for(uint8_t i = 0; i < m_numberOfNext; i++)
+    {
+        if(m_possibleNext[i].neighbor.neighborType == EMPTYCLUSTER) {
+            m_possibleNext[i].good = false;
+        } else { totalDistance+= m_possibleNext[i].neighbor.distantToNextNodeCluster; }
+    }
     return totalDistance;
 }
 
@@ -137,23 +151,14 @@ uint32_t NextChooser::checkPossebilities()
 bool NextChooser::calculatePossebilities(const uint32_t totalDistance)
 {
     bool found = false;
-    if(m_possibleNext[0].good) {
-        m_possibleNext[0].probability =
-            100 - (uint8_t)(((float)m_possibleNext[0].neighbor.distantToNextNodeCluster
-                            / (float)totalDistance) * 100.0);
-        found = true;
-    }
-    if(m_possibleNext[1].good) {
-        m_possibleNext[1].probability =
-            100 - (uint8_t)(((float)m_possibleNext[1].neighbor.distantToNextNodeCluster
-                            / (float)totalDistance) * 100.0);
-        found = true;
-    }
-    if(m_possibleNext[2].good) {
-        m_possibleNext[2].probability =
-            100 - (uint8_t)(((float)m_possibleNext[2].neighbor.distantToNextNodeCluster
-                            / (float)totalDistance) * 100.0);
-        found = true;
+    for(uint8_t i = 0; i < m_numberOfNext; i++)
+    {
+        if(m_possibleNext[i].good) {
+            m_possibleNext[i].probability =
+                100 - (uint8_t)(((float)m_possibleNext[i].neighbor.distantToNextNodeCluster
+                                / (float)totalDistance) * 100.0);
+            found = true;
+        }
     }
     return found;
 }
@@ -166,17 +171,13 @@ uint8_t NextChooser::chooseNeighbor()
 {
     // choose a side
     int randVal = rand() % 100;
-    uint8_t probability = m_possibleNext[0].probability;
-    if(m_possibleNext[0].good && probability <= randVal) {
-        return m_possibleNext[0].neighbor.side;
-    }
-    probability += m_possibleNext[1].probability;
-    if(m_possibleNext[1].good && probability <= randVal) {
-        return m_possibleNext[1].neighbor.side;
-    }
-    probability += m_possibleNext[2].probability;
-    if(m_possibleNext[2].good && probability <= randVal) {
-        return m_possibleNext[2].neighbor.side;
+    uint8_t probability = 0;
+    for(uint8_t i = 0; i < m_numberOfNext; i++)
+    {
+        probability += m_possibleNext[i].probability;
+        if(m_possibleNext[i].good && probability <= randVal) {
+            return m_possibleNext[i].neighbor.side;
+        }
     }
     return 0xFF;
 }
