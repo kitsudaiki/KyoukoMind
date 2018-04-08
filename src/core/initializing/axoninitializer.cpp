@@ -5,7 +5,7 @@
 #include <core/cluster/edgeCluster.h>
 #include <core/cluster/nodeCluster.h>
 
-#include <core/cluster/commonMethods.h>
+#include <core/processing/nextchooser.h>
 
 namespace KyoukoMind
 {
@@ -17,6 +17,8 @@ AxonInitializer::AxonInitializer(std::vector<std::vector<MetaDataEntry> > *netwo
     m_networkMetaStructure = networkMetaStructure;
     m_networkDimensionX = networkDimensionX;
     m_networkDimensionY = networkDimensionY;
+
+    m_chooser = new NextChooser();
 }
 
 
@@ -34,6 +36,20 @@ bool AxonInitializer::createAxons()
             Cluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
             if(cluster->getClusterType() == NODECLUSTER) {
 
+                std::vector<std::pair<Neighbor, uint8_t>> possibleNexts;
+                for(uint8_t side = 0;
+                    side < 10;
+                    side++) {
+                    Neighbor next = (*m_networkMetaStructure)[x][y].neighbors[side];
+                    if(next.neighborType == (uint8_t)EDGECLUSTER
+                            || next.neighborType == (uint8_t)NODECLUSTER) {
+                        possibleNexts.push_back(std::make_pair(next, side));
+                    }
+                }
+
+                if(possibleNexts.size() == 0) {
+                    return false;
+                }
 
             }
         }
@@ -79,14 +95,16 @@ uint32_t AxonInitializer::getNextAxonPathStep(const uint32_t x,
          goToNext = true;
     }
     if(goToNext == false || currentStep == 9) {
+        (*m_networkMetaStructure)[x][y].numberOfAxons++;
         return currentPath;
     }
 
-    Neighbor* ptr = (Neighbor*)&((*m_networkMetaStructure)[x][y].neighbors);
-    uint8_t nextSite = getNextCluster(ptr,
-                       inputSide,
-                       true);
+    Neighbor* ptr = (*m_networkMetaStructure)[x][y].neighbors;
+    uint8_t nextSite = m_chooser->getNextCluster(ptr,
+                                                 inputSide,
+                                                 true);
     if(nextSite == 0xFF) {
+        (*m_networkMetaStructure)[x][y].numberOfAxons++;
         return currentPath;
     }
     Neighbor choosenOne = (*m_networkMetaStructure)[x][y].neighbors[nextSite];

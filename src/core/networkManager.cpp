@@ -12,6 +12,8 @@
 #include <core/cluster/edgeCluster.h>
 #include <core/cluster/nodeCluster.h>
 
+#include <core/structs/clusterMeta.h>
+
 namespace KyoukoMind
 {
 
@@ -20,6 +22,8 @@ namespace KyoukoMind
  */
 NetworkManager::NetworkManager()
 {
+    assert(sizeof(ClusterMetaData) < 4096);
+
     m_clusterManager = new ClusterHandler();
     m_processingUnitHandler = new ProcessingUnitHandler();
     m_messageController = new MessageController();

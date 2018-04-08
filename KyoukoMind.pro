@@ -49,7 +49,8 @@ SOURCES += main.cpp \
             src/core/processing/commonthread.cpp \
             tests/proofOfConcept/demoio.cpp \
     src/core/initializing/axoninitializer.cpp \
-    src/core/initializing/clusterinitilizer.cpp
+    src/core/initializing/clusterinitilizer.cpp \
+    src/core/processing/nextchooser.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -93,7 +94,7 @@ HEADERS +=\
             tests/proofOfConcept/demoio.h \
     src/core/initializing/axoninitializer.h \
     src/core/initializing/clusterinitilizer.h \
-    src/core/cluster/commonMethods.h
+    src/core/processing/nextchooser.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

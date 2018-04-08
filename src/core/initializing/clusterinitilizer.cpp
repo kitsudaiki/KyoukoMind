@@ -108,6 +108,7 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster
         tempNeighbor.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
         tempNeighbor.targetClusterPos.x = x;
         tempNeighbor.targetClusterPos.y = y;
+        tempNeighbor.side = side;
 
         // add new neighbor
         cluster->addNeighbor(side, tempNeighbor);

@@ -15,6 +15,7 @@ struct Neighbor
     ClusterID targetClusterId;
     ClusterPos targetClusterPos;
 
+    uint8_t side = 0;
     uint8_t neighborType = EMPTYCLUSTER;
     uint32_t numberOfConnections = 0;
     uint32_t distantToNextNodeCluster = 0;

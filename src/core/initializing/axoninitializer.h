@@ -6,6 +6,7 @@
 
 namespace KyoukoMind
 {
+class NextChooser;
 
 class AxonInitializer
 {
@@ -20,6 +21,7 @@ private:
     std::vector<std::vector<MetaDataEntry>>* m_networkMetaStructure = nullptr;
     uint32_t m_networkDimensionX = 0;
     uint32_t m_networkDimensionY = 0;
+    NextChooser* m_chooser = nullptr;
 
     uint32_t getNextAxonPathStep(const uint32_t x,
                                  const uint32_t y,
