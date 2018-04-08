@@ -51,7 +51,9 @@ uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
     uint32_t totalDistance = checkPossebilities();
 
     if(!whichoutProbability) {
-        calculatePossebilities(totalDistance);
+        if(!calculatePossebilities(totalDistance)) {
+            return 0xFF;
+        }
     }
 
     return chooseNeighbor();

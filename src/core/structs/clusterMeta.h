@@ -39,7 +39,7 @@ struct ClusterMetaData
     Neighbor neighors[10];
     uint32_t numberOfNeighbors = 1;
 
-    uint32_t numberOfNodes = 0;
+    uint16_t numberOfNodes = 0;
     uint32_t numberOfAxons = 0;
     uint32_t numberOfEdgeSections = 0;
 

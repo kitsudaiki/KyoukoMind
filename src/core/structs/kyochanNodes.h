@@ -19,7 +19,7 @@ struct KyoChanNode
 
     // Axon
     uint32_t targetClusterPath = 0;
-    uint16_t targetAxonId = 0;
+    uint32_t targetAxonId = 0;
 } __attribute__((packed));
 
 
