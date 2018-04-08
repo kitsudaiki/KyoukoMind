@@ -1,3 +1,12 @@
+/**
+ *  @file    outgingMessageBuffer.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef OUTGOINGMESSAGEQUEUE_H
 #define OUTGOINGMESSAGEQUEUE_H
 

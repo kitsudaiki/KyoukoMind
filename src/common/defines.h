@@ -1,3 +1,14 @@
+/**
+ *  @file    defines.h
+ *  @author  Tobias Anker
+ *  @version 0.0.0
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
+
 #ifndef DEFINES_H
 #define DEFINES_H
 

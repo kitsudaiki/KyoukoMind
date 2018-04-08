@@ -1,3 +1,12 @@
+/**
+ *  @file    edgeCluster.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef EDGECLUSTER_H
 #define EDGECLUSTER_H
 

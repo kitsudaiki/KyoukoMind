@@ -1,3 +1,12 @@
+/**
+ *  @file    message.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include "message.h"
 
 namespace KyoukoMind

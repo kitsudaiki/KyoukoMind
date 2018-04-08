@@ -1,3 +1,12 @@
+/**
+ *  @file    config.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef CONFIG
 #define CONFIG
 

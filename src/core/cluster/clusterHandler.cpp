@@ -1,3 +1,12 @@
+/**
+ *  @file    clusterHandler.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include <core/cluster/clusterHandler.h>
 #include <core/cluster/cluster.h>
 

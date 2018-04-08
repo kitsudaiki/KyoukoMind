@@ -1,5 +1,14 @@
+/**
+ *  @file    edgeCluster.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include <core/cluster/edgeCluster.h>
-#include <KyoChanNetwork.h>
+#include <kyochanNetwork.h>
 #include <files/ioBuffer.h>
 
 namespace KyoukoMind

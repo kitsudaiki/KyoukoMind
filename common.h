@@ -1,3 +1,12 @@
+/**
+ *  @file    common.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef COMMON_H
 #define COMMON_H
 

@@ -1,8 +1,17 @@
-#include "networkInitializer.h"
-#include <KyoChanNetwork.h>
+/**
+ *  @file    networkInitializer.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
 
-#include <core/initializing/clusterinitilizer.h>
-#include <core/initializing/axoninitializer.h>
+#include "networkInitializer.h"
+#include <kyochanNetwork.h>
+
+#include <core/initializing/clusterInitilizer.h>
+#include <core/initializing/axonInitializer.h>
 
 namespace KyoukoMind
 {

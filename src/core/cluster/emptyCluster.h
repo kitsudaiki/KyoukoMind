@@ -1,3 +1,12 @@
+/**
+ *  @file    emptyCluster.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef EMPTYCLUSTER_H
 #define EMPTYCLUSTER_H
 

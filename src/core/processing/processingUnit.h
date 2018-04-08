@@ -1,7 +1,16 @@
+/**
+ *  @file    processingUnit.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef PROCESSINGUNIT_H
 #define PROCESSINGUNIT_H
 
-#include <core/processing/commonthread.h>
+#include <core/processing/commonThread.h>
 
 namespace KyoukoMind
 {

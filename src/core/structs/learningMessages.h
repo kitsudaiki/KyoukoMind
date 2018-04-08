@@ -1,3 +1,12 @@
+/**
+ *  @file    learingMessages.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef LEARNINGMESSAGES_H
 #define LEARNINGMESSAGES_H
 

@@ -1,3 +1,12 @@
+/**
+ *  @file    processingUnitHandler.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef PROCESSINGUNITHANDLER_H
 #define PROCESSINGUNITHANDLER_H
 

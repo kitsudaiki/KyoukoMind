@@ -1,3 +1,12 @@
+/**
+ *  @file    message.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef MESSAGE_H
 #define MESSAGE_H
 

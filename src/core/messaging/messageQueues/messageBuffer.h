@@ -1,3 +1,12 @@
+/**
+ *  @file    messageBuffer.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef MESSAGEQUEUE_H
 #define MESSAGEQUEUE_H
 

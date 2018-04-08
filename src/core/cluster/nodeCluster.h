@@ -1,3 +1,12 @@
+/**
+ *  @file    nodeCluster.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef NODECLUSTER_H
 #define NODECLUSTER_H
 

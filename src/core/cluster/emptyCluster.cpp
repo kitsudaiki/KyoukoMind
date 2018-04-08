@@ -1,3 +1,12 @@
+/**
+ *  @file    emptyCluster.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include <core/cluster/emptyCluster.h>
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>

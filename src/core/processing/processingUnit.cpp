@@ -1,3 +1,12 @@
+/**
+ *  @file    processingUnit.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include <core/processing/processingUnit.h>
 
 namespace KyoukoMind

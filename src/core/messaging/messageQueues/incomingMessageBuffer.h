@@ -1,3 +1,12 @@
+/**
+ *  @file    incomingMessageBuffer.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef INCOMINGMESSAGEQUEUE_H
 #define INCOMINGMESSAGEQUEUE_H
 

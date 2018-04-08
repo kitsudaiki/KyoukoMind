@@ -1,3 +1,13 @@
+/**
+ *  @file    enums.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
+
 #ifndef ENUMS_H
 #define ENUMS_H
 

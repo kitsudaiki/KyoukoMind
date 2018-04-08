@@ -1,3 +1,12 @@
+/**
+ *  @file    cpuProcessingUnit.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef CPUPROCESSINGUNIT_H
 #define CPUPROCESSINGUNIT_H
 

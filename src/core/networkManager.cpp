@@ -1,10 +1,19 @@
+/**
+ *  @file    netowrkManager.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include <core/networkManager.h>
 #include <settings/config.h>
-#include <KyoChanNetwork.h>
+#include <kyochanNetwork.h>
 
 #include <core/cluster/clusterHandler.h>
 #include <core/processing/processingUnitHandler.h>
-#include <core/messaging/messagecontroller.h>
+#include <core/messaging/messageController.h>
 #include <core/initializing/networkInitializer.h>
 
 #include <core/cluster/cluster.h>

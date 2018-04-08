@@ -1,3 +1,12 @@
+/**
+ *  @file    networkManager.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef NETTHREADMANAGER_H
 #define NETTHREADMANAGER_H
 

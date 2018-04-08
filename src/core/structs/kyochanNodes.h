@@ -1,3 +1,12 @@
+/**
+ *  @file    kyochanNodes.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef KYOCHANNODES_H
 #define KYOCHANNODES_H
 

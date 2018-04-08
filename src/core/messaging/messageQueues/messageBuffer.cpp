@@ -1,5 +1,14 @@
+/**
+ *  @file    messageBuffer.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include "messageBuffer.h"
-#include <core/messaging/messagecontroller.h>
+#include <core/messaging/messageController.h>
 #include <core/messaging/messages/message.h>
 
 namespace KyoukoMind

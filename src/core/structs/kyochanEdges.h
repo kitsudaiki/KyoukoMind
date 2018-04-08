@@ -1,3 +1,12 @@
+/**
+ *  @file    kyochanEdges.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef KYOCHANEDGES_H
 #define KYOCHANEDGES_H
 

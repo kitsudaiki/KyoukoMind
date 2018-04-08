@@ -1,3 +1,12 @@
+/**
+ *  @file    clusterMeta.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef CLUSTERMETA_H
 #define CLUSTERMETA_H
 

@@ -1,6 +1,15 @@
+/**
+ *  @file    cluster.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include <core/cluster/cluster.h>
 #include <files/ioBuffer.h>
-#include <core/messaging/messagecontroller.h>
+#include <core/messaging/messageController.h>
 
 namespace KyoukoMind
 {

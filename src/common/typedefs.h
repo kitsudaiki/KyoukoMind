@@ -1,3 +1,12 @@
+/**
+ *  @file    typedefs.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef TYPEDEFS_H
 #define TYPEDEFS_H
 

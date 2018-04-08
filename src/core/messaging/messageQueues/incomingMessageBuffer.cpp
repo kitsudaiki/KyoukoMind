@@ -1,7 +1,16 @@
+/**
+ *  @file    incomingMessageBuffer.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include "incomingMessageBuffer.h"
 
 #include <core/messaging/messages/message.h>
-#include <core/messaging/messagecontroller.h>
+#include <core/messaging/messageController.h>
 
 namespace KyoukoMind
 {

@@ -1,13 +1,22 @@
-﻿#include "outgoingMessageBuffer.h"
+﻿/**
+ *  @file    outgoingMessageBuffer.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
 
-#include <core/messaging/messagecontroller.h>
+#include "outgoingMessageBuffer.h"
+
+#include <core/messaging/messageController.h>
 
 #include <core/messaging/messages/message.h>
-#include <core/messaging/messages/datamessage.h>
-#include <core/messaging/messages/replymessage.h>
-#include <core/messaging/messages/learningmessage.h>
-#include <core/messaging/messages/learningreplymessage.h>
-#include <core/messaging/messages/cyclefinishmessage.h>
+#include <core/messaging/messages/dataMessage.h>
+#include <core/messaging/messages/replyMessage.h>
+#include <core/messaging/messages/learningMessage.h>
+#include <core/messaging/messages/learningReplyMessage.h>
+#include <core/messaging/messages/cycleFinishMessage.h>
 
 namespace KyoukoMind
 {

@@ -1,3 +1,12 @@
+/**
+ *  @file    networkInitializer.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef NETWORKINITIALIZER_H
 #define NETWORKINITIALIZER_H
 

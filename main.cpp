@@ -1,7 +1,16 @@
-#include <src/KyoChanNetwork.h>
-#include <tests/clustertest.h>
-#include <tests/messagetest.h>
-#include <tests/messagebuffertest.h>
+/**
+ *  @file    main.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
+#include <src/kyochanNetwork.h>
+#include <tests/clusterTest.h>
+#include <tests/messageTest.h>
+#include <tests/messageBufferTest.h>
 
 int main(int argc, char *argv[])
 {

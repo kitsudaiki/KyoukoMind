@@ -1,3 +1,12 @@
+/**
+ *  @file    config.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include <settings/config.h>
 //#include <config/configfileio.h>
 

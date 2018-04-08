@@ -1,3 +1,12 @@
+/**
+ *  @file    cluster.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef CLUSTER_H
 #define CLUSTER_H
 

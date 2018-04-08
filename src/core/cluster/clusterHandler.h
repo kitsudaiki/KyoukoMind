@@ -1,3 +1,12 @@
+/**
+ *  @file    clusterHandler.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef CLUSTERQUEUE_H
 #define CLUSTERQUEUE_H
 
