@@ -17,15 +17,24 @@ namespace KyoukoMind
 /**
  * @brief Cluster::Cluster
  * @param clusterId
+ * @param clusterType
  * @param directoryPath
  */
 Cluster::Cluster(const ClusterID &clusterId,
+                 const uint8_t clusterType,
                  const std::string directoryPath)
 {
-    m_clusterId = clusterId;
+    m_metaData.clusterId = clusterId;
+
+    if(clusterType > 3) {
+        m_metaData.clusterType = EMPTYCLUSTER;
+    } else {
+        m_metaData.clusterType = clusterType;
+    }
 
     initFile(clusterId, directoryPath);
     m_buffer->allocateBlocks(1);
+    updateMetaData(m_metaData);
 }
 
 /**
@@ -46,16 +55,16 @@ Cluster::~Cluster()
  */
 ClusterID Cluster::getClusterId() const
 {
-    return m_clusterId;
+    return m_metaData.clusterId;
 }
 
 /**
  * @brief Cluster::getClusterType
  * @return
  */
-ClusterType Cluster::getClusterType() const
+uint8_t Cluster::getClusterType() const
 {
-    return m_clusterType;
+    return m_metaData.clusterType;
 }
 
 /**

@@ -48,11 +48,13 @@ bool ClusterInitilizer::createNetwork()
 
     for(uint32_t x = 0; x < (*m_networkMetaStructure).size(); x++)
     {
+        std::cout<<"------"<<std::endl;
         for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++)
         {
             addCluster(x, y, nodeNumberPerCluster);
         }
     }
+    std::cout<<"------"<<std::endl;
     return true;
 }
 
@@ -74,23 +76,28 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
             cluster = new EmptyCluster((*m_networkMetaStructure)[x][y].clusterId,
                                        m_directoryPath,
                                        m_messageController);
+            std::cout<<x<<"  "<<y<<"  Empty"<<std::endl;
             break;
         case 1:
             cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath,
                                       m_messageController);
+            std::cout<<x<<"  "<<y<<"  edge"<<std::endl;
             break;
         case 2:
             cluster = new NodeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath,
                                       nodeNumberPerCluster,
                                       m_messageController);
+            std::cout<<x<<"  "<<y<<"  node"<<std::endl;
             break;
         default:
             return false;
     }
+    std::cout<<"id: "<<(*m_networkMetaStructure)[x][y].clusterId<<std::endl;
     addNeighbors(x, y, cluster);
     m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, cluster);
+    (*m_networkMetaStructure)[x][y].cluster = cluster;
     return true;
 }
 

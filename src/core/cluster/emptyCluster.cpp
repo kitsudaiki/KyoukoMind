@@ -14,14 +14,38 @@
 namespace KyoukoMind
 {
 
-EmptyCluster::EmptyCluster(ClusterID clusterId,
+/**
+ * @brief EmptyCluster::EmptyCluster
+ * @param clusterId
+ * @param directoryPath
+ * @param controller
+ */
+EmptyCluster::EmptyCluster(const ClusterID clusterId,
                            const std::string directoryPath,
                            MessageController *controller)
     : Cluster(clusterId,
+              EMPTYCLUSTER,
               directoryPath)
 {
-    m_clusterType = EMPTYCLUSTER;
+    m_incomingMessageQueue = new IncomingMessageBuffer(clusterId, controller);
+    m_outgoingMessageQueue = new OutgoingMessageBuffer(clusterId, controller);
+}
 
+/**
+ * @brief EmptyCluster::EmptyCluster
+ * @param clusterId
+ * @param clusterType
+ * @param directoryPath
+ * @param controller
+ */
+EmptyCluster::EmptyCluster(const ClusterID clusterId,
+                           const uint8_t clusterType,
+                           const std::string directoryPath,
+                           MessageController *controller)
+    : Cluster(clusterId,
+              clusterType,
+              directoryPath)
+{
     m_incomingMessageQueue = new IncomingMessageBuffer(clusterId, controller);
     m_outgoingMessageQueue = new OutgoingMessageBuffer(clusterId, controller);
 }

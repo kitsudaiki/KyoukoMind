@@ -14,16 +14,43 @@
 namespace KyoukoMind
 {
 
-EdgeCluster::EdgeCluster(ClusterID clusterId,
+/**
+ * @brief EdgeCluster::EdgeCluster
+ * @param clusterId
+ * @param directoryPath
+ * @param controller
+ */
+EdgeCluster::EdgeCluster(const ClusterID clusterId,
                          const std::string directoryPath,
                          MessageController *controller)
     : EmptyCluster(clusterId,
+                   EDGECLUSTER,
                    directoryPath,
                    controller)
 {
-    m_clusterType = EDGECLUSTER;
 }
 
+/**
+ * @brief EdgeCluster::EdgeCluster
+ * @param clusterId
+ * @param clusterType
+ * @param directoryPath
+ * @param controller
+ */
+EdgeCluster::EdgeCluster(const ClusterID clusterId,
+                         const uint8_t clusterType,
+                         const std::string directoryPath,
+                         MessageController *controller)
+    : EmptyCluster(clusterId,
+                   clusterType,
+                   directoryPath,
+                   controller)
+{
+}
+
+/**
+ * @brief EdgeCluster::~EdgeCluster
+ */
 EdgeCluster::~EdgeCluster()
 {
 
@@ -80,7 +107,10 @@ bool EdgeCluster::initAxonBlocks(uint32_t numberOfAxons)
         m_metaData.positionAxonBlocks = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
 
         uint32_t blockSize = m_buffer->getBlockSize();
-        m_metaData.numberOfAxonBlocks = (numberOfAxons * sizeof(KyoChanAxon)) / blockSize + 1;
+        m_metaData.numberOfAxonBlocks = (numberOfAxons * sizeof(KyoChanAxon)) / blockSize;
+        if((numberOfAxons * sizeof(KyoChanAxon)) % blockSize != 0) {
+            m_metaData.numberOfAxonBlocks += 1;
+        }
 
         m_buffer->allocateBlocks(m_metaData.numberOfAxonBlocks);
         updateMetaData(m_metaData);
@@ -115,7 +145,7 @@ bool EdgeCluster::initEdgeBlocks(uint32_t numberOfEdgeSections)
         uint32_t blockSize = m_buffer->getBlockSize();
         m_metaData.numberOfEdgeBlocks = (numberOfEdgeSections * sizeof(KyoChanEdgeSection)) / blockSize;
         if((numberOfEdgeSections * sizeof(KyoChanEdgeSection)) % blockSize != 0) {
-            m_metaData.numberOfEdgeBlocks++;
+            m_metaData.numberOfEdgeBlocks += 1;
         }
 
         // update and persist buffer

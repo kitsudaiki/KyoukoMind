@@ -25,11 +25,10 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
                          const uint32_t numberOfNodes,
                          MessageController *controller)
     : EdgeCluster(clusterId,
+                  NODECLUSTER,
                   directoryPath,
                   controller)
 {
-    m_clusterType = NODECLUSTER;
-
     initNodeBlocks(numberOfNodes);
 }
 
@@ -44,7 +43,7 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
                   directoryPath,
                   controller)
 {
-    m_clusterType = NODECLUSTER;
+    m_metaData.clusterType = NODECLUSTER;
 }
 
 /**

@@ -21,10 +21,14 @@ class EmptyCluster : public Cluster
 {
 
 public:
-    EmptyCluster(ClusterID clusterId,
+    EmptyCluster(const ClusterID clusterId,
                  const std::string directoryPath,
                  KyoukoMind::MessageController *controller);
 
+    EmptyCluster(const ClusterID clusterId,
+                 const uint8_t clusterType,
+                 const std::string directoryPath,
+                 MessageController *controller);
 protected:
     IncomingMessageBuffer* m_incomingMessageQueue = nullptr;
     OutgoingMessageBuffer* m_outgoingMessageQueue = nullptr;

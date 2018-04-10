@@ -27,11 +27,12 @@ class Cluster
 
 public:
     Cluster(const ClusterID &clusterId,
+            const uint8_t clusterType,
             const std::string directoryPath);
     ~Cluster();
 
     ClusterID getClusterId() const;
-    ClusterType getClusterType() const;
+    uint8_t getClusterType() const;
 
     bool addNeighbor(const uint8_t side, const Neighbor target);
 
@@ -41,13 +42,11 @@ public:
 private:
     // cluster-metadata
     uint64_t m_messageIdCounter = 0;
-    ClusterID m_clusterId;
     
 protected:
     PerformanceIO::IOBuffer* m_buffer = nullptr;
 
     ClusterMetaData m_metaData;
-    ClusterType m_clusterType = UNDEFINEDCLUSTER;
 
     void initFile(const ClusterID clusterId,
                   const std::string directoryPath);
