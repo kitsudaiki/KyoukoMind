@@ -42,7 +42,7 @@ int Config::getNumberOfThreads(bool *ok) const
  */
 int Config::getNumberOfNodes(bool *ok) const
 {
-    return 5;
+    return 42;
     //return m_configFile->getInt("number_of_nodes_per_cluster",
     //                            std::stringList()<<"GENERAL",
     //                            ok);

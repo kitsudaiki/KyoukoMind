@@ -141,7 +141,7 @@ uint32_t NextChooser::checkPossebilities()
     {
         if(m_possibleNext[i].neighbor.neighborType == EMPTYCLUSTER) {
             m_possibleNext[i].good = false;
-        } else { totalDistance+= m_possibleNext[i].neighbor.distantToNextNodeCluster; }
+        } else { totalDistance += m_possibleNext[i].neighbor.distantToNextNodeCluster; }
     }
     return totalDistance;
 }
@@ -177,9 +177,11 @@ uint8_t NextChooser::chooseNeighbor()
     uint8_t probability = 0;
     for(uint8_t i = 0; i < m_numberOfNext; i++)
     {
-        probability += m_possibleNext[i].probability;
-        if(m_possibleNext[i].good && probability <= randVal) {
-            return m_possibleNext[i].neighbor.side;
+        if(m_possibleNext[i].good) {
+            probability += m_possibleNext[i].probability;
+            if(probability >= randVal) {
+                return m_possibleNext[i].neighbor.side;
+            }
         }
     }
     return 0xFF;

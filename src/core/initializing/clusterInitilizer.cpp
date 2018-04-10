@@ -76,20 +76,17 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
             cluster = new EmptyCluster((*m_networkMetaStructure)[x][y].clusterId,
                                        m_directoryPath,
                                        m_messageController);
-            std::cout<<x<<"  "<<y<<"  Empty"<<std::endl;
             break;
         case 1:
             cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath,
                                       m_messageController);
-            std::cout<<x<<"  "<<y<<"  edge"<<std::endl;
             break;
         case 2:
             cluster = new NodeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath,
                                       nodeNumberPerCluster,
                                       m_messageController);
-            std::cout<<x<<"  "<<y<<"  node"<<std::endl;
             break;
         default:
             return false;
@@ -110,7 +107,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
  */
 bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster* cluster)
 {
-    std::vector<uint8_t> sideOrder = {0,1,2,9,8,7};
+    std::vector<uint8_t> sideOrder = {0,1,2,13,12,11};
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
         uint8_t side = sideOrder[i];
@@ -122,13 +119,13 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster
         tempNeighbor.targetClusterId = (*m_networkMetaStructure)[next.first][next.second].clusterId;
         tempNeighbor.neighborType = (*m_networkMetaStructure)[next.first][next.second].type;
         tempNeighbor.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
-        tempNeighbor.targetClusterPos.x = x;
-        tempNeighbor.targetClusterPos.y = y;
+        tempNeighbor.targetClusterPos.x = next.first;
+        tempNeighbor.targetClusterPos.y = next.second;
         tempNeighbor.side = side;
 
         // add new neighbor
         cluster->addNeighbor(side, tempNeighbor);
-        (*m_networkMetaStructure)[next.first][next.second].neighbors[side] = tempNeighbor;
+        (*m_networkMetaStructure)[x][y].neighbors[side] = tempNeighbor;
     }
     return true;
 }
@@ -207,13 +204,13 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
             }
             break;
         }
-    case 9:
+    case 13:
         {
             result.first = x;
             result.second = (y + 1) % m_networkDimensionY;
             break;
         }
-    case 8:
+    case 12:
         {
             if(x == 0) {
                 result.first = m_networkDimensionX - 1;
@@ -227,7 +224,7 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
             }
             break;
         }
-    case 7:
+    case 11:
         {
             if(x == 0) {
                 result.first = m_networkDimensionX - 1;

@@ -54,8 +54,9 @@ bool AxonInitializer::createAxons()
                 {
                     KyoChanNode* nodes = nodeCluster->getNodeBlock();
                     uint32_t axonId = (*m_networkMetaStructure)[x][y].numberOfAxons;
-                    (*m_networkMetaStructure)[x][y].numberOfAxons++;
                     std::vector<uint32_t> newAxon = getNextAxonPathStep(x, y, 1, 0, 0);
+
+                    (*m_networkMetaStructure)[newAxon[0]][newAxon[1]].numberOfAxons++;
                     nodes->targetClusterPath = newAxon[2];
                     nodes->targetAxonId = axonId;
                 }
@@ -99,7 +100,6 @@ std::vector<uint32_t> AxonInitializer::getNextAxonPathStep(const uint32_t x,
          goToNext = true;
     }
     if(goToNext == false || currentStep == 8) {
-        (*m_networkMetaStructure)[x][y].numberOfAxons++;
         std::vector<uint32_t> result;
         result.push_back(x);
         result.push_back(y);
@@ -112,7 +112,6 @@ std::vector<uint32_t> AxonInitializer::getNextAxonPathStep(const uint32_t x,
                                                  inputSide,
                                                  true);
     if(nextSite == 0xFF) {
-        (*m_networkMetaStructure)[x][y].numberOfAxons++;
         std::vector<uint32_t> result;
         result.push_back(x);
         result.push_back(y);
@@ -121,7 +120,8 @@ std::vector<uint32_t> AxonInitializer::getNextAxonPathStep(const uint32_t x,
     }
     Neighbor choosenOne = (*m_networkMetaStructure)[x][y].neighbors[nextSite];
 
-    uint32_t newPath = (currentPath * 0xF) + nextSite;
+    uint32_t newPath = (currentPath * 16) + nextSite;
+    std::cout<<"newPath: "<<newPath<<std::endl;
     return getNextAxonPathStep(choosenOne.targetClusterPos.x,
                                choosenOne.targetClusterPos.y,
                                0xF - nextSite,
