@@ -22,7 +22,6 @@ public:
     struct PossibleNext
     {
         bool good = true;
-        uint8_t side = 0;
         Neighbor neighbor;
         uint8_t probability = 33;
     };

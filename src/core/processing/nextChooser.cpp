@@ -68,7 +68,6 @@ uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
 void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
                                        const uint8_t initialSite)
 {
-    std::cout<<"initial state: "<<(int)initialSite<<std::endl;
     switch((int)initialSite) {
     case 1:
         m_possibleNext[0].neighbor = allNeighbors[2];
@@ -141,7 +140,10 @@ uint32_t NextChooser::checkPossebilities()
     {
         if(m_possibleNext[i].neighbor.neighborType == EMPTYCLUSTER) {
             m_possibleNext[i].good = false;
-        } else { totalDistance += m_possibleNext[i].neighbor.distantToNextNodeCluster; }
+        } else {
+            m_possibleNext[i].good = true;
+            totalDistance += m_possibleNext[i].neighbor.distantToNextNodeCluster;
+        }
     }
     return totalDistance;
 }
@@ -154,6 +156,7 @@ uint32_t NextChooser::checkPossebilities()
 bool NextChooser::calculatePossebilities(const uint32_t totalDistance)
 {
     bool found = false;
+
     for(uint8_t i = 0; i < m_numberOfNext; i++)
     {
         if(m_possibleNext[i].good) {

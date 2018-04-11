@@ -72,17 +72,17 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
     Cluster* cluster = nullptr;
     // create cluster
     switch ((int)(*m_networkMetaStructure)[x][y].type) {
-        case 0:
+        case 1:
             cluster = new EmptyCluster((*m_networkMetaStructure)[x][y].clusterId,
                                        m_directoryPath,
                                        m_messageController);
             break;
-        case 1:
+        case 2:
             cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath,
                                       m_messageController);
             break;
-        case 2:
+        case 3:
             cluster = new NodeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath,
                                       nodeNumberPerCluster,
@@ -107,7 +107,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
  */
 bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster* cluster)
 {
-    std::vector<uint8_t> sideOrder = {0,1,2,13,12,11};
+    std::vector<uint8_t> sideOrder = {2,3,4,13,12,11};
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
         uint8_t side = sideOrder[i];
@@ -170,7 +170,7 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
 {
     std::pair<uint32_t, uint32_t> result;
     switch (side) {
-    case 0:
+    case 2:
         {
             result.first = x;
             if(y == 0) {
@@ -180,7 +180,7 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
             }
             break;
         }
-    case 1:
+    case 3:
         {
             result.first = (x + 1) % m_networkDimensionX;
             if(y % 2 == 1) {
@@ -194,7 +194,7 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
             }
             break;
         }
-    case 2:
+    case 4:
         {
             result.first = (x + 1) % m_networkDimensionX;
             if(y % 2 == 1) {

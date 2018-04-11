@@ -132,7 +132,7 @@ bool NetworkInitializer::getNetworkMetaStructure()
                 }
             }
             MetaDataEntry tempEntry;
-            tempEntry.type = std::stoi(splittedLine[linePartNumber]);
+            tempEntry.type = std::stoi(splittedLine[linePartNumber]) + 1;
             tempEntry.clusterId = m_idCounter;
 
             m_networkMetaStructure[lineNumber].push_back(tempEntry);
