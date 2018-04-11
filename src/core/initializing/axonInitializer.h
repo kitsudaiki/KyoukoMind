@@ -21,8 +21,8 @@ class AxonInitializer
 {
 public:
     AxonInitializer(std::vector<std::vector<MetaDataEntry>> *networkMetaStructure,
-                    uint32_t networkDimensionX,
-                    uint32_t networkDimensionY);
+                    const uint32_t networkDimensionX,
+                    const uint32_t networkDimensionY);
 
     bool createAxons();
 

@@ -19,6 +19,7 @@ class CpuProcessingUnit : public ProcessingUnit
 {
 public:
     CpuProcessingUnit();
+    ~CpuProcessingUnit();
 
     void processCluster(Cluster* cluster);
 };

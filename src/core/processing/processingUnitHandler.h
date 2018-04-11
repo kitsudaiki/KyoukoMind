@@ -20,7 +20,10 @@ class ProcessingUnitHandler
 {
 public:
     ProcessingUnitHandler();
+    ~ProcessingUnitHandler();
 
+    bool initProcessingUnits(const uint16_t numberOfThreads);
+    bool closeAllProcessingUnits();
 private:
     std::vector<ProcessingUnit*> m_allProcessingUnits;
 };

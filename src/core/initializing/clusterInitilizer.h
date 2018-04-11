@@ -24,8 +24,8 @@ class ClusterInitilizer
 {
 public:
     ClusterInitilizer(std::vector<std::vector<MetaDataEntry>> *networkMetaStructure,
-                      uint32_t networkDimensionX,
-                      uint32_t networkDimensionY,
+                      const uint32_t networkDimensionX,
+                      const uint32_t networkDimensionY,
                       const std::string directoryPath,
                       ClusterHandler *clusterHandler,
                       MessageController *messageController);

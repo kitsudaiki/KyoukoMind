@@ -21,6 +21,14 @@ CpuProcessingUnit::CpuProcessingUnit()
 }
 
 /**
+ * @brief CpuProcessingUnit::~CpuProcessingUnit
+ */
+CpuProcessingUnit::~CpuProcessingUnit()
+{
+
+}
+
+/**
  * @brief CpuProcessingUnit::processCluster
  * @param cluster
  */

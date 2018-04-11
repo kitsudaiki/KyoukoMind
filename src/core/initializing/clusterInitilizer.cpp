@@ -22,9 +22,18 @@
 namespace KyoukoMind
 {
 
+/**
+ * @brief ClusterInitilizer::ClusterInitilizer
+ * @param networkMetaStructure
+ * @param networkDimensionX
+ * @param networkDimensionY
+ * @param directoryPath
+ * @param clusterHandler
+ * @param messageController
+ */
 ClusterInitilizer::ClusterInitilizer(std::vector<std::vector<MetaDataEntry> > *networkMetaStructure,
-                                     uint32_t networkDimensionX,
-                                     uint32_t networkDimensionY,
+                                     const uint32_t networkDimensionX,
+                                     const uint32_t networkDimensionY,
                                      const std::string directoryPath,
                                      ClusterHandler *clusterHandler,
                                      MessageController* messageController)
@@ -91,7 +100,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
         default:
             return false;
     }
-    std::cout<<"id: "<<(*m_networkMetaStructure)[x][y].clusterId<<std::endl;
+
     addNeighbors(x, y, cluster);
     m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, cluster);
     (*m_networkMetaStructure)[x][y].cluster = cluster;
