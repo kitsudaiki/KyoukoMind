@@ -64,6 +64,15 @@ uint32_t NodeCluster::getNumberOfNodeBlocks() const
 }
 
 /**
+ * @brief NodeCluster::getNumberOfNode
+ * @return
+ */
+uint32_t NodeCluster::getNumberOfNode() const
+{
+    return m_metaData.numberOfNodes;
+}
+
+/**
  * @brief NodeCluster::getNodeBlock
  * @return
  */

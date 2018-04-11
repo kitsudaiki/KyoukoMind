@@ -27,16 +27,22 @@ public:
     bool createAxons();
 
 private:
+    struct NewAxon {
+        uint32_t targetX = 0;
+        uint32_t targetY = 0;
+        uint32_t targetPath = 0;
+    };
+
     std::vector<std::vector<MetaDataEntry>>* m_networkMetaStructure = nullptr;
     uint32_t m_networkDimensionX = 0;
     uint32_t m_networkDimensionY = 0;
     NextChooser* m_chooser = nullptr;
 
-    std::vector<uint32_t> getNextAxonPathStep(const uint32_t x,
-                                              const uint32_t y,
-                                              const uint8_t inputSide,
-                                              const uint32_t currentPath,
-                                              const uint32_t currentStep);
+    NewAxon getNextAxonPathStep(const uint32_t x,
+                                const uint32_t y,
+                                const uint8_t inputSide,
+                                const uint32_t currentPath,
+                                const uint32_t currentStep);
 };
 
 }
