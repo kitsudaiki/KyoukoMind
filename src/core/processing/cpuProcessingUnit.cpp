@@ -14,8 +14,10 @@ namespace KyoukoMind
 
 /**
  * @brief CpuProcessingUnit::CpuProcessingUnit
+ * @param clusterHandler
  */
-CpuProcessingUnit::CpuProcessingUnit()
+CpuProcessingUnit::CpuProcessingUnit(ClusterHandler* clusterHandler):
+    ProcessingUnit(clusterHandler)
 {
 
 }

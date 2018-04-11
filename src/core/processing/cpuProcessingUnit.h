@@ -18,7 +18,7 @@ namespace KyoukoMind
 class CpuProcessingUnit : public ProcessingUnit
 {
 public:
-    CpuProcessingUnit();
+    CpuProcessingUnit(ClusterHandler *clusterHandler);
     ~CpuProcessingUnit();
 
     void processCluster(Cluster* cluster);

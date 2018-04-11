@@ -21,11 +21,14 @@ class ProcessingUnit : public CommonThread
 {
 
 public:
-    ProcessingUnit();
+    ProcessingUnit(ClusterHandler* clusterHandler);
 
     void run();
 
     virtual void processCluster(Cluster* cluster) = 0;
+
+protected:
+    ClusterHandler* m_clusterHandler = nullptr;
 };
 
 }

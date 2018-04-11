@@ -8,16 +8,18 @@
  */
 
 #include <core/processing/processingUnit.h>
+#include <core/cluster/clusterHandler.h>
 
 namespace KyoukoMind
 {
 
 /**
  * @brief ProcessingUnit::ProcessingUnit
+ * @param clusterHandler
  */
-ProcessingUnit::ProcessingUnit()
+ProcessingUnit::ProcessingUnit(ClusterHandler* clusterHandler)
 {
-
+    m_clusterHandler = clusterHandler;
 }
 
 /**

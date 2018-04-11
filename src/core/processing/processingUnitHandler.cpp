@@ -10,16 +10,18 @@
 #include <core/processing/processingUnitHandler.h>
 #include <core/processing/processingUnit.h>
 #include <core/processing/cpuProcessingUnit.h>
+#include <core/cluster/clusterHandler.h>
 
 namespace KyoukoMind
 {
 
 /**
  * @brief ProcessingUnitHandler::ProcessingUnitHandler
+ * @param clusterHandler
  */
-ProcessingUnitHandler::ProcessingUnitHandler()
+ProcessingUnitHandler::ProcessingUnitHandler(ClusterHandler* clusterHandler)
 {
-
+    m_clusterHandler = clusterHandler;
 }
 
 /**
@@ -42,7 +44,7 @@ bool ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
     }
     for(uint16_t i = 0; i < numberOfThreads; i++)
     {
-        ProcessingUnit* newUnit = new CpuProcessingUnit();
+        ProcessingUnit* newUnit = new CpuProcessingUnit(m_clusterHandler);
         m_allProcessingUnits.push_back(newUnit);
         newUnit->start();
     }
