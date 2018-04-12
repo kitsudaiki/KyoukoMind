@@ -27,6 +27,7 @@ ClusterHandler::ClusterHandler()
  */
 ClusterHandler::~ClusterHandler()
 {
+    delete m_clusterQueue;
     clearAllCluster();
 }
 

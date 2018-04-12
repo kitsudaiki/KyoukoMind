@@ -21,11 +21,36 @@ ClusterQueue::ClusterQueue()
 }
 
 /**
+ * @brief ClusterQueue::~ClusterQueue
+ */
+ClusterQueue::~ClusterQueue()
+{
+    clearQueue();
+}
+
+/**
+ * @brief ClusterQueue::clearQueue
+ * @return
+ */
+bool ClusterQueue::clearQueue()
+{
+    if(m_queue.size() == 0) {
+        return false;
+    }
+    std::queue<Cluster*> empty;
+    std::swap(m_queue, empty);
+    return true;
+}
+
+/**
  * @brief ClusterQueue::getCluster
  * @return
  */
 Cluster *ClusterQueue::getCluster()
 {
+    if(m_queue.size() == 0) {
+        return nullptr;
+    }
     Cluster* tempCluster = m_queue.front();
     m_queue.pop();
     return tempCluster;

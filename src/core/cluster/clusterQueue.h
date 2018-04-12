@@ -20,7 +20,9 @@ class ClusterQueue
 {
 public:
     ClusterQueue();
+    ~ClusterQueue();
 
+    bool clearQueue();
     Cluster* getCluster();
     bool addCluster(Cluster* cluster);
 
