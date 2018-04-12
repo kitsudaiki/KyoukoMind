@@ -24,6 +24,9 @@ public:
     bool start();
     bool stop();
 
+    void continueThread();
+    void initBlockThread();
+
     bool isActive() const;
 
     virtual void run() = 0;
@@ -31,7 +34,14 @@ public:
 protected:
     std::thread* m_thread = nullptr;
     bool m_abort = false;
+    bool m_block = false;
     bool m_active = false;
+
+    std::mutex m_mutex;
+    std::condition_variable m_cv;
+
+    void blockThread();
+    void sleepThread(const uint32_t seconrs);
 };
 
 }

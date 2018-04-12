@@ -57,6 +57,44 @@ bool CommonThread::stop()
 }
 
 /**
+ * @brief CommonThread::continueThread
+ */
+void CommonThread::continueThread()
+{
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+    }
+    m_cv.notify_one();
+}
+
+/**
+ * @brief CommonThread::initBlockThread
+ */
+void CommonThread::initBlockThread()
+{
+    m_block = true;
+}
+
+/**
+ * @brief CommonThread::blockThread
+ */
+void CommonThread::blockThread()
+{
+    m_block = false;
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_cv.wait(lock);
+    m_block = false;
+}
+
+/**
+ * @brief CommonThread::sleepThread
+ */
+void CommonThread::sleepThread(const uint32_t seconrs)
+{
+    std::this_thread::sleep_for(chronoSec(seconrs));
+}
+
+/**
  * @brief CommonThread::isActive
  * @return
  */

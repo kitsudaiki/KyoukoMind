@@ -30,5 +30,6 @@
 #include <istream>
 #include <time.h>
 #include <queue>
+#include <condition_variable>
 
 #endif // INCLUDES_H
