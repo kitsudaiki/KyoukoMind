@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     tests/clusterTest.cpp \
     tests/commonTest.cpp \
     tests/messageBufferTest.cpp \
-    tests/messageTest.cpp
+    tests/messageTest.cpp \
+    src/core/cluster/clusterQueue.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -94,7 +95,8 @@ HEADERS +=\
     tests/clusterTest.h \
     tests/commonTest.h \
     tests/messageBufferTest.h \
-    tests/messageTest.h
+    tests/messageTest.h \
+    src/core/cluster/clusterQueue.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

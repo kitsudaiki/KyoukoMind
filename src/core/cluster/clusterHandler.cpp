@@ -8,6 +8,7 @@
  */
 
 #include <core/cluster/clusterHandler.h>
+#include <core/cluster/clusterQueue.h>
 #include <core/cluster/cluster.h>
 
 namespace KyoukoMind
@@ -18,7 +19,7 @@ namespace KyoukoMind
  */
 ClusterHandler::ClusterHandler()
 {
-
+    m_clusterQueue = new ClusterQueue();
 }
 
 /**
@@ -86,6 +87,15 @@ void ClusterHandler::clearAllCluster()
         delete tempCluster;
     }
     m_allClusters.clear();
+}
+
+/**
+ * @brief ClusterHandler::getClusterQueue
+ * @return
+ */
+ClusterQueue *ClusterHandler::getClusterQueue() const
+{
+    return m_clusterQueue;
 }
 
 }

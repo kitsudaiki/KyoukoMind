@@ -10,13 +10,12 @@
 #ifndef CLUSTERQUEUE_H
 #define CLUSTERQUEUE_H
 
-#include <iterator>
 #include <common.h>
 
 namespace KyoukoMind
 {
-
 class Cluster;
+class ClusterQueue;
 
 class ClusterHandler
 {
@@ -29,8 +28,12 @@ public:
     bool deleteCluster(const ClusterID clusterId);
     void clearAllCluster();
 
+    ClusterQueue* getClusterQueue() const;
+
 private:
     std::map<ClusterID, Cluster*> m_allClusters;
+
+    ClusterQueue* m_clusterQueue = nullptr;
 };
 
 }

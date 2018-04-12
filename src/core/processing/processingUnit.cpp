@@ -27,7 +27,10 @@ ProcessingUnit::ProcessingUnit(ClusterHandler* clusterHandler)
  */
 void ProcessingUnit::run()
 {
+    while(!m_abort)
+    {
 
+    }
 }
 
 }

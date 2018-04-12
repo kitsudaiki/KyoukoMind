@@ -29,5 +29,6 @@
 #include <mutex>
 #include <istream>
 #include <time.h>
+#include <queue>
 
 #endif // INCLUDES_H

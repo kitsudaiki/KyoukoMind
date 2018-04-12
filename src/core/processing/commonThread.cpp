@@ -37,6 +37,7 @@ bool CommonThread::start()
     if(m_active) {
         return false;
     }
+    m_abort = false;
     m_thread = new std::thread(&CommonThread::run, this);
     return true;
 }
@@ -50,6 +51,7 @@ bool CommonThread::stop()
     if(!m_active) {
         return false;
     }
+    m_abort = true;
     m_thread->join();
     return true;
 }
