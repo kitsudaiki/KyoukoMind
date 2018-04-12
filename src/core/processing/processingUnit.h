@@ -15,20 +15,21 @@
 namespace KyoukoMind
 {
 class Cluster;
-class ClusterHandler;
+class ClusterQueue;
 
 class ProcessingUnit : public CommonThread
 {
 
 public:
-    ProcessingUnit(ClusterHandler* clusterHandler);
+    ProcessingUnit(ClusterQueue* clusterQueue);
 
     void run();
 
     virtual void processCluster(Cluster* cluster) = 0;
 
 protected:
-    ClusterHandler* m_clusterHandler = nullptr;
+    ClusterQueue* m_clusterQueue = nullptr;
+
 };
 
 }

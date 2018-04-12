@@ -9,6 +9,11 @@
 
 #include <core/processing/cpuProcessingUnit.h>
 
+#include <core/cluster/cluster.h>
+#include <core/cluster/emptyCluster.h>
+#include <core/cluster/edgeCluster.h>
+#include <core/cluster/nodeCluster.h>
+
 namespace KyoukoMind
 {
 
@@ -16,8 +21,8 @@ namespace KyoukoMind
  * @brief CpuProcessingUnit::CpuProcessingUnit
  * @param clusterHandler
  */
-CpuProcessingUnit::CpuProcessingUnit(ClusterHandler* clusterHandler):
-    ProcessingUnit(clusterHandler)
+CpuProcessingUnit::CpuProcessingUnit(ClusterQueue *clusterQueue):
+    ProcessingUnit(clusterQueue)
 {
 
 }
@@ -36,25 +41,66 @@ CpuProcessingUnit::~CpuProcessingUnit()
  */
 void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
-    /*for(int i = m_startPoint; i < m_startPoint+m_offset; i++)
+    switch((int)cluster->getClusterType())
     {
-        KyoChanNode* tempNode = (KyoChanNode*)&m_nodeNetwork->at(i);
-        uint32_t pos = 0;
-        qint32 currentState = tempNode->state;
-        tempNode->state /= 3;
+        case EMPTYCLUSTER:
+            processEmptyCluster(cluster);
+            break;
+        case EDGECLUSTER:
+            processEdgeCluster(cluster);
+            processEmptyCluster(cluster);
+            break;
+        case NODECLUSTER:
+            processNodeCluster(cluster);
+            processEdgeCluster(cluster);
+            processEmptyCluster(cluster);
+            break;
+        default:
+            break;
+    }
+}
 
-        if(currentState > tempNode->border)
-        {
-            QVectorIterator<KyoChanEdge> i(tempNode->edges);
-            while(i.hasNext())
-            {
-                KyoChanEdge currentEdge = i.next();
-                pos = currentEdge.target;
-                (*m_nodeNetwork)[pos].tempStates[m_id] += currentEdge.weight;
 
-            }
-        }
-    }*/
+/**
+ * @brief CpuProcessingUnit::processEmptyCluster
+ * @param cluster
+ */
+void CpuProcessingUnit::processEmptyCluster(Cluster *cluster)
+{
+    EmptyCluster* emptyCluster = static_cast<EmptyCluster*>(cluster);
+    if(emptyCluster == nullptr) {
+        return;
+    }
+    emptyCluster->finishCycle();
+    return;
+}
+
+/**
+ * @brief CpuProcessingUnit::processEdgeCluster
+ * @param cluster
+ */
+void CpuProcessingUnit::processEdgeCluster(Cluster *cluster)
+{
+    EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
+    if(edgeCluster == nullptr) {
+        return;
+    }
+
+    return;
+}
+
+/**
+ * @brief CpuProcessingUnit::processNodeCluster
+ * @param cluster
+ */
+void CpuProcessingUnit::processNodeCluster(Cluster *cluster)
+{
+    NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
+    if(nodeCluster == nullptr) {
+        return;
+    }
+
+    return;
 }
 
 }

@@ -29,9 +29,16 @@ public:
                  const uint8_t clusterType,
                  const std::string directoryPath,
                  MessageController *controller);
+
+    void finishCycle();
+
 protected:
     IncomingMessageBuffer* m_incomingMessageQueue = nullptr;
     OutgoingMessageBuffer* m_outgoingMessageQueue = nullptr;
+
+private:
+    void initMessageBuffer(const ClusterID clusterId,
+                           MessageController *controller);
 };
 
 }

@@ -27,8 +27,7 @@ EmptyCluster::EmptyCluster(const ClusterID clusterId,
               EMPTYCLUSTER,
               directoryPath)
 {
-    m_incomingMessageQueue = new IncomingMessageBuffer(clusterId, controller);
-    m_outgoingMessageQueue = new OutgoingMessageBuffer(clusterId, controller);
+    initMessageBuffer(clusterId, controller);
 }
 
 /**
@@ -45,6 +44,30 @@ EmptyCluster::EmptyCluster(const ClusterID clusterId,
     : Cluster(clusterId,
               clusterType,
               directoryPath)
+{
+    initMessageBuffer(clusterId, controller);
+}
+
+/**
+ * @brief EmptyCluster::finishCycle
+ */
+void EmptyCluster::finishCycle()
+{
+    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 2);
+    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 3);
+    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 4);
+    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 11);
+    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 12);
+    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 13);
+}
+
+/**
+ * @brief EmptyCluster::initMessageBuffer
+ * @param clusterId
+ * @param controller
+ */
+void EmptyCluster::initMessageBuffer(const ClusterID clusterId,
+                                     MessageController *controller)
 {
     m_incomingMessageQueue = new IncomingMessageBuffer(clusterId, controller);
     m_outgoingMessageQueue = new OutgoingMessageBuffer(clusterId, controller);

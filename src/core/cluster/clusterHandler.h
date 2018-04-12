@@ -11,11 +11,11 @@
 #define CLUSTERHANDLER_H
 
 #include <common.h>
-#include <core/cluster/clusterQueue.h>
 
 namespace KyoukoMind
 {
 class Cluster;
+class ClusterQueue;
 
 class ClusterHandler
 {

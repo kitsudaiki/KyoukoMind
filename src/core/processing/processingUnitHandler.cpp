@@ -44,7 +44,7 @@ bool ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
     }
     for(uint16_t i = 0; i < numberOfThreads; i++)
     {
-        ProcessingUnit* newUnit = new CpuProcessingUnit(m_clusterHandler);
+        ProcessingUnit* newUnit = new CpuProcessingUnit(m_clusterHandler->getClusterQueue());
         m_allProcessingUnits.push_back(newUnit);
         newUnit->start();
     }
