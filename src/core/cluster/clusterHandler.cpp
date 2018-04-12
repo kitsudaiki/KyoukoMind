@@ -8,7 +8,6 @@
  */
 
 #include <core/cluster/clusterHandler.h>
-#include <core/cluster/clusterQueue.h>
 #include <core/cluster/cluster.h>
 
 namespace KyoukoMind
@@ -88,6 +87,7 @@ void ClusterHandler::clearAllCluster()
         delete tempCluster;
     }
     m_allClusters.clear();
+    m_clusterQueue->clearQueue();
 }
 
 /**

@@ -33,8 +33,8 @@ NetworkManager::NetworkManager()
 {
     assert(sizeof(ClusterMetaData) < 4096);
 
-    m_clusterManager = new ClusterHandler();
-    m_processingUnitHandler = new ProcessingUnitHandler();
+    m_clusterHandler = new ClusterHandler();
+    m_processingUnitHandler = new ProcessingUnitHandler(m_clusterHandler);
     m_messageController = new MessageController();
 
     bool ok = false;
@@ -59,7 +59,7 @@ NetworkManager::NetworkManager()
     {
         NetworkInitializer init(initialFile,
                                 directoryPath,
-                                m_clusterManager,
+                                m_clusterHandler,
                                 m_messageController);
         bool successfulInit = init.initNetwork();
         assert(successfulInit);

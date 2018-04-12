@@ -29,7 +29,7 @@ public:
     NetworkManager();
 
 private:
-    ClusterHandler* m_clusterManager = nullptr;
+    ClusterHandler* m_clusterHandler = nullptr;
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
     MessageController* m_messageController = nullptr;
 

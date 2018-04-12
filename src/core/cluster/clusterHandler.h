@@ -7,15 +7,15 @@
  *  TODO: Description
  */
 
-#ifndef CLUSTERQUEUE_H
-#define CLUSTERQUEUE_H
+#ifndef CLUSTERHANDLER_H
+#define CLUSTERHANDLER_H
 
 #include <common.h>
+#include <core/cluster/clusterQueue.h>
 
 namespace KyoukoMind
 {
 class Cluster;
-class ClusterQueue;
 
 class ClusterHandler
 {
@@ -38,4 +38,4 @@ private:
 
 }
 
-#endif // CLUSTERQUEUE_H
+#endif // CLUSTERHANDLER_H
