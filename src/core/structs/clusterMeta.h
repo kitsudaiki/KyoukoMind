@@ -37,6 +37,8 @@ struct ClusterMetaData
 
     uint8_t clusterType = EMPTYCLUSTER;
     Neighbor neighors[16];
+    uint8_t outgoing = 0;
+    uint8_t incoming = 0;
 
     uint16_t numberOfNodes = 0;
     uint32_t numberOfAxons = 0;

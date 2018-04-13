@@ -113,6 +113,4 @@ void DemoIO::sendData(const KyoChanEdge edge)
     mutexUnlock();
 }
 
-
-
 }

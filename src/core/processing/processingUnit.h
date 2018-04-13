@@ -30,6 +30,8 @@ public:
 protected:
     ClusterQueue* m_clusterQueue = nullptr;
 
+    std::vector<Cluster*> m_finishClusterBuffer;
+
 };
 
 }

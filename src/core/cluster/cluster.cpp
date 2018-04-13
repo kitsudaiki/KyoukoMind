@@ -75,8 +75,14 @@ uint8_t Cluster::getClusterType() const
  */
 bool Cluster::addNeighbor(const uint8_t side, const Neighbor target)
 {
-    if(side > 9) {
+    if(side > 16) {
         return false;
+    }
+    if(side == 15) {
+        m_metaData.outgoing = 1;
+    }
+    if(side == 0) {
+        m_metaData.incoming = 1;
     }
     m_metaData.neighors[side] = target;
     updateMetaData(m_metaData);
