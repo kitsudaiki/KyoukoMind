@@ -62,7 +62,7 @@ bool CommonThread::stop()
 void CommonThread::continueThread()
 {
     {
-        std::lock_guard<std::mutex> guard(m_mutex);
+        std::lock_guard<std::mutex> guard(m_cvMutex);
     }
     m_cv.notify_one();
 }
@@ -76,12 +76,28 @@ void CommonThread::initBlockThread()
 }
 
 /**
+ * @brief CommonThread::mutexLock
+ */
+void CommonThread::mutexLock()
+{
+    m_mutex.lock();
+}
+
+/**
+ * @brief CommonThread::mutexUnlock
+ */
+void CommonThread::mutexUnlock()
+{
+    m_mutex.unlock();
+}
+
+/**
  * @brief CommonThread::blockThread
  */
 void CommonThread::blockThread()
 {
     m_block = false;
-    std::unique_lock<std::mutex> lock(m_mutex);
+    std::unique_lock<std::mutex> lock(m_cvMutex);
     m_cv.wait(lock);
     m_block = false;
 }

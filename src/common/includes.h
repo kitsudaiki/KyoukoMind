@@ -31,5 +31,6 @@
 #include <time.h>
 #include <queue>
 #include <condition_variable>
+#include <unistd.h>
 
 #endif // INCLUDES_H

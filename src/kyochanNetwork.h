@@ -15,8 +15,8 @@
 
 namespace KyoukoMind
 {
-
 class NetworkManager;
+class MessageController;
 
 class KyoukoNetwork
 {
@@ -24,10 +24,12 @@ class KyoukoNetwork
 public:
     KyoukoNetwork(const std::string &configPath);
 
+    MessageController* getMessageController() const;
+
     static KyoukoMind::Config *m_config;
 
 private:
-    NetworkManager *m_netThreadManager = nullptr;
+    NetworkManager *m_networkManager = nullptr;
 
     bool initLogger(bool *ok);
 };

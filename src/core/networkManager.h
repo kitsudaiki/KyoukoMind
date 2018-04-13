@@ -28,6 +28,8 @@ class NetworkManager
 public:
     NetworkManager();
 
+    MessageController* getMessageController() const;
+
 private:
     ClusterHandler* m_clusterHandler = nullptr;
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;

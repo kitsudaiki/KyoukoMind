@@ -71,4 +71,13 @@ NetworkManager::NetworkManager()
     }
 }
 
+/**
+ * @brief NetworkManager::getMessageController
+ * @return
+ */
+MessageController *NetworkManager::getMessageController() const
+{
+    return m_messageController;
+}
+
 }

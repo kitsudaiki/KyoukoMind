@@ -38,10 +38,14 @@ protected:
     bool m_active = false;
 
     std::mutex m_mutex;
+    std::mutex m_cvMutex;
     std::condition_variable m_cv;
 
     void blockThread();
     void sleepThread(const uint32_t seconrs);
+
+    void mutexLock();
+    void mutexUnlock();
 };
 
 }

@@ -29,13 +29,13 @@ IncomingMessageBuffer::IncomingMessageBuffer(const ClusterID clusterId,
 
 /**
  * @brief IncomingMessageBuffer::addMessage
- * @param site
+ * @param side
  * @param message
  * @return
  */
-bool IncomingMessageBuffer::addMessage(const uint8_t site, Message *message)
+bool IncomingMessageBuffer::addMessage(const uint8_t side, Message *message)
 {
-    if(site <= 9) {
+    if(side <= 15) {
         m_mutex.lock();
         if(message->getType() == CYCLEFINISHMESSAGE) {
             m_finishCounter++;
@@ -46,9 +46,9 @@ bool IncomingMessageBuffer::addMessage(const uint8_t site, Message *message)
             }
         } else {
             if(m_switchFlag) {
-                m_messageQueue1[site].push_back(message);
+                m_messageQueue1[side].push_back(message);
             } else {
-                m_messageQueue2[site].push_back(message);
+                m_messageQueue2[side].push_back(message);
             }
         }
         m_mutex.unlock();
@@ -59,14 +59,15 @@ bool IncomingMessageBuffer::addMessage(const uint8_t site, Message *message)
 
 /**
  * @brief IncomingMessageBuffer::getMessageQueue
+ * @param side
  * @return
  */
-std::vector<Message *> *IncomingMessageBuffer::getMessageQueue(const uint8_t site)
+std::vector<Message *> *IncomingMessageBuffer::getMessageQueue(const uint8_t side)
 {
     if(m_switchFlag) {
-        return &m_messageQueue1[site];
+        return &m_messageQueue1[side];
     } else {
-        return &m_messageQueue2[site];
+        return &m_messageQueue2[side];
     }
 }
 

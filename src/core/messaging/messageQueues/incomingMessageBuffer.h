@@ -34,8 +34,8 @@ private:
 
     bool m_switchFlag = false;
     // TODO: make it right!!!!!!!!!!!!
-    std::vector<Message*> m_messageQueue1[10];
-    std::vector<Message*> m_messageQueue2[10];
+    std::vector<Message*> m_messageQueue1[16];
+    std::vector<Message*> m_messageQueue2[16];
 };
 
 }
