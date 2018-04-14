@@ -20,7 +20,7 @@ class Message;
 class DataMessage;
 class ReplyMessage;
 class LearningMessage;
-class LearningReployMessage;
+class LearningReplyMessage;
 
 class MessageController;
 

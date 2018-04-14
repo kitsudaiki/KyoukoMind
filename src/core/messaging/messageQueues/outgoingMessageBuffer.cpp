@@ -30,7 +30,7 @@ OutgoingMessageBuffer::OutgoingMessageBuffer(const ClusterID clusterId,
                                              MessageController* controller):
     MessageBuffer(clusterId, controller)
 {
-    for(unsigned int i = 0; i < 10; i++) {
+    for(uint32_t i = 0; i < 16; i++) {
         m_dataMessageBuffer[i] = new DataMessage();
         m_learingMessageBuffer[i] = new LearningMessage();
     }
@@ -47,7 +47,7 @@ bool OutgoingMessageBuffer::addEdge(const ClusterID targetClusterId,
                                     const uint8_t targetSite,
                                     const KyoChanEdge newEdge)
 {
-    if(targetSite <= 9) {
+    if(targetSite < 16) {
         if(m_dataMessageBuffer[targetSite]->addEdge(newEdge)) {
             return true;
         }

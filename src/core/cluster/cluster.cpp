@@ -95,12 +95,22 @@ bool Cluster::addNeighbor(const uint8_t side, const Neighbor target)
 }
 
 /**
+ * @brief Cluster::getNeighborId
+ * @param side
+ * @return
+ */
+ClusterID Cluster::getNeighborId(const uint8_t side)
+{
+    m_metaData.neighors[side].targetClusterId;
+}
+
+/**
  * @brief Cluster::updateMetaData
  * @param metaData
  */
 void Cluster::updateMetaData(ClusterMetaData metaData)
 {
-    int size = sizeof(ClusterMetaData);
+    uint32_t size = sizeof(ClusterMetaData);
     void* metaDataBlock = m_buffer->getBlock(0);
     memcpy(metaDataBlock, &metaData, size);
     m_buffer->syncBlocks(0, 0);

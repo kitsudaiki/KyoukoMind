@@ -38,7 +38,7 @@ void DemoUserInput::inputLoop()
 
         const char* charArray = input.c_str();
         for(int i = 0; i < input.size(); i++) {
-            usleep(1000000);
+            usleep(PROCESS_INTERVAL);
             std::cout<<charArray[i]<<std::endl;
             m_dataio->sendOutData(charArray[i]);
         }

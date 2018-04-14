@@ -92,7 +92,7 @@ bool LearningMessage::addNewEdge(const KyoChanNewEdge &newEdge)
  * @brief LearningMessage::getNumberOfEdges
  * @return
  */
-uint8_t LearningMessage::getNumberOfEdges() const
+uint8_t LearningMessage::getNumberOfNewEdges() const
 {
     return m_numberOfNewEdges;
 }

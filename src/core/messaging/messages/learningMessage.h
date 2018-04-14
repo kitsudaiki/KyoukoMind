@@ -30,7 +30,7 @@ public:
     uint8_t* convertToByteArray();
 
     bool addNewEdge(const KyoChanNewEdge& newEdge);
-    uint8_t getNumberOfEdges() const;
+    uint8_t getNumberOfNewEdges() const;
     KyoChanNewEdge* getNewEdges() const;
 
 private:

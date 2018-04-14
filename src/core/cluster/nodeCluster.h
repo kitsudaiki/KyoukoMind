@@ -29,7 +29,7 @@ public:
     ~NodeCluster();
 
     uint32_t getNumberOfNodeBlocks() const;
-    uint32_t getNumberOfNode() const;
+    uint32_t getNumberOfNodes() const;
 
     KyoChanNode* getNodeBlock();
 

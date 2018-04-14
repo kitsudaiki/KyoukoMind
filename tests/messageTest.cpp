@@ -127,7 +127,7 @@ void MessageTest::checkLerningMessage()
     UNITTEST((uint32_t)metaData2.targetSite, 4);
     UNITTEST(metaData2.type, LEARNINGMESSAGE);
 
-    UNITTEST(newMessage.getNumberOfEdges(), 2);
+    UNITTEST(newMessage.getNumberOfNewEdges(), 2);
     KyoChanNewEdge* edges = newMessage.getNewEdges();
 
     UNITTEST(edges[0].weight, 1);

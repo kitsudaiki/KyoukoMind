@@ -19,7 +19,7 @@ class Message;
 class DataMessage;
 class ReplyMessage;
 class LearningMessage;
-class LearningReployMessage;
+class LearningReplyMessage;
 class CycleFinishMessage;
 
 class IncomingMessageBuffer;

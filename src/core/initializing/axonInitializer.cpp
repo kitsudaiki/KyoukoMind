@@ -54,7 +54,7 @@ bool AxonInitializer::createAxons()
             {
                 // get node-cluster
                 NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
-                uint32_t nodeNumberPerCluster = nodeCluster->getNumberOfNode();
+                uint32_t nodeNumberPerCluster = nodeCluster->getNumberOfNodes();
                 KyoChanNode* nodes = nodeCluster->getNodeBlock();
 
                 // iterate over all nodes of the cluster and create an axon for each node

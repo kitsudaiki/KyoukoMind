@@ -36,7 +36,7 @@ void DemoIO::run()
 {
     while(!m_abort)
     {
-        usleep(1000000);
+        usleep(PROCESS_INTERVAL);
 
         std::vector<Message*>* incomList = m_incomBuffer->getMessageQueue(15);
         for(uint32_t i = 0; i < incomList->size(); i++)
