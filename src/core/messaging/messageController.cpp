@@ -11,6 +11,7 @@
 
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messages/dataMessage.h>
+#include <core/messaging/messages/dataAxonMessage.h>
 #include <core/messaging/messages/replyMessage.h>
 #include <core/messaging/messages/learningMessage.h>
 #include <core/messaging/messages/learningReplyMessage.h>
@@ -80,6 +81,13 @@ Message* MessageController::convertToMessage(uint8_t *data)
         case DATA_MESSAGE:
             {
                 DataMessage* message = new DataMessage();
+                message->convertFromByteArray(data);
+                delete data;
+                return message;
+            }
+        case DATA_AXON_MESSAGE:
+            {
+                DataAxonMessage* message = new DataAxonMessage();
                 message->convertFromByteArray(data);
                 delete data;
                 return message;

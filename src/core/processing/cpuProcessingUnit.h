@@ -46,8 +46,10 @@ private:
     bool processNodeCluster(Cluster* cluster);
 
     void processIncomingMessages(Cluster *cluster,
-                                 KyoChanNode *nodeBlock,
-                                 const uint16_t numberOfNodes);
+                                 KyoChanAxon *axonBlock,
+                                 const uint16_t numberOfAxons,
+                                 KyoChanNode *nodeBlock = nullptr,
+                                 const uint16_t numberOfNodes = 0);
 
     void processDataMessage(DataMessage *message,
                             const ClusterID targetId,

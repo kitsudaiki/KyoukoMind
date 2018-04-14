@@ -32,6 +32,8 @@ public:
 
     ~EdgeCluster();
 
+    uint32_t getNumberOfAxons() const;
+
     uint32_t getNumberOfAxonBlocks() const;
     uint32_t getNumberOfEdgeBlocks() const;
 

@@ -57,6 +57,15 @@ EdgeCluster::~EdgeCluster()
 }
 
 /**
+ * @brief EdgeCluster::getNumberOfAxons
+ * @return
+ */
+uint32_t EdgeCluster::getNumberOfAxons() const
+{
+    return m_metaData.numberOfAxons;
+}
+
+/**
  * @brief EdgeCluster::getNumberOfAxonBlocks
  * @return
  */

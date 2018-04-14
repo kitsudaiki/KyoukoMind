@@ -84,9 +84,12 @@ bool CpuProcessingUnit::processNodeCluster(Cluster *cluster)
     if(nodeCluster == nullptr) {
         return false;
     }
-    KyoChanNode* nodeBlock =  nodeCluster->getNodeBlock();
+    KyoChanNode* nodeBlock = nodeCluster->getNodeBlock();
     uint16_t numberOfNodes = nodeCluster->getNumberOfNodes();
-    processIncomingMessages(cluster, nodeBlock, numberOfNodes);
+    KyoChanAxon* axonBlock = nodeCluster->getAxonBlock();
+    uint32_t numberOfAxons = nodeCluster->getNumberOfAxons();
+
+    processIncomingMessages(cluster, axonBlock, numberOfAxons, nodeBlock, numberOfNodes);
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
     processNodes(nodeCluster, outgoBuffer);
     return true;
@@ -103,7 +106,9 @@ bool CpuProcessingUnit::processEdgeCluster(Cluster *cluster)
     if(edgeCluster == nullptr) {
         return false;
     }
-    processIncomingMessages(cluster, nullptr, 0);
+    KyoChanAxon* axonBlock = edgeCluster->getAxonBlock();
+    uint32_t numberOfAxons = edgeCluster->getNumberOfAxons();
+    processIncomingMessages(cluster, axonBlock, numberOfAxons);
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
     processAxons(edgeCluster, outgoBuffer);
     return true;
@@ -127,14 +132,19 @@ bool CpuProcessingUnit::processEmptyCluster(Cluster *cluster)
 /**
  * @brief CpuProcessingUnit::processIncomingMessages
  * @param cluster
+ * @param axonBlock
+ * @param numberOfAxons
  * @param nodeBlock
  * @param numberOfNodes
  */
 void CpuProcessingUnit::processIncomingMessages(Cluster *cluster,
+                                                KyoChanAxon* axonBlock,
+                                                const uint16_t numberOfAxons,
                                                 KyoChanNode* nodeBlock,
                                                 const uint16_t numberOfNodes)
 {
     IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
+    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
 
     // process inputs
     if(nodeBlock != nullptr) {
@@ -150,11 +160,47 @@ void CpuProcessingUnit::processIncomingMessages(Cluster *cluster,
         }
     }
 
-    for(uint8_t i = 0; i < m_sideOrder.size(); i++)
+    for(uint8_t side = 0; side < m_sideOrder.size(); side++)
     {
-        ClusterID targetId = cluster->getNeighborId(i);
-        std::vector<Message*>* buffer = incomBuffer->getMessageQueue(i);
-
+        ClusterID targetId = cluster->getNeighborId(side);
+        std::vector<Message*>* buffer = incomBuffer->getMessageQueue(side);
+        for(uint32_t j = 0; j < buffer->size(); j++)
+        {
+            switch((int)buffer->at(j)->getType()) {
+            case DATA_MESSAGE:
+                processDataMessage((DataMessage*)buffer->at(j),
+                                   targetId,
+                                   nodeBlock,
+                                   numberOfNodes,
+                                   outgoBuffer);
+                break;
+            case DATA_AXON_MESSAGE:
+                processDataAxonMessage((DataAxonMessage*)buffer->at(j),
+                                       targetId,
+                                       axonBlock,
+                                       numberOfAxons,
+                                       outgoBuffer);
+                break;
+            case LEARNING_MESSAGE:
+                processLearningMessage((LearningMessage*)buffer->at(j),
+                                       targetId,
+                                       side,
+                                       nodeBlock,
+                                       numberOfNodes,
+                                       outgoBuffer);
+                break;
+            case LEARNING_REPLY_MESSAGE:
+                processLearningRyplyMessage((LearningReplyMessage*)buffer->at(j),
+                                            targetId,
+                                            side,
+                                            nodeBlock,
+                                            numberOfNodes,
+                                            outgoBuffer);
+                break;
+            default:
+                break;
+            }
+        }
     }
 }
 
