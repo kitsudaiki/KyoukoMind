@@ -39,7 +39,7 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, Message *message)
         m_mutex.lock();
         if(message->getType() == CYCLEFINISHMESSAGE) {
             m_finishCounter++;
-            if(isFinished()) {
+            if(isReady()) {
                 m_switchFlag = !m_switchFlag;
                 m_mutex.unlock();
                 return true;
@@ -75,7 +75,7 @@ std::vector<Message *> *IncomingMessageBuffer::getMessageQueue(const uint8_t sid
  * @brief IncomingMessageBuffer::isFinished
  * @return
  */
-bool IncomingMessageBuffer::isFinished() const
+bool IncomingMessageBuffer::isReady() const
 {
     if(m_finishCounter == 9) {
         return true;

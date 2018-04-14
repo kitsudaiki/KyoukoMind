@@ -24,9 +24,9 @@ public:
     void processCluster(Cluster* cluster);
 
 private:
-    void processEmptyCluster(Cluster* cluster);
-    void processEdgeCluster(Cluster* cluster);
-    void processNodeCluster(Cluster* cluster);
+    bool processEmptyCluster(Cluster* cluster);
+    bool processEdgeCluster(Cluster* cluster);
+    bool processNodeCluster(Cluster* cluster);
 };
 
 }

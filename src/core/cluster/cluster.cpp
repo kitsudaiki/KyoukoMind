@@ -10,6 +10,8 @@
 #include <core/cluster/cluster.h>
 #include <files/ioBuffer.h>
 #include <core/messaging/messageController.h>
+#include <core/messaging/messageQueues/incomingMessageBuffer.h>
+#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
 
 namespace KyoukoMind
 {
@@ -19,12 +21,15 @@ namespace KyoukoMind
  * @param clusterId
  * @param clusterType
  * @param directoryPath
+ * @param controller
  */
 Cluster::Cluster(const ClusterID &clusterId,
                  const uint8_t clusterType,
-                 const std::string directoryPath)
+                 const std::string directoryPath,
+                 MessageController *controller)
 {
     m_metaData.clusterId = clusterId;
+    initMessageBuffer(clusterId, controller);
 
     if(clusterType > 3) {
         m_metaData.clusterType = EMPTYCLUSTER;
@@ -123,5 +128,43 @@ void Cluster::initFile(const ClusterID clusterId,
     m_buffer = new PerformanceIO::IOBuffer(filePath);
 }
 
+/**
+ * @brief Cluster::isReady
+ * @return
+ */
+bool Cluster::isReady() const
+{
+    return m_incomingMessageQueue->isReady();
+}
+
+/**
+ * @brief Cluster::getIncomingMessageBuffer
+ * @return
+ */
+IncomingMessageBuffer *Cluster::getIncomingMessageBuffer() const
+{
+    return m_incomingMessageQueue;
+}
+
+/**
+ * @brief Cluster::getOutgoingMessageBuffer
+ * @return
+ */
+OutgoingMessageBuffer *Cluster::getOutgoingMessageBuffer() const
+{
+    return m_outgoingMessageQueue;
+}
+
+/**
+ * @brief Cluster::initMessageBuffer
+ * @param clusterId
+ * @param controller
+ */
+void Cluster::initMessageBuffer(const ClusterID clusterId,
+                                MessageController *controller)
+{
+    m_incomingMessageQueue = new IncomingMessageBuffer(clusterId, controller);
+    m_outgoingMessageQueue = new OutgoingMessageBuffer(clusterId, controller);
+}
 
 }

@@ -39,15 +39,20 @@ void ProcessingUnit::run()
         Cluster* cluster = m_clusterQueue->getCluster();
         if(cluster == nullptr)
         {
+            // block thread until next cycle if queue is empty
             blockThread();
-            for(int i = 0; i < m_finishClusterBuffer.size(); i++) {
+            for(uint32_t i = 0; i < m_finishClusterBuffer.size(); i++) {
                 m_clusterQueue->addCluster(m_finishClusterBuffer[i]);
             }
             m_clusterQueue->clearQueue();
         } else {
-            // TODO: check if cluster is ready for processing
-            processCluster(cluster);
-            m_finishClusterBuffer.push_back(cluster);
+            // process if ready or readd to queue if not ready
+            if(cluster->isReady()) {
+                processCluster(cluster);
+                m_finishClusterBuffer.push_back(cluster);
+            } else {
+                m_clusterQueue->addCluster(cluster);
+            }
         }
     }
 }

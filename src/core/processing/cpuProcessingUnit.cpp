@@ -60,47 +60,52 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
     }
 }
 
-
 /**
- * @brief CpuProcessingUnit::processEmptyCluster
+ * @brief CpuProcessingUnit::processNodeCluster
  * @param cluster
+ * @return
  */
-void CpuProcessingUnit::processEmptyCluster(Cluster *cluster)
+bool CpuProcessingUnit::processNodeCluster(Cluster *cluster)
 {
-    EmptyCluster* emptyCluster = static_cast<EmptyCluster*>(cluster);
-    if(emptyCluster == nullptr) {
-        return;
+    NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
+    if(nodeCluster == nullptr) {
+        return false;
     }
-    emptyCluster->finishCycle();
-    return;
+    IncomingMessageBuffer* incomBuffer = nodeCluster->getIncomingMessageBuffer();
+    OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
+
+    return true;
 }
 
 /**
  * @brief CpuProcessingUnit::processEdgeCluster
  * @param cluster
+ * @return
  */
-void CpuProcessingUnit::processEdgeCluster(Cluster *cluster)
+bool CpuProcessingUnit::processEdgeCluster(Cluster *cluster)
 {
     EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
     if(edgeCluster == nullptr) {
-        return;
+        return false;
     }
-
-    return;
+    IncomingMessageBuffer* incomBuffer = edgeCluster->getIncomingMessageBuffer();
+    OutgoingMessageBuffer* outgoBuffer = edgeCluster->getOutgoingMessageBuffer();
+    return true;
 }
 
 /**
- * @brief CpuProcessingUnit::processNodeCluster
+ * @brief CpuProcessingUnit::processEmptyCluster
  * @param cluster
+ * @return
  */
-void CpuProcessingUnit::processNodeCluster(Cluster *cluster)
+bool CpuProcessingUnit::processEmptyCluster(Cluster *cluster)
 {
-    NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
-    if(nodeCluster == nullptr) {
-        return;
+    EmptyCluster* emptyCluster = static_cast<EmptyCluster*>(cluster);
+    if(emptyCluster == nullptr) {
+        return false;
     }
-
-    return;
+    emptyCluster->finishCycle();
+    return true;
 }
 
 }

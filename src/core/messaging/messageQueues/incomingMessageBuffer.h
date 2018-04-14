@@ -25,7 +25,7 @@ public:
     bool addMessage(const uint8_t site, Message *message);
     std::vector<Message*>* getMessageQueue(const uint8_t site);
 
-    bool isFinished() const;
+    bool isReady() const;
     void resetFinishCounter();
 
 private:

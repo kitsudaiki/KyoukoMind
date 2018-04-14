@@ -14,8 +14,7 @@
 
 namespace KyoukoMind
 {
-class IncomingMessageBuffer;
-class OutgoingMessageBuffer;
+class MessageController;
 
 class EmptyCluster : public Cluster
 {
@@ -23,7 +22,7 @@ class EmptyCluster : public Cluster
 public:
     EmptyCluster(const ClusterID clusterId,
                  const std::string directoryPath,
-                 KyoukoMind::MessageController *controller);
+                 MessageController *controller);
 
     EmptyCluster(const ClusterID clusterId,
                  const uint8_t clusterType,
@@ -31,14 +30,6 @@ public:
                  MessageController *controller);
 
     void finishCycle();
-
-protected:
-    IncomingMessageBuffer* m_incomingMessageQueue = nullptr;
-    OutgoingMessageBuffer* m_outgoingMessageQueue = nullptr;
-
-private:
-    void initMessageBuffer(const ClusterID clusterId,
-                           MessageController *controller);
 };
 
 }
