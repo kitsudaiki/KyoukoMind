@@ -52,7 +52,8 @@ SOURCES += main.cpp \
     tests/messageBufferTest.cpp \
     tests/messageTest.cpp \
     src/core/cluster/clusterQueue.cpp \
-    tests/proofOfConcept/demoUserInput.cpp
+    tests/proofOfConcept/demoUserInput.cpp \
+    src/core/messaging/messages/dataAxonMessage.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -98,7 +99,8 @@ HEADERS +=\
     tests/messageTest.h \
     src/core/cluster/clusterQueue.h \
     tests/proofOfConcept/demoUserInput.h \
-    tests/proofOfConcept/demoIO.h
+    tests/proofOfConcept/demoIO.h \
+    src/core/messaging/messages/dataAxonMessage.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

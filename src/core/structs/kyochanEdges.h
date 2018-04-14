@@ -12,6 +12,13 @@
 
 #include <common.h>
 
+struct KyoChanAxonEdge
+{
+    float weight = 0.0;
+    uint32_t targetClusterPath = 0;
+    uint32_t targetAxonId = 0;
+} __attribute__((packed));
+
 struct KyoChanEdge
 {
     float weight = 0.0;

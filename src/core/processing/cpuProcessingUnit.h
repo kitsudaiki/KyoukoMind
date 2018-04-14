@@ -50,7 +50,6 @@ private:
 
     void processDataMessage(DataMessage *message,
                             const ClusterID targetId,
-                            const uint8_t inputSide,
                             KyoChanNode *nodeBlock,
                             const uint16_t numberOfNodes,
                             OutgoingMessageBuffer *outgoBuffer);

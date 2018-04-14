@@ -86,6 +86,8 @@ bool CpuProcessingUnit::processNodeCluster(Cluster *cluster)
     KyoChanNode* nodeBlock =  nodeCluster->getNodeBlock();
     uint16_t numberOfNodes = nodeCluster->getNumberOfNodes();
     processIncomingMessages(cluster, nodeBlock, numberOfNodes);
+    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
+    processNodes(nodeCluster, outgoBuffer);
     return true;
 }
 
@@ -101,6 +103,8 @@ bool CpuProcessingUnit::processEdgeCluster(Cluster *cluster)
         return false;
     }
     processIncomingMessages(cluster, nullptr, 0);
+    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
+    processAxons(edgeCluster, outgoBuffer);
     return true;
 }
 
@@ -137,7 +141,7 @@ void CpuProcessingUnit::processIncomingMessages(Cluster *cluster,
         if(buffer != nullptr) {
             for(uint32_t i = 0; i < buffer->size(); i++) {
                 processDataMessage(((DataMessage*)(*buffer)[i]),
-                                   0, 15,
+                                   0,
                                    nodeBlock,
                                    numberOfNodes,
                                    nullptr);
@@ -156,27 +160,32 @@ void CpuProcessingUnit::processIncomingMessages(Cluster *cluster,
 /**
  * @brief CpuProcessingUnit::processDataMessage
  * @param message
+ * @param targetId
  * @param nodeBlock
  * @param numberOfNodes
+ * @param outgoBuffer
  */
 void CpuProcessingUnit::processDataMessage(DataMessage* message,
                                            const ClusterID targetId,
-                                           const uint8_t inputSide,
                                            KyoChanNode* nodeBlock,
                                            const uint16_t numberOfNodes,
                                            OutgoingMessageBuffer* outgoBuffer)
 {
     uint8_t numberOfEdges = message->getNumberOfEdges();
-    for(KyoChanEdge* edges = message->getEdges();
-        edges < edges + numberOfEdges;
-        edges++)
+    for(KyoChanEdge* edge = message->getEdges();
+        edge < edge + numberOfEdges;
+        edge++)
     {
-        if(edges->targetClusterPath == 0)
+        if(edge->targetClusterPath == 0)
         {
-            if(numberOfNodes > edges->targetNodeId) {
-                nodeBlock[edges->targetNodeId].currentState += edges->weight;
+            if(numberOfNodes > edge->targetNodeId) {
+                nodeBlock[edge->targetNodeId].currentState += edge->weight;
             }
         } else {
+            uint8_t side = edge->targetClusterPath % 16;
+            KyoChanEdge newEdge = *edge;
+            newEdge.targetClusterPath /= 16;
+            outgoBuffer->addEdge(targetId, side, newEdge);
         }
     }
 }
@@ -249,6 +258,7 @@ void CpuProcessingUnit::processNodes(NodeCluster *nodeCluster,
             edge.weight = (float)nodes->currentState;
             outgoBuffer->addEdge(neighborId, side, edge);
         }
+        nodes->currentState /= NODE_COOLDOWN;
     }
 }
 
