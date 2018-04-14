@@ -7,8 +7,8 @@
  *  TODO: Description
  */
 
-#ifndef DATAMESSAGE_H
-#define DATAMESSAGE_H
+#ifndef DATAAXONMESSAGE_H
+#define DATAAXONMESSAGE_H
 
 #define MAX_NUMBER_OF_EDGES 100
 
@@ -41,4 +41,4 @@ private:
 
 }
 
-#endif // DATAMESSAGE_H
+#endif // DATAAXONMESSAGE_H
