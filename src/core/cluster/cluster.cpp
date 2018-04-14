@@ -32,7 +32,7 @@ Cluster::Cluster(const ClusterID &clusterId,
     initMessageBuffer(clusterId, controller);
 
     if(clusterType > 3) {
-        m_metaData.clusterType = EMPTYCLUSTER;
+        m_metaData.clusterType = EMPTY_CLUSTER;
     } else {
         m_metaData.clusterType = clusterType;
     }

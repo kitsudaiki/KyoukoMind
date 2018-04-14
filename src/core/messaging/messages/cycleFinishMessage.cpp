@@ -22,7 +22,7 @@ CycleFinishMessage::CycleFinishMessage(const ClusterID targetClusterId,
                                        const uint8_t targetSite) :
     Message(targetClusterId, messageId, targetSite)
 {
-    m_metaData.type = CYCLEFINISHMESSAGE;
+    m_metaData.type = CYCLE_FINISH_MESSAGE;
     m_metaData.requiredReply = 1;
 }
 

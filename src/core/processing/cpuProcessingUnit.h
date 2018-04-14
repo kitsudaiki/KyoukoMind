@@ -23,6 +23,7 @@ class EmptyCluster;
 
 class Message;
 class DataMessage;
+class DataAxonMessage;
 class ReplyMessage;
 class LearningMessage;
 class LearningReplyMessage;
@@ -53,6 +54,11 @@ private:
                             KyoChanNode *nodeBlock,
                             const uint16_t numberOfNodes,
                             OutgoingMessageBuffer *outgoBuffer);
+    void processDataAxonMessage(DataAxonMessage *message,
+                                const ClusterID targetId,
+                                KyoChanAxon *axonBlock,
+                                const uint16_t numberOfAxons,
+                                OutgoingMessageBuffer *outgoBuffer);
     void processLearningMessage(LearningMessage *message,
                                 const ClusterID targetId,
                                 const uint8_t inputSide,

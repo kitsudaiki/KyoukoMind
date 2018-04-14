@@ -50,7 +50,7 @@ bool AxonInitializer::createAxons()
 
             // check cluster-type
             Cluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
-            if(cluster->getClusterType() == NODECLUSTER)
+            if(cluster->getClusterType() == NODE_CLUSTER)
             {
                 // get node-cluster
                 NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
@@ -79,8 +79,8 @@ bool AxonInitializer::createAxons()
 
             Cluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
             // check cluster-type
-            if(cluster->getClusterType() == EDGECLUSTER
-                    || cluster->getClusterType() == NODECLUSTER) {
+            if(cluster->getClusterType() == EDGE_CLUSTER
+                    || cluster->getClusterType() == NODE_CLUSTER) {
 
                 // add the axon-number to the specific cluster
                 EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);

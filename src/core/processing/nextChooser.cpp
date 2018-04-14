@@ -138,7 +138,7 @@ uint32_t NextChooser::checkPossebilities()
     // check types
     for(uint8_t i = 0; i < m_numberOfNext; i++)
     {
-        if(m_possibleNext[i].neighbor.neighborType == EMPTYCLUSTER) {
+        if(m_possibleNext[i].neighbor.neighborType == EMPTY_CLUSTER) {
             m_possibleNext[i].good = false;
         } else {
             m_possibleNext[i].good = true;

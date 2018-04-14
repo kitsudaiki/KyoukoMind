@@ -42,7 +42,7 @@ void MessageTest::checkDataMessage()
     UNITTEST(metaData.messageId, 12884901890);
     UNITTEST(metaData.requiredReply, 1);
     UNITTEST((uint32_t)metaData.targetSite, 4);
-    UNITTEST(metaData.type, DATAMESSAGE);
+    UNITTEST(metaData.type, DATA_MESSAGE);
 
     KyoChanEdge testEdge;
     testEdge.targetClusterPath = 1;
@@ -67,7 +67,7 @@ void MessageTest::checkDataMessage()
     UNITTEST(metaData2.messageId, 12884901890);
     UNITTEST(metaData2.requiredReply, 1);
     UNITTEST((uint32_t)metaData2.targetSite, 4);
-    UNITTEST(metaData2.type, DATAMESSAGE);
+    UNITTEST(metaData2.type, DATA_MESSAGE);
 
     UNITTEST(newMessage.getNumberOfEdges(), 2);
     KyoChanEdge* edges = newMessage.getEdges();
@@ -86,7 +86,7 @@ void MessageTest::checkReplyMessage()
     UNITTEST(metaData.messageId, 12884901890);
     UNITTEST(metaData.requiredReply, 0);
     UNITTEST((uint32_t)metaData.targetSite, 3);
-    UNITTEST(metaData.type, REPLYMESSAGE);
+    UNITTEST(metaData.type, REPLY_MESSAGE);
 }
 
 void MessageTest::checkLerningMessage()
@@ -98,7 +98,7 @@ void MessageTest::checkLerningMessage()
     UNITTEST(metaData.messageId, 12884901890);
     UNITTEST(metaData.requiredReply, 1);
     UNITTEST((uint32_t)metaData.targetSite, 4);
-    UNITTEST(metaData.type, LEARNINGMESSAGE);
+    UNITTEST(metaData.type, LEARNING_MESSAGE);
 
     KyoChanNewEdge testEdge;
     testEdge.weight = 1;
@@ -125,7 +125,7 @@ void MessageTest::checkLerningMessage()
     UNITTEST(metaData2.messageId, 12884901890);
     UNITTEST(metaData2.requiredReply, 1);
     UNITTEST((uint32_t)metaData2.targetSite, 4);
-    UNITTEST(metaData2.type, LEARNINGMESSAGE);
+    UNITTEST(metaData2.type, LEARNING_MESSAGE);
 
     UNITTEST(newMessage.getNumberOfNewEdges(), 2);
     KyoChanNewEdge* edges = newMessage.getNewEdges();
@@ -145,7 +145,7 @@ void MessageTest::checkLearingReplyMessage()
     UNITTEST(metaData.messageId, 12884901890);
     UNITTEST(metaData.requiredReply, 1);
     UNITTEST((uint32_t)metaData.targetSite, 3);
-    UNITTEST(metaData.type, LEARNINGREPLYMESSAGE);
+    UNITTEST(metaData.type, LEARNING_REPLY_MESSAGE);
 
     KyoChanNewEdgeReply testEdge;
     testEdge.newEdgeId = 1;
@@ -174,7 +174,7 @@ void MessageTest::checkLearingReplyMessage()
     UNITTEST(metaData2.messageId, 12884901890);
     UNITTEST(metaData2.requiredReply, 1);
     UNITTEST((uint32_t)metaData2.targetSite, 3);
-    UNITTEST(metaData2.type, LEARNINGREPLYMESSAGE);
+    UNITTEST(metaData2.type, LEARNING_REPLY_MESSAGE);
 
     UNITTEST(newMessage.getNumberOfEdgeReplys(), 2);
     KyoChanNewEdgeReply* edges = newMessage.getNewEdgeReplys();

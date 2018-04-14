@@ -25,7 +25,7 @@ EmptyCluster::EmptyCluster(const ClusterID clusterId,
                            const std::string directoryPath,
                            MessageController *controller)
     : Cluster(clusterId,
-              EMPTYCLUSTER,
+              EMPTY_CLUSTER,
               directoryPath,
               controller)
 {

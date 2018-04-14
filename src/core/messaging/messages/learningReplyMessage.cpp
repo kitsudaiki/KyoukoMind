@@ -23,7 +23,7 @@ LearningReplyMessage::LearningReplyMessage(const ClusterID targetClusterId,
                                            const uint8_t targetSite) :
     Message(targetClusterId, messageId, targetSite)
 {
-    m_metaData.type = LEARNINGREPLYMESSAGE;
+    m_metaData.type = LEARNING_REPLY_MESSAGE;
     m_metaData.requiredReply = 1;
 }
 

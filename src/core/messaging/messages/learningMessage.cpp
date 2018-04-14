@@ -24,7 +24,7 @@ LearningMessage::LearningMessage(const ClusterID targetClusterId,
                                  const uint8_t targetSite) :
     Message(targetClusterId, sourceClusterId, messageIdCounter, targetSite)
 {
-    m_metaData.type = LEARNINGMESSAGE;
+    m_metaData.type = LEARNING_MESSAGE;
     m_metaData.requiredReply = 1;
 }
 

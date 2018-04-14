@@ -37,7 +37,7 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, Message *message)
 {
     if(side <= 15) {
         m_mutex.lock();
-        if(message->getType() == CYCLEFINISHMESSAGE) {
+        if(message->getType() == CYCLE_FINISH_MESSAGE) {
             m_finishCounter++;
             if(isReady()) {
                 m_switchFlag = !m_switchFlag;

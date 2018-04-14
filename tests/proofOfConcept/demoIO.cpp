@@ -41,7 +41,7 @@ void DemoIO::run()
         std::vector<Message*>* incomList = m_incomBuffer->getMessageQueue(15);
         for(uint32_t i = 0; i < incomList->size(); i++)
         {
-            if((*incomList)[i]->getMetaData().type == DATAMESSAGE) {
+            if((*incomList)[i]->getMetaData().type == DATA_MESSAGE) {
                 DataMessage* dataM = static_cast<DataMessage*>((*incomList)[i]);
 
                 KyoChanEdge* edges = dataM->getEdges();

@@ -22,7 +22,7 @@ ReplyMessage::ReplyMessage(const ClusterID targetClusterId,
                            const uint8_t targetSite) :
     Message(targetClusterId, messageId, targetSite)
 {
-    m_metaData.type = REPLYMESSAGE;
+    m_metaData.type = REPLY_MESSAGE;
     m_metaData.requiredReply = 0;
 }
 

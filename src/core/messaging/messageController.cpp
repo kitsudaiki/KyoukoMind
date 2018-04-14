@@ -77,35 +77,35 @@ Message* MessageController::convertToMessage(uint8_t *data)
     switch(type) {
         case UNDEFINED:
             break;
-        case DATAMESSAGE:
+        case DATA_MESSAGE:
             {
                 DataMessage* message = new DataMessage();
                 message->convertFromByteArray(data);
                 delete data;
                 return message;
             }
-        case REPLYMESSAGE:
+        case REPLY_MESSAGE:
             {
                 ReplyMessage* message = new ReplyMessage();
                 message->convertFromByteArray(data);
                 delete data;
                 return message;
             }
-        case LEARNINGMESSAGE:
+        case LEARNING_MESSAGE:
             {
                 LearningMessage* message = new LearningMessage();
                 message->convertFromByteArray(data);
                 delete data;
                 return message;
             }
-        case LEARNINGREPLYMESSAGE:
+        case LEARNING_REPLY_MESSAGE:
             {
                 LearningReplyMessage* message = new LearningReplyMessage();
                 message->convertFromByteArray(data);
                 delete data;
                 return message;
             }
-        case CYCLEFINISHMESSAGE:
+        case CYCLE_FINISH_MESSAGE:
             {
                 CycleFinishMessage* message = new CycleFinishMessage();
                 message->convertFromByteArray(data);

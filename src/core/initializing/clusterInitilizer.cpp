@@ -155,10 +155,10 @@ uint32_t ClusterInitilizer::getDistantToNextNodeCluster(const uint32_t x,
     // TODO: max abort-distance
     for(uint32_t distance = 1; distance < (*m_networkMetaStructure).size(); distance++)
     {
-        if((*m_networkMetaStructure)[next.first][next.second].type == (uint8_t)NODECLUSTER) {
+        if((*m_networkMetaStructure)[next.first][next.second].type == (uint8_t)NODE_CLUSTER) {
             return distance;
         }
-        if((*m_networkMetaStructure)[next.first][next.second].type == (uint8_t)EMPTYCLUSTER) {
+        if((*m_networkMetaStructure)[next.first][next.second].type == (uint8_t)EMPTY_CLUSTER) {
             return 0;
         }
         next = getNext(next.first, next.second, side);

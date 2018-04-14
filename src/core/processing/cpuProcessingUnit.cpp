@@ -21,6 +21,7 @@
 
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messages/dataMessage.h>
+#include <core/messaging/messages/dataAxonMessage.h>
 #include <core/messaging/messages/replyMessage.h>
 #include <core/messaging/messages/learningMessage.h>
 #include <core/messaging/messages/learningReplyMessage.h>
@@ -56,14 +57,14 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
     switch((int)cluster->getClusterType())
     {
-        case EMPTYCLUSTER:
+        case EMPTY_CLUSTER:
             processEmptyCluster(cluster);
             break;
-        case EDGECLUSTER:
+        case EDGE_CLUSTER:
             processEdgeCluster(cluster);
             processEmptyCluster(cluster);
             break;
-        case NODECLUSTER:
+        case NODE_CLUSTER:
             processNodeCluster(cluster);
             processEmptyCluster(cluster);
             break;
@@ -185,7 +186,40 @@ void CpuProcessingUnit::processDataMessage(DataMessage* message,
             uint8_t side = edge->targetClusterPath % 16;
             KyoChanEdge newEdge = *edge;
             newEdge.targetClusterPath /= 16;
-            outgoBuffer->addEdge(targetId, side, newEdge);
+            outgoBuffer->addEdge(targetId, 15-side, newEdge);
+        }
+    }
+}
+
+/**
+ * @brief CpuProcessingUnit::processDataAxonMessage
+ * @param message
+ * @param targetId
+ * @param axonBlock
+ * @param numberOfAxons
+ * @param outgoBuffer
+ */
+void CpuProcessingUnit::processDataAxonMessage(DataAxonMessage *message,
+                                               const ClusterID targetId,
+                                               KyoChanAxon *axonBlock,
+                                               const uint16_t numberOfAxons,
+                                               OutgoingMessageBuffer *outgoBuffer)
+{
+    uint8_t numberOfAxonEdges = message->getNumberOfAxonEdges();
+    for(KyoChanAxonEdge* axonEdge = message->getAxonEdges();
+        axonEdge < axonEdge + numberOfAxonEdges;
+        axonEdge++)
+    {
+        if(axonEdge->targetClusterPath == 0)
+        {
+            if(numberOfAxons > axonEdge->targetAxonId) {
+                axonBlock[axonEdge->targetAxonId].currentState += axonEdge->weight;
+            }
+        } else {
+            uint8_t side = axonEdge->targetClusterPath % 16;
+            KyoChanAxonEdge newAxonEdge = *axonEdge;
+            newAxonEdge.targetClusterPath /= 16;
+            outgoBuffer->addAxonEdge(targetId, 15-side, newAxonEdge);
         }
     }
 }
@@ -256,7 +290,7 @@ void CpuProcessingUnit::processNodes(NodeCluster *nodeCluster,
             edge.targetClusterPath = nodes->targetClusterPath / 16;
             edge.targetNodeId = nodes->targetAxonId;
             edge.weight = (float)nodes->currentState;
-            outgoBuffer->addEdge(neighborId, side, edge);
+            outgoBuffer->addEdge(neighborId, 15-side, edge);
         }
         nodes->currentState /= NODE_COOLDOWN;
     }
@@ -289,7 +323,7 @@ void CpuProcessingUnit::processAxons(EdgeCluster *edgeCluster,
                 ClusterID neighborId = edgeCluster->getNeighborId(side);
                 KyoChanEdge newEdge = *edge;
                 newEdge.targetClusterPath /= 16;
-                outgoBuffer->addEdge(neighborId, side, newEdge);
+                outgoBuffer->addEdge(neighborId, 15-side, newEdge);
             }
         }
     }

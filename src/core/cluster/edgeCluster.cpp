@@ -24,7 +24,7 @@ EdgeCluster::EdgeCluster(const ClusterID clusterId,
                          const std::string directoryPath,
                          MessageController *controller)
     : EmptyCluster(clusterId,
-                   EDGECLUSTER,
+                   EDGE_CLUSTER,
                    directoryPath,
                    controller)
 {

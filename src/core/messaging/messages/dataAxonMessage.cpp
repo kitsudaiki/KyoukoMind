@@ -24,7 +24,7 @@ DataAxonMessage::DataAxonMessage(const ClusterID targetClusterId,
                                  const uint8_t targetSite) :
     Message(targetClusterId, sourceClusterId, messageIdCounter, targetSite)
 {
-    m_metaData.type = DATAMESSAGE;
+    m_metaData.type = DATA_AXON_MESSAGE;
     m_metaData.requiredReply = 1;
 }
 
