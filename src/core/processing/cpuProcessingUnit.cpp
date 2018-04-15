@@ -51,173 +51,134 @@ CpuProcessingUnit::~CpuProcessingUnit()
  */
 void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
-    switch((int)cluster->getClusterType())
+    m_currentClusterType = (uint8_t)cluster->getClusterType();
+    m_currentCluster = cluster;
+
+    switch((int)m_currentClusterType)
     {
         case EMPTY_CLUSTER:
-            processEmptyCluster(cluster);
+            ((EmptyCluster*)m_currentCluster)->finishCycle();
             break;
         case EDGE_CLUSTER:
-            processEdgeCluster(cluster);
-            processEmptyCluster(cluster);
+            processIncomingMessages();
+            processAxons();
+            ((EmptyCluster*)m_currentCluster)->finishCycle();
             break;
         case NODE_CLUSTER:
-            processNodeCluster(cluster);
-            processEmptyCluster(cluster);
+            processIncomingMessages();
+            processNodes();
+            processAxons();
+            ((EmptyCluster*)m_currentCluster)->finishCycle();
             break;
         default:
             break;
     }
-}
 
-/**
- * @brief CpuProcessingUnit::processNodeCluster
- * @param cluster
- * @return
- */
-bool CpuProcessingUnit::processNodeCluster(Cluster *cluster)
-{
-    NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
-    if(nodeCluster == nullptr) {
-        return false;
-    }
-    KyoChanNode* nodeBlock = nodeCluster->getNodeBlock();
-    uint16_t numberOfNodes = nodeCluster->getNumberOfNodes();
-    KyoChanAxon* axonBlock = nodeCluster->getAxonBlock();
-    uint32_t numberOfAxons = nodeCluster->getNumberOfAxons();
-
-    processIncomingMessages(cluster, axonBlock, numberOfAxons, nodeBlock, numberOfNodes);
-    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
-    processNodes(nodeCluster, outgoBuffer);
-    return true;
-}
-
-/**
- * @brief CpuProcessingUnit::processEdgeCluster
- * @param cluster
- * @return
- */
-bool CpuProcessingUnit::processEdgeCluster(Cluster *cluster)
-{
-    EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
-    if(edgeCluster == nullptr) {
-        return false;
-    }
-    KyoChanAxon* axonBlock = edgeCluster->getAxonBlock();
-    uint32_t numberOfAxons = edgeCluster->getNumberOfAxons();
-    processIncomingMessages(cluster, axonBlock, numberOfAxons);
-    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
-    processAxons(edgeCluster, outgoBuffer);
-    return true;
-}
-
-/**
- * @brief CpuProcessingUnit::processEmptyCluster
- * @param cluster
- * @return
- */
-bool CpuProcessingUnit::processEmptyCluster(Cluster *cluster)
-{
-    EmptyCluster* emptyCluster = static_cast<EmptyCluster*>(cluster);
-    if(emptyCluster == nullptr) {
-        return false;
-    }
-    emptyCluster->finishCycle();
-    return true;
+    m_currentClusterType = UNDEFINED_CLUSTER;
+    m_currentCluster = nullptr;
 }
 
 /**
  * @brief CpuProcessingUnit::processIncomingMessages
- * @param cluster
- * @param axonBlock
- * @param numberOfAxons
- * @param nodeBlock
- * @param numberOfNodes
  */
-void CpuProcessingUnit::processIncomingMessages(Cluster *cluster,
-                                                KyoChanAxon* axonBlock,
-                                                const uint16_t numberOfAxons,
-                                                KyoChanNode* nodeBlock,
-                                                const uint16_t numberOfNodes)
+bool CpuProcessingUnit::processIncomingMessages()
 {
-    IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
-    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
+    if(m_currentCluster == nullptr) {
+        return false;
+    }
+    IncomingMessageBuffer* incomBuffer = m_currentCluster->getIncomingMessageBuffer();
+    OutgoingMessageBuffer* outgoBuffer = m_currentCluster->getOutgoingMessageBuffer();
 
     // process inputs
-    /*if(nodeBlock != nullptr) {
-        Message* buffer = incomBuffer->getMessage(0);
-        if(buffer != nullptr) {
-            for(uint32_t i = 0; i < buffer->getPayloadSize(); i++) {
-                processDataMessage(((DataMessage*)(*buffer)[i]),
-                                   0,
-                                   nodeBlock,
-                                   numberOfNodes,
-                                   nullptr);
-            }
+    if(m_currentClusterType == NODE_CLUSTER) {
+        for(uint8_t* data = (uint8_t*)incomBuffer->getMessage(0)->getPayload();
+            data < data + incomBuffer->getMessage(0)->getPayloadSize();
+            data++)
+        {
+            processIncomEdge(data);
         }
     }
 
     for(uint8_t side = 0; side < m_sideOrder.size(); side++)
     {
-        ClusterID targetId = cluster->getNeighborId(side);
-        std::vector<Message*>* buffer = incomBuffer->getMessage(side);
-        for(uint32_t j = 0; j < buffer->size(); j++)
+        for(uint8_t* data = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
+            data < data + incomBuffer->getMessage(side)->getPayloadSize();
+            data++)
         {
-            switch((int)buffer->at(j)->getType()) {
-            case DATA_MESSAGE:
-                processDataMessage((DataMessage*)buffer->at(j),
-                                   targetId,
-                                   nodeBlock,
-                                   numberOfNodes,
-                                   outgoBuffer);
-                break;
-            default:
-                break;
+            switch((int)(*data))
+            {
+                case EDGE_CONTAINER:
+                    processIncomEdge(data);
+                    break;
+                case AXON_EDGE_CONTAINER:
+                    processIncomAxonEdge(data);
+                    break;
+                case LEARNING_CONTAINER:
+                    processIncomLerningEdge(data);
+                    break;
+                case LEARNING_REPLY_CONTAINER:
+                    processIncomLerningReplyEdge(data);
+                    break;
+                default:
+                    break;
             }
         }
-    }*/
+    }
+
+    return true;
 }
 
 /**
- * @brief CpuProcessingUnit::processDataMessage
- * @param message
- * @param targetId
- * @param nodeBlock
- * @param numberOfNodes
- * @param outgoBuffer
+ * @brief CpuProcessingUnit::processIncomEdge
+ * @param data
+ * @return
  */
-void CpuProcessingUnit::processDataMessage(DataMessage* message,
-                                           const ClusterID targetId,
-                                           KyoChanNode* nodeBlock,
-                                           const uint16_t numberOfNodes,
-                                           OutgoingMessageBuffer* outgoBuffer)
+bool CpuProcessingUnit::processIncomEdge(uint8_t *data)
 {
-    /*uint8_t numberOfEdges = message->getNumberOfEntries();
-    for(KyoChanEdge* edge = message->getEdges();
-        edge < edge + numberOfEdges;
-        edge++)
-    {
-        if(edge->targetClusterPath == 0)
-        {
-            if(numberOfNodes > edge->targetNodeId) {
-                nodeBlock[edge->targetNodeId].currentState += edge->weight;
-            }
-        } else {
-            uint8_t side = edge->targetClusterPath % 16;
-            KyoChanEdge newEdge = *edge;
-            newEdge.targetClusterPath /= 16;
-            outgoBuffer->addEdge(side, &newEdge);
-        }
-    }*/
+
+}
+
+/**
+ * @brief CpuProcessingUnit::processIncomAxonEdge
+ * @param data
+ * @return
+ */
+bool CpuProcessingUnit::processIncomAxonEdge(uint8_t *data)
+{
+
+}
+
+/**
+ * @brief CpuProcessingUnit::processIncomLerningEdge
+ * @param data
+ * @return
+ */
+bool CpuProcessingUnit::processIncomLerningEdge(uint8_t *data)
+{
+
+}
+
+/**
+ * @brief CpuProcessingUnit::processIncomLerningReplyEdge
+ * @param data
+ * @return
+ */
+bool CpuProcessingUnit::processIncomLerningReplyEdge(uint8_t *data)
+{
+
 }
 
 /**
  * @brief CpuProcessingUnit::processNodes
- * @param nodeCluster
- * @param outgoBuffer
+ * @return
  */
-void CpuProcessingUnit::processNodes(NodeCluster *nodeCluster,
-                                     OutgoingMessageBuffer *outgoBuffer)
+bool CpuProcessingUnit::processNodes()
 {
+    if(m_currentClusterType == NODE_CLUSTER) {
+        return false;
+    }
+    OutgoingMessageBuffer* outgoBuffer = m_currentCluster->getOutgoingMessageBuffer();
+    NodeCluster* nodeCluster = static_cast<NodeCluster*>(m_currentCluster);
     uint8_t numberOfNodes = nodeCluster->getNumberOfNodes();
     for(KyoChanNode* nodes = nodeCluster->getNodeBlock();
         nodes < nodes + numberOfNodes;
@@ -233,16 +194,21 @@ void CpuProcessingUnit::processNodes(NodeCluster *nodeCluster,
         }
         nodes->currentState /= NODE_COOLDOWN;
     }
+    return true;
 }
 
 /**
  * @brief CpuProcessingUnit::processAxons
- * @param edgeCluster
- * @param outgoBuffer
+ * @return
  */
-void CpuProcessingUnit::processAxons(EdgeCluster *edgeCluster,
-                                     OutgoingMessageBuffer *outgoBuffer)
+bool CpuProcessingUnit::processAxons()
 {
+    if(m_currentClusterType == NODE_CLUSTER
+            || m_currentClusterType == EDGE_CLUSTER) {
+        return false;
+    }
+    OutgoingMessageBuffer* outgoBuffer = m_currentCluster->getOutgoingMessageBuffer();
+    EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(m_currentCluster);
     KyoChanEdgeSection* edgeSections = edgeCluster->getEdgeBlock();
     uint8_t numberOfAxons = edgeCluster->getNumberOfAxonBlocks();
     for(KyoChanAxon* axons = edgeCluster->getAxonBlock();
@@ -267,6 +233,7 @@ void CpuProcessingUnit::processAxons(EdgeCluster *edgeCluster,
             }
         }
     }
+    return true;
 }
 
 }

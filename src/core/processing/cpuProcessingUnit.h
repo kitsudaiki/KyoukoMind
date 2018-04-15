@@ -38,29 +38,21 @@ public:
     void processCluster(Cluster* cluster);
 
 private:
-    bool processEmptyCluster(Cluster* cluster);
-    bool processEdgeCluster(Cluster* cluster);
-    bool processNodeCluster(Cluster* cluster);
+    bool processIncomingMessages();
 
-    void processIncomingMessages(Cluster *cluster,
-                                 KyoChanAxon *axonBlock,
-                                 const uint16_t numberOfAxons,
-                                 KyoChanNode *nodeBlock = nullptr,
-                                 const uint16_t numberOfNodes = 0);
+    bool processIncomEdge(uint8_t* data);
+    bool processIncomAxonEdge(uint8_t* data);
+    bool processIncomLerningEdge(uint8_t* data);
+    bool processIncomLerningReplyEdge(uint8_t* data);
 
-    void processDataMessage(DataMessage *message,
-                            const ClusterID targetId,
-                            KyoChanNode *nodeBlock,
-                            const uint16_t numberOfNodes,
-                            OutgoingMessageBuffer *outgoBuffer);
-
-    void processNodes(NodeCluster *nodeCluster,
-                      OutgoingMessageBuffer *outgoBuffer);
-    void processAxons(EdgeCluster *edgeCluster,
-                      OutgoingMessageBuffer *outgoBuffer);
+    bool processNodes();
+    bool processAxons();
 
     std::vector<uint8_t> m_sideOrder;
     NextChooser* m_nextChooser = nullptr;
+
+    uint8_t m_currentClusterType = UNDEFINED_CLUSTER;
+    Cluster* m_currentCluster = nullptr;
 };
 
 }
