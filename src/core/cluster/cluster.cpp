@@ -95,6 +95,15 @@ bool Cluster::addNeighbor(const uint8_t side, const Neighbor target)
 }
 
 /**
+ * @brief Cluster::getNeighbors
+ * @return
+ */
+Neighbor *Cluster::getNeighbors()
+{
+    return &m_metaData.neighors[0];
+}
+
+/**
  * @brief Cluster::getNeighborId
  * @param side
  * @return

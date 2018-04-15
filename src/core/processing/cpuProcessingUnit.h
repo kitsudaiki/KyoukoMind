@@ -40,10 +40,16 @@ public:
 private:
     bool processIncomingMessages();
 
-    void processIncomEdge(uint8_t* data, OutgoingMessageBuffer* outgoBuffer);
-    void processIncomAxonEdge(uint8_t* data, OutgoingMessageBuffer* outgoBuffer);
-    void processIncomLerningEdge(uint8_t* data, OutgoingMessageBuffer* outgoBuffer);
-    void processIncomLerningReplyEdge(uint8_t* data, OutgoingMessageBuffer* outgoBuffer);
+    void processIncomEdge(uint8_t* data,
+                          OutgoingMessageBuffer* outgoBuffer);
+    void processIncomAxonEdge(uint8_t* data,
+                              OutgoingMessageBuffer* outgoBuffer);
+    void processIncomLerningEdge(uint8_t* data,
+                                 uint8_t initSide,
+                                 OutgoingMessageBuffer* outgoBuffer);
+    void processIncomLerningReplyEdge(uint8_t* data,
+                                      uint8_t initSide,
+                                      OutgoingMessageBuffer* outgoBuffer);
 
     bool processNodes();
     bool processAxons();

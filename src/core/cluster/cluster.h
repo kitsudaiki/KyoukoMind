@@ -42,6 +42,7 @@ public:
     OutgoingMessageBuffer* getOutgoingMessageBuffer() const;
 
     bool addNeighbor(const uint8_t side, const Neighbor target);
+    Neighbor *getNeighbors();
     ClusterID getNeighborId(const uint8_t side);
 
     void getMetaData();

@@ -21,6 +21,7 @@
 
 // processing-variables
 #define POSSIBLE_NEXT_AXON_STEP 50
+#define POSSIBLE_NEXT_LEARNING_STEP 50
 #define NODE_COOLDOWN 3
 
 

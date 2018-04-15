@@ -124,10 +124,10 @@ bool CpuProcessingUnit::processIncomingMessages()
                     processIncomAxonEdge(data, outgoBuffer);
                     break;
                 case LEARNING_CONTAINER:
-                    processIncomLerningEdge(data, outgoBuffer);
+                    processIncomLerningEdge(data, side, outgoBuffer);
                     break;
                 case LEARNING_REPLY_CONTAINER:
-                    processIncomLerningReplyEdge(data, outgoBuffer);
+                    processIncomLerningReplyEdge(data, side, outgoBuffer);
                     break;
                 default:
                     break;
@@ -143,7 +143,8 @@ bool CpuProcessingUnit::processIncomingMessages()
  * @param data
  * @return
  */
-void CpuProcessingUnit::processIncomEdge(uint8_t *data, OutgoingMessageBuffer* outgoBuffer)
+void CpuProcessingUnit::processIncomEdge(uint8_t *data,
+                                         OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanMessageEdge* edge = (KyoChanMessageEdge*)data;
     if(edge->targetClusterPath != 0) {
@@ -160,7 +161,8 @@ void CpuProcessingUnit::processIncomEdge(uint8_t *data, OutgoingMessageBuffer* o
  * @param data
  * @return
  */
-void CpuProcessingUnit::processIncomAxonEdge(uint8_t *data, OutgoingMessageBuffer* outgoBuffer)
+void CpuProcessingUnit::processIncomAxonEdge(uint8_t *data,
+                                             OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanAxonEdge* edge = (KyoChanAxonEdge*)data;
     if(edge->targetClusterPath != 0) {
@@ -177,10 +179,40 @@ void CpuProcessingUnit::processIncomAxonEdge(uint8_t *data, OutgoingMessageBuffe
  * @param data
  * @return
  */
-void CpuProcessingUnit::processIncomLerningEdge(uint8_t *data, OutgoingMessageBuffer* outgoBuffer)
+void CpuProcessingUnit::processIncomLerningEdge(uint8_t *data,
+                                                uint8_t initSide,
+                                                OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanNewEdge* edge = (KyoChanNewEdge*)data;
-
+    if(edge->step == 8 && m_currentClusterType != NODE_CLUSTER)
+    {
+        KyoChanNewEdgeReply reply;
+        reply.failed = 1;
+        reply.newEdgeId = edge->newEdgeId;
+        reply.sourceAxonId = edge->sourceAxonId;
+        reply.sourceClusterPath = edge->sourceClusterPath;
+        outgoBuffer->addLearningReplyMessage(initSide, &reply);
+        return;
+    }
+    if(m_currentClusterType != NODE_CLUSTER
+            || rand() % 100 <= POSSIBLE_NEXT_LEARNING_STEP)
+    {
+        uint8_t nextSide = m_nextChooser->getNextCluster(m_currentCluster->getNeighbors(), initSide);
+        edge->sourceClusterPath = (edge->sourceClusterPath << 16) + initSide;
+        edge->step++;
+        outgoBuffer->addLearingEdge(nextSide, edge);
+    }
+    else
+    {
+        uint16_t nodeId = rand() % m_numberOfNodes;
+        m_nodeBlock[nodeId].currentState += edge->weight;
+        KyoChanNewEdgeReply reply;
+        reply.newEdgeId = edge->newEdgeId;
+        reply.sourceAxonId = edge->sourceAxonId;
+        reply.sourceClusterPath = edge->sourceClusterPath;
+        reply.targetNodeId = nodeId;
+        outgoBuffer->addLearningReplyMessage(initSide, &reply);
+    }
 }
 
 /**
@@ -188,10 +220,26 @@ void CpuProcessingUnit::processIncomLerningEdge(uint8_t *data, OutgoingMessageBu
  * @param data
  * @return
  */
-void CpuProcessingUnit::processIncomLerningReplyEdge(uint8_t *data, OutgoingMessageBuffer* outgoBuffer)
+void CpuProcessingUnit::processIncomLerningReplyEdge(uint8_t *data,
+                                                     uint8_t initSide,
+                                                     OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanNewEdgeReply* edge = (KyoChanNewEdgeReply*)data;
-
+    if(edge->sourceClusterPath != 0)
+    {
+        edge->targetClusterPath = (edge->targetClusterPath << 16) + initSide;
+        uint8_t side = edge->sourceClusterPath % 16;
+        edge->sourceClusterPath /= 16;
+        outgoBuffer->addLearningReplyMessage(side, edge);
+    }
+    else
+    {
+        KyoChanEdge newEdge;
+        newEdge.targetClusterPath = edge->targetClusterPath;
+        newEdge.targetNodeId = edge->targetNodeId;
+        //newEdge.weight
+        ((EdgeCluster*)m_currentCluster)->addEdge(edge->sourceAxonId, newEdge);
+    }
 }
 
 /**
