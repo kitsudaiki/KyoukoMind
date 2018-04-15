@@ -40,10 +40,10 @@ public:
 private:
     bool processIncomingMessages();
 
-    bool processIncomEdge(uint8_t* data);
-    bool processIncomAxonEdge(uint8_t* data);
-    bool processIncomLerningEdge(uint8_t* data);
-    bool processIncomLerningReplyEdge(uint8_t* data);
+    void processIncomEdge(uint8_t* data, OutgoingMessageBuffer* outgoBuffer);
+    void processIncomAxonEdge(uint8_t* data, OutgoingMessageBuffer* outgoBuffer);
+    void processIncomLerningEdge(uint8_t* data, OutgoingMessageBuffer* outgoBuffer);
+    void processIncomLerningReplyEdge(uint8_t* data, OutgoingMessageBuffer* outgoBuffer);
 
     bool processNodes();
     bool processAxons();
@@ -53,6 +53,10 @@ private:
 
     uint8_t m_currentClusterType = UNDEFINED_CLUSTER;
     Cluster* m_currentCluster = nullptr;
+    KyoChanAxon* m_axonBlock = nullptr;
+    uint32_t m_numberOfAxons = 0;
+    KyoChanNode* m_nodeBlock = nullptr;
+    uint16_t m_numberOfNodes = 0;
 };
 
 }

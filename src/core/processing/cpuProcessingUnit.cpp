@@ -60,11 +60,17 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
             ((EmptyCluster*)m_currentCluster)->finishCycle();
             break;
         case EDGE_CLUSTER:
+            m_axonBlock = ((EdgeCluster*)m_currentCluster)->getAxonBlock();
+            m_numberOfAxons = ((EdgeCluster*)m_currentCluster)->getNumberOfAxons();
             processIncomingMessages();
             processAxons();
             ((EmptyCluster*)m_currentCluster)->finishCycle();
             break;
         case NODE_CLUSTER:
+            m_axonBlock = ((EdgeCluster*)m_currentCluster)->getAxonBlock();
+            m_numberOfAxons = ((EdgeCluster*)m_currentCluster)->getNumberOfAxons();
+            m_nodeBlock = ((NodeCluster*)m_currentCluster)->getNodeBlock();
+            m_numberOfNodes = ((NodeCluster*)m_currentCluster)->getNumberOfNodes();
             processIncomingMessages();
             processNodes();
             processAxons();
@@ -76,6 +82,10 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
 
     m_currentClusterType = UNDEFINED_CLUSTER;
     m_currentCluster = nullptr;
+    m_axonBlock = nullptr;
+    m_numberOfAxons = 0;
+    m_nodeBlock = nullptr;
+    m_numberOfNodes = 0;
 }
 
 /**
@@ -95,7 +105,7 @@ bool CpuProcessingUnit::processIncomingMessages()
             data < data + incomBuffer->getMessage(0)->getPayloadSize();
             data++)
         {
-            processIncomEdge(data);
+            processIncomEdge(data, outgoBuffer);
         }
     }
 
@@ -108,16 +118,16 @@ bool CpuProcessingUnit::processIncomingMessages()
             switch((int)(*data))
             {
                 case EDGE_CONTAINER:
-                    processIncomEdge(data);
+                    processIncomEdge(data, outgoBuffer);
                     break;
                 case AXON_EDGE_CONTAINER:
-                    processIncomAxonEdge(data);
+                    processIncomAxonEdge(data, outgoBuffer);
                     break;
                 case LEARNING_CONTAINER:
-                    processIncomLerningEdge(data);
+                    processIncomLerningEdge(data, outgoBuffer);
                     break;
                 case LEARNING_REPLY_CONTAINER:
-                    processIncomLerningReplyEdge(data);
+                    processIncomLerningReplyEdge(data, outgoBuffer);
                     break;
                 default:
                     break;
@@ -133,9 +143,16 @@ bool CpuProcessingUnit::processIncomingMessages()
  * @param data
  * @return
  */
-bool CpuProcessingUnit::processIncomEdge(uint8_t *data)
+void CpuProcessingUnit::processIncomEdge(uint8_t *data, OutgoingMessageBuffer* outgoBuffer)
 {
-
+    KyoChanMessageEdge* edge = (KyoChanMessageEdge*)data;
+    if(edge->targetClusterPath != 0) {
+        uint8_t side = edge->targetClusterPath % 16;
+        edge->targetClusterPath /= 16;
+        outgoBuffer->addEdge(side, edge);
+    } else {
+        m_nodeBlock[edge->targetNodeId].currentState += edge->weight;
+    }
 }
 
 /**
@@ -143,9 +160,16 @@ bool CpuProcessingUnit::processIncomEdge(uint8_t *data)
  * @param data
  * @return
  */
-bool CpuProcessingUnit::processIncomAxonEdge(uint8_t *data)
+void CpuProcessingUnit::processIncomAxonEdge(uint8_t *data, OutgoingMessageBuffer* outgoBuffer)
 {
-
+    KyoChanAxonEdge* edge = (KyoChanAxonEdge*)data;
+    if(edge->targetClusterPath != 0) {
+        uint8_t side = edge->targetClusterPath % 16;
+        edge->targetClusterPath /= 16;
+        outgoBuffer->addAxonEdge(side, edge);
+    } else {
+        m_axonBlock[edge->targetAxonId].currentState += edge->weight;
+    }
 }
 
 /**
@@ -153,8 +177,9 @@ bool CpuProcessingUnit::processIncomAxonEdge(uint8_t *data)
  * @param data
  * @return
  */
-bool CpuProcessingUnit::processIncomLerningEdge(uint8_t *data)
+void CpuProcessingUnit::processIncomLerningEdge(uint8_t *data, OutgoingMessageBuffer* outgoBuffer)
 {
+    KyoChanNewEdge* edge = (KyoChanNewEdge*)data;
 
 }
 
@@ -163,8 +188,9 @@ bool CpuProcessingUnit::processIncomLerningEdge(uint8_t *data)
  * @param data
  * @return
  */
-bool CpuProcessingUnit::processIncomLerningReplyEdge(uint8_t *data)
+void CpuProcessingUnit::processIncomLerningReplyEdge(uint8_t *data, OutgoingMessageBuffer* outgoBuffer)
 {
+    KyoChanNewEdgeReply* edge = (KyoChanNewEdgeReply*)data;
 
 }
 
