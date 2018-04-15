@@ -17,11 +17,7 @@ namespace KyoukoMind
 {
 class Message;
 class DataMessage;
-class DataAxonMessage;
 class ReplyMessage;
-class LearningMessage;
-class LearningReplyMessage;
-class CycleFinishMessage;
 
 class IncomingMessageBuffer;
 

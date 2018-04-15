@@ -10,8 +10,6 @@
 #ifndef DATAMESSAGE_H
 #define DATAMESSAGE_H
 
-#define MAX_NUMBER_OF_ENTRIES 100
-
 #include "message.h"
 
 namespace KyoukoMind
@@ -34,7 +32,6 @@ public:
 
 private:
     void copyToBuffer(void* data);
-    uint8_t m_maxNumberOfEntries = MAX_NUMBER_OF_ENTRIES;
     uint8_t m_numberOfEntries = 0;
     void checkBuffer();
 };
