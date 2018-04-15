@@ -206,7 +206,7 @@ void CpuProcessingUnit::processIncomAxonEdge(uint8_t *data,
     }
     else
     {
-        m_axonBlock[edge->targetAxonId].currentState += edge->weight;
+        m_axonBlock[edge->targetAxonId].currentState = edge->weight;
     }
 }
 
@@ -321,14 +321,21 @@ bool CpuProcessingUnit::processNodes()
     {
         if(nodes->border <= nodes->currentState)
         {
-            uint8_t side = nodes->targetClusterPath % 16;
+            if(nodes->targetClusterPath != 0) {
+                uint8_t side = nodes->targetClusterPath % 16;
 
-            KyoChanAxonEdge edge;
-            edge.targetClusterPath = nodes->targetClusterPath / 16;
-            edge.targetAxonId = nodes->targetAxonId;
-            edge.weight = (float)nodes->currentState;
+                KyoChanAxonEdge edge;
+                edge.targetClusterPath = nodes->targetClusterPath / 16;
+                edge.targetAxonId = nodes->targetAxonId;
+                edge.weight = (float)nodes->currentState;
 
-            outgoBuffer->addAxonEdge(side, &edge);
+                outgoBuffer->addAxonEdge(side, &edge);
+            }
+            else
+            {
+                m_axonBlock[nodes->targetAxonId].currentState = nodes->currentState;
+            }
+
         }
         nodes->currentState /= NODE_COOLDOWN;
     }
