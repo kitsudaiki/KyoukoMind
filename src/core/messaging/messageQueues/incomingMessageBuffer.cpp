@@ -9,6 +9,7 @@
 
 #include "incomingMessageBuffer.h"
 
+#include <core/cluster/cluster.h>
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messageController.h>
 
@@ -20,11 +21,11 @@ namespace KyoukoMind
  * @param clusterId
  * @param controller
  */
-IncomingMessageBuffer::IncomingMessageBuffer(const ClusterID clusterId,
+IncomingMessageBuffer::IncomingMessageBuffer(Cluster *cluster,
                                              MessageController* controller):
-    MessageBuffer(clusterId, controller)
+    MessageBuffer(cluster, controller)
 {
-    controller->addIncomingMessageQueue(clusterId, this);
+    controller->addIncomingMessageQueue(cluster->getClusterId(), this);
 }
 
 /**
@@ -37,19 +38,14 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, Message *message)
 {
     if(side <= 15) {
         m_mutex.lock();
-        if(message->getType() == CYCLE_FINISH_MESSAGE) {
-            m_finishCounter++;
-            if(isReady()) {
-                m_switchFlag = !m_switchFlag;
-                m_mutex.unlock();
-                return true;
-            }
+        if(m_switchFlag) {
+            m_messageQueue1[side] = message;
         } else {
-            if(m_switchFlag) {
-                m_messageQueue1[side].push_back(message);
-            } else {
-                m_messageQueue2[side].push_back(message);
-            }
+            m_messageQueue2[side] = message;
+        }
+        m_finishCounter++;
+        if(isReady()) {
+            m_switchFlag = !m_switchFlag;
         }
         m_mutex.unlock();
         return true;
@@ -58,16 +54,16 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, Message *message)
 }
 
 /**
- * @brief IncomingMessageBuffer::getMessageQueue
+ * @brief IncomingMessageBuffer::getMessage
  * @param side
  * @return
  */
-std::vector<Message *> *IncomingMessageBuffer::getMessageQueue(const uint8_t side)
+Message *IncomingMessageBuffer::getMessage(const uint8_t side)
 {
     if(m_switchFlag) {
-        return &m_messageQueue1[side];
+        return m_messageQueue1[side];
     } else {
-        return &m_messageQueue2[side];
+        return m_messageQueue2[side];
     }
 }
 

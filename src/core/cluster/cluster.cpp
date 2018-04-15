@@ -8,7 +8,7 @@
  */
 
 #include <core/cluster/cluster.h>
-#include <files/ioBuffer.h>
+#include <files/dataBuffer.h>
 #include <core/messaging/messageController.h>
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>
@@ -29,7 +29,7 @@ Cluster::Cluster(const ClusterID &clusterId,
                  MessageController *controller)
 {
     m_metaData.clusterId = clusterId;
-    initMessageBuffer(clusterId, controller);
+    initMessageBuffer(controller);
 
     if(clusterType > 3) {
         m_metaData.clusterType = EMPTY_CLUSTER;
@@ -135,7 +135,7 @@ void Cluster::initFile(const ClusterID clusterId,
 {
     std::string filePath = directoryPath
                          + "/cluster_" + std::to_string(clusterId);
-    m_buffer = new PerformanceIO::IOBuffer(filePath);
+    m_buffer = new PerformanceIO::DataBuffer(filePath);
 }
 
 /**
@@ -170,11 +170,10 @@ OutgoingMessageBuffer *Cluster::getOutgoingMessageBuffer() const
  * @param clusterId
  * @param controller
  */
-void Cluster::initMessageBuffer(const ClusterID clusterId,
-                                MessageController *controller)
+void Cluster::initMessageBuffer(MessageController *controller)
 {
-    m_incomingMessageQueue = new IncomingMessageBuffer(clusterId, controller);
-    m_outgoingMessageQueue = new OutgoingMessageBuffer(clusterId, controller);
+    m_incomingMessageQueue = new IncomingMessageBuffer(this, controller);
+    m_outgoingMessageQueue = new OutgoingMessageBuffer(this, controller);
 }
 
 }

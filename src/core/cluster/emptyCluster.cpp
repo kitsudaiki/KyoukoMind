@@ -55,12 +55,12 @@ EmptyCluster::EmptyCluster(const ClusterID clusterId,
  */
 void EmptyCluster::finishCycle()
 {
-    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 2);
-    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 3);
-    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 4);
-    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 11);
-    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 12);
-    m_outgoingMessageQueue->sendFinishCycle(m_metaData.clusterId, 13);
+    m_outgoingMessageQueue->sendFinishCycle(2);
+    m_outgoingMessageQueue->sendFinishCycle(3);
+    m_outgoingMessageQueue->sendFinishCycle(4);
+    m_outgoingMessageQueue->sendFinishCycle(11);
+    m_outgoingMessageQueue->sendFinishCycle(12);
+    m_outgoingMessageQueue->sendFinishCycle(13);
 }
 
 }

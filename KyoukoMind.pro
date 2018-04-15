@@ -33,27 +33,23 @@ SOURCES += main.cpp \
             src/core/messaging/messageQueues/messageBuffer.cpp \
             src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
             src/core/initializing/networkInitializer.cpp \
-    src/core/processing/nextChooser.cpp \
-    src/control/statusReporter.cpp \
-    src/core/initializing/axonInitializer.cpp \
-    src/core/initializing/clusterInitilizer.cpp \
-    src/core/messaging/messages/cycleFinishMessage.cpp \
-    src/core/messaging/messages/dataMessage.cpp \
-    src/core/messaging/messages/learningMessage.cpp \
-    src/core/messaging/messages/learningReplyMessage.cpp \
-    src/core/messaging/messages/replyMessage.cpp \
-    src/core/messaging/messageController.cpp \
-    src/core/messaging/timeoutHandler.cpp \
-    src/core/processing/commonThread.cpp \
-    src/kyochanNetwork.cpp \
-    tests/proofOfConcept/demoIO.cpp \
-    tests/clusterTest.cpp \
-    tests/commonTest.cpp \
-    tests/messageBufferTest.cpp \
-    tests/messageTest.cpp \
-    src/core/cluster/clusterQueue.cpp \
-    tests/proofOfConcept/demoUserInput.cpp \
-    src/core/messaging/messages/dataAxonMessage.cpp
+            src/core/processing/nextChooser.cpp \
+            src/control/statusReporter.cpp \
+            src/core/initializing/axonInitializer.cpp \
+            src/core/initializing/clusterInitilizer.cpp \
+            src/core/messaging/messages/dataMessage.cpp \
+            src/core/messaging/messages/replyMessage.cpp \
+            src/core/messaging/messageController.cpp \
+            src/core/messaging/timeoutHandler.cpp \
+            src/core/processing/commonThread.cpp \
+            src/kyochanNetwork.cpp \
+            tests/proofOfConcept/demoIO.cpp \
+            tests/clusterTest.cpp \
+            tests/commonTest.cpp \
+            tests/messageBufferTest.cpp \
+            tests/messageTest.cpp \
+            src/core/cluster/clusterQueue.cpp \
+            tests/proofOfConcept/demoUserInput.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -80,27 +76,23 @@ HEADERS +=\
             src/core/structs/kyochanNodes.h \
             src/core/structs/learningMessages.h \
             src/core/structs/clusterMeta.h \
-    src/core/processing/nextChooser.h \
-    src/control/statusReporter.h \
-    src/core/initializing/axonInitializer.h \
-    src/core/initializing/clusterInitilizer.h \
-    src/core/messaging/messages/cycleFinishMessage.h \
-    src/core/messaging/messages/dataMessage.h \
-    src/core/messaging/messages/learningMessage.h \
-    src/core/messaging/messages/learningReplyMessage.h \
-    src/core/messaging/messages/replyMessage.h \
-    src/core/messaging/messageController.h \
-    src/core/messaging/timeoutHandler.h \
-    src/core/processing/commonThread.h \
-    src/kyochanNetwork.h \
-    tests/clusterTest.h \
-    tests/commonTest.h \
-    tests/messageBufferTest.h \
-    tests/messageTest.h \
-    src/core/cluster/clusterQueue.h \
-    tests/proofOfConcept/demoUserInput.h \
-    tests/proofOfConcept/demoIO.h \
-    src/core/messaging/messages/dataAxonMessage.h
+            src/core/processing/nextChooser.h \
+            src/control/statusReporter.h \
+            src/core/initializing/axonInitializer.h \
+            src/core/initializing/clusterInitilizer.h \
+            src/core/messaging/messages/dataMessage.h \
+            src/core/messaging/messages/replyMessage.h \
+            src/core/messaging/messageController.h \
+            src/core/messaging/timeoutHandler.h \
+            src/core/processing/commonThread.h \
+            src/kyochanNetwork.h \
+            tests/clusterTest.h \
+            tests/commonTest.h \
+            tests/messageBufferTest.h \
+            tests/messageTest.h \
+            src/core/cluster/clusterQueue.h \
+            tests/proofOfConcept/demoUserInput.h \
+            tests/proofOfConcept/demoIO.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

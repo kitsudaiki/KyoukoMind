@@ -15,6 +15,8 @@
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>
 
+#include <core/cluster/cluster.h>
+
 namespace KyoukoMind
 {
 
@@ -24,9 +26,16 @@ namespace KyoukoMind
 DemoIO::DemoIO(MessageController *messageController)
 {
     m_messageController = messageController;
-    ClusterID fakeClusterID = 1337;
-    m_incomBuffer = new IncomingMessageBuffer(fakeClusterID, m_messageController);
-    m_ougoingBuffer = new OutgoingMessageBuffer(fakeClusterID, m_messageController);
+    Cluster* fakeCluster = new Cluster(1337, NODE_CLUSTER, "", m_messageController);
+
+    Neighbor neighbor;
+    neighbor.targetClusterId = 11;
+    neighbor.side = 0;
+    neighbor.neighborType = NODE_CLUSTER;
+    fakeCluster->addNeighbor(0, neighbor);
+
+    m_incomBuffer = new IncomingMessageBuffer(fakeCluster, m_messageController);
+    m_ougoingBuffer = new OutgoingMessageBuffer(fakeCluster, m_messageController);
 }
 
 /**
@@ -38,22 +47,19 @@ void DemoIO::run()
     {
         usleep(PROCESS_INTERVAL);
 
-        std::vector<Message*>* incomList = m_incomBuffer->getMessageQueue(15);
-        for(uint32_t i = 0; i < incomList->size(); i++)
+        Message* message = m_incomBuffer->getMessage(15);
+        uint8_t* data = (uint8_t*)message->getData();
+        for(uint32_t i = 0; i < message->getPayloadSize(); i = i + 20)
         {
-            if((*incomList)[i]->getMetaData().type == DATA_MESSAGE) {
-                DataMessage* dataM = static_cast<DataMessage*>((*incomList)[i]);
+            if(data[i] == EDGE_CONTAINER) {
+                KyoChanMessageEdge* edge = (KyoChanMessageEdge*)data[i];
 
-                KyoChanEdge* edges = dataM->getEdges();
-                for(uint32_t j = 0; j < dataM->getNumberOfEdges(); j++)
-                {
-                    uint32_t out = (uint32_t)edges[j].weight;
-                    if(out > 255) {
-                        out = 255;
-                    }
-                    char newChar = (char)out;
-                    sendInnerData(newChar);
+                uint32_t out = (uint32_t)edge->weight;
+                if(out > 255) {
+                    out = 255;
                 }
+                char newChar = (char)out;
+                sendInnerData(newChar);
             }
         }
     }
@@ -67,17 +73,17 @@ void DemoIO::sendOutData(const char input)
 {
     uint8_t inputNumber = (uint8_t)input;
 
-    KyoChanEdge edge1;
+    KyoChanMessageEdge edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 12;
     sendData(edge1);
 
-    KyoChanEdge edge2;
+    KyoChanMessageEdge edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 23;
     sendData(edge2);
 
-    KyoChanEdge edge3;
+    KyoChanMessageEdge edge3;
     edge3.weight = (float)inputNumber;
     edge3.targetNodeId = 42;
     sendData(edge3);
@@ -91,12 +97,12 @@ void DemoIO::sendInnerData(const char input)
 {
     uint8_t inputNumber = (uint8_t)input;
 
-    KyoChanEdge edge1;
+    KyoChanMessageEdge edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 12;
     sendData(edge1);
 
-    KyoChanEdge edge2;
+    KyoChanMessageEdge edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 23;
     sendData(edge2);
@@ -106,10 +112,10 @@ void DemoIO::sendInnerData(const char input)
  * @brief DemoIO::sendData
  * @param input
  */
-void DemoIO::sendData(const KyoChanEdge edge)
+void DemoIO::sendData(const KyoChanMessageEdge &edge)
 {
     mutexLock();
-    m_ougoingBuffer->addEdge(11, 0, edge);
+    m_ougoingBuffer->addEdge(0, &edge);
     mutexUnlock();
 }
 

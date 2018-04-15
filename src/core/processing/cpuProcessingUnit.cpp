@@ -21,11 +21,7 @@
 
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messages/dataMessage.h>
-#include <core/messaging/messages/dataAxonMessage.h>
 #include <core/messaging/messages/replyMessage.h>
-#include <core/messaging/messages/learningMessage.h>
-#include <core/messaging/messages/learningReplyMessage.h>
-#include <core/messaging/messages/cycleFinishMessage.h>
 
 namespace KyoukoMind
 {
@@ -147,10 +143,10 @@ void CpuProcessingUnit::processIncomingMessages(Cluster *cluster,
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
 
     // process inputs
-    if(nodeBlock != nullptr) {
-        std::vector<Message*>* buffer = incomBuffer->getMessageQueue(0);
+    /*if(nodeBlock != nullptr) {
+        Message* buffer = incomBuffer->getMessage(0);
         if(buffer != nullptr) {
-            for(uint32_t i = 0; i < buffer->size(); i++) {
+            for(uint32_t i = 0; i < buffer->getPayloadSize(); i++) {
                 processDataMessage(((DataMessage*)(*buffer)[i]),
                                    0,
                                    nodeBlock,
@@ -163,7 +159,7 @@ void CpuProcessingUnit::processIncomingMessages(Cluster *cluster,
     for(uint8_t side = 0; side < m_sideOrder.size(); side++)
     {
         ClusterID targetId = cluster->getNeighborId(side);
-        std::vector<Message*>* buffer = incomBuffer->getMessageQueue(side);
+        std::vector<Message*>* buffer = incomBuffer->getMessage(side);
         for(uint32_t j = 0; j < buffer->size(); j++)
         {
             switch((int)buffer->at(j)->getType()) {
@@ -174,34 +170,11 @@ void CpuProcessingUnit::processIncomingMessages(Cluster *cluster,
                                    numberOfNodes,
                                    outgoBuffer);
                 break;
-            case DATA_AXON_MESSAGE:
-                processDataAxonMessage((DataAxonMessage*)buffer->at(j),
-                                       targetId,
-                                       axonBlock,
-                                       numberOfAxons,
-                                       outgoBuffer);
-                break;
-            case LEARNING_MESSAGE:
-                processLearningMessage((LearningMessage*)buffer->at(j),
-                                       targetId,
-                                       side,
-                                       nodeBlock,
-                                       numberOfNodes,
-                                       outgoBuffer);
-                break;
-            case LEARNING_REPLY_MESSAGE:
-                processLearningRyplyMessage((LearningReplyMessage*)buffer->at(j),
-                                            targetId,
-                                            side,
-                                            nodeBlock,
-                                            numberOfNodes,
-                                            outgoBuffer);
-                break;
             default:
                 break;
             }
         }
-    }
+    }*/
 }
 
 /**
@@ -218,7 +191,7 @@ void CpuProcessingUnit::processDataMessage(DataMessage* message,
                                            const uint16_t numberOfNodes,
                                            OutgoingMessageBuffer* outgoBuffer)
 {
-    uint8_t numberOfEdges = message->getNumberOfEdges();
+    /*uint8_t numberOfEdges = message->getNumberOfEntries();
     for(KyoChanEdge* edge = message->getEdges();
         edge < edge + numberOfEdges;
         edge++)
@@ -232,88 +205,9 @@ void CpuProcessingUnit::processDataMessage(DataMessage* message,
             uint8_t side = edge->targetClusterPath % 16;
             KyoChanEdge newEdge = *edge;
             newEdge.targetClusterPath /= 16;
-            outgoBuffer->addEdge(targetId, 15-side, newEdge);
+            outgoBuffer->addEdge(side, &newEdge);
         }
-    }
-}
-
-/**
- * @brief CpuProcessingUnit::processDataAxonMessage
- * @param message
- * @param targetId
- * @param axonBlock
- * @param numberOfAxons
- * @param outgoBuffer
- */
-void CpuProcessingUnit::processDataAxonMessage(DataAxonMessage *message,
-                                               const ClusterID targetId,
-                                               KyoChanAxon *axonBlock,
-                                               const uint16_t numberOfAxons,
-                                               OutgoingMessageBuffer *outgoBuffer)
-{
-    uint8_t numberOfAxonEdges = message->getNumberOfAxonEdges();
-    for(KyoChanAxonEdge* axonEdge = message->getAxonEdges();
-        axonEdge < axonEdge + numberOfAxonEdges;
-        axonEdge++)
-    {
-        if(axonEdge->targetClusterPath == 0)
-        {
-            if(numberOfAxons > axonEdge->targetAxonId) {
-                axonBlock[axonEdge->targetAxonId].currentState += axonEdge->weight;
-            }
-        } else {
-            uint8_t side = axonEdge->targetClusterPath % 16;
-            KyoChanAxonEdge newAxonEdge = *axonEdge;
-            newAxonEdge.targetClusterPath /= 16;
-            outgoBuffer->addAxonEdge(targetId, 15-side, newAxonEdge);
-        }
-    }
-}
-
-/**
- * @brief CpuProcessingUnit::processLearningMessage
- * @param message
- * @param nodeBlock
- * @param numberOfNodes
- */
-void CpuProcessingUnit::processLearningMessage(LearningMessage *message,
-                                               const ClusterID targetId,
-                                               const uint8_t inputSide,
-                                               KyoChanNode *nodeBlock,
-                                               const uint16_t numberOfNodes,
-                                               OutgoingMessageBuffer *outgoBuffer)
-{
-    uint8_t numberOfEdges = message->getNumberOfNewEdges();
-    for(KyoChanNewEdge* newEdges = message->getNewEdges();
-        newEdges < newEdges + numberOfEdges;
-        newEdges++)
-    {
-        bool goToNext = false;
-
-        if(nodeBlock != nullptr) {
-            if(rand() % 100 <= POSSIBLE_NEXT_AXON_STEP) {
-                 goToNext = true;
-            }
-        } else {
-
-        }
-    }
-}
-
-/**
- * @brief CpuProcessingUnit::processLearningRyplyMessage
- * @param message
- * @param nodeBlock
- * @param numberOfNodes
- */
-void CpuProcessingUnit::processLearningRyplyMessage(LearningReplyMessage *message,
-                                                    const ClusterID targetId,
-                                                    const uint8_t inputSide,
-                                                    KyoChanNode *nodeBlock,
-                                                    const uint16_t numberOfNodes,
-                                                    OutgoingMessageBuffer *outgoBuffer)
-{
-
+    }*/
 }
 
 /**
@@ -331,12 +225,11 @@ void CpuProcessingUnit::processNodes(NodeCluster *nodeCluster,
     {
         if(nodes->border <= nodes->currentState) {
             uint8_t side = nodes->targetClusterPath % 16;
-            ClusterID neighborId = nodeCluster->getNeighborId(side);
-            KyoChanEdge edge;
+            KyoChanAxonEdge edge;
             edge.targetClusterPath = nodes->targetClusterPath / 16;
-            edge.targetNodeId = nodes->targetAxonId;
+            edge.targetAxonId = nodes->targetAxonId;
             edge.weight = (float)nodes->currentState;
-            outgoBuffer->addEdge(neighborId, 15-side, edge);
+            outgoBuffer->addAxonEdge(side, &edge);
         }
         nodes->currentState /= NODE_COOLDOWN;
     }
@@ -366,10 +259,11 @@ void CpuProcessingUnit::processAxons(EdgeCluster *edgeCluster,
                 edge++)
             {
                 uint8_t side = edge->targetClusterPath % 16;
-                ClusterID neighborId = edgeCluster->getNeighborId(side);
-                KyoChanEdge newEdge = *edge;
-                newEdge.targetClusterPath /= 16;
-                outgoBuffer->addEdge(neighborId, 15-side, newEdge);
+                KyoChanMessageEdge newEdge;
+                newEdge.weight = edge->weight;
+                newEdge.targetNodeId = edge->targetNodeId;
+                newEdge.targetClusterPath = edge->targetClusterPath / 16;
+                outgoBuffer->addEdge(side, &newEdge);
             }
         }
     }

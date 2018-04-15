@@ -14,9 +14,23 @@
 
 struct KyoChanAxonEdge
 {
+    uint8_t type = AXON_EDGE_CONTAINER;
     float weight = 0.0;
     uint32_t targetClusterPath = 0;
     uint32_t targetAxonId = 0;
+    uint32_t padding1 = 0;
+    uint16_t padding2 = 0;
+    uint8_t padding3 = 0;
+} __attribute__((packed));
+
+struct KyoChanMessageEdge
+{
+    uint8_t type = EDGE_CONTAINER;
+    float weight = 0.0;
+    uint32_t targetClusterPath = 0;
+    uint16_t targetNodeId = 0;
+    uint64_t padding1 = 0;
+    uint8_t padding2 = 0;
 } __attribute__((packed));
 
 struct KyoChanEdge

@@ -9,7 +9,7 @@
 
 #include <core/cluster/nodeCluster.h>
 #include <kyochanNetwork.h>
-#include <files/ioBuffer.h>
+#include <files/dataBuffer.h>
 
 namespace KyoukoMind
 {

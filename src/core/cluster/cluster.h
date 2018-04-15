@@ -15,7 +15,7 @@
 
 namespace PerformanceIO
 {
-class IOBuffer;
+class DataBuffer;
 }
 
 namespace KyoukoMind
@@ -51,11 +51,10 @@ private:
     // cluster-metadata
     uint64_t m_messageIdCounter = 0;
 
-    void initMessageBuffer(const ClusterID clusterId,
-                           MessageController *controller);
+    void initMessageBuffer(MessageController *controller);
     
 protected:
-    PerformanceIO::IOBuffer* m_buffer = nullptr;
+    PerformanceIO::DataBuffer* m_buffer = nullptr;
     IncomingMessageBuffer* m_incomingMessageQueue = nullptr;
     OutgoingMessageBuffer* m_outgoingMessageQueue = nullptr;
     ClusterMetaData m_metaData;

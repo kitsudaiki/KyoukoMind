@@ -18,21 +18,20 @@ namespace KyoukoMind
 {
 class Message;
 class DataMessage;
-class DataAxonMessage;
 class ReplyMessage;
-class LearningMessage;
-class LearningReplyMessage;
+
+class Cluster;
 
 class MessageController;
 
 class MessageBuffer
 {
 public:
-    MessageBuffer(const ClusterID clusterId,
+    MessageBuffer(Cluster *cluster,
                  MessageController *controller);
 
 protected:
-    ClusterID m_clusterId;
+    Cluster* m_cluster;
     MessageController *m_controller = nullptr;
 
 private:

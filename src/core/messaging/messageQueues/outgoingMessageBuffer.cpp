@@ -9,15 +9,12 @@
 
 #include "outgoingMessageBuffer.h"
 
+#include <core/cluster/cluster.h>
 #include <core/messaging/messageController.h>
 
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messages/dataMessage.h>
-#include <core/messaging/messages/dataAxonMessage.h>
 #include <core/messaging/messages/replyMessage.h>
-#include <core/messaging/messages/learningMessage.h>
-#include <core/messaging/messages/learningReplyMessage.h>
-#include <core/messaging/messages/cycleFinishMessage.h>
 
 namespace KyoukoMind
 {
@@ -27,41 +24,29 @@ namespace KyoukoMind
  * @param clusterId
  * @param controller
  */
-OutgoingMessageBuffer::OutgoingMessageBuffer(const ClusterID clusterId,
+OutgoingMessageBuffer::OutgoingMessageBuffer(Cluster* cluster,
                                              MessageController* controller):
-    MessageBuffer(clusterId, controller)
+    MessageBuffer(cluster, controller)
 {
-    for(uint32_t i = 0; i < 16; i++) {
-        m_dataMessageBuffer[i] = new DataMessage();
-        m_dataAxonMessageBuffer[i] = new DataAxonMessage();
-        m_learingMessageBuffer[i] = new LearningMessage();
-        m_learingReplyMessageBuffer[i] = new LearningReplyMessage();
+    for(uint32_t side = 0; side < 16; side++)
+    {
+        m_dataMessageBuffer[side] = new DataMessage(cluster->getNeighborId(side),
+                                                    cluster->getClusterId(),
+                                                    15 - side);
     }
 }
 
 /**
  * @brief OutgoingMessageBuffer::addEdge
- * @param targetClusterId
  * @param targetSite
  * @param newEdge
  * @return
  */
-bool OutgoingMessageBuffer::addEdge(const ClusterID targetClusterId,
-                                    const uint8_t targetSite,
-                                    const KyoChanEdge newEdge)
+bool OutgoingMessageBuffer::addEdge(const uint8_t sourceSite,
+                                    const KyoChanMessageEdge *edge)
 {
-    if(targetSite < 16) {
-        if(m_dataMessageBuffer[targetSite]->addEdge(newEdge)) {
-            return true;
-        }
-        m_dataMessageBuffer[targetSite]->setMetaData(targetClusterId,
-                                                     m_clusterId,
-                                                     m_messageIdCounter,
-                                                     targetSite);
-        m_controller->sendMessage(m_dataMessageBuffer[targetSite]);
-        m_dataMessageBuffer[targetSite] = new DataMessage();
-        m_messageIdCounter++;
-        m_dataMessageBuffer[targetSite]->addEdge(newEdge);
+    if(sourceSite < 16) {
+        m_dataMessageBuffer[sourceSite]->addEdge(edge);
         return true;
     }
     return false;
@@ -74,22 +59,11 @@ bool OutgoingMessageBuffer::addEdge(const ClusterID targetClusterId,
  * @param newAxonEdge
  * @return
  */
-bool OutgoingMessageBuffer::addAxonEdge(const ClusterID targetClusterId,
-                                        const uint8_t targetSite,
-                                        const KyoChanAxonEdge newAxonEdge)
+bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSite,
+                                        const KyoChanAxonEdge *newAxonEdge)
 {
-    if(targetSite < 16) {
-        if(m_dataAxonMessageBuffer[targetSite]->addAxonEdge(newAxonEdge)) {
-            return true;
-        }
-        m_dataAxonMessageBuffer[targetSite]->setMetaData(targetClusterId,
-                                                         m_clusterId,
-                                                         m_messageIdCounter,
-                                                         targetSite);
-        m_controller->sendMessage(m_dataMessageBuffer[targetSite]);
-        m_dataAxonMessageBuffer[targetSite] = new DataAxonMessage();
-        m_messageIdCounter++;
-        m_dataAxonMessageBuffer[targetSite]->addAxonEdge(newAxonEdge);
+    if(sourceSite < 16) {
+        m_dataMessageBuffer[sourceSite]->addAxonEdge(newAxonEdge);
         return true;
     }
     return false;
@@ -101,22 +75,11 @@ bool OutgoingMessageBuffer::addAxonEdge(const ClusterID targetClusterId,
  * @param targetSite
  * @return
  */
-bool OutgoingMessageBuffer::addLearingEdge(const ClusterID targetClusterId,
-                                           const uint8_t targetSite,
-                                           const KyoChanNewEdge newEdge)
+bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSite,
+                                           const KyoChanNewEdge *newEdge)
 {
-    if(targetSite <= 9) {
-        if(m_learingMessageBuffer[targetSite]->addNewEdge(newEdge)) {
-            return true;
-        }
-        m_learingMessageBuffer[targetSite]->setMetaData(targetClusterId,
-                                                        m_clusterId,
-                                                        m_messageIdCounter,
-                                                        targetSite);
-        m_controller->sendMessage(m_learingMessageBuffer[targetSite]);
-        m_learingMessageBuffer[targetSite] = new LearningMessage();
-        m_messageIdCounter++;
-        m_learingMessageBuffer[targetSite]->addNewEdge(newEdge);
+    if(sourceSite <= 16) {
+        m_dataMessageBuffer[sourceSite]->addNewEdge(newEdge);
         return true;
     }
     return false;
@@ -125,25 +88,13 @@ bool OutgoingMessageBuffer::addLearingEdge(const ClusterID targetClusterId,
 /**
  * @brief OutgoingMessageBuffer::addLearningReplyMessage
  * @param targetClusterId
- * @param targetSite
  * @param newEdgeReply
  */
-bool OutgoingMessageBuffer::addLearningReplyMessage(const ClusterID targetClusterId,
-                                                    const uint8_t targetSite,
-                                                    const KyoChanNewEdgeReply newEdgeReply)
+bool OutgoingMessageBuffer::addLearningReplyMessage(const uint8_t sourceSite,
+                                                    const KyoChanNewEdgeReply *newEdgeReply)
 {
-    if(targetSite <= 9) {
-        if(m_learingReplyMessageBuffer[targetSite]->addNewEdgeReply(newEdgeReply)) {
-            return true;
-        }
-        m_learingReplyMessageBuffer[targetSite]->setMetaData(targetClusterId,
-                                                             m_clusterId,
-                                                             m_messageIdCounter,
-                                                             targetSite);
-        m_controller->sendMessage(m_learingReplyMessageBuffer[targetSite]);
-        m_learingReplyMessageBuffer[targetSite] = new LearningReplyMessage();
-        m_messageIdCounter++;
-        m_learingReplyMessageBuffer[targetSite]->addNewEdgeReply(newEdgeReply);
+    if(sourceSite <= 16) {
+        m_dataMessageBuffer[sourceSite]->addNewEdgeReply(newEdgeReply);
         return true;
     }
     return false;
@@ -151,40 +102,26 @@ bool OutgoingMessageBuffer::addLearningReplyMessage(const ClusterID targetCluste
 
 /**
  * @brief OutgoingMessageBuffer::sendReplyMessage
- * @param targetClusterId
- * @param targetSite
+ * @param sourceSite
  */
-void OutgoingMessageBuffer::sendReplyMessage(const ClusterID targetClusterId,
-                                             const uint8_t targetSite)
+void OutgoingMessageBuffer::sendReplyMessage(const uint8_t sourceSite)
 {
-    ReplyMessage* replyMessage = new ReplyMessage(targetClusterId,
-                                                  m_messageIdCounter,
-                                                  targetSite);
+    ReplyMessage* replyMessage = new ReplyMessage(m_cluster->getNeighborId(sourceSite),
+                                                  15 - sourceSite);
     m_controller->sendMessage(replyMessage);
     m_messageIdCounter++;
 }
 
 /**
  * @brief OutgoingMessageBuffer::sendFinishCycle
- * @param targetClusterId
- * @param targetSite
+ * @param sourceSite
  */
-void OutgoingMessageBuffer::sendFinishCycle(const ClusterID targetClusterId,
-                                            const uint8_t targetSite)
+void OutgoingMessageBuffer::sendFinishCycle(const uint8_t sourceSite)
 {
-    m_dataMessageBuffer[targetSite]->setMetaData(targetClusterId,
-                                                 m_clusterId,
-                                                 m_messageIdCounter,
-                                                 targetSite);
-    m_controller->sendMessage(m_dataMessageBuffer[targetSite]);
-    m_dataMessageBuffer[targetSite] = new DataMessage();
-    m_messageIdCounter++;
-
-    CycleFinishMessage* finishMessage = new CycleFinishMessage(targetClusterId,
-                                                               m_messageIdCounter,
-                                                               targetSite);
-    m_controller->sendMessage(finishMessage);
-    m_messageIdCounter++;
+    m_controller->sendMessage(m_dataMessageBuffer[sourceSite]);
+    m_dataMessageBuffer[sourceSite] = new DataMessage(m_cluster->getNeighborId(sourceSite),
+                                                      m_cluster->getClusterId(),
+                                                      15 - sourceSite);
 }
 
 }

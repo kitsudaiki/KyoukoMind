@@ -8,6 +8,7 @@
  */
 
 #include "dataMessage.h"
+#include <files/dataBuffer.h>
 
 namespace KyoukoMind
 {
@@ -15,95 +16,97 @@ namespace KyoukoMind
 /**
  * @brief DataMessage::DataMessage
  * @param clusterId
- * @param messageIdCounter
  * @param site
  */
 DataMessage::DataMessage(const ClusterID targetClusterId,
                          const ClusterID sourceClusterId,
-                         const uint32_t messageIdCounter,
                          const uint8_t targetSite) :
-    Message(targetClusterId, sourceClusterId, messageIdCounter, targetSite)
+    Message(targetClusterId, sourceClusterId, targetSite)
 {
     m_metaData.type = DATA_MESSAGE;
     m_metaData.requiredReply = 1;
+
+    memcpy(m_buffer->getBufferPointer(), (void*)(&m_metaData), sizeof(CommonMessageData));
+    m_currentBufferPos = sizeof(CommonMessageData);
 }
 
 /**
  * @brief DataMessage::DataMessage
- */
-DataMessage::DataMessage() : Message()
-{}
-
-/**
- * @brief DataMessage::convertFromByteArray
  * @param data
- * @return
  */
-bool DataMessage::convertFromByteArray(uint8_t* data)
-{
-    if(data == nullptr) {
-        return false;
-    }
-    uint32_t offset = convertCommonFromByteArray(data);
-    m_numberOfEdges = data[offset];
-    if(m_numberOfEdges > m_maxNumberOfEdges) {
-        m_numberOfEdges = 0;
-        return false;
-    }
-    memcpy((void*)(&m_edges),
-           (void*)(data + offset + 1),
-           sizeof(KyoChanEdge) * m_numberOfEdges);
-    return true;
-}
-
-/**
- * @brief DataMessage::convertToByteArray
- * @return
- */
-uint8_t* DataMessage::convertToByteArray()
-{
-    uint32_t size = (sizeof(KyoChanEdge) * m_numberOfEdges) + 1;
-    uint8_t* data = convertCommonToByteArray(size);
-    memcpy((void*)(data+sizeof(CommonMessageData)),
-           (void*)(&m_numberOfEdges),
-           1);
-    memcpy((void*)(data+sizeof(CommonMessageData)+1),
-           m_edges,
-           sizeof(KyoChanEdge) * m_numberOfEdges);
-    return data;
-}
+DataMessage::DataMessage(void *data, uint32_t size) : Message(data, size)
+{}
 
 /**
  * @brief DataMessage::addEdge
  * @param newEdge
- * @return
  */
-bool DataMessage::addEdge(const KyoChanEdge &newEdge)
+void DataMessage::addEdge(const KyoChanMessageEdge *newEdge)
 {
-    if(m_numberOfEdges < m_maxNumberOfEdges) {
-        m_edges[m_numberOfEdges] = newEdge;
-        m_numberOfEdges++;
-        return true;
-    }
-    return false;
+    checkBuffer();
+    copyToBuffer((void*)newEdge);
+}
+
+/**
+ * @brief DataMessage::addAxonEdge
+ * @param newAxonEdge
+ */
+void DataMessage::addAxonEdge(const KyoChanAxonEdge* newAxonEdge)
+{
+    checkBuffer();
+    copyToBuffer((void*)newAxonEdge);
+}
+
+/**
+ * @brief DataMessage::addNewEdge
+ * @param newEdge
+ */
+void DataMessage::addNewEdge(const KyoChanNewEdge *newEdge)
+{
+    checkBuffer();
+    copyToBuffer((void*)newEdge);
+}
+
+/**
+ * @brief DataMessage::addNewEdgeReply
+ * @param newEdgeReply
+ */
+void DataMessage::addNewEdgeReply(const KyoChanNewEdgeReply *newEdgeReply)
+{
+    checkBuffer();
+    copyToBuffer((void*)newEdgeReply);
 }
 
 /**
  * @brief DataMessage::getNumberOfEdges
  * @return
  */
-uint8_t DataMessage::getNumberOfEdges() const
+uint8_t DataMessage::getNumberOfEntries() const
 {
-    return m_numberOfEdges;
+    return (m_currentBufferPos - sizeof(CommonMessageData)) / 20;
 }
 
 /**
- * @brief DataMessage::getEdges
- * @return
+ * @brief DataMessage::checkBuffer
  */
-KyoChanEdge *DataMessage::getEdges() const
+void DataMessage::checkBuffer()
 {
-    return (KyoChanEdge*)(&m_edges);
+    if(m_currentBufferPos + 20 > m_currentBufferSize) {
+        m_buffer->allocateBlocks(1);
+        m_currentBufferSize += m_buffer->getBlockSize() * m_buffer->getNumberOfBlocks();
+    }
+}
+
+/**
+ * @brief DataMessage::copyToBuffer
+ * @param data
+ */
+void DataMessage::copyToBuffer(void *data)
+{
+    memcpy(m_buffer->getBufferPointer() + m_currentBufferPos,
+           data,
+           20);
+    m_currentBufferPos += 20;
 }
 
 }

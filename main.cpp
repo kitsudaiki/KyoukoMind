@@ -16,11 +16,11 @@
 
 int main(int argc, char *argv[])
 {
-    KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
+    //KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
     //KyoukoMind::ClusterTest();
-    //KyoukoMind::MessageTest();
+    KyoukoMind::MessageTest();
     //KyoukoMind::MessageBufferTest();
 
-    KyoukoMind::DemoUserInput input(network->getMessageController());
-    input.inputLoop();
+    //KyoukoMind::DemoUserInput input(network->getMessageController());
+    //input.inputLoop();
 }

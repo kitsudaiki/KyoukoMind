@@ -14,16 +14,17 @@
 
 namespace KyoukoMind
 {
+class Cluster;
 class MessageController;
 
 class IncomingMessageBuffer : public MessageBuffer
 {
 public:
-    IncomingMessageBuffer(const ClusterID clusterId,
+    IncomingMessageBuffer(Cluster *cluster,
                           MessageController *controller);
 
     bool addMessage(const uint8_t site, Message *message);
-    std::vector<Message*>* getMessageQueue(const uint8_t site);
+    Message* getMessage(const uint8_t site);
 
     bool isReady() const;
     void resetFinishCounter();
@@ -33,9 +34,8 @@ private:
     uint8_t m_finishCounter = 0;
 
     bool m_switchFlag = false;
-    // TODO: make it right without vector!!!!!!!!!!!!
-    std::vector<Message*> m_messageQueue1[16];
-    std::vector<Message*> m_messageQueue2[16];
+    Message* m_messageQueue1[16];
+    Message* m_messageQueue2[16];
 };
 
 }

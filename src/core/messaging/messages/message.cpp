@@ -8,6 +8,7 @@
  */
 
 #include "message.h"
+#include <files/dataBuffer.h>
 
 namespace KyoukoMind
 {
@@ -15,40 +16,57 @@ namespace KyoukoMind
 /**
  * @brief Message::Message
  * @param clusterId
- * @param messageIdCounter
  * @param site
  */
 Message::Message(const ClusterID targetClusterId,
                  const ClusterID sourceClusterId,
-                 const uint32_t messageIdCounter,
                  const uint8_t targetSite)
 {
     m_metaData.targetClusterId = targetClusterId;
-    m_metaData.messageId = messageIdCounter;
     m_metaData.messageId = m_metaData.messageId << 32;
     m_metaData.messageId += sourceClusterId;
     m_metaData.targetSite = targetSite;
+
+    initBuffer();
 }
 
 /**
  * @brief Message::Message
- * @param messageId
  * @param site
  */
 Message::Message(const ClusterID targetClusterId,
-                 const uint64_t messageId,
                  const uint8_t targetSite)
 {
     m_metaData.targetClusterId = targetClusterId;
-    m_metaData.messageId = messageId;
     m_metaData.targetSite = targetSite;
+
+    initBuffer();
 }
 
 /**
  * @brief Message::Message
+ * @param data
+ * @param size
  */
-Message::Message()
-{}
+Message::Message(void *data, uint32_t size)
+{
+    m_buffer = new PerformanceIO::DataBuffer(data, size);
+    m_currentBufferPos = size;
+    m_currentBufferSize = m_buffer->getBlockSize() * m_buffer->getNumberOfBlocks();
+
+    memcpy((void*)(&m_metaData), m_buffer->getBufferPointer(), sizeof(CommonMessageData));
+}
+
+/**
+ * @brief Message::initBuffer
+ */
+void Message::initBuffer()
+{
+    m_buffer = new PerformanceIO::DataBuffer();
+    memcpy(m_buffer->getBufferPointer(), (void*)(&m_metaData), sizeof(CommonMessageData));
+    m_currentBufferPos = sizeof(CommonMessageData);
+    m_currentBufferSize = m_buffer->getBlockSize() * m_buffer->getNumberOfBlocks();
+}
 
 /**
  * @brief Message::metaData
@@ -85,28 +103,53 @@ void Message::setMetaData(const ClusterID targetClusterId,
     m_metaData.messageId = m_metaData.messageId << 32;
     m_metaData.messageId += sourceClusterId;
     m_metaData.targetSite = targetSite;
+
+    memcpy(m_buffer->getBufferPointer(), (void*)(&m_metaData), sizeof(CommonMessageData));
 }
 
 /**
- * @brief Message::convertCommonToByteArray
- * @param size
+ * @brief Message::getDataSize
  * @return
  */
-uint8_t* Message::convertCommonToByteArray(const uint32_t size)
+uint32_t Message::getDataSize() const
 {
-    uint8_t* data = new uint8_t[sizeof(CommonMessageData) + size];
-    memcpy((void*)(data), (void*)(&m_metaData), sizeof(CommonMessageData));
-    return data;
+    return m_currentBufferPos;
 }
 
 /**
- * @brief Message::convertCommonFromByteArray
+ * @brief Message::getData
  * @return
  */
-uint32_t Message::convertCommonFromByteArray(const uint8_t* data)
+void *Message::getData() const
 {
-    memcpy((void*)(&m_metaData), (void*)data, sizeof(CommonMessageData));
-    return sizeof(CommonMessageData);
+    return m_buffer->getBufferPointer();
+}
+
+/**
+ * @brief Message::getPayloadSize
+ * @return
+ */
+uint32_t Message::getPayloadSize() const
+{
+    return m_currentBufferPos - sizeof(CommonMessageData);
+}
+
+/**
+ * @brief Message::getNumberOfPayloadObj
+ * @return
+ */
+uint32_t Message::getNumberOfPayloadObj() const
+{
+    return (m_currentBufferPos - sizeof(CommonMessageData)) / 20;
+}
+
+/**
+ * @brief Message::getPayload
+ * @return
+ */
+void *Message::getPayload() const
+{
+    return m_buffer->getBufferPointer() + sizeof(CommonMessageData);
 }
 
 }

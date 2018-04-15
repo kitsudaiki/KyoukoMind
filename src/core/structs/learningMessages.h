@@ -14,19 +14,24 @@
 
 struct KyoChanNewEdge
 {
+    uint8_t type = LEARNING_CONTAINER;
     float weight = 0.0;
     uint32_t newEdgeId = 0;
     uint32_t sourceClusterId = 0;
     uint16_t sourceNodeId = 0;
+    uint32_t padding1 = 0;
+    uint8_t padding2 = 0;
 } __attribute__((packed));
 
 struct KyoChanNewEdgeReply
 {
+    uint8_t type = LEARNING_REPLY_CONTAINER;
     uint32_t newEdgeId = 0;
     uint32_t sourceClusterId = 0;
-    uint16_t sourceNodeId = 0;
+    uint32_t sourceAxonId = 0;
     uint32_t targetClusterId = 0;
     uint16_t targetNodeId = 0;
+    uint8_t padding = 0;
 } __attribute__((packed));
 
 

@@ -36,7 +36,7 @@ public:
     bool sendMessage(Message* message);
 
 private:
-    Message* convertToMessage(uint8_t *data);
+    Message* convertToMessage(uint8_t *data, uint32_t size);
     std::map<uint32_t, IncomingMessageBuffer*> m_messageQueues;
 };
 

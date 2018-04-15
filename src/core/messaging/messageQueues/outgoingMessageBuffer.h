@@ -14,42 +14,33 @@
 
 namespace KyoukoMind
 {
+class Cluster;
+
 class MessageController;
 class DataMessage;
-class DataAxonMessage;
-class LearningMessage;
-class LearningReplyMessage;
+class RelyMessage;
 
 class OutgoingMessageBuffer : public MessageBuffer
 {
 public:
-    OutgoingMessageBuffer(const ClusterID clusterId,
+    OutgoingMessageBuffer(Cluster *cluster,
                           MessageController *controller);
 
-    bool addEdge(const ClusterID targetClusterId,
-                 const uint8_t targetSite,
-                 const KyoChanEdge newEdge);
-    bool addAxonEdge(const ClusterID targetClusterId,
-                     const uint8_t targetSite,
-                     const KyoChanAxonEdge newAxonEdge);
-    bool addLearingEdge(const ClusterID targetClusterId,
-                        const uint8_t targetSite,
-                        const KyoChanNewEdge newEdge);
-    bool addLearningReplyMessage(const ClusterID targetClusterId,
-                                 const uint8_t targetSite,
-                                 const KyoChanNewEdgeReply newEdgeReply);
+    bool addEdge(const uint8_t sourceSite,
+                 const KyoChanMessageEdge *edge);
+    bool addAxonEdge(const uint8_t sourceSite,
+                     const KyoChanAxonEdge *newAxonEdge);
+    bool addLearingEdge(const uint8_t sourceSite,
+                        const KyoChanNewEdge *newEdge);
+    bool addLearningReplyMessage(const uint8_t sourceSite,
+                                 const KyoChanNewEdgeReply *newEdgeReply);
 
-    void sendReplyMessage(const ClusterID targetClusterId,
-                          const uint8_t targetSite);
+    void sendReplyMessage(const uint8_t sourceSite);
 
-    void sendFinishCycle(const ClusterID targetClusterId,
-                         const uint8_t targetSite);
+    void sendFinishCycle(const uint8_t sourceSite);
 
 private:
     DataMessage* m_dataMessageBuffer[16];
-    DataAxonMessage* m_dataAxonMessageBuffer[16];
-    LearningMessage* m_learingMessageBuffer[16];
-    LearningReplyMessage* m_learingReplyMessageBuffer[16];
     uint32_t m_messageIdCounter = 0;
 };
 

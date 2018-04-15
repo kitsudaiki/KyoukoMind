@@ -8,6 +8,7 @@
  */
 
 #include "replyMessage.h"
+#include <files/dataBuffer.h>
 
 namespace KyoukoMind
 {
@@ -18,41 +19,21 @@ namespace KyoukoMind
  * @param site
  */
 ReplyMessage::ReplyMessage(const ClusterID targetClusterId,
-                           const uint64_t messageId,
                            const uint8_t targetSite) :
-    Message(targetClusterId, messageId, targetSite)
+    Message(targetClusterId, targetSite)
 {
     m_metaData.type = REPLY_MESSAGE;
     m_metaData.requiredReply = 0;
+
+    memcpy(m_buffer->getBufferPointer(), (void*)(&m_metaData), sizeof(CommonMessageData));
+    m_currentBufferPos = sizeof(CommonMessageData);
 }
 
 /**
  * @brief ReplyMessage::ReplyMessage
- */
-ReplyMessage::ReplyMessage() : Message()
-{}
-
-/**
- * @brief ReplyMessage::convertFromByteArray
  * @param data
- * @return
  */
-bool ReplyMessage::convertFromByteArray(uint8_t *data)
-{
-    if(data == nullptr) {
-        return false;
-    }
-    convertCommonFromByteArray(data);
-    return true;
-}
-
-/**
- * @brief ReplyMessage::convertToByteArray
- * @return
- */
-uint8_t* ReplyMessage::convertToByteArray()
-{
-    return convertCommonToByteArray(0);
-}
+ReplyMessage::ReplyMessage(void *data, uint32_t size) : Message(data, size)
+{}
 
 }

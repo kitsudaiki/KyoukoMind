@@ -13,7 +13,7 @@
 
 enum ClusterType
 {
-    UNDEFINEDCLUSTER = 0,
+    UNDEFINED_CLUSTER = 0,
     EMPTY_CLUSTER = 1,
     EDGE_CLUSTER = 2,
     NODE_CLUSTER = 3
@@ -21,13 +21,18 @@ enum ClusterType
 
 enum MessageType
 {
-    UNDEFINED = 0,
+    UNDEFINED_MESSAGE = 0,
     DATA_MESSAGE = 1,
-    DATA_AXON_MESSAGE = 2,
-    REPLY_MESSAGE = 3,
-    LEARNING_MESSAGE = 4,
-    LEARNING_REPLY_MESSAGE = 5,
-    CYCLE_FINISH_MESSAGE = 6
+    REPLY_MESSAGE = 2,
+};
+
+enum ContainerType
+{
+    UNDEFINED_CONTAINER = 0,
+    EDGE_CONTAINER = 1,
+    AXON_EDGE_CONTAINER = 2,
+    LEARNING_CONTAINER = 3,
+    LEARNING_REPLY_CONTAINER = 4,
 };
 
 #endif // ENUMS_H

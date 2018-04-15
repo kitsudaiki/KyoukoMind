@@ -19,12 +19,8 @@ class ReplyMessage : public Message
 {
 public:
     ReplyMessage(const ClusterID targetClusterId,
-                 const uint64_t messageId,
                  const uint8_t targetSite);
-    ReplyMessage();
-
-    bool convertFromByteArray(uint8_t* data);
-    uint8_t* convertToByteArray();
+    ReplyMessage(void *data, uint32_t size);
 };
 
 }

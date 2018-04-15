@@ -16,13 +16,13 @@ namespace KyoukoMind
 
 /**
  * @brief MessageBuffer::MessageBuffer
- * @param clusterId
+ * @param cluster
  * @param controller
  */
-MessageBuffer::MessageBuffer(const ClusterID clusterId,
+MessageBuffer::MessageBuffer(Cluster* cluster,
                              MessageController *controller)
 {
-    m_clusterId = clusterId;
+    m_cluster = cluster;
     m_controller = controller;
 }
 

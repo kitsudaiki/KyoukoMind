@@ -10,7 +10,7 @@
 #ifndef DATAMESSAGE_H
 #define DATAMESSAGE_H
 
-#define MAX_NUMBER_OF_EDGES 100
+#define MAX_NUMBER_OF_ENTRIES 100
 
 #include "message.h"
 
@@ -22,21 +22,21 @@ class DataMessage : public Message
 public:
     DataMessage(const ClusterID targetClusterId,
                 const ClusterID sourceClusterId,
-                const uint32_t messageIdCounter,
                 const uint8_t targetSite);
-    DataMessage();
+    DataMessage(void *data, uint32_t size);
 
-    bool convertFromByteArray(uint8_t* data);
-    uint8_t* convertToByteArray();
+    void addEdge(const KyoChanMessageEdge* newEdge);
+    void addAxonEdge(const KyoChanAxonEdge *newAxonEdge);
+    void addNewEdge(const KyoChanNewEdge* newEdge);
+    void addNewEdgeReply(const KyoChanNewEdgeReply* newEdgeReply);
 
-    bool addEdge(const KyoChanEdge& newEdge);
-    uint8_t getNumberOfEdges() const;
-    KyoChanEdge* getEdges() const;
+    uint8_t getNumberOfEntries() const;
 
 private:
-    uint8_t m_maxNumberOfEdges = MAX_NUMBER_OF_EDGES;
-    uint8_t m_numberOfEdges = 0;
-    KyoChanEdge m_edges[MAX_NUMBER_OF_EDGES];
+    void copyToBuffer(void* data);
+    uint8_t m_maxNumberOfEntries = MAX_NUMBER_OF_ENTRIES;
+    uint8_t m_numberOfEntries = 0;
+    void checkBuffer();
 };
 
 }

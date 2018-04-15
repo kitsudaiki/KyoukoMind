@@ -11,11 +11,7 @@
 
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messages/dataMessage.h>
-#include <core/messaging/messages/dataAxonMessage.h>
 #include <core/messaging/messages/replyMessage.h>
-#include <core/messaging/messages/learningMessage.h>
-#include <core/messaging/messages/learningReplyMessage.h>
-#include <core/messaging/messages/cycleFinishMessage.h>
 
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
 
@@ -25,7 +21,13 @@ namespace KyoukoMind
 /**
  * @brief MessageController::MessageController
  */
-MessageController::MessageController() {}
+MessageController::MessageController()
+{
+    assert(sizeof(KyoChanMessageEdge) == 20);
+    assert(sizeof(KyoChanAxonEdge) == 20);
+    assert(sizeof(KyoChanNewEdge) == 20);
+    assert(sizeof(KyoChanNewEdgeReply) == 20);
+}
 
 /**
  * @brief MessageController::addIncomingMessageQueues
@@ -69,55 +71,23 @@ bool MessageController::sendMessage(Message *message)
  * @param data
  * @return
  */
-Message* MessageController::convertToMessage(uint8_t *data)
+Message* MessageController::convertToMessage(uint8_t *data, uint32_t size)
 {
     if(data == nullptr) {
         return nullptr;
     }
     uint8_t type = data[0];
     switch(type) {
-        case UNDEFINED:
+        case UNDEFINED_MESSAGE:
             break;
         case DATA_MESSAGE:
             {
-                DataMessage* message = new DataMessage();
-                message->convertFromByteArray(data);
-                delete data;
-                return message;
-            }
-        case DATA_AXON_MESSAGE:
-            {
-                DataAxonMessage* message = new DataAxonMessage();
-                message->convertFromByteArray(data);
-                delete data;
+                DataMessage* message = new DataMessage((void*)data, size);
                 return message;
             }
         case REPLY_MESSAGE:
             {
-                ReplyMessage* message = new ReplyMessage();
-                message->convertFromByteArray(data);
-                delete data;
-                return message;
-            }
-        case LEARNING_MESSAGE:
-            {
-                LearningMessage* message = new LearningMessage();
-                message->convertFromByteArray(data);
-                delete data;
-                return message;
-            }
-        case LEARNING_REPLY_MESSAGE:
-            {
-                LearningReplyMessage* message = new LearningReplyMessage();
-                message->convertFromByteArray(data);
-                delete data;
-                return message;
-            }
-        case CYCLE_FINISH_MESSAGE:
-            {
-                CycleFinishMessage* message = new CycleFinishMessage();
-                message->convertFromByteArray(data);
-                delete data;
+                ReplyMessage* message = new ReplyMessage((void*)data, size);
                 return message;
             }
         default:
