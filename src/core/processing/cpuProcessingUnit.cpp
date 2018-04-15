@@ -384,14 +384,20 @@ bool CpuProcessingUnit::processAxons()
                 edge < edge + currentSection->numberOfEdges;
                 edge++)
             {
-                uint8_t side = edge->targetClusterPath % 16;
+                if(edge->targetClusterPath != 0) {
+                    uint8_t side = edge->targetClusterPath % 16;
 
-                KyoChanMessageEdge newEdge;
-                newEdge.weight = multi * edge->weight;
-                newEdge.targetNodeId = edge->targetNodeId;
-                newEdge.targetClusterPath = edge->targetClusterPath / 16;
+                    KyoChanMessageEdge newEdge;
+                    newEdge.weight = multi * edge->weight;
+                    newEdge.targetNodeId = edge->targetNodeId;
+                    newEdge.targetClusterPath = edge->targetClusterPath / 16;
 
-                outgoBuffer->addEdge(side, &newEdge);
+                    outgoBuffer->addEdge(side, &newEdge);
+                }
+                else
+                {
+                    m_nodeBlock[edge->targetNodeId].currentState =+ multi * edge->weight;
+                }
             }
         }
 
