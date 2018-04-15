@@ -14,6 +14,9 @@
 #include <core/structs/kyochanEdges.h>
 #include <core/structs/kyochanNodes.h>
 
+namespace PerformanceIO {
+class DataBuffer;
+}
 namespace KyoukoMind
 {
 
@@ -37,19 +40,24 @@ public:
     uint32_t getNumberOfAxonBlocks() const;
     uint32_t getNumberOfEdgeBlocks() const;
 
+    uint32_t getNumberOfPendingEdges() const;
+    uint32_t getNumberOfMaxPendingEdges() const;
+
     KyoChanAxon* getAxonBlock();
-    KyoChanEdgeSection *getEdgeBlock();
+    KyoChanEdgeSection* getEdgeBlock();
+    KyoChanPendingEdge* getPendingEdges();
+    uint32_t m_numberOfPendingEdges = 0;
 
     bool initAxonBlocks(uint32_t numberOfAxons);
     bool initEdgeBlocks(uint32_t numberOfEdgeSections);
 
     bool addEdge(const uint32_t axonId, const KyoChanEdge &newEdge);
 
-
     void syncEdgeSections(uint32_t startSection = 0,
                           uint32_t endSection = 0);
 
 private:
+    PerformanceIO::DataBuffer* m_pendingEdges;
 
     bool isEdgeSectionFull(const uint32_t edgeSectionPos);
     bool addEmptyEdgeSection(const uint32_t axonId);

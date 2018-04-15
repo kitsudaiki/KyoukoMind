@@ -38,7 +38,7 @@ Cluster::Cluster(const ClusterID &clusterId,
     }
 
     initFile(clusterId, directoryPath);
-    m_buffer->allocateBlocks(1);
+    m_clusterDataBuffer->allocateBlocks(1);
     updateMetaData(m_metaData);
 }
 
@@ -47,10 +47,10 @@ Cluster::Cluster(const ClusterID &clusterId,
  */
 Cluster::~Cluster()
 {
-    if(m_buffer != nullptr) {
-        m_buffer->closeBuffer();
-        delete m_buffer;
-        m_buffer = nullptr;
+    if(m_clusterDataBuffer != nullptr) {
+        m_clusterDataBuffer->closeBuffer();
+        delete m_clusterDataBuffer;
+        m_clusterDataBuffer = nullptr;
     }
 }
 
@@ -120,9 +120,9 @@ ClusterID Cluster::getNeighborId(const uint8_t side)
 void Cluster::updateMetaData(ClusterMetaData metaData)
 {
     uint32_t size = sizeof(ClusterMetaData);
-    void* metaDataBlock = m_buffer->getBlock(0);
+    void* metaDataBlock = m_clusterDataBuffer->getBlock(0);
     memcpy(metaDataBlock, &metaData, size);
-    m_buffer->syncBlocks(0, 0);
+    m_clusterDataBuffer->syncBlocks(0, 0);
 }
 
 /**
@@ -130,7 +130,7 @@ void Cluster::updateMetaData(ClusterMetaData metaData)
  */
 void Cluster::getMetaData()
 {
-    ClusterMetaData* metaDataPointer = (ClusterMetaData*)m_buffer->getBlock(0);
+    ClusterMetaData* metaDataPointer = (ClusterMetaData*)m_clusterDataBuffer->getBlock(0);
     m_metaData = *metaDataPointer;
 }
 
@@ -144,7 +144,7 @@ void Cluster::initFile(const ClusterID clusterId,
 {
     std::string filePath = directoryPath
                          + "/cluster_" + std::to_string(clusterId);
-    m_buffer = new PerformanceIO::DataBuffer(filePath);
+    m_clusterDataBuffer = new PerformanceIO::DataBuffer(filePath);
 }
 
 /**

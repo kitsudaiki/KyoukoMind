@@ -64,6 +64,7 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
             m_numberOfAxons = ((EdgeCluster*)m_currentCluster)->getNumberOfAxons();
             processIncomingMessages();
             processAxons();
+            checkPendingClusterEdges();
             ((EmptyCluster*)m_currentCluster)->finishCycle();
             break;
         case NODE_CLUSTER:
@@ -74,6 +75,7 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
             processIncomingMessages();
             processNodes();
             processAxons();
+            checkPendingClusterEdges();
             ((EmptyCluster*)m_currentCluster)->finishCycle();
             break;
         default:
@@ -100,7 +102,8 @@ bool CpuProcessingUnit::processIncomingMessages()
     OutgoingMessageBuffer* outgoBuffer = m_currentCluster->getOutgoingMessageBuffer();
 
     // process inputs
-    if(m_currentClusterType == NODE_CLUSTER) {
+    if(m_currentClusterType == NODE_CLUSTER)
+    {
         for(uint8_t* data = (uint8_t*)incomBuffer->getMessage(0)->getPayload();
             data < data + incomBuffer->getMessage(0)->getPayloadSize();
             data++)
@@ -109,6 +112,7 @@ bool CpuProcessingUnit::processIncomingMessages()
         }
     }
 
+    // process normal communication
     for(uint8_t side = 0; side < m_sideOrder.size(); side++)
     {
         for(uint8_t* data = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
@@ -119,6 +123,9 @@ bool CpuProcessingUnit::processIncomingMessages()
             {
                 case EDGE_CONTAINER:
                     processIncomEdge(data, outgoBuffer);
+                    break;
+                case PENDING_EDGE_CONTAINER:
+                    processIncomPendingEdge(data, outgoBuffer);
                     break;
                 case AXON_EDGE_CONTAINER:
                     processIncomAxonEdge(data, outgoBuffer);
@@ -147,12 +154,38 @@ void CpuProcessingUnit::processIncomEdge(uint8_t *data,
                                          OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanMessageEdge* edge = (KyoChanMessageEdge*)data;
-    if(edge->targetClusterPath != 0) {
+    if(edge->targetClusterPath != 0)
+    {
         uint8_t side = edge->targetClusterPath % 16;
         edge->targetClusterPath /= 16;
         outgoBuffer->addEdge(side, edge);
-    } else {
+    }
+    else
+    {
         m_nodeBlock[edge->targetNodeId].currentState += edge->weight;
+    }
+}
+
+/**
+ * @brief CpuProcessingUnit::processIncomPendingEdge
+ * @param data
+ * @param outgoBuffer
+ */
+void CpuProcessingUnit::processIncomPendingEdge(uint8_t *data,
+                                                OutgoingMessageBuffer *outgoBuffer)
+{
+    KyoChanPendingEdge* edge = (KyoChanPendingEdge*)data;
+    EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(m_currentCluster);
+
+    for(KyoChanPendingEdge* pendingEdge = edgeCluster->getPendingEdges();
+        pendingEdge < pendingEdge + edgeCluster->m_numberOfPendingEdges;
+        pendingEdge++)
+    {
+        if(pendingEdge->newEdgeId == edge->newEdgeId)
+        {
+            outgoBuffer->addPendingEdge(pendingEdge->nextSite, edge);
+            return;
+        }
     }
 }
 
@@ -165,11 +198,14 @@ void CpuProcessingUnit::processIncomAxonEdge(uint8_t *data,
                                              OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanAxonEdge* edge = (KyoChanAxonEdge*)data;
-    if(edge->targetClusterPath != 0) {
+    if(edge->targetClusterPath != 0)
+    {
         uint8_t side = edge->targetClusterPath % 16;
         edge->targetClusterPath /= 16;
         outgoBuffer->addAxonEdge(side, edge);
-    } else {
+    }
+    else
+    {
         m_axonBlock[edge->targetAxonId].currentState += edge->weight;
     }
 }
@@ -184,33 +220,40 @@ void CpuProcessingUnit::processIncomLerningEdge(uint8_t *data,
                                                 OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanNewEdge* edge = (KyoChanNewEdge*)data;
-    if(edge->step == 8 && m_currentClusterType != NODE_CLUSTER)
-    {
-        KyoChanNewEdgeReply reply;
-        reply.failed = 1;
-        reply.newEdgeId = edge->newEdgeId;
-        reply.sourceAxonId = edge->sourceAxonId;
-        reply.sourceClusterPath = edge->sourceClusterPath;
-        outgoBuffer->addLearningReplyMessage(initSide, &reply);
+    EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(m_currentCluster);
+
+    // check abort-condition
+    if(edge->step == 8 && m_currentClusterType != NODE_CLUSTER) {
         return;
     }
+
     if(m_currentClusterType != NODE_CLUSTER
-            || rand() % 100 <= POSSIBLE_NEXT_LEARNING_STEP)
+            || rand() % 100 > POSSIBLE_NEXT_LEARNING_STEP)
     {
         uint8_t nextSide = m_nextChooser->getNextCluster(m_currentCluster->getNeighbors(), initSide);
         edge->sourceClusterPath = (edge->sourceClusterPath << 16) + initSide;
         edge->step++;
         outgoBuffer->addLearingEdge(nextSide, edge);
+
+        KyoChanPendingEdge pendEdge;
+        pendEdge.newEdgeId = edge->newEdgeId;
+        pendEdge.nextSite = nextSide;
+
+        addPendingEdges(pendEdge,
+                        edgeCluster->getPendingEdges(),
+                        edgeCluster->getNumberOfMaxPendingEdges());
     }
     else
     {
         uint16_t nodeId = rand() % m_numberOfNodes;
         m_nodeBlock[nodeId].currentState += edge->weight;
+
         KyoChanNewEdgeReply reply;
         reply.newEdgeId = edge->newEdgeId;
         reply.sourceAxonId = edge->sourceAxonId;
         reply.sourceClusterPath = edge->sourceClusterPath;
         reply.targetNodeId = nodeId;
+
         outgoBuffer->addLearningReplyMessage(initSide, &reply);
     }
 }
@@ -234,11 +277,25 @@ void CpuProcessingUnit::processIncomLerningReplyEdge(uint8_t *data,
     }
     else
     {
-        KyoChanEdge newEdge;
-        newEdge.targetClusterPath = edge->targetClusterPath;
-        newEdge.targetNodeId = edge->targetNodeId;
-        //newEdge.weight
-        ((EdgeCluster*)m_currentCluster)->addEdge(edge->sourceAxonId, newEdge);
+        KyoChanAxon* axon = &(((EdgeCluster*)m_currentCluster)->getAxonBlock()[edge->sourceAxonId]);
+        for(KyoChanPendingEdge* pendingEdge = &(axon->pendingEdges[0]);
+            pendingEdge < pendingEdge + MAX_PENDING_EDGES;
+            pendingEdge++)
+        {
+            if(pendingEdge->newEdgeId == edge->newEdgeId)
+            {
+                pendingEdge->newEdgeId = 0;
+                axon->numberOfPendingEdges--;
+
+                KyoChanEdge newEdge;
+                newEdge.weight = pendingEdge->weight;
+                newEdge.targetClusterPath = edge->targetClusterPath;
+                newEdge.targetNodeId = edge->targetNodeId;
+
+                ((EdgeCluster*)m_currentCluster)->addEdge(edge->sourceAxonId, newEdge);
+                return;
+            }
+        }
     }
 }
 
@@ -251,19 +308,26 @@ bool CpuProcessingUnit::processNodes()
     if(m_currentClusterType == NODE_CLUSTER) {
         return false;
     }
+
+    // get necessary values
     OutgoingMessageBuffer* outgoBuffer = m_currentCluster->getOutgoingMessageBuffer();
     NodeCluster* nodeCluster = static_cast<NodeCluster*>(m_currentCluster);
     uint8_t numberOfNodes = nodeCluster->getNumberOfNodes();
+
+    // process nodes
     for(KyoChanNode* nodes = nodeCluster->getNodeBlock();
         nodes < nodes + numberOfNodes;
         nodes++)
     {
-        if(nodes->border <= nodes->currentState) {
+        if(nodes->border <= nodes->currentState)
+        {
             uint8_t side = nodes->targetClusterPath % 16;
+
             KyoChanAxonEdge edge;
             edge.targetClusterPath = nodes->targetClusterPath / 16;
             edge.targetAxonId = nodes->targetAxonId;
             edge.weight = (float)nodes->currentState;
+
             outgoBuffer->addAxonEdge(side, &edge);
         }
         nodes->currentState /= NODE_COOLDOWN;
@@ -281,33 +345,129 @@ bool CpuProcessingUnit::processAxons()
             || m_currentClusterType == EDGE_CLUSTER) {
         return false;
     }
+
+    // get necessary values
     OutgoingMessageBuffer* outgoBuffer = m_currentCluster->getOutgoingMessageBuffer();
     EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(m_currentCluster);
     KyoChanEdgeSection* edgeSections = edgeCluster->getEdgeBlock();
     uint8_t numberOfAxons = edgeCluster->getNumberOfAxonBlocks();
+
+    // process axons
     for(KyoChanAxon* axons = edgeCluster->getAxonBlock();
         axons < axons + numberOfAxons;
         axons++)
     {
+        // check border-value to skip some axon
+        if(axons->currentState < AXON_PROCESS_BORDER) {
+            axons->numberOfPendingEdges -= checkPendingEdges(&axons->pendingEdges[0],
+                                                             MAX_PENDING_EDGES);
+            continue;
+        }
+        float multi = axons->currentState / (float)axons->numberOfEdges;
+
+        // process normal edges
         for(uint32_t* edgeSectionIds = axons->edgeSections;
             edgeSectionIds < edgeSectionIds + axons->numberOfEdgeSections;
             edgeSectionIds++)
         {
             KyoChanEdgeSection* currentSection = &edgeSections[*edgeSectionIds];
+
+            // process edge-section
             for(KyoChanEdge* edge = currentSection->edges;
                 edge < edge + currentSection->numberOfEdges;
                 edge++)
             {
                 uint8_t side = edge->targetClusterPath % 16;
+
                 KyoChanMessageEdge newEdge;
-                newEdge.weight = edge->weight;
+                newEdge.weight = multi * edge->weight;
                 newEdge.targetNodeId = edge->targetNodeId;
                 newEdge.targetClusterPath = edge->targetClusterPath / 16;
+
                 outgoBuffer->addEdge(side, &newEdge);
             }
         }
+
+        // process pending edges
+        if(axons->numberOfPendingEdges != 0)
+        {
+            for(KyoChanPendingEdge* pendingEdge = &axons->pendingEdges[0];
+                pendingEdge < pendingEdge + MAX_PENDING_EDGES;
+                pendingEdge++)
+            {
+                if(pendingEdge->newEdgeId != 0)
+                {
+                    uint8_t side = pendingEdge->targetClusterPath % 16;
+
+                    KyoChanMessageEdge newEdge;
+                    newEdge.weight = multi * pendingEdge->weight;
+
+                    outgoBuffer->addEdge(side, &newEdge);
+                }
+            }
+        }
+
+        axons->numberOfPendingEdges -= checkPendingEdges(&axons->pendingEdges[0],
+                                                         MAX_PENDING_EDGES);
     }
     return true;
+}
+
+/**
+ * @brief CpuProcessingUnit::checkPendingClusterEdges
+ */
+void CpuProcessingUnit::checkPendingClusterEdges()
+{
+    EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(m_currentCluster);
+    edgeCluster->m_numberOfPendingEdges -= checkPendingEdges(edgeCluster->getPendingEdges(),
+                                                             edgeCluster->getNumberOfMaxPendingEdges());
+}
+
+/**
+ * @brief CpuProcessingUnit::checkPendingEdges
+ * @param pendingEdges
+ * @param numberOfPendingEdges
+ * @return
+ */
+uint8_t CpuProcessingUnit::checkPendingEdges(KyoChanPendingEdge *pendingEdges,
+                                             const uint8_t numberOfPendingEdges)
+{
+    uint8_t counter = 0;
+    for(KyoChanPendingEdge* pendingEdge = pendingEdges;
+        pendingEdge < pendingEdge + numberOfPendingEdges;
+        pendingEdge++)
+    {
+        pendingEdge->validCounter++;
+        if(pendingEdge->validCounter >= MAX_PENDING_VALID_CYCLES) {
+            KyoChanPendingEdge emptyEdge;
+            *pendingEdge = emptyEdge;
+            counter++;
+        }
+    }
+    return counter;
+}
+
+/**
+ * @brief CpuProcessingUnit::addPendingEdges
+ * @param newEdge
+ * @param pendingEdges
+ * @param numberOfPendingEdges
+ * @return
+ */
+bool CpuProcessingUnit::addPendingEdges(const KyoChanPendingEdge &newEdge,
+                                        KyoChanPendingEdge *pendingEdges,
+                                        const uint8_t numberOfPendingEdges)
+{
+    for(KyoChanPendingEdge* pendingEdge = pendingEdges;
+        pendingEdge < pendingEdge + numberOfPendingEdges;
+        pendingEdge++)
+    {
+        if(pendingEdge->newEdgeId == 0) {
+            *pendingEdge = newEdge;
+            return true;
+        }
+    }
+    return false;
 }
 
 }

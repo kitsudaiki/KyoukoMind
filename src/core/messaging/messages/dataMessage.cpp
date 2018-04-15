@@ -48,6 +48,16 @@ void DataMessage::addEdge(const KyoChanMessageEdge *newEdge)
 }
 
 /**
+ * @brief DataMessage::addPendingEdge
+ * @param newEdge
+ */
+void DataMessage::addPendingEdge(const KyoChanPendingEdge *newEdge)
+{
+    checkBuffer();
+    copyToBuffer((void*)newEdge);
+}
+
+/**
  * @brief DataMessage::addAxonEdge
  * @param newAxonEdge
  */

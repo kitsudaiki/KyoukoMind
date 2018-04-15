@@ -79,7 +79,7 @@ uint32_t NodeCluster::getNumberOfNodes() const
 KyoChanNode *NodeCluster::getNodeBlock()
 {
     uint32_t positionNodeBlock = m_metaData.positionNodeBlocks;
-    return (KyoChanNode*)m_buffer->getBlock(positionNodeBlock);
+    return (KyoChanNode*)m_clusterDataBuffer->getBlock(positionNodeBlock);
 }
 
 /**
@@ -93,10 +93,10 @@ bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
         m_metaData.numberOfNodes = numberOfNodes;
         m_metaData.positionNodeBlocks = 1;
 
-        uint32_t blockSize = m_buffer->getBlockSize();
+        uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
         m_metaData.numberOfNodeBlocks = (numberOfNodes * sizeof(KyoChanNode)) / blockSize + 1;
 
-        m_buffer->allocateBlocks(m_metaData.numberOfNodeBlocks);
+        m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfNodeBlocks);
         updateMetaData(m_metaData);
 
         // fill array with empty nodes
@@ -105,7 +105,7 @@ bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
             KyoChanNode tempNode;
             array[i] = tempNode;
         }
-        m_buffer->syncAll();
+        m_clusterDataBuffer->syncAll();
         return true;
     }
     return false;

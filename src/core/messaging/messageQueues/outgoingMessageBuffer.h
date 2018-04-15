@@ -28,6 +28,8 @@ public:
 
     bool addEdge(const uint8_t sourceSite,
                  const KyoChanMessageEdge *edge);
+    bool addPendingEdge(const uint8_t sourceSite,
+                        const KyoChanPendingEdge *edge);
     bool addAxonEdge(const uint8_t sourceSite,
                      const KyoChanAxonEdge *newAxonEdge);
     bool addLearingEdge(const uint8_t sourceSite,

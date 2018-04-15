@@ -11,6 +11,7 @@
 #define KYOCHANNODES_H
 
 #include <common.h>
+#include <core/structs/kyochanEdges.h>
 
 struct KyoChanNode
 {
@@ -27,9 +28,11 @@ struct KyoChanNode
 struct KyoChanAxon
 {
     float currentState = 0;
-
+    KyoChanPendingEdge pendingEdges[MAX_PENDING_EDGES];
+    uint8_t numberOfPendingEdges = 0;
     uint32_t edgeSections[MAX_EDGESECTIONS_PER_AXON];
     uint8_t numberOfEdgeSections = 0;
+    uint32_t numberOfEdges = 0;
 
     /**
      * @brief isFull

@@ -24,6 +24,7 @@ public:
     DataMessage(void *data, uint32_t size);
 
     void addEdge(const KyoChanMessageEdge* newEdge);
+    void addPendingEdge(const KyoChanPendingEdge* newEdge);
     void addAxonEdge(const KyoChanAxonEdge *newAxonEdge);
     void addNewEdge(const KyoChanNewEdge* newEdge);
     void addNewEdgeReply(const KyoChanNewEdgeReply* newEdgeReply);

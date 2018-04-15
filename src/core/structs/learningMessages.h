@@ -31,13 +31,8 @@ struct KyoChanNewEdgeReply
     uint32_t sourceAxonId = 0;
     uint32_t targetClusterPath = 0;
     uint16_t targetNodeId = 0;
-    uint8_t failed = 0;
+    uint8_t padding = 0;
 } __attribute__((packed));
 
-
-struct KyoChanMessage
-{
-
-};
 
 #endif // LEARNINGMESSAGES_H

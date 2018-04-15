@@ -42,6 +42,8 @@ private:
 
     void processIncomEdge(uint8_t* data,
                           OutgoingMessageBuffer* outgoBuffer);
+    void processIncomPendingEdge(uint8_t* data,
+                                 OutgoingMessageBuffer* outgoBuffer);
     void processIncomAxonEdge(uint8_t* data,
                               OutgoingMessageBuffer* outgoBuffer);
     void processIncomLerningEdge(uint8_t* data,
@@ -53,6 +55,13 @@ private:
 
     bool processNodes();
     bool processAxons();
+
+    void checkPendingClusterEdges();
+    uint8_t checkPendingEdges(KyoChanPendingEdge* pendingEdges,
+                           const uint8_t numberOfPendingEdges);
+    bool addPendingEdges(const KyoChanPendingEdge &newEdge,
+                         KyoChanPendingEdge* pendingEdges,
+                         const uint8_t numberOfPendingEdges);
 
     std::vector<uint8_t> m_sideOrder;
     NextChooser* m_nextChooser = nullptr;

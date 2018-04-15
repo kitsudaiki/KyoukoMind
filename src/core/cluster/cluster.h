@@ -55,7 +55,7 @@ private:
     void initMessageBuffer(MessageController *controller);
     
 protected:
-    PerformanceIO::DataBuffer* m_buffer = nullptr;
+    PerformanceIO::DataBuffer* m_clusterDataBuffer = nullptr;
     IncomingMessageBuffer* m_incomingMessageQueue = nullptr;
     OutgoingMessageBuffer* m_outgoingMessageQueue = nullptr;
     ClusterMetaData m_metaData;
