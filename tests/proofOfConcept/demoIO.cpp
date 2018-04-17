@@ -16,6 +16,7 @@
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>
 
 #include <core/cluster/cluster.h>
+#include <core/cluster/nodeCluster.h>
 
 namespace KyoukoMind
 {
@@ -52,7 +53,7 @@ void DemoIO::run()
         for(uint32_t i = 0; i < message->getPayloadSize(); i = i + 20)
         {
             if(data[i] == EDGE_CONTAINER) {
-                KyoChanMessageEdge* edge = (KyoChanMessageEdge*)data[i];
+                KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data[i];
 
                 uint32_t out = (uint32_t)edge->weight;
                 if(out > 255) {
@@ -73,17 +74,17 @@ void DemoIO::sendOutData(const char input)
 {
     uint8_t inputNumber = (uint8_t)input;
 
-    KyoChanMessageEdge edge1;
+    KyoChanEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 12;
     sendData(edge1);
 
-    KyoChanMessageEdge edge2;
+    KyoChanEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 23;
     sendData(edge2);
 
-    KyoChanMessageEdge edge3;
+    KyoChanEdgeContainer edge3;
     edge3.weight = (float)inputNumber;
     edge3.targetNodeId = 42;
     sendData(edge3);
@@ -97,12 +98,12 @@ void DemoIO::sendInnerData(const char input)
 {
     uint8_t inputNumber = (uint8_t)input;
 
-    KyoChanMessageEdge edge1;
+    KyoChanEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 12;
     sendData(edge1);
 
-    KyoChanMessageEdge edge2;
+    KyoChanEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 23;
     sendData(edge2);
@@ -112,7 +113,7 @@ void DemoIO::sendInnerData(const char input)
  * @brief DemoIO::sendData
  * @param input
  */
-void DemoIO::sendData(const KyoChanMessageEdge &edge)
+void DemoIO::sendData(const KyoChanEdgeContainer &edge)
 {
     mutexLock();
     m_ougoingBuffer->addEdge(0, &edge);

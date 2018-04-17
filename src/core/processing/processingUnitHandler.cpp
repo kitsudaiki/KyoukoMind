@@ -8,8 +8,8 @@
  */
 
 #include <core/processing/processingUnitHandler.h>
-#include <core/processing/processingUnit.h>
-#include <core/processing/cpuProcessingUnit.h>
+#include <core/processing/processingThreads/processingUnit.h>
+#include <core/processing/processingThreads/cpu/cpuProcessingUnit.h>
 #include <core/cluster/clusterHandler.h>
 
 namespace KyoukoMind

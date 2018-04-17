@@ -73,6 +73,26 @@ uint32_t NodeCluster::getNumberOfNodes() const
 }
 
 /**
+ * @brief NodeCluster::addOutputCluster
+ * @param clusterId
+ * @param fakeAxonId
+ * @param nodeId
+ */
+void NodeCluster::addOutputCluster(const ClusterID clusterId,
+                                   const uint32_t fakeAxonId,
+                                   const uint16_t nodeId)
+{
+    m_metaData.outgoing = 1;
+    Neighbor neighbor;
+    neighbor.neighborType = EDGE_CLUSTER;
+    neighbor.targetClusterId = clusterId;
+    neighbor.side = 15;
+    addNeighbor(15, neighbor);
+    getNodeBlock()[nodeId].targetAxonId = fakeAxonId;
+    getNodeBlock()[nodeId].targetClusterPath = 15;
+}
+
+/**
  * @brief NodeCluster::getNodeBlock
  * @return
  */

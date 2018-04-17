@@ -28,7 +28,6 @@ EdgeCluster::EdgeCluster(const ClusterID clusterId,
                    directoryPath,
                    controller)
 {
-    m_pendingEdges = new PerformanceIO::DataBuffer();
 }
 
 /**
@@ -47,7 +46,6 @@ EdgeCluster::EdgeCluster(const ClusterID clusterId,
                    directoryPath,
                    controller)
 {
-    m_pendingEdges = new PerformanceIO::DataBuffer();
 }
 
 /**
@@ -86,24 +84,6 @@ uint32_t EdgeCluster::getNumberOfEdgeBlocks() const
 }
 
 /**
- * @brief EdgeCluster::getNumberOfPendingEdges
- * @return
- */
-uint32_t EdgeCluster::getNumberOfPendingEdges() const
-{
-    return m_numberOfPendingEdges;
-}
-
-/**
- * @brief EdgeCluster::getNumberOfMaxPendingEdges
- * @return
- */
-uint32_t EdgeCluster::getNumberOfMaxPendingEdges() const
-{
-    return m_pendingEdges->getBlockSize() / sizeof(KyoChanPendingEdge);
-}
-
-/**
  * @brief EdgeCluster::getAxonBlock
  * @return
  */
@@ -127,9 +107,9 @@ KyoChanEdgeSection *EdgeCluster::getEdgeBlock()
  * @brief EdgeCluster::getPendingEdges
  * @return
  */
-KyoChanPendingEdge *EdgeCluster::getPendingEdges()
+KyoChanPendingEdgeSectionBig *EdgeCluster::getPendingEdges()
 {
-    return (KyoChanPendingEdge*)m_pendingEdges->getBufferPointer();
+    return &m_pendingEdges;
 }
 
 /**

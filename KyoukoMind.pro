@@ -23,8 +23,8 @@ SOURCES += main.cpp \
             src/core/cluster/nodeCluster.cpp \
             src/core/cluster/edgeCluster.cpp \
             src/core/cluster/clusterHandler.cpp \
-            src/core/processing/cpuProcessingUnit.cpp \
-            src/core/processing/processingUnit.cpp \
+            src/core/processing/processingThreads/cpu/cpuProcessingUnit.cpp \
+            src/core/processing/processingThreads/processingUnit.cpp \
             src/core/processing/processingUnitHandler.cpp \
             src/core/networkManager.cpp \
             src/settings/config.cpp \
@@ -33,7 +33,7 @@ SOURCES += main.cpp \
             src/core/messaging/messageQueues/messageBuffer.cpp \
             src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
             src/core/initializing/networkInitializer.cpp \
-            src/core/processing/nextChooser.cpp \
+            src/core/processing/processingThreads/cpu/nextChooser.cpp \
             src/control/statusReporter.cpp \
             src/core/initializing/axonInitializer.cpp \
             src/core/initializing/clusterInitilizer.cpp \
@@ -41,7 +41,7 @@ SOURCES += main.cpp \
             src/core/messaging/messages/replyMessage.cpp \
             src/core/messaging/messageController.cpp \
             src/core/messaging/timeoutHandler.cpp \
-            src/core/processing/commonThread.cpp \
+            src/core/processing/processingThreads/commonThread.cpp \
             src/kyochanNetwork.cpp \
             tests/proofOfConcept/demoIO.cpp \
             tests/clusterTest.cpp \
@@ -49,7 +49,10 @@ SOURCES += main.cpp \
             tests/messageBufferTest.cpp \
             tests/messageTest.cpp \
             src/core/cluster/clusterQueue.cpp \
-            tests/proofOfConcept/demoUserInput.cpp
+            tests/proofOfConcept/demoUserInput.cpp \
+            src/core/processing/processingThreads/cpu/edgeprocessing.cpp \
+            src/core/processing/processingThreads/cpu/nodeprocessing.cpp \
+            src/core/processing/processingThreads/cpu/axonprocessing.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -59,8 +62,8 @@ HEADERS +=\
             src/core/cluster/nodeCluster.h \
             src/core/cluster/edgeCluster.h \
             src/core/networkManager.h \
-            src/core/processing/processingUnit.h \
-            src/core/processing/cpuProcessingUnit.h \
+            src/core/processing/processingThreads/processingUnit.h \
+            src/core/processing/processingThreads/cpu/cpuProcessingUnit.h \
             src/core/processing/processingUnitHandler.h \
             src/settings/config.h \
             src/common/enums.h \
@@ -76,7 +79,7 @@ HEADERS +=\
             src/core/structs/kyochanNodes.h \
             src/core/structs/learningMessages.h \
             src/core/structs/clusterMeta.h \
-            src/core/processing/nextChooser.h \
+            src/core/processing/processingThreads/cpu/nextChooser.h \
             src/control/statusReporter.h \
             src/core/initializing/axonInitializer.h \
             src/core/initializing/clusterInitilizer.h \
@@ -84,7 +87,7 @@ HEADERS +=\
             src/core/messaging/messages/replyMessage.h \
             src/core/messaging/messageController.h \
             src/core/messaging/timeoutHandler.h \
-            src/core/processing/commonThread.h \
+            src/core/processing/processingThreads/commonThread.h \
             src/kyochanNetwork.h \
             tests/clusterTest.h \
             tests/commonTest.h \
@@ -92,7 +95,10 @@ HEADERS +=\
             tests/messageTest.h \
             src/core/cluster/clusterQueue.h \
             tests/proofOfConcept/demoUserInput.h \
-            tests/proofOfConcept/demoIO.h
+            tests/proofOfConcept/demoIO.h \
+            src/core/processing/processingThreads/cpu/edgeprocessing.h \
+            src/core/processing/processingThreads/cpu/nodeprocessing.h \
+            src/core/processing/processingThreads/cpu/axonprocessing.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

@@ -23,10 +23,10 @@ namespace KyoukoMind
  */
 MessageController::MessageController()
 {
-    assert(sizeof(KyoChanMessageEdge) == 20);
-    assert(sizeof(KyoChanAxonEdge) == 20);
-    assert(sizeof(KyoChanNewEdge) == 20);
-    assert(sizeof(KyoChanNewEdgeReply) == 20);
+    assert(sizeof(KyoChanEdgeContainer) == 20);
+    assert(sizeof(KyoChanAxonEdgeContainer) == 20);
+    assert(sizeof(KyoChanLearingEdgeContainer) == 20);
+    assert(sizeof(KyoChanLearningEdgeReplyContainer) == 20);
 }
 
 /**

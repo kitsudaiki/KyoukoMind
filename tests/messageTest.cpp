@@ -39,13 +39,13 @@ void MessageTest::checkDataMessage()
     UNITTEST((uint32_t)metaData.targetSite, 4);
     UNITTEST(metaData.type, DATA_MESSAGE);
 
-    KyoChanMessageEdge testEdge;
+    KyoChanEdgeContainer testEdge;
     testEdge.targetClusterPath = 1;
     testEdge.targetNodeId = 2;
     testEdge.weight = 3;
     message.addEdge(&testEdge);
 
-    KyoChanMessageEdge testEdge2;
+    KyoChanEdgeContainer testEdge2;
     testEdge2.targetClusterPath = 4;
     testEdge2.targetNodeId = 5;
     testEdge2.weight = 6;
@@ -68,7 +68,7 @@ void MessageTest::checkDataMessage()
 
     UNITTEST(newData[0], EDGE_CONTAINER);
 
-    KyoChanMessageEdge* edges = (KyoChanMessageEdge*)newData;
+    KyoChanEdgeContainer* edges = (KyoChanEdgeContainer*)newData;
 
     UNITTEST(edges[0].targetClusterPath, 1);
     UNITTEST(edges[0].targetNodeId, 2);

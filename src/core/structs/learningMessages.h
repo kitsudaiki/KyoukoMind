@@ -12,7 +12,7 @@
 
 #include <common.h>
 
-struct KyoChanNewEdge
+struct KyoChanLearingEdgeContainer
 {
     uint8_t type = LEARNING_CONTAINER;
     float weight = 0.0;
@@ -20,10 +20,10 @@ struct KyoChanNewEdge
     uint32_t sourceClusterPath = 0;
     uint32_t sourceAxonId = 0;
     uint8_t step = 0;
-    uint16_t padding = 0;
+    uint8_t padding[2];
 } __attribute__((packed));
 
-struct KyoChanNewEdgeReply
+struct KyoChanLearningEdgeReplyContainer
 {
     uint8_t type = LEARNING_REPLY_CONTAINER;
     uint32_t newEdgeId = 0;
@@ -31,7 +31,7 @@ struct KyoChanNewEdgeReply
     uint32_t sourceAxonId = 0;
     uint32_t targetClusterPath = 0;
     uint16_t targetNodeId = 0;
-    uint8_t padding = 0;
+    uint8_t padding[1];
 } __attribute__((packed));
 
 

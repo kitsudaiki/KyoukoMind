@@ -15,7 +15,7 @@
 #include <core/cluster/edgeCluster.h>
 #include <core/cluster/nodeCluster.h>
 
-#include <core/processing/nextChooser.h>
+#include <core/processing/processingThreads/cpu/nextChooser.h>
 
 namespace KyoukoMind
 {

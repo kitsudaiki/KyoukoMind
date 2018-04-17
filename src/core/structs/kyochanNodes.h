@@ -28,7 +28,7 @@ struct KyoChanNode
 struct KyoChanAxon
 {
     float currentState = 0;
-    KyoChanPendingEdge pendingEdges[MAX_PENDING_EDGES];
+    KyoChanPendingEdgeSectionSmall pendingEdges;
     uint8_t numberOfPendingEdges = 0;
     uint32_t edgeSections[MAX_EDGESECTIONS_PER_AXON];
     uint8_t numberOfEdgeSections = 0;

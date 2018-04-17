@@ -41,7 +41,7 @@ DataMessage::DataMessage(void *data, uint32_t size) : Message(data, size)
  * @brief DataMessage::addEdge
  * @param newEdge
  */
-void DataMessage::addEdge(const KyoChanMessageEdge *newEdge)
+void DataMessage::addEdge(const KyoChanEdgeContainer *newEdge)
 {
     checkBuffer();
     copyToBuffer((void*)newEdge);
@@ -51,7 +51,7 @@ void DataMessage::addEdge(const KyoChanMessageEdge *newEdge)
  * @brief DataMessage::addPendingEdge
  * @param newEdge
  */
-void DataMessage::addPendingEdge(const KyoChanPendingEdge *newEdge)
+void DataMessage::addPendingEdge(const KyoChanPendingEdgeContainer *newEdge)
 {
     checkBuffer();
     copyToBuffer((void*)newEdge);
@@ -61,7 +61,7 @@ void DataMessage::addPendingEdge(const KyoChanPendingEdge *newEdge)
  * @brief DataMessage::addAxonEdge
  * @param newAxonEdge
  */
-void DataMessage::addAxonEdge(const KyoChanAxonEdge* newAxonEdge)
+void DataMessage::addAxonEdge(const KyoChanAxonEdgeContainer* newAxonEdge)
 {
     checkBuffer();
     copyToBuffer((void*)newAxonEdge);
@@ -71,7 +71,7 @@ void DataMessage::addAxonEdge(const KyoChanAxonEdge* newAxonEdge)
  * @brief DataMessage::addNewEdge
  * @param newEdge
  */
-void DataMessage::addNewEdge(const KyoChanNewEdge *newEdge)
+void DataMessage::addNewEdge(const KyoChanLearingEdgeContainer *newEdge)
 {
     checkBuffer();
     copyToBuffer((void*)newEdge);
@@ -81,7 +81,7 @@ void DataMessage::addNewEdge(const KyoChanNewEdge *newEdge)
  * @brief DataMessage::addNewEdgeReply
  * @param newEdgeReply
  */
-void DataMessage::addNewEdgeReply(const KyoChanNewEdgeReply *newEdgeReply)
+void DataMessage::addNewEdgeReply(const KyoChanLearningEdgeReplyContainer *newEdgeReply)
 {
     checkBuffer();
     copyToBuffer((void*)newEdgeReply);

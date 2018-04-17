@@ -10,7 +10,7 @@
 #ifndef PROCESSINGUNIT_H
 #define PROCESSINGUNIT_H
 
-#include <core/processing/commonThread.h>
+#include <core/processing/processingThreads/commonThread.h>
 
 namespace KyoukoMind
 {

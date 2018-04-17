@@ -11,7 +11,7 @@
 #define DEMOIO_H
 
 #include <common.h>
-#include <core/processing/commonThread.h>
+#include <core/processing/processingThreads/commonThread.h>
 #include <core/structs/kyochanEdges.h>
 
 namespace KyoukoMind
@@ -37,7 +37,7 @@ private:
 
     void sendInnerData(const char input);
 
-    void sendData(const KyoChanMessageEdge &edge);
+    void sendData(const KyoChanEdgeContainer &edge);
 };
 
 }

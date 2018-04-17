@@ -12,36 +12,129 @@
 
 #include <common.h>
 
-struct KyoChanAxonEdge
+struct KyoChanAxonEdgeContainer
 {
     uint8_t type = AXON_EDGE_CONTAINER;
+
     float weight = 0.0;
+
     uint32_t targetClusterPath = 0;
     uint32_t targetAxonId = 0;
-    uint32_t padding1 = 0;
-    uint16_t padding2 = 0;
-    uint8_t padding3 = 0;
+
+    uint8_t padding[7];
 } __attribute__((packed));
 
-struct KyoChanPendingEdge
+struct KyoChanPendingEdgeContainer
 {
     uint8_t type = PENDING_EDGE_CONTAINER;
+
     float weight = 0.0;
+
     uint32_t targetClusterPath = 0;
     uint16_t targetNodeId = 0;
+
     uint32_t newEdgeId = 0;
     uint8_t validCounter = 0;
     uint8_t nextSite = 0;
-    uint16_t padding1 = 0;
-    uint8_t padding2 = 0;
+
+    uint8_t padding[3];
 } __attribute__((packed));
 
-struct KyoChanMessageEdge
+struct KyoChanPendingEdgeSectionSmall
+{
+    uint16_t numberOfPendingEdges = 0;
+    KyoChanPendingEdgeContainer pendingEdges[PENDING_EDGES_PER_EDGESECTION_SMALL];
+    uint8_t padding[14];
+
+    void checkPendingEdges()
+    {
+        if(numberOfPendingEdges == 0) {
+            return;
+        }
+        for(KyoChanPendingEdgeContainer* pendingEdge = pendingEdges;
+            pendingEdge < pendingEdge + PENDING_EDGES_PER_EDGESECTION_SMALL;
+            pendingEdge++)
+        {
+            pendingEdge->validCounter++;
+            if(pendingEdge->validCounter >= MAX_PENDING_VALID_CYCLES) {
+                KyoChanPendingEdgeContainer emptyEdge;
+                *pendingEdge = emptyEdge;
+                numberOfPendingEdges--;
+            }
+        }
+    }
+
+    bool addPendingEdges(const KyoChanPendingEdgeContainer &newEdge)
+    {
+        if(numberOfPendingEdges == PENDING_EDGES_PER_EDGESECTION_SMALL) {
+            return false;
+        }
+        for(KyoChanPendingEdgeContainer* pendingEdge = pendingEdges;
+            pendingEdge < pendingEdge + PENDING_EDGES_PER_EDGESECTION_SMALL;
+            pendingEdge++)
+        {
+            if(pendingEdge->newEdgeId == 0) {
+                *pendingEdge = newEdge;
+                return true;
+            }
+        }
+        return false;
+    }
+
+} __attribute__((packed));
+
+struct KyoChanPendingEdgeSectionBig
+{
+    uint16_t numberOfPendingEdges = 0;
+    KyoChanPendingEdgeContainer pendingEdges[PENDING_EDGES_PER_EDGESECTION_BIG];
+    uint8_t padding[14];
+
+    void checkPendingEdges()
+    {
+        if(numberOfPendingEdges == 0) {
+            return;
+        }
+        for(KyoChanPendingEdgeContainer* pendingEdge = pendingEdges;
+            pendingEdge < pendingEdge + PENDING_EDGES_PER_EDGESECTION_BIG;
+            pendingEdge++)
+        {
+            pendingEdge->validCounter++;
+            if(pendingEdge->validCounter >= MAX_PENDING_VALID_CYCLES) {
+                KyoChanPendingEdgeContainer emptyEdge;
+                *pendingEdge = emptyEdge;
+                numberOfPendingEdges--;
+            }
+        }
+    }
+
+    bool addPendingEdges(const KyoChanPendingEdgeContainer &newEdge)
+    {
+        if(numberOfPendingEdges == PENDING_EDGES_PER_EDGESECTION_BIG) {
+            return false;
+        }
+        for(KyoChanPendingEdgeContainer* pendingEdge = pendingEdges;
+            pendingEdge < pendingEdge + PENDING_EDGES_PER_EDGESECTION_BIG;
+            pendingEdge++)
+        {
+            if(pendingEdge->newEdgeId == 0) {
+                *pendingEdge = newEdge;
+                return true;
+            }
+        }
+        return false;
+    }
+
+} __attribute__((packed));
+
+struct KyoChanEdgeContainer
 {
     uint8_t type = EDGE_CONTAINER;
+
     float weight = 0.0;
+
     uint32_t targetClusterPath = 0;
     uint16_t targetNodeId = 0;
+
     uint64_t padding1 = 0;
     uint8_t padding2 = 0;
 } __attribute__((packed));
@@ -49,6 +142,7 @@ struct KyoChanMessageEdge
 struct KyoChanEdge
 {
     float weight = 0.0;
+
     uint32_t targetClusterPath = 0;
     uint16_t targetNodeId = 0;
 } __attribute__((packed));

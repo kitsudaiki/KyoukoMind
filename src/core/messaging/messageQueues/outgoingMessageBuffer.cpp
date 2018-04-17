@@ -43,7 +43,7 @@ OutgoingMessageBuffer::OutgoingMessageBuffer(Cluster* cluster,
  * @return
  */
 bool OutgoingMessageBuffer::addEdge(const uint8_t sourceSite,
-                                    const KyoChanMessageEdge *edge)
+                                    const KyoChanEdgeContainer *edge)
 {
     if(sourceSite < 16) {
         m_dataMessageBuffer[sourceSite]->addEdge(edge);
@@ -59,7 +59,7 @@ bool OutgoingMessageBuffer::addEdge(const uint8_t sourceSite,
  * @return
  */
 bool OutgoingMessageBuffer::addPendingEdge(const uint8_t sourceSite,
-                                           const KyoChanPendingEdge *edge)
+                                           const KyoChanPendingEdgeContainer *edge)
 {
     if(sourceSite < 16) {
         m_dataMessageBuffer[sourceSite]->addPendingEdge(edge);
@@ -76,7 +76,7 @@ bool OutgoingMessageBuffer::addPendingEdge(const uint8_t sourceSite,
  * @return
  */
 bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSite,
-                                        const KyoChanAxonEdge *newAxonEdge)
+                                        const KyoChanAxonEdgeContainer *newAxonEdge)
 {
     if(sourceSite < 16) {
         m_dataMessageBuffer[sourceSite]->addAxonEdge(newAxonEdge);
@@ -92,7 +92,7 @@ bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSite,
  * @return
  */
 bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSite,
-                                           const KyoChanNewEdge *newEdge)
+                                           const KyoChanLearingEdgeContainer *newEdge)
 {
     if(sourceSite <= 16) {
         m_dataMessageBuffer[sourceSite]->addNewEdge(newEdge);
@@ -107,7 +107,7 @@ bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSite,
  * @param newEdgeReply
  */
 bool OutgoingMessageBuffer::addLearningReplyMessage(const uint8_t sourceSite,
-                                                    const KyoChanNewEdgeReply *newEdgeReply)
+                                                    const KyoChanLearningEdgeReplyContainer *newEdgeReply)
 {
     if(sourceSite <= 16) {
         m_dataMessageBuffer[sourceSite]->addNewEdgeReply(newEdgeReply);

@@ -45,8 +45,7 @@ public:
 
     KyoChanAxon* getAxonBlock();
     KyoChanEdgeSection* getEdgeBlock();
-    KyoChanPendingEdge* getPendingEdges();
-    uint32_t m_numberOfPendingEdges = 0;
+    KyoChanPendingEdgeSectionBig* getPendingEdges();
 
     bool initAxonBlocks(uint32_t numberOfAxons);
     bool initEdgeBlocks(uint32_t numberOfEdgeSections);
@@ -57,7 +56,7 @@ public:
                           uint32_t endSection = 0);
 
 private:
-    PerformanceIO::DataBuffer* m_pendingEdges;
+    KyoChanPendingEdgeSectionBig m_pendingEdges;
 
     bool isEdgeSectionFull(const uint32_t edgeSectionPos);
     bool addEmptyEdgeSection(const uint32_t axonId);

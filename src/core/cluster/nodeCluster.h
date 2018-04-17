@@ -31,6 +31,10 @@ public:
     uint32_t getNumberOfNodeBlocks() const;
     uint32_t getNumberOfNodes() const;
 
+    void addOutputCluster(const ClusterID clusterId,
+                          const uint32_t fakeAxonId,
+                          const uint16_t nodeId);
+
     KyoChanNode* getNodeBlock();
 
     bool initNodeBlocks(uint16_t numberOfNodes);

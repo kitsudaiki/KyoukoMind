@@ -44,6 +44,7 @@ public:
     bool addNeighbor(const uint8_t side, const Neighbor target);
     Neighbor *getNeighbors();
     ClusterID getNeighborId(const uint8_t side);
+    uint32_t getNextNewEdgeId();
 
     void getMetaData();
     void updateMetaData(ClusterMetaData metaData);
@@ -51,6 +52,7 @@ public:
 private:
     // cluster-metadata
     uint64_t m_messageIdCounter = 0;
+    uint32_t m_newEdgeIdCounter = 0;
 
     void initMessageBuffer(MessageController *controller);
     

@@ -27,15 +27,15 @@ public:
                           MessageController *controller);
 
     bool addEdge(const uint8_t sourceSite,
-                 const KyoChanMessageEdge *edge);
+                 const KyoChanEdgeContainer *edge);
     bool addPendingEdge(const uint8_t sourceSite,
-                        const KyoChanPendingEdge *edge);
+                        const KyoChanPendingEdgeContainer *edge);
     bool addAxonEdge(const uint8_t sourceSite,
-                     const KyoChanAxonEdge *newAxonEdge);
+                     const KyoChanAxonEdgeContainer *newAxonEdge);
     bool addLearingEdge(const uint8_t sourceSite,
-                        const KyoChanNewEdge *newEdge);
+                        const KyoChanLearingEdgeContainer *newEdge);
     bool addLearningReplyMessage(const uint8_t sourceSite,
-                                 const KyoChanNewEdgeReply *newEdgeReply);
+                                 const KyoChanLearningEdgeReplyContainer *newEdgeReply);
 
     void sendReplyMessage(const uint8_t sourceSite);
 
