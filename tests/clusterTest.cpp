@@ -10,9 +10,9 @@
 #include "clusterTest.h"
 #include <core/messaging/messageController.h>
 
-#include <core/cluster/nodeCluster.h>
-#include <core/cluster/edgeCluster.h>
-#include <core/cluster/emptyCluster.h>
+#include <core/clustering/cluster/nodeCluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
+#include <core/clustering/cluster/emptyCluster.h>
 
 namespace KyoukoMind
 {

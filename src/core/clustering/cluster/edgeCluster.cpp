@@ -7,7 +7,7 @@
  *  TODO: Description
  */
 
-#include <core/cluster/edgeCluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <kyochanNetwork.h>
 #include <files/dataBuffer.h>
 

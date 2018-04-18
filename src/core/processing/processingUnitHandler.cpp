@@ -10,7 +10,7 @@
 #include <core/processing/processingUnitHandler.h>
 #include <core/processing/processingThreads/processingUnit.h>
 #include <core/processing/processingThreads/cpu/cpuProcessingUnit.h>
-#include <core/cluster/clusterHandler.h>
+#include <core/clustering/clusterHandler.h>
 
 namespace KyoukoMind
 {

@@ -8,10 +8,10 @@
  */
 
 #include <core/processing/processingThreads/processingUnit.h>
-#include <core/cluster/clusterHandler.h>
-#include <core/cluster/clusterQueue.h>
+#include <core/clustering/clusterHandler.h>
+#include <core/clustering/clusterQueue.h>
 
-#include <core/cluster/cluster.h>
+#include <core/clustering/cluster/cluster.h>
 
 namespace KyoukoMind
 {

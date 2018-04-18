@@ -10,10 +10,10 @@
 #include "axonInitializer.h"
 #include <kyochanNetwork.h>
 
-#include <core/cluster/cluster.h>
-#include <core/cluster/emptyCluster.h>
-#include <core/cluster/edgeCluster.h>
-#include <core/cluster/nodeCluster.h>
+#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/emptyCluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
+#include <core/clustering/cluster/nodeCluster.h>
 
 #include <core/processing/processingThreads/cpu/nextChooser.h>
 

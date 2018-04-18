@@ -10,10 +10,10 @@
 #include <core/processing/processingThreads/cpu/cpuProcessingUnit.h>
 #include <core/processing/processingThreads/cpu/nextChooser.h>
 
-#include <core/cluster/cluster.h>
-#include <core/cluster/emptyCluster.h>
-#include <core/cluster/edgeCluster.h>
-#include <core/cluster/nodeCluster.h>
+#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/emptyCluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
+#include <core/clustering/cluster/nodeCluster.h>
 
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messages/dataMessage.h>
@@ -64,8 +64,8 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
         case EDGE_CLUSTER:
         {
             EdgeCluster *edgeCluster = (EdgeCluster*)cluster;
-            m_axonProcessing->processAxons(edgeCluster);
             m_edgeProcessing->processIncomingMessages(edgeCluster);
+            m_axonProcessing->processAxons(edgeCluster);
             edgeCluster->getPendingEdges()->checkPendingEdges();
             edgeCluster->finishCycle();
             break;
@@ -74,9 +74,9 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
         {
             NodeCluster *nodeCluster = (NodeCluster*)cluster;
             m_edgeProcessing->processInputMessages(nodeCluster);
+            m_edgeProcessing->processIncomingMessages((EdgeCluster*)nodeCluster);
             m_nodeProcessing->processNodes(nodeCluster);
             m_axonProcessing->processAxons((EdgeCluster*)nodeCluster);
-            m_edgeProcessing->processIncomingMessages((EdgeCluster*)nodeCluster);
             nodeCluster->getPendingEdges()->checkPendingEdges();
             nodeCluster->finishCycle();
             break;

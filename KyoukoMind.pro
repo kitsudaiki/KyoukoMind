@@ -18,11 +18,11 @@ INCLUDEPATH += $$PWD \
             src
 
 SOURCES += main.cpp \
-            src/core/cluster/cluster.cpp \
-            src/core/cluster/emptyCluster.cpp \
-            src/core/cluster/nodeCluster.cpp \
-            src/core/cluster/edgeCluster.cpp \
-            src/core/cluster/clusterHandler.cpp \
+            src/core/clustering/cluster/cluster.cpp \
+            src/core/clustering/cluster/emptyCluster.cpp \
+            src/core/clustering/cluster/nodeCluster.cpp \
+            src/core/clustering/cluster/edgeCluster.cpp \
+            src/core/clustering/clusterHandler.cpp \
             src/core/processing/processingThreads/cpu/cpuProcessingUnit.cpp \
             src/core/processing/processingThreads/processingUnit.cpp \
             src/core/processing/processingUnitHandler.cpp \
@@ -48,7 +48,7 @@ SOURCES += main.cpp \
             tests/commonTest.cpp \
             tests/messageBufferTest.cpp \
             tests/messageTest.cpp \
-            src/core/cluster/clusterQueue.cpp \
+            src/core/clustering/clusterQueue.cpp \
             tests/proofOfConcept/demoUserInput.cpp \
             src/core/processing/processingThreads/cpu/edgeprocessing.cpp \
             src/core/processing/processingThreads/cpu/nodeprocessing.cpp \
@@ -56,11 +56,11 @@ SOURCES += main.cpp \
 
 HEADERS +=\
             src/common/typedefs.h \
-            src/core/cluster/clusterHandler.h \
-            src/core/cluster/cluster.h \
-            src/core/cluster/emptyCluster.h \
-            src/core/cluster/nodeCluster.h \
-            src/core/cluster/edgeCluster.h \
+            src/core/clustering/clusterHandler.h \
+            src/core/clustering/cluster/cluster.h \
+            src/core/clustering/cluster/emptyCluster.h \
+            src/core/clustering/cluster/nodeCluster.h \
+            src/core/clustering/cluster/edgeCluster.h \
             src/core/networkManager.h \
             src/core/processing/processingThreads/processingUnit.h \
             src/core/processing/processingThreads/cpu/cpuProcessingUnit.h \
@@ -93,7 +93,7 @@ HEADERS +=\
             tests/commonTest.h \
             tests/messageBufferTest.h \
             tests/messageTest.h \
-            src/core/cluster/clusterQueue.h \
+            src/core/clustering/clusterQueue.h \
             tests/proofOfConcept/demoUserInput.h \
             tests/proofOfConcept/demoIO.h \
             src/core/processing/processingThreads/cpu/edgeprocessing.h \

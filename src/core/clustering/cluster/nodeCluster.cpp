@@ -7,7 +7,7 @@
  *  TODO: Description
  */
 
-#include <core/cluster/nodeCluster.h>
+#include <core/clustering/cluster/nodeCluster.h>
 #include <kyochanNetwork.h>
 #include <files/dataBuffer.h>
 

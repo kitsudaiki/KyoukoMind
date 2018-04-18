@@ -9,10 +9,10 @@
 
 #include "edgeprocessing.h"
 
-#include <core/cluster/cluster.h>
-#include <core/cluster/emptyCluster.h>
-#include <core/cluster/edgeCluster.h>
-#include <core/cluster/nodeCluster.h>
+#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/emptyCluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
+#include <core/clustering/cluster/nodeCluster.h>
 
 #include <core/processing/processingThreads/cpu/nextChooser.h>
 
@@ -44,16 +44,12 @@ inline void processIncomEdge(uint8_t *data,
 {
     KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data;
 
-    // check if target-cluster is reached
-    if(edge->targetClusterPath != 0)
-    {
-        // if not reached update data
-        uint8_t side = edge->targetClusterPath % 16;
-        edge->targetClusterPath /= 16;
+    // if not reached update data
+    uint8_t side = edge->targetClusterPath % 16;
+    edge->targetClusterPath /= 16;
 
-        // send edge to the next cluster
-        outgoBuffer->addEdge(side, edge);
-    }
+    // send edge to the next cluster
+    outgoBuffer->addEdge(side, edge);
 }
 
 /**
@@ -158,8 +154,7 @@ inline void processIncomLerningEdgeOnNode(uint8_t *data,
         return;
     }
 
-    if(nodeCluster->getClusterType() != NODE_CLUSTER
-            || rand() % 100 > POSSIBLE_NEXT_LEARNING_STEP)
+    if(rand() % 100 > POSSIBLE_NEXT_LEARNING_STEP)
     {
         // go to the next cluster
 
@@ -219,27 +214,21 @@ inline void processIncomLerningEdge(uint8_t *data,
         return;
     }
 
-    if(edgeCluster->getClusterType() != NODE_CLUSTER
-            || rand() % 100 > POSSIBLE_NEXT_LEARNING_STEP)
-    {
-        // go to the next cluster
+    // choose the next side and modify message
+    uint8_t nextSide = nextChooser->getNextCluster(edgeCluster->getNeighbors(), initSide);
+    edge->sourceClusterPath = (edge->sourceClusterPath << 16) + initSide;
+    edge->step++;
 
-        // choose the next side and modify message
-        uint8_t nextSide = nextChooser->getNextCluster(edgeCluster->getNeighbors(), initSide);
-        edge->sourceClusterPath = (edge->sourceClusterPath << 16) + initSide;
-        edge->step++;
+    // send modified message to the next cluster
+    outgoBuffer->addLearingEdge(nextSide, edge);
 
-        // send modified message to the next cluster
-        outgoBuffer->addLearingEdge(nextSide, edge);
+    // create pending edge
+    KyoChanPendingEdgeContainer pendEdge;
+    pendEdge.newEdgeId = edge->newEdgeId;
+    pendEdge.nextSite = nextSide;
 
-        // create pending edge
-        KyoChanPendingEdgeContainer pendEdge;
-        pendEdge.newEdgeId = edge->newEdgeId;
-        pendEdge.nextSite = nextSide;
-
-        // register pending edge in the current cluster
-        edgeCluster->getPendingEdges()->addPendingEdges(pendEdge);
-    }
+    // register pending edge in the current cluster
+    edgeCluster->getPendingEdges()->addPendingEdges(pendEdge);
 }
 
 /**

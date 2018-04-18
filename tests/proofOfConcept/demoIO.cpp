@@ -15,8 +15,8 @@
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>
 
-#include <core/cluster/cluster.h>
-#include <core/cluster/nodeCluster.h>
+#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/nodeCluster.h>
 
 namespace KyoukoMind
 {

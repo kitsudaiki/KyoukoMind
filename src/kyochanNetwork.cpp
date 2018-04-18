@@ -9,7 +9,7 @@
 
 #include <kyochanNetwork.h>
 #include <core/networkManager.h>
-#include <core/cluster/clusterHandler.h>
+#include <core/clustering/clusterHandler.h>
 #include <core/messaging/messageController.h>
 
 namespace KyoukoMind

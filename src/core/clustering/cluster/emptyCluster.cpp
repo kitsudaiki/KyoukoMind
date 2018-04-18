@@ -7,7 +7,7 @@
  *  TODO: Description
  */
 
-#include <core/cluster/emptyCluster.h>
+#include <core/clustering/cluster/emptyCluster.h>
 #include <core/messaging/messageController.h>
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>

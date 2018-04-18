@@ -9,7 +9,7 @@
 
 #include "incomingMessageBuffer.h"
 
-#include <core/cluster/cluster.h>
+#include <core/clustering/cluster/cluster.h>
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messageController.h>
 
