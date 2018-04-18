@@ -41,6 +41,8 @@ NetworkManager::NetworkManager()
     std::string initialFile = KyoukoNetwork::m_config->getInitialFilePath(&ok);
     std::string directoryPath = KyoukoNetwork::m_config->getDirectoryPath(&ok);
 
+    m_processingUnitHandler->initProcessingUnits(NUMBER_OF_PROCESSING_UNITS);
+
     std::vector<std::string> clusterFiles;
     // get all files in the directory
     DIR *dir;
@@ -78,6 +80,18 @@ NetworkManager::NetworkManager()
 MessageController *NetworkManager::getMessageController() const
 {
     return m_messageController;
+}
+
+/**
+ * @brief NetworkManager::run
+ */
+void NetworkManager::run()
+{
+    while(true)
+    {
+        usleep(PROCESS_INTERVAL);
+        m_processingUnitHandler->initNextCycle();
+    }
 }
 
 }

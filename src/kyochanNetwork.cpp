@@ -32,6 +32,7 @@ KyoukoNetwork::KyoukoNetwork(const std::string &configPath)
 
     // network-manager
     m_networkManager = new NetworkManager();
+    m_networkManager->start();
 }
 
 /**

@@ -31,22 +31,28 @@ ProcessingUnit::ProcessingUnit(ClusterQueue* clusterQueue)
  */
 void ProcessingUnit::run()
 {
+    std::cout<<"poi0"<<std::endl;
     while(!m_abort)
     {
+        std::cout<<"poi1"<<std::endl;
         if(m_block) {
             blockThread();
         }
+        std::cout<<"poi2"<<std::endl;
         Cluster* cluster = m_clusterQueue->getCluster();
         if(cluster == nullptr)
         {
             // block thread until next cycle if queue is empty
+            std::cout<<"poi3"<<std::endl;
             blockThread();
+            std::cout<<"poi4"<<std::endl;
             for(uint32_t i = 0; i < m_finishClusterBuffer.size(); i++) {
                 m_clusterQueue->addCluster(m_finishClusterBuffer[i]);
             }
             m_clusterQueue->clearQueue();
         } else {
             // process if ready or readd to queue if not ready
+            std::cout<<"poi5"<<std::endl;
             if(cluster->isReady()) {
                 processCluster(cluster);
                 m_finishClusterBuffer.push_back(cluster);

@@ -27,7 +27,7 @@ namespace KyoukoMind
 DemoIO::DemoIO(MessageController *messageController)
 {
     m_messageController = messageController;
-    Cluster* fakeCluster = new Cluster(1337, NODE_CLUSTER, "", m_messageController);
+    Cluster* fakeCluster = new Cluster(1337, NODE_CLUSTER, "/tmp/test", m_messageController);
 
     Neighbor neighbor;
     neighbor.targetClusterId = 11;
@@ -49,18 +49,21 @@ void DemoIO::run()
         usleep(PROCESS_INTERVAL);
 
         Message* message = m_incomBuffer->getMessage(15);
-        uint8_t* data = (uint8_t*)message->getData();
-        for(uint32_t i = 0; i < message->getPayloadSize(); i = i + 20)
+        if(message != nullptr)
         {
-            if(data[i] == EDGE_CONTAINER) {
-                KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data[i];
+            uint8_t* data = (uint8_t*)message->getData();
+            for(uint32_t i = 0; i < message->getPayloadSize(); i = i + 20)
+            {
+                if(data[i] == EDGE_CONTAINER) {
+                    KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data[i];
 
-                uint32_t out = (uint32_t)edge->weight;
-                if(out > 255) {
-                    out = 255;
+                    uint32_t out = (uint32_t)edge->weight;
+                    if(out > 255) {
+                        out = 255;
+                    }
+                    char newChar = (char)out;
+                    sendInnerData(newChar);
                 }
-                char newChar = (char)out;
-                sendInnerData(newChar);
             }
         }
     }

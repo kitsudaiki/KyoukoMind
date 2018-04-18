@@ -54,6 +54,7 @@ CpuProcessingUnit::~CpuProcessingUnit()
  */
 void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
+    std::cout<<"processCluster"<<std::endl;
     uint8_t clusterType = (uint8_t)cluster->getClusterType();
 
     switch((int)clusterType)

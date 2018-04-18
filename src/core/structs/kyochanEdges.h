@@ -28,16 +28,15 @@ struct KyoChanPendingEdgeContainer
 {
     uint8_t type = PENDING_EDGE_CONTAINER;
 
-    float weight = 0.0;
+    uint32_t newEdgeId = 0;
 
-    uint32_t targetClusterPath = 0;
+    float weight = 0.0;
     uint16_t targetNodeId = 0;
 
-    uint32_t newEdgeId = 0;
     uint8_t validCounter = 0;
     uint8_t nextSite = 0;
 
-    uint8_t padding[3];
+    uint8_t padding[7];
 } __attribute__((packed));
 
 struct KyoChanPendingEdgeSectionSmall

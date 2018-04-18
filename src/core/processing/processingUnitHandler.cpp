@@ -39,6 +39,7 @@ ProcessingUnitHandler::~ProcessingUnitHandler()
  */
 bool ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
 {
+    std::cout<<"initProcessingUnits"<<std::endl;
     if(m_allProcessingUnits.size() != 0) {
         return false;
     }
@@ -49,6 +50,18 @@ bool ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
         newUnit->start();
     }
     return true;
+}
+
+/**
+ * @brief ProcessingUnitHandler::initNextCycle
+ */
+void ProcessingUnitHandler::initNextCycle()
+{
+    std::cout<<"init cycle"<<std::endl;
+    for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++)
+    {
+        m_allProcessingUnits.at(i)->continueThread();
+    }
 }
 
 /**

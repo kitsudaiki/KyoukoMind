@@ -24,6 +24,7 @@ public:
     ~ProcessingUnitHandler();
 
     bool initProcessingUnits(const uint16_t numberOfThreads);
+    void initNextCycle();
     bool closeAllProcessingUnits();
 private:
     std::vector<ProcessingUnit*> m_allProcessingUnits;

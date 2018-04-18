@@ -114,7 +114,7 @@ inline void processPendingEdges(KyoChanAxon* axon,
     {
         if(pendingEdge->newEdgeId != 0)
         {
-            uint8_t side = pendingEdge->targetClusterPath % 16;
+            uint8_t side = pendingEdge->nextSite;
 
             KyoChanEdgeContainer newEdge;
             newEdge.weight = pendingEdge->weight;
