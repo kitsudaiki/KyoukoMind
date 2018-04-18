@@ -34,16 +34,14 @@ inline void processEdgeSection(KyoChanEdgeSection* currentSection,
         edge < edge + currentSection->numberOfEdges;
         edge++)
     {
-        if(edge->targetClusterPath != 0) {
-            uint8_t side = edge->targetClusterPath % 16;
+        uint8_t side = edge->targetClusterPath % 16;
 
-            KyoChanEdgeContainer newEdge;
-            newEdge.weight = edge->weight;
-            newEdge.targetNodeId = edge->targetNodeId;
-            newEdge.targetClusterPath = edge->targetClusterPath / 16;
+        KyoChanEdgeContainer newEdge;
+        newEdge.weight = edge->weight;
+        newEdge.targetNodeId = edge->targetNodeId;
+        newEdge.targetClusterPath = edge->targetClusterPath / 16;
 
-            outgoBuffer->addEdge(side, &newEdge);
-        }
+        outgoBuffer->addEdge(side, &newEdge);
     }
 }
 
@@ -83,15 +81,23 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
                           OutgoingMessageBuffer* outgoBuffer,
                           NextChooser *nextChooser)
 {
-    uint8_t nextSide = nextChooser->getNextCluster(edgeCluster->getNeighbors(), 14);
+    const uint8_t nextSide = nextChooser->getNextCluster(edgeCluster->getNeighbors(), 14);
+    const uint32_t newEdgeId = edgeCluster->getNextNewEdgeId();
+    const float weight = 1.0;
+
     KyoChanLearingEdgeContainer newEdge;
-    newEdge.newEdgeId = edgeCluster->getNextNewEdgeId();
+    newEdge.newEdgeId = newEdgeId;
     newEdge.sourceAxonId = axonId;
-    newEdge.weight = 1.0;
+    newEdge.weight = weight;
 
-
-    // TODO: finish
     outgoBuffer->addLearingEdge(nextSide, &newEdge);
+
+    KyoChanPendingEdgeContainer pendingEdge;
+    pendingEdge.newEdgeId = newEdgeId;
+    pendingEdge.nextSite = nextSide;
+    pendingEdge.weight = weight;
+
+    edgeCluster->getAxonBlock()[axonId].pendingEdges.addPendingEdges(pendingEdge);
 }
 
 /**
