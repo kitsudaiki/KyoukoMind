@@ -23,7 +23,7 @@ public:
     IncomingMessageBuffer(Cluster *cluster,
                           MessageController *controller);
 
-    bool addMessage(const uint8_t site, Message *message);
+    bool addMessage(const uint8_t site, DataMessage *message);
     Message* getMessage(const uint8_t site);
 
     bool isReady() const;
@@ -34,8 +34,10 @@ private:
     uint8_t m_finishCounter = 0;
 
     bool m_switchFlag = false;
-    Message* m_messageQueue1[16];
-    Message* m_messageQueue2[16];
+    DataMessage* m_dataMessageBuffer1[16];
+    DataMessage* m_dataMessageBuffer2[16];
+
+    bool initMessageBuffer(Cluster *cluster);
 };
 
 }

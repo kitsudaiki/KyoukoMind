@@ -54,7 +54,7 @@ CpuProcessingUnit::~CpuProcessingUnit()
  */
 void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
-    std::cout<<"processCluster"<<std::endl;
+    OUTPUT("processCluster")
     uint8_t clusterType = (uint8_t)cluster->getClusterType();
 
     switch((int)clusterType)
@@ -64,7 +64,7 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
             break;
         case EDGE_CLUSTER:
         {
-            EdgeCluster *edgeCluster = (EdgeCluster*)cluster;
+            EdgeCluster *edgeCluster = static_cast<EdgeCluster*>(cluster);
             m_edgeProcessing->processIncomingMessages(edgeCluster);
             m_axonProcessing->processAxons(edgeCluster);
             edgeCluster->getPendingEdges()->checkPendingEdges();
@@ -73,7 +73,7 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
         }
         case NODE_CLUSTER:
         {
-            NodeCluster *nodeCluster = (NodeCluster*)cluster;
+            NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
             m_edgeProcessing->processInputMessages(nodeCluster);
             m_edgeProcessing->processIncomingMessages((EdgeCluster*)nodeCluster);
             m_nodeProcessing->processNodes(nodeCluster);

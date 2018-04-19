@@ -43,6 +43,7 @@ bool ClusterHandler::addCluster(const ClusterID clusterId, Cluster* cluster)
         return false;
     }
     m_allClusters.insert(std::pair<ClusterID, Cluster*>(clusterId, cluster));
+    m_clusterQueue->addCluster(cluster);
     return true;
 }
 

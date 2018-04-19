@@ -31,15 +31,16 @@ void DemoUserInput::inputLoop()
     while(true)
     {
         std::string input;
-        std::cout<<"wait for input\n";
+        OUTPUT("wait for input")
         std::cin>>input;
 
-        std::cout<<"input: "<<input<<std::endl;
+        OUTPUT("input: ")
+        OUTPUT(input)
 
         const char* charArray = input.c_str();
         for(int i = 0; i < input.size(); i++) {
             usleep(PROCESS_INTERVAL);
-            std::cout<<charArray[i]<<std::endl;
+            OUTPUT(charArray[i])
             m_dataio->sendOutData(charArray[i]);
         }
     }

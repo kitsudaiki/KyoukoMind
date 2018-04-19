@@ -41,8 +41,9 @@ bool NodeProcessing::processNodes(NodeCluster* nodeCluster)
     KyoChanAxon* axonBlock = nodeCluster->getAxonBlock();
 
     // process nodes
+    KyoChanNode* end = nodeCluster->getNodeBlock() + numberOfNodes;
     for(KyoChanNode* nodes = nodeCluster->getNodeBlock();
-        nodes < nodes + numberOfNodes;
+        nodes < end;
         nodes++)
     {
         if(nodes->border <= nodes->currentState)

@@ -39,7 +39,7 @@ ProcessingUnitHandler::~ProcessingUnitHandler()
  */
 bool ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
 {
-    std::cout<<"initProcessingUnits"<<std::endl;
+    OUTPUT("initProcessingUnits")
     if(m_allProcessingUnits.size() != 0) {
         return false;
     }
@@ -57,7 +57,7 @@ bool ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
  */
 void ProcessingUnitHandler::initNextCycle()
 {
-    std::cout<<"init cycle"<<std::endl;
+    OUTPUT("init cycle")
     for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++)
     {
         m_allProcessingUnits.at(i)->continueThread();

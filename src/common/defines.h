@@ -15,6 +15,7 @@
 #include <common/includes.h>
 
 #define NUMBER_OF_PROCESSING_UNITS 1
+#define OUTPUT(OUT) std::cout<<(OUT)<<std::endl;
 
 #define EDGES_PER_EDGESECTION 51
 #define PENDING_EDGES_PER_EDGESECTION_SMALL 10
@@ -23,7 +24,7 @@
 #define MAX_EDGESECTIONS_PER_AXON 100
 #define MAX_PENDING_EDGES 10
 
-#define PROCESS_INTERVAL 2000000
+#define PROCESS_INTERVAL 3000000
 #define MAX_PENDING_VALID_CYCLES 20
 
 // processing-variables

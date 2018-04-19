@@ -33,6 +33,8 @@ public:
     void run();
 
 private:
+    void initNetwork();
+
     ClusterHandler* m_clusterHandler = nullptr;
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
     MessageController* m_messageController = nullptr;

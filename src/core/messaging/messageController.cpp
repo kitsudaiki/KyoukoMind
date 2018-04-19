@@ -60,7 +60,9 @@ bool MessageController::sendMessage(Message *message)
     it = m_messageQueues.find(targetClusterId);
     if(it != m_messageQueues.end()) {
         IncomingMessageBuffer* targetQueue = it->second;
-        targetQueue->addMessage(targetSite, message);
+        if(message->getMetaData().type == DATA_MESSAGE) {
+            targetQueue->addMessage(targetSite, (DataMessage*)message);
+        }
         return true;
     }
     return false;

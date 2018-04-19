@@ -37,6 +37,35 @@ NetworkManager::NetworkManager()
     m_processingUnitHandler = new ProcessingUnitHandler(m_clusterHandler);
     m_messageController = new MessageController();
 
+    initNetwork();
+}
+
+/**
+ * @brief NetworkManager::getMessageController
+ * @return
+ */
+MessageController *NetworkManager::getMessageController() const
+{
+    return m_messageController;
+}
+
+/**
+ * @brief NetworkManager::run
+ */
+void NetworkManager::run()
+{
+    while(!m_abort)
+    {
+        usleep(PROCESS_INTERVAL);
+        m_processingUnitHandler->initNextCycle();
+    }
+}
+
+/**
+ * @brief NetworkManager::initNetwork
+ */
+void NetworkManager::initNetwork()
+{
     bool ok = false;
     std::string initialFile = KyoukoNetwork::m_config->getInitialFilePath(&ok);
     std::string directoryPath = KyoukoNetwork::m_config->getDirectoryPath(&ok);
@@ -70,27 +99,6 @@ NetworkManager::NetworkManager()
         for(uint32_t i = 0; i < clusterFiles.size(); i++) {
             // TODO
         }
-    }
-}
-
-/**
- * @brief NetworkManager::getMessageController
- * @return
- */
-MessageController *NetworkManager::getMessageController() const
-{
-    return m_messageController;
-}
-
-/**
- * @brief NetworkManager::run
- */
-void NetworkManager::run()
-{
-    while(true)
-    {
-        usleep(PROCESS_INTERVAL);
-        m_processingUnitHandler->initNextCycle();
     }
 }
 

@@ -57,13 +57,11 @@ bool ClusterInitilizer::createNetwork()
 
     for(uint32_t x = 0; x < (*m_networkMetaStructure).size(); x++)
     {
-        std::cout<<"------"<<std::endl;
         for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++)
         {
             addCluster(x, y, nodeNumberPerCluster);
         }
     }
-    std::cout<<"------"<<std::endl;
     return true;
 }
 

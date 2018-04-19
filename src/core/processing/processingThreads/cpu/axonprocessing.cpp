@@ -30,8 +30,9 @@ inline void processEdgeSection(KyoChanEdgeSection* currentSection,
                                OutgoingMessageBuffer* outgoBuffer)
 {
     // process edge-section
+    KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
     for(KyoChanEdge* edge = currentSection->edges;
-        edge < edge + currentSection->numberOfEdges;
+        edge < end;
         edge++)
     {
         uint8_t side = edge->targetClusterPath % 16;
@@ -50,8 +51,9 @@ inline void processEdgeSectionOnNode(KyoChanEdgeSection* currentSection,
                                      KyoChanNode* nodes)
 {
     // process edge-section
+    KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
     for(KyoChanEdge* edge = currentSection->edges;
-        edge < edge + currentSection->numberOfEdges;
+        edge < end;
         edge++)
     {
         if(edge->targetClusterPath != 0) {
@@ -108,8 +110,9 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
 inline void processPendingEdges(KyoChanAxon* axon,
                                 OutgoingMessageBuffer* outgoBuffer)
 {
+    KyoChanPendingEdgeContainer* end = axon->pendingEdges.pendingEdges + MAX_PENDING_EDGES;
     for(KyoChanPendingEdgeContainer* pendingEdge = axon->pendingEdges.pendingEdges;
-        pendingEdge < pendingEdge + MAX_PENDING_EDGES;
+        pendingEdge < end;
         pendingEdge++)
     {
         if(pendingEdge->newEdgeId != 0)
@@ -139,8 +142,9 @@ bool AxonProcessing::processAxons(EdgeCluster* edgeCluster)
 
     uint32_t axonId = 0;
     // process axons
+    KyoChanAxon* axonEnd = edgeCluster->getAxonBlock() + edgeCluster->getNumberOfAxonBlocks();
     for(KyoChanAxon* axon = edgeCluster->getAxonBlock();
-        axon < axon + edgeCluster->getNumberOfAxonBlocks();
+        axon < axonEnd;
         axon++)
     {
         // check border-value to skip some axon
@@ -158,8 +162,9 @@ bool AxonProcessing::processAxons(EdgeCluster* edgeCluster)
 
         // process normal edges
         KyoChanEdgeSection* edgeSections = edgeCluster->getEdgeBlock();
+        uint32_t* edgeSectionIdEnd = axon->edgeSections + axon->numberOfEdgeSections;
         for(uint32_t* edgeSectionIds = axon->edgeSections;
-            edgeSectionIds < edgeSectionIds + axon->numberOfEdgeSections;
+            edgeSectionIds < edgeSectionIdEnd;
             edgeSectionIds++)
         {
             KyoChanEdgeSection* currentSection = &edgeSections[*edgeSectionIds];

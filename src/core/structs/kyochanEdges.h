@@ -45,13 +45,17 @@ struct KyoChanPendingEdgeSectionSmall
     KyoChanPendingEdgeContainer pendingEdges[PENDING_EDGES_PER_EDGESECTION_SMALL];
     uint8_t padding[14];
 
+    /**
+     * @brief checkPendingEdges
+     */
     void checkPendingEdges()
     {
         if(numberOfPendingEdges == 0) {
             return;
         }
+        KyoChanPendingEdgeContainer* end = pendingEdges + PENDING_EDGES_PER_EDGESECTION_SMALL;
         for(KyoChanPendingEdgeContainer* pendingEdge = pendingEdges;
-            pendingEdge < pendingEdge + PENDING_EDGES_PER_EDGESECTION_SMALL;
+            pendingEdge < end;
             pendingEdge++)
         {
             pendingEdge->validCounter++;
@@ -63,13 +67,19 @@ struct KyoChanPendingEdgeSectionSmall
         }
     }
 
+    /**
+     * @brief addPendingEdges
+     * @param newEdge
+     * @return
+     */
     bool addPendingEdges(const KyoChanPendingEdgeContainer &newEdge)
     {
         if(numberOfPendingEdges == PENDING_EDGES_PER_EDGESECTION_SMALL) {
             return false;
         }
+        KyoChanPendingEdgeContainer* end = pendingEdges + PENDING_EDGES_PER_EDGESECTION_SMALL;
         for(KyoChanPendingEdgeContainer* pendingEdge = pendingEdges;
-            pendingEdge < pendingEdge + PENDING_EDGES_PER_EDGESECTION_SMALL;
+            pendingEdge < end;
             pendingEdge++)
         {
             if(pendingEdge->newEdgeId == 0) {
@@ -88,13 +98,17 @@ struct KyoChanPendingEdgeSectionBig
     KyoChanPendingEdgeContainer pendingEdges[PENDING_EDGES_PER_EDGESECTION_BIG];
     uint8_t padding[14];
 
+    /**
+     * @brief checkPendingEdges
+     */
     void checkPendingEdges()
     {
         if(numberOfPendingEdges == 0) {
             return;
         }
+        KyoChanPendingEdgeContainer* end = pendingEdges + PENDING_EDGES_PER_EDGESECTION_BIG;
         for(KyoChanPendingEdgeContainer* pendingEdge = pendingEdges;
-            pendingEdge < pendingEdge + PENDING_EDGES_PER_EDGESECTION_BIG;
+            pendingEdge < end;
             pendingEdge++)
         {
             pendingEdge->validCounter++;
@@ -106,13 +120,19 @@ struct KyoChanPendingEdgeSectionBig
         }
     }
 
+    /**
+     * @brief addPendingEdges
+     * @param newEdge
+     * @return
+     */
     bool addPendingEdges(const KyoChanPendingEdgeContainer &newEdge)
     {
         if(numberOfPendingEdges == PENDING_EDGES_PER_EDGESECTION_BIG) {
             return false;
         }
+        KyoChanPendingEdgeContainer* end = pendingEdges + PENDING_EDGES_PER_EDGESECTION_BIG;
         for(KyoChanPendingEdgeContainer* pendingEdge = pendingEdges;
-            pendingEdge < pendingEdge + PENDING_EDGES_PER_EDGESECTION_BIG;
+            pendingEdge < end;
             pendingEdge++)
         {
             if(pendingEdge->newEdgeId == 0) {

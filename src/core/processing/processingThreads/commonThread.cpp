@@ -61,9 +61,6 @@ bool CommonThread::stop()
  */
 void CommonThread::continueThread()
 {
-    {
-        std::lock_guard<std::mutex> guard(m_cvMutex);
-    }
     m_cv.notify_one();
 }
 

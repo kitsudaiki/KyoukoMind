@@ -63,6 +63,7 @@ Cluster *ClusterQueue::getCluster()
  */
 bool ClusterQueue::addCluster(Cluster *cluster)
 {
+    OUTPUT("add cluster to queue")
     m_queue.push(cluster);
     return true;
 }
