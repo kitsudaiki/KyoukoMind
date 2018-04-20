@@ -54,7 +54,7 @@ CpuProcessingUnit::~CpuProcessingUnit()
  */
 void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
-    OUTPUT("processCluster")
+    //OUTPUT("processCluster")
     uint8_t clusterType = (uint8_t)cluster->getClusterType();
 
     switch((int)clusterType)

@@ -298,6 +298,7 @@ bool EdgeProcessing::processInputMessages(NodeCluster* nodeCluster)
     IncomingMessageBuffer* incomBuffer = nodeCluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
 
+    OUTPUT("processInputMessages")
     uint8_t* end = (uint8_t*)incomBuffer->getMessage(0)->getPayload()
             + incomBuffer->getMessage(0)->getPayloadSize();
     for(uint8_t* data = (uint8_t*)incomBuffer->getMessage(0)->getPayload();

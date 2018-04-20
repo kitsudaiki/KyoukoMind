@@ -83,10 +83,10 @@ bool Cluster::addNeighbor(const uint8_t side, const Neighbor target)
     if(side > 16) {
         return false;
     }
-    if(side == 15) {
+    if(side == 0) {
         m_metaData.outgoing = 1;
     }
-    if(side == 0) {
+    if(side == 15) {
         m_metaData.incoming = 1;
     }
     m_metaData.neighors[side] = target;
@@ -110,7 +110,7 @@ Neighbor *Cluster::getNeighbors()
  */
 ClusterID Cluster::getNeighborId(const uint8_t side)
 {
-    m_metaData.neighors[side].targetClusterId;
+    return m_metaData.neighors[side].targetClusterId;
 }
 
 /**

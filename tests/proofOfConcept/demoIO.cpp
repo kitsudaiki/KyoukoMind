@@ -33,7 +33,7 @@ DemoIO::DemoIO(MessageController *messageController)
     neighbor.targetClusterId = 11;
     neighbor.side = 0;
     neighbor.neighborType = NODE_CLUSTER;
-    fakeCluster->addNeighbor(0, neighbor);
+    fakeCluster->addNeighbor(15, neighbor);
 
     m_incomBuffer = new IncomingMessageBuffer(fakeCluster, m_messageController);
     m_ougoingBuffer = new OutgoingMessageBuffer(fakeCluster, m_messageController);
@@ -76,7 +76,8 @@ void DemoIO::run()
 void DemoIO::sendOutData(const char input)
 {
     uint8_t inputNumber = (uint8_t)input;
-
+    OUTPUT("inputNumber:")
+    OUTPUT((int)inputNumber)
     KyoChanEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 12;
@@ -91,6 +92,7 @@ void DemoIO::sendOutData(const char input)
     edge3.weight = (float)inputNumber;
     edge3.targetNodeId = 42;
     sendData(edge3);
+    sendFinishCycle();
 }
 
 /**
@@ -110,6 +112,17 @@ void DemoIO::sendInnerData(const char input)
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 23;
     sendData(edge2);
+    sendFinishCycle();
+}
+
+/**
+ * @brief DemoIO::sendFinishCycle
+ */
+void DemoIO::sendFinishCycle()
+{
+    mutexLock();
+    m_ougoingBuffer->sendFinishCycle(15);
+    mutexUnlock();
 }
 
 /**
@@ -119,7 +132,7 @@ void DemoIO::sendInnerData(const char input)
 void DemoIO::sendData(const KyoChanEdgeContainer &edge)
 {
     mutexLock();
-    m_ougoingBuffer->addEdge(0, &edge);
+    m_ougoingBuffer->addEdge(15, &edge);
     mutexUnlock();
 }
 

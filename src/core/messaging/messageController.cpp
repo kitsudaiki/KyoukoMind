@@ -24,6 +24,7 @@ namespace KyoukoMind
 MessageController::MessageController()
 {
     assert(sizeof(KyoChanEdgeContainer) == 20);
+    assert(sizeof(KyoChanPendingEdgeContainer) == 20);
     assert(sizeof(KyoChanAxonEdgeContainer) == 20);
     assert(sizeof(KyoChanLearingEdgeContainer) == 20);
     assert(sizeof(KyoChanLearningEdgeReplyContainer) == 20);
@@ -53,6 +54,9 @@ bool MessageController::addIncomingMessageQueue(const uint32_t clusterId,
  */
 bool MessageController::sendMessage(Message *message)
 {
+    if(message->getPayloadSize() > 0 && message->getMetaData().targetSite == 0) {
+        OUTPUT("poi")
+    }
     uint32_t targetClusterId = message->getMetaData().targetClusterId;
     uint8_t targetSite = message->getMetaData().targetSite;
 
