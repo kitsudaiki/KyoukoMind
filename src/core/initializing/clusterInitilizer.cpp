@@ -81,23 +81,21 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
     switch ((int)(*m_networkMetaStructure)[x][y].type) {
         case 1:
             cluster = new EmptyCluster((*m_networkMetaStructure)[x][y].clusterId,
-                                       m_directoryPath,
-                                       m_messageController);
+                                       m_directoryPath);
             break;
         case 2:
             cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
-                                      m_directoryPath,
-                                      m_messageController);
+                                      m_directoryPath);
             break;
         case 3:
             cluster = new NodeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath,
-                                      nodeNumberPerCluster,
-                                      m_messageController);
+                                      nodeNumberPerCluster);
             break;
         default:
             return false;
     }
+    cluster->initMessageBuffer(m_messageController);
 
     addNeighbors(x, y, cluster);
     m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, cluster);

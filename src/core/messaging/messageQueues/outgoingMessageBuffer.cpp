@@ -132,7 +132,7 @@ void OutgoingMessageBuffer::sendReplyMessage(const uint8_t sourceSite)
  * @brief OutgoingMessageBuffer::sendFinishCycle
  * @param sourceSite
  */
-void OutgoingMessageBuffer::sendFinishCycle(const uint8_t sourceSite)
+void OutgoingMessageBuffer::finishCycle(const uint8_t sourceSite)
 {
     m_controller->sendMessage(m_dataMessageBuffer[sourceSite]);
     m_dataMessageBuffer[sourceSite] = new DataMessage(m_cluster->getNeighborId(sourceSite),

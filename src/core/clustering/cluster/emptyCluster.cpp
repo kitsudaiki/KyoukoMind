@@ -22,12 +22,10 @@ namespace KyoukoMind
  * @param controller
  */
 EmptyCluster::EmptyCluster(const ClusterID clusterId,
-                           const std::string directoryPath,
-                           MessageController *controller)
+                           const std::string directoryPath)
     : Cluster(clusterId,
               EMPTY_CLUSTER,
-              directoryPath,
-              controller)
+              directoryPath)
 {
 
 }
@@ -41,12 +39,10 @@ EmptyCluster::EmptyCluster(const ClusterID clusterId,
  */
 EmptyCluster::EmptyCluster(const ClusterID clusterId,
                            const uint8_t clusterType,
-                           const std::string directoryPath,
-                           MessageController *controller)
+                           const std::string directoryPath)
     : Cluster(clusterId,
               clusterType,
-              directoryPath,
-              controller)
+              directoryPath)
 {
 }
 
@@ -55,12 +51,12 @@ EmptyCluster::EmptyCluster(const ClusterID clusterId,
  */
 void EmptyCluster::finishCycle()
 {
-    m_outgoingMessageQueue->sendFinishCycle(2);
-    m_outgoingMessageQueue->sendFinishCycle(3);
-    m_outgoingMessageQueue->sendFinishCycle(4);
-    m_outgoingMessageQueue->sendFinishCycle(11);
-    m_outgoingMessageQueue->sendFinishCycle(12);
-    m_outgoingMessageQueue->sendFinishCycle(13);
+    m_outgoingMessageQueue->finishCycle(2);
+    m_outgoingMessageQueue->finishCycle(3);
+    m_outgoingMessageQueue->finishCycle(4);
+    m_outgoingMessageQueue->finishCycle(11);
+    m_outgoingMessageQueue->finishCycle(12);
+    m_outgoingMessageQueue->finishCycle(13);
 }
 
 }

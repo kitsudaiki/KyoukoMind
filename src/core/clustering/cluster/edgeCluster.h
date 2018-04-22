@@ -25,13 +25,11 @@ class EdgeCluster : public EmptyCluster
 
 public:
     EdgeCluster(const ClusterID clusterId,
-                const std::string directoryPath,
-                MessageController *controller);
+                const std::string directoryPath);
 
     EdgeCluster(const ClusterID clusterId,
                 const uint8_t clusterType,
-                const std::string directoryPath,
-                MessageController *controller);
+                const std::string directoryPath);
 
     ~EdgeCluster();
 

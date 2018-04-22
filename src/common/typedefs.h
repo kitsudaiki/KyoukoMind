@@ -19,5 +19,6 @@ typedef std::chrono::high_resolution_clock::time_point chronoTimePoint;
 typedef std::chrono::high_resolution_clock chronoClock;
 
 typedef uint32_t ClusterID;
+typedef uint8_t BYTE;
 
 #endif // TYPEDEFS_H

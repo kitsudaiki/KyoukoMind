@@ -21,11 +21,9 @@ class NodeCluster : public EdgeCluster
 public:
     NodeCluster(const ClusterID clusterId,
                 const std::string directoryPath,
-                const uint32_t numberOfNodes,
-                MessageController *controller);
+                const uint32_t numberOfNodes);
     NodeCluster(const ClusterID clusterId,
-                const std::string directoryPath,
-                MessageController *controller);
+                const std::string directoryPath);
     ~NodeCluster();
 
     uint32_t getNumberOfNodeBlocks() const;

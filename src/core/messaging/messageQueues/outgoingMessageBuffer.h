@@ -39,7 +39,7 @@ public:
 
     void sendReplyMessage(const uint8_t sourceSite);
 
-    void sendFinishCycle(const uint8_t sourceSite);
+    void finishCycle(const uint8_t sourceSite);
 
 private:
     DataMessage* m_dataMessageBuffer[16];

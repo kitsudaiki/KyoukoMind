@@ -30,16 +30,15 @@ class Cluster
 public:
     Cluster(const ClusterID &clusterId,
             const uint8_t clusterType,
-            const std::string directoryPath,
-            MessageController *controller);
+            const std::string directoryPath);
     ~Cluster();
 
     ClusterID getClusterId() const;
     uint8_t getClusterType() const;
 
     bool isReady() const;
-    IncomingMessageBuffer* getIncomingMessageBuffer() const;
-    OutgoingMessageBuffer* getOutgoingMessageBuffer() const;
+    IncomingMessageBuffer* getIncomingMessageBuffer();
+    OutgoingMessageBuffer* getOutgoingMessageBuffer();
 
     bool addNeighbor(const uint8_t side, const Neighbor target);
     Neighbor *getNeighbors();
@@ -49,13 +48,13 @@ public:
     void getMetaData();
     void updateMetaData(ClusterMetaData metaData);
 
+    void initMessageBuffer(MessageController *controller);
+
 private:
     // cluster-metadata
     uint64_t m_messageIdCounter = 0;
     uint32_t m_newEdgeIdCounter = 0;
 
-    void initMessageBuffer(MessageController *controller);
-    
 protected:
     PerformanceIO::DataBuffer* m_clusterDataBuffer = nullptr;
     IncomingMessageBuffer* m_incomingMessageQueue = nullptr;

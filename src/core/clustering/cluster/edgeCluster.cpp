@@ -18,15 +18,12 @@ namespace KyoukoMind
  * @brief EdgeCluster::EdgeCluster
  * @param clusterId
  * @param directoryPath
- * @param controller
  */
 EdgeCluster::EdgeCluster(const ClusterID clusterId,
-                         const std::string directoryPath,
-                         MessageController *controller)
+                         const std::string directoryPath)
     : EmptyCluster(clusterId,
                    EDGE_CLUSTER,
-                   directoryPath,
-                   controller)
+                   directoryPath)
 {
 }
 
@@ -35,16 +32,13 @@ EdgeCluster::EdgeCluster(const ClusterID clusterId,
  * @param clusterId
  * @param clusterType
  * @param directoryPath
- * @param controller
  */
 EdgeCluster::EdgeCluster(const ClusterID clusterId,
                          const uint8_t clusterType,
-                         const std::string directoryPath,
-                         MessageController *controller)
+                         const std::string directoryPath)
     : EmptyCluster(clusterId,
                    clusterType,
-                   directoryPath,
-                   controller)
+                   directoryPath)
 {
 }
 

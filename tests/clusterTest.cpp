@@ -31,11 +31,11 @@ void ClusterTest::initTestCase()
     MessageController contr;
     ClusterID tempId;
     tempId = 0;
-    m_nodeCluster = new NodeCluster(tempId, "/tmp", 1000, &contr);
+    m_nodeCluster = new NodeCluster(tempId, "/tmp", 1000);
     tempId = 1;
-    m_edgeCluster = new EdgeCluster(tempId, "/tmp", &contr);
+    m_edgeCluster = new EdgeCluster(tempId, "/tmp");
     tempId = 2;
-    m_emptyCluster = new EmptyCluster(tempId, "/tmp", &contr);
+    m_emptyCluster = new EmptyCluster(tempId, "/tmp");
 }
 
 void ClusterTest::checkNodeCluster()

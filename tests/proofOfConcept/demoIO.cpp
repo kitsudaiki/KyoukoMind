@@ -27,7 +27,7 @@ namespace KyoukoMind
 DemoIO::DemoIO(MessageController *messageController)
 {
     m_messageController = messageController;
-    Cluster* fakeCluster = new Cluster(1337, NODE_CLUSTER, "/tmp/test", m_messageController);
+    Cluster* fakeCluster = new Cluster(1337, NODE_CLUSTER, "/tmp/test");
 
     Neighbor neighbor;
     neighbor.targetClusterId = 11;
@@ -121,7 +121,7 @@ void DemoIO::sendInnerData(const char input)
 void DemoIO::sendFinishCycle()
 {
     mutexLock();
-    m_ougoingBuffer->sendFinishCycle(15);
+    m_ougoingBuffer->finishCycle(15);
     mutexUnlock();
 }
 

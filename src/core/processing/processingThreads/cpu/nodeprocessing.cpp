@@ -48,6 +48,7 @@ bool NodeProcessing::processNodes(NodeCluster* nodeCluster)
     {
         if(nodes->border <= nodes->currentState)
         {
+            OUTPUT("YEAH")
             if(nodes->targetClusterPath != 0)
             {
                 const uint8_t side = nodes->targetClusterPath % 16;

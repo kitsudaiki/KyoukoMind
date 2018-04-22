@@ -10,6 +10,9 @@
 #include "messageBufferTest.h"
 #include <core/messaging/messageController.h>
 
+#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
+
 #include <core/messaging/messageQueues/messageBuffer.h>
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>
@@ -32,11 +35,19 @@ MessageBufferTest::MessageBufferTest() : CommonTest("MessageBufferTest")
  */
 void MessageBufferTest::initTestCase()
 {
-    ClusterID tempIdIn = 42;
-    ClusterID tempIdOut = 43;
     m_controller = new MessageController();
-    //m_incomBuffer = new IncomingMessageBuffer(tempIdIn, m_controller);
-    //m_ougoingBuffer = new OutgoingMessageBuffer(tempIdOut, m_controller);
+    Cluster* fakeCluster = new Cluster(1337, NODE_CLUSTER, "/tmp/test");
+
+    Neighbor neighbor;
+    neighbor.targetClusterId = 1337;
+    neighbor.side = 0;
+    neighbor.neighborType = NODE_CLUSTER;
+    fakeCluster->addNeighbor(15, neighbor);
+
+    fakeCluster->initMessageBuffer(m_controller);
+
+    m_incomBuffer = fakeCluster->getIncomingMessageBuffer();
+    m_ougoingBuffer = fakeCluster->getOutgoingMessageBuffer();
 }
 
 /**
@@ -44,16 +55,15 @@ void MessageBufferTest::initTestCase()
  */
 void MessageBufferTest::checkMessageBuffer()
 {
-    ClusterID tempIdIn = 42;
-    KyoChanEdge edge;
+    KyoChanEdgeContainer edge;
     edge.targetClusterPath = 42;
     edge.targetNodeId = 123;
 
-    //UNITTEST(m_ougoingBuffer->addEdge(tempIdIn, 1, edge), true);
-    //m_ougoingBuffer->sendFinishCycle(tempIdIn, 1);
+    UNITTEST(m_ougoingBuffer->addEdge(15, &edge), true);
+    m_ougoingBuffer->finishCycle(15);
 
-    //std::vector<Message*>* testList = m_incomBuffer->getMessage(1);
-    //UNITTEST(testList->size(), 1)
+    Message* message = m_incomBuffer->getMessage(0);
+    UNITTEST(message->getPayloadSize(), sizeof(KyoChanEdgeContainer))
 }
 
 /**

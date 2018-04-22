@@ -22,12 +22,10 @@ namespace KyoukoMind
  */
 NodeCluster::NodeCluster(const ClusterID clusterId,
                          const std::string directoryPath,
-                         const uint32_t numberOfNodes,
-                         MessageController *controller)
+                         const uint32_t numberOfNodes)
     : EdgeCluster(clusterId,
                   NODE_CLUSTER,
-                  directoryPath,
-                  controller)
+                  directoryPath)
 {
     initNodeBlocks(numberOfNodes);
 }
@@ -37,11 +35,9 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
  * @param filePath
  */
 NodeCluster::NodeCluster(const ClusterID clusterId,
-                         const std::string directoryPath,
-                         MessageController *controller)
+                         const std::string directoryPath)
     : EdgeCluster(clusterId,
-                  directoryPath,
-                  controller)
+                  directoryPath)
 {
     m_metaData.clusterType = NODE_CLUSTER;
 }

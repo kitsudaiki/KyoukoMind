@@ -59,7 +59,8 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, DataMessage *message)
     if(message->getPayloadSize() > 0 && side == 0) {
         OUTPUT("addMessage")
     }
-    if(side <= 15) {
+    if(side <= 15)
+    {
         m_mutex.lock();
         if(m_switchFlag) {
             m_dataMessageBuffer1[side] = message;
@@ -83,10 +84,22 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, DataMessage *message)
  */
 Message *IncomingMessageBuffer::getMessage(const uint8_t side)
 {
-    if(m_switchFlag) {
-        return m_dataMessageBuffer1[side];
+    if(!m_switchFlag) {
+        if(m_dataMessageBuffer1[side]->getPayloadSize() > 0 && side == 0) {
+            OUTPUT("getMessage")
+        }
+        DataMessage* message = m_dataMessageBuffer1[side];
+        delete m_dataMessageBuffer1[side];
+        m_dataMessageBuffer1[side] = nullptr;
+        return message;
     } else {
-        return m_dataMessageBuffer2[side];
+        if(m_dataMessageBuffer2[side]->getPayloadSize() > 0 && side == 0) {
+            OUTPUT("getMessage")
+        }
+        DataMessage* message = m_dataMessageBuffer2[side];
+        delete m_dataMessageBuffer2[side];
+        m_dataMessageBuffer2[side] = nullptr;
+        return message;
     }
 }
 

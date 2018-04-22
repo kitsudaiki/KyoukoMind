@@ -21,13 +21,11 @@ class EmptyCluster : public Cluster
 
 public:
     EmptyCluster(const ClusterID clusterId,
-                 const std::string directoryPath,
-                 MessageController *controller);
+                 const std::string directoryPath);
 
     EmptyCluster(const ClusterID clusterId,
                  const uint8_t clusterType,
-                 const std::string directoryPath,
-                 MessageController *controller);
+                 const std::string directoryPath);
 
     void finishCycle();
 };

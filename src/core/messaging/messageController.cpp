@@ -54,15 +54,13 @@ bool MessageController::addIncomingMessageQueue(const uint32_t clusterId,
  */
 bool MessageController::sendMessage(Message *message)
 {
-    if(message->getPayloadSize() > 0 && message->getMetaData().targetSite == 0) {
-        OUTPUT("poi")
-    }
     uint32_t targetClusterId = message->getMetaData().targetClusterId;
     uint8_t targetSite = message->getMetaData().targetSite;
 
     std::map<ClusterID, IncomingMessageBuffer*>::iterator it;
     it = m_messageQueues.find(targetClusterId);
-    if(it != m_messageQueues.end()) {
+    if(it != m_messageQueues.end())
+    {
         IncomingMessageBuffer* targetQueue = it->second;
         if(message->getMetaData().type == DATA_MESSAGE) {
             targetQueue->addMessage(targetSite, (DataMessage*)message);

@@ -25,11 +25,9 @@ namespace KyoukoMind
  */
 Cluster::Cluster(const ClusterID &clusterId,
                  const uint8_t clusterType,
-                 const std::string directoryPath,
-                 MessageController *controller)
+                 const std::string directoryPath)
 {
     m_metaData.clusterId = clusterId;
-    initMessageBuffer(controller);
 
     if(clusterType > 3) {
         m_metaData.clusterType = EMPTY_CLUSTER;
@@ -38,6 +36,7 @@ Cluster::Cluster(const ClusterID &clusterId,
     }
 
     initFile(clusterId, directoryPath);
+
     m_clusterDataBuffer->allocateBlocks(1);
     updateMetaData(m_metaData);
 }
@@ -154,7 +153,8 @@ void Cluster::initFile(const ClusterID clusterId,
 {
     std::string filePath = directoryPath
                          + "/cluster_" + std::to_string(clusterId);
-    m_clusterDataBuffer = new PerformanceIO::DataBuffer(filePath);
+    // TODO: readd file-path after tests
+    m_clusterDataBuffer = new PerformanceIO::DataBuffer("");
 }
 
 /**
@@ -170,7 +170,7 @@ bool Cluster::isReady() const
  * @brief Cluster::getIncomingMessageBuffer
  * @return
  */
-IncomingMessageBuffer *Cluster::getIncomingMessageBuffer() const
+IncomingMessageBuffer *Cluster::getIncomingMessageBuffer()
 {
     return m_incomingMessageQueue;
 }
@@ -179,7 +179,7 @@ IncomingMessageBuffer *Cluster::getIncomingMessageBuffer() const
  * @brief Cluster::getOutgoingMessageBuffer
  * @return
  */
-OutgoingMessageBuffer *Cluster::getOutgoingMessageBuffer() const
+OutgoingMessageBuffer *Cluster::getOutgoingMessageBuffer()
 {
     return m_outgoingMessageQueue;
 }
