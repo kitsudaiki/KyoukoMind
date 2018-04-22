@@ -31,7 +31,7 @@ DemoIO::DemoIO(MessageController *messageController)
     fakeCluster->initMessageBuffer(m_messageController);
 
     Neighbor neighbor;
-    neighbor.targetClusterId = 11;
+    neighbor.targetClusterId = 12;
     neighbor.side = 0;
     neighbor.neighborType = NODE_CLUSTER;
     fakeCluster->addNeighbor(15, neighbor);
