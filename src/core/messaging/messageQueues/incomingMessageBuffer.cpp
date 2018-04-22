@@ -85,20 +85,10 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, DataMessage *message)
 Message *IncomingMessageBuffer::getMessage(const uint8_t side)
 {
     if(!m_switchFlag) {
-        if(m_dataMessageBuffer1[side]->getPayloadSize() > 0 && side == 0) {
-            OUTPUT("getMessage")
-        }
         DataMessage* message = m_dataMessageBuffer1[side];
-        delete m_dataMessageBuffer1[side];
-        m_dataMessageBuffer1[side] = nullptr;
         return message;
     } else {
-        if(m_dataMessageBuffer2[side]->getPayloadSize() > 0 && side == 0) {
-            OUTPUT("getMessage")
-        }
         DataMessage* message = m_dataMessageBuffer2[side];
-        delete m_dataMessageBuffer2[side];
-        m_dataMessageBuffer2[side] = nullptr;
         return message;
     }
 }

@@ -309,6 +309,8 @@ bool EdgeProcessing::processInputMessages(NodeCluster* nodeCluster)
         OUTPUT("hmmmm")
         processIncomEdgeOnNode(data, outgoBuffer, nodeCluster->getNodeBlock());
     }
+    //incomBuffer->getMessage(0)->closeBuffer();
+    //delete incomBuffer->getMessage(0);
     return true;
 }
 
@@ -358,6 +360,9 @@ bool EdgeProcessing::processIncomingMessages(EdgeCluster* edgeCluster)
                     default:
                         break;
                 }
+
+                //incomBuffer->getMessage(side)->closeBuffer();
+                //delete incomBuffer->getMessage(side);
             }
         }
     }

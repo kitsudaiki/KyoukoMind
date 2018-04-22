@@ -95,9 +95,10 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
         default:
             return false;
     }
-    cluster->initMessageBuffer(m_messageController);
 
     addNeighbors(x, y, cluster);
+    cluster->initMessageBuffer(m_messageController);
+
     m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, cluster);
     (*m_networkMetaStructure)[x][y].cluster = cluster;
     return true;

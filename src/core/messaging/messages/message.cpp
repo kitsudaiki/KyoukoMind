@@ -58,6 +58,29 @@ Message::Message(void *data, uint32_t size)
 }
 
 /**
+ * @brief Message::~Message
+ */
+Message::~Message()
+{
+    if(m_buffer != nullptr) {
+        m_buffer->closeBuffer(true);
+    }
+}
+
+/**
+ * @brief Message::closeBuffer
+ * @return
+ */
+bool Message::closeBuffer()
+{
+    if(m_buffer != nullptr) {
+        m_buffer->closeBuffer(true);
+        return true;
+    }
+    return false;
+}
+
+/**
  * @brief Message::initBuffer
  */
 void Message::initBuffer()

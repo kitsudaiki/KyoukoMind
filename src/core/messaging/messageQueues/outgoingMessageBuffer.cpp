@@ -30,8 +30,25 @@ OutgoingMessageBuffer::OutgoingMessageBuffer(Cluster* cluster,
 {
     for(uint32_t side = 0; side < 16; side++)
     {
-        m_dataMessageBuffer[side] = new DataMessage(cluster->getNeighborId(side),
-                                                    cluster->getClusterId(),
+        m_dataMessageBuffer[side] = nullptr;
+    }
+    updateBufferInit();
+}
+
+/**
+ * @brief OutgoingMessageBuffer::updateBufferInit
+ * @return
+ */
+bool OutgoingMessageBuffer::updateBufferInit()
+{
+    for(uint32_t side = 0; side < 16; side++)
+    {
+        if(m_dataMessageBuffer[side] != nullptr) {
+            delete m_dataMessageBuffer[side];
+        }
+
+        m_dataMessageBuffer[side] = new DataMessage(m_cluster->getNeighborId(side),
+                                                    m_cluster->getClusterId(),
                                                     15 - side);
     }
 }

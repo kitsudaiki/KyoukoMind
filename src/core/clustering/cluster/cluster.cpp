@@ -89,6 +89,9 @@ bool Cluster::addNeighbor(const uint8_t side, const Neighbor target)
         m_metaData.incoming = 1;
     }
     m_metaData.neighors[side] = target;
+    if(m_outgoingMessageQueue != nullptr) {
+        m_outgoingMessageQueue->updateBufferInit();
+    }
     updateMetaData(m_metaData);
     return true;
 }

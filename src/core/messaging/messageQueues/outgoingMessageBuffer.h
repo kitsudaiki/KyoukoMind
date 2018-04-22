@@ -41,6 +41,7 @@ public:
 
     void finishCycle(const uint8_t sourceSite);
 
+    bool updateBufferInit();
 private:
     DataMessage* m_dataMessageBuffer[16];
     uint32_t m_messageIdCounter = 0;

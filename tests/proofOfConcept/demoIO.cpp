@@ -28,6 +28,7 @@ DemoIO::DemoIO(MessageController *messageController)
 {
     m_messageController = messageController;
     Cluster* fakeCluster = new Cluster(1337, NODE_CLUSTER, "/tmp/test");
+    fakeCluster->initMessageBuffer(m_messageController);
 
     Neighbor neighbor;
     neighbor.targetClusterId = 11;
@@ -35,8 +36,8 @@ DemoIO::DemoIO(MessageController *messageController)
     neighbor.neighborType = NODE_CLUSTER;
     fakeCluster->addNeighbor(15, neighbor);
 
-    m_incomBuffer = new IncomingMessageBuffer(fakeCluster, m_messageController);
-    m_ougoingBuffer = new OutgoingMessageBuffer(fakeCluster, m_messageController);
+    m_incomBuffer = fakeCluster->getIncomingMessageBuffer();
+    m_ougoingBuffer = fakeCluster->getOutgoingMessageBuffer();
 }
 
 /**

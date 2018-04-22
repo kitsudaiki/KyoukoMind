@@ -41,6 +41,9 @@ public:
     Message(const ClusterID targetClusterId,
             const uint8_t targetSite);
     Message(void *data, uint32_t size);
+    ~Message();
+
+    bool closeBuffer();
 
     CommonMessageData getMetaData() const;
     uint8_t getType() const;
