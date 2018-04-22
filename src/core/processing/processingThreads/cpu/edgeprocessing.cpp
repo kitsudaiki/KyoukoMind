@@ -42,6 +42,7 @@ EdgeProcessing::EdgeProcessing(NextChooser* nextChooser)
 inline void processIncomEdge(uint8_t *data,
                              OutgoingMessageBuffer* outgoBuffer)
 {
+    OUTPUT("processIncomEdge")
     KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data;
 
     // if not reached update data
@@ -61,6 +62,7 @@ inline void processIncomEdgeOnNode(uint8_t *data,
                                    OutgoingMessageBuffer* outgoBuffer,
                                    KyoChanNode* node)
 {
+    OUTPUT("processIncomEdgeOnNode")
     KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data;
 
     // check if target-cluster is reached
@@ -89,8 +91,10 @@ inline void processIncomAxonEdge(uint8_t *data,
                                  OutgoingMessageBuffer* outgoBuffer,
                                  KyoChanAxon* axon)
 {
+    OUTPUT("processIncomAxonEdge")
     KyoChanAxonEdgeContainer* edge = (KyoChanAxonEdgeContainer*)data;
 
+    std::cout<<"edge->targetAxonId: "<<edge->targetAxonId<<std::endl;
     // check if target-cluster is reached
     if(edge->targetClusterPath != 0)
     {
@@ -117,6 +121,7 @@ inline void processIncomPendingEdge(uint8_t *data,
                                     OutgoingMessageBuffer *outgoBuffer,
                                     EdgeCluster* edgeCluster)
 {
+    OUTPUT("processIncomPendingEdge")
     KyoChanPendingEdgeContainer* edge = (KyoChanPendingEdgeContainer*)data;
     const uint16_t numberOfPendingEdges = edgeCluster->getPendingEdges()->numberOfPendingEdges;
 
@@ -148,6 +153,7 @@ inline void processIncomLerningEdgeOnNode(uint8_t *data,
                                           NodeCluster* nodeCluster,
                                           NextChooser* nextChooser)
 {
+    OUTPUT("processIncomLerningEdgeOnNode")
     KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
 
     // check abort-condition
@@ -208,6 +214,7 @@ inline void processIncomLerningEdge(uint8_t *data,
                                     EdgeCluster* edgeCluster,
                                     NextChooser* nextChooser)
 {
+    OUTPUT("processIncomLerningEdge")
     KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
 
     // check abort-condition
@@ -244,6 +251,7 @@ inline void processIncomLerningReplyEdge(uint8_t *data,
                                          OutgoingMessageBuffer* outgoBuffer,
                                          EdgeCluster* edgeCluster)
 {
+    OUTPUT("processIncomLerningReplyEdge")
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
     // check if target-cluster is reached
@@ -295,18 +303,16 @@ inline void processIncomLerningReplyEdge(uint8_t *data,
  */
 bool EdgeProcessing::processInputMessages(NodeCluster* nodeCluster)
 {
+    OUTPUT("processInputMessages")
     IncomingMessageBuffer* incomBuffer = nodeCluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
 
-    OUTPUT("processInputMessages")
-    uint8_t* end = (uint8_t*)incomBuffer->getMessage(0)->getPayload()
-            + incomBuffer->getMessage(0)->getPayloadSize();
-    OUTPUT((int)incomBuffer->getMessage(0)->getPayloadSize())
-    for(uint8_t* data = (uint8_t*)incomBuffer->getMessage(0)->getPayload();
+    uint8_t* start = (uint8_t*)incomBuffer->getMessage(0)->getPayload();
+    uint8_t* end = start + incomBuffer->getMessage(0)->getPayloadSize();
+    for(uint8_t* data = start;
         data < end;
-        data++)
+        data += 20)
     {
-        OUTPUT("hmmmm")
         processIncomEdgeOnNode(data, outgoBuffer, nodeCluster->getNodeBlock());
     }
     //incomBuffer->getMessage(0)->closeBuffer();
@@ -334,11 +340,11 @@ bool EdgeProcessing::processIncomingMessages(EdgeCluster* edgeCluster)
         // process normal communication
         for(uint8_t side = 0; side < m_sideOrder.size(); side++)
         {
-            uint8_t* end = (uint8_t*)incomBuffer->getMessage(side)->getPayload()
-                    + incomBuffer->getMessage(side)->getPayloadSize();
-            for(uint8_t* data = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
+            uint8_t* start = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
+            uint8_t* end = start + incomBuffer->getMessage(side)->getPayloadSize();
+            for(uint8_t* data = start;
                 data < end;
-                data++)
+                data += 20)
             {
                 switch((int)(*data))
                 {
@@ -373,11 +379,11 @@ bool EdgeProcessing::processIncomingMessages(EdgeCluster* edgeCluster)
         // process normal communication
         for(uint8_t side = 0; side < m_sideOrder.size(); side++)
         {
-            uint8_t* end = (uint8_t*)incomBuffer->getMessage(side)->getPayload()
-                    + incomBuffer->getMessage(side)->getPayloadSize();
-            for(uint8_t* data = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
+            uint8_t* start = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
+            uint8_t* end = start + incomBuffer->getMessage(side)->getPayloadSize();
+            for(uint8_t* data = start;
                 data < end;
-                data++)
+                data += 20)
             {
                 switch((int)(*data))
                 {
