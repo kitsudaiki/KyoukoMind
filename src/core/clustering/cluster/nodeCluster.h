@@ -27,7 +27,7 @@ public:
     ~NodeCluster();
 
     uint32_t getNumberOfNodeBlocks() const;
-    uint32_t getNumberOfNodes() const;
+    uint16_t getNumberOfNodes() const;
 
     void addOutputCluster(const ClusterID clusterId,
                           const uint32_t fakeAxonId,

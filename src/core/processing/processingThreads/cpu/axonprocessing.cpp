@@ -88,7 +88,7 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
     OUTPUT("createNewEdge")
     const uint8_t nextSide = nextChooser->getNextCluster(edgeCluster->getNeighbors(), 14);
     const uint32_t newEdgeId = edgeCluster->getNextNewEdgeId();
-    const float weight = 1.0;
+    const float weight = 100.0;
 
     KyoChanLearingEdgeContainer newEdge;
     newEdge.newEdgeId = newEdgeId;
@@ -138,6 +138,8 @@ inline void processPendingEdges(KyoChanAxon* axon,
  */
 bool AxonProcessing::processAxons(EdgeCluster* edgeCluster)
 {
+    OUTPUT("---")
+    OUTPUT("processAxons")
     if(edgeCluster == nullptr) {
         return false;
     }
@@ -158,7 +160,8 @@ bool AxonProcessing::processAxons(EdgeCluster* edgeCluster)
         }
 
         // create new edge
-        if((axon->currentState / axon->numberOfEdges) >= AXON_FORK_BORDER) {
+        if((axon->currentState / axon->numberOfEdges) >= AXON_FORK_BORDER)
+        {
             if(rand() % 100 > POSSIBLE_NEXT_LEARNING_STEP) {
                 createNewEdge(edgeCluster, axonId, outgoBuffer, m_nextChooser);
             }

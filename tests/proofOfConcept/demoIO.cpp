@@ -81,17 +81,17 @@ void DemoIO::sendOutData(const char input)
     OUTPUT((int)inputNumber)
     KyoChanEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
-    edge1.targetNodeId = 12;
+    edge1.targetNodeId = 1;
     sendData(edge1);
 
     KyoChanEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
-    edge2.targetNodeId = 23;
+    edge2.targetNodeId = 1;
     sendData(edge2);
 
     KyoChanEdgeContainer edge3;
     edge3.weight = (float)inputNumber;
-    edge3.targetNodeId = 42;
+    edge3.targetNodeId = 1;
     sendData(edge3);
     sendFinishCycle();
 }
@@ -106,12 +106,12 @@ void DemoIO::sendInnerData(const char input)
 
     KyoChanEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
-    edge1.targetNodeId = 12;
+    edge1.targetNodeId = 1;
     sendData(edge1);
 
     KyoChanEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
-    edge2.targetNodeId = 23;
+    edge2.targetNodeId = 1;
     sendData(edge2);
     sendFinishCycle();
 }

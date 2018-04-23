@@ -68,6 +68,9 @@ bool AxonInitializer::createAxons()
                     (*m_networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
                     nodes[nodeNumber].targetClusterPath = newAxon.targetPath;
                     nodes[nodeNumber].targetAxonId = axonId;
+
+                    std::cout<<"newAxon.targetPath: "<<newAxon.targetPath<<std::endl;
+                    std::cout<<"nodes[nodeNumber].targetAxonId: "<<nodes[nodeNumber].targetAxonId<<std::endl;
                 }
             }
         }

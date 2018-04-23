@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  @file    nodeProcessing.cpp
  *  @author  Tobias Anker
  *
@@ -32,20 +32,26 @@ NodeProcessing::NodeProcessing()
  */
 bool NodeProcessing::processNodes(NodeCluster* nodeCluster)
 {
+    OUTPUT("---")
+    OUTPUT("processNodes")
     if(nodeCluster == nullptr) {
         return false;
     }
+    std::cout<<"   ID: "<<nodeCluster->getClusterId()<<std::endl;
     // get necessary values
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
-    const uint8_t numberOfNodes = nodeCluster->getNumberOfNodes();
+    const uint16_t numberOfNodes = nodeCluster->getNumberOfNodes();
     KyoChanAxon* axonBlock = nodeCluster->getAxonBlock();
 
+    std::cout<<"   numberOfNodes: "<<(int)numberOfNodes<<std::endl;
     // process nodes
     KyoChanNode* end = nodeCluster->getNodeBlock() + numberOfNodes;
     for(KyoChanNode* nodes = nodeCluster->getNodeBlock();
         nodes < end;
         nodes++)
     {
+        std::cout<<"   nodes->border: "<<nodes->border<<std::endl;
+        std::cout<<"   nodes->currentState: "<<nodes->currentState<<std::endl;
         if(nodes->border <= nodes->currentState)
         {
             OUTPUT("YEAH")
@@ -53,6 +59,7 @@ bool NodeProcessing::processNodes(NodeCluster* nodeCluster)
             {
                 const uint8_t side = nodes->targetClusterPath % 16;
 
+                std::cout<<"++++ "<<nodes->targetClusterPath<<std::endl;
                 // create new axon-edge
                 KyoChanAxonEdgeContainer edge;
                 edge.targetClusterPath = nodes->targetClusterPath / 16;
@@ -63,6 +70,7 @@ bool NodeProcessing::processNodes(NodeCluster* nodeCluster)
             }
             else
             {
+                std::cout<<"++++ add to: "<<nodes->targetAxonId<<std::endl;
                 axonBlock[nodes->targetAxonId].currentState = nodes->currentState;
             }
 

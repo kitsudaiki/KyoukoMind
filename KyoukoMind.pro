@@ -52,7 +52,8 @@ SOURCES += main.cpp \
             tests/proofOfConcept/demoUserInput.cpp \
             src/core/processing/processingThreads/cpu/edgeprocessing.cpp \
             src/core/processing/processingThreads/cpu/nodeprocessing.cpp \
-            src/core/processing/processingThreads/cpu/axonprocessing.cpp
+            src/core/processing/processingThreads/cpu/axonprocessing.cpp \
+    tests/processingtest.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -98,7 +99,8 @@ HEADERS +=\
             tests/proofOfConcept/demoIO.h \
             src/core/processing/processingThreads/cpu/edgeprocessing.h \
             src/core/processing/processingThreads/cpu/nodeprocessing.h \
-            src/core/processing/processingThreads/cpu/axonprocessing.h
+            src/core/processing/processingThreads/cpu/axonprocessing.h \
+    tests/processingtest.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
