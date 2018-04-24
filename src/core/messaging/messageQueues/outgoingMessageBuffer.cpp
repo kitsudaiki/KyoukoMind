@@ -46,7 +46,6 @@ bool OutgoingMessageBuffer::updateBufferInit()
         if(m_dataMessageBuffer[side] != nullptr) {
             delete m_dataMessageBuffer[side];
         }
-
         m_dataMessageBuffer[side] = new DataMessage(m_cluster->getNeighborId(side),
                                                     m_cluster->getClusterId(),
                                                     15 - side);
@@ -97,6 +96,7 @@ bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSite,
 {
     if(sourceSite < 16) {
         m_dataMessageBuffer[sourceSite]->addAxonEdge(newAxonEdge);
+        std::cout<<"   +++ sourceSite: "<<(int)sourceSite<<"   payload: "<<m_dataMessageBuffer[sourceSite]->getPayloadSize()<<std::endl;
         return true;
     }
     return false;

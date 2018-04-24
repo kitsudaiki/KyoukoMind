@@ -100,6 +100,7 @@ inline void processIncomAxonEdge(uint8_t *data,
     KyoChanAxonEdgeContainer* edge = (KyoChanAxonEdgeContainer*)data;
 
     std::cout<<"   edge->targetAxonId: "<<edge->targetAxonId<<std::endl;
+    std::cout<<"   edge->weight: "<<edge->weight<<std::endl;
     // check if target-cluster is reached
     if(edge->targetClusterPath != 0)
     {
@@ -360,6 +361,8 @@ bool EdgeProcessing::processIncomingMessages(EdgeCluster* edgeCluster)
                 data < end;
                 data += 20)
             {
+                std::cout<<"   side: "<<(int)side<<std::endl;
+                std::cout<<"   message-type: "<<(int)(*data)<<std::endl;
                 switch((int)(*data))
                 {
                     case EDGE_CONTAINER:

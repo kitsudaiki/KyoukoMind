@@ -55,7 +55,7 @@ void ProcessingTest::initTestCase()
     Neighbor neighbor1;
     neighbor1.targetClusterId = 2;
     neighbor1.neighborType = NODE_CLUSTER;
-    m_nodeCluster1->addNeighbor(12, neighbor1);
+    m_nodeCluster1->addNeighbor(3, neighbor1);
     m_nodeCluster1->initMessageBuffer(m_controller);
     m_nodeCluster1->getNodeBlock()[0].targetClusterPath = 3;
     m_nodeCluster1->getNodeBlock()[0].targetAxonId = 0;
@@ -63,7 +63,7 @@ void ProcessingTest::initTestCase()
     Neighbor neighbor2;
     neighbor2.targetClusterId = 3;
     neighbor2.neighborType = NODE_CLUSTER;
-    m_nodeCluster2->addNeighbor(12, neighbor2);
+    m_nodeCluster2->addNeighbor(3, neighbor2);
     m_nodeCluster2->initMessageBuffer(m_controller);
     m_nodeCluster2->initAxonBlocks(1);
 

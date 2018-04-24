@@ -103,6 +103,8 @@ struct KyoChanPendingEdgeSectionBig
      */
     void checkPendingEdges()
     {
+        OUTPUT("---")
+        OUTPUT("checkPendingEdges")
         if(numberOfPendingEdges == 0) {
             return;
         }

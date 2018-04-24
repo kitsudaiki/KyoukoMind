@@ -29,6 +29,7 @@ AxonProcessing::AxonProcessing(NextChooser *nextChooser)
 inline void processEdgeSection(KyoChanEdgeSection* currentSection,
                                OutgoingMessageBuffer* outgoBuffer)
 {
+    OUTPUT("---")
     OUTPUT("processEdgeSection")
     // process edge-section
     KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
@@ -51,6 +52,7 @@ inline void processEdgeSectionOnNode(KyoChanEdgeSection* currentSection,
                                      OutgoingMessageBuffer* outgoBuffer,
                                      KyoChanNode* nodes)
 {
+    OUTPUT("---")
     OUTPUT("processEdgeSectionOnNode")
     // process edge-section
     KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
@@ -85,6 +87,7 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
                           OutgoingMessageBuffer* outgoBuffer,
                           NextChooser *nextChooser)
 {
+    OUTPUT("---")
     OUTPUT("createNewEdge")
     const uint8_t nextSide = nextChooser->getNextCluster(edgeCluster->getNeighbors(), 14);
     const uint32_t newEdgeId = edgeCluster->getNextNewEdgeId();
@@ -113,6 +116,7 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
 inline void processPendingEdges(KyoChanAxon* axon,
                                 OutgoingMessageBuffer* outgoBuffer)
 {
+    OUTPUT("---")
     OUTPUT("processPendingEdges")
     KyoChanPendingEdgeContainer* end = axon->pendingEdges.pendingEdges + MAX_PENDING_EDGES;
     for(KyoChanPendingEdgeContainer* pendingEdge = axon->pendingEdges.pendingEdges;
@@ -153,14 +157,19 @@ bool AxonProcessing::processAxons(EdgeCluster* edgeCluster)
         axon < axonEnd;
         axon++)
     {
+        std::cout<<"   axon->currentState: "<<axon->currentState<<std::endl;
         // check border-value to skip some axon
-        if(axon->currentState < AXON_PROCESS_BORDER) {
+        if(axon->currentState < AXON_PROCESS_BORDER)
+        {
             edgeCluster->getPendingEdges()->checkPendingEdges();
             continue;
         }
 
         // create new edge
-        if((axon->currentState / axon->numberOfEdges) >= AXON_FORK_BORDER)
+
+        std::cout<<"   axon->currentState: "<<axon->currentState<<std::endl;
+        std::cout<<"   axon->numberOfEdges: "<<(axon->numberOfEdges + 1)<<std::endl;
+        if((axon->currentState / (axon->numberOfEdges + 1)) >= AXON_FORK_BORDER)
         {
             if(rand() % 100 > POSSIBLE_NEXT_LEARNING_STEP) {
                 createNewEdge(edgeCluster, axonId, outgoBuffer, m_nextChooser);

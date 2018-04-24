@@ -51,6 +51,8 @@ EmptyCluster::EmptyCluster(const ClusterID clusterId,
  */
 void EmptyCluster::finishCycle()
 {
+    OUTPUT("---")
+    OUTPUT("finishCycle")
     m_outgoingMessageQueue->finishCycle(2);
     m_outgoingMessageQueue->finishCycle(3);
     m_outgoingMessageQueue->finishCycle(4);

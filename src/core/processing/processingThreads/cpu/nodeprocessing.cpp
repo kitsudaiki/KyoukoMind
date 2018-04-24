@@ -54,12 +54,13 @@ bool NodeProcessing::processNodes(NodeCluster* nodeCluster)
         std::cout<<"   nodes->currentState: "<<nodes->currentState<<std::endl;
         if(nodes->border <= nodes->currentState)
         {
-            OUTPUT("YEAH")
+            OUTPUT("    YEAH")
             if(nodes->targetClusterPath != 0)
             {
                 const uint8_t side = nodes->targetClusterPath % 16;
 
-                std::cout<<"++++ "<<nodes->targetClusterPath<<std::endl;
+                std::cout<<"   nodes->targetClusterPath: "<<nodes->targetClusterPath<<std::endl;
+                std::cout<<"   side: "<<(int)side<<std::endl;
                 // create new axon-edge
                 KyoChanAxonEdgeContainer edge;
                 edge.targetClusterPath = nodes->targetClusterPath / 16;

@@ -104,7 +104,8 @@ KyoChanNode *NodeCluster::getNodeBlock()
  */
 bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
 {
-    if(m_metaData.numberOfNodes == 0) {
+    if(m_metaData.numberOfNodes == 0)
+    {
         m_metaData.numberOfNodes = numberOfNodes;
         m_metaData.positionNodeBlocks = 1;
 
@@ -116,7 +117,8 @@ bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
 
         // fill array with empty nodes
         KyoChanNode* array = getNodeBlock();
-        for(uint16_t i = 0; i < numberOfNodes; i++) {
+        for(uint16_t i = 0; i < numberOfNodes; i++)
+        {
             KyoChanNode tempNode;
             array[i] = tempNode;
         }
