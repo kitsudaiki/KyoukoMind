@@ -40,7 +40,6 @@ void MessageBufferTest::initTestCase()
 
     Neighbor neighbor;
     neighbor.targetClusterId = 1337;
-    neighbor.side = 0;
     neighbor.neighborType = NODE_CLUSTER;
     fakeCluster->addNeighbor(15, neighbor);
 

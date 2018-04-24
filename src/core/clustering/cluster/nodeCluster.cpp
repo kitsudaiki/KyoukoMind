@@ -82,7 +82,6 @@ void NodeCluster::addOutputCluster(const ClusterID clusterId,
     Neighbor neighbor;
     neighbor.neighborType = EDGE_CLUSTER;
     neighbor.targetClusterId = clusterId;
-    neighbor.side = 15;
     addNeighbor(15, neighbor);
     getNodeBlock()[nodeId].targetAxonId = fakeAxonId;
     getNodeBlock()[nodeId].targetClusterPath = 15;

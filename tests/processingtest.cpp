@@ -41,7 +41,6 @@ void ProcessingTest::initTestCase()
 
     Neighbor neighbor;
     neighbor.targetClusterId = 1;
-    neighbor.side = 0;
     neighbor.neighborType = NODE_CLUSTER;
     initCluster->addNeighbor(15, neighbor);
     initCluster->initMessageBuffer(m_controller);
@@ -55,7 +54,6 @@ void ProcessingTest::initTestCase()
 
     Neighbor neighbor1;
     neighbor1.targetClusterId = 2;
-    neighbor1.side = 3;
     neighbor1.neighborType = NODE_CLUSTER;
     m_nodeCluster1->addNeighbor(12, neighbor1);
     m_nodeCluster1->initMessageBuffer(m_controller);
@@ -64,7 +62,6 @@ void ProcessingTest::initTestCase()
 
     Neighbor neighbor2;
     neighbor2.targetClusterId = 3;
-    neighbor2.side = 3;
     neighbor2.neighborType = NODE_CLUSTER;
     m_nodeCluster2->addNeighbor(12, neighbor2);
     m_nodeCluster2->initMessageBuffer(m_controller);
@@ -72,7 +69,6 @@ void ProcessingTest::initTestCase()
 
     Neighbor neighbor3;
     neighbor3.targetClusterId = 2;
-    neighbor3.side = 12;
     neighbor3.neighborType = NODE_CLUSTER;
     m_nodeCluster3->addNeighbor(3, neighbor3);
     m_nodeCluster3->initMessageBuffer(m_controller);

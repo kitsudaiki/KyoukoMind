@@ -183,7 +183,7 @@ uint8_t NextChooser::chooseNeighbor()
         if(m_possibleNext[i].good) {
             probability += m_possibleNext[i].probability;
             if(probability >= randVal) {
-                return m_possibleNext[i].neighbor.side;
+                return 15 - m_possibleNext[i].neighbor.targetSide;
             }
         }
     }
