@@ -12,6 +12,8 @@
 #include <tests/messageTest.h>
 #include <tests/messageBufferTest.h>
 #include <tests/processingtest.h>
+#include <tests/storageMemoryTest.h>
+#include <tests/dataBufferTest.h>
 
 #include <tests/proofOfConcept/demoUserInput.h>
 
