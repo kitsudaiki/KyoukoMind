@@ -12,6 +12,9 @@
 
 #include <common.h>
 
+/**
+ * @brief The ClusterPos struct
+ */
 struct ClusterPos
 {
     uint32_t x = 0;
@@ -19,6 +22,9 @@ struct ClusterPos
     uint32_t z = 0;
 } __attribute__((packed));
 
+/**
+ * @brief The Neighbor struct
+ */
 struct Neighbor
 {
     ClusterID targetClusterId;
@@ -29,6 +35,9 @@ struct Neighbor
     uint32_t distantToNextNodeCluster = 0;
 } __attribute__((packed));
 
+/**
+ * @brief The ClusterMetaData struct
+ */
 struct ClusterMetaData
 {
     ClusterID clusterId;
@@ -59,7 +68,11 @@ namespace KyoukoMind {
 class Cluster;
 }
 
-struct InitMetaDataEntry {
+/**
+ * @brief The InitMetaDataEntry struct
+ */
+struct InitMetaDataEntry
+{
     uint8_t type = 0;
     ClusterID clusterId = 0;
     Neighbor neighbors[16];

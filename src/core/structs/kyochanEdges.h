@@ -36,15 +36,17 @@ struct KyoChanEdge
  */
 struct KyoChanEdgeSection
 {
+    uint16_t marker = 0;
     KyoChanEdgeForward edgeFowards[16];
-    uint16_t numberOfEdges = 0;
+    uint32_t numberOfEdges = 0;
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
 
     /**
      * @brief isFull
      * @return
      */
-    bool isFull() const {
+    bool isFull() const
+    {
         if(numberOfEdges >= EDGES_PER_EDGESECTION) {
             return true;
         }
@@ -56,7 +58,8 @@ struct KyoChanEdgeSection
      * @param newEdge
      * @return
      */
-    bool addEdge(const KyoChanEdge &newEdge) {
+    bool addEdge(const KyoChanEdge &newEdge)
+    {
         if(numberOfEdges >= EDGES_PER_EDGESECTION) {
             return false;
         }
