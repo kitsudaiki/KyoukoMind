@@ -44,7 +44,7 @@ inline void processIncomEdge(uint8_t *data,
 {
     OUTPUT("---")
     OUTPUT("processIncomEdge")
-    KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data;
+    KyoChanEdgeForewardContainer* edge = (KyoChanEdgeForewardContainer*)data;
 
     // if not reached update data
     uint8_t side = edge->targetClusterPath % 16;
@@ -65,7 +65,7 @@ inline void processIncomEdgeOnNode(uint8_t *data,
 {
     OUTPUT("---")
     OUTPUT("processIncomEdgeOnNode")
-    KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data;
+    KyoChanEdgeForewardContainer* edge = (KyoChanEdgeForewardContainer*)data;
     std::cout<<"   edge->weight: "<< edge->weight<<std::endl;
     std::cout<<"   edge->targetClusterPath: "<< edge->targetClusterPath<<std::endl;
 
@@ -138,7 +138,7 @@ inline void processIncomPendingEdge(uint8_t *data,
         pendingEdge < end;
         pendingEdge++)
     {
-        if(pendingEdge->newEdgeId == edge->newEdgeId)
+        if(pendingEdge->marker == edge->marker)
         {
             // if pending-edge is found, get next side and to this direction
             outgoBuffer->addPendingEdge(pendingEdge->nextSite, edge);
@@ -183,7 +183,7 @@ inline void processIncomLerningEdgeOnNode(uint8_t *data,
 
         // create pending edge
         KyoChanPendingEdgeContainer pendEdge;
-        pendEdge.newEdgeId = edge->newEdgeId;
+        pendEdge.marker = edge->marker;
         pendEdge.nextSite = nextSide;
 
         // register pending edge in the current cluster
@@ -199,7 +199,7 @@ inline void processIncomLerningEdgeOnNode(uint8_t *data,
 
         // create reply-message
         KyoChanLearningEdgeReplyContainer reply;
-        reply.newEdgeId = edge->newEdgeId;
+        reply.newEdgeId = edge->marker;
         reply.sourceAxonId = edge->sourceAxonId;
         reply.sourceClusterPath = edge->sourceClusterPath;
         reply.targetNodeId = nodeId;
@@ -241,7 +241,7 @@ inline void processIncomLerningEdge(uint8_t *data,
 
     // create pending edge
     KyoChanPendingEdgeContainer pendEdge;
-    pendEdge.newEdgeId = edge->newEdgeId;
+    pendEdge.marker = edge->marker;
     pendEdge.nextSite = nextSide;
 
     // register pending edge in the current cluster
@@ -286,10 +286,10 @@ inline void processIncomLerningReplyEdge(uint8_t *data,
             pendingEdge < end;
             pendingEdge++)
         {
-            if(pendingEdge->newEdgeId == edge->newEdgeId)
+            if(pendingEdge->marker == edge->newEdgeId)
             {
                 // if found, then remove the entry
-                pendingEdge->newEdgeId = 0;
+                pendingEdge->marker = 0;
                 axon->numberOfPendingEdges--;
 
                 // create a normal edge
@@ -365,7 +365,7 @@ bool EdgeProcessing::processIncomingMessages(EdgeCluster* edgeCluster)
                 std::cout<<"   message-type: "<<(int)(*data)<<std::endl;
                 switch((int)(*data))
                 {
-                    case EDGE_CONTAINER:
+                    case EDGE_FOREWARD_CONTAINER:
                         processIncomEdge(data, outgoBuffer);
                         break;
                     case AXON_EDGE_CONTAINER:
@@ -407,7 +407,7 @@ bool EdgeProcessing::processIncomingMessages(EdgeCluster* edgeCluster)
                 std::cout<<"   message-type: "<<(int)(*data)<<std::endl;
                 switch((int)(data[0]))
                 {
-                    case EDGE_CONTAINER:
+                    case EDGE_FOREWARD_CONTAINER:
                         processIncomEdgeOnNode(data, outgoBuffer, nodeCluster->getNodeBlock());
                         break;
                     case AXON_EDGE_CONTAINER:

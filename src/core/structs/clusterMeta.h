@@ -26,7 +26,6 @@ struct Neighbor
 
     uint8_t targetSide = 0;
     uint8_t neighborType = EMPTY_CLUSTER;
-    uint32_t numberOfConnections = 0;
     uint32_t distantToNextNodeCluster = 0;
 } __attribute__((packed));
 
@@ -37,6 +36,7 @@ struct ClusterMetaData
 
     uint8_t clusterType = EMPTY_CLUSTER;
     Neighbor neighors[16];
+
     uint8_t outgoing = 0;
     uint8_t incoming = 0;
 
@@ -59,7 +59,7 @@ namespace KyoukoMind {
 class Cluster;
 }
 
-struct MetaDataEntry {
+struct InitMetaDataEntry {
     uint8_t type = 0;
     ClusterID clusterId = 0;
     Neighbor neighbors[16];

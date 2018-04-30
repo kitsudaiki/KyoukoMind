@@ -23,7 +23,7 @@ class MessageController;
 class ClusterInitilizer
 {
 public:
-    ClusterInitilizer(std::vector<std::vector<MetaDataEntry>> *networkMetaStructure,
+    ClusterInitilizer(std::vector<std::vector<InitMetaDataEntry>> *networkMetaStructure,
                       const uint32_t networkDimensionX,
                       const uint32_t networkDimensionY,
                       const std::string directoryPath,
@@ -33,7 +33,7 @@ public:
     bool createNetwork();
 
 private:
-    std::vector<std::vector<MetaDataEntry>>* m_networkMetaStructure = nullptr;
+    std::vector<std::vector<InitMetaDataEntry>>* m_networkMetaStructure = nullptr;
     uint32_t m_networkDimensionX = 0;
     uint32_t m_networkDimensionY = 0;
     std::string m_directoryPath = "";

@@ -39,7 +39,7 @@ inline void processEdgeSection(KyoChanEdgeSection* currentSection,
     {
         uint8_t side = edge->targetClusterPath % 16;
 
-        KyoChanEdgeContainer newEdge;
+        KyoChanEdgeForewardContainer newEdge;
         newEdge.weight = edge->weight;
         newEdge.targetNodeId = edge->targetNodeId;
         newEdge.targetClusterPath = edge->targetClusterPath / 16;
@@ -63,7 +63,7 @@ inline void processEdgeSectionOnNode(KyoChanEdgeSection* currentSection,
         if(edge->targetClusterPath != 0) {
             uint8_t side = edge->targetClusterPath % 16;
 
-            KyoChanEdgeContainer newEdge;
+            KyoChanEdgeForewardContainer newEdge;
             newEdge.weight = edge->weight;
             newEdge.targetNodeId = edge->targetNodeId;
             newEdge.targetClusterPath = edge->targetClusterPath / 16;
@@ -94,7 +94,7 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
     const float weight = 100.0;
 
     KyoChanLearingEdgeContainer newEdge;
-    newEdge.newEdgeId = newEdgeId;
+    newEdge.marker = newEdgeId;
     newEdge.sourceAxonId = axonId;
     newEdge.weight = weight;
 
@@ -102,7 +102,7 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
     outgoBuffer->addLearingEdge(nextSide, &newEdge);
 
     KyoChanPendingEdgeContainer pendingEdge;
-    pendingEdge.newEdgeId = newEdgeId;
+    pendingEdge.marker = newEdgeId;
     pendingEdge.nextSite = nextSide;
     pendingEdge.weight = weight;
 
@@ -125,11 +125,11 @@ inline void processPendingEdges(KyoChanAxon* axon,
         pendingEdge < end;
         pendingEdge++)
     {
-        if(pendingEdge->newEdgeId != 0)
+        if(pendingEdge->marker != 0)
         {
             uint8_t side = pendingEdge->nextSite;
 
-            KyoChanEdgeContainer newEdge;
+            KyoChanEdgeForewardContainer newEdge;
             newEdge.weight = pendingEdge->weight;
 
             outgoBuffer->addEdge(side, &newEdge);

@@ -79,7 +79,7 @@ void ProcessingTest::initTestCase()
  */
 void ProcessingTest::checkProcessing()
 {
-    KyoChanEdgeContainer edge;
+    KyoChanEdgeForewardContainer edge;
     edge.targetClusterPath = 0;
     edge.targetNodeId = 0;
     edge.weight = 100.0;

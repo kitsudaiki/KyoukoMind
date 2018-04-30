@@ -80,7 +80,6 @@ HEADERS +=\
             src/core/initializing/networkInitializer.h \
             src/core/structs/kyochanEdges.h \
             src/core/structs/kyochanNodes.h \
-            src/core/structs/learningMessages.h \
             src/core/structs/clusterMeta.h \
             src/core/processing/processingThreads/cpu/nextChooser.h \
             src/control/statusReporter.h \
@@ -104,7 +103,8 @@ HEADERS +=\
             src/core/processing/processingThreads/cpu/axonprocessing.h \
     tests/processingtest.h \
     tests/dataBufferTest.h \
-    tests/storageMemoryTest.h
+    tests/storageMemoryTest.h \
+    src/core/structs/messageContainer.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

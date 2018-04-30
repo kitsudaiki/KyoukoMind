@@ -31,7 +31,7 @@ namespace KyoukoMind
  * @param clusterHandler
  * @param messageController
  */
-ClusterInitilizer::ClusterInitilizer(std::vector<std::vector<MetaDataEntry> > *networkMetaStructure,
+ClusterInitilizer::ClusterInitilizer(std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure,
                                      const uint32_t networkDimensionX,
                                      const uint32_t networkDimensionY,
                                      const std::string directoryPath,

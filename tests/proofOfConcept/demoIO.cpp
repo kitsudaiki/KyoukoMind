@@ -54,8 +54,8 @@ void DemoIO::run()
             uint8_t* data = (uint8_t*)message->getData();
             for(uint32_t i = 0; i < message->getPayloadSize(); i = i + 20)
             {
-                if(data[i] == EDGE_CONTAINER) {
-                    KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data[i];
+                if(data[i] == EDGE_FOREWARD_CONTAINER) {
+                    KyoChanEdgeForewardContainer* edge = (KyoChanEdgeForewardContainer*)data[i];
 
                     uint32_t out = (uint32_t)edge->weight;
                     if(out > 255) {
@@ -78,17 +78,17 @@ void DemoIO::sendOutData(const char input)
     uint8_t inputNumber = (uint8_t)input;
     OUTPUT("inputNumber:")
     OUTPUT((int)inputNumber)
-    KyoChanEdgeContainer edge1;
+    KyoChanEdgeForewardContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 1;
     sendData(edge1);
 
-    KyoChanEdgeContainer edge2;
+    KyoChanEdgeForewardContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 1;
     sendData(edge2);
 
-    KyoChanEdgeContainer edge3;
+    KyoChanEdgeForewardContainer edge3;
     edge3.weight = (float)inputNumber;
     edge3.targetNodeId = 1;
     sendData(edge3);
@@ -103,12 +103,12 @@ void DemoIO::sendInnerData(const char input)
 {
     uint8_t inputNumber = (uint8_t)input;
 
-    KyoChanEdgeContainer edge1;
+    KyoChanEdgeForewardContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 1;
     sendData(edge1);
 
-    KyoChanEdgeContainer edge2;
+    KyoChanEdgeForewardContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 1;
     sendData(edge2);
@@ -129,7 +129,7 @@ void DemoIO::sendFinishCycle()
  * @brief DemoIO::sendData
  * @param input
  */
-void DemoIO::sendData(const KyoChanEdgeContainer &edge)
+void DemoIO::sendData(const KyoChanEdgeForewardContainer &edge)
 {
     mutexLock();
     m_ougoingBuffer->addEdge(15, &edge);

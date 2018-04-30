@@ -54,7 +54,7 @@ void MessageBufferTest::initTestCase()
  */
 void MessageBufferTest::checkMessageBuffer()
 {
-    KyoChanEdgeContainer edge;
+    KyoChanEdgeForewardContainer edge;
     edge.targetClusterPath = 42;
     edge.targetNodeId = 123;
 
@@ -62,7 +62,7 @@ void MessageBufferTest::checkMessageBuffer()
     m_ougoingBuffer->finishCycle(15);
 
     Message* message = m_incomBuffer->getMessage(0);
-    UNITTEST(message->getPayloadSize(), sizeof(KyoChanEdgeContainer))
+    UNITTEST(message->getPayloadSize(), sizeof(KyoChanEdgeForewardContainer))
 }
 
 /**
