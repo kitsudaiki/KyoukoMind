@@ -98,6 +98,7 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
     newEdge.sourceAxonId = axonId;
     newEdge.weight = weight;
 
+    std::cout<<"   add learning edge    axonId: "<<axonId<<"   weight: "<<weight<<std::endl;
     outgoBuffer->addLearingEdge(nextSide, &newEdge);
 
     KyoChanPendingEdgeContainer pendingEdge;
@@ -105,6 +106,7 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
     pendingEdge.nextSite = nextSide;
     pendingEdge.weight = weight;
 
+    std::cout<<"   add pending edge    newEdgeId: "<<newEdgeId<<"   nextSide: "<<(int)nextSide<<std::endl;
     edgeCluster->getAxonBlock()[axonId].pendingEdges.addPendingEdges(pendingEdge);
 }
 

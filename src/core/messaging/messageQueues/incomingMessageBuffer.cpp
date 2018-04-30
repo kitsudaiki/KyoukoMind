@@ -56,7 +56,7 @@ bool IncomingMessageBuffer::initMessageBuffer(Cluster *cluster)
  */
 bool IncomingMessageBuffer::addMessage(const uint8_t side, DataMessage *message)
 {
-    std::cout<<"   add Message  side: "<<(int)side<<"   payload: "<<(int)message->getPayloadSize()<<std::endl;
+    std::cout<<"   add Message  ID: "<<m_cluster->getClusterId()<<"   side: "<<(int)side<<"   payload: "<<(int)message->getPayloadSize()<<std::endl;
     if(side <= 15)
     {
         m_mutex.lock();

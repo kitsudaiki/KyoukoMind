@@ -102,6 +102,13 @@ void ProcessingTest::checkProcessing()
     m_nodeCluster2->getPendingEdges()->checkPendingEdges();
     m_nodeCluster2->finishCycle();
     OUTPUT("==========================================================")
+    m_edgeProcessing->processInputMessages(m_nodeCluster3);
+    m_edgeProcessing->processIncomingMessages((EdgeCluster*)m_nodeCluster3);
+    m_nodeProcessing->processNodes(m_nodeCluster3);
+    m_axonProcessing->processAxons((EdgeCluster*)m_nodeCluster3);
+    m_nodeCluster3->getPendingEdges()->checkPendingEdges();
+    m_nodeCluster3->finishCycle();
+    OUTPUT("==========================================================")
 }
 
 /**

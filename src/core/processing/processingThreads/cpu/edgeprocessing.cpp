@@ -403,6 +403,8 @@ bool EdgeProcessing::processIncomingMessages(EdgeCluster* edgeCluster)
                 data < end;
                 data += 20)
             {
+                std::cout<<"   side: "<<(int)side<<std::endl;
+                std::cout<<"   message-type: "<<(int)(*data)<<std::endl;
                 switch((int)(data[0]))
                 {
                     case EDGE_CONTAINER:
