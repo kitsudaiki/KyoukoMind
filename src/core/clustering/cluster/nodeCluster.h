@@ -36,12 +36,10 @@ public:
     uint32_t getNumberOfEdgeBlocks() const;
     KyoChanEdgeSection* getEdgeBlock();
     bool initEdgeBlocks(const uint32_t numberOfEdgeSections);
-    bool addEdge(const uint32_t axonId, const KyoChanEdge &newEdge);
+    bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
 
     bool initNodeBlocks(uint16_t numberOfNodes);
-
-private:
-    bool addEmptyEdgeSection(const uint32_t axonId);
+    uint32_t addEmptyEdgeSection(const uint32_t marker);
 
 };
 

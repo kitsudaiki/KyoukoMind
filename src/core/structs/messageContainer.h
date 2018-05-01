@@ -15,7 +15,7 @@
 /**
  * @brief The KyoChanEdgeForewardContainer struct
  */
-struct KyoChanEdgeForewardContainer
+struct KyoChanEdgeForwardContainer
 {
     uint8_t type = EDGE_FOREWARD_CONTAINER;
     uint8_t size = 10;

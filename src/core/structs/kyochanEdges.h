@@ -17,7 +17,7 @@
  */
 struct KyoChanEdgeForward
 {
-    uint16_t marker = 0;
+    uint8_t marker = 0;
     float weight = 0.0;
     uint32_t targetEdgeSectionId = 0;
 } __attribute__((packed));
@@ -36,7 +36,7 @@ struct KyoChanEdge
  */
 struct KyoChanEdgeForwardSection
 {
-    uint16_t marker = 0;
+    uint8_t marker = 0;
     KyoChanEdgeForward edgeForwards[16];
 } __attribute__((packed));
 
@@ -45,7 +45,8 @@ struct KyoChanEdgeForwardSection
  */
 struct KyoChanEdgeSection
 {
-    uint16_t marker = 0;
+    uint8_t marker = 0;
+    uint8_t incomSide = 0;
     KyoChanEdgeForward edgeForwards[16];
     uint32_t numberOfEdges = 0;
     KyoChanEdge edges[EDGES_PER_EDGESECTION];

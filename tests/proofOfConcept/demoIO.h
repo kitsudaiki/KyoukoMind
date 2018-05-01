@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <core/processing/processingThreads/commonThread.h>
-#include <core/structs/kyochanEdges.h>
+#include <core/structs/messageContainer.h>
 
 namespace KyoukoMind
 {
@@ -37,7 +37,7 @@ private:
 
     void sendInnerData(const char input);
 
-    void sendData(const KyoChanEdgeContainer &edge);
+    void sendData(const KyoChanEdgeForwardContainer &edge);
     void sendFinishCycle();
 };
 

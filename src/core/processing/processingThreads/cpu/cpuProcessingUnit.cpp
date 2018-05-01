@@ -11,7 +11,6 @@
 #include <core/processing/processingThreads/cpu/nextChooser.h>
 
 #include <core/clustering/cluster/cluster.h>
-#include <core/clustering/cluster/emptyCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -20,8 +19,6 @@
 #include <core/messaging/messages/replyMessage.h>
 
 #include <core/processing/processingThreads/cpu/nextChooser.h>
-#include <core/processing/processingThreads/cpu/axonprocessing.h>
-#include <core/processing/processingThreads/cpu/nodeprocessing.h>
 #include <core/processing/processingThreads/cpu/edgeprocessing.h>
 
 namespace KyoukoMind
@@ -35,8 +32,6 @@ CpuProcessingUnit::CpuProcessingUnit(ClusterQueue *clusterQueue):
     ProcessingUnit(clusterQueue)
 {
     m_nextChooser = new NextChooser();
-    m_axonProcessing = new AxonProcessing(m_nextChooser);
-    m_nodeProcessing = new NodeProcessing();
     m_edgeProcessing = new EdgeProcessing(m_nextChooser);
 }
 
@@ -63,7 +58,7 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
         {
             EdgeCluster *edgeCluster = static_cast<EdgeCluster*>(cluster);
             m_edgeProcessing->processIncomingMessages(edgeCluster);
-            m_axonProcessing->processAxons(edgeCluster);
+            m_edgeProcessing->processAxons(edgeCluster);
             edgeCluster->finishCycle();
             break;
         }
@@ -72,8 +67,8 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
             NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
             m_edgeProcessing->processInputMessages(nodeCluster);
             m_edgeProcessing->processIncomingMessages((EdgeCluster*)nodeCluster);
-            m_nodeProcessing->processNodes(nodeCluster);
-            m_axonProcessing->processAxons((EdgeCluster*)nodeCluster);
+            m_edgeProcessing->processNodes(nodeCluster);
+            m_edgeProcessing->processAxons((EdgeCluster*)nodeCluster);
             nodeCluster->finishCycle();
             break;
         }

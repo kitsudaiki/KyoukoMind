@@ -286,11 +286,8 @@ void Cluster::finishCycle()
  * @param endSection
  */
 void Cluster::syncEdgeSections(uint32_t startSection,
-                                   uint32_t endSection)
+                               uint32_t endSection)
 {
-    if(endSection >= getNumberOfEdgeBlocks()){
-        endSection = getNumberOfEdgeBlocks() - 1;
-    }
     if(endSection < startSection) {
         startSection = 0;
     }

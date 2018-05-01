@@ -64,6 +64,7 @@ public:
                           uint32_t endSection = 0);
 
     virtual bool initEdgeBlocks(const uint32_t numberOfEdgeSections) = 0;
+    virtual uint32_t addEmptyEdgeSection(const uint32_t marker) = 0;
 
 private:
     // cluster-metadata

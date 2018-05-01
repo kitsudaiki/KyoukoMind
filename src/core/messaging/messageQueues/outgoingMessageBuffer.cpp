@@ -59,7 +59,7 @@ bool OutgoingMessageBuffer::updateBufferInit()
  * @return
  */
 bool OutgoingMessageBuffer::addEdge(const uint8_t sourceSite,
-                                    const KyoChanEdgeForewardContainer *edge)
+                                    const KyoChanEdgeForwardContainer *edge)
 {
     if(sourceSite < 16) {
         m_dataMessageBuffer[sourceSite]->addEdge(edge);

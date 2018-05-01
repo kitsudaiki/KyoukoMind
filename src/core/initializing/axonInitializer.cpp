@@ -11,7 +11,6 @@
 #include <kyochanNetwork.h>
 
 #include <core/clustering/cluster/cluster.h>
-#include <core/clustering/cluster/emptyCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 

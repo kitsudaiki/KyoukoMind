@@ -30,7 +30,7 @@ public:
     uint32_t getNumberOfEdgeBlocks() const;
     KyoChanEdgeForwardSection* getEdgeBlock();
     bool initEdgeBlocks(const uint32_t numberOfEdgeSections);
-    bool addEmptyEdgeForwardSection(const uint32_t marker);
+    uint32_t addEmptyEdgeSection(const uint32_t marker);
 };
 
 }

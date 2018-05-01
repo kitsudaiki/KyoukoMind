@@ -41,7 +41,7 @@ DataMessage::DataMessage(void *data, uint32_t size) : Message(data, size)
  * @brief DataMessage::addEdge
  * @param newEdge
  */
-void DataMessage::addEdge(const KyoChanEdgeForewardContainer *newEdge)
+void DataMessage::addEdge(const KyoChanEdgeForwardContainer *newEdge)
 {
     checkBuffer();
     copyToBuffer((void*)newEdge);

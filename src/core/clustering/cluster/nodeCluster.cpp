@@ -173,7 +173,7 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
     }
 
     // get values
-    KyoChanEdgeSection* edgeSection = &getEdgeBlock()[axonId];
+    KyoChanEdgeSection* edgeSection = &getEdgeBlock()[edgeSectionId];
     edgeSection->addEdge(newEdge);
 
     return true;
@@ -184,7 +184,7 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
  * @param marker
  * @return
  */
-bool NodeCluster::addEmptyEdgeSection(const uint32_t marker)
+uint32_t NodeCluster::addEmptyEdgeSection(const uint32_t marker)
 {
     // allocate a new block, if necessary
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();

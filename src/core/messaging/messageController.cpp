@@ -23,7 +23,7 @@ namespace KyoukoMind
  */
 MessageController::MessageController()
 {
-    assert(sizeof(KyoChanEdgeForewardContainer) == 20);
+    assert(sizeof(KyoChanEdgeForwardContainer) == 20);
     assert(sizeof(KyoChanPendingEdgeContainer) == 20);
     assert(sizeof(KyoChanAxonEdgeContainer) == 20);
     assert(sizeof(KyoChanLearingEdgeContainer) == 20);

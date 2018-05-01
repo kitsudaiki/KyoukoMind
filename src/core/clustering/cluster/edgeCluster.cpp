@@ -94,7 +94,7 @@ bool EdgeCluster::initEdgeBlocks(const uint32_t numberOfEdgeSections)
  * @param marker
  * @return
  */
-bool EdgeCluster::addEmptyEdgeForwardSection(const uint32_t marker)
+uint32_t EdgeCluster::addEmptyEdgeSection(const uint32_t marker)
 {
     // allocate a new block, if necessary
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
@@ -103,7 +103,7 @@ bool EdgeCluster::addEmptyEdgeForwardSection(const uint32_t marker)
     {
         // TODO: outsourcing
         if(!m_clusterDataBuffer->allocateBlocks(1)) {
-            return false;
+            return 0;
         }
         m_metaData.numberOfEdgeBlocks++;
     }
@@ -114,7 +114,7 @@ bool EdgeCluster::addEmptyEdgeForwardSection(const uint32_t marker)
     getEdgeBlock()[m_metaData.numberOfEdgeSections] = newSection;
     m_metaData.numberOfEdgeSections++;
 
-    return true;
+    return m_metaData.numberOfEdgeSections-1;
 }
 
 }

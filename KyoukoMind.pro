@@ -50,8 +50,6 @@ SOURCES += main.cpp \
             src/core/clustering/clusterQueue.cpp \
             tests/proofOfConcept/demoUserInput.cpp \
             src/core/processing/processingThreads/cpu/edgeprocessing.cpp \
-            src/core/processing/processingThreads/cpu/nodeprocessing.cpp \
-            src/core/processing/processingThreads/cpu/axonprocessing.cpp \
             tests/processingtest.cpp \
             tests/dataBufferTest.cpp \
             tests/storageMemoryTest.cpp
@@ -97,8 +95,6 @@ HEADERS +=\
             tests/proofOfConcept/demoUserInput.h \
             tests/proofOfConcept/demoIO.h \
             src/core/processing/processingThreads/cpu/edgeprocessing.h \
-            src/core/processing/processingThreads/cpu/nodeprocessing.h \
-            src/core/processing/processingThreads/cpu/axonprocessing.h \
             tests/processingtest.h \
             tests/dataBufferTest.h \
             tests/storageMemoryTest.h \

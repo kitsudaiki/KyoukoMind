@@ -57,7 +57,6 @@ uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
     }
 
     uint8_t choosenSide = chooseNeighbor();
-    std::cout<<"   ### choosenSide: "<<(int)choosenSide<<std::endl;
     return choosenSide;
 }
 
