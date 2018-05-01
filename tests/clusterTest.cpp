@@ -34,8 +34,6 @@ void ClusterTest::initTestCase()
     m_nodeCluster = new NodeCluster(tempId, "/tmp", 1000);
     tempId = 1;
     m_edgeCluster = new EdgeCluster(tempId, "/tmp");
-    tempId = 2;
-    m_emptyCluster = new EmptyCluster(tempId, "/tmp");
 }
 
 void ClusterTest::checkNodeCluster()
@@ -85,7 +83,6 @@ void ClusterTest::cleanupTestCase()
 {
     delete m_nodeCluster;
     delete m_edgeCluster;
-    delete m_emptyCluster;
 
     remove("/tmp/cluster_0");
     remove("/tmp/cluster_1");

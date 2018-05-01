@@ -59,15 +59,11 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
 
     switch((int)clusterType)
     {
-        case EMPTY_CLUSTER:
-            ((EmptyCluster*)cluster)->finishCycle();
-            break;
         case EDGE_CLUSTER:
         {
             EdgeCluster *edgeCluster = static_cast<EdgeCluster*>(cluster);
             m_edgeProcessing->processIncomingMessages(edgeCluster);
             m_axonProcessing->processAxons(edgeCluster);
-            edgeCluster->getPendingEdges()->checkPendingEdges();
             edgeCluster->finishCycle();
             break;
         }
@@ -78,7 +74,6 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
             m_edgeProcessing->processIncomingMessages((EdgeCluster*)nodeCluster);
             m_nodeProcessing->processNodes(nodeCluster);
             m_axonProcessing->processAxons((EdgeCluster*)nodeCluster);
-            nodeCluster->getPendingEdges()->checkPendingEdges();
             nodeCluster->finishCycle();
             break;
         }

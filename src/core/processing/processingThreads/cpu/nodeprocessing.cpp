@@ -61,6 +61,7 @@ bool NodeProcessing::processNodes(NodeCluster* nodeCluster)
 
                 std::cout<<"   nodes->targetClusterPath: "<<nodes->targetClusterPath<<std::endl;
                 std::cout<<"   side: "<<(int)side<<std::endl;
+
                 // create new axon-edge
                 KyoChanAxonEdgeContainer edge;
                 edge.targetClusterPath = nodes->targetClusterPath / 16;

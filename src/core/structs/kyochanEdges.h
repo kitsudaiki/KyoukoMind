@@ -34,10 +34,19 @@ struct KyoChanEdge
 /**
  * @brief The KyoChanEdgeSection struct
  */
+struct KyoChanEdgeForwardSection
+{
+    uint16_t marker = 0;
+    KyoChanEdgeForward edgeForwards[16];
+} __attribute__((packed));
+
+/**
+ * @brief The KyoChanEdgeSection struct
+ */
 struct KyoChanEdgeSection
 {
     uint16_t marker = 0;
-    KyoChanEdgeForward edgeFowards[16];
+    KyoChanEdgeForward edgeForwards[16];
     uint32_t numberOfEdges = 0;
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
 

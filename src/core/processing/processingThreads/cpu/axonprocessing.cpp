@@ -21,59 +21,79 @@
 namespace KyoukoMind
 {
 
+/**
+ * @brief AxonProcessing::AxonProcessing
+ * @param nextChooser
+ */
 AxonProcessing::AxonProcessing(NextChooser *nextChooser)
 {
     m_nextChooser = nextChooser;
 }
 
+/**
+ * @brief processEdgeSection
+ * @param currentSection
+ * @param outgoBuffer
+ */
 inline void processEdgeSection(KyoChanEdgeSection* currentSection,
                                OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("processEdgeSection")
-    // process edge-section
-    KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
-    for(KyoChanEdge* edge = currentSection->edges;
-        edge < end;
-        edge++)
+
+    uint8_t sideCounter;
+    KyoChanEdgeForward* forwardEnd = currentSection->edgeForwards + 16;
+    for(KyoChanEdgeForward* forwardEdge = currentSection->edges;
+        forwardEdge < forwardEnd;
+        forwardEdge++)
     {
-        uint8_t side = edge->targetClusterPath % 16;
+        if(forwardEdge->weight != 0.0)
+        {
+            KyoChanEdgeForewardContainer newEdge;
+            newEdge.targetEdgeSectionId = forwardEdge->targetEdgeSectionId;
+            newEdge.weight = forwardEdge->weight;
 
-        KyoChanEdgeForewardContainer newEdge;
-        newEdge.weight = edge->weight;
-        newEdge.targetNodeId = edge->targetNodeId;
-        newEdge.targetClusterPath = edge->targetClusterPath / 16;
-
-        outgoBuffer->addEdge(side, &newEdge);
+            outgoBuffer->addEdge(sideCounter, &newEdge);
+        }
+        sideCounter++;
     }
 }
 
+/**
+ * @brief processEdgeSectionOnNode
+ * @param currentSection
+ * @param outgoBuffer
+ */
 inline void processEdgeSectionOnNode(KyoChanEdgeSection* currentSection,
-                                     OutgoingMessageBuffer* outgoBuffer,
-                                     KyoChanNode* nodes)
+                                     OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
-    OUTPUT("processEdgeSectionOnNode")
+    OUTPUT("processEdgeSection")
+
+    uint8_t sideCounter;
+    KyoChanEdgeForward* forwardEnd = currentSection->edgeForwards + 16;
+    for(KyoChanEdgeForward* forwardEdge = currentSection->edges;
+        forwardEdge < forwardEnd;
+        forwardEdge++)
+    {
+        if(forwardEdge->weight != 0.0)
+        {
+            KyoChanEdgeForewardContainer newEdge;
+            newEdge.targetEdgeSectionId = forwardEdge->targetEdgeSectionId;
+            newEdge.weight = forwardEdge->weight;
+
+            outgoBuffer->addEdge(sideCounter, &newEdge);
+        }
+        sideCounter++;
+    }
+
     // process edge-section
     KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
     for(KyoChanEdge* edge = currentSection->edges;
         edge < end;
         edge++)
     {
-        if(edge->targetClusterPath != 0) {
-            uint8_t side = edge->targetClusterPath % 16;
-
-            KyoChanEdgeForewardContainer newEdge;
-            newEdge.weight = edge->weight;
-            newEdge.targetNodeId = edge->targetNodeId;
-            newEdge.targetClusterPath = edge->targetClusterPath / 16;
-
-            outgoBuffer->addEdge(side, &newEdge);
-        }
-        else
-        {
-            nodes[edge->targetNodeId].currentState =+ edge->weight;
-        }
+        nodes[edge->targetNodeId].currentState =+ edge->weight;
     }
 }
 
@@ -111,33 +131,6 @@ inline void createNewEdge(EdgeCluster *edgeCluster,
 }
 
 /**
- * @brief AxonProcessing::processPendingEdges
- * @param axon
- * @param outgoBuffer
- */
-inline void processPendingEdges(KyoChanAxon* axon,
-                                OutgoingMessageBuffer* outgoBuffer)
-{
-    OUTPUT("---")
-    OUTPUT("processPendingEdges")
-    KyoChanPendingEdgeContainer* end = axon->pendingEdges.pendingEdges + MAX_PENDING_EDGES;
-    for(KyoChanPendingEdgeContainer* pendingEdge = axon->pendingEdges.pendingEdges;
-        pendingEdge < end;
-        pendingEdge++)
-    {
-        if(pendingEdge->marker != 0)
-        {
-            uint8_t side = pendingEdge->nextSite;
-
-            KyoChanEdgeForewardContainer newEdge;
-            newEdge.weight = pendingEdge->weight;
-
-            outgoBuffer->addEdge(side, &newEdge);
-        }
-    }
-}
-
-/**
  * @brief AxonProcessing::processAxons
  * @param edgeCluster
  * @return
@@ -168,7 +161,6 @@ bool AxonProcessing::processAxons(EdgeCluster* edgeCluster)
         }
 
         // create new edge
-
         std::cout<<"   axon->currentState: "<<axon->currentState<<std::endl;
         std::cout<<"   axon->numberOfEdges: "<<(axon->numberOfEdges + 1)<<std::endl;
         if((axon->currentState / (axon->numberOfEdges + 1)) >= AXON_FORK_BORDER)
@@ -194,11 +186,6 @@ bool AxonProcessing::processAxons(EdgeCluster* edgeCluster)
                                          outgoBuffer,
                                          ((NodeCluster*)edgeCluster)->getNodeBlock());
             }
-        }
-
-        // process pending edges
-        if(axon->numberOfPendingEdges != 0) {
-            processPendingEdges(axon, outgoBuffer);
         }
 
         edgeCluster->getPendingEdges()->checkPendingEdges();

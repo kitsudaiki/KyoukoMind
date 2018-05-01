@@ -19,7 +19,6 @@ INCLUDEPATH += $$PWD \
 
 SOURCES += main.cpp \
             src/core/clustering/cluster/cluster.cpp \
-            src/core/clustering/cluster/emptyCluster.cpp \
             src/core/clustering/cluster/nodeCluster.cpp \
             src/core/clustering/cluster/edgeCluster.cpp \
             src/core/clustering/clusterHandler.cpp \
@@ -61,7 +60,6 @@ HEADERS +=\
             src/common/typedefs.h \
             src/core/clustering/clusterHandler.h \
             src/core/clustering/cluster/cluster.h \
-            src/core/clustering/cluster/emptyCluster.h \
             src/core/clustering/cluster/nodeCluster.h \
             src/core/clustering/cluster/edgeCluster.h \
             src/core/networkManager.h \

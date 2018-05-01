@@ -80,9 +80,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
     // create cluster
     switch ((int)(*m_networkMetaStructure)[x][y].type) {
         case 1:
-            cluster = new EmptyCluster((*m_networkMetaStructure)[x][y].clusterId,
-                                       m_directoryPath);
-            break;
+            return true;
         case 2:
             cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath);

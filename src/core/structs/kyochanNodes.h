@@ -13,6 +13,9 @@
 #include <common.h>
 #include <core/structs/kyochanEdges.h>
 
+/**
+ * @brief The KyoChanNode struct
+ */
 struct KyoChanNode
 {
     float currentState = 0;
@@ -24,8 +27,9 @@ struct KyoChanNode
 
 } __attribute__((packed));
 
-
-
+/**
+ * @brief The KyoChanAxon struct
+ */
 struct KyoChanAxon
 {
     float currentState = 0;

@@ -21,7 +21,7 @@ struct KyoChanEdgeForewardContainer
     uint8_t size = 10;
 
     float weight = 0.0;
-    uint32_t targetEdgeSection = 0;
+    uint32_t targetEdgeSectionId = 0;
 
 } __attribute__((packed));
 

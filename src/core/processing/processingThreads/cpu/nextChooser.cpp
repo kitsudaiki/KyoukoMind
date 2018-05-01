@@ -70,7 +70,8 @@ uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
 void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
                                        const uint8_t initialSite)
 {
-    switch((int)initialSite) {
+    switch((int)initialSite)
+    {
     case 1:
         m_possibleNext[0].neighbor = allNeighbors[2];
         m_possibleNext[1].neighbor = allNeighbors[3];
