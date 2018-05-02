@@ -13,7 +13,7 @@
 #include <common.h>
 #include <core/structs/clusterMeta.h>
 #include <core/structs/kyochanEdges.h>
-#include <core/structs/learningMessages.h>
+#include <core/structs/messageContainer.h>
 
 namespace PerformanceIO
 {
@@ -56,7 +56,6 @@ public:
     void* getData() const;
 
     uint32_t getPayloadSize() const;
-    uint32_t getNumberOfPayloadObj() const;
     void* getPayload() const;
 
 protected:

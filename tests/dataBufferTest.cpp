@@ -1,3 +1,12 @@
+/**
+ *  @file    dataBufferTest.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include "dataBufferTest.h"
 
 namespace KyoukoMind

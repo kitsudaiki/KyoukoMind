@@ -1,3 +1,12 @@
+/**
+ *  @file    dataBufferTest.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef IOBUFFERTEST_H
 #define IOBUFFERTEST_H
 

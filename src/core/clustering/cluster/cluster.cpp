@@ -199,4 +199,101 @@ void Cluster::initMessageBuffer(MessageController *controller)
     m_outgoingMessageQueue = new OutgoingMessageBuffer(this, controller);
 }
 
+/**
+ * @brief Cluster::getNumberOfAxons
+ * @return
+ */
+uint32_t Cluster::getNumberOfAxons() const
+{
+    return m_metaData.numberOfAxons;
+}
+
+/**
+ * @brief Cluster::getNumberOfAxonBlocks
+ * @return
+ */
+uint32_t Cluster::getNumberOfAxonBlocks() const
+{
+    return m_metaData.numberOfAxonBlocks;
+}
+
+/**
+ * @brief Cluster::getAxonBlock
+ * @return
+ */
+KyoChanAxon *Cluster::getAxonBlock()
+{
+    uint32_t positionAxonBlock = m_metaData.positionAxonBlocks;
+    return (KyoChanAxon*)m_clusterDataBuffer->getBlock(positionAxonBlock);
+}
+
+/**
+ * @brief Cluster::initAxonBlocks
+ * @param numberOfAxons
+ * @return
+ */
+bool Cluster::initAxonBlocks(const uint32_t numberOfAxons)
+{
+    if(m_metaData.numberOfAxons != 0 || numberOfAxons == 0) {
+        return false;
+    }
+
+    m_metaData.numberOfAxons = numberOfAxons;
+    m_metaData.positionAxonBlocks = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
+
+    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
+    m_metaData.numberOfAxonBlocks = (numberOfAxons * sizeof(KyoChanAxon)) / blockSize;
+    if((numberOfAxons * sizeof(KyoChanAxon)) % blockSize != 0) {
+        m_metaData.numberOfAxonBlocks += 1;
+    }
+
+    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfAxonBlocks);
+    updateMetaData(m_metaData);
+
+    initEdgeBlocks(numberOfAxons);
+
+    // fill array with empty axons
+    KyoChanAxon* array = getAxonBlock();
+    for(uint32_t i = 0; i < numberOfAxons; i++)
+    {
+        KyoChanAxon tempAxon;
+        tempAxon.edgeSectionId = i;
+        array[i] = tempAxon;
+    }
+    m_clusterDataBuffer->syncAll();
+    return true;
+}
+
+/**
+ * @brief Cluster::finishCycle
+ */
+void Cluster::finishCycle()
+{
+    OUTPUT("---")
+    OUTPUT("finishCycle")
+    m_outgoingMessageQueue->finishCycle(2);
+    m_outgoingMessageQueue->finishCycle(3);
+    m_outgoingMessageQueue->finishCycle(4);
+    m_outgoingMessageQueue->finishCycle(11);
+    m_outgoingMessageQueue->finishCycle(12);
+    m_outgoingMessageQueue->finishCycle(13);
+}
+
+
+/**
+ * @brief Cluster::syncEdgeSections
+ * @param startSection
+ * @param endSection
+ */
+void Cluster::syncEdgeSections(uint32_t startSection,
+                               uint32_t endSection)
+{
+    if(endSection < startSection) {
+        startSection = 0;
+    }
+    startSection += m_metaData.positionOfEdgeBlock;
+    endSection += m_metaData.positionOfEdgeBlock;
+    m_clusterDataBuffer->syncBlocks(startSection, endSection);
+}
+
 }

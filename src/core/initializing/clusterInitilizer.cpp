@@ -11,7 +11,6 @@
 #include <kyochanNetwork.h>
 
 #include <core/clustering/cluster/cluster.h>
-#include <core/clustering/cluster/emptyCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -31,7 +30,7 @@ namespace KyoukoMind
  * @param clusterHandler
  * @param messageController
  */
-ClusterInitilizer::ClusterInitilizer(std::vector<std::vector<MetaDataEntry> > *networkMetaStructure,
+ClusterInitilizer::ClusterInitilizer(std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure,
                                      const uint32_t networkDimensionX,
                                      const uint32_t networkDimensionY,
                                      const std::string directoryPath,
@@ -80,9 +79,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
     // create cluster
     switch ((int)(*m_networkMetaStructure)[x][y].type) {
         case 1:
-            cluster = new EmptyCluster((*m_networkMetaStructure)[x][y].clusterId,
-                                       m_directoryPath);
-            break;
+            return true;
         case 2:
             cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                       m_directoryPath);

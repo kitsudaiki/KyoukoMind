@@ -1,3 +1,12 @@
+/**
+ *  @file    storageMemoryTest.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef STORAGEMEMORYTEST_H
 #define STORAGEMEMORYTEST_H
 

@@ -12,6 +12,8 @@
 
 #include <common.h>
 #include <core/structs/clusterMeta.h>
+#include <core/structs/kyochanEdges.h>
+#include <core/structs/kyochanNodes.h>
 
 namespace PerformanceIO
 {
@@ -49,6 +51,20 @@ public:
     void updateMetaData(ClusterMetaData metaData);
 
     void initMessageBuffer(MessageController *controller);
+
+    uint32_t getNumberOfAxons() const;
+    uint32_t getNumberOfAxonBlocks() const;
+
+    KyoChanAxon* getAxonBlock();
+    bool initAxonBlocks(const uint32_t numberOfAxons);
+
+    void finishCycle();
+
+    void syncEdgeSections(uint32_t startSection = 0,
+                          uint32_t endSection = 0);
+
+    virtual bool initEdgeBlocks(const uint32_t numberOfEdgeSections) = 0;
+    virtual uint32_t addEmptyEdgeSection(const uint32_t marker) = 0;
 
 private:
     // cluster-metadata

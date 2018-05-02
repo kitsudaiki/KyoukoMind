@@ -19,7 +19,6 @@ INCLUDEPATH += $$PWD \
 
 SOURCES += main.cpp \
             src/core/clustering/cluster/cluster.cpp \
-            src/core/clustering/cluster/emptyCluster.cpp \
             src/core/clustering/cluster/nodeCluster.cpp \
             src/core/clustering/cluster/edgeCluster.cpp \
             src/core/clustering/clusterHandler.cpp \
@@ -50,18 +49,16 @@ SOURCES += main.cpp \
             tests/messageTest.cpp \
             src/core/clustering/clusterQueue.cpp \
             tests/proofOfConcept/demoUserInput.cpp \
-            src/core/processing/processingThreads/cpu/edgeprocessing.cpp \
-            src/core/processing/processingThreads/cpu/nodeprocessing.cpp \
-            src/core/processing/processingThreads/cpu/axonprocessing.cpp \
-    tests/processingtest.cpp \
-    tests/dataBufferTest.cpp \
-    tests/storageMemoryTest.cpp
+            tests/processingtest.cpp \
+            tests/dataBufferTest.cpp \
+            tests/storageMemoryTest.cpp \
+    src/core/processing/processingThreads/cpu/edgeClusterProcessing.cpp \
+    src/core/processing/processingThreads/cpu/nodeClusterProcessing.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
             src/core/clustering/clusterHandler.h \
             src/core/clustering/cluster/cluster.h \
-            src/core/clustering/cluster/emptyCluster.h \
             src/core/clustering/cluster/nodeCluster.h \
             src/core/clustering/cluster/edgeCluster.h \
             src/core/networkManager.h \
@@ -80,7 +77,6 @@ HEADERS +=\
             src/core/initializing/networkInitializer.h \
             src/core/structs/kyochanEdges.h \
             src/core/structs/kyochanNodes.h \
-            src/core/structs/learningMessages.h \
             src/core/structs/clusterMeta.h \
             src/core/processing/processingThreads/cpu/nextChooser.h \
             src/control/statusReporter.h \
@@ -99,12 +95,13 @@ HEADERS +=\
             src/core/clustering/clusterQueue.h \
             tests/proofOfConcept/demoUserInput.h \
             tests/proofOfConcept/demoIO.h \
-            src/core/processing/processingThreads/cpu/edgeprocessing.h \
-            src/core/processing/processingThreads/cpu/nodeprocessing.h \
-            src/core/processing/processingThreads/cpu/axonprocessing.h \
-    tests/processingtest.h \
-    tests/dataBufferTest.h \
-    tests/storageMemoryTest.h
+            tests/processingtest.h \
+            tests/dataBufferTest.h \
+            tests/storageMemoryTest.h \
+            src/core/structs/messageContainer.h \
+    src/core/processing/processingThreads/cpu/processingMethods.h \
+    src/core/processing/processingThreads/cpu/edgeClusterProcessing.h \
+    src/core/processing/processingThreads/cpu/nodeClusterProcessing.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

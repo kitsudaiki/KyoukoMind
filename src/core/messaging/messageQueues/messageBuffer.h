@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <core/structs/kyochanEdges.h>
-#include <core/structs/learningMessages.h>
+#include <core/structs/messageContainer.h>
 
 namespace KyoukoMind
 {

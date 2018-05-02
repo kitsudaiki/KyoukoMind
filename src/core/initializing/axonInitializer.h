@@ -20,7 +20,7 @@ class NextChooser;
 class AxonInitializer
 {
 public:
-    AxonInitializer(std::vector<std::vector<MetaDataEntry>> *networkMetaStructure,
+    AxonInitializer(std::vector<std::vector<InitMetaDataEntry>> *networkMetaStructure,
                     const uint32_t networkDimensionX,
                     const uint32_t networkDimensionY);
 
@@ -33,7 +33,7 @@ private:
         uint32_t targetPath = 0;
     };
 
-    std::vector<std::vector<MetaDataEntry>>* m_networkMetaStructure = nullptr;
+    std::vector<std::vector<InitMetaDataEntry>>* m_networkMetaStructure = nullptr;
     uint32_t m_networkDimensionX = 0;
     uint32_t m_networkDimensionY = 0;
     NextChooser* m_chooser = nullptr;

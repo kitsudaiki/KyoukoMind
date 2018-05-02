@@ -10,6 +10,7 @@
 #include <core/clustering/cluster/edgeCluster.h>
 #include <kyochanNetwork.h>
 #include <files/dataBuffer.h>
+#include <core/structs/kyochanEdges.h>
 
 namespace KyoukoMind
 {
@@ -21,24 +22,9 @@ namespace KyoukoMind
  */
 EdgeCluster::EdgeCluster(const ClusterID clusterId,
                          const std::string directoryPath)
-    : EmptyCluster(clusterId,
-                   EDGE_CLUSTER,
-                   directoryPath)
-{
-}
-
-/**
- * @brief EdgeCluster::EdgeCluster
- * @param clusterId
- * @param clusterType
- * @param directoryPath
- */
-EdgeCluster::EdgeCluster(const ClusterID clusterId,
-                         const uint8_t clusterType,
-                         const std::string directoryPath)
-    : EmptyCluster(clusterId,
-                   clusterType,
-                   directoryPath)
+    : Cluster(clusterId,
+              EDGE_CLUSTER,
+              directoryPath)
 {
 }
 
@@ -46,27 +32,7 @@ EdgeCluster::EdgeCluster(const ClusterID clusterId,
  * @brief EdgeCluster::~EdgeCluster
  */
 EdgeCluster::~EdgeCluster()
-{
-
-}
-
-/**
- * @brief EdgeCluster::getNumberOfAxons
- * @return
- */
-uint32_t EdgeCluster::getNumberOfAxons() const
-{
-    return m_metaData.numberOfAxons;
-}
-
-/**
- * @brief EdgeCluster::getNumberOfAxonBlocks
- * @return
- */
-uint32_t EdgeCluster::getNumberOfAxonBlocks() const
-{
-    return m_metaData.numberOfAxonBlocks;
-}
+{}
 
 /**
  * @brief EdgeCluster::getNumberOfEdgeBlocks
@@ -78,67 +44,13 @@ uint32_t EdgeCluster::getNumberOfEdgeBlocks() const
 }
 
 /**
- * @brief EdgeCluster::getAxonBlock
- * @return
- */
-KyoChanAxon *EdgeCluster::getAxonBlock()
-{
-    uint32_t positionAxonBlock = m_metaData.positionAxonBlocks;
-    return (KyoChanAxon*)m_clusterDataBuffer->getBlock(positionAxonBlock);
-}
-
-/**
  * @brief EdgeCluster::getEdgeBlock
  * @return
  */
-KyoChanEdgeSection *EdgeCluster::getEdgeBlock()
+KyoChanEdgeForwardSection *EdgeCluster::getEdgeBlock()
 {
     uint32_t positionEdgeBlock = m_metaData.positionOfEdgeBlock;
-    return (KyoChanEdgeSection*)m_clusterDataBuffer->getBlock(positionEdgeBlock);
-}
-
-/**
- * @brief EdgeCluster::getPendingEdges
- * @return
- */
-KyoChanPendingEdgeSectionBig *EdgeCluster::getPendingEdges()
-{
-    return &m_pendingEdges;
-}
-
-/**
- * @brief EdgeCluster::initAxonBlocks
- * @param numberOfAxons
- * @return
- */
-bool EdgeCluster::initAxonBlocks(uint32_t numberOfAxons)
-{
-    if(m_metaData.numberOfAxons == 0) {
-        m_metaData.numberOfAxons = numberOfAxons;
-        m_metaData.positionAxonBlocks = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
-
-        uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
-        m_metaData.numberOfAxonBlocks = (numberOfAxons * sizeof(KyoChanAxon)) / blockSize;
-        if((numberOfAxons * sizeof(KyoChanAxon)) % blockSize != 0) {
-            m_metaData.numberOfAxonBlocks += 1;
-        }
-
-        m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfAxonBlocks);
-        updateMetaData(m_metaData);
-
-        initEdgeBlocks(numberOfAxons);
-
-        // fill array with empty axons
-        KyoChanAxon* array = getAxonBlock();
-        for(uint32_t i = 0; i < numberOfAxons; i++) {
-            KyoChanAxon tempAxon;
-            tempAxon.addEdgeSectionPos(i);
-            array[i] = tempAxon;
-        }
-        m_clusterDataBuffer->syncAll();
-        return true;
-    }
-    return false;
+    return (KyoChanEdgeForwardSection*)m_clusterDataBuffer->getBlock(positionEdgeBlock);
 }
 
 /**
@@ -146,121 +58,63 @@ bool EdgeCluster::initAxonBlocks(uint32_t numberOfAxons)
  * @param numberOfEdgeSections
  * @return
  */
-bool EdgeCluster::initEdgeBlocks(uint32_t numberOfEdgeSections)
+bool EdgeCluster::initEdgeBlocks(const uint32_t numberOfEdgeSections)
 {
-    if(m_metaData.numberOfEdgeSections == 0) {
-        m_metaData.numberOfEdgeSections = numberOfEdgeSections;
-        m_metaData.positionOfEdgeBlock = m_metaData.positionAxonBlocks + m_metaData.numberOfAxonBlocks;
-
-        // calculate number of edge-blocks
-        uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
-        m_metaData.numberOfEdgeBlocks = (numberOfEdgeSections * sizeof(KyoChanEdgeSection)) / blockSize;
-        if((numberOfEdgeSections * sizeof(KyoChanEdgeSection)) % blockSize != 0) {
-            m_metaData.numberOfEdgeBlocks += 1;
-        }
-
-        // update and persist buffer
-        m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
-        updateMetaData(m_metaData);
-
-        // fill array with empty edgesections
-        KyoChanEdgeSection* array = getEdgeBlock();
-        for(uint32_t i = 0; i < numberOfEdgeSections; i++) {
-            KyoChanEdgeSection tempNode;
-            array[i] = tempNode;
-        }
-        m_clusterDataBuffer->syncAll();
-        return true;
-    }
-    return false;
-}
-
-/**
- * @brief EdgeCluster::addEdge
- * @param axonId
- * @param newEdge
- * @return
- */
-bool EdgeCluster::addEdge(const uint32_t axonId, const KyoChanEdge &newEdge)
-{
-    if(axonId >= m_metaData.numberOfAxons) {
+    if(m_metaData.numberOfEdgeSections != 0 || numberOfEdgeSections == 0) {
         return false;
     }
 
-    // get values
-    KyoChanAxon* axon = &getAxonBlock()[axonId];
-    uint32_t edgeSectionPos = axon->getLastEdgeSectionPos();
-    KyoChanEdgeSection* edgeSection = &getEdgeBlock()[edgeSectionPos];
+    m_metaData.numberOfEdgeSections = numberOfEdgeSections;
+    m_metaData.positionOfEdgeBlock = m_metaData.positionAxonBlocks + m_metaData.numberOfAxonBlocks;
 
-    // check if edge-section is full and add a new empty edge-section if necessary
-    if(edgeSection->isFull()) {
-        if(!addEmptyEdgeSection(axonId)) {
-            return false;
-        }
-        // update values
-        axon = &getAxonBlock()[axonId];
-        edgeSectionPos = axon->getLastEdgeSectionPos();
-        edgeSection = &getEdgeBlock()[edgeSectionPos];
+    // calculate number of edge-blocks
+    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
+    m_metaData.numberOfEdgeBlocks = (numberOfEdgeSections * sizeof(KyoChanEdgeForwardSection)) / blockSize;
+    if((numberOfEdgeSections * sizeof(KyoChanEdgeForwardSection)) % blockSize != 0) {
+        m_metaData.numberOfEdgeBlocks += 1;
     }
 
-    // add the new edge to the edge-section
-    edgeSection->addEdge(newEdge);
-    axon->numberOfEdges++;
+    // update and persist buffer
+    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
+    updateMetaData(m_metaData);
 
+    // fill array with empty edgesections
+    KyoChanEdgeForwardSection* array = getEdgeBlock();
+    for(uint32_t i = 0; i < numberOfEdgeSections; i++)
+    {
+        KyoChanEdgeForwardSection newSection;
+        array[i] = newSection;
+    }
+    m_clusterDataBuffer->syncAll();
     return true;
 }
 
 /**
- * @brief EdgeCluster::addEmptyEdgeSection
- * @param axonId
+ * @brief EdgeCluster::addEmptyEdgeForwardSection
+ * @param marker
  * @return
  */
-bool EdgeCluster::addEmptyEdgeSection(const uint32_t axonId)
+uint32_t EdgeCluster::addEmptyEdgeSection(const uint32_t marker)
 {
-    // prechecks
-    if(axonId >= m_metaData.numberOfAxons) {
-        return false;
-    }
-
-    // add edge-section to axon
-    KyoChanAxon* axon = &getAxonBlock()[axonId];
-    if(!axon->addEdgeSectionPos(m_metaData.numberOfEdgeSections)) {
-        return false;
-    }
-
-    // allocate a new block, if nesassary
-    if(m_metaData.numberOfEdgeSections % 4 == 0) {
+    // allocate a new block, if necessary
+    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
+    if((m_metaData.numberOfEdgeSections * sizeof(KyoChanEdgeForwardSection) )/ blockSize
+            < ((m_metaData.numberOfEdgeSections + 1) * sizeof(KyoChanEdgeForwardSection)) / blockSize)
+    {
+        // TODO: outsourcing
         if(!m_clusterDataBuffer->allocateBlocks(1)) {
-            return false;
+            return 0;
         }
         m_metaData.numberOfEdgeBlocks++;
     }
 
-    // add new edge-section
-    KyoChanEdgeSection newSection;
+    // add new edge-forward-section
+    KyoChanEdgeForwardSection newSection;
+    newSection.marker = marker;
     getEdgeBlock()[m_metaData.numberOfEdgeSections] = newSection;
     m_metaData.numberOfEdgeSections++;
 
-    return true;
-}
-
-/**
- * @brief EdgeCluster::syncEdgeSections
- * @param startSection
- * @param endSection
- */
-void EdgeCluster::syncEdgeSections(uint32_t startSection,
-                                   uint32_t endSection)
-{
-    if(endSection >= getNumberOfEdgeBlocks()){
-        endSection = getNumberOfEdgeBlocks() - 1;
-    }
-    if(endSection < startSection) {
-        startSection = 0;
-    }
-    startSection += m_metaData.positionOfEdgeBlock;
-    endSection += m_metaData.positionOfEdgeBlock;
-    m_clusterDataBuffer->syncBlocks(startSection, endSection);
+    return m_metaData.numberOfEdgeSections-1;
 }
 
 }

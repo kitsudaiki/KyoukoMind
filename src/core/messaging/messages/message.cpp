@@ -158,15 +158,6 @@ uint32_t Message::getPayloadSize() const
 }
 
 /**
- * @brief Message::getNumberOfPayloadObj
- * @return
- */
-uint32_t Message::getNumberOfPayloadObj() const
-{
-    return (m_currentBufferPos - sizeof(CommonMessageData)) / 20;
-}
-
-/**
  * @brief Message::getPayload
  * @return
  */

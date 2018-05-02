@@ -11,7 +11,6 @@
 #include <kyochanNetwork.h>
 
 #include <core/clustering/cluster/cluster.h>
-#include <core/clustering/cluster/emptyCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -26,7 +25,7 @@ namespace KyoukoMind
  * @param networkDimensionX
  * @param networkDimensionY
  */
-AxonInitializer::AxonInitializer(std::vector<std::vector<MetaDataEntry> > *networkMetaStructure,
+AxonInitializer::AxonInitializer(std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure,
                                  const uint32_t networkDimensionX,
                                  const uint32_t networkDimensionY)
 {

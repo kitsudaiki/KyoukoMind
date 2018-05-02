@@ -10,9 +10,7 @@
 #ifndef EDGECLUSTER_H
 #define EDGECLUSTER_H
 
-#include "emptyCluster.h"
-#include <core/structs/kyochanEdges.h>
-#include <core/structs/kyochanNodes.h>
+#include "cluster.h"
 
 namespace PerformanceIO {
 class DataBuffer;
@@ -20,45 +18,19 @@ class DataBuffer;
 namespace KyoukoMind
 {
 
-class EdgeCluster : public EmptyCluster
+class EdgeCluster : public Cluster
 {
 
 public:
     EdgeCluster(const ClusterID clusterId,
                 const std::string directoryPath);
 
-    EdgeCluster(const ClusterID clusterId,
-                const uint8_t clusterType,
-                const std::string directoryPath);
-
     ~EdgeCluster();
 
-    uint32_t getNumberOfAxons() const;
-
-    uint32_t getNumberOfAxonBlocks() const;
     uint32_t getNumberOfEdgeBlocks() const;
-
-    uint32_t getNumberOfPendingEdges() const;
-    uint32_t getNumberOfMaxPendingEdges() const;
-
-    KyoChanAxon* getAxonBlock();
-    KyoChanEdgeSection* getEdgeBlock();
-    KyoChanPendingEdgeSectionBig* getPendingEdges();
-
-    bool initAxonBlocks(uint32_t numberOfAxons);
-    bool initEdgeBlocks(uint32_t numberOfEdgeSections);
-
-    bool addEdge(const uint32_t axonId, const KyoChanEdge &newEdge);
-
-    void syncEdgeSections(uint32_t startSection = 0,
-                          uint32_t endSection = 0);
-
-private:
-    KyoChanPendingEdgeSectionBig m_pendingEdges;
-
-    bool isEdgeSectionFull(const uint32_t edgeSectionPos);
-    bool addEmptyEdgeSection(const uint32_t axonId);
-
+    KyoChanEdgeForwardSection* getEdgeBlock();
+    bool initEdgeBlocks(const uint32_t numberOfEdgeSections);
+    uint32_t addEmptyEdgeSection(const uint32_t marker);
 };
 
 }

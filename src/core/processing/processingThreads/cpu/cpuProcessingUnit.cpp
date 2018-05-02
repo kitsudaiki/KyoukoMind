@@ -11,7 +11,6 @@
 #include <core/processing/processingThreads/cpu/nextChooser.h>
 
 #include <core/clustering/cluster/cluster.h>
-#include <core/clustering/cluster/emptyCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -20,9 +19,10 @@
 #include <core/messaging/messages/replyMessage.h>
 
 #include <core/processing/processingThreads/cpu/nextChooser.h>
-#include <core/processing/processingThreads/cpu/axonprocessing.h>
-#include <core/processing/processingThreads/cpu/nodeprocessing.h>
-#include <core/processing/processingThreads/cpu/edgeprocessing.h>
+#include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
+#include <core/processing/processingThreads/cpu/nodeClusterProcessing.h>
+
+#include <core/processing/processingThreads/cpu/processingMethods.h>
 
 namespace KyoukoMind
 {
@@ -35,9 +35,8 @@ CpuProcessingUnit::CpuProcessingUnit(ClusterQueue *clusterQueue):
     ProcessingUnit(clusterQueue)
 {
     m_nextChooser = new NextChooser();
-    m_axonProcessing = new AxonProcessing(m_nextChooser);
-    m_nodeProcessing = new NodeProcessing();
-    m_edgeProcessing = new EdgeProcessing(m_nextChooser);
+    m_edgeProcessing = new EdgeClusterProcessing(m_nextChooser);
+    m_nodeProcessing = new NodeClusterProcessing(m_nextChooser);
 }
 
 /**
@@ -59,26 +58,21 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
 
     switch((int)clusterType)
     {
-        case EMPTY_CLUSTER:
-            ((EmptyCluster*)cluster)->finishCycle();
-            break;
         case EDGE_CLUSTER:
         {
             EdgeCluster *edgeCluster = static_cast<EdgeCluster*>(cluster);
             m_edgeProcessing->processIncomingMessages(edgeCluster);
-            m_axonProcessing->processAxons(edgeCluster);
-            edgeCluster->getPendingEdges()->checkPendingEdges();
+            m_edgeProcessing->processAxons(edgeCluster);
             edgeCluster->finishCycle();
             break;
         }
         case NODE_CLUSTER:
         {
             NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
-            m_edgeProcessing->processInputMessages(nodeCluster);
-            m_edgeProcessing->processIncomingMessages((EdgeCluster*)nodeCluster);
+            m_nodeProcessing->processInputMessages(nodeCluster);
+            m_nodeProcessing->processIncomingMessages(nodeCluster);
             m_nodeProcessing->processNodes(nodeCluster);
-            m_axonProcessing->processAxons((EdgeCluster*)nodeCluster);
-            nodeCluster->getPendingEdges()->checkPendingEdges();
+            m_nodeProcessing->processAxons(nodeCluster);
             nodeCluster->finishCycle();
             break;
         }

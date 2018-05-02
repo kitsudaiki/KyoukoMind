@@ -117,7 +117,7 @@ bool NetworkInitializer::getNetworkMetaStructure()
         removeEmptyStrings(splittedLine);
 
         // add new line to meat-structure-vector
-        std::vector<MetaDataEntry> newLine;
+        std::vector<InitMetaDataEntry> newLine;
         m_networkMetaStructure.push_back(newLine);
 
         // process the splitted line
@@ -131,7 +131,7 @@ bool NetworkInitializer::getNetworkMetaStructure()
                     return false;
                 }
             }
-            MetaDataEntry tempEntry;
+            InitMetaDataEntry tempEntry;
             tempEntry.type = std::stoi(splittedLine[linePartNumber]) + 1;
             tempEntry.clusterId = m_idCounter;
 

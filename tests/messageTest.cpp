@@ -39,15 +39,13 @@ void MessageTest::checkDataMessage()
     UNITTEST((uint32_t)metaData.targetSite, 4);
     UNITTEST(metaData.type, DATA_MESSAGE);
 
-    KyoChanEdgeContainer testEdge;
-    testEdge.targetClusterPath = 1;
-    testEdge.targetNodeId = 2;
+    KyoChanEdgeForwardContainer testEdge;
+    testEdge.targetEdgeSectionId = 1;
     testEdge.weight = 3;
     message.addEdge(&testEdge);
 
-    KyoChanEdgeContainer testEdge2;
-    testEdge2.targetClusterPath = 4;
-    testEdge2.targetNodeId = 5;
+    KyoChanEdgeForwardContainer testEdge2;
+    testEdge2.targetEdgeSectionId = 4;
     testEdge2.weight = 6;
     message.addEdge(&testEdge2);
 
@@ -62,16 +60,13 @@ void MessageTest::checkDataMessage()
     UNITTEST((uint32_t)metaData2.targetSite, 4);
     UNITTEST(metaData2.type, DATA_MESSAGE);
 
-    UNITTEST((int)newMessage.getNumberOfEntries(), 2);
-
     uint8_t* newData = (uint8_t*)newMessage.getPayload();
 
-    UNITTEST(newData[0], EDGE_CONTAINER);
+    UNITTEST(newData[0], EDGE_FOREWARD_CONTAINER);
 
-    KyoChanEdgeContainer* edges = (KyoChanEdgeContainer*)newData;
+    KyoChanEdgeForwardContainer* edges = (KyoChanEdgeForwardContainer*)newData;
 
-    UNITTEST(edges[0].targetClusterPath, 1);
-    UNITTEST(edges[0].targetNodeId, 2);
+    UNITTEST(edges[0].targetEdgeSectionId, 1);
     UNITTEST(edges[0].weight, 3);
 }
 

@@ -18,7 +18,6 @@ namespace KyoukoMind
 
 class NodeCluster;
 class EdgeCluster;
-class EmptyCluster;
 
 class ClusterTest : public CommonTest
 {
@@ -35,7 +34,6 @@ private:
 
     NodeCluster *m_nodeCluster = nullptr;
     EdgeCluster *m_edgeCluster = nullptr;
-    EmptyCluster *m_emptyCluster = nullptr;
 };
 
 }

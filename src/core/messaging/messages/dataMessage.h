@@ -23,18 +23,15 @@ public:
                 const uint8_t targetSite);
     DataMessage(void *data, uint32_t size);
 
-    void addEdge(const KyoChanEdgeContainer* newEdge);
+    void addEdge(const KyoChanEdgeForwardContainer* newEdge);
     void addPendingEdge(const KyoChanPendingEdgeContainer* newEdge);
     void addAxonEdge(const KyoChanAxonEdgeContainer *newAxonEdge);
     void addNewEdge(const KyoChanLearingEdgeContainer* newEdge);
     void addNewEdgeReply(const KyoChanLearningEdgeReplyContainer* newEdgeReply);
 
-    uint8_t getNumberOfEntries() const;
-
 private:
-    void copyToBuffer(void* data);
-    uint8_t m_numberOfEntries = 0;
-    void checkBuffer();
+    void copyToBuffer(void* data, const uint8_t size);
+    void checkBuffer(const uint8_t size);
 };
 
 }

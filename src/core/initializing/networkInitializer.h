@@ -59,7 +59,7 @@ private:
     MessageController* m_messageController = nullptr;
 
     // meta-data of the network
-    std::vector<std::vector<MetaDataEntry>> m_networkMetaStructure;
+    std::vector<std::vector<InitMetaDataEntry>> m_networkMetaStructure;
     uint32_t m_networkDimensions[2];
     ClusterID m_idCounter = 0;
 
