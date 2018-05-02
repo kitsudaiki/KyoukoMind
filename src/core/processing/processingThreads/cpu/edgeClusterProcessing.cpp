@@ -35,6 +35,40 @@ EdgeClusterProcessing::EdgeClusterProcessing(NextChooser* nextChooser)
 }
 
 /**
+ * @brief processIncomForwardEdge
+ * @param data
+ * @param nodeCluster
+ * @param outgoBuffer
+ */
+inline void processIncomForwardEdge(uint8_t *data,
+                                    EdgeCluster* edgeCluster,
+                                    OutgoingMessageBuffer* outgoBuffer)
+{
+    KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
+
+    processEdgeForwardSection(&edgeCluster->getEdgeBlock()[edge->targetEdgeSectionId],
+                              edge->weight,
+                              outgoBuffer);
+}
+
+/**
+ * @brief processIncomLearningReply
+ * @param data
+ * @param initSide
+ * @param cluster
+ */
+inline void processIncomLearningReply(uint8_t *data,
+                                      uint8_t initSide,
+                                      EdgeCluster* cluster)
+{
+    KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
+
+    KyoChanEdgeForwardSection* edgeForwardSections = cluster->getEdgeBlock();
+    edgeForwardSections[edge->sourceEdgeSectionId].edgeForwards[initSide].targetEdgeSectionId =
+            edge->targetEdgeSectionId;
+}
+
+/**
  * @brief EdgeProcessing::processInputMessages
  * @param nodeCluster
  * @return
@@ -127,7 +161,7 @@ bool EdgeClusterProcessing::processIncomingMessages(EdgeCluster* cluster)
                     processIncomLerningEdge(data, side, cluster, outgoBuffer);
                     break;
                 case LEARNING_REPLY_CONTAINER:
-                    processIncomLerningReplyEdge(data, side, cluster);
+                    processIncomLearningReply(data, side, cluster);
                     break;
                 default:
                     break;

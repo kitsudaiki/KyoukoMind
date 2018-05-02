@@ -35,6 +35,41 @@ NodeClusterProcessing::NodeClusterProcessing(NextChooser* nextChooser)
 }
 
 /**
+ * @brief processIncomForwardEdge
+ * @param data
+ * @param nodeCluster
+ * @param outgoBuffer
+ */
+inline void processIncomForwardEdge(uint8_t *data,
+                                    NodeCluster* nodeCluster,
+                                    OutgoingMessageBuffer* outgoBuffer)
+{
+    KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
+
+    processEdgeSection(&nodeCluster->getEdgeBlock()[edge->targetEdgeSectionId],
+                       edge->weight,
+                       nodeCluster->getNodeBlock(),
+                       outgoBuffer);
+}
+
+/**
+ * @brief processIncomLearningReply
+ * @param data
+ * @param initSide
+ * @param cluster
+ */
+inline void processIncomLearningReply(uint8_t *data,
+                                      uint8_t initSide,
+                                      NodeCluster* cluster)
+{
+    KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
+
+    KyoChanEdgeSection* edgeSections = cluster->getEdgeBlock();
+    edgeSections[edge->sourceEdgeSectionId].edgeForwards[initSide].targetEdgeSectionId =
+            edge->targetEdgeSectionId;
+}
+
+/**
  * @brief NodeClusterProcessing::processInputMessages
  * @param nodeCluster
  * @return
@@ -50,7 +85,7 @@ bool NodeClusterProcessing::processInputMessages(NodeCluster* nodeCluster)
         data < end;
         data += data[1])
     {
-        processIncomForwardEdgeOnNode(data, nodeCluster, outgoBuffer);
+        processIncomForwardEdge(data, nodeCluster, outgoBuffer);
     }
     //incomBuffer->getMessage(0)->closeBuffer();
     //delete incomBuffer->getMessage(0);
@@ -163,15 +198,16 @@ bool NodeClusterProcessing::processIncomingMessages(NodeCluster* cluster)
             switch((int)(*data))
             {
                 case EDGE_FOREWARD_CONTAINER:
-                    processIncomForwardEdgeOnNode(data, cluster, outgoBuffer);
+                    processIncomForwardEdge(data, cluster, outgoBuffer);
                     break;
                 case AXON_EDGE_CONTAINER:
                     processIncomAxonEdge(data, cluster->getAxonBlock(), outgoBuffer);
                     break;
                 case LEARNING_CONTAINER:
-                    processIncomLerningEdge(data, side, cluster, outgoBuffer);                    break;
+                    processIncomLerningEdge(data, side, cluster, outgoBuffer);
+                    break;
                 case LEARNING_REPLY_CONTAINER:
-                    processIncomLerningReplyEdgeOnNode(data, side, cluster);
+                    processIncomLearningReply(data, side, cluster);
                     break;
                 default:
                     break;

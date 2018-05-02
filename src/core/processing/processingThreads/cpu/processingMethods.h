@@ -130,41 +130,6 @@ inline void createNewEdgeForward(Cluster *cluster,
 }
 
 /**
- * @brief processIncomForwardEdgeOnNode
- * @param data
- * @param nodeCluster
- * @param outgoBuffer
- */
-inline void processIncomForwardEdgeOnNode(uint8_t *data,
-                                          NodeCluster* nodeCluster,
-                                          OutgoingMessageBuffer* outgoBuffer)
-{
-    KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
-
-    processEdgeSection(&nodeCluster->getEdgeBlock()[edge->targetEdgeSectionId],
-                       edge->weight,
-                       nodeCluster->getNodeBlock(),
-                       outgoBuffer);
-}
-
-/**
- * @brief processIncomForwardEdge
- * @param data
- * @param nodeCluster
- * @param outgoBuffer
- */
-inline void processIncomForwardEdge(uint8_t *data,
-                                    EdgeCluster* edgeCluster,
-                                    OutgoingMessageBuffer* outgoBuffer)
-{
-    KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
-
-    processEdgeForwardSection(&edgeCluster->getEdgeBlock()[edge->targetEdgeSectionId],
-                              edge->weight,
-                              outgoBuffer);
-}
-
-/**
  * @brief CpuProcessingUnit::processIncomAxonEdge
  * @param data
  * @return
@@ -216,38 +181,6 @@ inline void processIncomLerningEdge(uint8_t *data,
 
     // send reply-message
     outgoBuffer->addLearningReplyMessage(initSide, &reply);
-}
-
-/**
- * @brief processIncomLerningReplyEdge
- * @param data
- * @param initSide
- * @param cluster
- */
-inline void processIncomLerningReplyEdge(uint8_t *data,
-                                         uint8_t initSide,
-                                         EdgeCluster* cluster)
-{
-    KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
-
-    KyoChanEdgeForwardSection* edgeForwardSections = cluster->getEdgeBlock();
-    edgeForwardSections[edge->sourceEdgeSectionId].edgeForwards[initSide].targetEdgeSectionId = edge->targetEdgeSectionId;
-}
-
-/**
- * @brief processIncomLerningReplyEdgeOnNode
- * @param data
- * @param initSide
- * @param cluster
- */
-inline void processIncomLerningReplyEdgeOnNode(uint8_t *data,
-                                               uint8_t initSide,
-                                               NodeCluster* cluster)
-{
-    KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
-
-    KyoChanEdgeSection* edgeSections = cluster->getEdgeBlock();
-    edgeSections[edge->sourceEdgeSectionId].edgeForwards[initSide].targetEdgeSectionId = edge->targetEdgeSectionId;
 }
 
 }
