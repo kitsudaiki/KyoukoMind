@@ -8,7 +8,8 @@
 #include <core/clustering/cluster/edgeCluster.h>
 
 #include <core/processing/processingThreads/cpu/nextChooser.h>
-#include <core/processing/processingThreads/cpu/edgeprocessing.h>
+#include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
+#include <core/processing/processingThreads/cpu/nodeClusterProcessing.h>
 
 namespace KyoukoMind
 {
@@ -30,7 +31,7 @@ void ProcessingTest::initTestCase()
 {
     m_controller = new MessageController();
     m_nextChooser = new NextChooser();
-    m_edgeProcessing = new EdgeProcessing(m_nextChooser);
+    m_nodeProcessing = new NodeClusterProcessing(m_nextChooser);
 
     Cluster* initCluster = new NodeCluster(1337, "/tmp/test", 42);
 
@@ -82,22 +83,22 @@ void ProcessingTest::checkProcessing()
     m_ougoingBuffer->finishCycle(15);
 
     OUTPUT("==========================================================")
-    m_edgeProcessing->processInputMessages(m_nodeCluster1);
-    m_edgeProcessing->processIncomingMessages((EdgeCluster*)m_nodeCluster1);
-    m_edgeProcessing->processNodes(m_nodeCluster1);
-    m_edgeProcessing->processAxons((EdgeCluster*)m_nodeCluster1);
+    m_nodeProcessing->processInputMessages(m_nodeCluster1);
+    m_nodeProcessing->processIncomingMessages(m_nodeCluster1);
+    m_nodeProcessing->processNodes(m_nodeCluster1);
+    m_nodeProcessing->processAxons(m_nodeCluster1);
     m_nodeCluster1->finishCycle();
     OUTPUT("==========================================================")
-    m_edgeProcessing->processInputMessages(m_nodeCluster2);
-    m_edgeProcessing->processIncomingMessages((EdgeCluster*)m_nodeCluster2);
-    m_edgeProcessing->processNodes(m_nodeCluster2);
-    m_edgeProcessing->processAxons((EdgeCluster*)m_nodeCluster2);
+    m_nodeProcessing->processInputMessages(m_nodeCluster2);
+    m_nodeProcessing->processIncomingMessages(m_nodeCluster2);
+    m_nodeProcessing->processNodes(m_nodeCluster2);
+    m_nodeProcessing->processAxons(m_nodeCluster2);
     m_nodeCluster2->finishCycle();
     OUTPUT("==========================================================")
-    m_edgeProcessing->processInputMessages(m_nodeCluster3);
-    m_edgeProcessing->processIncomingMessages((EdgeCluster*)m_nodeCluster3);
-    m_edgeProcessing->processNodes(m_nodeCluster3);
-    m_edgeProcessing->processAxons((EdgeCluster*)m_nodeCluster3);
+    m_nodeProcessing->processInputMessages(m_nodeCluster3);
+    m_nodeProcessing->processIncomingMessages(m_nodeCluster3);
+    m_nodeProcessing->processNodes(m_nodeCluster3);
+    m_nodeProcessing->processAxons(m_nodeCluster3);
     m_nodeCluster3->finishCycle();
     OUTPUT("==========================================================")
 }

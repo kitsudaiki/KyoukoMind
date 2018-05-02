@@ -17,7 +17,8 @@
 namespace KyoukoMind
 {
 class NextChooser;
-class EdgeProcessing;
+class EdgeClusterProcessing;
+class NodeClusterProcessing;
 
 class OutgoingMessageBuffer;
 class IncomingMessageBuffer;
@@ -32,7 +33,8 @@ public:
 
 private:
     NextChooser* m_nextChooser = nullptr;
-    EdgeProcessing* m_edgeProcessing = nullptr;
+    EdgeClusterProcessing* m_edgeProcessing = nullptr;
+    NodeClusterProcessing* m_nodeProcessing = nullptr;
 };
 
 }

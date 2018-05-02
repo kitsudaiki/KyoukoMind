@@ -15,7 +15,8 @@ class OutgoingMessageBuffer;
 class NextChooser;
 class AxonProcessing;
 class NodeProcessing;
-class EdgeProcessing;
+class EdgeClusterProcessing;
+class NodeClusterProcessing;
 
 class ProcessingTest : public CommonTest
 {
@@ -36,9 +37,7 @@ private:
     OutgoingMessageBuffer* m_ougoingBuffer= nullptr;
 
     NextChooser* m_nextChooser = nullptr;
-    AxonProcessing* m_axonProcessing = nullptr;
-    NodeProcessing* m_nodeProcessing = nullptr;
-    EdgeProcessing* m_edgeProcessing = nullptr;
+    NodeClusterProcessing* m_nodeProcessing = nullptr;
 };
 
 }
