@@ -60,8 +60,6 @@ void MessageTest::checkDataMessage()
     UNITTEST((uint32_t)metaData2.targetSite, 4);
     UNITTEST(metaData2.type, DATA_MESSAGE);
 
-    UNITTEST((int)newMessage.getNumberOfEntries(), 2);
-
     uint8_t* newData = (uint8_t*)newMessage.getPayload();
 
     UNITTEST(newData[0], EDGE_FOREWARD_CONTAINER);

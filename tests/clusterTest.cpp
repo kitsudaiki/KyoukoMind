@@ -38,7 +38,7 @@ void ClusterTest::initTestCase()
 
 void ClusterTest::checkNodeCluster()
 {
-    UNITTEST((int)m_nodeCluster->getNumberOfNodeBlocks(), 4);
+    UNITTEST((int)m_nodeCluster->getNumberOfNodeBlocks(), 5);
     UNITTEST(m_nodeCluster->initNodeBlocks(19), false);
 
     //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 0);

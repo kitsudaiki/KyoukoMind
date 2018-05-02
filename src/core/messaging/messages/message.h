@@ -56,7 +56,6 @@ public:
     void* getData() const;
 
     uint32_t getPayloadSize() const;
-    uint32_t getNumberOfPayloadObj() const;
     void* getPayload() const;
 
 protected:

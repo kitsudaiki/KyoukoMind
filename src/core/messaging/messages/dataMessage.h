@@ -29,12 +29,9 @@ public:
     void addNewEdge(const KyoChanLearingEdgeContainer* newEdge);
     void addNewEdgeReply(const KyoChanLearningEdgeReplyContainer* newEdgeReply);
 
-    uint8_t getNumberOfEntries() const;
-
 private:
-    void copyToBuffer(void* data);
-    uint8_t m_numberOfEntries = 0;
-    void checkBuffer();
+    void copyToBuffer(void* data, const uint8_t size);
+    void checkBuffer(const uint8_t size);
 };
 
 }

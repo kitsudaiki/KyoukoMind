@@ -43,8 +43,9 @@ DataMessage::DataMessage(void *data, uint32_t size) : Message(data, size)
  */
 void DataMessage::addEdge(const KyoChanEdgeForwardContainer *newEdge)
 {
-    checkBuffer();
-    copyToBuffer((void*)newEdge);
+    const uint8_t size = sizeof(KyoChanEdgeForwardContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdge, size);
 }
 
 /**
@@ -53,8 +54,9 @@ void DataMessage::addEdge(const KyoChanEdgeForwardContainer *newEdge)
  */
 void DataMessage::addPendingEdge(const KyoChanPendingEdgeContainer *newEdge)
 {
-    checkBuffer();
-    copyToBuffer((void*)newEdge);
+    const uint8_t size = sizeof(KyoChanPendingEdgeContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdge, size);
 }
 
 /**
@@ -63,8 +65,9 @@ void DataMessage::addPendingEdge(const KyoChanPendingEdgeContainer *newEdge)
  */
 void DataMessage::addAxonEdge(const KyoChanAxonEdgeContainer* newAxonEdge)
 {
-    checkBuffer();
-    copyToBuffer((void*)newAxonEdge);
+    const uint8_t size = sizeof(KyoChanAxonEdgeContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newAxonEdge, size);
 }
 
 /**
@@ -73,8 +76,9 @@ void DataMessage::addAxonEdge(const KyoChanAxonEdgeContainer* newAxonEdge)
  */
 void DataMessage::addNewEdge(const KyoChanLearingEdgeContainer *newEdge)
 {
-    checkBuffer();
-    copyToBuffer((void*)newEdge);
+    const uint8_t size = sizeof(KyoChanLearingEdgeContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdge, size);
 }
 
 /**
@@ -83,25 +87,17 @@ void DataMessage::addNewEdge(const KyoChanLearingEdgeContainer *newEdge)
  */
 void DataMessage::addNewEdgeReply(const KyoChanLearningEdgeReplyContainer *newEdgeReply)
 {
-    checkBuffer();
-    copyToBuffer((void*)newEdgeReply);
-}
-
-/**
- * @brief DataMessage::getNumberOfEdges
- * @return
- */
-uint8_t DataMessage::getNumberOfEntries() const
-{
-    return (m_currentBufferPos - sizeof(CommonMessageData)) / 20;
+    const uint8_t size = sizeof(KyoChanLearningEdgeReplyContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdgeReply, size);
 }
 
 /**
  * @brief DataMessage::checkBuffer
  */
-void DataMessage::checkBuffer()
+void DataMessage::checkBuffer(const uint8_t size)
 {
-    if(m_currentBufferPos + 20 > m_currentBufferSize) {
+    if(m_currentBufferPos + size > m_currentBufferSize) {
         m_buffer->allocateBlocks(1);
         m_currentBufferSize += m_buffer->getBlockSize() * m_buffer->getNumberOfBlocks();
     }
@@ -111,12 +107,12 @@ void DataMessage::checkBuffer()
  * @brief DataMessage::copyToBuffer
  * @param data
  */
-void DataMessage::copyToBuffer(void *data)
+void DataMessage::copyToBuffer(void *data, const uint8_t size)
 {
     memcpy(m_buffer->getBufferPointer() + m_currentBufferPos,
            data,
-           20);
-    m_currentBufferPos += 20;
+           size);
+    m_currentBufferPos += size;
 }
 
 }
