@@ -180,14 +180,14 @@ bool EdgeProcessing::processAxons(Cluster* cluster)
 }
 
 /**
- * @brief processIncomForwardEdge
+ * @brief processIncomForwardEdgeOnNode
  * @param data
  * @param nodeCluster
  * @param outgoBuffer
  */
-inline void processIncomForwardEdge(uint8_t *data,
-                                    NodeCluster* nodeCluster,
-                                    OutgoingMessageBuffer* outgoBuffer)
+inline void processIncomForwardEdgeOnNode(uint8_t *data,
+                                          NodeCluster* nodeCluster,
+                                          OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
 
@@ -198,13 +198,30 @@ inline void processIncomForwardEdge(uint8_t *data,
 }
 
 /**
+ * @brief processIncomForwardEdge
+ * @param data
+ * @param nodeCluster
+ * @param outgoBuffer
+ */
+inline void processIncomForwardEdge(uint8_t *data,
+                                    EdgeCluster* edgeCluster,
+                                    OutgoingMessageBuffer* outgoBuffer)
+{
+    KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
+
+    processEdgeForwardSection(&edgeCluster->getEdgeBlock()[edge->targetEdgeSectionId],
+                              edge->weight,
+                              outgoBuffer);
+}
+
+/**
  * @brief CpuProcessingUnit::processIncomAxonEdge
  * @param data
  * @return
  */
 inline void processIncomAxonEdge(uint8_t *data,
-                                 OutgoingMessageBuffer* outgoBuffer,
-                                 KyoChanAxon* axon)
+                                 KyoChanAxon* axon,
+                                 OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanAxonEdgeContainer* edge = (KyoChanAxonEdgeContainer*)data;
 
@@ -295,7 +312,7 @@ bool EdgeProcessing::processInputMessages(NodeCluster* nodeCluster)
         data < end;
         data += data[1])
     {
-        processIncomForwardEdge(data, nodeCluster, outgoBuffer);
+        processIncomForwardEdgeOnNode(data, nodeCluster, outgoBuffer);
     }
     //incomBuffer->getMessage(0)->closeBuffer();
     //delete incomBuffer->getMessage(0);
@@ -335,7 +352,7 @@ bool EdgeProcessing::processIncomingMessages(Cluster* cluster)
                     //processIncomForwardEdge(data, outgoBuffer);
                     break;
                 case AXON_EDGE_CONTAINER:
-                    //processIncomAxonEdge(data, outgoBuffer, cluster->getAxonBlock());
+                    processIncomAxonEdge(data, cluster->getAxonBlock(), outgoBuffer);
                     break;
                 case LEARNING_CONTAINER:
                     //processIncomLerningEdge(data, side, outgoBuffer, cluster, m_nextChooser);
