@@ -145,25 +145,33 @@ bool EdgeClusterProcessing::processIncomingMessages(EdgeCluster* cluster)
         uint8_t* start = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
         uint8_t* end = start + incomBuffer->getMessage(side)->getPayloadSize();
 
-        for(uint8_t* data = start;
-            data < end;
-            data += data[1])
+        uint8_t* data = start;
+        while(data < end)
         {
+            std::cout<<"data[1]: "<<(int)data[1]<<std::endl;
             switch((int)(*data))
             {
+                case DIRECT_EDGE_CONTAINER:
+                    data += sizeof(KyoChanDirectEdgeContainer);
+                    break;
                 case EDGE_FOREWARD_CONTAINER:
                     processIncomForwardEdge(data, cluster, outgoBuffer);
+                    data += sizeof(KyoChanEdgeForwardContainer);
                     break;
                 case AXON_EDGE_CONTAINER:
                     processIncomAxonEdge(data, cluster->getAxonBlock(), outgoBuffer);
+                    data += sizeof(KyoChanAxonEdgeContainer);
                     break;
                 case LEARNING_CONTAINER:
                     processIncomLerningEdge(data, side, cluster, outgoBuffer);
+                    data += sizeof(KyoChanLearingEdgeContainer);
                     break;
                 case LEARNING_REPLY_CONTAINER:
                     processIncomLearningReply(data, side, cluster);
+                    data += sizeof(KyoChanLearningEdgeReplyContainer);
                     break;
                 default:
+                    data = end;
                     break;
             }
 
