@@ -132,7 +132,7 @@ void DemoIO::sendFinishCycle()
 void DemoIO::sendData(const KyoChanEdgeForwardContainer &edge)
 {
     mutexLock();
-    m_ougoingBuffer->addEdge(15, &edge);
+    m_ougoingBuffer->addForwardEdge(15, &edge);
     mutexUnlock();
 }
 

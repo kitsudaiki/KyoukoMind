@@ -1,4 +1,4 @@
-#include "processingtest.h"
+#include "processingTest.h"
 #include <core/messaging/messageController.h>
 #include <core/messaging/messageQueues/messageBuffer.h>
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
@@ -75,11 +75,11 @@ void ProcessingTest::initTestCase()
  */
 void ProcessingTest::checkProcessing()
 {
-    KyoChanEdgeForwardContainer edge;
-    edge.targetEdgeSectionId = 0;
+    KyoChanDirectEdgeContainer edge;
+    edge.targetNodeId = 0;
     edge.weight = 100.0;
 
-    UNITTEST(m_ougoingBuffer->addEdge(15, &edge), true);
+    UNITTEST(m_ougoingBuffer->addDirectEdge(15, &edge), true);
     m_ougoingBuffer->finishCycle(15);
 
     OUTPUT("==========================================================")

@@ -35,6 +35,23 @@ NodeClusterProcessing::NodeClusterProcessing(NextChooser* nextChooser)
 }
 
 /**
+ * @brief processIncomDirectEdge
+ * @param data
+ * @param nodeCluster
+ * @param outgoBuffer
+ */
+inline void processIncomDirectEdge(uint8_t *data,
+                                   NodeCluster* nodeCluster)
+{
+    OUTPUT("---")
+    OUTPUT("processIncomDirectEdge")
+    KyoChanDirectEdgeContainer* edge = (KyoChanDirectEdgeContainer*)data;
+
+    std::cout<<"    weight: "<<edge->weight<<"    edge->targetNodeId: "<<(int)edge->targetNodeId<<std::endl;
+    nodeCluster->getNodeBlock()[edge->targetNodeId].currentState += edge->weight;
+}
+
+/**
  * @brief processIncomForwardEdge
  * @param data
  * @param nodeCluster
@@ -44,8 +61,11 @@ inline void processIncomForwardEdge(uint8_t *data,
                                     NodeCluster* nodeCluster,
                                     OutgoingMessageBuffer* outgoBuffer)
 {
+    OUTPUT("---")
+    OUTPUT("processIncomForwardEdge")
     KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
 
+    std::cout<<"    weight: "<<edge->weight<<"    clusterID: "<<nodeCluster->getClusterId()<<std::endl;
     processEdgeSection(&nodeCluster->getEdgeBlock()[edge->targetEdgeSectionId],
                        edge->weight,
                        nodeCluster->getNodeBlock(),
@@ -62,6 +82,8 @@ inline void processIncomLearningReply(uint8_t *data,
                                       uint8_t initSide,
                                       NodeCluster* cluster)
 {
+    OUTPUT("---")
+    OUTPUT("processIncomLearningReply")
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
     KyoChanEdgeSection* edgeSections = cluster->getEdgeBlock();
@@ -76,6 +98,8 @@ inline void processIncomLearningReply(uint8_t *data,
  */
 bool NodeClusterProcessing::processInputMessages(NodeCluster* nodeCluster)
 {
+    OUTPUT("---")
+    OUTPUT("processInputMessages")
     IncomingMessageBuffer* incomBuffer = nodeCluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
 
@@ -99,6 +123,8 @@ bool NodeClusterProcessing::processInputMessages(NodeCluster* nodeCluster)
  */
 bool NodeClusterProcessing::processAxons(NodeCluster* cluster)
 {
+    OUTPUT("---")
+    OUTPUT("processAxons")
     if(cluster == nullptr) {
         return false;
     }
@@ -132,6 +158,8 @@ bool NodeClusterProcessing::processAxons(NodeCluster* cluster)
  */
 bool NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
 {
+    OUTPUT("---")
+    OUTPUT("processNodes")
     if(nodeCluster == nullptr) {
         return false;
     }
@@ -177,6 +205,8 @@ bool NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
  */
 bool NodeClusterProcessing::processIncomingMessages(NodeCluster* cluster)
 {
+    OUTPUT("---")
+    OUTPUT("processIncomingMessages")
     if(cluster == nullptr) {
         return false;
     }

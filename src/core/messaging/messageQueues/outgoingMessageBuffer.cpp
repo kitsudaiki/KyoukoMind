@@ -53,16 +53,34 @@ bool OutgoingMessageBuffer::updateBufferInit()
 }
 
 /**
- * @brief OutgoingMessageBuffer::addEdge
+ * @brief OutgoingMessageBuffer::addDirectEdge
  * @param targetSite
  * @param newEdge
  * @return
  */
-bool OutgoingMessageBuffer::addEdge(const uint8_t sourceSite,
-                                    const KyoChanEdgeForwardContainer *edge)
+bool OutgoingMessageBuffer::addDirectEdge(const uint8_t sourceSite,
+                                          const KyoChanDirectEdgeContainer *edge)
 {
+    OUTPUT("    > add direct-edge-container")
     if(sourceSite < 16) {
-        m_dataMessageBuffer[sourceSite]->addEdge(edge);
+        m_dataMessageBuffer[sourceSite]->addDirectEdge(edge);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * @brief OutgoingMessageBuffer::addForwardEdge
+ * @param targetSite
+ * @param newEdge
+ * @return
+ */
+bool OutgoingMessageBuffer::addForwardEdge(const uint8_t sourceSite,
+                                           const KyoChanEdgeForwardContainer *edge)
+{
+    OUTPUT("    > add edge-forward-container")
+    if(sourceSite < 16) {
+        m_dataMessageBuffer[sourceSite]->addForwardEdge(edge);
         return true;
     }
     return false;
@@ -77,6 +95,7 @@ bool OutgoingMessageBuffer::addEdge(const uint8_t sourceSite,
 bool OutgoingMessageBuffer::addPendingEdge(const uint8_t sourceSite,
                                            const KyoChanPendingEdgeContainer *edge)
 {
+    OUTPUT("    > add pending-edge-container")
     if(sourceSite < 16) {
         m_dataMessageBuffer[sourceSite]->addPendingEdge(edge);
         return true;
@@ -94,6 +113,7 @@ bool OutgoingMessageBuffer::addPendingEdge(const uint8_t sourceSite,
 bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSite,
                                         const KyoChanAxonEdgeContainer *newAxonEdge)
 {
+    OUTPUT("    > add axon-edge-container")
     if(sourceSite < 16) {
         m_dataMessageBuffer[sourceSite]->addAxonEdge(newAxonEdge);
         std::cout<<"   +++ sourceSite: "<<(int)sourceSite<<"   payload: "<<m_dataMessageBuffer[sourceSite]->getPayloadSize()<<std::endl;
@@ -111,6 +131,7 @@ bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSite,
 bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSite,
                                            const KyoChanLearingEdgeContainer *newEdge)
 {
+    OUTPUT("    > add learing-edge-container")
     if(sourceSite <= 16) {
         m_dataMessageBuffer[sourceSite]->addNewEdge(newEdge);
         return true;
@@ -126,6 +147,7 @@ bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSite,
 bool OutgoingMessageBuffer::addLearningReplyMessage(const uint8_t sourceSite,
                                                     const KyoChanLearningEdgeReplyContainer *newEdgeReply)
 {
+    OUTPUT("    > add learning-reply-edge-container")
     if(sourceSite <= 16) {
         m_dataMessageBuffer[sourceSite]->addNewEdgeReply(newEdgeReply);
         return true;

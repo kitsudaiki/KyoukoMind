@@ -38,10 +38,21 @@ DataMessage::DataMessage(void *data, uint32_t size) : Message(data, size)
 {}
 
 /**
- * @brief DataMessage::addEdge
+ * @brief DataMessage::addDirectEdge
  * @param newEdge
  */
-void DataMessage::addEdge(const KyoChanEdgeForwardContainer *newEdge)
+void DataMessage::addDirectEdge(const KyoChanDirectEdgeContainer *newEdge)
+{
+    const uint8_t size = sizeof(KyoChanDirectEdgeContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdge, size);
+}
+
+/**
+ * @brief DataMessage::addForwardEdge
+ * @param newEdge
+ */
+void DataMessage::addForwardEdge(const KyoChanEdgeForwardContainer *newEdge)
 {
     const uint8_t size = sizeof(KyoChanEdgeForwardContainer);
     checkBuffer(size);

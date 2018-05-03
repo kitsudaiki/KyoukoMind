@@ -23,7 +23,8 @@ public:
                 const uint8_t targetSite);
     DataMessage(void *data, uint32_t size);
 
-    void addEdge(const KyoChanEdgeForwardContainer* newEdge);
+    void addDirectEdge(const KyoChanDirectEdgeContainer *newEdge);
+    void addForwardEdge(const KyoChanEdgeForwardContainer* newEdge);
     void addPendingEdge(const KyoChanPendingEdgeContainer* newEdge);
     void addAxonEdge(const KyoChanAxonEdgeContainer *newAxonEdge);
     void addNewEdge(const KyoChanLearingEdgeContainer* newEdge);

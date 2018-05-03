@@ -40,6 +40,8 @@ inline void processEdgeForwardSection(KyoChanEdgeForwardSection* currentSection,
                                       float weight,
                                       OutgoingMessageBuffer* outgoBuffer)
 {
+    OUTPUT("---")
+    OUTPUT("processEdgeForwardSection")
     if(weight != 0.0)
     {
         uint8_t sideCounter;
@@ -54,7 +56,7 @@ inline void processEdgeForwardSection(KyoChanEdgeForwardSection* currentSection,
                 newEdge.targetEdgeSectionId = forwardEdge->targetEdgeSectionId;
                 newEdge.weight = forwardEdge->weight;
 
-                outgoBuffer->addEdge(sideCounter, &newEdge);
+                outgoBuffer->addForwardEdge(sideCounter, &newEdge);
             }
             sideCounter++;
         }
@@ -73,6 +75,9 @@ inline void processEdgeSection(KyoChanEdgeSection* currentSection,
                                KyoChanNode* nodes,
                                OutgoingMessageBuffer* outgoBuffer)
 {
+    OUTPUT("---")
+    OUTPUT("processEdgeSection")
+    std::cout<<"    weight: "<<weight<<std::endl;
     if(weight != 0.0)
     {
         uint8_t sideCounter;
@@ -81,13 +86,15 @@ inline void processEdgeSection(KyoChanEdgeSection* currentSection,
             forwardEdge < forwardEnd;
             forwardEdge++)
         {
+            std::cout<<"        side: "<<(int)sideCounter<<std::endl;
+            std::cout<<"        forwardEdge->weight: "<<forwardEdge->weight<<std::endl;
             if(forwardEdge->weight != 0.0)
             {
                 KyoChanEdgeForwardContainer newEdge;
                 newEdge.targetEdgeSectionId = forwardEdge->targetEdgeSectionId;
                 newEdge.weight = forwardEdge->weight * weight;
 
-                outgoBuffer->addEdge(sideCounter, &newEdge);
+                outgoBuffer->addForwardEdge(sideCounter, &newEdge);
             }
             sideCounter++;
         }
@@ -115,6 +122,8 @@ inline void createNewEdgeForward(Cluster *cluster,
                                  OutgoingMessageBuffer* outgoBuffer,
                                  NextChooser *nextChooser)
 {
+    OUTPUT("---")
+    OUTPUT("createNewEdgeForward")
     const uint8_t nextSide = nextChooser->getNextCluster(cluster->getNeighbors(), 14);
     const uint32_t newEdgeId = cluster->getNextNewEdgeId();
 
@@ -138,6 +147,8 @@ inline void processIncomAxonEdge(uint8_t *data,
                                  KyoChanAxon* axon,
                                  OutgoingMessageBuffer* outgoBuffer)
 {
+    OUTPUT("---")
+    OUTPUT("processIncomAxonEdge")
     KyoChanAxonEdgeContainer* edge = (KyoChanAxonEdgeContainer*)data;
 
     // check if target-cluster is reached
@@ -170,6 +181,8 @@ inline void processIncomLerningEdge(uint8_t *data,
                                     Cluster* cluster,
                                     OutgoingMessageBuffer* outgoBuffer)
 {
+    OUTPUT("---")
+    OUTPUT("processIncomLerningEdge")
     KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
 
     uint32_t targetEdgeSectionId = cluster->addEmptyEdgeSection(edge->marker);

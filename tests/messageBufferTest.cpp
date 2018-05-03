@@ -58,7 +58,7 @@ void MessageBufferTest::checkMessageBuffer()
     KyoChanEdgeForwardContainer edge;
     edge.targetEdgeSectionId = 1;
 
-    UNITTEST(m_ougoingBuffer->addEdge(15, &edge), true);
+    UNITTEST(m_ougoingBuffer->addForwardEdge(15, &edge), true);
     m_ougoingBuffer->finishCycle(15);
 
     Message* message = m_incomBuffer->getMessage(0);

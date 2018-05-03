@@ -15,6 +15,19 @@
 /**
  * @brief The KyoChanEdgeForewardContainer struct
  */
+struct KyoChanDirectEdgeContainer
+{
+    uint8_t type = DIRECT_EDGE_CONTAINER;
+    uint8_t size = 8;
+
+    float weight = 0.0;
+    uint16_t targetNodeId = 0;
+
+} __attribute__((packed));
+
+/**
+ * @brief The KyoChanEdgeForewardContainer struct
+ */
 struct KyoChanEdgeForwardContainer
 {
     uint8_t type = EDGE_FOREWARD_CONTAINER;
