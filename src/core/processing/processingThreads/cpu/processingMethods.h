@@ -36,7 +36,7 @@ class NextChooser;
  * @param weight
  * @param outgoBuffer
  */
-inline void processEdgeForwardSection(KyoChanEdgeForwardSection* currentSection,
+inline void processEdgeForwardSection(KyoChanForwardEdgeSection* currentSection,
                                       float weight,
                                       OutgoingMessageBuffer* outgoBuffer)
 {
@@ -45,11 +45,14 @@ inline void processEdgeForwardSection(KyoChanEdgeForwardSection* currentSection,
     if(weight != 0.0)
     {
         uint8_t sideCounter;
-        KyoChanEdgeForward* forwardEnd = currentSection->edgeForwards + 16;
-        for(KyoChanEdgeForward* forwardEdge = currentSection->edgeForwards;
+        KyoChanForwardEdge* forwardEnd = currentSection->forwardEdges
+                + currentSection->numberOfForwardEdges;
+        for(KyoChanForwardEdge* forwardEdge = currentSection->forwardEdges;
             forwardEdge < forwardEnd;
             forwardEdge++)
         {
+            std::cout<<"        side: "<<(int)sideCounter<<std::endl;
+            std::cout<<"        forwardEdge->weight: "<<forwardEdge->weight<<std::endl;
             if(forwardEdge->weight != 0.0)
             {
                 KyoChanEdgeForwardContainer newEdge;
@@ -81,8 +84,9 @@ inline void processEdgeSection(KyoChanEdgeSection* currentSection,
     if(weight != 0.0)
     {
         uint8_t sideCounter;
-        KyoChanEdgeForward* forwardEnd = currentSection->edgeForwards + 16;
-        for(KyoChanEdgeForward* forwardEdge = currentSection->edgeForwards;
+        KyoChanForwardEdge* forwardEnd = currentSection->forwardEdges
+                + currentSection->numberOfForwardEdges;
+        for(KyoChanForwardEdge* forwardEdge = currentSection->forwardEdges;
             forwardEdge < forwardEnd;
             forwardEdge++)
         {
@@ -143,15 +147,16 @@ inline void createNewEdgeForward(Cluster *cluster,
  * @param data
  * @return
  */
-inline void processIncomAxonEdge(uint8_t *data,
-                                 KyoChanAxon* axon,
-                                 OutgoingMessageBuffer* outgoBuffer)
+inline void processAxonEdge(uint8_t *data,
+                            KyoChanAxon* axon,
+                            OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("processIncomAxonEdge")
     KyoChanAxonEdgeContainer* edge = (KyoChanAxonEdgeContainer*)data;
 
     // check if target-cluster is reached
+    std::cout<<"    edge->targetClusterPath: "<<edge->targetClusterPath<<std::endl;
     if(edge->targetClusterPath != 0)
     {
         // if not reached update data
@@ -176,24 +181,43 @@ inline void processIncomAxonEdge(uint8_t *data,
  * @param outgoBuffer
  * @param edgeCluster
  */
-inline void processIncomLerningEdge(uint8_t *data,
-                                    uint8_t initSide,
-                                    Cluster* cluster,
-                                    OutgoingMessageBuffer* outgoBuffer)
+inline void processLerningEdge(uint8_t *data,
+                               uint8_t initSide,
+                               Cluster* cluster,
+                               OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("processIncomLerningEdge")
     KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
 
-    uint32_t targetEdgeSectionId = cluster->addEmptyEdgeSection(edge->marker);
+    const uint32_t targetEdgeSectionId = cluster->addEmptyEdgeSection();
 
-    // create reply-message
-    KyoChanLearningEdgeReplyContainer reply;
-    reply.sourceEdgeSectionId = edge->sourceEdgeSectionId;
-    reply.targetEdgeSectionId = targetEdgeSectionId;
+    if(targetEdgeSectionId != 0xFFFFFFFF)
+    {
+        // create reply-message
+        KyoChanLearningEdgeReplyContainer reply;
+        reply.sourceEdgeSectionId = edge->sourceEdgeSectionId;
+        reply.targetEdgeSectionId = targetEdgeSectionId;
 
-    // send reply-message
-    outgoBuffer->addLearningReplyMessage(initSide, &reply);
+        // send reply-message
+        outgoBuffer->addLearningReplyMessage(initSide, &reply);
+    }
+}
+
+/**
+ * @brief processPendingEdge
+ * @param data
+ * @param cluster
+ * @param outgoBuffer
+ */
+inline void processPendingEdge(uint8_t *data,
+                               Cluster* cluster,
+                               OutgoingMessageBuffer* outgoBuffer)
+{
+    OUTPUT("---")
+    OUTPUT("processPendingEdge")
+    KyoChanPendingEdgeContainer* edge = (KyoChanPendingEdgeContainer*)data;
+
 }
 
 }

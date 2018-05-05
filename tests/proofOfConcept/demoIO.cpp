@@ -54,7 +54,7 @@ void DemoIO::run()
             uint8_t* data = (uint8_t*)message->getData();
             for(uint32_t i = 0; i < message->getPayloadSize(); i = i + 20)
             {
-                if(data[i] == EDGE_FOREWARD_CONTAINER) {
+                if(data[i] == FOREWARD_EDGE_CONTAINER) {
                     KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data[i];
 
                     uint32_t out = (uint32_t)edge->weight;

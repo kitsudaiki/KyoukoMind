@@ -18,7 +18,6 @@
 struct KyoChanDirectEdgeContainer
 {
     uint8_t type = DIRECT_EDGE_CONTAINER;
-    uint8_t size = 8;
 
     float weight = 0.0;
     uint16_t targetNodeId = 0;
@@ -30,8 +29,7 @@ struct KyoChanDirectEdgeContainer
  */
 struct KyoChanEdgeForwardContainer
 {
-    uint8_t type = EDGE_FOREWARD_CONTAINER;
-    uint8_t size = 10;
+    uint8_t type = FOREWARD_EDGE_CONTAINER;
 
     float weight = 0.0;
     uint32_t targetEdgeSectionId = 0;
@@ -44,7 +42,6 @@ struct KyoChanEdgeForwardContainer
 struct KyoChanAxonEdgeContainer
 {
     uint8_t type = AXON_EDGE_CONTAINER;
-    uint8_t size = 16;
 
     float weight = 0.0;
     uint32_t targetAxonId = 0;
@@ -58,9 +55,7 @@ struct KyoChanAxonEdgeContainer
 struct KyoChanPendingEdgeContainer
 {
     uint8_t type = PENDING_EDGE_CONTAINER;
-    uint8_t size = 8;
 
-    uint16_t marker = 0;
     float weight = 0.0;
 
 } __attribute__((packed));
@@ -70,8 +65,7 @@ struct KyoChanPendingEdgeContainer
  */
 struct KyoChanLearingEdgeContainer
 {
-    uint8_t type = LEARNING_CONTAINER;
-    uint8_t size = 12;
+    uint8_t type = LEARNING_EDGE_CONTAINER;
 
     uint16_t marker = 0;
     uint32_t sourceEdgeSectionId = 0;
@@ -84,8 +78,7 @@ struct KyoChanLearingEdgeContainer
  */
 struct KyoChanLearningEdgeReplyContainer
 {
-    uint8_t type = LEARNING_REPLY_CONTAINER;
-    uint8_t size = 10;
+    uint8_t type = LEARNING_REPLY_EDGE_CONTAINER;
 
     uint32_t sourceEdgeSectionId = 0;
     uint32_t targetEdgeSectionId = 0;

@@ -29,8 +29,8 @@ public:
 
     bool processAxons(NodeCluster *cluster);
     bool processNodes(NodeCluster *nodeCluster);
-    bool processInputMessages(NodeCluster *nodeCluster);
-    bool processIncomingMessages(NodeCluster *cluster);
+    bool processDirectMessages(NodeCluster *nodeCluster);
+    bool processMessagesEdges(NodeCluster *nodeCluster);
 
 private:
     std::vector<uint8_t> m_sideOrder;

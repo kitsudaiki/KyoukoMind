@@ -62,7 +62,7 @@ void MessageTest::checkDataMessage()
 
     uint8_t* newData = (uint8_t*)newMessage.getPayload();
 
-    UNITTEST(newData[0], EDGE_FOREWARD_CONTAINER);
+    UNITTEST(newData[0], FOREWARD_EDGE_CONTAINER);
 
     KyoChanEdgeForwardContainer* edges = (KyoChanEdgeForwardContainer*)newData;
 

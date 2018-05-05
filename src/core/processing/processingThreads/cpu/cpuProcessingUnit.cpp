@@ -63,22 +63,21 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
             EdgeCluster *edgeCluster = static_cast<EdgeCluster*>(cluster);
             m_edgeProcessing->processIncomingMessages(edgeCluster);
             m_edgeProcessing->processAxons(edgeCluster);
-            edgeCluster->finishCycle();
             break;
         }
         case NODE_CLUSTER:
         {
             NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
-            m_nodeProcessing->processInputMessages(nodeCluster);
-            m_nodeProcessing->processIncomingMessages(nodeCluster);
+            m_nodeProcessing->processDirectMessages(nodeCluster);
+            m_nodeProcessing->processMessagesEdges(nodeCluster);
             m_nodeProcessing->processNodes(nodeCluster);
             m_nodeProcessing->processAxons(nodeCluster);
-            nodeCluster->finishCycle();
             break;
         }
         default:
             break;
     }
+    cluster->finishCycle();
 }
 
 }

@@ -57,7 +57,7 @@ inline void processIncomDirectEdge(uint8_t *data,
  * @param nodeCluster
  * @param outgoBuffer
  */
-inline void processIncomForwardEdge(uint8_t *data,
+inline void processForwardEdge(uint8_t *data,
                                     NodeCluster* nodeCluster,
                                     OutgoingMessageBuffer* outgoBuffer)
 {
@@ -78,7 +78,7 @@ inline void processIncomForwardEdge(uint8_t *data,
  * @param initSide
  * @param cluster
  */
-inline void processIncomLearningReply(uint8_t *data,
+inline void processLearningReply(uint8_t *data,
                                       uint8_t initSide,
                                       NodeCluster* cluster)
 {
@@ -87,7 +87,7 @@ inline void processIncomLearningReply(uint8_t *data,
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
     KyoChanEdgeSection* edgeSections = cluster->getEdgeBlock();
-    edgeSections[edge->sourceEdgeSectionId].edgeForwards[initSide].targetEdgeSectionId =
+    edgeSections[edge->sourceEdgeSectionId].forwardEdges[initSide].targetEdgeSectionId =
             edge->targetEdgeSectionId;
 }
 
@@ -96,7 +96,7 @@ inline void processIncomLearningReply(uint8_t *data,
  * @param nodeCluster
  * @return
  */
-bool NodeClusterProcessing::processInputMessages(NodeCluster* nodeCluster)
+bool NodeClusterProcessing::processDirectMessages(NodeCluster* nodeCluster)
 {
     OUTPUT("---")
     OUTPUT("processInputMessages")
@@ -106,7 +106,7 @@ bool NodeClusterProcessing::processInputMessages(NodeCluster* nodeCluster)
     uint8_t* end = start + incomBuffer->getMessage(0)->getPayloadSize();
     for(uint8_t* data = start;
         data < end;
-        data += data[1])
+        data += sizeof(KyoChanDirectEdgeContainer))
     {
         processIncomDirectEdge(data, nodeCluster);
     }
@@ -136,6 +136,7 @@ bool NodeClusterProcessing::processAxons(NodeCluster* cluster)
         axon < axonEnd;
         axon++)
     {
+        std::cout<<"    axon->currentState: "<<axon->currentState<<std::endl;
         if(axon->currentState < AXON_PROCESS_BORDER) {
             continue;
         }
@@ -173,6 +174,7 @@ bool NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
         nodes < end;
         nodes++)
     {
+        std::cout<<"    nodes->currentState: "<<nodes->currentState<<std::endl;
         if(nodes->border <= nodes->currentState)
         {
             if(nodes->targetClusterPath != 0)
@@ -202,51 +204,54 @@ bool NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
  * @param edgeCluster
  * @return
  */
-bool NodeClusterProcessing::processIncomingMessages(NodeCluster* cluster)
+bool NodeClusterProcessing::processMessagesEdges(NodeCluster* nodeCluster)
 {
     OUTPUT("---")
     OUTPUT("processIncomingMessages")
-    if(cluster == nullptr) {
+    if(nodeCluster == nullptr) {
         return false;
     }
 
-    IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
-    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
+    IncomingMessageBuffer* incomBuffer = nodeCluster->getIncomingMessageBuffer();
+    OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
 
     // process normal communication
     for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
     {
-        uint8_t side = m_sideOrder[sidePos];
+        const uint8_t side = m_sideOrder[sidePos];
         uint8_t* start = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
         uint8_t* end = start + incomBuffer->getMessage(side)->getPayloadSize();
 
         uint8_t* data = start;
         while(data < end)
         {
-            std::cout<<"data[1]: "<<(int)data[1]<<std::endl;
             switch((int)(*data))
             {
                 case DIRECT_EDGE_CONTAINER:
                     data += sizeof(KyoChanDirectEdgeContainer);
                     break;
-                case EDGE_FOREWARD_CONTAINER:
-                    processIncomForwardEdge(data, cluster, outgoBuffer);
+                case FOREWARD_EDGE_CONTAINER:
+                    processForwardEdge(data, nodeCluster, outgoBuffer);
                     data += sizeof(KyoChanEdgeForwardContainer);
                     break;
                 case AXON_EDGE_CONTAINER:
-                    processIncomAxonEdge(data, cluster->getAxonBlock(), outgoBuffer);
+                    processAxonEdge(data, nodeCluster->getAxonBlock(), outgoBuffer);
                     data += sizeof(KyoChanAxonEdgeContainer);
                     break;
-                case LEARNING_CONTAINER:
-                    processIncomLerningEdge(data, side, cluster, outgoBuffer);
+                case PENDING_EDGE_CONTAINER:
+                    processPendingEdge(data, nodeCluster, outgoBuffer);
+                    data += sizeof(KyoChanPendingEdgeContainer);
+                    break;
+                case LEARNING_EDGE_CONTAINER:
+                    processLerningEdge(data, side, nodeCluster, outgoBuffer);
                     data += sizeof(KyoChanLearingEdgeContainer);
                     break;
-                case LEARNING_REPLY_CONTAINER:
-                    processIncomLearningReply(data, side, cluster);
+                case LEARNING_REPLY_EDGE_CONTAINER:
+                    processLearningReply(data, side, nodeCluster);
                     data += sizeof(KyoChanLearningEdgeReplyContainer);
                     break;
                 default:
-                    data = end;
+                    return false;
                     break;
             }
 

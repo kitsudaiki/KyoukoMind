@@ -181,10 +181,9 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
 
 /**
  * @brief NodeCluster::addEmptyEdgeSection
- * @param marker
  * @return
  */
-uint32_t NodeCluster::addEmptyEdgeSection(const uint32_t marker)
+uint32_t NodeCluster::addEmptyEdgeSection()
 {
     // allocate a new block, if necessary
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
@@ -193,18 +192,17 @@ uint32_t NodeCluster::addEmptyEdgeSection(const uint32_t marker)
     {
         // TODO: outsourcing
         if(!m_clusterDataBuffer->allocateBlocks(1)) {
-            return false;
+            return 0xFFFFFFFF;
         }
         m_metaData.numberOfEdgeBlocks++;
+        m_metaData.numberOfPendingEdgeSections++;
     }
 
     // add new edge-forward-section
     KyoChanEdgeSection newSection;
-    newSection.marker = marker;
     getEdgeBlock()[m_metaData.numberOfEdgeSections] = newSection;
     m_metaData.numberOfEdgeSections++;
-
-    return true;
+    return m_metaData.numberOfEdgeSections-1;
 }
 
 }

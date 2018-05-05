@@ -40,7 +40,7 @@ EdgeClusterProcessing::EdgeClusterProcessing(NextChooser* nextChooser)
  * @param nodeCluster
  * @param outgoBuffer
  */
-inline void processIncomForwardEdge(uint8_t *data,
+inline void processForwardEdge(uint8_t *data,
                                     EdgeCluster* edgeCluster,
                                     OutgoingMessageBuffer* outgoBuffer)
 {
@@ -57,14 +57,14 @@ inline void processIncomForwardEdge(uint8_t *data,
  * @param initSide
  * @param cluster
  */
-inline void processIncomLearningReply(uint8_t *data,
+inline void processLearningReply(uint8_t *data,
                                       uint8_t initSide,
                                       EdgeCluster* cluster)
 {
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
-    KyoChanEdgeForwardSection* edgeForwardSections = cluster->getEdgeBlock();
-    edgeForwardSections[edge->sourceEdgeSectionId].edgeForwards[initSide].targetEdgeSectionId =
+    KyoChanForwardEdgeSection* edgeForwardSections = cluster->getEdgeBlock();
+    edgeForwardSections[edge->sourceEdgeSectionId].forwardEdges[initSide].targetEdgeSectionId =
             edge->targetEdgeSectionId;
 }
 
@@ -85,7 +85,7 @@ bool EdgeClusterProcessing::processInputMessages(EdgeCluster* cluster)
         data < end;
         data += data[1])
     {
-        processIncomForwardEdge(data, cluster, outgoBuffer);
+        processForwardEdge(data, cluster, outgoBuffer);
     }
     //incomBuffer->getMessage(0)->closeBuffer();
     //delete incomBuffer->getMessage(0);
@@ -116,7 +116,7 @@ bool EdgeClusterProcessing::processAxons(EdgeCluster* cluster)
         }
 
         // process normal edges
-        KyoChanEdgeForwardSection* edgeForwardSections = cluster->getEdgeBlock();
+        KyoChanForwardEdgeSection* edgeForwardSections = cluster->getEdgeBlock();
         processEdgeForwardSection(&edgeForwardSections[axon->edgeSectionId],
                                   axon->currentState,
                                   outgoBuffer);
@@ -129,49 +129,52 @@ bool EdgeClusterProcessing::processAxons(EdgeCluster* cluster)
  * @param edgeCluster
  * @return
  */
-bool EdgeClusterProcessing::processIncomingMessages(EdgeCluster* cluster)
+bool EdgeClusterProcessing::processIncomingMessages(EdgeCluster* edgeCluster)
 {
-    if(cluster == nullptr) {
+    if(edgeCluster == nullptr) {
         return false;
     }
 
-    IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
-    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
+    IncomingMessageBuffer* incomBuffer = edgeCluster->getIncomingMessageBuffer();
+    OutgoingMessageBuffer* outgoBuffer = edgeCluster->getOutgoingMessageBuffer();
 
     // process normal communication
     for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
     {
-        uint8_t side = m_sideOrder[sidePos];
+        const uint8_t side = m_sideOrder[sidePos];
         uint8_t* start = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
         uint8_t* end = start + incomBuffer->getMessage(side)->getPayloadSize();
 
         uint8_t* data = start;
         while(data < end)
         {
-            std::cout<<"data[1]: "<<(int)data[1]<<std::endl;
             switch((int)(*data))
             {
                 case DIRECT_EDGE_CONTAINER:
                     data += sizeof(KyoChanDirectEdgeContainer);
                     break;
-                case EDGE_FOREWARD_CONTAINER:
-                    processIncomForwardEdge(data, cluster, outgoBuffer);
+                case FOREWARD_EDGE_CONTAINER:
+                    processForwardEdge(data, edgeCluster, outgoBuffer);
                     data += sizeof(KyoChanEdgeForwardContainer);
                     break;
                 case AXON_EDGE_CONTAINER:
-                    processIncomAxonEdge(data, cluster->getAxonBlock(), outgoBuffer);
+                    processAxonEdge(data, edgeCluster->getAxonBlock(), outgoBuffer);
                     data += sizeof(KyoChanAxonEdgeContainer);
                     break;
-                case LEARNING_CONTAINER:
-                    processIncomLerningEdge(data, side, cluster, outgoBuffer);
+                case PENDING_EDGE_CONTAINER:
+                    processPendingEdge(data, edgeCluster, outgoBuffer);
+                    data += sizeof(KyoChanPendingEdgeContainer);
+                    break;
+                case LEARNING_EDGE_CONTAINER:
+                    processLerningEdge(data, side, edgeCluster, outgoBuffer);
                     data += sizeof(KyoChanLearingEdgeContainer);
                     break;
-                case LEARNING_REPLY_CONTAINER:
-                    processIncomLearningReply(data, side, cluster);
+                case LEARNING_REPLY_EDGE_CONTAINER:
+                    processLearningReply(data, side, edgeCluster);
                     data += sizeof(KyoChanLearningEdgeReplyContainer);
                     break;
                 default:
-                    data = end;
+                    return false;
                     break;
             }
 

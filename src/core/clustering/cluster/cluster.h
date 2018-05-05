@@ -59,12 +59,13 @@ public:
     bool initAxonBlocks(const uint32_t numberOfAxons);
 
     void finishCycle();
+    void resetNumberOfPendingEdges();
 
     void syncEdgeSections(uint32_t startSection = 0,
                           uint32_t endSection = 0);
 
     virtual bool initEdgeBlocks(const uint32_t numberOfEdgeSections) = 0;
-    virtual uint32_t addEmptyEdgeSection(const uint32_t marker) = 0;
+    virtual uint32_t addEmptyEdgeSection() = 0;
 
 private:
     // cluster-metadata

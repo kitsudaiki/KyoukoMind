@@ -26,7 +26,7 @@ class EdgeClusterProcessing
 public:
     EdgeClusterProcessing(NextChooser *nextChooser);
 
-    bool processIncomingMessages(EdgeCluster *cluster);
+    bool processIncomingMessages(EdgeCluster *edgeCluster);
     bool processInputMessages(EdgeCluster *nodeCluster);
     bool processAxons(EdgeCluster *cluster);
 
