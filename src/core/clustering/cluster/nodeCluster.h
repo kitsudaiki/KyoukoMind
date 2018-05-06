@@ -39,8 +39,9 @@ public:
     bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
 
     bool initNodeBlocks(uint16_t numberOfNodes);
-    uint32_t addEmptyEdgeSection(const uint32_t marker);
+    uint32_t addEmptyEdgeSection();
 
+    uint16_t m_numberOfActiveNodes = 0;
 };
 
 }

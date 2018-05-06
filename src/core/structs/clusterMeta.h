@@ -52,6 +52,7 @@ struct ClusterMetaData
     uint16_t numberOfNodes = 0;
     uint32_t numberOfAxons = 0;
     uint32_t numberOfEdgeSections = 0;
+    uint32_t numberOfPendingEdgeSections = 0;
 
     uint32_t positionNodeBlocks = 0;
     uint32_t numberOfNodeBlocks = 0;

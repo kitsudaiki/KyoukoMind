@@ -28,9 +28,9 @@ public:
     ~EdgeCluster();
 
     uint32_t getNumberOfEdgeBlocks() const;
-    KyoChanEdgeForwardSection* getEdgeBlock();
+    KyoChanForwardEdgeSection* getEdgeBlock();
     bool initEdgeBlocks(const uint32_t numberOfEdgeSections);
-    uint32_t addEmptyEdgeSection(const uint32_t marker);
+    uint32_t addEmptyEdgeSection();
 };
 
 }

@@ -42,12 +42,12 @@ void MessageTest::checkDataMessage()
     KyoChanEdgeForwardContainer testEdge;
     testEdge.targetEdgeSectionId = 1;
     testEdge.weight = 3;
-    message.addEdge(&testEdge);
+    message.addForwardEdge(&testEdge);
 
     KyoChanEdgeForwardContainer testEdge2;
     testEdge2.targetEdgeSectionId = 4;
     testEdge2.weight = 6;
-    message.addEdge(&testEdge2);
+    message.addForwardEdge(&testEdge2);
 
     void* data = message.getData();
     uint32_t size = message.getDataSize();
@@ -62,7 +62,7 @@ void MessageTest::checkDataMessage()
 
     uint8_t* newData = (uint8_t*)newMessage.getPayload();
 
-    UNITTEST(newData[0], EDGE_FOREWARD_CONTAINER);
+    UNITTEST(newData[0], FOREWARD_EDGE_CONTAINER);
 
     KyoChanEdgeForwardContainer* edges = (KyoChanEdgeForwardContainer*)newData;
 

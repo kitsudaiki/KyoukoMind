@@ -279,6 +279,14 @@ void Cluster::finishCycle()
     m_outgoingMessageQueue->finishCycle(13);
 }
 
+/**
+ * @brief Cluster::resetNumberOfPendingEdges
+ */
+void Cluster::resetNumberOfPendingEdges()
+{
+    m_metaData.numberOfPendingEdgeSections = 0;
+}
+
 
 /**
  * @brief Cluster::syncEdgeSections

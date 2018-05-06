@@ -11,30 +11,28 @@
 #define NODECLUSTERPROCESSING_H
 
 #include <common.h>
-#include <core/structs/kyochanEdges.h>
-#include <core/structs/kyochanNodes.h>
-#include <core/structs/messageContainer.h>
+#include <core/processing/processingThreads/cpu/clusterProcessing.h>
 
 namespace KyoukoMind
 {
-class Cluster;
-class NodeCluster;
-class NextChooser;
 
-class NodeClusterProcessing
+class NodeClusterProcessing : public ClusterProcessing
 {
 
 public:
     NodeClusterProcessing(NextChooser* nextChooser);
 
-    bool processAxons(NodeCluster *cluster);
     bool processNodes(NodeCluster *nodeCluster);
-    bool processInputMessages(NodeCluster *nodeCluster);
-    bool processIncomingMessages(NodeCluster *cluster);
 
 private:
-    std::vector<uint8_t> m_sideOrder;
-    NextChooser* m_nextChooser = nullptr;
+    void processIncomDirectEdge(uint8_t *data,
+                                Cluster *cluster);
+    void processForwardEdge(uint8_t *data,
+                            Cluster *cluster,
+                            OutgoingMessageBuffer *outgoBuffer);
+    void processLearningReply(uint8_t *data,
+                              const uint8_t initSide,
+                              Cluster *cluster);
 };
 
 }

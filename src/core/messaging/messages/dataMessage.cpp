@@ -38,10 +38,44 @@ DataMessage::DataMessage(void *data, uint32_t size) : Message(data, size)
 {}
 
 /**
- * @brief DataMessage::addEdge
+ * @brief DataMessage::checkBuffer
+ */
+inline void DataMessage::checkBuffer(const uint8_t size)
+{
+    if(m_currentBufferPos + size > m_currentBufferSize) {
+        m_buffer->allocateBlocks(1);
+        m_currentBufferSize += m_buffer->getBlockSize() * m_buffer->getNumberOfBlocks();
+    }
+}
+
+/**
+ * @brief DataMessage::copyToBuffer
+ * @param data
+ */
+inline void DataMessage::copyToBuffer(void *data, const uint8_t size)
+{
+    memcpy(m_buffer->getBufferPointer() + m_currentBufferPos,
+           data,
+           size);
+    m_currentBufferPos += size;
+}
+
+/**
+ * @brief DataMessage::addDirectEdge
  * @param newEdge
  */
-void DataMessage::addEdge(const KyoChanEdgeForwardContainer *newEdge)
+void DataMessage::addDirectEdge(const KyoChanDirectEdgeContainer *newEdge)
+{
+    const uint8_t size = sizeof(KyoChanDirectEdgeContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdge, size);
+}
+
+/**
+ * @brief DataMessage::addForwardEdge
+ * @param newEdge
+ */
+void DataMessage::addForwardEdge(const KyoChanEdgeForwardContainer *newEdge)
 {
     const uint8_t size = sizeof(KyoChanEdgeForwardContainer);
     checkBuffer(size);
@@ -90,29 +124,6 @@ void DataMessage::addNewEdgeReply(const KyoChanLearningEdgeReplyContainer *newEd
     const uint8_t size = sizeof(KyoChanLearningEdgeReplyContainer);
     checkBuffer(size);
     copyToBuffer((void*)newEdgeReply, size);
-}
-
-/**
- * @brief DataMessage::checkBuffer
- */
-void DataMessage::checkBuffer(const uint8_t size)
-{
-    if(m_currentBufferPos + size > m_currentBufferSize) {
-        m_buffer->allocateBlocks(1);
-        m_currentBufferSize += m_buffer->getBlockSize() * m_buffer->getNumberOfBlocks();
-    }
-}
-
-/**
- * @brief DataMessage::copyToBuffer
- * @param data
- */
-void DataMessage::copyToBuffer(void *data, const uint8_t size)
-{
-    memcpy(m_buffer->getBufferPointer() + m_currentBufferPos,
-           data,
-           size);
-    m_currentBufferPos += size;
 }
 
 }

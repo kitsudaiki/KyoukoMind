@@ -1,4 +1,4 @@
-#include "processingtest.h"
+#include "processingTest.h"
 #include <core/messaging/messageController.h>
 #include <core/messaging/messageQueues/messageBuffer.h>
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
@@ -8,6 +8,7 @@
 #include <core/clustering/cluster/edgeCluster.h>
 
 #include <core/processing/processingThreads/cpu/nextChooser.h>
+#include <core/processing/processingThreads/cpu/clusterProcessing.h>
 #include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
 #include <core/processing/processingThreads/cpu/nodeClusterProcessing.h>
 
@@ -75,28 +76,25 @@ void ProcessingTest::initTestCase()
  */
 void ProcessingTest::checkProcessing()
 {
-    KyoChanEdgeForwardContainer edge;
-    edge.targetEdgeSectionId = 0;
+    KyoChanDirectEdgeContainer edge;
+    edge.targetNodeId = 0;
     edge.weight = 100.0;
 
-    UNITTEST(m_ougoingBuffer->addEdge(15, &edge), true);
+    UNITTEST(m_ougoingBuffer->addDirectEdge(15, &edge), true);
     m_ougoingBuffer->finishCycle(15);
 
     OUTPUT("==========================================================")
-    m_nodeProcessing->processInputMessages(m_nodeCluster1);
-    m_nodeProcessing->processIncomingMessages(m_nodeCluster1);
+    m_nodeProcessing->processMessagesEdges(m_nodeCluster1);
     m_nodeProcessing->processNodes(m_nodeCluster1);
     m_nodeProcessing->processAxons(m_nodeCluster1);
     m_nodeCluster1->finishCycle();
     OUTPUT("==========================================================")
-    m_nodeProcessing->processInputMessages(m_nodeCluster2);
-    m_nodeProcessing->processIncomingMessages(m_nodeCluster2);
+    m_nodeProcessing->processMessagesEdges(m_nodeCluster2);
     m_nodeProcessing->processNodes(m_nodeCluster2);
     m_nodeProcessing->processAxons(m_nodeCluster2);
     m_nodeCluster2->finishCycle();
     OUTPUT("==========================================================")
-    m_nodeProcessing->processInputMessages(m_nodeCluster3);
-    m_nodeProcessing->processIncomingMessages(m_nodeCluster3);
+    m_nodeProcessing->processMessagesEdges(m_nodeCluster3);
     m_nodeProcessing->processNodes(m_nodeCluster3);
     m_nodeProcessing->processAxons(m_nodeCluster3);
     m_nodeCluster3->finishCycle();

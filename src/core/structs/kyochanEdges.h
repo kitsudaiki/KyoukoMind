@@ -13,11 +13,12 @@
 #include <common.h>
 
 /**
- * @brief The KyoChanEdgeForward struct
+ * @brief The KyoChanForwardEdge struct
  */
-struct KyoChanEdgeForward
+struct KyoChanForwardEdge
 {
-    uint8_t marker = 0;
+    uint8_t side = 0;
+    uint8_t pending = 0;
     float weight = 0.0;
     uint32_t targetEdgeSectionId = 0;
 } __attribute__((packed));
@@ -32,12 +33,27 @@ struct KyoChanEdge
 } __attribute__((packed));
 
 /**
- * @brief The KyoChanEdgeSection struct
+ * @brief The KyoChanForwardEdgeSection struct
  */
-struct KyoChanEdgeForwardSection
+struct KyoChanForwardEdgeSection
 {
-    uint8_t marker = 0;
-    KyoChanEdgeForward edgeForwards[16];
+    KyoChanForwardEdge forwardEdges[FORWARD_EDGES_PER_EDGESECTION];
+    uint8_t numberOfForwardEdges = 0;
+
+    /**
+     * @brief addForwardEdge
+     * @param forwardEdge
+     * @return
+     */
+    bool addForwardEdge(const KyoChanForwardEdge &newForwardEdge)
+    {
+        if(numberOfForwardEdges >= EDGES_PER_EDGESECTION) {
+            return false;
+        }
+        forwardEdges[numberOfForwardEdges] = newForwardEdge;
+        numberOfForwardEdges++;
+        return true;
+    }
 } __attribute__((packed));
 
 /**
@@ -45,11 +61,29 @@ struct KyoChanEdgeForwardSection
  */
 struct KyoChanEdgeSection
 {
-    uint8_t marker = 0;
     uint8_t incomSide = 0;
-    KyoChanEdgeForward edgeForwards[16];
-    uint32_t numberOfEdges = 0;
+    float totalWeight = 0.0;
+
+    KyoChanForwardEdge forwardEdges[FORWARD_EDGES_PER_EDGESECTION];
+    uint8_t numberOfForwardEdges = 0;
+
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
+    uint32_t numberOfEdges = 0;
+
+    /**
+     * @brief addForwardEdge
+     * @param forwardEdge
+     * @return
+     */
+    bool addForwardEdge(const KyoChanForwardEdge &newForwardEdge)
+    {
+        if(numberOfForwardEdges >= EDGES_PER_EDGESECTION) {
+            return false;
+        }
+        forwardEdges[numberOfForwardEdges] = newForwardEdge;
+        numberOfForwardEdges++;
+        return true;
+    }
 
     /**
      * @brief isFull

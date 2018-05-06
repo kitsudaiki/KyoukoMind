@@ -11,7 +11,7 @@
 #include <tests/clusterTest.h>
 #include <tests/messageTest.h>
 #include <tests/messageBufferTest.h>
-#include <tests/processingtest.h>
+#include <tests/processingTest.h>
 #include <tests/storageMemoryTest.h>
 #include <tests/dataBufferTest.h>
 

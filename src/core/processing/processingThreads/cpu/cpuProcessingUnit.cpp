@@ -22,8 +22,6 @@
 #include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
 #include <core/processing/processingThreads/cpu/nodeClusterProcessing.h>
 
-#include <core/processing/processingThreads/cpu/processingMethods.h>
-
 namespace KyoukoMind
 {
 
@@ -60,25 +58,22 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
     {
         case EDGE_CLUSTER:
         {
-            EdgeCluster *edgeCluster = static_cast<EdgeCluster*>(cluster);
-            m_edgeProcessing->processIncomingMessages(edgeCluster);
-            m_edgeProcessing->processAxons(edgeCluster);
-            edgeCluster->finishCycle();
+            m_edgeProcessing->processMessagesEdges(cluster);
+            m_edgeProcessing->processAxons(cluster);
             break;
         }
         case NODE_CLUSTER:
         {
             NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
-            m_nodeProcessing->processInputMessages(nodeCluster);
-            m_nodeProcessing->processIncomingMessages(nodeCluster);
+            m_nodeProcessing->processMessagesEdges(cluster);
             m_nodeProcessing->processNodes(nodeCluster);
-            m_nodeProcessing->processAxons(nodeCluster);
-            nodeCluster->finishCycle();
+            m_nodeProcessing->processAxons(cluster);
             break;
         }
         default:
             break;
     }
+    cluster->finishCycle();
 }
 
 }
