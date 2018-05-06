@@ -62,14 +62,13 @@ struct KyoChanForwardEdgeSection
 struct KyoChanEdgeSection
 {
     uint8_t incomSide = 0;
+    float totalWeight = 0.0;
 
     KyoChanForwardEdge forwardEdges[FORWARD_EDGES_PER_EDGESECTION];
     uint8_t numberOfForwardEdges = 0;
 
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
     uint32_t numberOfEdges = 0;
-
-    uint8_t padding[4];
 
     /**
      * @brief addForwardEdge

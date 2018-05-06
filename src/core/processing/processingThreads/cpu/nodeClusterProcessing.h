@@ -23,7 +23,6 @@ public:
     NodeClusterProcessing(NextChooser* nextChooser);
 
     bool processNodes(NodeCluster *nodeCluster);
-    bool processDirectMessages(NodeCluster *nodeCluster);
 
 private:
     void processIncomDirectEdge(uint8_t *data,

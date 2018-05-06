@@ -1,3 +1,12 @@
+/**
+ *  @file    clusterProcessing.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef CLUSTERPROCESSING_H
 #define CLUSTERPROCESSING_H
 

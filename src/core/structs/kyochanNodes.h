@@ -34,7 +34,6 @@ struct KyoChanAxon
 {
     float currentState = 0;
 
-    uint8_t numberOfPendingEdges = 0;
     uint32_t edgeSectionId = 0;
 
 } __attribute__((packed));

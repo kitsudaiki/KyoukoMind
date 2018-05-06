@@ -1,3 +1,12 @@
+/**
+ *  @file    clusterProcessing.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include "clusterProcessing.h"
 
 namespace KyoukoMind
@@ -9,7 +18,7 @@ namespace KyoukoMind
  */
 ClusterProcessing::ClusterProcessing(NextChooser* nextChooser)
 {
-    m_sideOrder = {2,3,4,13,12,11};
+    m_sideOrder = {0, 2, 3, 4, 13, 12, 11};
     m_nextChooser = nextChooser;
 }
 
@@ -72,10 +81,10 @@ bool ClusterProcessing::processMessagesEdges(Cluster* cluster)
     for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
     {
         const uint8_t side = m_sideOrder[sidePos];
-        uint8_t* start = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
-        uint8_t* end = start + incomBuffer->getMessage(side)->getPayloadSize();
 
-        uint8_t* data = start;
+        uint8_t* data = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
+        uint8_t* end = data + incomBuffer->getMessage(side)->getPayloadSize();
+
         while(data < end)
         {
             switch((int)(*data))

@@ -84,19 +84,16 @@ void ProcessingTest::checkProcessing()
     m_ougoingBuffer->finishCycle(15);
 
     OUTPUT("==========================================================")
-    m_nodeProcessing->processDirectMessages(m_nodeCluster1);
     m_nodeProcessing->processMessagesEdges(m_nodeCluster1);
     m_nodeProcessing->processNodes(m_nodeCluster1);
     m_nodeProcessing->processAxons(m_nodeCluster1);
     m_nodeCluster1->finishCycle();
     OUTPUT("==========================================================")
-    m_nodeProcessing->processDirectMessages(m_nodeCluster2);
     m_nodeProcessing->processMessagesEdges(m_nodeCluster2);
     m_nodeProcessing->processNodes(m_nodeCluster2);
     m_nodeProcessing->processAxons(m_nodeCluster2);
     m_nodeCluster2->finishCycle();
     OUTPUT("==========================================================")
-    m_nodeProcessing->processDirectMessages(m_nodeCluster3);
     m_nodeProcessing->processMessagesEdges(m_nodeCluster3);
     m_nodeProcessing->processNodes(m_nodeCluster3);
     m_nodeProcessing->processAxons(m_nodeCluster3);

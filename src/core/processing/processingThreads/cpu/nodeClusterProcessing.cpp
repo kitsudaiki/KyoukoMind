@@ -24,7 +24,7 @@ NodeClusterProcessing::NodeClusterProcessing(NextChooser* nextChooser) :
  * @param outgoBuffer
  */
 void NodeClusterProcessing::processIncomDirectEdge(uint8_t *data,
-                                                          Cluster *cluster)
+                                                   Cluster *cluster)
 {
     OUTPUT("---")
     OUTPUT("processIncomDirectEdge")
@@ -41,8 +41,8 @@ void NodeClusterProcessing::processIncomDirectEdge(uint8_t *data,
  * @param outgoBuffer
  */
 void NodeClusterProcessing::processForwardEdge(uint8_t *data,
-                                                     Cluster* cluster,
-                                                     OutgoingMessageBuffer* outgoBuffer)
+                                               Cluster* cluster,
+                                               OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("processIncomForwardEdge")
@@ -62,8 +62,8 @@ void NodeClusterProcessing::processForwardEdge(uint8_t *data,
  * @param cluster
  */
 void NodeClusterProcessing::processLearningReply(uint8_t *data,
-                                                        const uint8_t initSide,
-                                                        Cluster* cluster)
+                                                 const uint8_t initSide,
+                                                 Cluster* cluster)
 {
     OUTPUT("---")
     OUTPUT("processIncomLearningReply")
@@ -72,30 +72,6 @@ void NodeClusterProcessing::processLearningReply(uint8_t *data,
     KyoChanEdgeSection* edgeSections = ((NodeCluster*)cluster)->getEdgeBlock();
     edgeSections[edge->sourceEdgeSectionId].forwardEdges[initSide].targetEdgeSectionId =
             edge->targetEdgeSectionId;
-}
-
-/**
- * @brief NodeClusterProcessing::processInputMessages
- * @param nodeCluster
- * @return
- */
-bool NodeClusterProcessing::processDirectMessages(NodeCluster* nodeCluster)
-{
-    OUTPUT("---")
-    OUTPUT("processInputMessages")
-    IncomingMessageBuffer* incomBuffer = nodeCluster->getIncomingMessageBuffer();
-
-    uint8_t* start = (uint8_t*)incomBuffer->getMessage(0)->getPayload();
-    uint8_t* end = start + incomBuffer->getMessage(0)->getPayloadSize();
-    for(uint8_t* data = start;
-        data < end;
-        data += sizeof(KyoChanDirectEdgeContainer))
-    {
-        processIncomDirectEdge(data, nodeCluster);
-    }
-    //incomBuffer->getMessage(0)->closeBuffer();
-    //delete incomBuffer->getMessage(0);
-    return true;
 }
 
 /**

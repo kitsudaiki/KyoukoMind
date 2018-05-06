@@ -24,8 +24,8 @@ EdgeClusterProcessing::EdgeClusterProcessing(NextChooser* nextChooser) :
  * @param outgoBuffer
  */
 void EdgeClusterProcessing::processForwardEdge(uint8_t *data,
-                                                      Cluster* cluster,
-                                                      OutgoingMessageBuffer* outgoBuffer)
+                                               Cluster* cluster,
+                                               OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
 
