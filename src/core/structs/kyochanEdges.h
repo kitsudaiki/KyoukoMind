@@ -18,6 +18,7 @@
 struct KyoChanForwardEdge
 {
     uint8_t side = 0;
+    uint8_t pending = 0;
     float weight = 0.0;
     uint32_t targetEdgeSectionId = 0;
 } __attribute__((packed));

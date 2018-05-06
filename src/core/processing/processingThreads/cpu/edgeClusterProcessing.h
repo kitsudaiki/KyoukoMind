@@ -11,28 +11,26 @@
 #define EDGEPROCESSING_H
 
 #include <common.h>
-#include <core/structs/kyochanEdges.h>
-#include <core/structs/kyochanNodes.h>
-#include <core/structs/messageContainer.h>
+#include <core/processing/processingThreads/cpu/clusterProcessing.h>
 
 namespace KyoukoMind
 {
-class Cluster;
-class EdgeCluster;
-class NextChooser;
 
-class EdgeClusterProcessing
+class EdgeClusterProcessing : public ClusterProcessing
 {
 public:
     EdgeClusterProcessing(NextChooser *nextChooser);
 
-    bool processIncomingMessages(EdgeCluster *edgeCluster);
-    bool processInputMessages(EdgeCluster *nodeCluster);
-    bool processAxons(EdgeCluster *cluster);
-
 private:
-    std::vector<uint8_t> m_sideOrder;
-    NextChooser* m_nextChooser = nullptr;
+
+    void processForwardEdge(uint8_t *data,
+                            Cluster *cluster,
+                            OutgoingMessageBuffer *outgoBuffer);
+    void processLearningReply(uint8_t *data,
+                              uint8_t initSide,
+                              Cluster *cluster);
+    void processIncomDirectEdge(uint8_t *data,
+                                Cluster* cluster);
 };
 
 }

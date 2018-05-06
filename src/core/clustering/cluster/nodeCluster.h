@@ -41,6 +41,7 @@ public:
     bool initNodeBlocks(uint16_t numberOfNodes);
     uint32_t addEmptyEdgeSection();
 
+    uint16_t m_numberOfActiveNodes = 0;
 };
 
 }
