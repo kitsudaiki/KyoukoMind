@@ -23,9 +23,9 @@ EdgeClusterProcessing::EdgeClusterProcessing(NextChooser* nextChooser) :
  * @param nodeCluster
  * @param outgoBuffer
  */
-void EdgeClusterProcessing::processForwardEdge(uint8_t *data,
-                                               Cluster* cluster,
-                                               OutgoingMessageBuffer* outgoBuffer)
+inline void EdgeClusterProcessing::processForwardEdge(uint8_t *data,
+                                                      Cluster* cluster,
+                                                      OutgoingMessageBuffer* outgoBuffer)
 {
     KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
 
@@ -40,9 +40,9 @@ void EdgeClusterProcessing::processForwardEdge(uint8_t *data,
  * @param initSide
  * @param cluster
  */
-void EdgeClusterProcessing::processLearningReply(uint8_t *data,
-                                                 uint8_t initSide,
-                                                 Cluster* cluster)
+inline void EdgeClusterProcessing::processLearningReply(uint8_t *data,
+                                                        uint8_t initSide,
+                                                        Cluster* cluster)
 {
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
@@ -56,8 +56,8 @@ void EdgeClusterProcessing::processLearningReply(uint8_t *data,
  * @param data
  * @param cluster
  */
-void EdgeClusterProcessing::processIncomDirectEdge(uint8_t *data,
-                                                   Cluster *cluster)
+inline void EdgeClusterProcessing::processIncomDirectEdge(uint8_t *data,
+                                                          Cluster *cluster)
 {
     return;
 }

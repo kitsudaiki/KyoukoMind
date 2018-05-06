@@ -217,20 +217,18 @@ void ClusterProcessing::processEdgeSection(KyoChanEdgeSection* currentSection,
  * @param outgoBuffer
  * @param nextChooser
  */
-void ClusterProcessing::createNewEdgeForward(Cluster *cluster,
+inline void ClusterProcessing::createNewEdgeForward(Cluster *cluster,
                                                     const uint32_t sourceEdgeClusterId,
                                                     OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("createNewEdgeForward")
     const uint8_t nextSide = m_nextChooser->getNextCluster(cluster->getNeighbors(), 14);
-    const uint32_t newEdgeId = cluster->getNextNewEdgeId();
 
     // TODO: calculate a value
     const float weight = 100.0;
 
     KyoChanLearingEdgeContainer newEdge;
-    newEdge.marker = newEdgeId;
     newEdge.sourceEdgeSectionId = sourceEdgeClusterId;
     newEdge.weight = weight;
 
@@ -242,7 +240,7 @@ void ClusterProcessing::createNewEdgeForward(Cluster *cluster,
  * @param data
  * @return
  */
-void ClusterProcessing::processAxonEdge(uint8_t *data,
+inline void ClusterProcessing::processAxonEdge(uint8_t *data,
                                                KyoChanAxon* axon,
                                                OutgoingMessageBuffer* outgoBuffer)
 {
@@ -276,7 +274,7 @@ void ClusterProcessing::processAxonEdge(uint8_t *data,
  * @param outgoBuffer
  * @param edgeCluster
  */
-void ClusterProcessing::processLerningEdge(uint8_t *data,
+inline void ClusterProcessing::processLerningEdge(uint8_t *data,
                                                   const uint8_t initSide,
                                                   Cluster* cluster,
                                                   OutgoingMessageBuffer* outgoBuffer)
@@ -305,7 +303,7 @@ void ClusterProcessing::processLerningEdge(uint8_t *data,
  * @param cluster
  * @param outgoBuffer
  */
-void ClusterProcessing::processPendingEdge(uint8_t *data,
+inline void ClusterProcessing::processPendingEdge(uint8_t *data,
                                                   Cluster* cluster,
                                                   OutgoingMessageBuffer* outgoBuffer)
 {

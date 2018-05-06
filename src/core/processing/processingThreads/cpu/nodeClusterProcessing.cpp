@@ -23,8 +23,8 @@ NodeClusterProcessing::NodeClusterProcessing(NextChooser* nextChooser) :
  * @param nodeCluster
  * @param outgoBuffer
  */
-void NodeClusterProcessing::processIncomDirectEdge(uint8_t *data,
-                                                   Cluster *cluster)
+inline void NodeClusterProcessing::processIncomDirectEdge(uint8_t *data,
+                                                          Cluster *cluster)
 {
     OUTPUT("---")
     OUTPUT("processIncomDirectEdge")
@@ -40,9 +40,9 @@ void NodeClusterProcessing::processIncomDirectEdge(uint8_t *data,
  * @param nodeCluster
  * @param outgoBuffer
  */
-void NodeClusterProcessing::processForwardEdge(uint8_t *data,
-                                               Cluster* cluster,
-                                               OutgoingMessageBuffer* outgoBuffer)
+inline void NodeClusterProcessing::processForwardEdge(uint8_t *data,
+                                                      Cluster* cluster,
+                                                      OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("processIncomForwardEdge")
@@ -61,9 +61,9 @@ void NodeClusterProcessing::processForwardEdge(uint8_t *data,
  * @param initSide
  * @param cluster
  */
-void NodeClusterProcessing::processLearningReply(uint8_t *data,
-                                                 const uint8_t initSide,
-                                                 Cluster* cluster)
+inline void NodeClusterProcessing::processLearningReply(uint8_t *data,
+                                                        const uint8_t initSide,
+                                                        Cluster* cluster)
 {
     OUTPUT("---")
     OUTPUT("processIncomLearningReply")
