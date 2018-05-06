@@ -67,7 +67,6 @@ struct KyoChanLearingEdgeContainer
 {
     uint8_t type = LEARNING_EDGE_CONTAINER;
 
-    uint16_t marker = 0;
     uint32_t sourceEdgeSectionId = 0;
     float weight = 0.0;
 

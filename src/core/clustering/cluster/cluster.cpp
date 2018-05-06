@@ -117,16 +117,6 @@ ClusterID Cluster::getNeighborId(const uint8_t side)
 }
 
 /**
- * @brief Cluster::getNextNewEdgeId
- * @return
- */
-uint32_t Cluster::getNextNewEdgeId()
-{
-    m_newEdgeIdCounter++;
-    return m_newEdgeIdCounter;
-}
-
-/**
  * @brief Cluster::updateMetaData
  * @param metaData
  */
@@ -286,7 +276,6 @@ void Cluster::resetNumberOfPendingEdges()
 {
     m_metaData.numberOfPendingEdgeSections = 0;
 }
-
 
 /**
  * @brief Cluster::syncEdgeSections
