@@ -23,10 +23,10 @@ namespace KyoukoMind
 NodeCluster::NodeCluster(const ClusterID clusterId,
                          const std::string directoryPath,
                          const uint32_t numberOfNodes)
-    : Cluster(clusterId,
-              NODE_CLUSTER,
-              directoryPath)
+    : EdgeCluster(clusterId,
+                  directoryPath)
 {
+    m_metaData.clusterType = NODE_CLUSTER;
     initNodeBlocks(numberOfNodes);
 }
 
@@ -40,7 +40,7 @@ NodeCluster::~NodeCluster()
  * @brief NodeCluster::getNumberOfNode
  * @return
  */
-uint32_t NodeCluster::getNumberOfNodeBlocks() const
+uint16_t NodeCluster::getNumberOfNodeBlocks() const
 {
     return m_metaData.numberOfNodeBlocks;
 }
@@ -93,12 +93,22 @@ void NodeCluster::addOutputCluster(const ClusterID clusterId,
     getNodeBlock()[nodeId].targetClusterPath = 15;
 }
 
+uint16_t NodeCluster::getNumberOfActiveNodes() const
+{
+    return m_numberOfActiveNodes;
+}
+
+void NodeCluster::setNumberOfActiveNodes(const uint16_t &numberOfActiveNodes)
+{
+    m_numberOfActiveNodes = numberOfActiveNodes;
+}
+
 /**
  * @brief NodeCluster::initNodeBlocks
  * @param numberOfNodes
  * @return
  */
-bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
+bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
 {
     if(numberOfNodes == 0 || m_metaData.numberOfNodes != 0) {
         return false;
@@ -111,7 +121,7 @@ bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
     m_metaData.numberOfNodeBlocks = (numberOfNodes * sizeof(KyoChanNode)) / blockSize + 1;
 
     m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfNodeBlocks);
-    updateMetaData(m_metaData);
+    updateMetaData();
 
     // fill array with empty nodes
     KyoChanNode* array = getNodeBlock();
@@ -147,7 +157,7 @@ bool NodeCluster::initEdgeBlocks(const uint32_t numberOfEdgeSections)
 
     // update and persist buffer
     m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
-    updateMetaData(m_metaData);
+    updateMetaData();
 
     // fill array with empty edgesections
     KyoChanEdgeSection* array = getEdgeBlock();

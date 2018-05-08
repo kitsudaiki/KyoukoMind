@@ -14,7 +14,7 @@
 
 namespace KyoukoMind
 {
-class Cluster;
+class EdgeCluster;
 
 class ClusterQueue
 {
@@ -23,11 +23,11 @@ public:
     ~ClusterQueue();
 
     bool clearQueue();
-    Cluster* getCluster();
-    bool addCluster(Cluster* cluster);
+    EdgeCluster* getCluster();
+    bool addCluster(EdgeCluster* cluster);
 
 private:
-    std::queue<Cluster*> m_queue;
+    std::queue<EdgeCluster*> m_queue;
 };
 
 }

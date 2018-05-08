@@ -66,7 +66,7 @@ struct ClusterMetaData
 } __attribute__((packed));
 
 namespace KyoukoMind {
-class Cluster;
+class EdgeCluster;
 }
 
 /**
@@ -77,7 +77,7 @@ struct InitMetaDataEntry
     uint8_t type = 0;
     ClusterID clusterId = 0;
     Neighbor neighbors[16];
-    KyoukoMind::Cluster* cluster = nullptr;
+    KyoukoMind::EdgeCluster* cluster = nullptr;
     uint32_t numberOfAxons = 0;
 };
 

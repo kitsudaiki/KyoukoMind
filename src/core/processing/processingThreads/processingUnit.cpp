@@ -11,7 +11,7 @@
 #include <core/clustering/clusterHandler.h>
 #include <core/clustering/clusterQueue.h>
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 
 namespace KyoukoMind
 {
@@ -39,7 +39,7 @@ void ProcessingUnit::run()
             blockThread();
         }
         //OUTPUT("poi3")
-        Cluster* cluster = m_clusterQueue->getCluster();
+        EdgeCluster* cluster = m_clusterQueue->getCluster();
         if(cluster == nullptr)
         {
             // block thread until next cycle if queue is empty
@@ -54,7 +54,9 @@ void ProcessingUnit::run()
             // process if ready or readd to queue if not ready
             //OUTPUT("poi6")
             //OUTPUT(cluster->getClusterId())
-            if(cluster->isReady()) {
+
+            // TODO: check if cluster is ready
+            if(true) {
                 //OUTPUT("poi7")
                 processCluster(cluster);
                 m_finishClusterBuffer.push_back(cluster);

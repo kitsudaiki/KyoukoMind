@@ -15,7 +15,7 @@
 #include <core/structs/kyochanNodes.h>
 #include <core/structs/messageContainer.h>
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 
@@ -33,7 +33,7 @@
 namespace KyoukoMind
 {
 class OutgoingMessageBuffer;
-class Cluster;
+class EdgeCluster;
 class EdgeCluster;
 class NodeCluster;
 class NextChooser;
@@ -43,8 +43,8 @@ class ClusterProcessing
 public:
     ClusterProcessing(NextChooser *nextChooser);
 
-    bool processMessagesEdges(Cluster* cluster);
-    bool processAxons(Cluster* cluster);
+    bool processMessagesEdges(EdgeCluster* cluster);
+    bool processAxons(EdgeCluster* cluster);
 
 protected:
     std::vector<uint8_t> m_sideOrder;
@@ -57,7 +57,7 @@ protected:
                             const float weight,
                             KyoChanNode *nodes,
                             OutgoingMessageBuffer *outgoBuffer);
-    void createNewEdgeForward(Cluster *cluster,
+    void createNewEdgeForward(EdgeCluster *cluster,
                               const uint32_t sourceEdgeClusterId,
                               OutgoingMessageBuffer *outgoBuffer);
     void processAxonEdge(uint8_t *data,
@@ -65,22 +65,22 @@ protected:
                          OutgoingMessageBuffer *outgoBuffer);
     void processLerningEdge(uint8_t *data,
                             const uint8_t initSide,
-                            Cluster *cluster,
+                            EdgeCluster *cluster,
                             OutgoingMessageBuffer *outgoBuffer);
     void processPendingEdge(uint8_t *data,
-                            Cluster *cluster,
+                            EdgeCluster *cluster,
                             OutgoingMessageBuffer *outgoBuffer);
 
 
 private:
     virtual void processForwardEdge(uint8_t *data,
-                                    Cluster* edgeCluster,
+                                    EdgeCluster* edgeCluster,
                                     OutgoingMessageBuffer* outgoBuffer) = 0;
     virtual void processLearningReply(uint8_t *data,
                                       uint8_t initSide,
-                                      Cluster* cluster) = 0;
+                                      EdgeCluster* cluster) = 0;
     virtual void processIncomDirectEdge(uint8_t *data,
-                                        Cluster* cluster) = 0;
+                                        EdgeCluster* cluster) = 0;
 };
 
 }

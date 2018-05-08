@@ -15,7 +15,7 @@
 #include <core/messaging/messageQueues/incomingMessageBuffer.h>
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
 namespace KyoukoMind
@@ -27,7 +27,7 @@ namespace KyoukoMind
 DemoIO::DemoIO(MessageController *messageController)
 {
     m_messageController = messageController;
-    Cluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 42);
+    EdgeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 42);
     fakeCluster->initMessageBuffer(m_messageController);
 
     Neighbor neighbor;

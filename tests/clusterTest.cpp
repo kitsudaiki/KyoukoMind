@@ -10,7 +10,7 @@
 #include "clusterTest.h"
 #include <core/messaging/messageController.h>
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 

@@ -34,7 +34,7 @@ void ProcessingTest::initTestCase()
     m_nextChooser = new NextChooser();
     m_nodeProcessing = new NodeClusterProcessing(m_nextChooser);
 
-    Cluster* initCluster = new NodeCluster(1337, "/tmp/test", 42);
+    EdgeCluster* initCluster = new NodeCluster(1337, "/tmp/test", 42);
 
     Neighbor neighbor;
     neighbor.targetClusterId = 1;

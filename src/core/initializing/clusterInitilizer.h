@@ -16,7 +16,7 @@
 namespace KyoukoMind
 {
 
-class Cluster;
+class EdgeCluster;
 class ClusterHandler;
 class MessageController;
 
@@ -45,7 +45,7 @@ private:
                     const uint32_t nodeNumberPerCluster);
     bool addNeighbors(const uint32_t x,
                       const uint32_t y,
-                      Cluster* cluster);
+                      EdgeCluster* cluster);
     std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
                                           const uint32_t y,
                                           const uint8_t side);

@@ -18,9 +18,7 @@ INCLUDEPATH += $$PWD \
             src
 
 SOURCES += main.cpp \
-            src/core/clustering/cluster/cluster.cpp \
             src/core/clustering/cluster/nodeCluster.cpp \
-            src/core/clustering/cluster/edgeCluster.cpp \
             src/core/clustering/clusterHandler.cpp \
             src/core/processing/processingThreads/cpu/cpuProcessingUnit.cpp \
             src/core/processing/processingThreads/processingUnit.cpp \
@@ -54,14 +52,13 @@ SOURCES += main.cpp \
     src/core/processing/processingThreads/cpu/edgeClusterProcessing.cpp \
     src/core/processing/processingThreads/cpu/nodeClusterProcessing.cpp \
     tests/processingTest.cpp \
-    src/core/processing/processingThreads/cpu/clusterProcessing.cpp
+    src/core/processing/processingThreads/cpu/clusterProcessing.cpp \
+    src/core/clustering/cluster/edgeCluster.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
             src/core/clustering/clusterHandler.h \
-            src/core/clustering/cluster/cluster.h \
             src/core/clustering/cluster/nodeCluster.h \
-            src/core/clustering/cluster/edgeCluster.h \
             src/core/networkManager.h \
             src/core/processing/processingThreads/processingUnit.h \
             src/core/processing/processingThreads/cpu/cpuProcessingUnit.h \
@@ -103,7 +100,8 @@ HEADERS +=\
     src/core/processing/processingThreads/cpu/nodeClusterProcessing.h \
     src/core/structs/kyochanEmotes.h \
     tests/processingTest.h \
-    src/core/processing/processingThreads/cpu/clusterProcessing.h
+    src/core/processing/processingThreads/cpu/clusterProcessing.h \
+    src/core/clustering/cluster/edgeCluster.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

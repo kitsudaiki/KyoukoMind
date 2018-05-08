@@ -28,7 +28,7 @@ ClusterProcessing::ClusterProcessing(NextChooser* nextChooser)
  * @param cluster
  * @return
  */
-bool ClusterProcessing::processAxons(Cluster* cluster)
+bool ClusterProcessing::processAxons(EdgeCluster* cluster)
 {
     if(cluster == nullptr) {
         return false;
@@ -72,7 +72,7 @@ bool ClusterProcessing::processAxons(Cluster* cluster)
  * @param edgeCluster
  * @return
  */
-bool ClusterProcessing::processMessagesEdges(Cluster* cluster)
+bool ClusterProcessing::processMessagesEdges(EdgeCluster* cluster)
 {
     IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
@@ -217,7 +217,7 @@ void ClusterProcessing::processEdgeSection(KyoChanEdgeSection* currentSection,
  * @param outgoBuffer
  * @param nextChooser
  */
-inline void ClusterProcessing::createNewEdgeForward(Cluster *cluster,
+inline void ClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
                                                     const uint32_t sourceEdgeClusterId,
                                                     OutgoingMessageBuffer* outgoBuffer)
 {
@@ -276,7 +276,7 @@ inline void ClusterProcessing::processAxonEdge(uint8_t *data,
  */
 inline void ClusterProcessing::processLerningEdge(uint8_t *data,
                                                   const uint8_t initSide,
-                                                  Cluster* cluster,
+                                                  EdgeCluster* cluster,
                                                   OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
@@ -304,7 +304,7 @@ inline void ClusterProcessing::processLerningEdge(uint8_t *data,
  * @param outgoBuffer
  */
 inline void ClusterProcessing::processPendingEdge(uint8_t *data,
-                                                  Cluster* cluster,
+                                                  EdgeCluster* cluster,
                                                   OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")

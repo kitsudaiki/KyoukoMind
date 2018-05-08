@@ -10,7 +10,7 @@
 #include <core/processing/processingThreads/cpu/cpuProcessingUnit.h>
 #include <core/processing/processingThreads/cpu/nextChooser.h>
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -49,7 +49,7 @@ CpuProcessingUnit::~CpuProcessingUnit()
  * @brief CpuProcessingUnit::processCluster
  * @param cluster
  */
-void CpuProcessingUnit::processCluster(Cluster *cluster)
+void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
 {
     //OUTPUT("processCluster")
     uint8_t clusterType = (uint8_t)cluster->getClusterType();

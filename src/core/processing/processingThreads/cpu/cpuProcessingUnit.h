@@ -29,7 +29,7 @@ public:
     CpuProcessingUnit(ClusterQueue *clusterQueue);
     ~CpuProcessingUnit();
 
-    void processCluster(Cluster* cluster);
+    void processCluster(EdgeCluster* cluster);
 
 private:
     NextChooser* m_nextChooser = nullptr;

@@ -17,7 +17,7 @@ namespace KyoukoMind
 {
 
 class ClusterHandler;
-class Cluster;
+class EdgeCluster;
 class MessageController;
 
 class NetworkInitializer

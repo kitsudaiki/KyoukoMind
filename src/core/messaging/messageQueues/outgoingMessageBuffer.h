@@ -14,7 +14,7 @@
 
 namespace KyoukoMind
 {
-class Cluster;
+class EdgeCluster;
 
 class MessageController;
 class DataMessage;
@@ -23,7 +23,7 @@ class RelyMessage;
 class OutgoingMessageBuffer : public MessageBuffer
 {
 public:
-    OutgoingMessageBuffer(Cluster *cluster,
+    OutgoingMessageBuffer(EdgeCluster *cluster,
                           MessageController *controller);
 
     bool addDirectEdge(const uint8_t sourceSite,

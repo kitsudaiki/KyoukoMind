@@ -10,12 +10,12 @@
 #ifndef NODECLUSTER_H
 #define NODECLUSTER_H
 
-#include "cluster.h"
+#include "edgeCluster.h"
 
 namespace KyoukoMind
 {
 
-class NodeCluster : public Cluster
+class NodeCluster : public EdgeCluster
 {
 
 public:
@@ -24,23 +24,28 @@ public:
                 const uint32_t numberOfNodes = 0);
     ~NodeCluster();
 
-    uint32_t getNumberOfNodeBlocks() const;
+    // nodes
+    uint16_t getNumberOfNodeBlocks() const;
     uint16_t getNumberOfNodes() const;
+    KyoChanNode* getNodeBlock();
+    bool initNodeBlocks(const uint16_t numberOfNodes);
 
+    // edge-sections
+    KyoChanEdgeSection* getEdgeBlock();
+    bool initEdgeBlocks(const uint32_t numberOfEdgeSections);
+    bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
+    uint32_t addEmptyEdgeSection();
+
+    // output
     void addOutputCluster(const ClusterID clusterId,
                           const uint32_t outputAxonId,
                           const uint16_t nodeId);
 
-    KyoChanNode* getNodeBlock();
+    // number of active nodes
+    uint16_t getNumberOfActiveNodes() const;
+    void setNumberOfActiveNodes(const uint16_t &numberOfActiveNodes);
 
-    uint32_t getNumberOfEdgeBlocks() const;
-    KyoChanEdgeSection* getEdgeBlock();
-    bool initEdgeBlocks(const uint32_t numberOfEdgeSections);
-    bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
-
-    bool initNodeBlocks(uint16_t numberOfNodes);
-    uint32_t addEmptyEdgeSection();
-
+private:
     uint16_t m_numberOfActiveNodes = 0;
 };
 

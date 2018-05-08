@@ -24,13 +24,13 @@ public:
 private:
 
     void processForwardEdge(uint8_t *data,
-                            Cluster *cluster,
+                            EdgeCluster *cluster,
                             OutgoingMessageBuffer *outgoBuffer);
     void processLearningReply(uint8_t *data,
                               uint8_t initSide,
-                              Cluster *cluster);
+                              EdgeCluster *cluster);
     void processIncomDirectEdge(uint8_t *data,
-                                Cluster* cluster);
+                                EdgeCluster* cluster);
 };
 
 }
