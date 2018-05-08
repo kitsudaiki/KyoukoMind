@@ -31,10 +31,10 @@ public:
     bool initNodeBlocks(const uint16_t numberOfNodes);
 
     // edge-sections
-    KyoChanEdgeSection* getEdgeBlock();
-    bool initEdgeBlocks(const uint32_t numberOfEdgeSections);
-    bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
+    KyoChanEdgeSection* getEdgeSectionBlock();
+    bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
     uint32_t addEmptyEdgeSection();
+    bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
 
     // output
     void addOutputCluster(const ClusterID clusterId,

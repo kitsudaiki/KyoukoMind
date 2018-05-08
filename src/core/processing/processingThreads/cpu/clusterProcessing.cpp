@@ -49,14 +49,14 @@ bool ClusterProcessing::processAxons(EdgeCluster* cluster)
         // process normal edges
         if(cluster->getClusterId() == EDGE_CLUSTER)
         {
-            KyoChanForwardEdgeSection* edgeForwardSections = ((EdgeCluster*)cluster)->getEdgeBlock();
+            KyoChanForwardEdgeSection* edgeForwardSections = ((EdgeCluster*)cluster)->getForwardEdgeSectionBlock();
             processEdgeForwardSection(&edgeForwardSections[axon->edgeSectionId],
                                       axon->currentState,
                                       outgoBuffer);
         }
         else
         {
-            KyoChanEdgeSection* edgeSections = ((NodeCluster*)cluster)->getEdgeBlock();
+            KyoChanEdgeSection* edgeSections = ((NodeCluster*)cluster)->getEdgeSectionBlock();
             processEdgeSection(&edgeSections[axon->edgeSectionId],
                                axon->currentState,
                                ((NodeCluster*)cluster)->getNodeBlock(),
@@ -283,7 +283,7 @@ inline void ClusterProcessing::processLerningEdge(uint8_t *data,
     OUTPUT("processIncomLerningEdge")
     KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
 
-    const uint32_t targetEdgeSectionId = cluster->addEmptyEdgeSection();
+    const uint32_t targetEdgeSectionId = cluster->addEmptyForwardEdgeSection();
 
     if(targetEdgeSectionId != 0xFFFFFFFF)
     {

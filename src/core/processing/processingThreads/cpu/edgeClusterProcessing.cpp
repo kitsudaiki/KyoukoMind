@@ -29,7 +29,7 @@ inline void EdgeClusterProcessing::processForwardEdge(uint8_t *data,
 {
     KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
 
-    processEdgeForwardSection(&(((EdgeCluster*)cluster)->getEdgeBlock()[edge->targetEdgeSectionId]),
+    processEdgeForwardSection(&(((EdgeCluster*)cluster)->getForwardEdgeSectionBlock()[edge->targetEdgeSectionId]),
                               edge->weight,
                               outgoBuffer);
 }
@@ -46,7 +46,7 @@ inline void EdgeClusterProcessing::processLearningReply(uint8_t *data,
 {
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
-    KyoChanForwardEdgeSection* edgeForwardSections = ((EdgeCluster*)cluster)->getEdgeBlock();
+    KyoChanForwardEdgeSection* edgeForwardSections = ((EdgeCluster*)cluster)->getForwardEdgeSectionBlock();
     edgeForwardSections[edge->sourceEdgeSectionId].forwardEdges[initSide].targetEdgeSectionId =
             edge->targetEdgeSectionId;
 }

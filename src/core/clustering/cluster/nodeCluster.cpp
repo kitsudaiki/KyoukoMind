@@ -68,7 +68,7 @@ KyoChanNode *NodeCluster::getNodeBlock()
  * @brief NodeCluster::getEdgeBlock
  * @return
  */
-KyoChanEdgeSection *NodeCluster::getEdgeBlock()
+KyoChanEdgeSection *NodeCluster::getEdgeSectionBlock()
 {
     uint32_t positionEdgeBlock = m_metaData.positionOfEdgeBlock;
     return (KyoChanEdgeSection*)m_clusterDataBuffer->getBlock(positionEdgeBlock);
@@ -139,7 +139,7 @@ bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
  * @param numberOfEdgeSections
  * @return
  */
-bool NodeCluster::initEdgeBlocks(const uint32_t numberOfEdgeSections)
+bool NodeCluster::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 {
     if(m_metaData.numberOfEdgeSections != 0 || numberOfEdgeSections == 0) {
         return false;
@@ -160,7 +160,7 @@ bool NodeCluster::initEdgeBlocks(const uint32_t numberOfEdgeSections)
     updateMetaData();
 
     // fill array with empty edgesections
-    KyoChanEdgeSection* array = getEdgeBlock();
+    KyoChanEdgeSection* array = getEdgeSectionBlock();
     for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
         KyoChanEdgeSection newSection;
@@ -183,7 +183,7 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
     }
 
     // get values
-    KyoChanEdgeSection* edgeSection = &getEdgeBlock()[edgeSectionId];
+    KyoChanEdgeSection* edgeSection = &getEdgeSectionBlock()[edgeSectionId];
     edgeSection->addEdge(newEdge);
 
     return true;
@@ -210,7 +210,7 @@ uint32_t NodeCluster::addEmptyEdgeSection()
 
     // add new edge-forward-section
     KyoChanEdgeSection newSection;
-    getEdgeBlock()[m_metaData.numberOfEdgeSections] = newSection;
+    getEdgeSectionBlock()[m_metaData.numberOfEdgeSections] = newSection;
     m_metaData.numberOfEdgeSections++;
     return m_metaData.numberOfEdgeSections-1;
 }

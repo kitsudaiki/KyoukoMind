@@ -49,7 +49,7 @@ inline void NodeClusterProcessing::processForwardEdge(uint8_t *data,
     KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
 
     std::cout<<"    weight: "<<edge->weight<<"    clusterID: "<<cluster->getClusterId()<<std::endl;
-    processEdgeSection(&(((NodeCluster*)cluster)->getEdgeBlock()[edge->targetEdgeSectionId]),
+    processEdgeSection(&(((NodeCluster*)cluster)->getEdgeSectionBlock()[edge->targetEdgeSectionId]),
                        edge->weight,
                        ((NodeCluster*)cluster)->getNodeBlock(),
                        outgoBuffer);
@@ -69,7 +69,7 @@ inline void NodeClusterProcessing::processLearningReply(uint8_t *data,
     OUTPUT("processIncomLearningReply")
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
-    KyoChanEdgeSection* edgeSections = ((NodeCluster*)cluster)->getEdgeBlock();
+    KyoChanEdgeSection* edgeSections = ((NodeCluster*)cluster)->getEdgeSectionBlock();
     edgeSections[edge->sourceEdgeSectionId].forwardEdges[initSide].targetEdgeSectionId =
             edge->targetEdgeSectionId;
 }

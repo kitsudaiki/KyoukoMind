@@ -59,10 +59,10 @@ public:
     bool initAxonBlocks(const uint32_t numberOfAxons);
 
     // edge-forward-sections
-    uint32_t getNumberOfEdgeBlocks() const;
-    KyoChanForwardEdgeSection* getEdgeBlock();
-    bool initEdgeBlocks(const uint32_t numberOfEdgeSections);
-    uint32_t addEmptyEdgeSection();
+    uint32_t getNumberOfForwardEdgeSectionBlocks() const;
+    KyoChanForwardEdgeSection* getForwardEdgeSectionBlock();
+    bool initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections);
+    uint32_t addEmptyForwardEdgeSection();
 
     // finisher
     void finishCycle();

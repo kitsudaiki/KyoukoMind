@@ -54,7 +54,7 @@ void ClusterTest::checkNodeCluster()
     UNITTEST(m_nodeCluster->addEdge(42, newEdge), true);
     UNITTEST(m_nodeCluster->addEdge(2001, newEdge), false);
 
-    UNITTEST((int)m_nodeCluster->getEdgeBlock()[42].numberOfEdges, 1)
+    UNITTEST((int)m_nodeCluster->getEdgeSectionBlock()[42].numberOfEdges, 1)
 
     for(int i = 0; i < 51; i++) {
         KyoChanEdge newEdge;
