@@ -28,7 +28,7 @@ ClusterProcessing::ClusterProcessing(NextChooser* nextChooser)
  * @param cluster
  * @return
  */
-bool ClusterProcessing::processAxons(EdgeCluster* cluster)
+/*bool ClusterProcessing::processAxons(EdgeCluster* cluster)
 {
     if(cluster == nullptr) {
         return false;
@@ -65,7 +65,7 @@ bool ClusterProcessing::processAxons(EdgeCluster* cluster)
 
     }
     return true;
-}
+}*/
 
 /**
  * @brief EdgeProcessing::processIncomingMessages
@@ -98,7 +98,7 @@ bool ClusterProcessing::processMessagesEdges(EdgeCluster* cluster)
                     data += sizeof(KyoChanEdgeForwardContainer);
                     break;
                 case AXON_EDGE_CONTAINER:
-                    processAxonEdge(data, cluster->getAxonBlock(), outgoBuffer);
+                    processAxonEdge(data, outgoBuffer);
                     data += sizeof(KyoChanAxonEdgeContainer);
                     break;
                 case PENDING_EDGE_CONTAINER:
@@ -241,7 +241,6 @@ inline void ClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
  * @return
  */
 inline void ClusterProcessing::processAxonEdge(uint8_t *data,
-                                               KyoChanAxon* axon,
                                                OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
@@ -262,7 +261,7 @@ inline void ClusterProcessing::processAxonEdge(uint8_t *data,
     else
     {
         // if target cluster reached, update the state of the target-axon with the edge
-        axon[edge->targetAxonId].currentState = edge->weight;
+        //axon[edge->targetAxonId].currentState = edge->weight;
     }
 }
 

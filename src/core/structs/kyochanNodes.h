@@ -28,14 +28,27 @@ struct KyoChanNode
 } __attribute__((packed));
 
 /**
- * @brief The KyoChanAxon struct
+ * @brief The ActvieKyoChanNodes struct
  */
-struct KyoChanAxon
+struct ActvieKyoChanNodes
 {
-    float currentState = 0;
+    uint16_t nodeIds[MAX_NUMBER_OF_ACTIVE_NODES];
+    uint16_t numberOfActiveNodes = 0;
 
-    uint32_t edgeSectionId = 0;
-
+    /**
+     * @brief addActiveNodeId
+     * @param nodeId
+     * @return
+     */
+    bool addActiveNodeId(const uint16_t &nodeId)
+    {
+        if(numberOfActiveNodes >= MAX_NUMBER_OF_ACTIVE_NODES) {
+            return false;
+        }
+        nodeIds[numberOfActiveNodes] = nodeId;
+        numberOfActiveNodes++;
+        return true;
+    }
 } __attribute__((packed));
 
 #endif // KYOCHANNODES_H

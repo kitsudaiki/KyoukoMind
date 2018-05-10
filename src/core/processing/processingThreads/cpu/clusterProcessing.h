@@ -44,7 +44,6 @@ public:
     ClusterProcessing(NextChooser *nextChooser);
 
     bool processMessagesEdges(EdgeCluster* cluster);
-    bool processAxons(EdgeCluster* cluster);
 
 protected:
     std::vector<uint8_t> m_sideOrder;
@@ -61,7 +60,6 @@ protected:
                               const uint32_t sourceEdgeClusterId,
                               OutgoingMessageBuffer *outgoBuffer);
     void processAxonEdge(uint8_t *data,
-                         KyoChanAxon *axon,
                          OutgoingMessageBuffer *outgoBuffer);
     void processLerningEdge(uint8_t *data,
                             const uint8_t initSide,

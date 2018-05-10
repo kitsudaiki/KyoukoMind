@@ -89,7 +89,7 @@ bool NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
     // get necessary values
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
     const uint16_t numberOfNodes = nodeCluster->getNumberOfNodes();
-    KyoChanAxon* axonBlock = nodeCluster->getAxonBlock();
+    KyoChanForwardEdgeSection* forwardBlock = nodeCluster->getForwardEdgeSectionBlock();
 
     // process nodes
     KyoChanNode* end = nodeCluster->getNodeBlock() + numberOfNodes;
@@ -113,7 +113,8 @@ bool NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
             }
             else
             {
-                axonBlock[nodes->targetAxonId].currentState = nodes->currentState;
+                // TODO
+                //forwardBlock[nodes->targetAxonId].currentState = nodes->currentState;
             }
 
         }

@@ -52,12 +52,6 @@ public:
     Neighbor *getNeighbors();
     ClusterID getNeighborId(const uint8_t side);
 
-    // axons
-    uint32_t getNumberOfAxons() const;
-    uint32_t getNumberOfAxonBlocks() const;
-    KyoChanAxon* getAxonBlock();
-    bool initAxonBlocks(const uint32_t numberOfAxons);
-
     // edge-forward-sections
     uint32_t getNumberOfForwardEdgeSectionBlocks() const;
     KyoChanForwardEdgeSection* getForwardEdgeSectionBlock();

@@ -43,8 +43,8 @@ void ClusterTest::checkNodeCluster()
 
     //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 0);
 
-    UNITTEST(m_nodeCluster->initAxonBlocks(2000), true);
-    UNITTEST(m_nodeCluster->initAxonBlocks(2000), false);
+    UNITTEST(m_nodeCluster->initForwardEdgeSectionBlocks(2000), true);
+    UNITTEST(m_nodeCluster->initForwardEdgeSectionBlocks(2000), false);
 
     //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 250);
 

@@ -62,7 +62,7 @@ void ProcessingTest::initTestCase()
     neighbor2.neighborType = NODE_CLUSTER;
     m_nodeCluster2->addNeighbor(3, neighbor2);
     m_nodeCluster2->initMessageBuffer(m_controller);
-    m_nodeCluster2->initAxonBlocks(1);
+    m_nodeCluster2->initForwardEdgeSectionBlocks(1);
 
     Neighbor neighbor3;
     neighbor3.targetClusterId = 2;
@@ -86,17 +86,14 @@ void ProcessingTest::checkProcessing()
     OUTPUT("==========================================================")
     m_nodeProcessing->processMessagesEdges(m_nodeCluster1);
     m_nodeProcessing->processNodes(m_nodeCluster1);
-    m_nodeProcessing->processAxons(m_nodeCluster1);
     m_nodeCluster1->finishCycle();
     OUTPUT("==========================================================")
     m_nodeProcessing->processMessagesEdges(m_nodeCluster2);
     m_nodeProcessing->processNodes(m_nodeCluster2);
-    m_nodeProcessing->processAxons(m_nodeCluster2);
     m_nodeCluster2->finishCycle();
     OUTPUT("==========================================================")
     m_nodeProcessing->processMessagesEdges(m_nodeCluster3);
     m_nodeProcessing->processNodes(m_nodeCluster3);
-    m_nodeProcessing->processAxons(m_nodeCluster3);
     m_nodeCluster3->finishCycle();
     OUTPUT("==========================================================")
 }

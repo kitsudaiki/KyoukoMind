@@ -22,7 +22,6 @@ public:
     NodeCluster(const ClusterID clusterId,
                 const std::string directoryPath,
                 const uint32_t numberOfNodes = 0);
-    ~NodeCluster();
 
     // nodes
     uint16_t getNumberOfNodeBlocks() const;
@@ -35,11 +34,6 @@ public:
     bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
     uint32_t addEmptyEdgeSection();
     bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
-
-    // output
-    void addOutputCluster(const ClusterID clusterId,
-                          const uint32_t outputAxonId,
-                          const uint16_t nodeId);
 
     // number of active nodes
     uint16_t getNumberOfActiveNodes() const;
