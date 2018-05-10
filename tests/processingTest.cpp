@@ -8,7 +8,7 @@
 #include <core/clustering/cluster/edgeCluster.h>
 
 #include <core/processing/processingThreads/cpu/nextChooser.h>
-#include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
+#include <core/processing/processingThreads/cpu/clusterProcessing.h>
 #include <core/processing/processingThreads/cpu/nodeClusterProcessing.h>
 
 namespace KyoukoMind

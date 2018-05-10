@@ -1,5 +1,5 @@
 /**
- *  @file    edgeClusterProcessing.h
+ *  @file    clusterProcessing.h
  *  @author  Tobias Anker
  *
  *  @section DESCRIPTION
@@ -34,16 +34,16 @@ namespace KyoukoMind
 {
 class OutgoingMessageBuffer;
 class EdgeCluster;
-class EdgeCluster;
 class NodeCluster;
 class NextChooser;
 
-class EdgeClusterProcessing
+class ClusterProcessing
 {
 public:
-    EdgeClusterProcessing(NextChooser *nextChooser);
+    ClusterProcessing(NextChooser *nextChooser);
 
     bool processMessagesEdges(EdgeCluster* cluster);
+    bool processNodes(NodeCluster *nodeCluster);
 
 protected:
     std::vector<uint8_t> m_sideOrder;
@@ -74,8 +74,8 @@ protected:
     void processLearningReply(uint8_t *data,
                               uint8_t initSide,
                               EdgeCluster *cluster);
-    void processIncomDirectEdge(uint8_t *data,
-                                EdgeCluster* cluster);
+    void processDirectEdge(uint8_t *data,
+                           EdgeCluster* cluster);
 };
 
 }

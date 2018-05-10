@@ -15,7 +15,7 @@ class OutgoingMessageBuffer;
 class NextChooser;
 class AxonProcessing;
 class NodeProcessing;
-class EdgeClusterProcessing;
+class ClusterProcessing;
 class NodeClusterProcessing;
 
 class ProcessingTest : public CommonTest

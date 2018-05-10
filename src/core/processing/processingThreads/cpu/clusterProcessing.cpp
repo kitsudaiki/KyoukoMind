@@ -1,5 +1,5 @@
 /**
- *  @file    edgeClusterProcessing.cpp
+ *  @file    clusterProcessing.cpp
  *  @author  Tobias Anker
  *
  *  @section DESCRIPTION
@@ -7,7 +7,7 @@
  *  TODO: Description
  */
 
-#include "edgeClusterProcessing.h"
+#include "clusterProcessing.h"
 
 namespace KyoukoMind
 {
@@ -16,7 +16,7 @@ namespace KyoukoMind
  * @brief ClusterProcessing::ClusterProcessing
  * @param nextChooser
  */
-EdgeClusterProcessing::EdgeClusterProcessing(NextChooser* nextChooser)
+ClusterProcessing::ClusterProcessing(NextChooser* nextChooser)
 {
     m_sideOrder = {0, 2, 3, 4, 13, 12, 11};
     m_nextChooser = nextChooser;
@@ -27,7 +27,7 @@ EdgeClusterProcessing::EdgeClusterProcessing(NextChooser* nextChooser)
  * @param edgeCluster
  * @return
  */
-bool EdgeClusterProcessing::processMessagesEdges(EdgeCluster* cluster)
+bool ClusterProcessing::processMessagesEdges(EdgeCluster* cluster)
 {
     IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
@@ -45,7 +45,7 @@ bool EdgeClusterProcessing::processMessagesEdges(EdgeCluster* cluster)
             switch((int)(*data))
             {
                 case DIRECT_EDGE_CONTAINER:
-                    processIncomDirectEdge(data, cluster);
+                    processDirectEdge(data, cluster);
                     data += sizeof(KyoChanDirectEdgeContainer);
                     break;
                 case FOREWARD_EDGE_CONTAINER:
@@ -82,12 +82,62 @@ bool EdgeClusterProcessing::processMessagesEdges(EdgeCluster* cluster)
 }
 
 /**
+ * @brief ClusterProcessing::processNodes
+ * @param nodeCluster
+ * @return
+ */
+bool ClusterProcessing::processNodes(NodeCluster* nodeCluster)
+{
+    OUTPUT("---")
+    OUTPUT("processNodes")
+    if(nodeCluster == nullptr) {
+        return false;
+    }
+    // get necessary values
+    OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
+    const uint16_t numberOfNodes = nodeCluster->getNumberOfNodes();
+    KyoChanForwardEdgeSection* forwardBlock = nodeCluster->getForwardEdgeSectionBlock();
+
+    // process nodes
+    KyoChanNode* end = nodeCluster->getNodeBlock() + numberOfNodes;
+    for(KyoChanNode* nodes = nodeCluster->getNodeBlock();
+        nodes < end;
+        nodes++)
+    {
+        std::cout<<"    nodes->currentState: "<<nodes->currentState<<std::endl;
+        if(nodes->border <= nodes->currentState)
+        {
+            if(nodes->targetClusterPath != 0)
+            {
+                const uint8_t side = nodes->targetClusterPath % 16;
+                // create new axon-edge
+                KyoChanAxonEdgeContainer edge;
+                edge.targetClusterPath = nodes->targetClusterPath / 16;
+                edge.targetAxonId = nodes->targetAxonId;
+                edge.weight = nodes->currentState;
+
+                outgoBuffer->addAxonEdge(side, &edge);
+            }
+            else
+            {
+                processEdgeForwardSection(&forwardBlock[nodes->targetAxonId],
+                                          nodes->currentState,
+                                          outgoBuffer);
+            }
+
+        }
+        nodes->currentState /= NODE_COOLDOWN;
+    }
+    return true;
+}
+
+/**
  * @brief processEdgeForwardSection
  * @param currentSection
  * @param weight
  * @param outgoBuffer
  */
- void EdgeClusterProcessing::processEdgeForwardSection(KyoChanForwardEdgeSection* currentSection,
+ void ClusterProcessing::processEdgeForwardSection(KyoChanForwardEdgeSection* currentSection,
                                                        const float weight,
                                                        OutgoingMessageBuffer* outgoBuffer)
 {
@@ -122,7 +172,7 @@ bool EdgeClusterProcessing::processMessagesEdges(EdgeCluster* cluster)
  * @param nodes
  * @param outgoBuffer
  */
-void EdgeClusterProcessing::processEdgeSection(KyoChanEdgeSection* currentSection,
+void ClusterProcessing::processEdgeSection(KyoChanEdgeSection* currentSection,
                                                const float weight,
                                                KyoChanNode* nodes,
                                                OutgoingMessageBuffer* outgoBuffer)
@@ -167,7 +217,7 @@ void EdgeClusterProcessing::processEdgeSection(KyoChanEdgeSection* currentSectio
  * @param outgoBuffer
  * @param nextChooser
  */
-inline void EdgeClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
+inline void ClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
                                                         const uint32_t sourceEdgeClusterId,
                                                         OutgoingMessageBuffer* outgoBuffer)
 {
@@ -190,7 +240,7 @@ inline void EdgeClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
  * @param data
  * @return
  */
-inline void EdgeClusterProcessing::processAxonEdge(uint8_t *data,
+inline void ClusterProcessing::processAxonEdge(uint8_t *data,
                                                    OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
@@ -222,7 +272,7 @@ inline void EdgeClusterProcessing::processAxonEdge(uint8_t *data,
  * @param outgoBuffer
  * @param edgeCluster
  */
-inline void EdgeClusterProcessing::processLerningEdge(uint8_t *data,
+inline void ClusterProcessing::processLerningEdge(uint8_t *data,
                                                       const uint8_t initSide,
                                                       EdgeCluster* cluster,
                                                       OutgoingMessageBuffer* outgoBuffer)
@@ -251,7 +301,7 @@ inline void EdgeClusterProcessing::processLerningEdge(uint8_t *data,
  * @param cluster
  * @param outgoBuffer
  */
-inline void EdgeClusterProcessing::processPendingEdge(uint8_t *data,
+inline void ClusterProcessing::processPendingEdge(uint8_t *data,
                                                       EdgeCluster* cluster,
                                                       OutgoingMessageBuffer* outgoBuffer)
 {
@@ -266,7 +316,7 @@ inline void EdgeClusterProcessing::processPendingEdge(uint8_t *data,
  * @param nodeCluster
  * @param outgoBuffer
  */
-inline void EdgeClusterProcessing::processForwardEdge(uint8_t *data,
+inline void ClusterProcessing::processForwardEdge(uint8_t *data,
                                                       EdgeCluster* cluster,
                                                       OutgoingMessageBuffer* outgoBuffer)
 {
@@ -283,7 +333,7 @@ inline void EdgeClusterProcessing::processForwardEdge(uint8_t *data,
  * @param initSide
  * @param cluster
  */
-inline void EdgeClusterProcessing::processLearningReply(uint8_t *data,
+inline void ClusterProcessing::processLearningReply(uint8_t *data,
                                                         uint8_t initSide,
                                                         EdgeCluster* cluster)
 {
@@ -299,10 +349,15 @@ inline void EdgeClusterProcessing::processLearningReply(uint8_t *data,
  * @param data
  * @param cluster
  */
-void EdgeClusterProcessing::processIncomDirectEdge(uint8_t *data,
-                                               EdgeCluster *cluster)
+inline void ClusterProcessing::processDirectEdge(uint8_t *data,
+                                                     EdgeCluster *cluster)
 {
-    return;
+    OUTPUT("---")
+    OUTPUT("processDirectEdge")
+    KyoChanDirectEdgeContainer* edge = (KyoChanDirectEdgeContainer*)data;
+    if(cluster->getClusterType() == NODE_CLUSTER) {
+        ((NodeCluster*)cluster)->getNodeBlock()[edge->targetNodeId].currentState += edge->weight;
+    }
 }
 
 }
