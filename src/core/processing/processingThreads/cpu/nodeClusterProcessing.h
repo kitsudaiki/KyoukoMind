@@ -11,12 +11,12 @@
 #define NODECLUSTERPROCESSING_H
 
 #include <common.h>
-#include <core/processing/processingThreads/cpu/clusterProcessing.h>
+#include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
 
 namespace KyoukoMind
 {
 
-class NodeClusterProcessing : public ClusterProcessing
+class NodeClusterProcessing : public EdgeClusterProcessing
 {
 
 public:
@@ -27,12 +27,6 @@ public:
 private:
     void processIncomDirectEdge(uint8_t *data,
                                 EdgeCluster *cluster);
-    void processForwardEdge(uint8_t *data,
-                            EdgeCluster *cluster,
-                            OutgoingMessageBuffer *outgoBuffer);
-    void processLearningReply(uint8_t *data,
-                              const uint8_t initSide,
-                              EdgeCluster *cluster);
 };
 
 }

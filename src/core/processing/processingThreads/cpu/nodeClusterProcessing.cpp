@@ -13,7 +13,7 @@ namespace KyoukoMind
 {
 
 NodeClusterProcessing::NodeClusterProcessing(NextChooser* nextChooser) :
-    ClusterProcessing(nextChooser)
+    EdgeClusterProcessing(nextChooser)
 {
 }
 
@@ -32,46 +32,6 @@ inline void NodeClusterProcessing::processIncomDirectEdge(uint8_t *data,
 
     std::cout<<"    weight: "<<edge->weight<<"    edge->targetNodeId: "<<(int)edge->targetNodeId<<std::endl;
     ((NodeCluster*)cluster)->getNodeBlock()[edge->targetNodeId].currentState += edge->weight;
-}
-
-/**
- * @brief processIncomForwardEdge
- * @param data
- * @param nodeCluster
- * @param outgoBuffer
- */
-inline void NodeClusterProcessing::processForwardEdge(uint8_t *data,
-                                                      EdgeCluster* cluster,
-                                                      OutgoingMessageBuffer* outgoBuffer)
-{
-    OUTPUT("---")
-    OUTPUT("processIncomForwardEdge")
-    KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data;
-
-    std::cout<<"    weight: "<<edge->weight<<"    clusterID: "<<cluster->getClusterId()<<std::endl;
-    processEdgeSection(&(((NodeCluster*)cluster)->getEdgeSectionBlock()[edge->targetEdgeSectionId]),
-                       edge->weight,
-                       ((NodeCluster*)cluster)->getNodeBlock(),
-                       outgoBuffer);
-}
-
-/**
- * @brief processIncomLearningReply
- * @param data
- * @param initSide
- * @param cluster
- */
-inline void NodeClusterProcessing::processLearningReply(uint8_t *data,
-                                                        const uint8_t initSide,
-                                                        EdgeCluster* cluster)
-{
-    OUTPUT("---")
-    OUTPUT("processIncomLearningReply")
-    KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
-
-    KyoChanEdgeSection* edgeSections = ((NodeCluster*)cluster)->getEdgeSectionBlock();
-    edgeSections[edge->sourceEdgeSectionId].forwardEdges[initSide].targetEdgeSectionId =
-            edge->targetEdgeSectionId;
 }
 
 /**
@@ -113,8 +73,9 @@ bool NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
             }
             else
             {
-                // TODO
-                //forwardBlock[nodes->targetAxonId].currentState = nodes->currentState;
+                processEdgeForwardSection(&forwardBlock[nodes->targetAxonId],
+                                          nodes->currentState,
+                                          outgoBuffer);
             }
 
         }
