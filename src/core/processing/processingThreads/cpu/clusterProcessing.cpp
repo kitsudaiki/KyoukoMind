@@ -145,7 +145,7 @@ bool ClusterProcessing::processNodes(NodeCluster* nodeCluster)
     OUTPUT("processEdgeForwardSection")
     if(weight != 0.0)
     {
-        uint8_t sideCounter;
+        uint8_t sideCounter = 0;
         KyoChanForwardEdge* forwardEnd = currentSection->forwardEdges
                 + currentSection->numberOfForwardEdges;
         for(KyoChanForwardEdge* forwardEdge = currentSection->forwardEdges;
@@ -181,7 +181,7 @@ void ClusterProcessing::processEdgeSection(KyoChanEdgeSection* currentSection,
     OUTPUT("processEdgeSection")
     if(weight != 0.0)
     {
-        uint8_t sideCounter;
+        uint8_t sideCounter = 0;
         KyoChanForwardEdge* forwardEnd = currentSection->forwardEdges
                 + currentSection->numberOfForwardEdges;
         for(KyoChanForwardEdge* forwardEdge = currentSection->forwardEdges;

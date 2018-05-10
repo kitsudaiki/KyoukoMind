@@ -86,7 +86,7 @@ bool AxonInitializer::createAxons()
 
                 // add the axon-number to the specific cluster
                 EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
-                edgeCluster->initForwardEdgeSectionBlocks((*m_networkMetaStructure)[x][y].numberOfAxons);
+                edgeCluster->allocForwardEdgeSectionBlocks((*m_networkMetaStructure)[x][y].numberOfAxons);
             }
         }
     }

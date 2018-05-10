@@ -225,65 +225,46 @@ KyoChanForwardEdgeSection *EdgeCluster::getForwardEdgeSectionBlock()
 }
 
 /**
- * @brief EdgeCluster::initEdgeBlocks
+ * @brief EdgeCluster::allocForwardEdgeSectionBlocks
  * @param numberOfEdgeSections
  * @return
  */
-bool EdgeCluster::initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections)
+uint32_t EdgeCluster::allocForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections)
 {
-    if(m_metaData.numberOfEdgeSections != 0 || numberOfForwardEdgeSections == 0) {
-        return false;
-    }
-
-    m_metaData.numberOfEdgeSections = numberOfForwardEdgeSections;
-    m_metaData.positionOfEdgeBlock = m_metaData.positionAxonBlocks + m_metaData.numberOfAxonBlocks;
-
     // calculate number of edge-blocks
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
-    m_metaData.numberOfEdgeBlocks = (numberOfForwardEdgeSections * sizeof(KyoChanForwardEdgeSection)) / blockSize;
-    if((numberOfForwardEdgeSections * sizeof(KyoChanForwardEdgeSection)) % blockSize != 0) {
-        m_metaData.numberOfEdgeBlocks += 1;
+    uint32_t newSectionNumber = m_metaData.numberOfForwardEdgeSections + numberOfForwardEdgeSections;
+    uint32_t newBlockNumber = (newSectionNumber * sizeof(KyoChanForwardEdgeSection)) / blockSize;
+    if((newSectionNumber * sizeof(KyoChanForwardEdgeSection)) % blockSize != 0) {
+        newBlockNumber += 1;
     }
 
     // update and persist buffer
-    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
+    if(!m_clusterDataBuffer->allocateBlocks(newBlockNumber - m_metaData.numberOfEdgeBlocks)) {
+        return 0xFFFFFFFF;
+    }
     updateMetaData();
 
     // fill array with empty edgesections
     KyoChanForwardEdgeSection* array = getForwardEdgeSectionBlock();
-    for(uint32_t i = 0; i < numberOfForwardEdgeSections; i++)
+    for(uint32_t i = m_metaData.numberOfForwardEdgeSections;
+        i < numberOfForwardEdgeSections;
+        i++)
     {
         KyoChanForwardEdgeSection newSection;
         array[i] = newSection;
     }
+
+    // update meta-dat
+    m_metaData.numberOfForwardEdgeSections = newSectionNumber;
+    m_metaData.numberOfForwardEdgeBlocks = newBlockNumber;
+    m_metaData.positionForwardEdgeBlocks = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
+
+    // persist changes
+    updateMetaData();
     m_clusterDataBuffer->syncAll();
-    return true;
-}
 
-/**
- * @brief EdgeCluster::addEmptyEdgeForwardSection
- * @return
- */
-uint32_t EdgeCluster::addEmptyForwardEdgeSection()
-{
-    // allocate a new block, if necessary
-    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
-    if((m_metaData.numberOfEdgeSections * sizeof(KyoChanForwardEdgeSection) )/ blockSize
-            < ((m_metaData.numberOfEdgeSections + 1) * sizeof(KyoChanForwardEdgeSection)) / blockSize)
-    {
-        // TODO: outsourcing
-        if(!m_clusterDataBuffer->allocateBlocks(1)) {
-            return 0xFFFFFFFF;
-        }
-        m_metaData.numberOfEdgeBlocks++;
-        m_metaData.numberOfPendingEdgeSections++;
-    }
-
-    // add new edge-forward-section
-    KyoChanForwardEdgeSection newSection;
-    getForwardEdgeSectionBlock()[m_metaData.numberOfEdgeSections] = newSection;
-    m_metaData.numberOfEdgeSections++;
-    return m_metaData.numberOfEdgeSections-1;
+    return m_metaData.numberOfForwardEdgeSections-1;
 }
 
 }

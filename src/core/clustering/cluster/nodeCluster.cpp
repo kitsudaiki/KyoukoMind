@@ -119,7 +119,7 @@ bool NodeCluster::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 
     // update meta-data of the cluster
     m_metaData.numberOfEdgeSections = numberOfEdgeSections;
-    m_metaData.positionOfEdgeBlock = m_metaData.positionAxonBlocks + m_metaData.numberOfAxonBlocks;
+    m_metaData.positionOfEdgeBlock = m_metaData.positionForwardEdgeBlocks + m_metaData.numberOfForwardEdgeBlocks;
 
     // calculate number of edge-blocks
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();

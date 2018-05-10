@@ -61,7 +61,7 @@ void ProcessingTest::initTestCase()
     neighbor2.neighborType = NODE_CLUSTER;
     m_nodeCluster2->addNeighbor(3, neighbor2);
     m_nodeCluster2->initMessageBuffer(m_controller);
-    m_nodeCluster2->initForwardEdgeSectionBlocks(1);
+    m_nodeCluster2->allocForwardEdgeSectionBlocks(1);
 
     Neighbor neighbor3;
     neighbor3.targetClusterId = 2;
