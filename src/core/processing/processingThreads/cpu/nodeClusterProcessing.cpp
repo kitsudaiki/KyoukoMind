@@ -29,8 +29,6 @@ inline void NodeClusterProcessing::processIncomDirectEdge(uint8_t *data,
     OUTPUT("---")
     OUTPUT("processIncomDirectEdge")
     KyoChanDirectEdgeContainer* edge = (KyoChanDirectEdgeContainer*)data;
-
-    std::cout<<"    weight: "<<edge->weight<<"    edge->targetNodeId: "<<(int)edge->targetNodeId<<std::endl;
     ((NodeCluster*)cluster)->getNodeBlock()[edge->targetNodeId].currentState += edge->weight;
 }
 

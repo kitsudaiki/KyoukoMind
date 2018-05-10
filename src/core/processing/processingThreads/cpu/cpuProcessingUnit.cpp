@@ -42,7 +42,9 @@ CpuProcessingUnit::CpuProcessingUnit(ClusterQueue *clusterQueue):
  */
 CpuProcessingUnit::~CpuProcessingUnit()
 {
-
+    delete m_nodeProcessing;
+    delete m_edgeProcessing;
+    delete m_nextChooser;
 }
 
 /**
@@ -63,8 +65,8 @@ void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
         }
         case NODE_CLUSTER:
         {
-            NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
             m_nodeProcessing->processMessagesEdges(cluster);
+            NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
             m_nodeProcessing->processNodes(nodeCluster);
             break;
         }
