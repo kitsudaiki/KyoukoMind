@@ -56,15 +56,9 @@ public:
     uint32_t getNumberOfForwardEdgeSectionBlocks() const;
     KyoChanForwardEdgeSection* getForwardEdgeSectionBlock();
     uint32_t allocForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections);
-    uint32_t addEmptyForwardEdgeSection();
 
     // finisher
     void finishCycle();
-
-    // persistency
-    void syncEdgeSections(uint32_t startSection = 0,
-                          uint32_t endSection = 0);
-
 
 protected:
     PerformanceIO::DataBuffer* m_clusterDataBuffer = nullptr;

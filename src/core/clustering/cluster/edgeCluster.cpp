@@ -174,63 +174,35 @@ ClusterID EdgeCluster::getNeighborId(const uint8_t side)
 }
 
 /**
- * @brief Cluster::finishCycle
- */
-void EdgeCluster::finishCycle()
-{
-    OUTPUT("---")
-    OUTPUT("finishCycle")
-    m_outgoingMessageQueue->finishCycle(2);
-    m_outgoingMessageQueue->finishCycle(3);
-    m_outgoingMessageQueue->finishCycle(4);
-    m_outgoingMessageQueue->finishCycle(11);
-    m_outgoingMessageQueue->finishCycle(12);
-    m_outgoingMessageQueue->finishCycle(13);
-}
-
-/**
- * @brief Cluster::syncEdgeSections
- * @param startSection
- * @param endSection
- */
-void EdgeCluster::syncEdgeSections(uint32_t startSection,
-                               uint32_t endSection)
-{
-    if(endSection < startSection) {
-        startSection = 0;
-    }
-    startSection += m_metaData.positionOfEdgeBlock;
-    endSection += m_metaData.positionOfEdgeBlock;
-    m_clusterDataBuffer->syncBlocks(startSection, endSection);
-}
-
-
-/**
- * @brief EdgeCluster::getNumberOfEdgeBlocks
- * @return
+ * @brief EdgeCluster::getNumberOfForwardEdgeSectionBlocks get the number of forward-edge-section-block from meta-data
+ * @return number of forward-edge-section-blocks
  */
 uint32_t EdgeCluster::getNumberOfForwardEdgeSectionBlocks() const
 {
-    return m_metaData.numberOfEdgeBlocks;
+    return m_metaData.numberOfForwardEdgeBlocks;
 }
 
 /**
- * @brief EdgeCluster::getEdgeBlock
- * @return
+ * @brief EdgeCluster::getForwardEdgeSectionBlock get the forward-edge-section-block
+ * @return pointer to the beginning of the forward-edge-section-block
  */
 KyoChanForwardEdgeSection *EdgeCluster::getForwardEdgeSectionBlock()
 {
-    uint32_t positionEdgeBlock = m_metaData.positionOfEdgeBlock;
-    return (KyoChanForwardEdgeSection*)m_clusterDataBuffer->getBlock(positionEdgeBlock);
+    uint32_t positionForwardEdgeBlocks = m_metaData.positionForwardEdgeBlocks;
+    return (KyoChanForwardEdgeSection*)m_clusterDataBuffer->getBlock(positionForwardEdgeBlocks);
 }
 
 /**
- * @brief EdgeCluster::allocForwardEdgeSectionBlocks
- * @param numberOfEdgeSections
- * @return
+ * @brief EdgeCluster::allocForwardEdgeSectionBlocks allocates a number of new forward-edge-sections
+ * @param numberOfForwardEdgeSections number of new forward-edge-sections
+ * @return 0xFFFFFFFF if failed, else number of the last allocated edge-sections
  */
 uint32_t EdgeCluster::allocForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections)
 {
+    if(numberOfForwardEdgeSections == 0) {
+        return 0xFFFFFFFF;
+    }
+
     // calculate number of edge-blocks
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
     uint32_t newSectionNumber = m_metaData.numberOfForwardEdgeSections + numberOfForwardEdgeSections;
@@ -265,6 +237,21 @@ uint32_t EdgeCluster::allocForwardEdgeSectionBlocks(const uint32_t numberOfForwa
     m_clusterDataBuffer->syncAll();
 
     return m_metaData.numberOfForwardEdgeSections-1;
+}
+
+/**
+ * @brief Cluster::finishCycle finish the current cycle with sending messages from the outgoing buffer
+ */
+void EdgeCluster::finishCycle()
+{
+    OUTPUT("---")
+    OUTPUT("finishCycle")
+    m_outgoingMessageQueue->finishCycle(2);
+    m_outgoingMessageQueue->finishCycle(3);
+    m_outgoingMessageQueue->finishCycle(4);
+    m_outgoingMessageQueue->finishCycle(11);
+    m_outgoingMessageQueue->finishCycle(12);
+    m_outgoingMessageQueue->finishCycle(13);
 }
 
 }
