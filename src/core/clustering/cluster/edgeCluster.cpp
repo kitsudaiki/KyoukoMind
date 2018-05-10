@@ -193,54 +193,70 @@ KyoChanForwardEdgeSection *EdgeCluster::getForwardEdgeSectionBlock()
 }
 
 /**
- * @brief EdgeCluster::allocForwardEdgeSectionBlocks allocates a number of new forward-edge-sections
- * @param numberOfForwardEdgeSections number of new forward-edge-sections
- * @return 0xFFFFFFFF if failed, else number of the last allocated edge-sections
+ * @brief EdgeCluster::initForwardEdgeSectionBlocks initialize forward-edge-block
+ * @param numberOfForwardEdgeSections number of forward-edge-sections
+ * @return true if success, else false
  */
-uint32_t EdgeCluster::allocForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections)
+bool EdgeCluster::initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections)
 {
-    if(numberOfForwardEdgeSections == 0) {
-        return 0xFFFFFFFF;
+    // prechecks
+    if(m_metaData.numberOfEdgeSections != 0 || numberOfForwardEdgeSections == 0) {
+        return false;
     }
+
+    // update meta-data of the cluster
+    m_metaData.numberOfForwardEdgeSections = numberOfForwardEdgeSections;
+    m_metaData.positionOfEdgeBlock = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
 
     // calculate number of edge-blocks
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
-    uint32_t newSectionNumber = m_metaData.numberOfForwardEdgeSections + numberOfForwardEdgeSections;
-    uint32_t newBlockNumber = (newSectionNumber * sizeof(KyoChanForwardEdgeSection)) / blockSize;
-    if((newSectionNumber * sizeof(KyoChanForwardEdgeSection)) % blockSize != 0) {
-        newBlockNumber += 1;
+    m_metaData.numberOfEdgeBlocks = (numberOfForwardEdgeSections * sizeof(KyoChanForwardEdgeSection)) / blockSize;
+    if((numberOfForwardEdgeSections * sizeof(KyoChanForwardEdgeSection)) % blockSize != 0) {
+        m_metaData.numberOfEdgeBlocks += 1;
     }
 
     // update and persist buffer
-    if(!m_clusterDataBuffer->allocateBlocks(newBlockNumber - m_metaData.numberOfEdgeBlocks)) {
-        return 0xFFFFFFFF;
-    }
+    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
     updateMetaData();
 
-    // fill array with empty edgesections
+    // fill array with empty forward-edge-sections
     KyoChanForwardEdgeSection* array = getForwardEdgeSectionBlock();
-    for(uint32_t i = m_metaData.numberOfForwardEdgeSections;
-        i < numberOfForwardEdgeSections;
-        i++)
+    for(uint32_t i = 0; i < numberOfForwardEdgeSections; i++)
     {
         KyoChanForwardEdgeSection newSection;
         array[i] = newSection;
     }
-
-    // update meta-dat
-    m_metaData.numberOfForwardEdgeSections = newSectionNumber;
-    m_metaData.numberOfForwardEdgeBlocks = newBlockNumber;
-    m_metaData.positionForwardEdgeBlocks = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
-
-    // persist changes
-    updateMetaData();
+    // write the new init nodes to the buffer and the file
     m_clusterDataBuffer->syncAll();
+    return true;
+}
 
+/**
+ * @brief EdgeCluster::addEmptyForwardEdgeSection add a new forward-edge-section
+ * @return id of the new section, else 0xFFFFFFFF if allocation failed
+ */
+uint32_t EdgeCluster::addEmptyForwardEdgeSection()
+{
+    // allocate a new block, if necessary
+    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
+    if((m_metaData.numberOfForwardEdgeSections * sizeof(KyoChanForwardEdgeSection) )/ blockSize
+            < ((m_metaData.numberOfForwardEdgeSections + 1) * sizeof(KyoChanForwardEdgeSection)) / blockSize)
+    {
+        if(!m_clusterDataBuffer->allocateBlocks(1)) {
+            return 0xFFFFFFFF;
+        }
+        m_metaData.numberOfForwardEdgeBlocks++;
+    }
+
+    // add new edge-forward-section
+    KyoChanForwardEdgeSection newSection;
+    getForwardEdgeSectionBlock()[m_metaData.numberOfForwardEdgeSections] = newSection;
+    m_metaData.numberOfForwardEdgeSections++;
     return m_metaData.numberOfForwardEdgeSections-1;
 }
 
 /**
- * @brief Cluster::finishCycle finish the current cycle with sending messages from the outgoing buffer
+ * @brief EdgeCluster::finishCycle finish the current cycle with sending messages from the outgoing buffer
  */
 void EdgeCluster::finishCycle()
 {

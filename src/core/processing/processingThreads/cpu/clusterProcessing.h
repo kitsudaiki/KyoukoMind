@@ -76,6 +76,9 @@ protected:
                               EdgeCluster *cluster);
     void processDirectEdge(uint8_t *data,
                            EdgeCluster* cluster);
+
+private:
+    uint32_t m_currentPendingEdge = 0;
 };
 
 }

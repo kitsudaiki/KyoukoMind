@@ -9,7 +9,6 @@
 
 #include <core/processing/processingThreads/cpu/nextChooser.h>
 #include <core/processing/processingThreads/cpu/clusterProcessing.h>
-#include <core/processing/processingThreads/cpu/nodeClusterProcessing.h>
 
 namespace KyoukoMind
 {
@@ -31,7 +30,7 @@ void ProcessingTest::initTestCase()
 {
     m_controller = new MessageController();
     m_nextChooser = new NextChooser();
-    m_nodeProcessing = new NodeClusterProcessing(m_nextChooser);
+    m_nodeProcessing = new ClusterProcessing(m_nextChooser);
 
     EdgeCluster* initCluster = new NodeCluster(1337, "/tmp/test", 42);
 
@@ -61,7 +60,7 @@ void ProcessingTest::initTestCase()
     neighbor2.neighborType = NODE_CLUSTER;
     m_nodeCluster2->addNeighbor(3, neighbor2);
     m_nodeCluster2->initMessageBuffer(m_controller);
-    m_nodeCluster2->allocForwardEdgeSectionBlocks(1);
+    m_nodeCluster2->initForwardEdgeSectionBlocks(1);
 
     Neighbor neighbor3;
     neighbor3.targetClusterId = 2;

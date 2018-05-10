@@ -22,6 +22,7 @@ public:
     NodeCluster(const ClusterID clusterId,
                 const std::string directoryPath,
                 const uint32_t numberOfNodes = 0);
+    ~NodeCluster();
 
     // nodes
     uint16_t getNumberOfNodeBlocks() const;
@@ -35,12 +36,8 @@ public:
     uint32_t addEmptyEdgeSection();
     bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
 
-    // number of active nodes
-    uint16_t getNumberOfActiveNodes() const;
-    void setNumberOfActiveNodes(const uint16_t &numberOfActiveNodes);
-
 private:
-    uint16_t m_numberOfActiveNodes = 0;
+    PerformanceIO::DataBuffer* m_edgeSectionBuffer = nullptr;
 };
 
 }

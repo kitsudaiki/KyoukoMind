@@ -28,6 +28,22 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
 {
     m_metaData.clusterType = NODE_CLUSTER;
     initNodeBlocks(numberOfNodes);
+    // TODO: readd file-path after tests
+    m_edgeSectionBuffer = new PerformanceIO::DataBuffer("");
+    m_edgeSectionBuffer->allocateBlocks(1);
+}
+
+/**
+ * @brief NodeCluster::~NodeCluster destroy edge-section-buffer
+ */
+NodeCluster::~NodeCluster()
+{
+    if(m_edgeSectionBuffer != nullptr)
+    {
+        m_edgeSectionBuffer->closeBuffer();
+        delete m_edgeSectionBuffer;
+        m_edgeSectionBuffer = nullptr;
+    }
 }
 
 /**
@@ -78,8 +94,6 @@ bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
 
     // allocate blocks in buffer
     m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfNodeBlocks);
-
-    // persist meta-data
     updateMetaData();
 
     // fill array with empty nodes
@@ -102,7 +116,7 @@ bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
 KyoChanEdgeSection *NodeCluster::getEdgeSectionBlock()
 {
     uint32_t positionEdgeBlock = m_metaData.positionOfEdgeBlock;
-    return (KyoChanEdgeSection*)m_clusterDataBuffer->getBlock(positionEdgeBlock);
+    return (KyoChanEdgeSection*)m_edgeSectionBuffer->getBlock(positionEdgeBlock);
 }
 
 /**
@@ -119,17 +133,17 @@ bool NodeCluster::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 
     // update meta-data of the cluster
     m_metaData.numberOfEdgeSections = numberOfEdgeSections;
-    m_metaData.positionOfEdgeBlock = m_metaData.positionForwardEdgeBlocks + m_metaData.numberOfForwardEdgeBlocks;
+    m_metaData.positionOfEdgeBlock = 0;
 
     // calculate number of edge-blocks
-    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
+    uint32_t blockSize = m_edgeSectionBuffer->getBlockSize();
     m_metaData.numberOfEdgeBlocks = (numberOfEdgeSections * sizeof(KyoChanEdgeSection)) / blockSize;
     if((numberOfEdgeSections * sizeof(KyoChanEdgeSection)) % blockSize != 0) {
         m_metaData.numberOfEdgeBlocks += 1;
     }
 
     // update and persist buffer
-    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
+    m_edgeSectionBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
     updateMetaData();
 
     // fill array with empty edgesections
@@ -140,7 +154,7 @@ bool NodeCluster::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
         array[i] = newSection;
     }
     // write the new init nodes to the buffer and the file
-    m_clusterDataBuffer->syncAll();
+    m_edgeSectionBuffer->syncAll();
     return true;
 }
 
@@ -171,15 +185,14 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
 uint32_t NodeCluster::addEmptyEdgeSection()
 {
     // allocate a new block, if necessary
-    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
+    uint32_t blockSize = m_edgeSectionBuffer->getBlockSize();
     if((m_metaData.numberOfEdgeSections * sizeof(KyoChanEdgeSection) )/ blockSize
             < ((m_metaData.numberOfEdgeSections + 1) * sizeof(KyoChanEdgeSection)) / blockSize)
     {
-        if(!m_clusterDataBuffer->allocateBlocks(1)) {
+        if(!m_edgeSectionBuffer->allocateBlocks(1)) {
             return 0xFFFFFFFF;
         }
         m_metaData.numberOfEdgeBlocks++;
-        m_metaData.numberOfPendingEdgeSections++;
     }
 
     // add new edge-forward-section
@@ -187,24 +200,6 @@ uint32_t NodeCluster::addEmptyEdgeSection()
     getEdgeSectionBlock()[m_metaData.numberOfEdgeSections] = newSection;
     m_metaData.numberOfEdgeSections++;
     return m_metaData.numberOfEdgeSections-1;
-}
-
-/**
- * @brief NodeCluster::getNumberOfActiveNodes
- * @return
- */
-uint16_t NodeCluster::getNumberOfActiveNodes() const
-{
-    return m_numberOfActiveNodes;
-}
-
-/**
- * @brief NodeCluster::setNumberOfActiveNodes
- * @param numberOfActiveNodes
- */
-void NodeCluster::setNumberOfActiveNodes(const uint16_t &numberOfActiveNodes)
-{
-    m_numberOfActiveNodes = numberOfActiveNodes;
 }
 
 }

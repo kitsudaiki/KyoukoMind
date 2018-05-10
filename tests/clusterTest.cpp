@@ -43,7 +43,7 @@ void ClusterTest::checkNodeCluster()
 
     //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 0);
 
-    UNITTEST(m_nodeCluster->allocForwardEdgeSectionBlocks(2000), 1999);
+    UNITTEST(m_nodeCluster->initForwardEdgeSectionBlocks(2000), 1999);
 
     //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 250);
 
