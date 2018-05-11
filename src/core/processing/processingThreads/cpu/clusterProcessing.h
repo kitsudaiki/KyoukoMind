@@ -59,13 +59,13 @@ protected:
                                    OutgoingMessageBuffer *outgoBuffer);
     void processEdgeSection(KyoChanEdgeSection *currentSection,
                             const float weight,
-                            KyoChanNode *nodes,
-                            OutgoingMessageBuffer *outgoBuffer);
+                            KyoChanNode *nodes);
 
 
     void processDirectEdge(uint8_t *data,
                            EdgeCluster* cluster);
     void processAxonEdge(uint8_t *data,
+                         EdgeCluster *cluster,
                          OutgoingMessageBuffer *outgoBuffer);
 
     void processPendingEdge(uint8_t *data,

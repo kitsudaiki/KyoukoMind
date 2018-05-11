@@ -18,9 +18,8 @@
 struct KyoChanForwardEdge
 {
     uint8_t side = 0;
-    uint8_t pending = 0;
     float weight = 0.0;
-    uint32_t targetEdgeSectionId = 0;
+    uint32_t targetId = 0;
 } __attribute__((packed));
 
 /**
@@ -40,6 +39,7 @@ struct KyoChanForwardEdgeSection
     KyoChanForwardEdge forwardEdges[16];
     uint8_t numberOfForwardEdges = 0;
     uint16_t pendingEdges = 0;
+    float totalWeight = 0.0;
 
     /**
      * @brief flipPendingBit
