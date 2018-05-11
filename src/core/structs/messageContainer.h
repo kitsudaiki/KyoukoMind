@@ -50,17 +50,6 @@ struct KyoChanAxonEdgeContainer
 } __attribute__((packed));
 
 /**
- * @brief The KyoChanPendingEdgeContainer struct
- */
-struct KyoChanPendingEdgeContainer
-{
-    uint8_t type = PENDING_EDGE_CONTAINER;
-
-    float weight = 0.0;
-
-} __attribute__((packed));
-
-/**
  * @brief The KyoChanLearingEdgeContainer struct
  */
 struct KyoChanLearingEdgeContainer

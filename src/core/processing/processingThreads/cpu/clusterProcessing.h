@@ -70,9 +70,6 @@ protected:
                          EdgeCluster *cluster,
                          OutgoingMessageBuffer *outgoBuffer);
 
-    void processPendingEdge(uint8_t *data,
-                            EdgeCluster *cluster,
-                            OutgoingMessageBuffer *outgoBuffer);
     void processForwardEdge(uint8_t *data,
                             EdgeCluster *cluster,
                             OutgoingMessageBuffer *outgoBuffer);

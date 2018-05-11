@@ -83,17 +83,6 @@ void DataMessage::addForwardEdge(const KyoChanForwardEdgeContainer *newEdge)
 }
 
 /**
- * @brief DataMessage::addPendingEdge
- * @param newEdge
- */
-void DataMessage::addPendingEdge(const KyoChanPendingEdgeContainer *newEdge)
-{
-    const uint8_t size = sizeof(KyoChanPendingEdgeContainer);
-    checkBuffer(size);
-    copyToBuffer((void*)newEdge, size);
-}
-
-/**
  * @brief DataMessage::addAxonEdge
  * @param newAxonEdge
  */

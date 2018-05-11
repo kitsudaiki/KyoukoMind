@@ -87,23 +87,6 @@ bool OutgoingMessageBuffer::addForwardEdge(const uint8_t sourceSite,
 }
 
 /**
- * @brief OutgoingMessageBuffer::addPendingEdge
- * @param sourceSite
- * @param edge
- * @return
- */
-bool OutgoingMessageBuffer::addPendingEdge(const uint8_t sourceSite,
-                                           const KyoChanPendingEdgeContainer *edge)
-{
-    OUTPUT("    > add pending-edge-container")
-    if(sourceSite < 16) {
-        m_dataMessageBuffer[sourceSite]->addPendingEdge(edge);
-        return true;
-    }
-    return false;
-}
-
-/**
  * @brief OutgoingMessageBuffer::addAxonEdge
  * @param targetClusterId
  * @param targetSite

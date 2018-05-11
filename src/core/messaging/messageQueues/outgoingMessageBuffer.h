@@ -30,8 +30,6 @@ public:
                        const KyoChanDirectEdgeContainer *edge);
     bool addForwardEdge(const uint8_t sourceSite,
                         const KyoChanForwardEdgeContainer *edge);
-    bool addPendingEdge(const uint8_t sourceSite,
-                        const KyoChanPendingEdgeContainer *edge);
     bool addAxonEdge(const uint8_t sourceSite,
                      const KyoChanAxonEdgeContainer *newAxonEdge);
     bool addLearingEdge(const uint8_t sourceSite,

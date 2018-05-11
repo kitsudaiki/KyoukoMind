@@ -42,6 +42,20 @@ struct KyoChanForwardEdgeSection
     float totalWeight = 0.0;
 
     /**
+     * @brief isPendingBitSet
+     * @param pos
+     * @return
+     */
+    bool isPendingBitSet(const uint8_t pos)
+    {
+        uint16_t result = pendingEdges & (1UL << pos);
+        if(result == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * @brief flipPendingBit
      * @param pos
      */
