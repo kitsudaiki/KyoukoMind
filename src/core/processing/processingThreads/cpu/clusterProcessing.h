@@ -43,7 +43,7 @@ public:
     ClusterProcessing(NextChooser *nextChooser);
 
     bool processMessagesEdges(EdgeCluster* cluster);
-    bool processNodes(NodeCluster *nodeCluster);
+    uint16_t processNodes(NodeCluster *nodeCluster);
 
 protected:
     std::vector<uint8_t> m_sideOrder;
@@ -51,6 +51,7 @@ protected:
 
     void createNewEdgeForward(EdgeCluster *cluster,
                               const uint32_t sourceEdgeClusterId,
+                              const float weight,
                               OutgoingMessageBuffer *outgoBuffer);
 
     void processEdgeForwardSection(KyoChanForwardEdgeSection *currentSection,

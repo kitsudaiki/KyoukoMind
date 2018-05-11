@@ -121,7 +121,7 @@ void DemoIO::sendInnerData(const char input)
 void DemoIO::sendFinishCycle()
 {
     mutexLock();
-    m_ougoingBuffer->finishCycle(15);
+    m_ougoingBuffer->finishCycle(15, 0);
     mutexUnlock();
 }
 

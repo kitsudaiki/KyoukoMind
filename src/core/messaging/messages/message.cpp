@@ -131,6 +131,15 @@ void Message::setMetaData(const ClusterID targetClusterId,
 }
 
 /**
+ * @brief Message::setNumberOfActiveNodes
+ * @param numberOfActiveNodes
+ */
+void Message::setNumberOfActiveNodes(const uint16_t numberOfActiveNodes)
+{
+    m_metaData.numberOfActiveNodes = numberOfActiveNodes;
+}
+
+/**
  * @brief Message::getDataSize
  * @return
  */

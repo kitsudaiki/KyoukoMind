@@ -60,7 +60,7 @@ public:
     KyoChanForwardEdgeSection *getPendingForwardEdgeSectionBlock();
 
     // finisher
-    void finishCycle();
+    void finishCycle(const uint16_t numberOfActiveNodes);
 
 protected:
     PerformanceIO::DataBuffer* m_clusterDataBuffer = nullptr;

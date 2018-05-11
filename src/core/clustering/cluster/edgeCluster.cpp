@@ -267,17 +267,18 @@ KyoChanForwardEdgeSection *EdgeCluster::getPendingForwardEdgeSectionBlock()
 
 /**
  * @brief EdgeCluster::finishCycle finish the current cycle with sending messages from the outgoing buffer
+ * @param numberOfActiveNodes
  */
-void EdgeCluster::finishCycle()
+void EdgeCluster::finishCycle(const uint16_t numberOfActiveNodes)
 {
     OUTPUT("---")
     OUTPUT("finishCycle")
-    m_outgoingMessageQueue->finishCycle(2);
-    m_outgoingMessageQueue->finishCycle(3);
-    m_outgoingMessageQueue->finishCycle(4);
-    m_outgoingMessageQueue->finishCycle(11);
-    m_outgoingMessageQueue->finishCycle(12);
-    m_outgoingMessageQueue->finishCycle(13);
+    m_outgoingMessageQueue->finishCycle(2, numberOfActiveNodes);
+    m_outgoingMessageQueue->finishCycle(3, numberOfActiveNodes);
+    m_outgoingMessageQueue->finishCycle(4, numberOfActiveNodes);
+    m_outgoingMessageQueue->finishCycle(11, numberOfActiveNodes);
+    m_outgoingMessageQueue->finishCycle(12, numberOfActiveNodes);
+    m_outgoingMessageQueue->finishCycle(13, numberOfActiveNodes);
 }
 
 }

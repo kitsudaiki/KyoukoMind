@@ -59,7 +59,7 @@ void MessageBufferTest::checkMessageBuffer()
     edge.targetEdgeSectionId = 1;
 
     UNITTEST(m_ougoingBuffer->addForwardEdge(15, &edge), true);
-    m_ougoingBuffer->finishCycle(15);
+    m_ougoingBuffer->finishCycle(15, 0);
 
     Message* message = m_incomBuffer->getMessage(0);
     UNITTEST(message->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))

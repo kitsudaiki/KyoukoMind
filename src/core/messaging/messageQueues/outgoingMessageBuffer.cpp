@@ -168,11 +168,14 @@ void OutgoingMessageBuffer::sendReplyMessage(const uint8_t sourceSite)
 }
 
 /**
- * @brief OutgoingMessageBuffer::sendFinishCycle
+ * @brief OutgoingMessageBuffer::finishCycle
  * @param sourceSite
+ * @param numberOfActiveNodes
  */
-void OutgoingMessageBuffer::finishCycle(const uint8_t sourceSite)
+void OutgoingMessageBuffer::finishCycle(const uint8_t sourceSite,
+                                        const uint16_t numberOfActiveNodes)
 {
+    m_dataMessageBuffer[sourceSite]->setNumberOfActiveNodes(numberOfActiveNodes);
     m_controller->sendMessage(m_dataMessageBuffer[sourceSite]);
     m_dataMessageBuffer[sourceSite] = new DataMessage(m_cluster->getNeighborId(sourceSite),
                                                       m_cluster->getClusterId(),

@@ -53,13 +53,15 @@ void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
     //OUTPUT("processCluster")
     uint8_t clusterType = (uint8_t)cluster->getClusterType();
 
-    m_clusterProcessing->processMessagesEdges(cluster);
+    uint16_t numberOfActiveNodes = 0;
     if(clusterType == NODE_CLUSTER)
     {
         NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
-        m_clusterProcessing->processNodes(nodeCluster);
+        numberOfActiveNodes = m_clusterProcessing->processNodes(nodeCluster);
     }
-    cluster->finishCycle();
+    m_clusterProcessing->processMessagesEdges(cluster);
+
+    cluster->finishCycle(numberOfActiveNodes);
 }
 
 }

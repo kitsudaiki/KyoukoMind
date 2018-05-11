@@ -47,6 +47,7 @@ struct KyoChanForwardEdgeSection
      */
     void flipPendingBit(const uint8_t pos)
     {
+        assert(pos < 16);
         pendingEdges ^= 1UL << pos;
     }
 
@@ -56,7 +57,8 @@ struct KyoChanForwardEdgeSection
      */
     void zeroPendingBit(const uint8_t pos)
     {
-        pendingEdges &= ~(1UL << pos);
+        assert(pos < 16);
+        pendingEdges &= ~((uint16_t)1U << pos);
     }
 
     /**
@@ -65,7 +67,8 @@ struct KyoChanForwardEdgeSection
      */
     void setPedingBit(const uint8_t pos)
     {
-        pendingEdges |= 1UL << pos;
+        assert(pos < 16);
+        pendingEdges |= (uint16_t)1U << pos;
     }
 
     /**

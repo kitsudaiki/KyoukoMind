@@ -41,7 +41,7 @@ public:
 
     void sendReplyMessage(const uint8_t sourceSite);
 
-    void finishCycle(const uint8_t sourceSite);
+    void finishCycle(const uint8_t sourceSite, const uint16_t numberOfActiveNodes);
 
     bool updateBufferInit();
 private:

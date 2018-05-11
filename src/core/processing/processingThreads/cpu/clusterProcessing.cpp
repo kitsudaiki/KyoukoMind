@@ -86,13 +86,16 @@ bool ClusterProcessing::processMessagesEdges(EdgeCluster* cluster)
  * @param nodeCluster
  * @return
  */
-bool ClusterProcessing::processNodes(NodeCluster* nodeCluster)
+uint16_t ClusterProcessing::processNodes(NodeCluster* nodeCluster)
 {
     OUTPUT("---")
     OUTPUT("processNodes")
+    uint16_t numberOfActiveNodes = 0;
+
     if(nodeCluster == nullptr) {
-        return false;
+        return numberOfActiveNodes;
     }
+
     // get necessary values
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
     const uint16_t numberOfNodes = nodeCluster->getNumberOfNodes();
@@ -124,11 +127,11 @@ bool ClusterProcessing::processNodes(NodeCluster* nodeCluster)
                                           nodes->currentState,
                                           outgoBuffer);
             }
-
+            numberOfActiveNodes++;
         }
         nodes->currentState /= NODE_COOLDOWN;
     }
-    return true;
+    return numberOfActiveNodes;
 }
 
 /**
@@ -140,14 +143,12 @@ bool ClusterProcessing::processNodes(NodeCluster* nodeCluster)
  */
 inline void ClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
                                                     const uint32_t sourceEdgeClusterId,
+                                                    const float weight,
                                                     OutgoingMessageBuffer* outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("createNewEdgeForward")
     const uint8_t nextSide = m_nextChooser->getNextCluster(cluster->getNeighbors(), 14);
-
-    // TODO: calculate a value
-    const float weight = 100.0;
 
     KyoChanLearingEdgeContainer newEdge;
     newEdge.sourceEdgeSectionId = sourceEdgeClusterId;
