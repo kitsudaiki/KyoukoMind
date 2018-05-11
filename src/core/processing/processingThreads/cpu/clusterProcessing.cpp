@@ -83,7 +83,7 @@ void ClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
 {
     OUTPUT("---")
     OUTPUT("processEdgeForwardSection")
-    if(weight != 0.0)
+    if(weight != 0.0 || currentSection->pendingEdges != 0)
     {
         if(weight > currentSection->totalWeight) {
             initLearing(currentSection,
@@ -103,24 +103,10 @@ void ClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
                 newEdge.targetEdgeSectionId = forwardEdge->targetId;
                 newEdge.weight = forwardEdge->weight * weight;
                 outgoBuffer->addForwardEdge(sideCounter, &newEdge);
-                currentSection->zeroPendingBit(sideCounter);
-            }
-            sideCounter++;
-        }
-    }
 
-    if(currentSection->pendingEdges != 0)
-    {
-        for(uint8_t side = 0; side < 16; side++)
-        {
-            if(currentSection->isPendingBitSet(side))
-            {
-                KyoChanForwardEdgeContainer newEdge;
-                newEdge.targetEdgeSectionId = 0xFFFFFFFF;
-                newEdge.weight = currentSection->forwardEdges[side].weight;
-                outgoBuffer->addForwardEdge(side, &newEdge);
-                currentSection->zeroPendingBit(side);
             }
+            currentSection->zeroPendingBit(sideCounter);
+            sideCounter++;
         }
     }
 }
