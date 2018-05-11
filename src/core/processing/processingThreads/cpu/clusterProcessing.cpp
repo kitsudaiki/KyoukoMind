@@ -134,6 +134,17 @@ uint16_t ClusterProcessing::processNodes(NodeCluster* nodeCluster)
 }
 
 /**
+ * @brief ClusterProcessing::initLearing
+ * @param currentSection
+ * @param weightDiff
+ */
+inline void ClusterProcessing::initLearing(KyoChanForwardEdgeSection *currentSection,
+                                           const float weightDiff)
+{
+
+}
+
+/**
  * @brief createNewEdgeForward
  * @param cluster
  * @param sourceEdgeClusterId
@@ -170,9 +181,14 @@ inline void ClusterProcessing::createNewEdgeForward(EdgeCluster *cluster,
     OUTPUT("processEdgeForwardSection")
     if(weight != 0.0)
     {
+        if(weight > currentSection->totalWeight) {
+            initLearing(currentSection,
+                        weight - currentSection->totalWeight);
+        }
+
         uint8_t sideCounter = 0;
         KyoChanForwardEdge* forwardEnd = currentSection->forwardEdges
-                + currentSection->numberOfForwardEdges;
+                                         + currentSection->numberOfForwardEdges;
         for(KyoChanForwardEdge* forwardEdge = currentSection->forwardEdges;
             forwardEdge < forwardEnd;
             forwardEdge++)
@@ -277,6 +293,12 @@ inline void ClusterProcessing::processPendingEdge(uint8_t *data,
     OUTPUT("---")
     OUTPUT("processPendingEdge")
     KyoChanPendingEdgeContainer* edge = (KyoChanPendingEdgeContainer*)data;
+    KyoChanForwardEdgeSection* pendingEdge = cluster->getPendingForwardEdgeSectionBlock();
+
+    processEdgeForwardSection(pendingEdge,
+                              edge->weight,
+                              outgoBuffer);
+    cluster->decreaseNumberOfPendingForwardEdges();
 }
 
 /**

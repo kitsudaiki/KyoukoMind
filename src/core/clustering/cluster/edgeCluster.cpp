@@ -252,22 +252,35 @@ uint32_t EdgeCluster::addEmptyForwardEdgeSection()
     KyoChanForwardEdgeSection newSection;
     getForwardEdgeSectionBlock()[m_metaData.numberOfForwardEdgeSections] = newSection;
     m_metaData.numberOfForwardEdgeSections++;
-    m_metaData.numberOfPendingForwardEdgeSections;
+    m_metaData.numberOfPendingForwardEdgeSections++;
     return m_metaData.numberOfForwardEdgeSections-1;
 }
 
 /**
- * @brief EdgeCluster::getPendingForwardEdgeSectionBlock
- * @return
+ * @brief EdgeCluster::getPendingForwardEdgeSectionBlock get pending-forward-edges
+ * @return nullptr if no pending edge exist, else pointer to the beginning of the pending edges
  */
 KyoChanForwardEdgeSection *EdgeCluster::getPendingForwardEdgeSectionBlock()
 {
+    if(m_metaData.numberOfPendingForwardEdgeSections == 0)
+    {
+        return nullptr;
+    }
+    return &(getForwardEdgeSectionBlock()[m_metaData.numberOfForwardEdgeSections
+            - m_metaData.numberOfPendingForwardEdgeSections]);
+}
 
+/**
+ * @brief EdgeCluster::decreaseNumberOfPendingForwardEdges reduces the number of pending edges by one
+ */
+void EdgeCluster::decreaseNumberOfPendingForwardEdges()
+{
+    m_metaData.numberOfPendingForwardEdgeSections--;
 }
 
 /**
  * @brief EdgeCluster::finishCycle finish the current cycle with sending messages from the outgoing buffer
- * @param numberOfActiveNodes
+ * @param numberOfActiveNodes number of active nodes in the current cluster
  */
 void EdgeCluster::finishCycle(const uint16_t numberOfActiveNodes)
 {

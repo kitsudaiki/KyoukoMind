@@ -48,6 +48,8 @@ public:
 protected:
     std::vector<uint8_t> m_sideOrder;
     NextChooser* m_nextChooser = nullptr;
+    void initLearing(KyoChanForwardEdgeSection *currentSection,
+                     const float weightDiff);
 
     void createNewEdgeForward(EdgeCluster *cluster,
                               const uint32_t sourceEdgeClusterId,
