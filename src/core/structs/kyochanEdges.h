@@ -18,9 +18,8 @@
 struct KyoChanForwardEdge
 {
     uint8_t side = 0;
-    uint8_t pending = 0;
     float weight = 0.0;
-    uint32_t targetEdgeSectionId = 0;
+    uint32_t targetId = 0;
 } __attribute__((packed));
 
 /**
@@ -37,8 +36,54 @@ struct KyoChanEdge
  */
 struct KyoChanForwardEdgeSection
 {
-    KyoChanForwardEdge forwardEdges[FORWARD_EDGES_PER_EDGESECTION];
+    KyoChanForwardEdge forwardEdges[16];
     uint8_t numberOfForwardEdges = 0;
+    uint16_t pendingEdges = 0;
+    float totalWeight = 0.0;
+
+    /**
+     * @brief isPendingBitSet
+     * @param pos
+     * @return
+     */
+    bool isPendingBitSet(const uint8_t pos)
+    {
+        uint16_t result = pendingEdges & (1UL << pos);
+        if(result == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @brief flipPendingBit
+     * @param pos
+     */
+    void flipPendingBit(const uint8_t pos)
+    {
+        assert(pos < 16);
+        pendingEdges ^= 1UL << pos;
+    }
+
+    /**
+     * @brief negatePendingBit
+     * @param pos
+     */
+    void zeroPendingBit(const uint8_t pos)
+    {
+        assert(pos < 16);
+        pendingEdges &= ~((uint16_t)1U << pos);
+    }
+
+    /**
+     * @brief setPedingBit
+     * @param pos
+     */
+    void setPedingBit(const uint8_t pos)
+    {
+        assert(pos < 16);
+        pendingEdges |= (uint16_t)1U << pos;
+    }
 
     /**
      * @brief addForwardEdge
@@ -64,7 +109,7 @@ struct KyoChanEdgeSection
     uint8_t incomSide = 0;
     float totalWeight = 0.0;
 
-    KyoChanForwardEdge forwardEdges[FORWARD_EDGES_PER_EDGESECTION];
+    KyoChanForwardEdge forwardEdges[16];
     uint8_t numberOfForwardEdges = 0;
 
     KyoChanEdge edges[EDGES_PER_EDGESECTION];

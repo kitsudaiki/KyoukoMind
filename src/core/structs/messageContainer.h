@@ -27,7 +27,7 @@ struct KyoChanDirectEdgeContainer
 /**
  * @brief The KyoChanEdgeForewardContainer struct
  */
-struct KyoChanEdgeForwardContainer
+struct KyoChanForwardEdgeContainer
 {
     uint8_t type = FOREWARD_EDGE_CONTAINER;
 
@@ -46,17 +46,6 @@ struct KyoChanAxonEdgeContainer
     float weight = 0.0;
     uint32_t targetAxonId = 0;
     uint64_t targetClusterPath = 0;
-
-} __attribute__((packed));
-
-/**
- * @brief The KyoChanPendingEdgeContainer struct
- */
-struct KyoChanPendingEdgeContainer
-{
-    uint8_t type = PENDING_EDGE_CONTAINER;
-
-    float weight = 0.0;
 
 } __attribute__((packed));
 

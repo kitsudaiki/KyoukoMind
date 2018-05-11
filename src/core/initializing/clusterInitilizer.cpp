@@ -10,7 +10,7 @@
 #include "clusterInitilizer.h"
 #include <kyochanNetwork.h>
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -75,7 +75,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
                                    const uint32_t y,
                                    const uint32_t nodeNumberPerCluster)
 {
-    Cluster* cluster = nullptr;
+    EdgeCluster* cluster = nullptr;
     // create cluster
     switch ((int)(*m_networkMetaStructure)[x][y].type) {
         case 1:
@@ -108,7 +108,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
  * @param cluster
  * @return
  */
-bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster* cluster)
+bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, EdgeCluster* cluster)
 {
     std::vector<uint8_t> sideOrder = {2,3,4,13,12,11};
     for(uint8_t i = 0; i < sideOrder.size(); i++)

@@ -9,7 +9,7 @@
 
 #include "outgoingMessageBuffer.h"
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <core/messaging/messageController.h>
 
 #include <core/messaging/messages/message.h>
@@ -24,7 +24,7 @@ namespace KyoukoMind
  * @param clusterId
  * @param controller
  */
-OutgoingMessageBuffer::OutgoingMessageBuffer(Cluster* cluster,
+OutgoingMessageBuffer::OutgoingMessageBuffer(EdgeCluster* cluster,
                                              MessageController* controller):
     MessageBuffer(cluster, controller)
 {
@@ -76,28 +76,11 @@ bool OutgoingMessageBuffer::addDirectEdge(const uint8_t sourceSite,
  * @return
  */
 bool OutgoingMessageBuffer::addForwardEdge(const uint8_t sourceSite,
-                                           const KyoChanEdgeForwardContainer *edge)
+                                           const KyoChanForwardEdgeContainer *edge)
 {
     OUTPUT("    > add edge-forward-container")
     if(sourceSite < 16) {
         m_dataMessageBuffer[sourceSite]->addForwardEdge(edge);
-        return true;
-    }
-    return false;
-}
-
-/**
- * @brief OutgoingMessageBuffer::addPendingEdge
- * @param sourceSite
- * @param edge
- * @return
- */
-bool OutgoingMessageBuffer::addPendingEdge(const uint8_t sourceSite,
-                                           const KyoChanPendingEdgeContainer *edge)
-{
-    OUTPUT("    > add pending-edge-container")
-    if(sourceSite < 16) {
-        m_dataMessageBuffer[sourceSite]->addPendingEdge(edge);
         return true;
     }
     return false;
@@ -168,11 +151,14 @@ void OutgoingMessageBuffer::sendReplyMessage(const uint8_t sourceSite)
 }
 
 /**
- * @brief OutgoingMessageBuffer::sendFinishCycle
+ * @brief OutgoingMessageBuffer::finishCycle
  * @param sourceSite
+ * @param numberOfActiveNodes
  */
-void OutgoingMessageBuffer::finishCycle(const uint8_t sourceSite)
+void OutgoingMessageBuffer::finishCycle(const uint8_t sourceSite,
+                                        const uint16_t numberOfActiveNodes)
 {
+    m_dataMessageBuffer[sourceSite]->setNumberOfActiveNodes(numberOfActiveNodes);
     m_controller->sendMessage(m_dataMessageBuffer[sourceSite]);
     m_dataMessageBuffer[sourceSite] = new DataMessage(m_cluster->getNeighborId(sourceSite),
                                                       m_cluster->getClusterId(),

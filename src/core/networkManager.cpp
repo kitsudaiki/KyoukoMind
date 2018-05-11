@@ -16,7 +16,7 @@
 #include <core/messaging/messageController.h>
 #include <core/initializing/networkInitializer.h>
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 

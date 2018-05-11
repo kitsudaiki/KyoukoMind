@@ -20,18 +20,18 @@ class Message;
 class DataMessage;
 class ReplyMessage;
 
-class Cluster;
+class EdgeCluster;
 
 class MessageController;
 
 class MessageBuffer
 {
 public:
-    MessageBuffer(Cluster *cluster,
+    MessageBuffer(EdgeCluster *cluster,
                  MessageController *controller);
 
 protected:
-    Cluster* m_cluster;
+    EdgeCluster* m_cluster;
     MessageController *m_controller = nullptr;
 
 private:

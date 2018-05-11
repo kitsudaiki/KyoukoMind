@@ -10,7 +10,7 @@
 #include "messageBufferTest.h"
 #include <core/messaging/messageController.h>
 
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -37,7 +37,7 @@ MessageBufferTest::MessageBufferTest() : CommonTest("MessageBufferTest")
 void MessageBufferTest::initTestCase()
 {
     m_controller = new MessageController();
-    Cluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 42);
+    EdgeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 42);
 
     Neighbor neighbor;
     neighbor.targetClusterId = 1337;
@@ -55,14 +55,14 @@ void MessageBufferTest::initTestCase()
  */
 void MessageBufferTest::checkMessageBuffer()
 {
-    KyoChanEdgeForwardContainer edge;
+    KyoChanForwardEdgeContainer edge;
     edge.targetEdgeSectionId = 1;
 
     UNITTEST(m_ougoingBuffer->addForwardEdge(15, &edge), true);
-    m_ougoingBuffer->finishCycle(15);
+    m_ougoingBuffer->finishCycle(15, 0);
 
     Message* message = m_incomBuffer->getMessage(0);
-    UNITTEST(message->getPayloadSize(), sizeof(KyoChanEdgeForwardContainer))
+    UNITTEST(message->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
 }
 
 /**

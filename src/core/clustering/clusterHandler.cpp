@@ -9,7 +9,7 @@
 
 #include <core/clustering/clusterHandler.h>
 #include <core/clustering/clusterQueue.h>
-#include <core/clustering/cluster/cluster.h>
+#include <core/clustering/cluster/edgeCluster.h>
 
 namespace KyoukoMind
 {
@@ -37,12 +37,12 @@ ClusterHandler::~ClusterHandler()
  * @param cluster
  * @return
  */
-bool ClusterHandler::addCluster(const ClusterID clusterId, Cluster* cluster)
+bool ClusterHandler::addCluster(const ClusterID clusterId, EdgeCluster* cluster)
 {
     if(m_allClusters.find(clusterId) != m_allClusters.end()) {
         return false;
     }
-    m_allClusters.insert(std::pair<ClusterID, Cluster*>(clusterId, cluster));
+    m_allClusters.insert(std::pair<ClusterID, EdgeCluster*>(clusterId, cluster));
     m_clusterQueue->addCluster(cluster);
     return true;
 }
@@ -52,9 +52,9 @@ bool ClusterHandler::addCluster(const ClusterID clusterId, Cluster* cluster)
  * @param clusterId
  * @return
  */
-Cluster *ClusterHandler::getCluster(const ClusterID clusterId)
+EdgeCluster *ClusterHandler::getCluster(const ClusterID clusterId)
 {
-    std::map<ClusterID, Cluster*>::iterator it;
+    std::map<ClusterID, EdgeCluster*>::iterator it;
     it = m_allClusters.find(clusterId);
     if(it != m_allClusters.end()) {
         return it->second;
@@ -69,7 +69,7 @@ Cluster *ClusterHandler::getCluster(const ClusterID clusterId)
  */
 bool ClusterHandler::deleteCluster(const ClusterID clusterId)
 {
-    std::map<ClusterID, Cluster*>::iterator it;
+    std::map<ClusterID, EdgeCluster*>::iterator it;
     it = m_allClusters.find(clusterId);
     if(it != m_allClusters.end()) {
         m_allClusters.erase(it);
@@ -83,9 +83,9 @@ bool ClusterHandler::deleteCluster(const ClusterID clusterId)
  */
 void ClusterHandler::clearAllCluster()
 {
-    std::map<ClusterID, Cluster*>::iterator it;
+    std::map<ClusterID, EdgeCluster*>::iterator it;
     for(it = m_allClusters.begin(); it != m_allClusters.end(); ++it) {
-        Cluster* tempCluster = it->second;
+        EdgeCluster* tempCluster = it->second;
         delete tempCluster;
     }
     m_allClusters.clear();

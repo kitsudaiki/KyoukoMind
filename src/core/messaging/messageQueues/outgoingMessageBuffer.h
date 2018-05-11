@@ -14,7 +14,7 @@
 
 namespace KyoukoMind
 {
-class Cluster;
+class EdgeCluster;
 
 class MessageController;
 class DataMessage;
@@ -23,15 +23,13 @@ class RelyMessage;
 class OutgoingMessageBuffer : public MessageBuffer
 {
 public:
-    OutgoingMessageBuffer(Cluster *cluster,
+    OutgoingMessageBuffer(EdgeCluster *cluster,
                           MessageController *controller);
 
     bool addDirectEdge(const uint8_t sourceSite,
                        const KyoChanDirectEdgeContainer *edge);
     bool addForwardEdge(const uint8_t sourceSite,
-                        const KyoChanEdgeForwardContainer *edge);
-    bool addPendingEdge(const uint8_t sourceSite,
-                        const KyoChanPendingEdgeContainer *edge);
+                        const KyoChanForwardEdgeContainer *edge);
     bool addAxonEdge(const uint8_t sourceSite,
                      const KyoChanAxonEdgeContainer *newAxonEdge);
     bool addLearingEdge(const uint8_t sourceSite,
@@ -41,7 +39,7 @@ public:
 
     void sendReplyMessage(const uint8_t sourceSite);
 
-    void finishCycle(const uint8_t sourceSite);
+    void finishCycle(const uint8_t sourceSite, const uint16_t numberOfActiveNodes);
 
     bool updateBufferInit();
 private:

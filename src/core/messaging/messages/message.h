@@ -30,6 +30,7 @@ struct CommonMessageData
     ClusterID targetClusterId = 0;
     uint8_t targetSite = 0;
     uint8_t requiredReply = 0;
+    uint16_t numberOfActiveNodes = 0;
 };
 
 class Message
@@ -51,6 +52,7 @@ public:
                      const ClusterID sourceClusterId,
                      const uint32_t messageIdCounter,
                      const uint8_t targetSite);
+    void setNumberOfActiveNodes(const uint16_t numberOfActiveNodes);
 
     uint32_t getDataSize() const;
     void* getData() const;
