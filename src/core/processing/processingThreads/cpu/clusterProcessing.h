@@ -15,21 +15,6 @@
 #include <core/structs/kyochanNodes.h>
 #include <core/structs/messageContainer.h>
 
-#include <core/clustering/cluster/edgeCluster.h>
-#include <core/clustering/cluster/nodeCluster.h>
-#include <core/clustering/cluster/edgeCluster.h>
-
-#include <core/messaging/messageController.h>
-#include <core/messaging/messageQueues/incomingMessageBuffer.h>
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
-
-#include <core/messaging/messages/message.h>
-#include <core/messaging/messages/dataMessage.h>
-#include <core/messaging/messages/replyMessage.h>
-
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
-#include <core/processing/processingThreads/cpu/nextChooser.h>
-
 namespace KyoukoMind
 {
 class OutgoingMessageBuffer;
@@ -42,12 +27,6 @@ class ClusterProcessing
 public:
     ClusterProcessing(NextChooser *nextChooser);
 
-    bool processMessagesEdges(EdgeCluster* cluster);
-    uint16_t processNodes(NodeCluster *nodeCluster);
-
-protected:
-    std::vector<uint8_t> m_sideOrder;
-    NextChooser* m_nextChooser = nullptr;
     void initLearing(KyoChanForwardEdgeSection *currentSection,
                      const float weightDiff);
 
@@ -63,27 +42,9 @@ protected:
                             const float weight,
                             KyoChanNode *nodes);
 
-
-    void processDirectEdge(uint8_t *data,
-                           EdgeCluster* cluster);
-    void processAxonEdge(uint8_t *data,
-                         EdgeCluster *cluster,
-                         OutgoingMessageBuffer *outgoBuffer);
-
-    void processForwardEdge(uint8_t *data,
-                            EdgeCluster *cluster,
-                            OutgoingMessageBuffer *outgoBuffer);
-
-    void processLerningEdge(uint8_t *data,
-                            const uint8_t initSide,
-                            EdgeCluster *cluster,
-                            OutgoingMessageBuffer *outgoBuffer);
-    void processLearningReply(uint8_t *data,
-                              const uint8_t initSide,
-                              EdgeCluster *cluster);
-
 private:
-    uint32_t m_currentPendingEdge = 0;
+    NextChooser* m_nextChooser = nullptr;
+
 };
 
 }

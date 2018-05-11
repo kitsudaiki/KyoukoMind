@@ -82,16 +82,16 @@ void ProcessingTest::checkProcessing()
     m_ougoingBuffer->finishCycle(15, 0);
 
     OUTPUT("==========================================================")
-    m_nodeProcessing->processMessagesEdges(m_nodeCluster1);
-    m_nodeProcessing->processNodes(m_nodeCluster1);
+    //m_nodeProcessing->processMessagesEdges(m_nodeCluster1);
+    //m_nodeProcessing->processNodes(m_nodeCluster1);
     m_nodeCluster1->finishCycle(1);
     OUTPUT("==========================================================")
-    m_nodeProcessing->processMessagesEdges(m_nodeCluster2);
-    m_nodeProcessing->processNodes(m_nodeCluster2);
+    //m_nodeProcessing->processMessagesEdges(m_nodeCluster2);
+    //m_nodeProcessing->processNodes(m_nodeCluster2);
     m_nodeCluster2->finishCycle(1);
     OUTPUT("==========================================================")
-    m_nodeProcessing->processMessagesEdges(m_nodeCluster3);
-    m_nodeProcessing->processNodes(m_nodeCluster3);
+    //m_nodeProcessing->processMessagesEdges(m_nodeCluster3);
+    //m_nodeProcessing->processNodes(m_nodeCluster3);
     m_nodeCluster3->finishCycle(1);
     OUTPUT("==========================================================")
 }
