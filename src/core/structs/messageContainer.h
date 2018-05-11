@@ -27,7 +27,7 @@ struct KyoChanDirectEdgeContainer
 /**
  * @brief The KyoChanEdgeForewardContainer struct
  */
-struct KyoChanEdgeForwardContainer
+struct KyoChanForwardEdgeContainer
 {
     uint8_t type = FOREWARD_EDGE_CONTAINER;
 

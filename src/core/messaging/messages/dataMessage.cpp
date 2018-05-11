@@ -75,9 +75,9 @@ void DataMessage::addDirectEdge(const KyoChanDirectEdgeContainer *newEdge)
  * @brief DataMessage::addForwardEdge
  * @param newEdge
  */
-void DataMessage::addForwardEdge(const KyoChanEdgeForwardContainer *newEdge)
+void DataMessage::addForwardEdge(const KyoChanForwardEdgeContainer *newEdge)
 {
-    const uint8_t size = sizeof(KyoChanEdgeForwardContainer);
+    const uint8_t size = sizeof(KyoChanForwardEdgeContainer);
     checkBuffer(size);
     copyToBuffer((void*)newEdge, size);
 }

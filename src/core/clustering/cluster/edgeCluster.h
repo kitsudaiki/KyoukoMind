@@ -57,6 +57,7 @@ public:
     KyoChanForwardEdgeSection* getForwardEdgeSectionBlock();
     bool initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections);
     uint32_t addEmptyForwardEdgeSection();
+    KyoChanForwardEdgeSection *getPendingForwardEdgeSectionBlock();
 
     // finisher
     void finishCycle();

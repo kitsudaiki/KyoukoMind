@@ -37,7 +37,7 @@ private:
 
     void sendInnerData(const char input);
 
-    void sendData(const KyoChanEdgeForwardContainer &edge);
+    void sendData(const KyoChanForwardEdgeContainer &edge);
     void sendFinishCycle();
 };
 

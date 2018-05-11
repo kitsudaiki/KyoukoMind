@@ -252,7 +252,17 @@ uint32_t EdgeCluster::addEmptyForwardEdgeSection()
     KyoChanForwardEdgeSection newSection;
     getForwardEdgeSectionBlock()[m_metaData.numberOfForwardEdgeSections] = newSection;
     m_metaData.numberOfForwardEdgeSections++;
+    m_metaData.numberOfPendingForwardEdgeSections;
     return m_metaData.numberOfForwardEdgeSections-1;
+}
+
+/**
+ * @brief EdgeCluster::getPendingForwardEdgeSectionBlock
+ * @return
+ */
+KyoChanForwardEdgeSection *EdgeCluster::getPendingForwardEdgeSectionBlock()
+{
+
 }
 
 /**

@@ -49,6 +49,10 @@ protected:
     std::vector<uint8_t> m_sideOrder;
     NextChooser* m_nextChooser = nullptr;
 
+    void createNewEdgeForward(EdgeCluster *cluster,
+                              const uint32_t sourceEdgeClusterId,
+                              OutgoingMessageBuffer *outgoBuffer);
+
     void processEdgeForwardSection(KyoChanForwardEdgeSection *currentSection,
                                    const float weight,
                                    OutgoingMessageBuffer *outgoBuffer);
@@ -56,26 +60,27 @@ protected:
                             const float weight,
                             KyoChanNode *nodes,
                             OutgoingMessageBuffer *outgoBuffer);
-    void createNewEdgeForward(EdgeCluster *cluster,
-                              const uint32_t sourceEdgeClusterId,
-                              OutgoingMessageBuffer *outgoBuffer);
+
+
+    void processDirectEdge(uint8_t *data,
+                           EdgeCluster* cluster);
     void processAxonEdge(uint8_t *data,
                          OutgoingMessageBuffer *outgoBuffer);
-    void processLerningEdge(uint8_t *data,
-                            const uint8_t initSide,
-                            EdgeCluster *cluster,
-                            OutgoingMessageBuffer *outgoBuffer);
+
     void processPendingEdge(uint8_t *data,
                             EdgeCluster *cluster,
                             OutgoingMessageBuffer *outgoBuffer);
     void processForwardEdge(uint8_t *data,
                             EdgeCluster *cluster,
                             OutgoingMessageBuffer *outgoBuffer);
+
+    void processLerningEdge(uint8_t *data,
+                            const uint8_t initSide,
+                            EdgeCluster *cluster,
+                            OutgoingMessageBuffer *outgoBuffer);
     void processLearningReply(uint8_t *data,
-                              uint8_t initSide,
+                              const uint8_t initSide,
                               EdgeCluster *cluster);
-    void processDirectEdge(uint8_t *data,
-                           EdgeCluster* cluster);
 
 private:
     uint32_t m_currentPendingEdge = 0;

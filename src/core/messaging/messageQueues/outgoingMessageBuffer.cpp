@@ -76,7 +76,7 @@ bool OutgoingMessageBuffer::addDirectEdge(const uint8_t sourceSite,
  * @return
  */
 bool OutgoingMessageBuffer::addForwardEdge(const uint8_t sourceSite,
-                                           const KyoChanEdgeForwardContainer *edge)
+                                           const KyoChanForwardEdgeContainer *edge)
 {
     OUTPUT("    > add edge-forward-container")
     if(sourceSite < 16) {

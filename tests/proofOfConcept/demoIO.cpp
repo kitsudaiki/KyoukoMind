@@ -55,7 +55,7 @@ void DemoIO::run()
             for(uint32_t i = 0; i < message->getPayloadSize(); i = i + 20)
             {
                 if(data[i] == FOREWARD_EDGE_CONTAINER) {
-                    KyoChanEdgeForwardContainer* edge = (KyoChanEdgeForwardContainer*)data[i];
+                    KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data[i];
 
                     uint32_t out = (uint32_t)edge->weight;
                     if(out > 255) {
@@ -78,17 +78,17 @@ void DemoIO::sendOutData(const char input)
     uint8_t inputNumber = (uint8_t)input;
     OUTPUT("inputNumber:")
     OUTPUT((int)inputNumber)
-    KyoChanEdgeForwardContainer edge1;
+    KyoChanForwardEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetEdgeSectionId = 1;
     sendData(edge1);
 
-    KyoChanEdgeForwardContainer edge2;
+    KyoChanForwardEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetEdgeSectionId = 1;
     sendData(edge2);
 
-    KyoChanEdgeForwardContainer edge3;
+    KyoChanForwardEdgeContainer edge3;
     edge3.weight = (float)inputNumber;
     edge3.targetEdgeSectionId = 1;
     sendData(edge3);
@@ -103,12 +103,12 @@ void DemoIO::sendInnerData(const char input)
 {
     uint8_t inputNumber = (uint8_t)input;
 
-    KyoChanEdgeForwardContainer edge1;
+    KyoChanForwardEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetEdgeSectionId = 1;
     sendData(edge1);
 
-    KyoChanEdgeForwardContainer edge2;
+    KyoChanForwardEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetEdgeSectionId = 1;
     sendData(edge2);
@@ -129,7 +129,7 @@ void DemoIO::sendFinishCycle()
  * @brief DemoIO::sendData
  * @param input
  */
-void DemoIO::sendData(const KyoChanEdgeForwardContainer &edge)
+void DemoIO::sendData(const KyoChanForwardEdgeContainer &edge)
 {
     mutexLock();
     m_ougoingBuffer->addForwardEdge(15, &edge);

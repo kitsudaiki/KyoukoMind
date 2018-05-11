@@ -37,8 +37,36 @@ struct KyoChanEdge
  */
 struct KyoChanForwardEdgeSection
 {
-    KyoChanForwardEdge forwardEdges[FORWARD_EDGES_PER_EDGESECTION];
+    KyoChanForwardEdge forwardEdges[16];
     uint8_t numberOfForwardEdges = 0;
+    uint16_t pendingEdges = 0;
+
+    /**
+     * @brief flipPendingBit
+     * @param pos
+     */
+    void flipPendingBit(const uint8_t pos)
+    {
+        pendingEdges ^= 1UL << pos;
+    }
+
+    /**
+     * @brief negatePendingBit
+     * @param pos
+     */
+    void zeroPendingBit(const uint8_t pos)
+    {
+        pendingEdges &= ~(1UL << pos);
+    }
+
+    /**
+     * @brief setPedingBit
+     * @param pos
+     */
+    void setPedingBit(const uint8_t pos)
+    {
+        pendingEdges |= 1UL << pos;
+    }
 
     /**
      * @brief addForwardEdge
@@ -64,7 +92,7 @@ struct KyoChanEdgeSection
     uint8_t incomSide = 0;
     float totalWeight = 0.0;
 
-    KyoChanForwardEdge forwardEdges[FORWARD_EDGES_PER_EDGESECTION];
+    KyoChanForwardEdge forwardEdges[16];
     uint8_t numberOfForwardEdges = 0;
 
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
