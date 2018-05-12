@@ -129,6 +129,16 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, EdgeClu
         cluster->addNeighbor(side, tempNeighbor);
         (*m_networkMetaStructure)[x][y].neighbors[side] = tempNeighbor;
     }
+
+    Neighbor tempNeighbor;
+    tempNeighbor.targetClusterId = cluster->getClusterId();
+    tempNeighbor.neighborType = cluster->getClusterType();
+    tempNeighbor.distantToNextNodeCluster = 0;
+    tempNeighbor.targetClusterPos.x = x;
+    tempNeighbor.targetClusterPos.y = y;
+
+    // add new neighbor
+    cluster->addNeighbor(1, tempNeighbor);
     return true;
 }
 
@@ -145,18 +155,21 @@ uint32_t ClusterInitilizer::getDistantToNextNodeCluster(const uint32_t x,
 {
     std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
-    // TODO: max abort-distance
+    uint32_t maxDistance = (*m_networkMetaStructure).size();
+    if(maxDistance > MAX_DISTANCE-1) {
+        maxDistance = MAX_DISTANCE-1;
+    }
     for(uint32_t distance = 1; distance < (*m_networkMetaStructure).size(); distance++)
     {
         if((*m_networkMetaStructure)[next.first][next.second].type == (uint8_t)NODE_CLUSTER) {
             return distance;
         }
         if((*m_networkMetaStructure)[next.first][next.second].type == (uint8_t)EMPTY_CLUSTER) {
-            return 0;
+            return MAX_DISTANCE;
         }
         next = getNext(next.first, next.second, side);
     }
-    return 0;
+    return MAX_DISTANCE;
 }
 
 /**

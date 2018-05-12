@@ -36,8 +36,6 @@ public:
     uint32_t addEmptyEdgeSection();
     bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
 
-    ActvieKyoChanNodes m_activeNodes;
-
 private:
     PerformanceIO::DataBuffer* m_edgeSectionBuffer = nullptr;
 };

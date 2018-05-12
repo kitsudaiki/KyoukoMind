@@ -25,18 +25,19 @@ class NextChooser;
 class ClusterProcessing
 {
 public:
-    ClusterProcessing(NextChooser *nextChooser);
+    ClusterProcessing(NextChooser* nextChooser,
+                      PossibleKyoChanNodes* activeNodes);
 
-    void initLearing(KyoChanForwardEdgeSection *currentSection,
-                     const float weightDiff);
+    void initLearing(EdgeCluster *cluster,
+                     uint32_t forwardEdgeSectionId,
+                     const uint8_t inititalSide,
+                     const float weightDiff,
+                     OutgoingMessageBuffer* outgoBuffer);
 
-    void createNewEdgeForward(EdgeCluster *cluster,
-                              const uint32_t sourceEdgeClusterId,
-                              const float weight,
-                              OutgoingMessageBuffer *outgoBuffer);
-
-    void processEdgeForwardSection(KyoChanForwardEdgeSection *currentSection,
+    void processEdgeForwardSection(EdgeCluster *cluster,
+                                   uint32_t forwardEdgeSectionId,
                                    const float weight,
+                                   const uint8_t inititalSide,
                                    OutgoingMessageBuffer *outgoBuffer);
     void processEdgeSection(KyoChanEdgeSection *currentSection,
                             const float weight,
@@ -44,7 +45,9 @@ public:
 
 private:
     NextChooser* m_nextChooser = nullptr;
+    PossibleKyoChanNodes* m_activeNodes = nullptr;
 
+    float randFloat(const float b);
 };
 
 }

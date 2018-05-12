@@ -30,7 +30,7 @@ void ProcessingTest::initTestCase()
 {
     m_controller = new MessageController();
     m_nextChooser = new NextChooser();
-    m_nodeProcessing = new ClusterProcessing(m_nextChooser);
+    //m_nodeProcessing = new ClusterProcessing(m_nextChooser);
 
     EdgeCluster* initCluster = new NodeCluster(1337, "/tmp/test", 42);
 

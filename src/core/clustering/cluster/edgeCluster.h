@@ -60,6 +60,7 @@ public:
 
     // pending-forward-edge
     KyoChanForwardEdgeSection *getPendingForwardEdgeSectionBlock();
+    uint32_t getPendingForwardEdgeSectionId() const;
     void decreaseNumberOfPendingForwardEdges();
 
     // finisher

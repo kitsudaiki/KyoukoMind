@@ -28,9 +28,9 @@ struct KyoChanNode
 } __attribute__((packed));
 
 /**
- * @brief The ActvieKyoChanNodes struct
+ * @brief The PossibleKyoChanNodes struct
  */
-struct ActvieKyoChanNodes
+struct PossibleKyoChanNodes
 {
     uint16_t nodeIds[MAX_NUMBER_OF_ACTIVE_NODES];
     uint16_t numberOfActiveNodes = 0;
@@ -40,7 +40,7 @@ struct ActvieKyoChanNodes
      * @param nodeId
      * @return
      */
-    bool addActiveNodeId(const uint16_t &nodeId)
+    bool addNodeId(const uint16_t &nodeId)
     {
         if(numberOfActiveNodes >= MAX_NUMBER_OF_ACTIVE_NODES) {
             return false;

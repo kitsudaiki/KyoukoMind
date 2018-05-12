@@ -233,7 +233,7 @@ bool EdgeCluster::initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdg
 
 /**
  * @brief EdgeCluster::addEmptyForwardEdgeSection add a new forward-edge-section
- * @return id of the new section, else 0xFFFFFFFF if allocation failed
+ * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
 uint32_t EdgeCluster::addEmptyForwardEdgeSection()
 {
@@ -243,7 +243,7 @@ uint32_t EdgeCluster::addEmptyForwardEdgeSection()
             < ((m_metaData.numberOfForwardEdgeSections + 1) * sizeof(KyoChanForwardEdgeSection)) / blockSize)
     {
         if(!m_clusterDataBuffer->allocateBlocks(1)) {
-            return 0xFFFFFFFF;
+            return SPECIAL_STATE;
         }
         m_metaData.numberOfForwardEdgeBlocks++;
     }
@@ -268,6 +268,18 @@ KyoChanForwardEdgeSection *EdgeCluster::getPendingForwardEdgeSectionBlock()
     }
     return &(getForwardEdgeSectionBlock()[m_metaData.numberOfForwardEdgeSections
             - m_metaData.numberOfPendingForwardEdgeSections]);
+}
+
+/**
+ * @brief EdgeCluster::getPendingForwardEdgeSectionId
+ * @return
+ */
+uint32_t EdgeCluster::getPendingForwardEdgeSectionId() const
+{
+    if(m_metaData.numberOfPendingForwardEdgeSections == 0) {
+        return SPECIAL_STATE;
+    }
+    return m_metaData.numberOfForwardEdgeSections - m_metaData.numberOfPendingForwardEdgeSections;
 }
 
 /**

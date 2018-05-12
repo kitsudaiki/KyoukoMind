@@ -28,10 +28,12 @@ public:
     void processDirectEdge(uint8_t *data,
                            EdgeCluster* cluster);
     void processAxonEdge(uint8_t *data,
+                         const uint8_t initialSide,
                          EdgeCluster *cluster,
                          OutgoingMessageBuffer *outgoBuffer);
 
     void processForwardEdge(uint8_t *data,
+                            const uint8_t initialSide,
                             EdgeCluster *cluster,
                             OutgoingMessageBuffer *outgoBuffer);
 

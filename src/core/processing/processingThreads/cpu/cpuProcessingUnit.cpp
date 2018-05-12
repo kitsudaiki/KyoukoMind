@@ -37,7 +37,7 @@ CpuProcessingUnit::CpuProcessingUnit(ClusterQueue *clusterQueue):
 {
     m_sideOrder = {0, 2, 3, 4, 13, 12, 11};
     m_nextChooser = new NextChooser();
-    m_clusterProcessing = new ClusterProcessing(m_nextChooser);
+    m_clusterProcessing = new ClusterProcessing(m_nextChooser, &m_activeNodes);
     m_messageProcessing = new MessageProcessing(m_clusterProcessing);
 }
 
@@ -81,6 +81,14 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
     IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
 
+    // get number of active nodes from the neighbors
+    for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
+    {
+        const uint8_t side = m_sideOrder[sidePos];
+        cluster->getNeighbors()[side].activeNodesInNextNodeCluster =
+                incomBuffer->getMessage(side)->getMetaData().numberOfActiveNodes;
+    }
+
     // process normal communication
     for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
     {
@@ -98,11 +106,11 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
                     data += sizeof(KyoChanDirectEdgeContainer);
                     break;
                 case FOREWARD_EDGE_CONTAINER:
-                    m_messageProcessing->processForwardEdge(data, cluster, outgoBuffer);
+                    m_messageProcessing->processForwardEdge(data, side, cluster, outgoBuffer);
                     data += sizeof(KyoChanForwardEdgeContainer);
                     break;
                 case AXON_EDGE_CONTAINER:
-                    m_messageProcessing->processAxonEdge(data, cluster, outgoBuffer);
+                    m_messageProcessing->processAxonEdge(data, side, cluster, outgoBuffer);
                     data += sizeof(KyoChanAxonEdgeContainer);
                     break;
                 case LEARNING_EDGE_CONTAINER:
@@ -145,7 +153,7 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
 
     uint16_t nodeId = 0;
-    nodeCluster->m_activeNodes.numberOfActiveNodes = 0;
+    m_activeNodes.numberOfActiveNodes = 0;
 
     // process nodes
     KyoChanNode* end = nodeCluster->getNodeBlock() + nodeCluster->getNumberOfNodes();
@@ -168,12 +176,20 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
 
             // active-node-registration
             if(rand() % 100 <= RANDOM_ADD_ACTIVE_NODE) {
-                nodeCluster->m_activeNodes.addActiveNodeId(nodeId);
+                m_activeNodes.addNodeId(nodeId);
             }
             numberOfActiveNodes++;
+        } else {
+            if(rand() % 100 <= RANDOM_ADD_INACTIVE_NODE) {
+                m_activeNodes.addNodeId(nodeId);
+            }
         }
         node->currentState /= NODE_COOLDOWN;
         nodeId++;
+    }
+    if(numberOfActiveNodes == 0) {
+        const uint16_t backupNodeId = rand() % nodeCluster->getNumberOfNodes();
+        m_activeNodes.addNodeId(backupNodeId);
     }
     return numberOfActiveNodes;
 }

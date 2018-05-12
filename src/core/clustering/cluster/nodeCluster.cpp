@@ -180,7 +180,7 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
 
 /**
  * @brief NodeCluster::addEmptyEdgeSection add a new empfy edge-section
- * @return id of the new section, or 0xFFFFFFFF if memory-allocation failed
+ * @return id of the new section, or SPECIAL_STATE if memory-allocation failed
  */
 uint32_t NodeCluster::addEmptyEdgeSection()
 {
@@ -190,7 +190,7 @@ uint32_t NodeCluster::addEmptyEdgeSection()
             < ((m_metaData.numberOfEdgeSections + 1) * sizeof(KyoChanEdgeSection)) / blockSize)
     {
         if(!m_edgeSectionBuffer->allocateBlocks(1)) {
-            return 0xFFFFFFFF;
+            return SPECIAL_STATE;
         }
         m_metaData.numberOfEdgeBlocks++;
     }

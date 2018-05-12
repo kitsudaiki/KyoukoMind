@@ -17,7 +17,6 @@
  */
 struct KyoChanForwardEdge
 {
-    uint8_t side = 0;
     float weight = 0.0;
     uint32_t targetId = 0;
 } __attribute__((packed));
@@ -37,7 +36,6 @@ struct KyoChanEdge
 struct KyoChanForwardEdgeSection
 {
     KyoChanForwardEdge forwardEdges[16];
-    uint8_t numberOfForwardEdges = 0;
     uint16_t pendingEdges = 0;
     float totalWeight = 0.0;
 
@@ -85,20 +83,6 @@ struct KyoChanForwardEdgeSection
         pendingEdges |= (uint16_t)1U << pos;
     }
 
-    /**
-     * @brief addForwardEdge
-     * @param forwardEdge
-     * @return
-     */
-    bool addForwardEdge(const KyoChanForwardEdge &newForwardEdge)
-    {
-        if(numberOfForwardEdges >= EDGES_PER_EDGESECTION) {
-            return false;
-        }
-        forwardEdges[numberOfForwardEdges] = newForwardEdge;
-        numberOfForwardEdges++;
-        return true;
-    }
 } __attribute__((packed));
 
 /**

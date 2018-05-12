@@ -40,9 +40,8 @@ private:
 
     void getPossibleNeighbors(Neighbor* allNeighbors,
                               const uint8_t initialSite);
-    uint32_t checkPossebilities();
-    bool calculatePossebilities(const uint32_t totalDistance);
-    uint8_t chooseNeighbor();
+    float calculatePossebilities(const bool whichoutProbability);
+    uint8_t chooseNeighbor(const float totalProbability);
 };
 
 }

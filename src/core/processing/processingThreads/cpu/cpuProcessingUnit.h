@@ -39,6 +39,8 @@ private:
     uint16_t processNodes(NodeCluster *nodeCluster);
 
     std::vector<uint8_t> m_sideOrder;
+    PossibleKyoChanNodes m_activeNodes;
+
     NextChooser* m_nextChooser = nullptr;
     ClusterProcessing* m_clusterProcessing = nullptr;
     MessageProcessing* m_messageProcessing = nullptr;
