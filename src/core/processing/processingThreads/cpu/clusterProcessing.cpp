@@ -50,12 +50,73 @@ inline float ClusterProcessing::randFloat(const float b)
 }
 
 /**
+ * @brief ClusterProcessing::learningExternalForwardEdge
+ * @param currentSection
+ * @param side
+ * @param partitialWeight
+ * @param outgoBuffer
+ */
+inline void ClusterProcessing::learningExternalForwardEdge(KyoChanForwardEdgeSection* currentSection,
+                                                           const uint32_t forwardEdgeSectionId,
+                                                           const uint8_t side,
+                                                           const float partitialWeight,
+                                                           OutgoingMessageBuffer* outgoBuffer)
+{
+    if(currentSection->forwardEdges[side].targetId == 0)
+    {
+        currentSection->forwardEdges[side].targetId = SPECIAL_STATE;
+
+        // send new learning-edge
+        KyoChanLearingEdgeContainer newEdge;
+        newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
+        newEdge.weight = partitialWeight;
+        outgoBuffer->addLearingEdge(side, &newEdge);
+        currentSection->setPedingBit(side);
+    }
+
+    currentSection->updateWeight(side, partitialWeight);
+}
+
+/**
+ * @brief ClusterProcessing::learningInternalForwardEdge
+ * @param currentSection
+ * @param cluster
+ * @param partitialWeight
+ */
+inline void ClusterProcessing::learningInternalForwardEdge(KyoChanForwardEdgeSection* currentSection,
+                                                           EdgeCluster *cluster,
+                                                           const float partitialWeight)
+{
+    NodeCluster* nodeCluster = (NodeCluster*)cluster;
+
+    // add new edge-section if necessary
+    if(currentSection->forwardEdges[1].targetId == 0) {
+        uint32_t newEdgeSectionId = nodeCluster->addEmptyEdgeSection();
+        currentSection->forwardEdges[1].targetId = newEdgeSectionId;
+    }
+    currentSection->updateWeight(1, partitialWeight);
+
+    KyoChanEdgeSection* edgeSection = &(nodeCluster->getEdgeSectionBlock()[currentSection->forwardEdges[1].targetId]);
+
+    uint16_t chooseOfExist = rand() % edgeSection->numberOfEdges + OVERPROVISIONING;
+    if(chooseOfExist >= edgeSection->numberOfEdges)
+    {
+        KyoChanEdge newEdge;
+        newEdge.targetNodeId = rand() % m_activeNodes->numberOfActiveNodes;
+        newEdge.weight = 1.0;  // TODO
+        edgeSection->addEdge(newEdge);
+    }
+
+
+}
+
+/**
  * @brief ClusterProcessing::initLearing
  * @param currentSection
  * @param weightDiff
  */
 void ClusterProcessing::initLearing(EdgeCluster *cluster,
-                                    uint32_t forwardEdgeSectionId,
+                                    const uint32_t forwardEdgeSectionId,
                                     const uint8_t inititalSide,
                                     const float weightDiff,
                                     OutgoingMessageBuffer* outgoBuffer)
@@ -64,14 +125,19 @@ void ClusterProcessing::initLearing(EdgeCluster *cluster,
     float weightCounter = weightDiff;
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
 
+
+    if(inititalSide >= 14) {
+        return;
+    }
+
     while(weightCounter > 0 && loopCounter < MAX_LEARNING_LOOPS)
     {
         loopCounter++;
 
-        if(inititalSide >= 14) {
-            return;
-        }
+        // choose next-side
         const uint8_t nextSide = m_nextChooser->getNextCluster(cluster->getNeighbors(), inititalSide);
+
+        // choose weight-part
         float partitialWeight = randFloat(weightDiff);
         if(partitialWeight > weightCounter) {
             partitialWeight = weightCounter;
@@ -81,32 +147,33 @@ void ClusterProcessing::initLearing(EdgeCluster *cluster,
         if(nextSide == 2 || nextSide == 3 | nextSide == 4 ||
                 nextSide == 11 || nextSide == 12 || nextSide == 13)
         {
-            if(currentSection->forwardEdges[nextSide].targetId == 0)
-            {
-                currentSection->forwardEdges[nextSide].targetId = SPECIAL_STATE;
-                currentSection->forwardEdges[nextSide].weight = partitialWeight;
-
-                KyoChanLearingEdgeContainer newEdge;
-                newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
-                newEdge.weight = partitialWeight;
-
-                outgoBuffer->addLearingEdge(nextSide, &newEdge);
-                currentSection->setPedingBit(nextSide);
-            }
-            else
-            {
-                currentSection->forwardEdges[nextSide].weight += partitialWeight;
-            }
+            learningExternalForwardEdge(currentSection,
+                                        forwardEdgeSectionId,
+                                        nextSide,
+                                        partitialWeight,
+                                        outgoBuffer);
             weightCounter -= partitialWeight;
+            continue;
         }
 
         // if outgoing
-        if(nextSide == 15 && currentSection->forwardEdges[nextSide].targetId == 0) {
-            currentSection->forwardEdges[nextSide].weight += partitialWeight;
+        if(nextSide == 15)
+        {
+            if(currentSection->updateWeight(nextSide, partitialWeight)) {
+                weightCounter -= partitialWeight;
+            }
+            continue;
         }
         // if the same cluster
-        if(nextSide == 1 && cluster->getClusterType() == NODE_CLUSTER)
+        if(nextSide == 1
+                && m_activeNodes->numberOfActiveNodes > 0
+                && cluster->getClusterType() == NODE_CLUSTER)
         {
+            learningInternalForwardEdge(currentSection,
+                                        cluster,
+                                        partitialWeight);
+            weightCounter -= partitialWeight;
+            continue;
         }
     }
 }
@@ -119,7 +186,7 @@ void ClusterProcessing::initLearing(EdgeCluster *cluster,
   * @param outgoBuffer
   */
  void ClusterProcessing::processEdgeForwardSection(EdgeCluster *cluster,
-                                                   uint32_t forwardEdgeSectionId,
+                                                   const uint32_t forwardEdgeSectionId,
                                                    const float weight,
                                                    const uint8_t inititalSide,
                                                    OutgoingMessageBuffer* outgoBuffer)
@@ -148,11 +215,20 @@ void ClusterProcessing::initLearing(EdgeCluster *cluster,
         {
             if(forwardEdge->weight != 0.0)
             {
-                KyoChanForwardEdgeContainer newEdge;
-                newEdge.targetEdgeSectionId = forwardEdge->targetId;
-                newEdge.weight = forwardEdge->weight * weight;
-                outgoBuffer->addForwardEdge(sideCounter, &newEdge);
-
+                if(sideCounter != 1) {
+                    KyoChanForwardEdgeContainer newEdge;
+                    newEdge.targetEdgeSectionId = forwardEdge->targetId;
+                    newEdge.weight = forwardEdge->weight * weight;
+                    outgoBuffer->addForwardEdge(sideCounter, &newEdge);
+                }
+                else {
+                    if(cluster->getClusterType() == NODE_CLUSTER) {
+                        NodeCluster* nodeCluster = (NodeCluster*)cluster;
+                        processEdgeSection(&(nodeCluster->getEdgeSectionBlock()[forwardEdge->targetId]),
+                                           forwardEdge->weight,
+                                           nodeCluster->getNodeBlock());
+                    }
+                }
             }
             currentSection->zeroPendingBit(sideCounter);
             sideCounter++;

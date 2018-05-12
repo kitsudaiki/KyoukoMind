@@ -29,6 +29,7 @@
 #define MAX_PENDING_VALID_CYCLES 20
 
 #define SPECIAL_STATE 0xFFFFFFFF
+#define OVERPROVISIONING 2
 
 // processing-variables
 #define POSSIBLE_NEXT_AXON_STEP 0

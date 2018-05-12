@@ -173,9 +173,7 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
 
     // get section and add the new edge
     KyoChanEdgeSection* edgeSection = &getEdgeSectionBlock()[edgeSectionId];
-    edgeSection->addEdge(newEdge);
-
-    return true;
+    return edgeSection->addEdge(newEdge);
 }
 
 /**
