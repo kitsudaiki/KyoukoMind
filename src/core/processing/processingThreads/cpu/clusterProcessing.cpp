@@ -211,17 +211,23 @@ void ClusterProcessing::initLearing(EdgeCluster *cluster,
         {
             if(forwardEdge->weight != 0.0)
             {
-                if(sideCounter != 1) {
+                if(sideCounter >= 2 && sideCounter <= 13) {
                     KyoChanForwardEdgeContainer newEdge;
                     newEdge.targetEdgeSectionId = forwardEdge->targetId;
                     newEdge.weight = forwardEdge->weight * weight;
                     outgoBuffer->addForwardEdge(sideCounter, &newEdge);
                 }
-                else {
+                if(sideCounter == 14) {
                     KyoChanEdgeContainer newEdge;
                     newEdge.targetEdgeSectionId = forwardEdge->targetId;
                     newEdge.weight = forwardEdge->weight * weight;
                     outgoBuffer->addEdge(sideCounter, &newEdge);
+                }
+                if(sideCounter == 15) {
+                    KyoChanDirectEdgeContainer newEdge;
+                    newEdge.targetNodeId = (int16_t)forwardEdge->targetId;
+                    newEdge.weight = forwardEdge->weight * weight;
+                    outgoBuffer->addDirectEdge(sideCounter, &newEdge);
                 }
             }
             currentSection->zeroPendingBit(sideCounter);
