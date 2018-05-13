@@ -101,6 +101,10 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
         {
             switch((int)(*data))
             {
+                case EDGE_CONTAINER:
+                    m_messageProcessing->processEdge(data, cluster);
+                    data += sizeof(KyoChanEdgeContainer);
+                    break;
                 case DIRECT_EDGE_CONTAINER:
                     m_messageProcessing->processDirectEdge(data, cluster);
                     data += sizeof(KyoChanDirectEdgeContainer);

@@ -12,6 +12,19 @@
 
 #include <common.h>
 
+
+/**
+ * @brief The KyoChanEdgeContainer struct
+ */
+struct KyoChanEdgeContainer
+{
+    uint8_t type = EDGE_CONTAINER;
+
+    float weight = 0.0;
+    uint32_t targetEdgeSectionId = 0;
+
+} __attribute__((packed));
+
 /**
  * @brief The KyoChanEdgeForewardContainer struct
  */

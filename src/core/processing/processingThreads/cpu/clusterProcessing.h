@@ -39,9 +39,9 @@ public:
                                    const float weight,
                                    const uint8_t inititalSide,
                                    OutgoingMessageBuffer *outgoBuffer);
-    void processEdgeSection(KyoChanEdgeSection *currentSection,
-                            const float weight,
-                            KyoChanNode *nodes);
+    void processEdgeSection(NodeCluster *cluster,
+                            uint32_t edgeSectionId,
+                            const float weight);
 
 private:
     NextChooser* m_nextChooser = nullptr;

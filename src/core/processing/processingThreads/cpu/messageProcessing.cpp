@@ -38,6 +38,23 @@ MessageProcessing::MessageProcessing(ClusterProcessing* clusterProcessing)
 }
 
 /**
+ * @brief MessageProcessing::processEdge
+ * @param data
+ * @param cluster
+ */
+void MessageProcessing::processEdge(uint8_t *data, EdgeCluster *cluster)
+{
+    OUTPUT("---")
+    OUTPUT("processEdge")
+    KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data;
+    if(cluster->getClusterType() == NODE_CLUSTER) {
+        m_clusterProcessing->processEdgeSection((NodeCluster*)cluster,
+                                                edge->targetEdgeSectionId,
+                                                edge->weight);
+    }
+}
+
+/**
  * @brief ClusterProcessing::processIncomDirectEdge
  * @param data
  * @param cluster

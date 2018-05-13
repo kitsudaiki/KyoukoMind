@@ -61,6 +61,17 @@ inline void DataMessage::copyToBuffer(void *data, const uint8_t size)
 }
 
 /**
+ * @brief DataMessage::addEdge
+ * @param newEdge
+ */
+void DataMessage::addEdge(const KyoChanEdgeContainer *newEdge)
+{
+    const uint8_t size = sizeof(KyoChanEdgeContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdge, size);
+}
+
+/**
  * @brief DataMessage::addDirectEdge
  * @param newEdge
  */

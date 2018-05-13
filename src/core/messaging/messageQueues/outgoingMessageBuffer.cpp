@@ -53,6 +53,23 @@ bool OutgoingMessageBuffer::updateBufferInit()
 }
 
 /**
+ * @brief OutgoingMessageBuffer::addEdge
+ * @param sourceSite
+ * @param edge
+ * @return
+ */
+bool OutgoingMessageBuffer::addEdge(const uint8_t sourceSite,
+                                    const KyoChanEdgeContainer *edge)
+{
+    OUTPUT("    > add edge-container")
+    if(sourceSite < 16) {
+        m_dataMessageBuffer[sourceSite]->addEdge(edge);
+        return true;
+    }
+    return false;
+}
+
+/**
  * @brief OutgoingMessageBuffer::addDirectEdge
  * @param targetSite
  * @param newEdge

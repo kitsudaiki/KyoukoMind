@@ -26,6 +26,8 @@ public:
     OutgoingMessageBuffer(EdgeCluster *cluster,
                           MessageController *controller);
 
+    bool addEdge(const uint8_t sourceSite,
+                 const KyoChanEdgeContainer *edge);
     bool addDirectEdge(const uint8_t sourceSite,
                        const KyoChanDirectEdgeContainer *edge);
     bool addForwardEdge(const uint8_t sourceSite,
