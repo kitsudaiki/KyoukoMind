@@ -58,12 +58,12 @@ bool OutgoingMessageBuffer::updateBufferInit()
  * @param edge
  * @return
  */
-bool OutgoingMessageBuffer::addEdge(const uint8_t sourceSite,
-                                    const KyoChanEdgeContainer *edge)
+bool OutgoingMessageBuffer::addInternalEdge(const uint8_t sourceSite,
+                                    const KyoChanInternalEdgeContainer *edge)
 {
-    OUTPUT("    > add edge-container")
+    OUTPUT("    > add internal-edge-container")
     if(sourceSite < 16) {
-        m_dataMessageBuffer[sourceSite]->addEdge(edge);
+        m_dataMessageBuffer[sourceSite]->addInternalEdge(edge);
         return true;
     }
     return false;

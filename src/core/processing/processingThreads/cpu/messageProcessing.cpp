@@ -38,15 +38,16 @@ MessageProcessing::MessageProcessing(ClusterProcessing* clusterProcessing)
 }
 
 /**
- * @brief MessageProcessing::processEdge
+ * @brief MessageProcessing::processInternalEdge
  * @param data
  * @param cluster
  */
-void MessageProcessing::processEdge(uint8_t *data, EdgeCluster *cluster)
+void MessageProcessing::processInternalEdge(uint8_t *data,
+                                            EdgeCluster *cluster)
 {
     OUTPUT("---")
     OUTPUT("processEdge")
-    KyoChanEdgeContainer* edge = (KyoChanEdgeContainer*)data;
+    KyoChanInternalEdgeContainer* edge = (KyoChanInternalEdgeContainer*)data;
     if(cluster->getClusterType() == NODE_CLUSTER) {
         m_clusterProcessing->processEdgeSection((NodeCluster*)cluster,
                                                 edge->targetEdgeSectionId,

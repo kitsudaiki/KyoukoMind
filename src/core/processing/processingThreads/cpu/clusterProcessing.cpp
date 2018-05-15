@@ -218,10 +218,10 @@ void ClusterProcessing::initLearing(EdgeCluster *cluster,
                     outgoBuffer->addForwardEdge(sideCounter, &newEdge);
                 }
                 if(sideCounter == 14) {
-                    KyoChanEdgeContainer newEdge;
+                    KyoChanInternalEdgeContainer newEdge;
                     newEdge.targetEdgeSectionId = forwardEdge->targetId;
                     newEdge.weight = forwardEdge->weight * weight;
-                    outgoBuffer->addEdge(sideCounter, &newEdge);
+                    outgoBuffer->addInternalEdge(sideCounter, &newEdge);
                 }
                 if(sideCounter == 15) {
                     KyoChanDirectEdgeContainer newEdge;

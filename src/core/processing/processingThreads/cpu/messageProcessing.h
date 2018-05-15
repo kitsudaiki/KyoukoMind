@@ -25,8 +25,8 @@ class MessageProcessing
 public:
     MessageProcessing(ClusterProcessing* clusterProcessing);
 
-    void processEdge(uint8_t *data,
-                     EdgeCluster* cluster);
+    void processInternalEdge(uint8_t *data,
+                             EdgeCluster* cluster);
     void processDirectEdge(uint8_t *data,
                            EdgeCluster* cluster);
     void processAxonEdge(uint8_t *data,

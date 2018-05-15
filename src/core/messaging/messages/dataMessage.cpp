@@ -64,9 +64,9 @@ inline void DataMessage::copyToBuffer(void *data, const uint8_t size)
  * @brief DataMessage::addEdge
  * @param newEdge
  */
-void DataMessage::addEdge(const KyoChanEdgeContainer *newEdge)
+void DataMessage::addInternalEdge(const KyoChanInternalEdgeContainer *newEdge)
 {
-    const uint8_t size = sizeof(KyoChanEdgeContainer);
+    const uint8_t size = sizeof(KyoChanInternalEdgeContainer);
     checkBuffer(size);
     copyToBuffer((void*)newEdge, size);
 }

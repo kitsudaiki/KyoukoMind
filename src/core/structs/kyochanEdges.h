@@ -87,6 +87,23 @@ struct KyoChanEdgeSection
 {
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
     uint32_t numberOfEdges = 0;
+    float totalWeight = 0.0;
+
+    /**
+     * @brief updateWeight
+     * @param pos
+     * @param weight
+     * @return
+     */
+    bool updateWeight(const uint8_t pos, const float weight)
+    {
+        if(pos >= numberOfEdges) {
+            return false;
+        }
+        edges[pos].weight += weight;
+        totalWeight += weight;
+        return true;
+    }
 
     /**
      * @brief isFull

@@ -16,9 +16,9 @@
 /**
  * @brief The KyoChanEdgeContainer struct
  */
-struct KyoChanEdgeContainer
+struct KyoChanInternalEdgeContainer
 {
-    uint8_t type = EDGE_CONTAINER;
+    uint8_t type = INTERNAL_EDGE_CONTAINER;
 
     float weight = 0.0;
     uint32_t targetEdgeSectionId = 0;
