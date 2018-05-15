@@ -203,15 +203,16 @@ void ClusterProcessing::initLearing(EdgeCluster *cluster,
         }
 
         // normal processing
-        uint8_t sideCounter = 0;
+        uint8_t sideCounter = 2;
+        KyoChanForwardEdge* forwardStart = currentSection->forwardEdges + sideCounter;
         KyoChanForwardEdge* forwardEnd = currentSection->forwardEdges + 16;
-        for(KyoChanForwardEdge* forwardEdge = currentSection->forwardEdges;
+        for(KyoChanForwardEdge* forwardEdge = forwardStart;
             forwardEdge < forwardEnd;
             forwardEdge++)
         {
             if(forwardEdge->weight != 0.0)
             {
-                if(sideCounter >= 2 && sideCounter <= 13) {
+                if(sideCounter <= 13) {
                     KyoChanForwardEdgeContainer newEdge;
                     newEdge.targetEdgeSectionId = forwardEdge->targetId;
                     newEdge.weight = forwardEdge->weight * weight;
@@ -254,6 +255,7 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
         KyoChanEdgeSection* currentSection = &(cluster->getEdgeSectionBlock()[edgeSectionId]);
         KyoChanNode* nodes = cluster->getNodeBlock();
         KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
+
         for(KyoChanEdge* edge = currentSection->edges;
             edge < end;
             edge++)

@@ -16,19 +16,14 @@
 
 namespace KyoukoMind
 {
-class Message;
-class DataMessage;
-class ReplyMessage;
-
 class EdgeCluster;
-
 class MessageController;
 
 class MessageBuffer
 {
 public:
     MessageBuffer(EdgeCluster *cluster,
-                 MessageController *controller);
+                  MessageController *controller);
 
 protected:
     EdgeCluster* m_cluster;

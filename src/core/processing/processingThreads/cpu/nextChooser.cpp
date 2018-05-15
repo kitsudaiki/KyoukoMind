@@ -75,15 +75,6 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         m_possibleNext[5].neighbor = allNeighbors[13];
         m_numberOfNext = 6;
         break;
-    case 1:
-        m_possibleNext[0].neighbor = allNeighbors[2];
-        m_possibleNext[1].neighbor = allNeighbors[3];
-        m_possibleNext[2].neighbor = allNeighbors[4];
-        m_possibleNext[3].neighbor = allNeighbors[11];
-        m_possibleNext[4].neighbor = allNeighbors[12];
-        m_possibleNext[5].neighbor = allNeighbors[13];
-        m_numberOfNext = 6;
-        break;
     case 2:
         m_possibleNext[0].neighbor = allNeighbors[4];
         m_possibleNext[1].neighbor = allNeighbors[12];
@@ -119,15 +110,6 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         m_possibleNext[1].neighbor = allNeighbors[2];
         m_possibleNext[2].neighbor = allNeighbors[3];
         m_numberOfNext = 3;
-        break;
-    case 14:
-        m_possibleNext[0].neighbor = allNeighbors[2];
-        m_possibleNext[1].neighbor = allNeighbors[3];
-        m_possibleNext[2].neighbor = allNeighbors[4];
-        m_possibleNext[3].neighbor = allNeighbors[11];
-        m_possibleNext[4].neighbor = allNeighbors[12];
-        m_possibleNext[5].neighbor = allNeighbors[13];
-        m_numberOfNext = 6;
         break;
     default:
         break;

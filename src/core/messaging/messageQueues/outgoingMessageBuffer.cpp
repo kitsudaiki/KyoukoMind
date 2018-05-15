@@ -59,7 +59,7 @@ bool OutgoingMessageBuffer::updateBufferInit()
  * @return
  */
 bool OutgoingMessageBuffer::addInternalEdge(const uint8_t sourceSite,
-                                    const KyoChanInternalEdgeContainer *edge)
+                                            const KyoChanInternalEdgeContainer *edge)
 {
     OUTPUT("    > add internal-edge-container")
     if(sourceSite < 16) {
