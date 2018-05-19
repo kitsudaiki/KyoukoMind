@@ -28,12 +28,6 @@ public:
     ClusterProcessing(NextChooser* nextChooser,
                       PossibleKyoChanNodes* activeNodes);
 
-    void initLearing(EdgeCluster *cluster,
-                     const uint32_t forwardEdgeSectionId,
-                     const uint8_t inititalSide,
-                     const float weightDiff,
-                     OutgoingMessageBuffer* outgoBuffer);
-
     void processEdgeForwardSection(EdgeCluster *cluster,
                                    const uint32_t forwardEdgeSectionId,
                                    const float weight,
@@ -48,14 +42,14 @@ private:
     PossibleKyoChanNodes* m_activeNodes = nullptr;
 
     float randFloat(const float b);
-    void learningExternalForwardEdge(KyoChanForwardEdgeSection *currentSection,
-                                     const uint32_t forwardEdgeSectionId,
-                                     const uint8_t side,
-                                     const float partitialWeight,
-                                     OutgoingMessageBuffer *outgoBuffer);
-    void learningInternalForwardEdge(KyoChanForwardEdgeSection *currentSection,
-                                     EdgeCluster *cluster,
-                                     const float partitialWeight);
+    void learningForwardEdgeSection(EdgeCluster *cluster,
+                                    KyoChanForwardEdgeSection *currentSection,
+                                    const uint32_t forwardEdgeSectionId,
+                                    const uint8_t inititalSide,
+                                    const float partitialWeight,
+                                    OutgoingMessageBuffer *outgoBuffer);
+    void learningEdgeSection(KyoChanEdgeSection *currentSection,
+                             const float partitialWeight);
 };
 
 }

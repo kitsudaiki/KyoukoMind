@@ -14,6 +14,8 @@
 
 namespace KyoukoMind
 {
+class Message;
+class DataMessage;
 class EdgeCluster;
 class MessageController;
 
