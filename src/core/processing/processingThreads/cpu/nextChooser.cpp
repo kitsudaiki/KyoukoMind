@@ -74,51 +74,69 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         m_possibleNext[13] = 1.0;
         break;
     case 2:
-        m_possibleNext[4] = allNeighbors[4].distantToNextNodeCluster
+        m_possibleNext[4] = MAX_DISTANCE
+                - allNeighbors[4].distantToNextNodeCluster
                 + allNeighbors[4].activeNodesInNextNodeCluster;
-        m_possibleNext[12] = allNeighbors[12].distantToNextNodeCluster
+        m_possibleNext[12] = MAX_DISTANCE
+                - allNeighbors[12].distantToNextNodeCluster
                 + allNeighbors[12].activeNodesInNextNodeCluster;
-        m_possibleNext[13] = allNeighbors[13].distantToNextNodeCluster
+        m_possibleNext[13] = MAX_DISTANCE
+                - allNeighbors[13].distantToNextNodeCluster
                 + allNeighbors[13].activeNodesInNextNodeCluster;
         break;
     case 3:
-        m_possibleNext[11] = allNeighbors[11].distantToNextNodeCluster
+        m_possibleNext[11] = MAX_DISTANCE
+                - allNeighbors[11].distantToNextNodeCluster
                 + allNeighbors[11].activeNodesInNextNodeCluster;
-        m_possibleNext[12] = allNeighbors[12].distantToNextNodeCluster
+        m_possibleNext[12] = MAX_DISTANCE
+                - allNeighbors[12].distantToNextNodeCluster
                 + allNeighbors[12].activeNodesInNextNodeCluster;
-        m_possibleNext[13] = allNeighbors[13].distantToNextNodeCluster
+        m_possibleNext[13] = MAX_DISTANCE
+                - allNeighbors[13].distantToNextNodeCluster
                 + allNeighbors[13].activeNodesInNextNodeCluster;
         break;
     case 4:
-        m_possibleNext[2] = allNeighbors[2].distantToNextNodeCluster
+        m_possibleNext[2] = MAX_DISTANCE
+                - allNeighbors[2].distantToNextNodeCluster
                 + allNeighbors[2].activeNodesInNextNodeCluster;
-        m_possibleNext[11] = allNeighbors[11].distantToNextNodeCluster
+        m_possibleNext[11] = MAX_DISTANCE
+                - allNeighbors[11].distantToNextNodeCluster
                 + allNeighbors[11].activeNodesInNextNodeCluster;
-        m_possibleNext[12] = allNeighbors[12].distantToNextNodeCluster
+        m_possibleNext[12] = MAX_DISTANCE
+                - allNeighbors[12].distantToNextNodeCluster
                 + allNeighbors[12].activeNodesInNextNodeCluster;
         break;
     case 11:
-        m_possibleNext[3] = allNeighbors[3].distantToNextNodeCluster
+        m_possibleNext[3] = MAX_DISTANCE
+                - allNeighbors[3].distantToNextNodeCluster
                 + allNeighbors[3].activeNodesInNextNodeCluster;
-        m_possibleNext[4] = allNeighbors[4].distantToNextNodeCluster
+        m_possibleNext[4] = MAX_DISTANCE
+                - allNeighbors[4].distantToNextNodeCluster
                 + allNeighbors[4].activeNodesInNextNodeCluster;
-        m_possibleNext[13] = allNeighbors[13].distantToNextNodeCluster
+        m_possibleNext[13] = MAX_DISTANCE
+                - allNeighbors[13].distantToNextNodeCluster
                 + allNeighbors[13].activeNodesInNextNodeCluster;
         break;
     case 12:
-        m_possibleNext[2] = allNeighbors[2].distantToNextNodeCluster
+        m_possibleNext[2] = MAX_DISTANCE
+                - allNeighbors[2].distantToNextNodeCluster
                 + allNeighbors[2].activeNodesInNextNodeCluster;
-        m_possibleNext[3] = allNeighbors[3].distantToNextNodeCluster
+        m_possibleNext[3] = MAX_DISTANCE
+                - allNeighbors[3].distantToNextNodeCluster
                 + allNeighbors[3].activeNodesInNextNodeCluster;
-        m_possibleNext[4] = allNeighbors[4].distantToNextNodeCluster
+        m_possibleNext[4] = MAX_DISTANCE
+                - allNeighbors[4].distantToNextNodeCluster
                 + allNeighbors[4].activeNodesInNextNodeCluster;
         break;
     case 13:
-        m_possibleNext[11] = allNeighbors[11].distantToNextNodeCluster
+        m_possibleNext[11] = MAX_DISTANCE
+                - allNeighbors[11].distantToNextNodeCluster
                 + allNeighbors[11].activeNodesInNextNodeCluster;
-        m_possibleNext[2] = allNeighbors[2].distantToNextNodeCluster
+        m_possibleNext[2] = MAX_DISTANCE
+                - allNeighbors[2].distantToNextNodeCluster
                 + allNeighbors[2].activeNodesInNextNodeCluster;
-        m_possibleNext[3] = allNeighbors[3].distantToNextNodeCluster
+        m_possibleNext[3] = MAX_DISTANCE
+                - allNeighbors[3].distantToNextNodeCluster
                 + allNeighbors[3].activeNodesInNextNodeCluster;
         break;
     default:
@@ -161,7 +179,7 @@ uint8_t NextChooser::chooseNeighbor(const float totalProbability,
     for(uint8_t i = 0; i < 16; i++)
     {
         probability += m_possibleNext[i];
-        if(probability >= randVal) {
+        if(probability >= (float)randVal) {
             return i;
         }
     }
