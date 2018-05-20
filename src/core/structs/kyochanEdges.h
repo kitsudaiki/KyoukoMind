@@ -19,6 +19,27 @@ struct KyoChanForwardEdge
 {
     float weight = 0.0;
     uint32_t targetId = 0;
+    uint16_t memorize = 0xFF;
+
+    /**
+     * @brief updateMemorize
+     * @param diff
+     */
+    void updateMemorize(const uint16_t diff) {
+        if((uint32_t)memorize + (uint32_t)diff > 0xFFFF) {
+            memorize = 0xFFFF;
+            return;
+        }
+        memorize += diff;
+    }
+
+    /**
+     * @brief memorizeWeight
+     */
+    void memorizeWeight() {
+        weight *= std::tanh((4.0 / (double)0xFFFF) * (double)memorize);
+    }
+
 } __attribute__((packed));
 
 /**
@@ -28,6 +49,27 @@ struct KyoChanEdge
 {
     float weight = 0.0;
     uint16_t targetNodeId = 0;
+    uint16_t memorize = 0xFF;
+
+    /**
+     * @brief updateMemorize
+     * @param diff
+     */
+    void updateMemorize(const uint16_t diff) {
+        if((uint32_t)memorize + (uint32_t)diff > 0xFFFF) {
+            memorize = 0xFFFF;
+            return;
+        }
+        memorize += diff;
+    }
+
+    /**
+     * @brief memorizeWeight
+     */
+    void memorizeWeight() {
+        weight *= std::tanh((4.0 / (double)0xFFFF) * (double)memorize);
+    }
+
 } __attribute__((packed));
 
 /**
@@ -38,25 +80,6 @@ struct KyoChanForwardEdgeSection
     KyoChanForwardEdge forwardEdges[16];
     uint16_t pendingEdges = 0;
     float totalWeight = 0.0;
-    float memorize = 1.0;
-
-    /**
-     * @brief updateMemorize
-     * @param diff
-     */
-    void updateMemorize(const float diff) {
-        memorize += diff;
-        if(memorize < 0.0f) {
-            memorize = 0.0f;
-        }
-    }
-
-    /**
-     * @brief memorizeWeight
-     */
-    void memorizeWeight() {
-        totalWeight *= std::tanh(memorize);
-    }
 
     /**
      * @brief updateWeight
@@ -107,25 +130,6 @@ struct KyoChanEdgeSection
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
     uint32_t numberOfEdges = 0;
     float totalWeight = 0.0;
-    float memorize = 1.0;
-
-    /**
-     * @brief updateMemorize
-     * @param diff
-     */
-    void updateMemorize(const float diff) {
-        memorize += diff;
-        if(memorize < 0.0f) {
-            memorize = 0.0f;
-        }
-    }
-
-    /**
-     * @brief memorizeWeight
-     */
-    void memorizeWeight() {
-        totalWeight *= std::tanh(memorize);
-    }
 
     /**
      * @brief updateWeight
