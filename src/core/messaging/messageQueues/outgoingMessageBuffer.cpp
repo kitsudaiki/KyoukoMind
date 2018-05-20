@@ -53,6 +53,23 @@ bool OutgoingMessageBuffer::updateBufferInit()
 }
 
 /**
+ * @brief OutgoingMessageBuffer::addStatusEdge
+ * @param sourceSite
+ * @param edge
+ * @return
+ */
+bool OutgoingMessageBuffer::addStatusEdge(const uint8_t sourceSite,
+                                          const KyoChanStatusEdgeContainer *edge)
+{
+    OUTPUT("    > add status-edge-container")
+    if(sourceSite < 16) {
+        m_dataMessageBuffer[sourceSite]->addStatusEdge(edge);
+        return true;
+    }
+    return false;
+}
+
+/**
  * @brief OutgoingMessageBuffer::addEdge
  * @param sourceSite
  * @param edge
@@ -133,7 +150,7 @@ bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSite,
 {
     OUTPUT("    > add learing-edge-container")
     if(sourceSite <= 16) {
-        m_dataMessageBuffer[sourceSite]->addNewEdge(newEdge);
+        m_dataMessageBuffer[sourceSite]->addLearningEdge(newEdge);
         return true;
     }
     return false;
@@ -149,7 +166,7 @@ bool OutgoingMessageBuffer::addLearningReplyMessage(const uint8_t sourceSite,
 {
     OUTPUT("    > add learning-reply-edge-container")
     if(sourceSite <= 16) {
-        m_dataMessageBuffer[sourceSite]->addNewEdgeReply(newEdgeReply);
+        m_dataMessageBuffer[sourceSite]->addLearningReplyEdgeReply(newEdgeReply);
         return true;
     }
     return false;

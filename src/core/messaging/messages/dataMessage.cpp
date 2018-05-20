@@ -61,6 +61,17 @@ inline void DataMessage::copyToBuffer(void *data, const uint8_t size)
 }
 
 /**
+ * @brief DataMessage::addStatusEdge
+ * @param newEdge
+ */
+void DataMessage::addStatusEdge(const KyoChanStatusEdgeContainer *newEdge)
+{
+    const uint8_t size = sizeof(KyoChanStatusEdgeContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdge, size);
+}
+
+/**
  * @brief DataMessage::addEdge
  * @param newEdge
  */
@@ -108,7 +119,7 @@ void DataMessage::addAxonEdge(const KyoChanAxonEdgeContainer* newAxonEdge)
  * @brief DataMessage::addNewEdge
  * @param newEdge
  */
-void DataMessage::addNewEdge(const KyoChanLearingEdgeContainer *newEdge)
+void DataMessage::addLearningEdge(const KyoChanLearingEdgeContainer *newEdge)
 {
     const uint8_t size = sizeof(KyoChanLearingEdgeContainer);
     checkBuffer(size);
@@ -119,7 +130,7 @@ void DataMessage::addNewEdge(const KyoChanLearingEdgeContainer *newEdge)
  * @brief DataMessage::addNewEdgeReply
  * @param newEdgeReply
  */
-void DataMessage::addNewEdgeReply(const KyoChanLearningEdgeReplyContainer *newEdgeReply)
+void DataMessage::addLearningReplyEdgeReply(const KyoChanLearningEdgeReplyContainer *newEdgeReply)
 {
     const uint8_t size = sizeof(KyoChanLearningEdgeReplyContainer);
     checkBuffer(size);

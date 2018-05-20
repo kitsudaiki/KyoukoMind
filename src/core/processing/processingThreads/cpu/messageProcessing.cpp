@@ -38,6 +38,28 @@ MessageProcessing::MessageProcessing(ClusterProcessing* clusterProcessing)
 }
 
 /**
+ * @brief MessageProcessing::processStatusEdge
+ * @param data
+ * @param initialSide
+ * @param cluster
+ * @param outgoBuffer
+ */
+void MessageProcessing::processStatusEdge(uint8_t *data,
+                                          const uint8_t initialSide,
+                                          EdgeCluster *cluster,
+                                          OutgoingMessageBuffer *outgoBuffer)
+{
+    OUTPUT("---")
+    OUTPUT("processStatusEdge")
+    KyoChanStatusEdgeContainer* edge = (KyoChanStatusEdgeContainer*)data;
+    m_clusterProcessing->updateEdgeForwardSection(cluster,
+                                                  edge->targetId,
+                                                  edge->status,
+                                                  initialSide,
+                                                  outgoBuffer);
+}
+
+/**
  * @brief MessageProcessing::processInternalEdge
  * @param data
  * @param cluster

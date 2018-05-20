@@ -25,7 +25,7 @@ struct KyoChanForwardEdge
      * @brief updateMemorize
      * @param diff
      */
-    void updateMemorize(const uint16_t diff) {
+    void updateMemorize(const int16_t diff) {
         if((uint32_t)memorize + (uint32_t)diff > 0xFFFF) {
             memorize = 0xFFFF;
             return;
@@ -55,7 +55,7 @@ struct KyoChanEdge
      * @brief updateMemorize
      * @param diff
      */
-    void updateMemorize(const uint16_t diff) {
+    void updateMemorize(const int16_t diff) {
         if((uint32_t)memorize + (uint32_t)diff > 0xFFFF) {
             memorize = 0xFFFF;
             return;
@@ -78,8 +78,11 @@ struct KyoChanEdge
 struct KyoChanForwardEdgeSection
 {
     KyoChanForwardEdge forwardEdges[16];
+    uint8_t numberOfActiveEdges = 0;
     uint16_t pendingEdges = 0;
     float totalWeight = 0.0;
+    uint8_t sourceSide = 0;
+    uint32_t sourceId = 0;
 
     /**
      * @brief updateWeight
@@ -130,6 +133,7 @@ struct KyoChanEdgeSection
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
     uint32_t numberOfEdges = 0;
     float totalWeight = 0.0;
+    uint32_t sourceId = 0;
 
     /**
      * @brief updateWeight

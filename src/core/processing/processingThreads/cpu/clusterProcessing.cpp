@@ -49,6 +49,35 @@ inline float ClusterProcessing::randFloat(const float b)
 }
 
 /**
+ * @brief ClusterProcessing::updateEdgeForwardSection
+ * @param cluster
+ * @param forwardEdgeSectionId
+ * @param status
+ * @param inititalSide
+ * @param outgoBuffer
+ */
+void ClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster,
+                                                 const uint32_t forwardEdgeSectionId,
+                                                 const int16_t status,
+                                                 const uint8_t inititalSide,
+                                                 OutgoingMessageBuffer *outgoBuffer)
+{
+    OUTPUT("---")
+    OUTPUT("updateEdgeForwardSection")
+    KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
+    currentSection->forwardEdges[inititalSide].updateMemorize(status);
+
+    if(currentSection->numberOfActiveEdges == 0) {
+        return;
+    }
+
+    KyoChanStatusEdgeContainer newEdge;
+    newEdge.status = status / currentSection->numberOfActiveEdges;
+    newEdge.targetId = currentSection->sourceId;
+    outgoBuffer->addStatusEdge(currentSection->sourceSide, &newEdge);
+}
+
+/**
  * @brief ClusterProcessing::learningForwardEdgeSection
  * @param currentSection
  * @param side

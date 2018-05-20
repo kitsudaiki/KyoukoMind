@@ -25,6 +25,10 @@ class MessageProcessing
 public:
     MessageProcessing(ClusterProcessing* clusterProcessing);
 
+    void processStatusEdge(uint8_t *data,
+                           const uint8_t initialSide,
+                           EdgeCluster* cluster,
+                           OutgoingMessageBuffer *outgoBuffer);
     void processInternalEdge(uint8_t *data,
                              EdgeCluster* cluster);
     void processDirectEdge(uint8_t *data,

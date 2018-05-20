@@ -28,6 +28,11 @@ public:
     ClusterProcessing(NextChooser* nextChooser,
                       PossibleKyoChanNodes* activeNodes);
 
+    void updateEdgeForwardSection(EdgeCluster *cluster,
+                                  const uint32_t forwardEdgeSectionId,
+                                  const int16_t status,
+                                  const uint8_t inititalSide,
+                                  OutgoingMessageBuffer *outgoBuffer);
     void processEdgeForwardSection(EdgeCluster *cluster,
                                    const uint32_t forwardEdgeSectionId,
                                    const float weight,
