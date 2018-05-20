@@ -17,42 +17,40 @@ namespace KyoukoMind
  */
 NextChooser::NextChooser()
 {
-    init();
-}
-
-/**
- * @brief NextChooser::init
- */
-void NextChooser::init()
-{
-    PossibleNext temp;
-    for(int i = 0; i < 0xF; i++) {
-        m_possibleNext[i] = temp;
-    }
 }
 
 /**
  * @brief NextChooser::getNextCluster
  * @param allNeighbors
  * @param initialSite
- * @param whichoutProbability
  * @return
  */
 uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
                                     const uint8_t initialSite,
                                     bool whichoutProbability)
 {
+
     if(initialSite > 0xF || allNeighbors == nullptr) {
         return 0xFF;
     }
 
-    getPossibleNeighbors(allNeighbors, initialSite);
+    float possibleNext[16];
+    for(uint8_t i = 0; i < 16; i++) {
+        possibleNext[i] = 0.0;
+    }
 
-    float totalProbability = calculatePossebilities(whichoutProbability);
+    getPossibleNeighbors(allNeighbors, initialSite, possibleNext);
+
+    float totalProbability = calculatePossebilities(whichoutProbability,
+                                                    possibleNext);
     if(totalProbability == 0.0) {
         return initialSite;
     }
-    return chooseNeighbor(totalProbability);
+    uint choise = chooseNeighbor(totalProbability, possibleNext);
+    if(choise == 0){
+        return initialSite;
+    }
+    return choise;
 }
 
 
@@ -62,54 +60,66 @@ uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
  * @param initialSite
  */
 void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
-                                       const uint8_t initialSite)
+                                       const uint8_t initialSite,
+                                       float *m_possibleNext)
 {
     switch((int)initialSite)
     {
     case 0:
-        m_possibleNext[0].neighbor = allNeighbors[2];
-        m_possibleNext[1].neighbor = allNeighbors[3];
-        m_possibleNext[2].neighbor = allNeighbors[4];
-        m_possibleNext[3].neighbor = allNeighbors[11];
-        m_possibleNext[4].neighbor = allNeighbors[12];
-        m_possibleNext[5].neighbor = allNeighbors[13];
-        m_numberOfNext = 6;
+        m_possibleNext[2] = 1.0;
+        m_possibleNext[3] = 1.0;
+        m_possibleNext[4] = 1.0;
+        m_possibleNext[11] = 1.0;
+        m_possibleNext[12] = 1.0;
+        m_possibleNext[13] = 1.0;
         break;
     case 2:
-        m_possibleNext[0].neighbor = allNeighbors[4];
-        m_possibleNext[1].neighbor = allNeighbors[12];
-        m_possibleNext[2].neighbor = allNeighbors[13];
-        m_numberOfNext = 3;
+        m_possibleNext[4] = allNeighbors[4].distantToNextNodeCluster
+                + allNeighbors[4].activeNodesInNextNodeCluster;
+        m_possibleNext[12] = allNeighbors[12].distantToNextNodeCluster
+                + allNeighbors[12].activeNodesInNextNodeCluster;
+        m_possibleNext[13] = allNeighbors[13].distantToNextNodeCluster
+                + allNeighbors[13].activeNodesInNextNodeCluster;
         break;
     case 3:
-        m_possibleNext[0].neighbor = allNeighbors[11];
-        m_possibleNext[1].neighbor = allNeighbors[12];
-        m_possibleNext[2].neighbor = allNeighbors[13];
-        m_numberOfNext = 3;
+        m_possibleNext[11] = allNeighbors[11].distantToNextNodeCluster
+                + allNeighbors[11].activeNodesInNextNodeCluster;
+        m_possibleNext[12] = allNeighbors[12].distantToNextNodeCluster
+                + allNeighbors[12].activeNodesInNextNodeCluster;
+        m_possibleNext[13] = allNeighbors[13].distantToNextNodeCluster
+                + allNeighbors[13].activeNodesInNextNodeCluster;
         break;
     case 4:
-        m_possibleNext[0].neighbor = allNeighbors[2];
-        m_possibleNext[1].neighbor = allNeighbors[11];
-        m_possibleNext[2].neighbor = allNeighbors[12];
-        m_numberOfNext = 3;
+        m_possibleNext[2] = allNeighbors[2].distantToNextNodeCluster
+                + allNeighbors[2].activeNodesInNextNodeCluster;
+        m_possibleNext[11] = allNeighbors[11].distantToNextNodeCluster
+                + allNeighbors[11].activeNodesInNextNodeCluster;
+        m_possibleNext[12] = allNeighbors[12].distantToNextNodeCluster
+                + allNeighbors[12].activeNodesInNextNodeCluster;
         break;
     case 11:
-        m_possibleNext[0].neighbor = allNeighbors[3];
-        m_possibleNext[1].neighbor = allNeighbors[4];
-        m_possibleNext[2].neighbor = allNeighbors[13];
-        m_numberOfNext = 3;
+        m_possibleNext[3] = allNeighbors[3].distantToNextNodeCluster
+                + allNeighbors[3].activeNodesInNextNodeCluster;
+        m_possibleNext[4] = allNeighbors[4].distantToNextNodeCluster
+                + allNeighbors[4].activeNodesInNextNodeCluster;
+        m_possibleNext[13] = allNeighbors[13].distantToNextNodeCluster
+                + allNeighbors[13].activeNodesInNextNodeCluster;
         break;
     case 12:
-        m_possibleNext[0].neighbor = allNeighbors[2];
-        m_possibleNext[1].neighbor = allNeighbors[3];
-        m_possibleNext[2].neighbor = allNeighbors[4];
-        m_numberOfNext = 3;
+        m_possibleNext[2] = allNeighbors[2].distantToNextNodeCluster
+                + allNeighbors[2].activeNodesInNextNodeCluster;
+        m_possibleNext[3] = allNeighbors[3].distantToNextNodeCluster
+                + allNeighbors[3].activeNodesInNextNodeCluster;
+        m_possibleNext[4] = allNeighbors[4].distantToNextNodeCluster
+                + allNeighbors[4].activeNodesInNextNodeCluster;
         break;
     case 13:
-        m_possibleNext[0].neighbor = allNeighbors[11];
-        m_possibleNext[1].neighbor = allNeighbors[2];
-        m_possibleNext[2].neighbor = allNeighbors[3];
-        m_numberOfNext = 3;
+        m_possibleNext[11] = allNeighbors[11].distantToNextNodeCluster
+                + allNeighbors[11].activeNodesInNextNodeCluster;
+        m_possibleNext[2] = allNeighbors[2].distantToNextNodeCluster
+                + allNeighbors[2].activeNodesInNextNodeCluster;
+        m_possibleNext[3] = allNeighbors[3].distantToNextNodeCluster
+                + allNeighbors[3].activeNodesInNextNodeCluster;
         break;
     default:
         break;
@@ -121,28 +131,19 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
  * @param totalDistance
  * @return
  */
-float NextChooser::calculatePossebilities(const bool whichoutProbability)
+float NextChooser::calculatePossebilities(bool whichoutProbability,
+                                          float *m_possibleNext)
 {
     float totalProbability = 0.0;
 
-    for(uint8_t i = 0; i < m_numberOfNext; i++)
+    for(uint8_t i = 0; i < 16; i++)
     {
-        if(whichoutProbability)
-        {
-            if(m_possibleNext[i].neighbor.neighborType == EMPTY_CLUSTER) {
-                m_possibleNext[i].probability = (float)MAX_DISTANCE / (m_numberOfNext);
-            } else {
-                m_possibleNext[i].probability = 0;
+        if(whichoutProbability) {
+            if(m_possibleNext[i] > 0.0) {
+                m_possibleNext[i] = 1.0;
             }
         }
-        else
-        {
-            m_possibleNext[i].probability =
-                (MAX_DISTANCE - m_possibleNext[i].neighbor.distantToNextNodeCluster) *
-                    m_possibleNext[i].neighbor.activeNodesInNextNodeCluster;
-        }
-
-        totalProbability += m_possibleNext[i].probability;
+        totalProbability *= m_possibleNext[i];
     }
     return totalProbability;
 }
@@ -151,19 +152,20 @@ float NextChooser::calculatePossebilities(const bool whichoutProbability)
  * @brief NextChooser::chooseNeighbor
  * @return
  */
-uint8_t NextChooser::chooseNeighbor(const float totalProbability)
+uint8_t NextChooser::chooseNeighbor(const float totalProbability,
+                                    float *m_possibleNext)
 {
     // choose a side
     uint32_t randVal = rand() % (uint32_t)totalProbability;
-    uint8_t probability = 0;
-    for(uint8_t i = 0; i < m_numberOfNext; i++)
+    float probability = 0;
+    for(uint8_t i = 0; i < 16; i++)
     {
-        probability += m_possibleNext[i].probability;
+        probability += m_possibleNext[i];
         if(probability >= randVal) {
-            return 15 - m_possibleNext[i].neighbor.targetSide;
+            return i;
         }
     }
-    return 15 - m_possibleNext[0].neighbor.targetSide;
+    return 0;
 }
 
 }
