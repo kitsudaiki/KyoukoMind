@@ -32,5 +32,6 @@
 #include <queue>
 #include <condition_variable>
 #include <unistd.h>
+#include <cmath>
 
 #endif // INCLUDES_H

@@ -46,8 +46,8 @@ struct KyoChanForwardEdgeSection
      */
     void updateMemorize(const float diff) {
         memorize += diff;
-        if(memorize > 1.0f) {
-            memorize = 1.0f;
+        if(memorize < 0.0f) {
+            memorize = 0.0f;
         }
     }
 
@@ -55,7 +55,7 @@ struct KyoChanForwardEdgeSection
      * @brief memorizeWeight
      */
     void memorizeWeight() {
-        totalWeight *= memorize;
+        totalWeight *= std::tanh(memorize);
     }
 
     /**
@@ -115,8 +115,8 @@ struct KyoChanEdgeSection
      */
     void updateMemorize(const float diff) {
         memorize += diff;
-        if(memorize > 1.0f) {
-            memorize = 1.0f;
+        if(memorize < 0.0f) {
+            memorize = 0.0f;
         }
     }
 
@@ -124,7 +124,7 @@ struct KyoChanEdgeSection
      * @brief memorizeWeight
      */
     void memorizeWeight() {
-        totalWeight *= memorize;
+        totalWeight *= std::tanh(memorize);
     }
 
     /**
