@@ -68,6 +68,18 @@ void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
     }
     processMessagesEdges(cluster);
 
+    if(clusterType == NODE_CLUSTER)
+    {
+        NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
+        KyoChanNode* end = nodeCluster->getNodeBlock() + nodeCluster->getNumberOfNodes();
+        for(KyoChanNode* node = nodeCluster->getNodeBlock();
+            node < end;
+            node++)
+        {
+            node->currentState /= NODE_COOLDOWN;
+        }
+    }
+
     cluster->finishCycle(numberOfActiveNodes);
 }
 
@@ -106,7 +118,7 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
                     data += sizeof(KyoChanStatusEdgeContainer);
                     break;
                 case INTERNAL_EDGE_CONTAINER:
-                    m_messageProcessing->processInternalEdge(data, cluster);
+                    m_messageProcessing->processInternalEdge(data, cluster, outgoBuffer);
                     data += sizeof(KyoChanInternalEdgeContainer);
                     break;
                 case DIRECT_EDGE_CONTAINER:
@@ -174,12 +186,12 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
         {
             // create new axon-edge
             KyoChanAxonEdgeContainer edge;
-            edge.targetClusterPath = node->targetClusterPath >> 4;
+            edge.targetClusterPath = node->targetClusterPath / 17;
             edge.targetAxonId = node->targetAxonId;
             edge.weight = node->currentState;
 
             // send message
-            const uint8_t side = node->targetClusterPath % 16;
+            const uint8_t side = node->targetClusterPath % 17;
             outgoBuffer->addAxonEdge(side, &edge);
 
             // active-node-registration

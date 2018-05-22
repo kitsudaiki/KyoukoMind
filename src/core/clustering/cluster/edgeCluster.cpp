@@ -129,7 +129,7 @@ OutgoingMessageBuffer* EdgeCluster::getOutgoingMessageBuffer()
 bool EdgeCluster::addNeighbor(const uint8_t side, const Neighbor target)
 {
     // check if side is valid
-    if(side > 16) {
+    if(side > 17) {
         return false;
     }
 
@@ -301,9 +301,9 @@ void EdgeCluster::finishCycle(const uint16_t numberOfActiveNodes)
     m_outgoingMessageQueue->finishCycle(2, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(3, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(4, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(11, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(12, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(13, numberOfActiveNodes);
+    m_outgoingMessageQueue->finishCycle(14, numberOfActiveNodes);
 }
 
 }

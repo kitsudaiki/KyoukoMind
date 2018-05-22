@@ -40,7 +40,8 @@ public:
                                    OutgoingMessageBuffer *outgoBuffer);
     void processEdgeSection(NodeCluster *cluster,
                             uint32_t edgeSectionId,
-                            const float weight);
+                            const float weight,
+                            OutgoingMessageBuffer *outgoBuffer);
 
 private:
     NextChooser* m_nextChooser = nullptr;

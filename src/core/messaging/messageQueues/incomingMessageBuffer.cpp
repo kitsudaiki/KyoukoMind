@@ -37,14 +37,14 @@ IncomingMessageBuffer::IncomingMessageBuffer(EdgeCluster *cluster,
  */
 bool IncomingMessageBuffer::initMessageBuffer(EdgeCluster *cluster)
 {
-    for(uint32_t side = 0; side < 16; side++)
+    for(uint32_t side = 0; side < 17; side++)
     {
         m_dataMessageBuffer1[side] = new DataMessage(cluster->getNeighborId(side),
                                                      cluster->getClusterId(),
-                                                     15 - side);
+                                                     16 - side);
         m_dataMessageBuffer2[side] = new DataMessage(cluster->getNeighborId(side),
                                                      cluster->getClusterId(),
-                                                     15 - side);
+                                                     16 - side);
     }
 }
 
@@ -57,7 +57,7 @@ bool IncomingMessageBuffer::initMessageBuffer(EdgeCluster *cluster)
 bool IncomingMessageBuffer::addMessage(const uint8_t side, DataMessage *message)
 {
     std::cout<<"   add Message  ID: "<<m_cluster->getClusterId()<<"   side: "<<(int)side<<"   payload: "<<(int)message->getPayloadSize()<<std::endl;
-    if(side <= 15)
+    if(side < 17)
     {
         m_mutex.lock();
         if(m_switchFlag) {

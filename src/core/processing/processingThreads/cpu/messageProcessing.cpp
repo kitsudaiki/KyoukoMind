@@ -65,7 +65,8 @@ void MessageProcessing::processStatusEdge(uint8_t *data,
  * @param cluster
  */
 void MessageProcessing::processInternalEdge(uint8_t *data,
-                                            EdgeCluster *cluster)
+                                            EdgeCluster *cluster,
+                                            OutgoingMessageBuffer *outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("processEdge")
@@ -73,7 +74,8 @@ void MessageProcessing::processInternalEdge(uint8_t *data,
     if(cluster->getClusterType() == NODE_CLUSTER) {
         m_clusterProcessing->processEdgeSection((NodeCluster*)cluster,
                                                 edge->targetEdgeSectionId,
-                                                edge->weight);
+                                                edge->weight,
+                                                outgoBuffer);
     }
 }
 
@@ -112,8 +114,8 @@ void MessageProcessing::processAxonEdge(uint8_t *data,
     if(edge->targetClusterPath != 0)
     {
         // if not reached update data
-        uint8_t side = edge->targetClusterPath % 16;
-        edge->targetClusterPath /= 16;
+        uint8_t side = edge->targetClusterPath % 17;
+        edge->targetClusterPath /= 17;
 
         // send edge to the next cluster
         outgoBuffer->addAxonEdge(side, edge);

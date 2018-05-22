@@ -141,12 +141,12 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
     Neighbor choosenOne = (*m_networkMetaStructure)[x][y].neighbors[nextSite];
 
     // update path
-    uint32_t newPath = (currentPath * 16) + nextSite;
+    uint32_t newPath = (currentPath * 17) + nextSite;
 
     // make next iteration
     return getNextAxonPathStep(choosenOne.targetClusterPos.x,
                                choosenOne.targetClusterPos.y,
-                               0xF - nextSite,
+                               16 - nextSite,
                                newPath,
                                currentStep+1);
 }

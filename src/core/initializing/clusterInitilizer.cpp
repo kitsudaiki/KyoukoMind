@@ -219,13 +219,13 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
             }
             break;
         }
-    case 13:
+    case 14:
         {
             result.first = x;
             result.second = (y + 1) % m_networkDimensionY;
             break;
         }
-    case 12:
+    case 13:
         {
             if(x == 0) {
                 result.first = m_networkDimensionX - 1;
@@ -239,7 +239,7 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
             }
             break;
         }
-    case 11:
+    case 12:
         {
             if(x == 0) {
                 result.first = m_networkDimensionX - 1;

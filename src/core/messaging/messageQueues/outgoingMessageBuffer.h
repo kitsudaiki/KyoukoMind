@@ -47,7 +47,7 @@ public:
 
     bool updateBufferInit();
 private:
-    DataMessage* m_dataMessageBuffer[16];
+    DataMessage* m_dataMessageBuffer[17];
     uint32_t m_messageIdCounter = 0;
 };
 

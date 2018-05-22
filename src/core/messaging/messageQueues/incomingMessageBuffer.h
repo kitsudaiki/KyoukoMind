@@ -36,8 +36,8 @@ private:
     uint8_t m_finishCounter = 0;
 
     bool m_switchFlag = false;
-    DataMessage* m_dataMessageBuffer1[16];
-    DataMessage* m_dataMessageBuffer2[16];
+    DataMessage* m_dataMessageBuffer1[17];
+    DataMessage* m_dataMessageBuffer2[17];
 
     bool initMessageBuffer(EdgeCluster *cluster);
 };

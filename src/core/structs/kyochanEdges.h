@@ -77,7 +77,7 @@ struct KyoChanEdge
  */
 struct KyoChanForwardEdgeSection
 {
-    KyoChanForwardEdge forwardEdges[16];
+    KyoChanForwardEdge forwardEdges[17];
     uint8_t numberOfActiveEdges = 0;
     uint16_t pendingEdges = 0;
     float totalWeight = 0.0;
@@ -92,7 +92,7 @@ struct KyoChanForwardEdgeSection
      */
     bool updateWeight(const uint8_t side, const float weight)
     {
-        if(side >= 16) {
+        if(side >= 17) {
             return false;
         }
         if(forwardEdges[side].targetId == 0) {
@@ -109,7 +109,7 @@ struct KyoChanForwardEdgeSection
      */
     void zeroPendingBit(const uint8_t pos)
     {
-        assert(pos < 16);
+        assert(pos < 17);
         pendingEdges &= ~((uint16_t)1U << pos);
     }
 
@@ -119,7 +119,7 @@ struct KyoChanForwardEdgeSection
      */
     void setPedingBit(const uint8_t pos)
     {
-        assert(pos < 16);
+        assert(pos < 17);
         pendingEdges |= (uint16_t)1U << pos;
     }
 

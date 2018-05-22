@@ -45,7 +45,7 @@ struct ClusterMetaData
     ClusterPos clusterPos;
 
     uint8_t clusterType = EMPTY_CLUSTER;
-    Neighbor neighors[16];
+    Neighbor neighors[17];
 
     uint8_t outgoing = 0;
     uint8_t incoming = 0;
@@ -78,7 +78,7 @@ struct InitMetaDataEntry
 {
     uint8_t type = 0;
     ClusterID clusterId = 0;
-    Neighbor neighbors[16];
+    Neighbor neighbors[17];
     KyoukoMind::EdgeCluster* cluster = nullptr;
     uint32_t numberOfAxons = 0;
 };

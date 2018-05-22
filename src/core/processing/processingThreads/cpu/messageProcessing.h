@@ -30,7 +30,8 @@ public:
                            EdgeCluster* cluster,
                            OutgoingMessageBuffer *outgoBuffer);
     void processInternalEdge(uint8_t *data,
-                             EdgeCluster* cluster);
+                             EdgeCluster* cluster,
+                             OutgoingMessageBuffer *outgoBuffer);
     void processDirectEdge(uint8_t *data,
                            EdgeCluster* cluster);
     void processAxonEdge(uint8_t *data,
