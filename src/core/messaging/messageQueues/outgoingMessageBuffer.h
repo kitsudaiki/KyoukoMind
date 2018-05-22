@@ -40,6 +40,8 @@ public:
                         const KyoChanLearingEdgeContainer *newEdge);
     bool addLearningReplyMessage(const uint8_t sourceSite,
                                  const KyoChanLearningEdgeReplyContainer *newEdgeReply);
+    bool addDeleteMessage(const uint8_t sourceSite,
+                          const KyoChanDeleteContainer *edge);
 
     void sendReplyMessage(const uint8_t sourceSite);
 

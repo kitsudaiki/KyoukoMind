@@ -68,18 +68,6 @@ void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
     }
     processMessagesEdges(cluster);
 
-    if(clusterType == NODE_CLUSTER)
-    {
-        NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
-        KyoChanNode* end = nodeCluster->getNodeBlock() + nodeCluster->getNumberOfNodes();
-        for(KyoChanNode* node = nodeCluster->getNodeBlock();
-            node < end;
-            node++)
-        {
-            node->currentState /= NODE_COOLDOWN;
-        }
-    }
-
     cluster->finishCycle(numberOfActiveNodes);
 }
 

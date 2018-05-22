@@ -173,6 +173,23 @@ bool OutgoingMessageBuffer::addLearningReplyMessage(const uint8_t sourceSite,
 }
 
 /**
+ * @brief OutgoingMessageBuffer::addDeleteMessage
+ * @param sourceSite
+ * @param edge
+ * @return
+ */
+bool OutgoingMessageBuffer::addDeleteMessage(const uint8_t sourceSite,
+                                             const KyoChanDeleteContainer *edge)
+{
+    OUTPUT("    > add delete-edge-container")
+    if(sourceSite <= 17) {
+        m_dataMessageBuffer[sourceSite]->addDeleteEdge(edge);
+        return true;
+    }
+    return false;
+}
+
+/**
  * @brief OutgoingMessageBuffer::sendReplyMessage
  * @param sourceSite
  */

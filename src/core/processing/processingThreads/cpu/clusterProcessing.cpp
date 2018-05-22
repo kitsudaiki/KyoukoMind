@@ -167,6 +167,9 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
                     outgoBuffer->addDirectEdge(sideCounter, &newEdge);
                 }
             }
+
+            forwardEdge->weight *= forwardEdge->memorize;
+
             currentSection->zeroPendingBit(sideCounter);
             sideCounter++;
         }
@@ -226,13 +229,19 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
             nodes[edge->targetNodeId].currentState += edge->weight * weight;
 
             if(nodes[edge->targetNodeId].border
-                    <= nodes[edge->targetNodeId].currentState)
+                    <= nodes[edge->targetNodeId].currentState * NODE_COOLDOWN)
             {
+                edge->memorize += 1000;
+
                 KyoChanStatusEdgeContainer newEdge;
                 newEdge.status = 1000; // TODO
                 newEdge.targetId = currentSection->sourceId;
                 outgoBuffer->addStatusEdge(8, &newEdge);
+            } else {
+                edge->memorize -= 10;
             }
+
+            edge->weight *= edge->memorize;
         }
     }
 }

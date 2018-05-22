@@ -137,4 +137,15 @@ void DataMessage::addLearningReplyEdgeReply(const KyoChanLearningEdgeReplyContai
     copyToBuffer((void*)newEdgeReply, size);
 }
 
+/**
+ * @brief DataMessage::addDeleteEdge
+ * @param newEdgeReply
+ */
+void DataMessage::addDeleteEdge(const KyoChanDeleteContainer *newEdge)
+{
+    const uint8_t size = sizeof(KyoChanDeleteContainer);
+    checkBuffer(size);
+    copyToBuffer((void*)newEdge, size);
+}
+
 }

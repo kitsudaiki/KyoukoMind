@@ -97,5 +97,16 @@ struct KyoChanLearningEdgeReplyContainer
 
 } __attribute__((packed));
 
+/**
+ * @brief The KyoChanDeleteContainer struct
+ */
+struct KyoChanDeleteContainer
+{
+    uint8_t type = DELETE_CONTAINER;
+
+    uint32_t targetEdgeSectionId = 0;
+
+} __attribute__((packed));
+
 
 #endif // LEARNINGMESSAGES_H

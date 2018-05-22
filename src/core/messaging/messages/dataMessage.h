@@ -30,6 +30,7 @@ public:
     void addAxonEdge(const KyoChanAxonEdgeContainer *newAxonEdge);
     void addLearningEdge(const KyoChanLearingEdgeContainer* newEdge);
     void addLearningReplyEdgeReply(const KyoChanLearningEdgeReplyContainer* newEdgeReply);
+    void addDeleteEdge(const KyoChanDeleteContainer *newEdge);
 
 private:
     void copyToBuffer(void* data, const uint8_t size);
