@@ -56,7 +56,8 @@ public:
     uint32_t getNumberOfForwardEdgeSectionBlocks() const;
     KyoChanForwardEdgeSection* getForwardEdgeSectionBlock();
     bool initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections);
-    uint32_t addEmptyForwardEdgeSection();
+    uint32_t addEmptyForwardEdgeSection(const uint8_t sourceSide,
+                                        const uint32_t sourceId);
 
     // pending-forward-edge
     KyoChanForwardEdgeSection *getPendingForwardEdgeSectionBlock();

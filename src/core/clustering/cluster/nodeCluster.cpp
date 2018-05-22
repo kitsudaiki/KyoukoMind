@@ -151,6 +151,7 @@ bool NodeCluster::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
     for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
         KyoChanEdgeSection newSection;
+        newSection.sourceId = i;
         array[i] = newSection;
     }
     // write the new init nodes to the buffer and the file

@@ -233,9 +233,12 @@ bool EdgeCluster::initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdg
 
 /**
  * @brief EdgeCluster::addEmptyForwardEdgeSection add a new forward-edge-section
+ * @param sourceSide id of the incoming side
+ * @param sourceId id of the source forward-edge-section
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
-uint32_t EdgeCluster::addEmptyForwardEdgeSection()
+uint32_t EdgeCluster::addEmptyForwardEdgeSection(const uint8_t sourceSide,
+                                                 const uint32_t sourceId)
 {
     // allocate a new block, if necessary
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
@@ -250,6 +253,8 @@ uint32_t EdgeCluster::addEmptyForwardEdgeSection()
 
     // add new edge-forward-section
     KyoChanForwardEdgeSection newSection;
+    newSection.sourceId = sourceId;
+    newSection.sourceSide = sourceSide;
     getForwardEdgeSectionBlock()[m_metaData.numberOfForwardEdgeSections] = newSection;
     m_metaData.numberOfForwardEdgeSections++;
     m_metaData.numberOfPendingForwardEdgeSections++;

@@ -184,7 +184,8 @@ void MessageProcessing::processLerningEdge(uint8_t *data,
     OUTPUT("processIncomLerningEdge")
     KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
 
-    const uint32_t targetEdgeSectionId = cluster->addEmptyForwardEdgeSection();
+    const uint32_t targetEdgeSectionId = cluster->addEmptyForwardEdgeSection(initSide,
+                                                                             edge->sourceEdgeSectionId);
     m_clusterProcessing->processEdgeForwardSection(cluster,
                                                    targetEdgeSectionId,
                                                    initSide,

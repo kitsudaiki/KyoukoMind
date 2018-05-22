@@ -67,7 +67,8 @@ void ClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster,
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
     currentSection->forwardEdges[inititalSide].updateMemorize(status);
 
-    if(currentSection->numberOfActiveEdges == 0) {
+    if(currentSection->numberOfActiveEdges == 0
+            || currentSection->sourceId == 0) {
         return;
     }
 
