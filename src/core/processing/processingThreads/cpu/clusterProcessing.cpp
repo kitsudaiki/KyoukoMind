@@ -222,6 +222,8 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
         KyoChanNode* nodes = cluster->getNodeBlock();
         KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
 
+        int16_t updateValue = 0;
+
         for(KyoChanEdge* edge = currentSection->edges;
             edge < end;
             edge++)
@@ -231,18 +233,20 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
             if(nodes[edge->targetNodeId].border
                     <= nodes[edge->targetNodeId].currentState * NODE_COOLDOWN)
             {
-                edge->memorize += 1000;
-
-                KyoChanStatusEdgeContainer newEdge;
-                newEdge.status = 1000; // TODO
-                newEdge.targetId = currentSection->sourceId;
-                outgoBuffer->addStatusEdge(8, &newEdge);
+                edge->memorize += POSITIVE_EDGE_UPDATE;
+                updateValue += POSITIVE_EDGE_UPDATE >> NEXT_LEVEL_UPDATE_SHIFT;
             } else {
-                edge->memorize -= 10;
+                edge->memorize -= NETATIVE_EDGE_UPDATE;
+                updateValue -= NETATIVE_EDGE_UPDATE >> NEXT_LEVEL_UPDATE_SHIFT;
             }
 
             edge->weight *= edge->memorize;
         }
+
+        KyoChanStatusEdgeContainer newEdge;
+        newEdge.status = updateValue;
+        newEdge.targetId = currentSection->sourceId;
+        outgoBuffer->addStatusEdge(8, &newEdge);
     }
 }
 
