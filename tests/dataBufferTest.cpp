@@ -131,6 +131,7 @@ void DataBufferTest::closeAndReopenWithoutFile()
  */
 void DataBufferTest::cleanupTestCase()
 {
+    remove("/tmp/cluster0");
     delete m_buffer;
 }
 

@@ -35,7 +35,8 @@ DataMessage::DataMessage(const ClusterID targetClusterId,
  * @param data
  */
 DataMessage::DataMessage(void *data, uint32_t size) : Message(data, size)
-{}
+{
+}
 
 /**
  * @brief DataMessage::checkBuffer

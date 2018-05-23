@@ -50,11 +50,17 @@ Message::Message(const ClusterID targetClusterId,
  */
 Message::Message(void *data, uint32_t size)
 {
-    m_buffer = new PerformanceIO::DataBuffer(data, size);
-    m_currentBufferPos = size;
-    m_currentBufferSize = m_buffer->getBlockSize() * m_buffer->getNumberOfBlocks();
+    uint32_t numberOfBlocks = size / m_buffer->getBlockSize();
+    if(size % m_buffer->getBlockSize() != 0) {
+        numberOfBlocks++;
+    }
 
-    memcpy((void*)(&m_metaData), m_buffer->getBufferPointer(), sizeof(CommonMessageData));
+    m_buffer = new PerformanceIO::DataBuffer();
+    m_buffer->allocateBlocks(numberOfBlocks);
+    m_currentBufferPos = 0;
+    m_currentBufferSize = size;
+
+    memcpy(m_buffer->getBufferPointer(), data, size);
 }
 
 /**

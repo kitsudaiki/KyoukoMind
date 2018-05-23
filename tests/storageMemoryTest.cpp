@@ -138,6 +138,7 @@ void StorageMemoryTest::reopenFile()
 void StorageMemoryTest::cleanupTestCase()
 {
     delete m_storage;
+    remove("/tmp/cluster0");
 }
 
 }

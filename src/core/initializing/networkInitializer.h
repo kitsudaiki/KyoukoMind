@@ -23,7 +23,7 @@ class MessageController;
 class NetworkInitializer
 {
 public:
-    NetworkInitializer(const std::string filePath,
+    NetworkInitializer(const std::string fileContent,
                        const std::string directoryPath,
                        ClusterHandler *clusterHandler,
                        MessageController* messageController);
@@ -53,7 +53,7 @@ public:
 
 private:
     // initial values from constructor
-    std::string m_filePath = "";
+    std::string m_fileContent = "";
     std::string m_directoryPath = "";
     ClusterHandler* m_clusterHandler = nullptr;
     MessageController* m_messageController = nullptr;

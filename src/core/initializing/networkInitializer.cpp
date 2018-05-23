@@ -23,12 +23,12 @@ namespace KyoukoMind
  * @param clusterManager
  * @param messageController
  */
-NetworkInitializer::NetworkInitializer(const std::string filePath,
+NetworkInitializer::NetworkInitializer(const std::string fileContent,
                                        const std::string directoryPath,
                                        ClusterHandler *clusterHandler,
                                        MessageController *messageController)
 {
-    m_filePath = filePath;
+    m_fileContent = fileContent;
     m_directoryPath = directoryPath;
     m_clusterHandler = clusterHandler;
     m_messageController = messageController;
@@ -45,15 +45,9 @@ bool NetworkInitializer::initNetwork()
 
     // check if values are valid
     if(m_clusterHandler == nullptr
-            || m_filePath == ""
+            || m_fileContent == ""
             || m_directoryPath == "")
     {
-        return false;
-    }
-
-    // check if initial file exist
-    std::ifstream infile(m_filePath);
-    if(!infile) {
         return false;
     }
 
@@ -91,15 +85,8 @@ bool NetworkInitializer::getNetworkMetaStructure()
 {
     uint32_t firstLineLenght = 0;
 
-    // read into string
-    std::ifstream inFile;
-    inFile.open(m_filePath);
-    std::stringstream strStream;
-    strStream << inFile.rdbuf();
-    std::string string_content = strStream.str();
-
     // split string
-    std::vector<std::string> allLines = splitString(string_content, '\n');
+    std::vector<std::string> allLines = splitString(m_fileContent, '\n');
 
     // read the single lines
     for(uint32_t lineNumber = 0; lineNumber < allLines.size(); lineNumber++)

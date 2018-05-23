@@ -52,7 +52,9 @@ SOURCES += main.cpp \
     tests/processingTest.cpp \
     src/core/clustering/cluster/edgeCluster.cpp \
     src/core/processing/processingThreads/cpu/clusterProcessing.cpp \
-    src/core/processing/processingThreads/cpu/messageProcessing.cpp
+    src/core/processing/processingThreads/cpu/messageProcessing.cpp \
+    tests/structTest.cpp \
+    tests/initTest.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -99,7 +101,9 @@ HEADERS +=\
     tests/processingTest.h \
     src/core/clustering/cluster/edgeCluster.h \
     src/core/processing/processingThreads/cpu/clusterProcessing.h \
-    src/core/processing/processingThreads/cpu/messageProcessing.h
+    src/core/processing/processingThreads/cpu/messageProcessing.h \
+    tests/structTest.h \
+    tests/initTest.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

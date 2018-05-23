@@ -87,7 +87,14 @@ void NetworkManager::initNetwork()
 
     if(clusterFiles.size() == 0)
     {
-        NetworkInitializer init(initialFile,
+        // read into string
+        std::ifstream inFile;
+        inFile.open(initialFile);
+        std::stringstream strStream;
+        strStream << inFile.rdbuf();
+        std::string string_content = strStream.str();
+
+        NetworkInitializer init(string_content,
                                 directoryPath,
                                 m_clusterHandler,
                                 m_messageController);
