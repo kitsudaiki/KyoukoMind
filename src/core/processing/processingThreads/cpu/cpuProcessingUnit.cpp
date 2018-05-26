@@ -35,7 +35,7 @@ namespace KyoukoMind
 CpuProcessingUnit::CpuProcessingUnit(ClusterQueue *clusterQueue):
     ProcessingUnit(clusterQueue)
 {
-    m_sideOrder = {0, 2, 3, 4, 13, 12, 11};
+    m_sideOrder = {0, 2, 3, 4, 8, 14, 13, 12};
     m_nextChooser = new NextChooser();
     m_clusterProcessing = new ClusterProcessing(m_nextChooser, &m_activeNodes);
     m_messageProcessing = new MessageProcessing(m_clusterProcessing);
@@ -52,31 +52,36 @@ CpuProcessingUnit::~CpuProcessingUnit()
 }
 
 /**
- * @brief CpuProcessingUnit::processCluster
- * @param cluster
+ * @brief CpuProcessingUnit::processCluster process of a cluster in one cycle
+ * @param cluster custer which should be processed
  */
 void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
 {
     uint8_t clusterType = (uint8_t)cluster->getClusterType();
 
     uint16_t numberOfActiveNodes = 0;
-    if(clusterType == NODE_CLUSTER)
-    {
+
+    // process nodes if cluster is a node-cluster
+    if(clusterType == NODE_CLUSTER) {
         NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
         numberOfActiveNodes = processNodes(nodeCluster);
     }
+
+    // process messages of the cluster
     processMessagesEdges(cluster);
 
+    // finish the processing-cycle of the current cluster
     cluster->finishCycle(numberOfActiveNodes);
 }
 
 /**
- * @brief EdgeProcessing::processIncomingMessages
- * @param edgeCluster
- * @return
+ * @brief EdgeProcessing::processIncomingMessages processing of all incoming messages in a cluster
+ * @param edgeCluster custer which should be processed
+ * @return false if a message-type does not exist, else true
  */
 bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
 {
+    // get buffer
     IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
 
@@ -104,30 +109,37 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
                     m_messageProcessing->processStatusEdge(data, side, cluster, outgoBuffer);
                     data += sizeof(KyoChanStatusEdgeContainer);
                     break;
+
                 case INTERNAL_EDGE_CONTAINER:
                     m_messageProcessing->processInternalEdge(data, cluster, outgoBuffer);
                     data += sizeof(KyoChanInternalEdgeContainer);
                     break;
+
                 case DIRECT_EDGE_CONTAINER:
                     m_messageProcessing->processDirectEdge(data, cluster);
                     data += sizeof(KyoChanDirectEdgeContainer);
                     break;
+
                 case FOREWARD_EDGE_CONTAINER:
                     m_messageProcessing->processForwardEdge(data, side, cluster, outgoBuffer);
                     data += sizeof(KyoChanForwardEdgeContainer);
                     break;
+
                 case AXON_EDGE_CONTAINER:
                     m_messageProcessing->processAxonEdge(data, side, cluster, outgoBuffer);
                     data += sizeof(KyoChanAxonEdgeContainer);
                     break;
+
                 case LEARNING_EDGE_CONTAINER:
                     m_messageProcessing->processLerningEdge(data, side, cluster, outgoBuffer);
                     data += sizeof(KyoChanLearingEdgeContainer);
                     break;
+
                 case LEARNING_REPLY_EDGE_CONTAINER:
                     m_messageProcessing->processLearningReply(data, side, cluster);
                     data += sizeof(KyoChanLearningEdgeReplyContainer);
                     break;
+
                 default:
                     return false;
                     break;
@@ -142,15 +154,16 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
 }
 
 /**
- * @brief ClusterProcessing::processNodes
- * @param nodeCluster
- * @return
+ * @brief ClusterProcessing::processNodes processing of the nodes of a specific node-cluster
+ * @param nodeCluster node-cluster which should be processed
+ * @return number of active nodes in this cluster
  */
 uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
 {
-    uint16_t numberOfActiveNodes = 0;
+    assert(nodeCluster != nullptr);
 
-    if(nodeCluster == nullptr) {
+    // precheck
+    if(nodeCluster->getClusterType() == EDGE_CLUSTER) {
         return 0;
     }
 
@@ -161,8 +174,10 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
     m_activeNodes.numberOfActiveNodes = 0;
 
     // process nodes
-    KyoChanNode* end = nodeCluster->getNodeBlock() + nodeCluster->getNumberOfNodes();
-    for(KyoChanNode* node = nodeCluster->getNodeBlock();
+    KyoChanNode* start = nodeCluster->getNodeBlock();
+    KyoChanNode* end = start + nodeCluster->getNumberOfNodes();
+
+    for(KyoChanNode* node = start;
         node < end;
         node++)
     {
@@ -182,8 +197,8 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
             if(rand() % 100 <= RANDOM_ADD_ACTIVE_NODE) {
                 m_activeNodes.addNodeId(nodeId);
             }
-            numberOfActiveNodes++;
         } else {
+            // add randomly a inactive node to the active-node-list to create new connectons
             if(rand() % 100 <= RANDOM_ADD_INACTIVE_NODE) {
                 m_activeNodes.addNodeId(nodeId);
             }
@@ -191,11 +206,13 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
         node->currentState /= NODE_COOLDOWN;
         nodeId++;
     }
-    if(numberOfActiveNodes == 0) {
+    // add at least one node to the list of active node even all are inactive
+    if(m_activeNodes.numberOfActiveNodes == 0) {
         const uint16_t backupNodeId = rand() % nodeCluster->getNumberOfNodes();
         m_activeNodes.addNodeId(backupNodeId);
     }
-    return numberOfActiveNodes;
+
+    return m_activeNodes.numberOfActiveNodes;
 }
 
 }
