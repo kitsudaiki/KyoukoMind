@@ -56,7 +56,6 @@ bool IncomingMessageBuffer::initMessageBuffer(EdgeCluster *cluster)
  */
 bool IncomingMessageBuffer::addMessage(const uint8_t side, DataMessage *message)
 {
-    std::cout<<"   add Message  ID: "<<m_cluster->getClusterId()<<"   side: "<<(int)side<<"   payload: "<<(int)message->getPayloadSize()<<std::endl;
     if(side < 17)
     {
         m_mutex.lock();

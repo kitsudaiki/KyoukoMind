@@ -76,8 +76,6 @@ void DemoIO::run()
 void DemoIO::sendOutData(const char input)
 {
     uint8_t inputNumber = (uint8_t)input;
-    OUTPUT("inputNumber:")
-    OUTPUT((int)inputNumber)
     KyoChanForwardEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetEdgeSectionId = 1;

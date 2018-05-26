@@ -57,7 +57,6 @@ CpuProcessingUnit::~CpuProcessingUnit()
  */
 void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
 {
-    //OUTPUT("processCluster")
     uint8_t clusterType = (uint8_t)cluster->getClusterType();
 
     uint16_t numberOfActiveNodes = 0;
@@ -149,8 +148,6 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
  */
 uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
 {
-    OUTPUT("---")
-    OUTPUT("processNodes")
     uint16_t numberOfActiveNodes = 0;
 
     if(nodeCluster == nullptr) {
@@ -169,7 +166,6 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
         node < end;
         node++)
     {
-        std::cout<<"    nodes->currentState: "<<node->currentState<<std::endl;
         if(node->border <= node->currentState)
         {
             // create new axon-edge

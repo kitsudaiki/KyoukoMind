@@ -301,8 +301,6 @@ void EdgeCluster::decreaseNumberOfPendingForwardEdges()
  */
 void EdgeCluster::finishCycle(const uint16_t numberOfActiveNodes)
 {
-    OUTPUT("---")
-    OUTPUT("finishCycle")
     m_outgoingMessageQueue->finishCycle(2, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(3, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(4, numberOfActiveNodes);

@@ -62,8 +62,6 @@ void ClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster,
                                                  const uint8_t inititalSide,
                                                  OutgoingMessageBuffer *outgoBuffer)
 {
-    OUTPUT("---")
-    OUTPUT("updateEdgeForwardSection")
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
     //currentSection->forwardEdges[inititalSide].updateMemorize(status);
 
@@ -122,8 +120,6 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
                                                    const uint8_t inititalSide,
                                                    OutgoingMessageBuffer* outgoBuffer)
 {
-    OUTPUT("---")
-    OUTPUT("processEdgeForwardSection")
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
 
     if(weight != 0.0 || currentSection->pendingEdges != 0)
@@ -207,8 +203,6 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                            const float weight,
                                            OutgoingMessageBuffer* outgoBuffer)
 {
-    OUTPUT("---")
-    OUTPUT("processEdgeSection")
     if(weight != 0.0)
     {
         KyoChanEdgeSection* currentSection = &((cluster)->getEdgeSectionBlock()[edgeSectionId]);
@@ -229,8 +223,10 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
             edge < end;
             edge++)
         {
+            // update node with the edge-weight
             nodes[edge->targetNodeId].currentState += edge->weight * weight;
 
+            // update memorize-value
             if(nodes[edge->targetNodeId].border
                     <= nodes[edge->targetNodeId].currentState * NODE_COOLDOWN)
             {
@@ -239,6 +235,7 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
                 edge->memorize -= (1.0f - edge->memorize) / EDGE_MEMORIZE_UPDATE;
             }
 
+            // memorize the current edge-weight
             edge->weight *= edge->memorize;
         }
 
