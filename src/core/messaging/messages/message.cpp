@@ -61,6 +61,7 @@ Message::Message(void *data, uint32_t size)
     m_currentBufferSize = size;
 
     memcpy(m_buffer->getBufferPointer(), data, size);
+    getMetaDataFromBuffer();
 }
 
 /**
@@ -95,6 +96,19 @@ void Message::initBuffer()
     memcpy(m_buffer->getBufferPointer(), (void*)(&m_metaData), sizeof(CommonMessageData));
     m_currentBufferPos = sizeof(CommonMessageData);
     m_currentBufferSize = m_buffer->getBlockSize() * m_buffer->getNumberOfBlocks();
+}
+
+/**
+ * @brief Message::getMetaDataFromBuffer
+ * @return
+ */
+bool Message::getMetaDataFromBuffer()
+{
+    if(m_buffer == nullptr) {
+        return false;
+    }
+    m_metaData = *((CommonMessageData*)m_buffer->getBufferPointer());
+    return true;
 }
 
 /**
@@ -143,6 +157,7 @@ void Message::setMetaData(const ClusterID targetClusterId,
 void Message::setNumberOfActiveNodes(const uint16_t numberOfActiveNodes)
 {
     m_metaData.numberOfActiveNodes = numberOfActiveNodes;
+    memcpy(m_buffer->getBufferPointer(), (void*)(&m_metaData), sizeof(CommonMessageData));
 }
 
 /**

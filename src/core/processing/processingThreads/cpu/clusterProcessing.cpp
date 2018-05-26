@@ -58,14 +58,14 @@ inline float ClusterProcessing::randFloat(const float b)
  */
 void ClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster,
                                                  const uint32_t forwardEdgeSectionId,
-                                                 const int16_t status,
+                                                 const float status,
                                                  const uint8_t inititalSide,
                                                  OutgoingMessageBuffer *outgoBuffer)
 {
     OUTPUT("---")
     OUTPUT("updateEdgeForwardSection")
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
-    currentSection->forwardEdges[inititalSide].updateMemorize(status);
+    //currentSection->forwardEdges[inititalSide].updateMemorize(status);
 
     if(currentSection->numberOfActiveEdges == 0
             || currentSection->sourceId == 0) {
@@ -195,11 +195,12 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
      }
  }
 
-/**
- * @brief processEdgeSection
- * @param currentSection
+ /**
+ * @brief ClusterProcessing::processEdgeSection
+ * @param cluster
+ * @param edgeSectionId
  * @param weight
- * @param nodes
+ * @param outgoBuffer
  */
 void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                            uint32_t edgeSectionId,
@@ -222,7 +223,7 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
         KyoChanNode* nodes = cluster->getNodeBlock();
         KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
 
-        int16_t updateValue = 0;
+        float updateValue = 0;
 
         for(KyoChanEdge* edge = currentSection->edges;
             edge < end;
@@ -233,20 +234,18 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
             if(nodes[edge->targetNodeId].border
                     <= nodes[edge->targetNodeId].currentState * NODE_COOLDOWN)
             {
-                edge->memorize += POSITIVE_EDGE_UPDATE;
-                updateValue += POSITIVE_EDGE_UPDATE >> NEXT_LEVEL_UPDATE_SHIFT;
+                edge->memorize += (1.0f - edge->memorize) / EDGE_MEMORIZE_UPDATE;
             } else {
-                edge->memorize -= NETATIVE_EDGE_UPDATE;
-                updateValue -= NETATIVE_EDGE_UPDATE >> NEXT_LEVEL_UPDATE_SHIFT;
+                edge->memorize -= (1.0f - edge->memorize) / EDGE_MEMORIZE_UPDATE;
             }
 
             edge->weight *= edge->memorize;
         }
 
-        KyoChanStatusEdgeContainer newEdge;
-        newEdge.status = updateValue;
-        newEdge.targetId = currentSection->sourceId;
-        outgoBuffer->addStatusEdge(8, &newEdge);
+        //KyoChanStatusEdgeContainer newEdge;
+        //newEdge.status = updateValue;
+        //newEdge.targetId = currentSection->sourceId;
+        //outgoBuffer->addStatusEdge(8, &newEdge);
     }
 }
 

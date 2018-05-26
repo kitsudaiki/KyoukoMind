@@ -20,7 +20,7 @@ struct KyoChanStatusEdgeContainer
     uint8_t type = STATUS_EDGE_CONTAINER;
 
     uint32_t targetId = 0;
-    int16_t status = 0;
+    float status = 0;
 
 } __attribute__((packed));
 

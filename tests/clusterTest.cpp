@@ -20,8 +20,8 @@ namespace KyoukoMind
 ClusterTest::ClusterTest() : CommonTest("ClusterTest")
 {
     initTestCase();
-    checkNodeCluster();
     checkEdgeCluster();
+    checkNodeCluster();
     checkEmptyCluster();
     cleanupTestCase();
 }
@@ -36,24 +36,29 @@ void ClusterTest::initTestCase()
     m_edgeCluster = new EdgeCluster(tempId, "/tmp");
 }
 
+void ClusterTest::checkEdgeCluster()
+{
+    UNITTEST(m_edgeCluster->initForwardEdgeSectionBlocks(2000), true);
+    UNITTEST(m_edgeCluster->addEmptyForwardEdgeSection(42, 42), 2000);
+    UNITTEST(m_edgeCluster->addEmptyForwardEdgeSection(42, 42), 2001);
+}
+
 void ClusterTest::checkNodeCluster()
 {
     UNITTEST((int)m_nodeCluster->getNumberOfNodeBlocks(), 5);
     UNITTEST(m_nodeCluster->initNodeBlocks(19), false);
 
+    UNITTEST(m_nodeCluster->initForwardEdgeSectionBlocks(2000), true);
+    UNITTEST(m_nodeCluster->addEmptyForwardEdgeSection(42, 42), 2000);
+    UNITTEST(m_nodeCluster->addEmptyForwardEdgeSection(42, 42), 2001);
     //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 0);
 
-    UNITTEST(m_nodeCluster->initForwardEdgeSectionBlocks(2000), 1999);
 
     //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 250);
 
     KyoChanEdge newEdge;
     newEdge.targetNodeId = 3;
     newEdge.weight = 3.14;
-    UNITTEST(m_nodeCluster->addEdge(42, newEdge), true);
-    UNITTEST(m_nodeCluster->addEdge(2001, newEdge), false);
-
-    UNITTEST((int)m_nodeCluster->getEdgeSectionBlock()[42].numberOfEdges, 1)
 
     for(int i = 0; i < 51; i++) {
         KyoChanEdge newEdge;
@@ -63,11 +68,6 @@ void ClusterTest::checkNodeCluster()
     }
 
     //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 251);
-}
-
-void ClusterTest::checkEdgeCluster()
-{
-
 }
 
 void ClusterTest::checkEmptyCluster()

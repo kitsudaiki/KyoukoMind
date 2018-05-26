@@ -19,26 +19,7 @@ struct KyoChanForwardEdge
 {
     float weight = 0.0;
     uint32_t targetId = 0;
-    uint16_t memorize = 0xFF;
-
-    /**
-     * @brief updateMemorize
-     * @param diff
-     */
-    void updateMemorize(const int16_t diff) {
-        if((uint32_t)memorize + (uint32_t)diff > 0xFFFF) {
-            memorize = 0xFFFF;
-            return;
-        }
-        memorize += diff;
-    }
-
-    /**
-     * @brief memorizeWeight
-     */
-    void memorizeWeight() {
-        weight *= std::tanh((4.0 / (double)0xFFFF) * (double)memorize);
-    }
+    float memorize = 0.5f;
 
 } __attribute__((packed));
 
@@ -49,26 +30,7 @@ struct KyoChanEdge
 {
     float weight = 0.0;
     uint16_t targetNodeId = 0;
-    uint16_t memorize = 0xFF;
-
-    /**
-     * @brief updateMemorize
-     * @param diff
-     */
-    void updateMemorize(const int16_t diff) {
-        if((uint32_t)memorize + (uint32_t)diff > 0xFFFF) {
-            memorize = 0xFFFF;
-            return;
-        }
-        memorize += diff;
-    }
-
-    /**
-     * @brief memorizeWeight
-     */
-    void memorizeWeight() {
-        weight *= std::tanh((4.0 / (double)0xFFFF) * (double)memorize);
-    }
+    float memorize = 0.5f;
 
 } __attribute__((packed));
 

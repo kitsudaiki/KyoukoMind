@@ -30,7 +30,7 @@ public:
 
     void updateEdgeForwardSection(EdgeCluster *cluster,
                                   const uint32_t forwardEdgeSectionId,
-                                  const int16_t status,
+                                  const float status,
                                   const uint8_t inititalSide,
                                   OutgoingMessageBuffer *outgoBuffer);
     void processEdgeForwardSection(EdgeCluster *cluster,

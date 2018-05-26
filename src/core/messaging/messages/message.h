@@ -68,6 +68,7 @@ protected:
 
 private:
     void initBuffer();
+    bool getMetaDataFromBuffer();
 };
 
 }

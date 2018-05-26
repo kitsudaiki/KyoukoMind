@@ -49,6 +49,9 @@ bool AxonInitializer::createAxons()
 
             // check cluster-type
             EdgeCluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
+            if(cluster == nullptr) {
+                continue;
+            }
             if(cluster->getClusterType() == NODE_CLUSTER)
             {
                 // get node-cluster
@@ -67,9 +70,6 @@ bool AxonInitializer::createAxons()
                     (*m_networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
                     nodes[nodeNumber].targetClusterPath = newAxon.targetPath;
                     nodes[nodeNumber].targetAxonId = axonId;
-
-                    std::cout<<"newAxon.targetPath: "<<newAxon.targetPath<<std::endl;
-                    std::cout<<"nodes[nodeNumber].targetAxonId: "<<nodes[nodeNumber].targetAxonId<<std::endl;
                 }
             }
         }
@@ -80,6 +80,9 @@ bool AxonInitializer::createAxons()
         for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++) {
 
             EdgeCluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
+            if(cluster == nullptr) {
+                continue;
+            }
             // check cluster-type
             if(cluster->getClusterType() == EDGE_CLUSTER
                     || cluster->getClusterType() == NODE_CLUSTER) {
