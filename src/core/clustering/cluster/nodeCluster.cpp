@@ -27,10 +27,10 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
                   directoryPath)
 {
     m_metaData.clusterType = NODE_CLUSTER;
-    initNodeBlocks(numberOfNodes);
     // TODO: readd file-path after tests
     m_edgeSectionBuffer = new PerformanceIO::DataBuffer("");
     m_edgeSectionBuffer->allocateBlocks(1);
+    initNodeBlocks(numberOfNodes);
 }
 
 /**
@@ -71,7 +71,7 @@ uint16_t NodeCluster::getNumberOfNodes() const
 KyoChanNode *NodeCluster::getNodeBlock()
 {
     uint32_t positionNodeBlock = m_metaData.positionNodeBlocks;
-    return (KyoChanNode*)m_clusterDataBuffer->getBlock(positionNodeBlock);
+    return (KyoChanNode*)m_edgeSectionBuffer->getBlock(positionNodeBlock);
 }
 
 /**
@@ -89,11 +89,12 @@ bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
     // update meta-data of the cluster
     m_metaData.numberOfNodes = numberOfNodes;
     m_metaData.positionNodeBlocks = 1;
-    const uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
+
+    const uint32_t blockSize = m_edgeSectionBuffer->getBlockSize();
     m_metaData.numberOfNodeBlocks = (numberOfNodes * sizeof(KyoChanNode)) / blockSize + 1;
 
     // allocate blocks in buffer
-    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfNodeBlocks);
+    m_edgeSectionBuffer->allocateBlocks(m_metaData.numberOfNodeBlocks);
     updateMetaData();
 
     // fill array with empty nodes
@@ -104,8 +105,10 @@ bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
         array[i] = tempNode;
     }
 
+    m_metaData.positionOfEdgeBlock = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
+
     // write the new init nodes to the buffer and the file
-    m_clusterDataBuffer->syncAll();
+    m_edgeSectionBuffer->syncAll();
     return true;
 }
 

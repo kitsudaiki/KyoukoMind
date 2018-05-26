@@ -1,3 +1,12 @@
+/**
+ *  @file    initTest.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef INITTEST_H
 #define INITTEST_H
 
@@ -18,6 +27,7 @@ public:
 
 private:
     void initTestCase();
+    void checkInit();
     void cleanupTestCase();
 
     ClusterHandler* m_testClusterHandler = nullptr;

@@ -35,7 +35,8 @@ public:
     ~EdgeCluster();
 
     // metadata
-    void getMetaData();
+    ClusterMetaData getMetaData() const;
+    void getMetaDataFromBuffer();
     void updateMetaData();
 
     // common getter

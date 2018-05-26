@@ -42,7 +42,7 @@ void MessageBufferTest::initTestCase()
     Neighbor neighbor;
     neighbor.targetClusterId = 1337;
     neighbor.neighborType = NODE_CLUSTER;
-    fakeCluster->addNeighbor(15, neighbor);
+    fakeCluster->addNeighbor(16, neighbor);
 
     fakeCluster->initMessageBuffer(m_controller);
 
@@ -58,8 +58,8 @@ void MessageBufferTest::checkMessageBuffer()
     KyoChanForwardEdgeContainer edge;
     edge.targetEdgeSectionId = 1;
 
-    UNITTEST(m_ougoingBuffer->addForwardEdge(15, &edge), true);
-    m_ougoingBuffer->finishCycle(15, 0);
+    UNITTEST(m_ougoingBuffer->addForwardEdge(16, &edge), true);
+    m_ougoingBuffer->finishCycle(16, 0);
 
     Message* message = m_incomBuffer->getMessage(0);
     UNITTEST(message->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))

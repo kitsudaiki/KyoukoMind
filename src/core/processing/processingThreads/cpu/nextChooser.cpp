@@ -66,12 +66,24 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
     switch((int)initialSite)
     {
     case 0:
-        possibleNext[2] = 1.0;
-        possibleNext[3] = 1.0;
-        possibleNext[4] = 1.0;
-        possibleNext[12] = 1.0;
-        possibleNext[13] = 1.0;
-        possibleNext[14] = 1.0;
+        if(allNeighbors[2].neighborType != EMPTY_CLUSTER) {
+            possibleNext[2] = 1.0;
+        }
+        if(allNeighbors[3].neighborType != EMPTY_CLUSTER) {
+            possibleNext[3] = 1.0;
+        }
+        if(allNeighbors[4].neighborType != EMPTY_CLUSTER) {
+            possibleNext[4] = 1.0;
+        }
+        if(allNeighbors[12].neighborType != EMPTY_CLUSTER) {
+            possibleNext[12] = 1.0;
+        }
+        if(allNeighbors[13].neighborType != EMPTY_CLUSTER) {
+            possibleNext[13] = 1.0;
+        }
+        if(allNeighbors[14].neighborType != EMPTY_CLUSTER) {
+            possibleNext[14] = 1.0;
+        }
         break;
     case 2:
         possibleNext[4] = MAX_DISTANCE
@@ -161,7 +173,7 @@ float NextChooser::calculatePossebilities(bool whichoutProbability,
                 possibleNext[i] = 1.0;
             }
         }
-        totalProbability *= possibleNext[i];
+        totalProbability += possibleNext[i];
     }
     return totalProbability;
 }
@@ -179,7 +191,7 @@ uint8_t NextChooser::chooseNeighbor(const float totalProbability,
     for(uint8_t i = 0; i < 17; i++)
     {
         probability += m_possibleNext[i];
-        if(probability >= (float)randVal) {
+        if(probability > (float)randVal) {
             return i;
         }
     }

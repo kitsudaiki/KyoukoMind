@@ -37,6 +37,13 @@ EdgeCluster::EdgeCluster(const ClusterID &clusterId,
     // init the buffer and the file with the first block for the meta-data
     m_clusterDataBuffer->allocateBlocks(1);
     updateMetaData();
+
+    // init empty neighbor-list to avoid not initialized values
+    for(uint32_t i = 0; i < 17; i++) {
+        Neighbor emptyNeighbor;
+        emptyNeighbor.targetSide = 16 - i;
+        m_metaData.neighors[i] = emptyNeighbor;
+    }
 }
 
 /**
@@ -53,9 +60,18 @@ EdgeCluster::~EdgeCluster()
 }
 
 /**
- * @brief EdgeCluster::getMetaData reads the meta-data from the file-buffer
+ * @brief EdgeCluster::getMetaData get the meta-data of the cluster
+ * @return meta-data-object
  */
-void EdgeCluster::getMetaData()
+ClusterMetaData EdgeCluster::getMetaData() const
+{
+    return m_metaData;
+}
+
+/**
+ * @brief EdgeCluster::getMetaDataFromBuffer reads the meta-data from the file-buffer
+ */
+void EdgeCluster::getMetaDataFromBuffer()
 {
     ClusterMetaData* metaDataPointer = (ClusterMetaData*)m_clusterDataBuffer->getBlock(0);
     m_metaData = *metaDataPointer;
@@ -206,17 +222,17 @@ bool EdgeCluster::initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdg
 
     // update meta-data of the cluster
     m_metaData.numberOfForwardEdgeSections = numberOfForwardEdgeSections;
-    m_metaData.positionOfEdgeBlock = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
+    m_metaData.positionForwardEdgeBlocks = 1;
 
     // calculate number of edge-blocks
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
-    m_metaData.numberOfEdgeBlocks = (numberOfForwardEdgeSections * sizeof(KyoChanForwardEdgeSection)) / blockSize;
+    m_metaData.numberOfForwardEdgeBlocks= (numberOfForwardEdgeSections * sizeof(KyoChanForwardEdgeSection)) / blockSize;
     if((numberOfForwardEdgeSections * sizeof(KyoChanForwardEdgeSection)) % blockSize != 0) {
-        m_metaData.numberOfEdgeBlocks += 1;
+        m_metaData.numberOfForwardEdgeBlocks += 1;
     }
 
     // update and persist buffer
-    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
+    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfForwardEdgeBlocks);
     updateMetaData();
 
     // fill array with empty forward-edge-sections

@@ -1,3 +1,12 @@
+/**
+ *  @file    processingTest.h
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #ifndef PROCESSINGTEST_H
 #define PROCESSINGTEST_H
 

@@ -1,3 +1,12 @@
+/**
+ *  @file    processingTest.cpp
+ *  @author  Tobias Anker
+ *
+ *  @section DESCRIPTION
+ *
+ *  TODO: Description
+ */
+
 #include "processingTest.h"
 #include <core/messaging/messageController.h>
 #include <core/messaging/messageQueues/messageBuffer.h>

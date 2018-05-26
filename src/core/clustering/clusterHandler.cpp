@@ -63,6 +63,15 @@ EdgeCluster *ClusterHandler::getCluster(const ClusterID clusterId)
 }
 
 /**
+ * @brief ClusterHandler::getNumberOfCluster
+ * @return
+ */
+uint32_t ClusterHandler::getNumberOfCluster() const
+{
+    return m_allClusters.size();
+}
+
+/**
  * @brief ClusterManager::deleteCluster
  * @param clusterId
  * @return

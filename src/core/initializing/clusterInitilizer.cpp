@@ -110,7 +110,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
  */
 bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, EdgeCluster* cluster)
 {
-    std::vector<uint8_t> sideOrder = {2,3,4,13,12,11};
+    std::vector<uint8_t> sideOrder = {2,3,4,14,13,12};
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
         uint8_t side = sideOrder[i];
@@ -119,26 +119,26 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, EdgeClu
 
         // set the values in the neighbor-struct
         Neighbor tempNeighbor;
-        tempNeighbor.targetClusterId = (*m_networkMetaStructure)[next.first][next.second].clusterId;
-        tempNeighbor.neighborType = (*m_networkMetaStructure)[next.first][next.second].type;
-        tempNeighbor.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
-        tempNeighbor.targetClusterPos.x = next.first;
-        tempNeighbor.targetClusterPos.y = next.second;
+        if((*m_networkMetaStructure)[next.first][next.second].type == EMPTY_CLUSTER)
+        {
+            tempNeighbor.neighborType = (*m_networkMetaStructure)[next.first][next.second].type;
+            tempNeighbor.distantToNextNodeCluster = MAX_DISTANCE;
+            tempNeighbor.targetClusterId = 0;
+        }
+        else
+        {
+            tempNeighbor.targetClusterId = (*m_networkMetaStructure)[next.first][next.second].clusterId;
+            tempNeighbor.neighborType = (*m_networkMetaStructure)[next.first][next.second].type;
+            tempNeighbor.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
+            tempNeighbor.targetClusterPos.x = next.first;
+            tempNeighbor.targetClusterPos.y = next.second;
+        }
 
         // add new neighbor
         cluster->addNeighbor(side, tempNeighbor);
         (*m_networkMetaStructure)[x][y].neighbors[side] = tempNeighbor;
     }
 
-    Neighbor tempNeighbor;
-    tempNeighbor.targetClusterId = cluster->getClusterId();
-    tempNeighbor.neighborType = cluster->getClusterType();
-    tempNeighbor.distantToNextNodeCluster = 0;
-    tempNeighbor.targetClusterPos.x = x;
-    tempNeighbor.targetClusterPos.y = y;
-
-    // add new neighbor
-    cluster->addNeighbor(1, tempNeighbor);
     return true;
 }
 

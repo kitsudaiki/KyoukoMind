@@ -64,7 +64,7 @@ bool AxonInitializer::createAxons()
                 {
                     // create new axon
                     uint32_t axonId = (*m_networkMetaStructure)[x][y].numberOfAxons;
-                    AxonInitializer::NewAxon newAxon = getNextAxonPathStep(x, y, 1, 0, 0);
+                    NewAxon newAxon = getNextAxonPathStep(x, y, 0, 0, 0);
 
                     // update values of the cluster and the node
                     (*m_networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
@@ -113,10 +113,9 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
 {
     // check if go to next
     bool goToNext = false;
-    if(rand() % 100 <= POSSIBLE_NEXT_AXON_STEP) {
+    if(rand() % 100 < POSSIBLE_NEXT_AXON_STEP) {
          goToNext = true;
     }
-
     // return the current values if no next or path long enough
     if(goToNext == false || currentStep == 8) {
         AxonInitializer::NewAxon result;
@@ -125,7 +124,6 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
         result.targetPath = currentPath;
         return result;
     }
-
     // choose the next cluster
     uint8_t nextSite = m_chooser->getNextCluster((*m_networkMetaStructure)[x][y].neighbors,
                                                  inputSide,

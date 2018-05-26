@@ -25,6 +25,7 @@ public:
 
     bool addCluster(const ClusterID clusterId, EdgeCluster* cluster);
     EdgeCluster* getCluster(const ClusterID clusterId);
+    uint32_t getNumberOfCluster() const;
     bool deleteCluster(const ClusterID clusterId);
     void clearAllCluster();
 

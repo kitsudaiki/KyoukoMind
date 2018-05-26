@@ -27,7 +27,7 @@ struct ClusterPos
  */
 struct Neighbor
 {
-    ClusterID targetClusterId;
+    ClusterID targetClusterId = 0;
     ClusterPos targetClusterPos;
 
     uint8_t targetSide = 0;
@@ -41,7 +41,7 @@ struct Neighbor
  */
 struct ClusterMetaData
 {
-    ClusterID clusterId;
+    ClusterID clusterId = 0;
     ClusterPos clusterPos;
 
     uint8_t clusterType = EMPTY_CLUSTER;
@@ -51,18 +51,17 @@ struct ClusterMetaData
     uint8_t incoming = 0;
 
     uint16_t numberOfNodes = 0;
-    uint32_t numberOfAxons = 0;
     uint32_t numberOfForwardEdgeSections = 0;
     uint32_t numberOfEdgeSections = 0;
     uint32_t numberOfPendingForwardEdgeSections = 0;
 
-    uint32_t positionNodeBlocks = 0;
+    uint32_t positionNodeBlocks = 1;
     uint32_t numberOfNodeBlocks = 0;
 
-    uint32_t positionForwardEdgeBlocks = 0;
+    uint32_t positionForwardEdgeBlocks = 1;
     uint32_t numberOfForwardEdgeBlocks = 0;
 
-    uint32_t positionOfEdgeBlock = 0;
+    uint32_t positionOfEdgeBlock = 1;
     uint32_t numberOfEdgeBlocks = 0;
 
 } __attribute__((packed));
