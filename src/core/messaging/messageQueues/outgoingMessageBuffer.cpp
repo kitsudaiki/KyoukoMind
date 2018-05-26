@@ -48,21 +48,21 @@ bool OutgoingMessageBuffer::updateBufferInit()
         }
         m_dataMessageBuffer[side] = new DataMessage(m_cluster->getNeighborId(side),
                                                     m_cluster->getClusterId(),
-                                                    15 - side);
+                                                    16 - side);
     }
 }
 
 /**
  * @brief OutgoingMessageBuffer::addStatusEdge
- * @param sourceSite
+ * @param sourceSide
  * @param edge
  * @return
  */
-bool OutgoingMessageBuffer::addStatusEdge(const uint8_t sourceSite,
+bool OutgoingMessageBuffer::addStatusEdge(const uint8_t sourceSide,
                                           const KyoChanStatusEdgeContainer *edge)
 {
-    if(sourceSite < 17) {
-        m_dataMessageBuffer[sourceSite]->addStatusEdge(edge);
+    if(sourceSide < 17) {
+        m_dataMessageBuffer[sourceSide]->addStatusEdge(edge);
         return true;
     }
     return false;
@@ -70,15 +70,15 @@ bool OutgoingMessageBuffer::addStatusEdge(const uint8_t sourceSite,
 
 /**
  * @brief OutgoingMessageBuffer::addEdge
- * @param sourceSite
+ * @param sourceSide
  * @param edge
  * @return
  */
-bool OutgoingMessageBuffer::addInternalEdge(const uint8_t sourceSite,
+bool OutgoingMessageBuffer::addInternalEdge(const uint8_t sourceSide,
                                             const KyoChanInternalEdgeContainer *edge)
 {
-    if(sourceSite < 17) {
-        m_dataMessageBuffer[sourceSite]->addInternalEdge(edge);
+    if(sourceSide < 17) {
+        m_dataMessageBuffer[sourceSide]->addInternalEdge(edge);
         return true;
     }
     return false;
@@ -90,11 +90,11 @@ bool OutgoingMessageBuffer::addInternalEdge(const uint8_t sourceSite,
  * @param newEdge
  * @return
  */
-bool OutgoingMessageBuffer::addDirectEdge(const uint8_t sourceSite,
+bool OutgoingMessageBuffer::addDirectEdge(const uint8_t sourceSide,
                                           const KyoChanDirectEdgeContainer *edge)
 {
-    if(sourceSite < 17) {
-        m_dataMessageBuffer[sourceSite]->addDirectEdge(edge);
+    if(sourceSide < 17) {
+        m_dataMessageBuffer[sourceSide]->addDirectEdge(edge);
         return true;
     }
     return false;
@@ -106,11 +106,11 @@ bool OutgoingMessageBuffer::addDirectEdge(const uint8_t sourceSite,
  * @param newEdge
  * @return
  */
-bool OutgoingMessageBuffer::addForwardEdge(const uint8_t sourceSite,
+bool OutgoingMessageBuffer::addForwardEdge(const uint8_t sourceSide,
                                            const KyoChanForwardEdgeContainer *edge)
 {
-    if(sourceSite < 17) {
-        m_dataMessageBuffer[sourceSite]->addForwardEdge(edge);
+    if(sourceSide < 17) {
+        m_dataMessageBuffer[sourceSide]->addForwardEdge(edge);
         return true;
     }
     return false;
@@ -123,11 +123,11 @@ bool OutgoingMessageBuffer::addForwardEdge(const uint8_t sourceSite,
  * @param newAxonEdge
  * @return
  */
-bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSite,
+bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSide,
                                         const KyoChanAxonEdgeContainer *newAxonEdge)
 {
-    if(sourceSite < 17) {
-        m_dataMessageBuffer[sourceSite]->addAxonEdge(newAxonEdge);
+    if(sourceSide < 17) {
+        m_dataMessageBuffer[sourceSide]->addAxonEdge(newAxonEdge);
         return true;
     }
     return false;
@@ -139,11 +139,11 @@ bool OutgoingMessageBuffer::addAxonEdge(const uint8_t sourceSite,
  * @param targetSite
  * @return
  */
-bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSite,
+bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSide,
                                            const KyoChanLearingEdgeContainer *newEdge)
 {
-    if(sourceSite <= 17) {
-        m_dataMessageBuffer[sourceSite]->addLearningEdge(newEdge);
+    if(sourceSide <= 17) {
+        m_dataMessageBuffer[sourceSide]->addLearningEdge(newEdge);
         return true;
     }
     return false;
@@ -154,11 +154,11 @@ bool OutgoingMessageBuffer::addLearingEdge(const uint8_t sourceSite,
  * @param targetClusterId
  * @param newEdgeReply
  */
-bool OutgoingMessageBuffer::addLearningReplyMessage(const uint8_t sourceSite,
+bool OutgoingMessageBuffer::addLearningReplyMessage(const uint8_t sourceSide,
                                                     const KyoChanLearningEdgeReplyContainer *newEdgeReply)
 {
-    if(sourceSite <= 17) {
-        m_dataMessageBuffer[sourceSite]->addLearningReplyEdgeReply(newEdgeReply);
+    if(sourceSide <= 17) {
+        m_dataMessageBuffer[sourceSide]->addLearningReplyEdgeReply(newEdgeReply);
         return true;
     }
     return false;
@@ -166,15 +166,15 @@ bool OutgoingMessageBuffer::addLearningReplyMessage(const uint8_t sourceSite,
 
 /**
  * @brief OutgoingMessageBuffer::addDeleteMessage
- * @param sourceSite
+ * @param sourceSide
  * @param edge
  * @return
  */
-bool OutgoingMessageBuffer::addDeleteMessage(const uint8_t sourceSite,
+bool OutgoingMessageBuffer::addDeleteMessage(const uint8_t sourceSide,
                                              const KyoChanDeleteContainer *edge)
 {
-    if(sourceSite <= 17) {
-        m_dataMessageBuffer[sourceSite]->addDeleteEdge(edge);
+    if(sourceSide <= 17) {
+        m_dataMessageBuffer[sourceSide]->addDeleteEdge(edge);
         return true;
     }
     return false;
@@ -182,29 +182,29 @@ bool OutgoingMessageBuffer::addDeleteMessage(const uint8_t sourceSite,
 
 /**
  * @brief OutgoingMessageBuffer::sendReplyMessage
- * @param sourceSite
+ * @param sourceSide
  */
-void OutgoingMessageBuffer::sendReplyMessage(const uint8_t sourceSite)
+void OutgoingMessageBuffer::sendReplyMessage(const uint8_t sourceSide)
 {
-    ReplyMessage* replyMessage = new ReplyMessage(m_cluster->getNeighborId(sourceSite),
-                                                  16 - sourceSite);
+    ReplyMessage* replyMessage = new ReplyMessage(m_cluster->getNeighborId(sourceSide),
+                                                  16 - sourceSide);
     m_controller->sendMessage(replyMessage);
     m_messageIdCounter++;
 }
 
 /**
  * @brief OutgoingMessageBuffer::finishCycle
- * @param sourceSite
+ * @param sourceSide
  * @param numberOfActiveNodes
  */
-void OutgoingMessageBuffer::finishCycle(const uint8_t sourceSite,
+void OutgoingMessageBuffer::finishCycle(const uint8_t sourceSide,
                                         const uint16_t numberOfActiveNodes)
 {
-    m_dataMessageBuffer[sourceSite]->setNumberOfActiveNodes(numberOfActiveNodes);
-    m_controller->sendMessage(m_dataMessageBuffer[sourceSite]);
-    m_dataMessageBuffer[sourceSite] = new DataMessage(m_cluster->getNeighborId(sourceSite),
+    m_dataMessageBuffer[sourceSide]->setNumberOfActiveNodes(numberOfActiveNodes);
+    m_controller->sendMessage(m_dataMessageBuffer[sourceSide]);
+    m_dataMessageBuffer[sourceSide] = new DataMessage(m_cluster->getNeighborId(sourceSide),
                                                       m_cluster->getClusterId(),
-                                                      16 - sourceSite);
+                                                      16 - sourceSide);
 }
 
 }
