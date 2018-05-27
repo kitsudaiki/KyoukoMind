@@ -41,10 +41,12 @@ bool IncomingMessageBuffer::initMessageBuffer(EdgeCluster *cluster)
     {
         m_dataMessageBuffer1[side] = new DataMessage(cluster->getNeighborId(side),
                                                      cluster->getClusterId(),
-                                                     16 - side);
+                                                     16 - side,
+                                                     1);
         m_dataMessageBuffer2[side] = new DataMessage(cluster->getNeighborId(side),
                                                      cluster->getClusterId(),
-                                                     16 - side);
+                                                     16 - side,
+                                                     1);
     }
 }
 

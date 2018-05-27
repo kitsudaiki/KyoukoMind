@@ -20,11 +20,13 @@ namespace KyoukoMind
  */
 DataMessage::DataMessage(const ClusterID targetClusterId,
                          const ClusterID sourceClusterId,
-                         const uint8_t targetSite) :
+                         const uint8_t targetSite,
+                         const uint64_t messageId) :
     Message(targetClusterId, sourceClusterId, targetSite)
 {
     m_metaData.type = DATA_MESSAGE;
     m_metaData.requiredReply = 1;
+    m_metaData.messageId = messageId;
 
     memcpy(m_buffer->getBufferPointer(), (void*)(&m_metaData), sizeof(CommonMessageData));
     m_currentBufferPos = sizeof(CommonMessageData);

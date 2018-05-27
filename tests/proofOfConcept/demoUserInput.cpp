@@ -45,6 +45,8 @@ void DemoUserInput::inputLoop()
             OUTPUT(charArray[i])
             m_dataio->sendOutData(charArray[i]);
         }
+        usleep(PROCESS_INTERVAL);
+        m_dataio->sendFinishCycle();
     }
 }
 

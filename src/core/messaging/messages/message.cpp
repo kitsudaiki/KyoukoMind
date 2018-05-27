@@ -82,6 +82,7 @@ bool Message::closeBuffer()
 {
     if(m_buffer != nullptr) {
         m_buffer->closeBuffer(true);
+        m_buffer = nullptr;
         return true;
     }
     return false;

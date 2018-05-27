@@ -190,8 +190,8 @@ void MessageProcessing::processLerningEdge(uint8_t *data,
                                                                              edge->sourceEdgeSectionId);
     m_clusterProcessing->processEdgeForwardSection(cluster,
                                                    targetEdgeSectionId,
-                                                   initSide,
                                                    edge->weight,
+                                                   initSide,
                                                    outgoBuffer);
 
     if(targetEdgeSectionId != UNINIT_STATE)

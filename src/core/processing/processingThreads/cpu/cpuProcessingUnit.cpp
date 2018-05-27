@@ -144,10 +144,9 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
                     return false;
                     break;
             }
-
-            //incomBuffer->getMessage(side)->closeBuffer();
-            //delete incomBuffer->getMessage(side);
         }
+        //incomBuffer->getMessage(side)->closeBuffer();
+        //delete incomBuffer->getMessage(side);
     }
 
     return true;
@@ -161,7 +160,9 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
 uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
 {
     assert(nodeCluster != nullptr);
-
+    //std::cout<<"---"<<std::endl;
+    //std::cout<<"processNodes"<<std::endl;
+    //std::cout<<"    cluster-id: "<<nodeCluster->getClusterId()<<std::endl;
     // precheck
     if(nodeCluster->getClusterType() == EDGE_CLUSTER) {
         return 0;
@@ -181,15 +182,21 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
         node < end;
         node++)
     {
-        if(node->border <= node->currentState)
+        const KyoChanNode tempNode = *node;
+        if(tempNode.border <= tempNode.currentState)
         {
+            std::cout<<"---"<<std::endl;
+            std::cout<<"processNodes"<<std::endl;
+            std::cout<<"    cluster-id: "<<nodeCluster->getClusterId()<<std::endl;
+            std::cout<<"        active node: "<<(int)nodeId<<std::endl;
+            std::cout<<"        tempNode.currentState: "<<tempNode.currentState<<std::endl;
             // send message
-            const uint8_t side = node->targetClusterPath % 17;
+            const uint8_t side = tempNode.targetClusterPath % 17;
             if(side == 0)
             {
                 m_clusterProcessing->processEdgeForwardSection(nodeCluster,
-                                                               node->targetAxonId,
-                                                               node->currentState,
+                                                               tempNode.targetAxonId,
+                                                               tempNode.currentState,
                                                                8,
                                                                outgoBuffer);
             }
@@ -197,9 +204,9 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
             {
                 // create new axon-edge
                 KyoChanAxonEdgeContainer edge;
-                edge.targetClusterPath = node->targetClusterPath / 17;
-                edge.targetAxonId = node->targetAxonId;
-                edge.weight = node->currentState;
+                edge.targetClusterPath = tempNode.targetClusterPath / 17;
+                edge.targetAxonId = tempNode.targetAxonId;
+                edge.weight = tempNode.currentState;
                 outgoBuffer->addAxonEdge(side, &edge);
             }
 

@@ -31,6 +31,8 @@ public:
     void run();
 
     void sendOutData(const char input);
+    void sendFinishCycle();
+
 
 private:
     MessageController* m_messageController = nullptr;
@@ -41,7 +43,6 @@ private:
     void sendInnerData(const char input);
 
     void sendData(const KyoChanDirectEdgeContainer &edge);
-    void sendFinishCycle();
 };
 
 }

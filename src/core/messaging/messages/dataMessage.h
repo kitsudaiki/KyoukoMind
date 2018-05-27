@@ -20,7 +20,8 @@ class DataMessage : public Message
 public:
     DataMessage(const ClusterID targetClusterId,
                 const ClusterID sourceClusterId,
-                const uint8_t targetSite);
+                const uint8_t targetSite,
+                const uint64_t messageId);
     DataMessage(void *data, uint32_t size);
 
     void addStatusEdge(const KyoChanStatusEdgeContainer* newEdge);

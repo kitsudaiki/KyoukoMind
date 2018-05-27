@@ -31,7 +31,7 @@ void MessageTest::initTestCase()
 
 void MessageTest::checkDataMessage()
 {
-    DataMessage message(1, 3, 4);
+    DataMessage message(1, 3, 4, 1);
 
     CommonMessageData metaData = message.getMetaData();
 

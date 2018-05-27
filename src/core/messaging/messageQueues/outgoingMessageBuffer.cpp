@@ -46,9 +46,13 @@ bool OutgoingMessageBuffer::updateBufferInit()
         if(m_dataMessageBuffer[side] != nullptr) {
             delete m_dataMessageBuffer[side];
         }
+
+        uint64_t id = m_messageIdCounter;
+        id = (id << 32) + m_cluster->getClusterId();
         m_dataMessageBuffer[side] = new DataMessage(m_cluster->getNeighborId(side),
                                                     m_cluster->getClusterId(),
-                                                    16 - side);
+                                                    16 - side,
+                                                    id);
     }
 }
 
@@ -202,9 +206,15 @@ void OutgoingMessageBuffer::finishCycle(const uint8_t sourceSide,
 {
     m_dataMessageBuffer[sourceSide]->setNumberOfActiveNodes(numberOfActiveNodes);
     m_controller->sendMessage(m_dataMessageBuffer[sourceSide]);
+
+    m_messageIdCounter++;
+    uint64_t id = m_messageIdCounter;
+    id = (id << 32) + m_cluster->getClusterId();
+
     m_dataMessageBuffer[sourceSide] = new DataMessage(m_cluster->getNeighborId(sourceSide),
                                                       m_cluster->getClusterId(),
-                                                      16 - sourceSide);
+                                                      16 - sourceSide,
+                                                      id);
 }
 
 }

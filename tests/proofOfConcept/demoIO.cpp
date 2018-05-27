@@ -84,6 +84,7 @@ void DemoIO::run()
  */
 void DemoIO::sendOutData(const char input)
 {
+    std::cout<<"----------------------------------------- sendOutData"<<std::endl;
     uint8_t inputNumber = (uint8_t)input;
 
     KyoChanDirectEdgeContainer edge1;
@@ -110,6 +111,7 @@ void DemoIO::sendOutData(const char input)
  */
 void DemoIO::sendInnerData(const char input)
 {
+    std::cout<<"+++++++++++++++++++++++++++++++++++++ sendInnerData"<<std::endl;
     uint8_t inputNumber = (uint8_t)input;
 
     KyoChanDirectEdgeContainer edge1;

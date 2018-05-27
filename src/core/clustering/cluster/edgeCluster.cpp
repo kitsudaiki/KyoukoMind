@@ -317,12 +317,15 @@ void EdgeCluster::decreaseNumberOfPendingForwardEdges()
  */
 void EdgeCluster::finishCycle(const uint16_t numberOfActiveNodes)
 {
+    m_outgoingMessageQueue->finishCycle(0, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(2, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(3, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(4, numberOfActiveNodes);
+    m_outgoingMessageQueue->finishCycle(8, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(12, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(13, numberOfActiveNodes);
     m_outgoingMessageQueue->finishCycle(14, numberOfActiveNodes);
+    m_outgoingMessageQueue->finishCycle(16, numberOfActiveNodes);
 }
 
 }

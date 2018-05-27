@@ -32,8 +32,8 @@ uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
                                     const uint8_t clusterType,
                                     bool whichoutProbability)
 {
-
-    if(initialSite > 0xF || allNeighbors == nullptr) {
+    assert(allNeighbors != nullptr);
+    if(initialSite > 16) {
         return 0xFF;
     }
 
