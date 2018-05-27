@@ -99,6 +99,7 @@ Message *IncomingMessageBuffer::getMessage(const uint8_t side)
 bool IncomingMessageBuffer::isReady() const
 {
     return true;
+    // TODO
     if(m_finishCounter == 9) {
         return true;
     }

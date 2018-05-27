@@ -71,6 +71,7 @@ void DemoIO::run()
                     out = 255;
                 }
                 char newChar = (char)out;
+                std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! out: "<<newChar<<"  number: "<<(int)out<<std::endl;
                 sendInnerData(newChar);
                 data += sizeof(KyoChanStatusEdgeContainer);
             }

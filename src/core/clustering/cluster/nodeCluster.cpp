@@ -31,6 +31,12 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
     m_edgeSectionBuffer = new PerformanceIO::DataBuffer("");
     m_edgeSectionBuffer->allocateBlocks(1);
     initNodeBlocks(numberOfNodes);
+
+    Neighbor tempNeighbor;
+    tempNeighbor.neighborType = NODE_CLUSTER;
+    tempNeighbor.targetClusterId = clusterId;
+    tempNeighbor.targetSide = 8;
+    addNeighbor(8, tempNeighbor);
 }
 
 /**

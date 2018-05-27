@@ -149,17 +149,9 @@ bool EdgeCluster::addNeighbor(const uint8_t side, const Neighbor target)
         return false;
     }
 
-    // add spezial state, if an input- or output-neighbor will be added
-    if(side == 0) {
-        m_metaData.incoming = 1;
-    }
-    if(side == 15) {
-        m_metaData.outgoing = 1;
-    }
-
     // add the new neighbor
     m_metaData.neighors[side] = target;
-    m_metaData.neighors[side].targetSide = 15 - side;
+    m_metaData.neighors[side].targetSide = 16 - side;
 
     // update message-queue
     if(m_outgoingMessageQueue != nullptr) {

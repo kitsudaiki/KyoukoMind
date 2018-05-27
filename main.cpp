@@ -28,7 +28,9 @@ int main(int argc, char *argv[])
     KyoukoMind::MessageTest();
     KyoukoMind::StructTest();
     KyoukoMind::MessageBufferTest();
-    KyoukoMind::ProcessingTest();*/
+    KyoukoMind::ProcessingTest();
+    KyoukoMind::MessageBufferTest();*/
+
 
     KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
 

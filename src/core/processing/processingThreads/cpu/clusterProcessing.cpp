@@ -113,13 +113,26 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
 
     // cluster-external lerning
     if(currentSection->forwardEdges[nextSide].targetId == UNINIT_STATE
-            && nextSide != 8)
+            && nextSide != 8
+            && nextSide != 16)
     {
         // send new learning-edge
         KyoChanLearingEdgeContainer newEdge;
         newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
         newEdge.weight = partitialWeight;
         outgoBuffer->addLearingEdge(nextSide, &newEdge);
+
+        currentSection->setPedingBit(nextSide);
+    }
+
+    if(currentSection->forwardEdges[nextSide].targetId == UNINIT_STATE
+            && nextSide == 16)
+    {
+        // send new learning-edge
+        KyoChanDirectEdgeContainer newEdge;
+        newEdge.targetNodeId = 0;
+        newEdge.weight = partitialWeight;
+        outgoBuffer->addDirectEdge(nextSide, &newEdge);
 
         currentSection->setPedingBit(nextSide);
     }
@@ -175,10 +188,14 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
                 // internal edge
                 if(sideCounter == 8)
                 {
-                    KyoChanInternalEdgeContainer newEdge;
+                    /*KyoChanInternalEdgeContainer newEdge;
                     newEdge.targetEdgeSectionId = tempForwardEdge.targetId;
                     newEdge.weight = tempForwardEdge.weight * ratio;
-                    outgoBuffer->addInternalEdge(sideCounter, &newEdge);
+                    outgoBuffer->addInternalEdge(sideCounter, &newEdge);*/
+                    processEdgeSection((NodeCluster*)cluster,
+                                       tempForwardEdge.targetId,
+                                       tempForwardEdge.weight * ratio,
+                                       outgoBuffer);
                 }
 
                 // normal external edge
@@ -264,6 +281,7 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                            const float weight,
                                            OutgoingMessageBuffer* outgoBuffer)
 {
+    assert(cluster->getClusterType() == NODE_CLUSTER);
     std::cout<<"---"<<std::endl;
     std::cout<<"processEdgeSection"<<std::endl;
     if(weight != 0.0)
@@ -279,10 +297,9 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
         // process edge-section
         const float ratio = currentSection->totalWeight / weight;
         KyoChanNode* nodes = cluster->getNodeBlock();
-        KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
 
         // float updateValue = 0;
-
+        KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
         for(KyoChanEdge* edge = currentSection->edges;
             edge < end;
             edge++)

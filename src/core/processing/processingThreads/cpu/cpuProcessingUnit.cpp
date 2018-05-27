@@ -65,6 +65,7 @@ void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
     if(clusterType == NODE_CLUSTER) {
         NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
         numberOfActiveNodes = processNodes(nodeCluster);
+        assert(numberOfActiveNodes > 0);
     }
 
     // process messages of the cluster
@@ -194,11 +195,12 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
             const uint8_t side = tempNode.targetClusterPath % 17;
             if(side == 0)
             {
-                m_clusterProcessing->processEdgeForwardSection(nodeCluster,
-                                                               tempNode.targetAxonId,
-                                                               tempNode.currentState,
-                                                               8,
-                                                               outgoBuffer);
+                // create new axon-edge
+                KyoChanAxonEdgeContainer edge;
+                edge.targetClusterPath = 0;
+                edge.targetAxonId = tempNode.targetAxonId;
+                edge.weight = tempNode.currentState;
+                outgoBuffer->addAxonEdge(8, &edge);
             }
             else
             {

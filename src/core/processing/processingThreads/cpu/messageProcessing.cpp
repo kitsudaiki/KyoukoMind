@@ -217,7 +217,7 @@ void MessageProcessing::processLearningReply(uint8_t *data,
                                              EdgeCluster* cluster)
 {
     std::cout<<"---"<<std::endl;
-    std::cout<<"processLerningEdge"<<std::endl;
+    std::cout<<"processLearningReply"<<std::endl;
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
     KyoChanForwardEdgeSection* edgeForwardSections = ((EdgeCluster*)cluster)->getForwardEdgeSectionBlock();
