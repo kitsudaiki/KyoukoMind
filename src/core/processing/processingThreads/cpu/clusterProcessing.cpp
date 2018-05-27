@@ -186,7 +186,9 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
                 }
             }
 
+            const float diff = forwardEdge->weight * (1.0f - forwardEdge->memorize);
             forwardEdge->weight *= forwardEdge->memorize;
+            currentSection->totalWeight -= diff;
 
             currentSection->zeroPendingBit(sideCounter);
             sideCounter++;
@@ -257,7 +259,7 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
         KyoChanNode* nodes = cluster->getNodeBlock();
         KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
 
-        float updateValue = 0;
+        // float updateValue = 0;
 
         for(KyoChanEdge* edge = currentSection->edges;
             edge < end;
@@ -276,7 +278,9 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
             }
 
             // memorize the current edge-weight
+            const float diff = edge->weight * (1.0f - edge->memorize);
             edge->weight *= edge->memorize;
+            currentSection->totalWeight -= diff;
         }
 
         //KyoChanStatusEdgeContainer newEdge;
