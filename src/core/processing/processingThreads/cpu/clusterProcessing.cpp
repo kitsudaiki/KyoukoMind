@@ -148,28 +148,37 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
         }
 
         // normal processing
-        uint8_t sideCounter = 2;
+        uint8_t sideCounter = 2; // to skip side number 0 and 1
         KyoChanForwardEdge* forwardStart = currentSection->forwardEdges + sideCounter;
         KyoChanForwardEdge* forwardEnd = currentSection->forwardEdges + 17;
+
         for(KyoChanForwardEdge* forwardEdge = forwardStart;
             forwardEdge < forwardEnd;
             forwardEdge++)
         {
             if(forwardEdge->weight != 0.0)
             {
-                if(sideCounter == 8 && forwardEdge->targetId != UNINIT_STATE) {
+                // internal edge
+                if(sideCounter == 8)
+                {
                     KyoChanInternalEdgeContainer newEdge;
                     newEdge.targetEdgeSectionId = forwardEdge->targetId;
                     newEdge.weight = forwardEdge->weight * weight;
                     outgoBuffer->addInternalEdge(sideCounter, &newEdge);
                 }
-                if(sideCounter <= 14 && sideCounter != 8) {
+
+                // normal external edge
+                if(sideCounter <= 14 && sideCounter != 8)
+                {
                     KyoChanForwardEdgeContainer newEdge;
                     newEdge.targetEdgeSectionId = forwardEdge->targetId;
                     newEdge.weight = forwardEdge->weight * weight;
                     outgoBuffer->addForwardEdge(sideCounter, &newEdge);
                 }
-                if(sideCounter == 16) {
+
+                // outgoing edge
+                if(sideCounter == 16)
+                {
                     KyoChanDirectEdgeContainer newEdge;
                     newEdge.targetNodeId = (int16_t)forwardEdge->targetId;
                     newEdge.weight = forwardEdge->weight * weight;
@@ -186,30 +195,48 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
 }
 
  /**
-  * @brief ClusterProcessing::learningInternalForwardEdge
-  * @param currentSection
-  * @param cluster
-  * @param partitialWeight
+  * @brief ClusterProcessing::learningEdgeSection learing-process of the specific edge-section
+  * @param currentSection edge-section with should learn the new value
+  * @param partitialWeight weight-difference to learn
   */
  inline void ClusterProcessing::learningEdgeSection(KyoChanEdgeSection* currentSection,
                                                     const float partitialWeight)
  {
-     uint16_t chooseOfExist = rand() % currentSection->numberOfEdges + OVERPROVISIONING;
-     if(chooseOfExist >= currentSection->numberOfEdges)
+     // collect necessary values
+     const uint16_t numberOfEdge = currentSection->numberOfEdges;
+     const uint16_t chooseRange = (numberOfEdge + OVERPROVISIONING) % EDGES_PER_EDGESECTION;
+     const uint16_t chooseOfExist = rand() % chooseRange;
+
+     if(chooseOfExist >= numberOfEdge)
      {
+         // create a new edge-section within the current section
+         const uint16_t chooseNewNode = rand() % m_activeNodes->numberOfActiveNodes;
+
          KyoChanEdge newEdge;
-         newEdge.targetNodeId = rand() % m_activeNodes->numberOfActiveNodes;
-         newEdge.weight = partitialWeight;
+         newEdge.targetNodeId =  m_activeNodes->nodeIds[chooseNewNode];
+         newEdge.weight = partitialWeight / 2.0;
          currentSection->addEdge(newEdge);
      }
+     else
+     {
+         // update a existing edge
+         currentSection->edges[chooseOfExist].weight += partitialWeight / 2.0;
+     }
+
+     // update two other already existing edges
+     if(numberOfEdge > 0) {
+         currentSection->edges[rand() % numberOfEdge].weight += partitialWeight / 4.0;
+         currentSection->edges[rand() % numberOfEdge].weight += partitialWeight / 4.0;
+     }
+     currentSection->totalWeight += partitialWeight;
  }
 
  /**
- * @brief ClusterProcessing::processEdgeSection
- * @param cluster
- * @param edgeSectionId
- * @param weight
- * @param outgoBuffer
+ * @brief ClusterProcessing::processEdgeSection process of a specific edge-section of a cluster
+ * @param cluster pointer to the node-custer
+ * @param edgeSectionId id of the edge-section within the current cluster
+ * @param weight incoming weight-value
+ * @param outgoBuffer pointer to outgoing message-buffer
  */
 void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                            uint32_t edgeSectionId,
