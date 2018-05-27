@@ -18,7 +18,7 @@
 struct KyoChanForwardEdge
 {
     float weight = 0.0;
-    uint32_t targetId = 0;
+    uint32_t targetId = UNINIT_STATE;
     float memorize = 0.5f;
 
 } __attribute__((packed));
@@ -29,7 +29,7 @@ struct KyoChanForwardEdge
 struct KyoChanEdge
 {
     float weight = 0.0;
-    uint16_t targetNodeId = 0;
+    uint16_t targetNodeId = (uint16_t)UNINIT_STATE;
     float memorize = 0.5f;
 
 } __attribute__((packed));
@@ -57,7 +57,7 @@ struct KyoChanForwardEdgeSection
         if(side >= 17) {
             return false;
         }
-        if(forwardEdges[side].targetId == 0) {
+        if(forwardEdges[side].targetId == UNINIT_STATE) {
             return false;
         }
         forwardEdges[side].weight += weight;

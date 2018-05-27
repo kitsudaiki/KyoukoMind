@@ -192,7 +192,7 @@ uint32_t NodeCluster::addEmptyEdgeSection()
             < ((m_metaData.numberOfEdgeSections + 1) * sizeof(KyoChanEdgeSection)) / blockSize)
     {
         if(!m_edgeSectionBuffer->allocateBlocks(1)) {
-            return SPECIAL_STATE;
+            return UNINIT_STATE;
         }
         m_metaData.numberOfEdgeBlocks++;
     }

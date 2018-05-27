@@ -136,7 +136,7 @@ void MessageProcessing::processForwardEdge(uint8_t *data,
 {
     KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
 
-    if(edge->targetEdgeSectionId != SPECIAL_STATE)
+    if(edge->targetEdgeSectionId != UNINIT_STATE)
     {
         m_clusterProcessing->processEdgeForwardSection(cluster,
                                                        edge->targetEdgeSectionId,
@@ -147,7 +147,7 @@ void MessageProcessing::processForwardEdge(uint8_t *data,
     else
     {
         uint32_t pendingEdgeId = cluster->getPendingForwardEdgeSectionId();
-        if(pendingEdgeId != SPECIAL_STATE) {
+        if(pendingEdgeId != UNINIT_STATE) {
             m_clusterProcessing->processEdgeForwardSection(cluster,
                                                            pendingEdgeId,
                                                            edge->weight,
@@ -180,7 +180,7 @@ void MessageProcessing::processLerningEdge(uint8_t *data,
                                                    edge->weight,
                                                    outgoBuffer);
 
-    if(targetEdgeSectionId != SPECIAL_STATE)
+    if(targetEdgeSectionId != UNINIT_STATE)
     {
         // create reply-message
         KyoChanLearningEdgeReplyContainer reply;

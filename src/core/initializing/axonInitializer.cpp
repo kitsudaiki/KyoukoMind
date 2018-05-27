@@ -126,8 +126,7 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
     }
     // choose the next cluster
     uint8_t nextSite = m_chooser->getNextCluster((*m_networkMetaStructure)[x][y].neighbors,
-                                                 inputSide,
-                                                 true);
+                                                 inputSide);
 
     // return the current values if no choise
     if(nextSite == 0xFF) {

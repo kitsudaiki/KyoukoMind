@@ -23,10 +23,13 @@ NextChooser::NextChooser()
  * @brief NextChooser::getNextCluster
  * @param allNeighbors
  * @param initialSite
+ * @param clusterType
+ * @param whichoutProbability
  * @return
  */
 uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
                                     const uint8_t initialSite,
+                                    const uint8_t clusterType,
                                     bool whichoutProbability)
 {
 
@@ -39,7 +42,7 @@ uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
         possibleNext[i] = 0.0;
     }
 
-    getPossibleNeighbors(allNeighbors, initialSite, possibleNext);
+    getPossibleNeighbors(allNeighbors, initialSite, possibleNext, clusterType);
 
     float totalProbability = calculatePossebilities(whichoutProbability,
                                                     possibleNext);
@@ -58,10 +61,13 @@ uint8_t NextChooser::getNextCluster(Neighbor *allNeighbors,
  * @brief NextChooser::getPossibleNeighbors
  * @param allNeighbors
  * @param initialSite
+ * @param possibleNext
+ * @param clusterType
  */
 void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
                                        const uint8_t initialSite,
-                                       float *possibleNext)
+                                       float *possibleNext,
+                                       const uint8_t clusterType)
 {
     switch((int)initialSite)
     {
@@ -95,6 +101,10 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         possibleNext[14] = MAX_DISTANCE
                 - allNeighbors[14].distantToNextNodeCluster
                 + allNeighbors[14].activeNodesInNextNodeCluster;
+        if(clusterType == NODE_CLUSTER) {
+            possibleNext[8] = MAX_DISTANCE
+                + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
         break;
     case 3:
         possibleNext[12] = MAX_DISTANCE
@@ -106,6 +116,10 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         possibleNext[14] = MAX_DISTANCE
                 - allNeighbors[14].distantToNextNodeCluster
                 + allNeighbors[14].activeNodesInNextNodeCluster;
+        if(clusterType == NODE_CLUSTER) {
+            possibleNext[8] = MAX_DISTANCE
+               + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
         break;
     case 4:
         possibleNext[2] = MAX_DISTANCE
@@ -117,6 +131,10 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         possibleNext[13] = MAX_DISTANCE
                 - allNeighbors[13].distantToNextNodeCluster
                 + allNeighbors[13].activeNodesInNextNodeCluster;
+        if(clusterType == NODE_CLUSTER) {
+            possibleNext[8] = MAX_DISTANCE
+                + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
         break;
     case 12:
         possibleNext[3] = MAX_DISTANCE
@@ -128,6 +146,10 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         possibleNext[14] = MAX_DISTANCE
                 - allNeighbors[14].distantToNextNodeCluster
                 + allNeighbors[14].activeNodesInNextNodeCluster;
+        if(clusterType == NODE_CLUSTER) {
+            possibleNext[8] = MAX_DISTANCE
+                + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
         break;
     case 13:
         possibleNext[2] = MAX_DISTANCE
@@ -139,6 +161,10 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         possibleNext[4] = MAX_DISTANCE
                 - allNeighbors[4].distantToNextNodeCluster
                 + allNeighbors[4].activeNodesInNextNodeCluster;
+        if(clusterType == NODE_CLUSTER) {
+            possibleNext[8] = MAX_DISTANCE
+                + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
         break;
     case 14:
         possibleNext[12] = MAX_DISTANCE
@@ -150,6 +176,10 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         possibleNext[3] = MAX_DISTANCE
                 - allNeighbors[3].distantToNextNodeCluster
                 + allNeighbors[3].activeNodesInNextNodeCluster;
+        if(clusterType == NODE_CLUSTER) {
+            possibleNext[8] = MAX_DISTANCE
+                + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
         break;
     default:
         break;
