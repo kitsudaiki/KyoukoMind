@@ -49,6 +49,15 @@ MessageController *NetworkManager::getMessageController() const
 }
 
 /**
+ * @brief NetworkManager::getClusterHandler
+ * @return
+ */
+ClusterHandler *NetworkManager::getClusterHandler() const
+{
+    return m_clusterHandler;
+}
+
+/**
  * @brief NetworkManager::run
  */
 void NetworkManager::run()

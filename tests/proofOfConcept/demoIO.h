@@ -17,6 +17,7 @@
 namespace KyoukoMind
 {
 class MessageController;
+class ClusterHandler;
 class IncomingMessageBuffer;
 class MessageBuffer;
 class OutgoingMessageBuffer;
@@ -24,7 +25,8 @@ class OutgoingMessageBuffer;
 class DemoIO : public CommonThread
 {
 public:
-    DemoIO(MessageController *messageController);
+    DemoIO(MessageController *messageController,
+           ClusterHandler *clusterHandler);
 
     void run();
 

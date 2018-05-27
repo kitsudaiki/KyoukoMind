@@ -21,7 +21,6 @@
 
 int main(int argc, char *argv[])
 {
-    //KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
     KyoukoMind::DataBufferTest();
     KyoukoMind::StorageMemoryTest();
     KyoukoMind::InitTest();
@@ -30,6 +29,10 @@ int main(int argc, char *argv[])
     KyoukoMind::StructTest();
     KyoukoMind::MessageBufferTest();
     KyoukoMind::ProcessingTest();
-    //KyoukoMind::DemoUserInput input(network->getMessageController());
-    //input.inputLoop();
+
+    KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
+
+    KyoukoMind::DemoUserInput input(network->getMessageController(),
+                                    network->getClusterHandler());
+    input.inputLoop();
 }

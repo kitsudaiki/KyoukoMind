@@ -45,6 +45,15 @@ MessageController *KyoukoNetwork::getMessageController() const
 }
 
 /**
+ * @brief KyoukoNetwork::getClusterHandler
+ * @return
+ */
+ClusterHandler *KyoukoNetwork::getClusterHandler() const
+{
+    return m_networkManager->getClusterHandler();
+}
+
+/**
  * @brief KyoukoNetwork::initLogger
  * @param ok
  * @return

@@ -29,6 +29,7 @@ public:
     NetworkManager();
 
     MessageController* getMessageController() const;
+    ClusterHandler* getClusterHandler() const;
 
     void run();
 
