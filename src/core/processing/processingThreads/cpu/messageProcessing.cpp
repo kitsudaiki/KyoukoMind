@@ -49,6 +49,8 @@ void MessageProcessing::processStatusEdge(uint8_t *data,
                                           EdgeCluster *cluster,
                                           OutgoingMessageBuffer *outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processStatusEdge"<<std::endl;
     KyoChanStatusEdgeContainer* edge = (KyoChanStatusEdgeContainer*)data;
     m_clusterProcessing->updateEdgeForwardSection(cluster,
                                                   edge->targetId,
@@ -66,6 +68,8 @@ void MessageProcessing::processInternalEdge(uint8_t *data,
                                             EdgeCluster *cluster,
                                             OutgoingMessageBuffer *outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processInternalEdge"<<std::endl;
     KyoChanInternalEdgeContainer* edge = (KyoChanInternalEdgeContainer*)data;
     if(cluster->getClusterType() == NODE_CLUSTER) {
         m_clusterProcessing->processEdgeSection((NodeCluster*)cluster,
@@ -83,9 +87,13 @@ void MessageProcessing::processInternalEdge(uint8_t *data,
 void MessageProcessing::processDirectEdge(uint8_t *data,
                                           EdgeCluster *cluster)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processDirectEdge"<<std::endl;
     KyoChanDirectEdgeContainer* edge = (KyoChanDirectEdgeContainer*)data;
     if(cluster->getClusterType() == NODE_CLUSTER) {
         ((NodeCluster*)cluster)->getNodeBlock()[edge->targetNodeId].currentState += edge->weight;
+        std::cout<<"    node-id: "<<(int)edge->targetNodeId<<std::endl;
+        std::cout<<"    current state: "<<((NodeCluster*)cluster)->getNodeBlock()[edge->targetNodeId].currentState<<std::endl;
     }
 }
 
@@ -100,6 +108,8 @@ void MessageProcessing::processAxonEdge(uint8_t *data,
                                         EdgeCluster* cluster,
                                         OutgoingMessageBuffer* outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processAxonEdge"<<std::endl;
     KyoChanAxonEdgeContainer* edge = (KyoChanAxonEdgeContainer*)data;
 
     // check if target-cluster is reached
@@ -134,6 +144,8 @@ void MessageProcessing::processForwardEdge(uint8_t *data,
                                            EdgeCluster* cluster,
                                            OutgoingMessageBuffer* outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processForwardEdge"<<std::endl;
     KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
 
     if(edge->targetEdgeSectionId != UNINIT_STATE)
@@ -170,6 +182,8 @@ void MessageProcessing::processLerningEdge(uint8_t *data,
                                            EdgeCluster* cluster,
                                            OutgoingMessageBuffer* outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processLerningEdge"<<std::endl;
     KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
 
     const uint32_t targetEdgeSectionId = cluster->addEmptyForwardEdgeSection(initSide,
@@ -202,6 +216,8 @@ void MessageProcessing::processLearningReply(uint8_t *data,
                                              const uint8_t initSide,
                                              EdgeCluster* cluster)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processLerningEdge"<<std::endl;
     KyoChanLearningEdgeReplyContainer* edge = (KyoChanLearningEdgeReplyContainer*)data;
 
     KyoChanForwardEdgeSection* edgeForwardSections = ((EdgeCluster*)cluster)->getForwardEdgeSectionBlock();

@@ -34,6 +34,7 @@ public:
 
 private:
     MessageController* m_messageController = nullptr;
+    ClusterHandler* m_clusterHandler = nullptr;
     IncomingMessageBuffer* m_incomBuffer= nullptr;
     OutgoingMessageBuffer* m_ougoingBuffer= nullptr;
 

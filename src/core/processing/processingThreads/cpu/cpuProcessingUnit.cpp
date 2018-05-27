@@ -183,15 +183,25 @@ uint16_t CpuProcessingUnit::processNodes(NodeCluster* nodeCluster)
     {
         if(node->border <= node->currentState)
         {
-            // create new axon-edge
-            KyoChanAxonEdgeContainer edge;
-            edge.targetClusterPath = node->targetClusterPath / 17;
-            edge.targetAxonId = node->targetAxonId;
-            edge.weight = node->currentState;
-
             // send message
             const uint8_t side = node->targetClusterPath % 17;
-            outgoBuffer->addAxonEdge(side, &edge);
+            if(side == 0)
+            {
+                m_clusterProcessing->processEdgeForwardSection(nodeCluster,
+                                                               node->targetAxonId,
+                                                               node->currentState,
+                                                               8,
+                                                               outgoBuffer);
+            }
+            else
+            {
+                // create new axon-edge
+                KyoChanAxonEdgeContainer edge;
+                edge.targetClusterPath = node->targetClusterPath / 17;
+                edge.targetAxonId = node->targetAxonId;
+                edge.weight = node->currentState;
+                outgoBuffer->addAxonEdge(side, &edge);
+            }
 
             // active-node-registration
             if(rand() % 100 <= RANDOM_ADD_ACTIVE_NODE) {

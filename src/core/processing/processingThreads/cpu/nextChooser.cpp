@@ -145,6 +145,33 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
             possibleNext[16] = MAX_DISTANCE;
         }
         break;
+    case 8:
+        possibleNext[2] = MAX_DISTANCE
+                - allNeighbors[2].distantToNextNodeCluster
+                + allNeighbors[2].activeNodesInNextNodeCluster;
+        possibleNext[3] = MAX_DISTANCE
+                - allNeighbors[3].distantToNextNodeCluster
+                + allNeighbors[3].activeNodesInNextNodeCluster;
+        possibleNext[4] = MAX_DISTANCE
+                - allNeighbors[4].distantToNextNodeCluster
+                + allNeighbors[4].activeNodesInNextNodeCluster;
+        possibleNext[12] = MAX_DISTANCE
+                - allNeighbors[12].distantToNextNodeCluster
+                + allNeighbors[12].activeNodesInNextNodeCluster;
+        possibleNext[13] = MAX_DISTANCE
+                - allNeighbors[13].distantToNextNodeCluster
+                + allNeighbors[13].activeNodesInNextNodeCluster;
+        possibleNext[14] = MAX_DISTANCE
+                - allNeighbors[14].distantToNextNodeCluster
+                + allNeighbors[14].activeNodesInNextNodeCluster;
+        if(clusterType == NODE_CLUSTER) {
+            possibleNext[8] = MAX_DISTANCE
+               + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
+        if(allNeighbors[16].targetClusterId != UNINIT_STATE) {
+            possibleNext[16] = MAX_DISTANCE;
+        }
+        break;
     case 12:
         possibleNext[3] = MAX_DISTANCE
                 - allNeighbors[3].distantToNextNodeCluster

@@ -62,6 +62,8 @@ void ClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster,
                                                  const uint8_t inititalSide,
                                                  OutgoingMessageBuffer *outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"updateEdgeForwardSection"<<std::endl;
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
     //currentSection->forwardEdges[inititalSide].updateMemorize(status);
 
@@ -89,6 +91,8 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
                                                           const float partitialWeight,
                                                           OutgoingMessageBuffer* outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"learningForwardEdgeSection"<<std::endl;
     // get side of learning-process
     const uint8_t nextSide = m_nextChooser->getNextCluster(cluster->getNeighbors(),
                                                            inititalSide,
@@ -133,6 +137,8 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
                                                    const uint8_t inititalSide,
                                                    OutgoingMessageBuffer* outgoBuffer)
 {
+     std::cout<<"---"<<std::endl;
+     std::cout<<"processEdgeForwardSection"<<std::endl;
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
 
     if(weight != 0.0 || currentSection->pendingEdges != 0)
@@ -204,6 +210,8 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
  inline void ClusterProcessing::learningEdgeSection(KyoChanEdgeSection* currentSection,
                                                     const float partitialWeight)
  {
+     std::cout<<"---"<<std::endl;
+     std::cout<<"learningEdgeSection"<<std::endl;
      // collect necessary values
      const uint16_t numberOfEdge = currentSection->numberOfEdges;
      const uint16_t chooseRange = (numberOfEdge + OVERPROVISIONING) % EDGES_PER_EDGESECTION;
@@ -245,6 +253,8 @@ void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                            const float weight,
                                            OutgoingMessageBuffer* outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processEdgeSection"<<std::endl;
     if(weight != 0.0)
     {
         KyoChanEdgeSection* currentSection = &((cluster)->getEdgeSectionBlock()[edgeSectionId]);

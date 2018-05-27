@@ -28,6 +28,7 @@ namespace KyoukoMind
 DemoIO::DemoIO(MessageController *messageController,
                ClusterHandler *clusterHandler)
 {
+    m_clusterHandler = clusterHandler;
     m_messageController = messageController;
     NodeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test");
     fakeCluster->initMessageBuffer(m_messageController);
@@ -93,12 +94,12 @@ void DemoIO::sendOutData(const char input)
     KyoChanDirectEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 2;
-    sendData(edge1);
+    sendData(edge2);
 
     KyoChanDirectEdgeContainer edge3;
     edge3.weight = (float)inputNumber;
     edge3.targetNodeId = 3;
-    sendData(edge1);
+    sendData(edge3);
 
     sendFinishCycle();
 }
@@ -119,7 +120,7 @@ void DemoIO::sendInnerData(const char input)
     KyoChanDirectEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 2;
-    sendData(edge1);
+    sendData(edge2);
 
     sendFinishCycle();
 }
