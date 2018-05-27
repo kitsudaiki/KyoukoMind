@@ -27,7 +27,7 @@ struct ClusterPos
  */
 struct Neighbor
 {
-    ClusterID targetClusterId = 0;
+    ClusterID targetClusterId = UNINIT_STATE;
     ClusterPos targetClusterPos;
 
     uint8_t targetSide = 0;
@@ -41,7 +41,7 @@ struct Neighbor
  */
 struct ClusterMetaData
 {
-    ClusterID clusterId = 0;
+    ClusterID clusterId = UNINIT_STATE;
     ClusterPos clusterPos;
 
     uint8_t clusterType = EMPTY_CLUSTER;

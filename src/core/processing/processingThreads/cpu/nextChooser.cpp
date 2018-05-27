@@ -105,6 +105,9 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
             possibleNext[8] = MAX_DISTANCE
                 + allNeighbors[8].activeNodesInNextNodeCluster;
         }
+        if(allNeighbors[16].targetClusterId != UNINIT_STATE) {
+            possibleNext[16] = MAX_DISTANCE;
+        }
         break;
     case 3:
         possibleNext[12] = MAX_DISTANCE
@@ -119,6 +122,9 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         if(clusterType == NODE_CLUSTER) {
             possibleNext[8] = MAX_DISTANCE
                + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
+        if(allNeighbors[16].targetClusterId != UNINIT_STATE) {
+            possibleNext[16] = MAX_DISTANCE;
         }
         break;
     case 4:
@@ -135,6 +141,9 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
             possibleNext[8] = MAX_DISTANCE
                 + allNeighbors[8].activeNodesInNextNodeCluster;
         }
+        if(allNeighbors[16].targetClusterId != UNINIT_STATE) {
+            possibleNext[16] = MAX_DISTANCE;
+        }
         break;
     case 12:
         possibleNext[3] = MAX_DISTANCE
@@ -149,6 +158,9 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         if(clusterType == NODE_CLUSTER) {
             possibleNext[8] = MAX_DISTANCE
                 + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
+        if(allNeighbors[16].targetClusterId != UNINIT_STATE) {
+            possibleNext[16] = MAX_DISTANCE;
         }
         break;
     case 13:
@@ -165,6 +177,9 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
             possibleNext[8] = MAX_DISTANCE
                 + allNeighbors[8].activeNodesInNextNodeCluster;
         }
+        if(allNeighbors[16].targetClusterId != UNINIT_STATE) {
+            possibleNext[16] = MAX_DISTANCE;
+        }
         break;
     case 14:
         possibleNext[12] = MAX_DISTANCE
@@ -179,6 +194,9 @@ void NextChooser::getPossibleNeighbors(Neighbor* allNeighbors,
         if(clusterType == NODE_CLUSTER) {
             possibleNext[8] = MAX_DISTANCE
                 + allNeighbors[8].activeNodesInNextNodeCluster;
+        }
+        if(allNeighbors[16].targetClusterId != UNINIT_STATE) {
+            possibleNext[16] = MAX_DISTANCE;
         }
         break;
     default:
