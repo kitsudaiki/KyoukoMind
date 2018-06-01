@@ -8,8 +8,11 @@
  */
 
 #include <core/clustering/cluster/nodeCluster.h>
-#include <kyochanNetwork.h>
 #include <files/dataBuffer.h>
+#include <core/messaging/messageController.h>
+#include <core/messaging/messageQueues/incomingMessageBuffer.h>
+#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
+#include <kyochanNetwork.h>
 
 namespace KyoukoMind
 {
@@ -23,33 +26,11 @@ namespace KyoukoMind
 NodeCluster::NodeCluster(const ClusterID clusterId,
                          const std::string directoryPath,
                          const uint32_t numberOfNodes)
-    : EdgeCluster(clusterId,
-                  directoryPath)
+    : Cluster(clusterId,
+              directoryPath)
 {
     m_metaData.clusterType = NODE_CLUSTER;
-    // TODO: readd file-path after tests
-    m_edgeSectionBuffer = new PerformanceIO::DataBuffer("");
-    m_edgeSectionBuffer->allocateBlocks(1);
     initNodeBlocks(numberOfNodes);
-
-    Neighbor tempNeighbor;
-    tempNeighbor.neighborType = NODE_CLUSTER;
-    tempNeighbor.targetClusterId = clusterId;
-    tempNeighbor.targetSide = 8;
-    addNeighbor(8, tempNeighbor);
-}
-
-/**
- * @brief NodeCluster::~NodeCluster destroy edge-section-buffer
- */
-NodeCluster::~NodeCluster()
-{
-    if(m_edgeSectionBuffer != nullptr)
-    {
-        m_edgeSectionBuffer->closeBuffer();
-        delete m_edgeSectionBuffer;
-        m_edgeSectionBuffer = nullptr;
-    }
 }
 
 /**
@@ -77,7 +58,7 @@ uint16_t NodeCluster::getNumberOfNodes() const
 KyoChanNode *NodeCluster::getNodeBlock()
 {
     uint32_t positionNodeBlock = m_metaData.positionNodeBlocks;
-    return (KyoChanNode*)m_edgeSectionBuffer->getBlock(positionNodeBlock);
+    return (KyoChanNode*)m_clusterDataBuffer->getBlock(positionNodeBlock);
 }
 
 /**
@@ -96,11 +77,11 @@ bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
     m_metaData.numberOfNodes = numberOfNodes;
     m_metaData.positionNodeBlocks = 1;
 
-    const uint32_t blockSize = m_edgeSectionBuffer->getBlockSize();
+    const uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
     m_metaData.numberOfNodeBlocks = (numberOfNodes * sizeof(KyoChanNode)) / blockSize + 1;
 
     // allocate blocks in buffer
-    m_edgeSectionBuffer->allocateBlocks(m_metaData.numberOfNodeBlocks);
+    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfNodeBlocks);
     updateMetaData();
 
     // fill array with empty nodes
@@ -114,7 +95,7 @@ bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
     m_metaData.positionOfEdgeBlock = m_metaData.positionNodeBlocks + m_metaData.numberOfNodeBlocks;
 
     // write the new init nodes to the buffer and the file
-    m_edgeSectionBuffer->syncAll();
+    m_clusterDataBuffer->syncAll();
     return true;
 }
 
@@ -125,7 +106,7 @@ bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
 KyoChanEdgeSection *NodeCluster::getEdgeSectionBlock()
 {
     uint32_t positionEdgeBlock = m_metaData.positionOfEdgeBlock;
-    return (KyoChanEdgeSection*)m_edgeSectionBuffer->getBlock(positionEdgeBlock);
+    return (KyoChanEdgeSection*)m_clusterDataBuffer->getBlock(positionEdgeBlock);
 }
 
 /**
@@ -145,14 +126,14 @@ bool NodeCluster::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
     m_metaData.positionOfEdgeBlock = 0;
 
     // calculate number of edge-blocks
-    uint32_t blockSize = m_edgeSectionBuffer->getBlockSize();
+    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
     m_metaData.numberOfEdgeBlocks = (numberOfEdgeSections * sizeof(KyoChanEdgeSection)) / blockSize;
     if((numberOfEdgeSections * sizeof(KyoChanEdgeSection)) % blockSize != 0) {
         m_metaData.numberOfEdgeBlocks += 1;
     }
 
     // update and persist buffer
-    m_edgeSectionBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
+    m_clusterDataBuffer->allocateBlocks(m_metaData.numberOfEdgeBlocks);
     updateMetaData();
 
     // fill array with empty edgesections
@@ -164,7 +145,7 @@ bool NodeCluster::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
         array[i] = newSection;
     }
     // write the new init nodes to the buffer and the file
-    m_edgeSectionBuffer->syncAll();
+    m_clusterDataBuffer->syncAll();
     return true;
 }
 
@@ -193,11 +174,11 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
 uint32_t NodeCluster::addEmptyEdgeSection()
 {
     // allocate a new block, if necessary
-    uint32_t blockSize = m_edgeSectionBuffer->getBlockSize();
+    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
     if((m_metaData.numberOfEdgeSections * sizeof(KyoChanEdgeSection) )/ blockSize
             < ((m_metaData.numberOfEdgeSections + 1) * sizeof(KyoChanEdgeSection)) / blockSize)
     {
-        if(!m_edgeSectionBuffer->allocateBlocks(1)) {
+        if(!m_clusterDataBuffer->allocateBlocks(1)) {
             return UNINIT_STATE;
         }
         m_metaData.numberOfEdgeBlocks++;

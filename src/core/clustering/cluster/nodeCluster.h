@@ -10,19 +10,18 @@
 #ifndef NODECLUSTER_H
 #define NODECLUSTER_H
 
-#include "edgeCluster.h"
+#include "cluster.h"
 
 namespace KyoukoMind
 {
 
-class NodeCluster : public EdgeCluster
+class NodeCluster : public Cluster
 {
 
 public:
     NodeCluster(const ClusterID clusterId,
                 const std::string directoryPath,
                 const uint32_t numberOfNodes = 0);
-    ~NodeCluster();
 
     // nodes
     uint16_t getNumberOfNodeBlocks() const;
@@ -35,9 +34,6 @@ public:
     bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
     uint32_t addEmptyEdgeSection();
     bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
-
-private:
-    PerformanceIO::DataBuffer* m_edgeSectionBuffer = nullptr;
 };
 
 }

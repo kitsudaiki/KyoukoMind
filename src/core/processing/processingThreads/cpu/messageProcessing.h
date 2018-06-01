@@ -15,7 +15,7 @@
 namespace KyoukoMind
 {
 class OutgoingMessageBuffer;
-class ClusterProcessing;
+class EdgeClusterProcessing;
 class EdgeCluster;
 class NodeCluster;
 class NextChooser;
@@ -23,17 +23,17 @@ class NextChooser;
 class MessageProcessing
 {
 public:
-    MessageProcessing(ClusterProcessing* clusterProcessing);
+    MessageProcessing(EdgeClusterProcessing* clusterProcessing);
 
     void processStatusEdge(uint8_t *data,
                            const uint8_t initialSide,
                            EdgeCluster* cluster,
                            OutgoingMessageBuffer *outgoBuffer);
     void processInternalEdge(uint8_t *data,
-                             EdgeCluster* cluster,
+                             NodeCluster *cluster,
                              OutgoingMessageBuffer *outgoBuffer);
     void processDirectEdge(uint8_t *data,
-                           EdgeCluster* cluster);
+                           NodeCluster *cluster);
     void processAxonEdge(uint8_t *data,
                          const uint8_t initialSide,
                          EdgeCluster *cluster,
@@ -53,7 +53,7 @@ public:
                               EdgeCluster *cluster);
 
 private:
-    ClusterProcessing* m_clusterProcessing = nullptr;
+    EdgeClusterProcessing* m_clusterProcessing = nullptr;
 };
 
 }

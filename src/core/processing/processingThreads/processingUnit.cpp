@@ -11,7 +11,7 @@
 #include <core/clustering/clusterHandler.h>
 #include <core/clustering/clusterQueue.h>
 
-#include <core/clustering/cluster/edgeCluster.h>
+#include <core/clustering/cluster/cluster.h>
 
 namespace KyoukoMind
 {
@@ -36,7 +36,7 @@ void ProcessingUnit::run()
         if(m_block) {
             blockThread();
         }
-        EdgeCluster* cluster = m_clusterQueue->getCluster();
+        Cluster* cluster = m_clusterQueue->getCluster();
         if(cluster == nullptr)
         {
             // block thread until next cycle if queue is empty

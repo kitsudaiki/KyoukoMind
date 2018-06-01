@@ -16,17 +16,17 @@
 
 namespace KyoukoMind
 {
-class EdgeCluster;
+class Cluster;
 class MessageController;
 
 class MessageBuffer
 {
 public:
-    MessageBuffer(EdgeCluster *cluster,
+    MessageBuffer(Cluster *cluster,
                   MessageController *controller);
 
 protected:
-    EdgeCluster* m_cluster;
+    Cluster* m_cluster;
     MessageController *m_controller = nullptr;
 
 private:

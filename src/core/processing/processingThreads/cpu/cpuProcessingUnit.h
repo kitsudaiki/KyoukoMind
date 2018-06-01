@@ -17,7 +17,7 @@
 namespace KyoukoMind
 {
 class NextChooser;
-class ClusterProcessing;
+class EdgeClusterProcessing;
 class MessageProcessing;
 
 class EdgeCluster;
@@ -32,17 +32,17 @@ public:
     CpuProcessingUnit(ClusterQueue *clusterQueue);
     ~CpuProcessingUnit();
 
-    void processCluster(EdgeCluster* cluster);
+    void processCluster(Cluster* cluster);
 
 private:
-    bool processMessagesEdges(EdgeCluster* cluster);
+    bool processMessagesNodeCluster(NodeCluster* cluster);
+    bool processMessagesEdgesCluster(EdgeCluster* cluster);
     uint16_t processNodes(NodeCluster *nodeCluster);
 
-    std::vector<uint8_t> m_sideOrder;
     PossibleKyoChanNodes m_activeNodes;
 
     NextChooser* m_nextChooser = nullptr;
-    ClusterProcessing* m_clusterProcessing = nullptr;
+    EdgeClusterProcessing* m_clusterProcessing = nullptr;
     MessageProcessing* m_messageProcessing = nullptr;
 };
 

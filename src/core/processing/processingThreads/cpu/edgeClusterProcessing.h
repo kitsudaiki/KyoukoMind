@@ -22,11 +22,11 @@ class EdgeCluster;
 class NodeCluster;
 class NextChooser;
 
-class ClusterProcessing
+class EdgeClusterProcessing
 {
 public:
-    ClusterProcessing(NextChooser* nextChooser,
-                      PossibleKyoChanNodes* activeNodes);
+    EdgeClusterProcessing(NextChooser* nextChooser,
+                          PossibleKyoChanNodes* activeNodes);
 
     void updateEdgeForwardSection(EdgeCluster *cluster,
                                   const uint32_t forwardEdgeSectionId,

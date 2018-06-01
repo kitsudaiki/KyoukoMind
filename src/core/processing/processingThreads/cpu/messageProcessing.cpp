@@ -27,12 +27,12 @@
 
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>
 #include <core/processing/processingThreads/cpu/nextChooser.h>
-#include <core/processing/processingThreads/cpu/clusterProcessing.h>
+#include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
 
 namespace KyoukoMind
 {
 
-MessageProcessing::MessageProcessing(ClusterProcessing* clusterProcessing)
+MessageProcessing::MessageProcessing(EdgeClusterProcessing* clusterProcessing)
 {
     m_clusterProcessing = clusterProcessing;
 }
@@ -65,18 +65,16 @@ void MessageProcessing::processStatusEdge(uint8_t *data,
  * @param cluster
  */
 void MessageProcessing::processInternalEdge(uint8_t *data,
-                                            EdgeCluster *cluster,
+                                            NodeCluster *cluster,
                                             OutgoingMessageBuffer *outgoBuffer)
 {
     std::cout<<"---"<<std::endl;
     std::cout<<"processInternalEdge"<<std::endl;
     KyoChanInternalEdgeContainer* edge = (KyoChanInternalEdgeContainer*)data;
-    if(cluster->getClusterType() == NODE_CLUSTER) {
-        m_clusterProcessing->processEdgeSection((NodeCluster*)cluster,
-                                                edge->targetEdgeSectionId,
-                                                edge->weight,
-                                                outgoBuffer);
-    }
+    m_clusterProcessing->processEdgeSection(cluster,
+                                            edge->targetEdgeSectionId,
+                                            edge->weight,
+                                            outgoBuffer);
 }
 
 /**
@@ -85,7 +83,7 @@ void MessageProcessing::processInternalEdge(uint8_t *data,
  * @param cluster
  */
 void MessageProcessing::processDirectEdge(uint8_t *data,
-                                          EdgeCluster *cluster)
+                                          NodeCluster *cluster)
 {
     std::cout<<"---"<<std::endl;
     std::cout<<"processDirectEdge"<<std::endl;

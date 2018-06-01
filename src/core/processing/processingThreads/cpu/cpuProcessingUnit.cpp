@@ -22,7 +22,7 @@
 #include <core/messaging/messages/dataMessage.h>
 #include <core/messaging/messages/replyMessage.h>
 
-#include <core/processing/processingThreads/cpu/clusterProcessing.h>
+#include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
 #include <core/processing/processingThreads/cpu/messageProcessing.h>
 
 namespace KyoukoMind
@@ -35,9 +35,8 @@ namespace KyoukoMind
 CpuProcessingUnit::CpuProcessingUnit(ClusterQueue *clusterQueue):
     ProcessingUnit(clusterQueue)
 {
-    m_sideOrder = {0, 2, 3, 4, 8, 14, 13, 12};
     m_nextChooser = new NextChooser();
-    m_clusterProcessing = new ClusterProcessing(m_nextChooser, &m_activeNodes);
+    m_clusterProcessing = new EdgeClusterProcessing(m_nextChooser, &m_activeNodes);
     m_messageProcessing = new MessageProcessing(m_clusterProcessing);
 }
 
@@ -55,24 +54,74 @@ CpuProcessingUnit::~CpuProcessingUnit()
  * @brief CpuProcessingUnit::processCluster process of a cluster in one cycle
  * @param cluster custer which should be processed
  */
-void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
+void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
     uint8_t clusterType = (uint8_t)cluster->getClusterType();
 
     uint16_t numberOfActiveNodes = 0;
 
     // process nodes if cluster is a node-cluster
-    if(clusterType == NODE_CLUSTER) {
+    if(clusterType == NODE_CLUSTER)
+    {
         NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
         numberOfActiveNodes = processNodes(nodeCluster);
         assert(numberOfActiveNodes > 0);
+        processMessagesNodeCluster(nodeCluster);
     }
-
-    // process messages of the cluster
-    processMessagesEdges(cluster);
+    else
+    {
+        EdgeCluster *edgeCluster = static_cast<EdgeCluster*>(cluster);
+        processMessagesEdgesCluster(edgeCluster);
+    }
 
     // finish the processing-cycle of the current cluster
     cluster->finishCycle(numberOfActiveNodes);
+}
+
+/**
+ * @brief CpuProcessingUnit::processMessagesNodeCluster
+ * @param cluster
+ * @return
+ */
+bool CpuProcessingUnit::processMessagesNodeCluster(NodeCluster *cluster)
+{
+    // get buffer
+    IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
+    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
+
+    // process normal communication
+    std::vector<uint8_t> m_sideOrder = {0, 8};
+    for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
+    {
+        const uint8_t side = m_sideOrder[sidePos];
+
+        uint8_t* data = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
+        uint8_t* end = data + incomBuffer->getMessage(side)->getPayloadSize();
+
+        while(data < end)
+        {
+            switch((int)(*data))
+            {
+                case INTERNAL_EDGE_CONTAINER:
+                    m_messageProcessing->processInternalEdge(data, cluster, outgoBuffer);
+                    data += sizeof(KyoChanInternalEdgeContainer);
+                    break;
+
+                case DIRECT_EDGE_CONTAINER:
+                    m_messageProcessing->processDirectEdge(data, cluster);
+                    data += sizeof(KyoChanDirectEdgeContainer);
+                    break;
+
+                default:
+                    return false;
+                    break;
+            }
+        }
+        //incomBuffer->getMessage(side)->closeBuffer();
+        //delete incomBuffer->getMessage(side);
+    }
+
+    return true;
 }
 
 /**
@@ -80,13 +129,14 @@ void CpuProcessingUnit::processCluster(EdgeCluster *cluster)
  * @param edgeCluster custer which should be processed
  * @return false if a message-type does not exist, else true
  */
-bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
+bool CpuProcessingUnit::processMessagesEdgesCluster(EdgeCluster* cluster)
 {
     // get buffer
     IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
 
     // get number of active nodes from the neighbors
+    std::vector<uint8_t> m_sideOrder = {2, 3, 4, 14, 13, 12};
     for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
     {
         const uint8_t side = m_sideOrder[sidePos];
@@ -109,16 +159,6 @@ bool CpuProcessingUnit::processMessagesEdges(EdgeCluster* cluster)
                 case STATUS_EDGE_CONTAINER:
                     m_messageProcessing->processStatusEdge(data, side, cluster, outgoBuffer);
                     data += sizeof(KyoChanStatusEdgeContainer);
-                    break;
-
-                case INTERNAL_EDGE_CONTAINER:
-                    m_messageProcessing->processInternalEdge(data, cluster, outgoBuffer);
-                    data += sizeof(KyoChanInternalEdgeContainer);
-                    break;
-
-                case DIRECT_EDGE_CONTAINER:
-                    m_messageProcessing->processDirectEdge(data, cluster);
-                    data += sizeof(KyoChanDirectEdgeContainer);
                     break;
 
                 case FOREWARD_EDGE_CONTAINER:

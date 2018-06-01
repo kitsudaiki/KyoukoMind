@@ -14,7 +14,7 @@
 
 namespace KyoukoMind
 {
-class EdgeCluster;
+class Cluster;
 class ClusterQueue;
 
 class ProcessingUnit : public CommonThread
@@ -25,12 +25,12 @@ public:
 
     void run();
 
-    virtual void processCluster(EdgeCluster* cluster) = 0;
+    virtual void processCluster(Cluster* cluster) = 0;
 
 protected:
     ClusterQueue* m_clusterQueue = nullptr;
 
-    std::vector<EdgeCluster*> m_finishClusterBuffer;
+    std::vector<Cluster*> m_finishClusterBuffer;
 
 };
 

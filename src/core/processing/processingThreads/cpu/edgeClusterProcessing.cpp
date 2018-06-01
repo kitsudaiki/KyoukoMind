@@ -7,7 +7,7 @@
  *  TODO: Description
  */
 
-#include "clusterProcessing.h"
+#include "edgeClusterProcessing.h"
 
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
@@ -30,8 +30,8 @@ namespace KyoukoMind
  * @brief ClusterProcessing::ClusterProcessing
  * @param nextChooser
  */
-ClusterProcessing::ClusterProcessing(NextChooser* nextChooser,
-                                     PossibleKyoChanNodes* activeNodes)
+EdgeClusterProcessing::EdgeClusterProcessing(NextChooser* nextChooser,
+                                             PossibleKyoChanNodes* activeNodes)
 {
     m_nextChooser = nextChooser;
     m_activeNodes = activeNodes;
@@ -42,7 +42,7 @@ ClusterProcessing::ClusterProcessing(NextChooser* nextChooser,
  * @param b
  * @return
  */
-inline float ClusterProcessing::randFloat(const float b)
+inline float EdgeClusterProcessing::randFloat(const float b)
 {
     const float random = ((float) rand()) / (float) UNINIT_STATE;
     return random * b;
@@ -56,7 +56,7 @@ inline float ClusterProcessing::randFloat(const float b)
  * @param inititalSide
  * @param outgoBuffer
  */
-void ClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster,
+void EdgeClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster,
                                                  const uint32_t forwardEdgeSectionId,
                                                  const float status,
                                                  const uint8_t inititalSide,
@@ -84,12 +84,12 @@ void ClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster,
  * @param partitialWeight
  * @param outgoBuffer
  */
-inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
-                                                          KyoChanForwardEdgeSection* currentSection,
-                                                          const uint32_t forwardEdgeSectionId,
-                                                          const uint8_t inititalSide,
-                                                          const float partitialWeight,
-                                                          OutgoingMessageBuffer* outgoBuffer)
+inline void EdgeClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
+                                                              KyoChanForwardEdgeSection* currentSection,
+                                                              const uint32_t forwardEdgeSectionId,
+                                                              const uint8_t inititalSide,
+                                                              const float partitialWeight,
+                                                              OutgoingMessageBuffer* outgoBuffer)
 {
     std::cout<<"---"<<std::endl;
     std::cout<<"learningForwardEdgeSection"<<std::endl;
@@ -100,16 +100,6 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
     const uint8_t nextSide = m_nextChooser->getNextCluster(cluster->getNeighbors(),
                                                            inititalSide,
                                                            cluster->getClusterType());
-    std::cout<<"    nextSide: "<<(int)nextSide<<std::endl;
-
-    // cluster-internal learning
-    if(currentSection->forwardEdges[nextSide].targetId == UNINIT_STATE
-            && nextSide == 8)
-    {
-        NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
-        const uint32_t newSectionId = nodeCluster->addEmptyEdgeSection();
-        currentSection->forwardEdges[nextSide].targetId = newSectionId;
-    }
 
     // cluster-external lerning
     if(currentSection->forwardEdges[nextSide].targetId == UNINIT_STATE
@@ -147,7 +137,7 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
   * @param inititalSide
   * @param outgoBuffer
   */
- void ClusterProcessing::processEdgeForwardSection(EdgeCluster *cluster,
+ void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluster,
                                                    const uint32_t forwardEdgeSectionId,
                                                    const float weight,
                                                    const uint8_t inititalSide,
@@ -217,7 +207,6 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
                 }
             }
 
-            //std::cout<<"    memorize: "<<forwardEdge->memorize<<std::endl;
             const float diff = tempForwardEdge.weight * (1.0f - tempForwardEdge.memorize);
             forwardEdge->weight *= tempForwardEdge.memorize;
             currentSection->totalWeight -= diff;
@@ -233,7 +222,7 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
   * @param currentSection edge-section with should learn the new value
   * @param partitialWeight weight-difference to learn
   */
- inline void ClusterProcessing::learningEdgeSection(KyoChanEdgeSection* currentSection,
+ inline void EdgeClusterProcessing::learningEdgeSection(KyoChanEdgeSection* currentSection,
                                                     const float partitialWeight)
  {
      std::cout<<"---"<<std::endl;
@@ -276,7 +265,7 @@ inline void ClusterProcessing::learningForwardEdgeSection(EdgeCluster* cluster,
  * @param weight incoming weight-value
  * @param outgoBuffer pointer to outgoing message-buffer
  */
-void ClusterProcessing::processEdgeSection(NodeCluster *cluster,
+void EdgeClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                            uint32_t edgeSectionId,
                                            const float weight,
                                            OutgoingMessageBuffer* outgoBuffer)

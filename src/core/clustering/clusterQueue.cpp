@@ -37,7 +37,7 @@ bool ClusterQueue::clearQueue()
     if(m_queue.size() == 0) {
         return false;
     }
-    std::queue<EdgeCluster*> empty;
+    std::queue<Cluster*> empty;
     std::swap(m_queue, empty);
     return true;
 }
@@ -46,12 +46,12 @@ bool ClusterQueue::clearQueue()
  * @brief ClusterQueue::getCluster
  * @return
  */
-EdgeCluster *ClusterQueue::getCluster()
+Cluster *ClusterQueue::getCluster()
 {
     if(m_queue.size() == 0) {
         return nullptr;
     }
-    EdgeCluster* tempCluster = m_queue.front();
+    Cluster* tempCluster = m_queue.front();
     m_queue.pop();
     return tempCluster;
 }
@@ -61,7 +61,7 @@ EdgeCluster *ClusterQueue::getCluster()
  * @param cluster
  * @return
  */
-bool ClusterQueue::addCluster(EdgeCluster *cluster)
+bool ClusterQueue::addCluster(Cluster *cluster)
 {
     m_queue.push(cluster);
     return true;
