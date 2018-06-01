@@ -116,6 +116,12 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
     if(rand() % 100 < POSSIBLE_NEXT_AXON_STEP) {
          goToNext = true;
     }
+
+    // at least one axon-step
+    if(inputSide == 0) {
+        goToNext = true;
+    }
+
     // return the current values if no next or path long enough
     if(goToNext == false || currentStep == 8) {
         AxonInitializer::NewAxon result;

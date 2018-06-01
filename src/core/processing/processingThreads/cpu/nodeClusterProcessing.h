@@ -7,8 +7,8 @@
  *  TODO: Description
  */
 
-#ifndef EDGECLUSTERPROCESSING_H
-#define EDGECLUSTERPROCESSING_H
+#ifndef NODECLUSTERPROCESSING_H
+#define NODECLUSTERPROCESSING_H
 
 #include <common.h>
 #include <core/structs/kyochanEdges.h>
@@ -22,10 +22,10 @@ class EdgeCluster;
 class NodeCluster;
 class NextChooser;
 
-class EdgeClusterProcessing
+class NodeClusterProcessing
 {
 public:
-    EdgeClusterProcessing(NextChooser* nextChooser,
+    NodeClusterProcessing(NextChooser* nextChooser,
                           PossibleKyoChanNodes* activeNodes);
 
     void updateEdgeForwardSection(EdgeCluster *cluster,
@@ -34,7 +34,7 @@ public:
                                   const uint8_t inititalSide,
                                   OutgoingMessageBuffer *outgoBuffer);
     void processEdgeForwardSection(EdgeCluster *cluster,
-                                   uint32_t forwardEdgeSectionId,
+                                   const uint32_t forwardEdgeSectionId,
                                    const float weight,
                                    const uint8_t inititalSide,
                                    OutgoingMessageBuffer *outgoBuffer);
@@ -42,17 +42,7 @@ public:
                             uint32_t edgeSectionId,
                             const float weight,
                             OutgoingMessageBuffer *outgoBuffer);
-    void processAxon(EdgeCluster *cluster,
-                     const uint32_t targetId,
-                     const uint64_t path,
-                     const float weight,
-                     const uint8_t initialSide,
-                     OutgoingMessageBuffer *outgoBuffer);
-    void processLerningEdge(EdgeCluster *cluster,
-                            const uint32_t sourceEdgeSectionId,
-                            const float weight,
-                            const uint8_t initSide,
-                            OutgoingMessageBuffer *outgoBuffer);
+
 private:
     NextChooser* m_nextChooser = nullptr;
     PossibleKyoChanNodes* m_activeNodes = nullptr;
@@ -70,4 +60,4 @@ private:
 
 }
 
-#endif // EDGECLUSTERPROCESSING_H
+#endif // NODECLUSTERPROCESSING_H
