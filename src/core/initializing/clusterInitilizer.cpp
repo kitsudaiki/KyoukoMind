@@ -75,29 +75,54 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
                                    const uint32_t y,
                                    const uint32_t nodeNumberPerCluster)
 {
-    Cluster* cluster = nullptr;
     // create cluster
     switch ((int)(*m_networkMetaStructure)[x][y].type) {
         case 1:
             return true;
         case 2:
-            cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
-                                      m_directoryPath);
+        {
+            Cluster*  cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
+                                                m_directoryPath);
+            addNeighbors(x, y, cluster);
+            cluster->initMessageBuffer(m_messageController);
+
+            m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, cluster);
+            (*m_networkMetaStructure)[x][y].cluster = cluster;
             break;
+        }
         case 3:
-            cluster = new NodeCluster((*m_networkMetaStructure)[x][y].clusterId,
-                                      m_directoryPath,
-                                      nodeNumberPerCluster);
+        {
+            Cluster*  edgeCluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
+                                                    m_directoryPath);
+            addNeighbors(x, y, edgeCluster);
+
+            Neighbor neighbor1;
+            neighbor1.neighborType = NODE_CLUSTER;
+            neighbor1.targetClusterId = (*m_networkMetaStructure)[x][y].clusterId+1;
+            neighbor1.targetSide = 8;
+            edgeCluster->addNeighbor(8, neighbor1);
+
+            edgeCluster->initMessageBuffer(m_messageController);
+
+            m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, edgeCluster);
+            (*m_networkMetaStructure)[x][y].cluster = edgeCluster;
+
+            Cluster*  nodeCluster = new NodeCluster((*m_networkMetaStructure)[x][y].clusterId,
+                                                    m_directoryPath,
+                                                    nodeNumberPerCluster);
+
+            Neighbor neighbor2;
+            neighbor2.neighborType = EDGE_CLUSTER;
+            neighbor2.targetClusterId = (*m_networkMetaStructure)[x][y].clusterId;
+            neighbor2.targetSide = 8;
+            nodeCluster->addNeighbor(8, neighbor2);
+
+            m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId+1, nodeCluster);
             break;
+        }
         default:
             return false;
     }
-
-    addNeighbors(x, y, cluster);
-    cluster->initMessageBuffer(m_messageController);
-
-    m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, cluster);
-    (*m_networkMetaStructure)[x][y].cluster = cluster;
     return true;
 }
 
