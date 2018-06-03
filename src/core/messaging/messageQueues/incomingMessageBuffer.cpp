@@ -9,7 +9,7 @@
 
 #include "incomingMessageBuffer.h"
 
-#include <core/clustering/cluster/edgeCluster.h>
+#include <core/clustering/cluster/cluster.h>
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messages/dataMessage.h>
 #include <core/messaging/messageController.h>
@@ -22,7 +22,7 @@ namespace KyoukoMind
  * @param clusterId
  * @param controller
  */
-IncomingMessageBuffer::IncomingMessageBuffer(EdgeCluster *cluster,
+IncomingMessageBuffer::IncomingMessageBuffer(Cluster *cluster,
                                              MessageController* controller):
     MessageBuffer(cluster, controller)
 {
@@ -35,7 +35,7 @@ IncomingMessageBuffer::IncomingMessageBuffer(EdgeCluster *cluster,
  * @param cluster
  * @return
  */
-bool IncomingMessageBuffer::initMessageBuffer(EdgeCluster *cluster)
+bool IncomingMessageBuffer::initMessageBuffer(Cluster *cluster)
 {
     for(uint32_t side = 0; side < 17; side++)
     {

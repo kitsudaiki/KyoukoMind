@@ -38,7 +38,7 @@ DemoIO::DemoIO(MessageController *messageController,
     neighborIn.neighborType = NODE_CLUSTER;
     fakeCluster->addNeighbor(16, neighborIn);
 
-    EdgeCluster* outgoingCluster = clusterHandler->getCluster(14);
+    Cluster* outgoingCluster = clusterHandler->getCluster(14);
 
     Neighbor neighborOut;
     neighborOut.targetClusterId = 1337;

@@ -10,7 +10,7 @@
 #include "axonInitializer.h"
 #include <kyochanNetwork.h>
 
-#include <core/clustering/cluster/edgeCluster.h>
+#include <core/clustering/cluster/cluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -48,7 +48,7 @@ bool AxonInitializer::createAxons()
         for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++) {
 
             // check cluster-type
-            EdgeCluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
+            Cluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
             if(cluster == nullptr) {
                 continue;
             }
@@ -79,7 +79,7 @@ bool AxonInitializer::createAxons()
     for(uint32_t x = 0; x < (*m_networkMetaStructure).size(); x++) {
         for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++) {
 
-            EdgeCluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
+            Cluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
             if(cluster == nullptr) {
                 continue;
             }
@@ -116,6 +116,12 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
     if(rand() % 100 < POSSIBLE_NEXT_AXON_STEP) {
          goToNext = true;
     }
+
+    // at least one axon-step
+    if(inputSide == 0) {
+        goToNext = true;
+    }
+
     // return the current values if no next or path long enough
     if(goToNext == false || currentStep == 8) {
         AxonInitializer::NewAxon result;

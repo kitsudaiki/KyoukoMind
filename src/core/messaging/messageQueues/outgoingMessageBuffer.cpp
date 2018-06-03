@@ -24,7 +24,7 @@ namespace KyoukoMind
  * @param clusterId
  * @param controller
  */
-OutgoingMessageBuffer::OutgoingMessageBuffer(EdgeCluster* cluster,
+OutgoingMessageBuffer::OutgoingMessageBuffer(Cluster* cluster,
                                              MessageController* controller):
     MessageBuffer(cluster, controller)
 {

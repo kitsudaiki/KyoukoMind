@@ -48,14 +48,6 @@ void ClusterTest::checkNodeCluster()
     UNITTEST((int)m_nodeCluster->getNumberOfNodeBlocks(), 5);
     UNITTEST(m_nodeCluster->initNodeBlocks(19), false);
 
-    UNITTEST(m_nodeCluster->initForwardEdgeSectionBlocks(2000), true);
-    UNITTEST(m_nodeCluster->addEmptyForwardEdgeSection(42, 42), 2000);
-    UNITTEST(m_nodeCluster->addEmptyForwardEdgeSection(42, 42), 2001);
-    //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 0);
-
-
-    //UNITTEST((int)m_nodeCluster->getNumberOfEdgeBlocks(), 250);
-
     KyoChanEdge newEdge;
     newEdge.targetNodeId = 3;
     newEdge.weight = 3.14;

@@ -16,13 +16,13 @@ namespace KyoukoMind
 {
 class Message;
 class DataMessage;
-class EdgeCluster;
+class Cluster;
 class MessageController;
 
 class IncomingMessageBuffer : public MessageBuffer
 {
 public:
-    IncomingMessageBuffer(EdgeCluster *cluster,
+    IncomingMessageBuffer(KyoukoMind::Cluster *cluster,
                           MessageController *controller);
 
     bool addMessage(const uint8_t site, DataMessage *message);
@@ -39,7 +39,7 @@ private:
     DataMessage* m_dataMessageBuffer1[17];
     DataMessage* m_dataMessageBuffer2[17];
 
-    bool initMessageBuffer(EdgeCluster *cluster);
+    bool initMessageBuffer(Cluster *cluster);
 };
 
 }

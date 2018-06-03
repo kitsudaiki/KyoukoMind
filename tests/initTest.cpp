@@ -58,10 +58,10 @@ void InitTest::checkInit()
     uint32_t nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes(&ok);
 
     uint32_t numberOfInitCluster = m_testClusterHandler->getNumberOfCluster();
-    UNITTEST(numberOfInitCluster, 7)
+    UNITTEST(numberOfInitCluster, 13)
 
-    UNITTEST((int)m_testClusterHandler->getCluster(7)->getClusterType(), NODE_CLUSTER)
-    UNITTEST((int)m_testClusterHandler->getCluster(13)->getClusterType(), EDGE_CLUSTER)
+    UNITTEST((int)m_testClusterHandler->getCluster(7)->getClusterType(), EDGE_CLUSTER)
+    UNITTEST((int)m_testClusterHandler->getCluster(8)->getClusterType(), NODE_CLUSTER)
 
     metaData.push_back(m_testClusterHandler->getCluster(7)->getMetaData());
     metaData.push_back(m_testClusterHandler->getCluster(8)->getMetaData());

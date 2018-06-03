@@ -37,7 +37,7 @@ MessageBufferTest::MessageBufferTest() : CommonTest("MessageBufferTest")
 void MessageBufferTest::initTestCase()
 {
     m_controller = new MessageController();
-    EdgeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 42);
+    NodeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 42);
 
     Neighbor neighbor;
     neighbor.targetClusterId = 1337;

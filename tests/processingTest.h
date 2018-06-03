@@ -22,7 +22,7 @@ class MessageBuffer;
 class OutgoingMessageBuffer;
 
 class NextChooser;
-class ClusterProcessing;
+class EdgeClusterProcessing;
 
 class ProcessingTest : public CommonTest
 {
@@ -43,7 +43,7 @@ private:
     OutgoingMessageBuffer* m_ougoingBuffer= nullptr;
 
     NextChooser* m_nextChooser = nullptr;
-    ClusterProcessing* m_nodeProcessing = nullptr;
+    EdgeClusterProcessing* m_nodeProcessing = nullptr;
 };
 
 }

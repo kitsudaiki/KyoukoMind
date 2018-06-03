@@ -7,8 +7,8 @@
  *  TODO: Description
  */
 
-#ifndef CLUSTERPROCESSING_H
-#define CLUSTERPROCESSING_H
+#ifndef EDGECLUSTERPROCESSING_H
+#define EDGECLUSTERPROCESSING_H
 
 #include <common.h>
 #include <core/structs/kyochanEdges.h>
@@ -22,11 +22,11 @@ class EdgeCluster;
 class NodeCluster;
 class NextChooser;
 
-class ClusterProcessing
+class EdgeClusterProcessing
 {
 public:
-    ClusterProcessing(NextChooser* nextChooser,
-                      PossibleKyoChanNodes* activeNodes);
+    EdgeClusterProcessing(NextChooser* nextChooser,
+                          PossibleKyoChanNodes* activeNodes);
 
     void updateEdgeForwardSection(EdgeCluster *cluster,
                                   const uint32_t forwardEdgeSectionId,
@@ -34,7 +34,7 @@ public:
                                   const uint8_t inititalSide,
                                   OutgoingMessageBuffer *outgoBuffer);
     void processEdgeForwardSection(EdgeCluster *cluster,
-                                   const uint32_t forwardEdgeSectionId,
+                                   uint32_t forwardEdgeSectionId,
                                    const float weight,
                                    const uint8_t inititalSide,
                                    OutgoingMessageBuffer *outgoBuffer);
@@ -42,7 +42,17 @@ public:
                             uint32_t edgeSectionId,
                             const float weight,
                             OutgoingMessageBuffer *outgoBuffer);
-
+    void processAxon(EdgeCluster *cluster,
+                     const uint32_t targetId,
+                     const uint64_t path,
+                     const float weight,
+                     const uint8_t initialSide,
+                     OutgoingMessageBuffer *outgoBuffer);
+    void processLerningEdge(EdgeCluster *cluster,
+                            const uint32_t sourceEdgeSectionId,
+                            const float weight,
+                            const uint8_t initSide,
+                            OutgoingMessageBuffer *outgoBuffer);
 private:
     NextChooser* m_nextChooser = nullptr;
     PossibleKyoChanNodes* m_activeNodes = nullptr;
@@ -60,4 +70,4 @@ private:
 
 }
 
-#endif // CLUSTERPROCESSING_H
+#endif // EDGECLUSTERPROCESSING_H

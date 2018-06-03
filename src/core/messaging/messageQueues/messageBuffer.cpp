@@ -19,7 +19,7 @@ namespace KyoukoMind
  * @param cluster
  * @param controller
  */
-MessageBuffer::MessageBuffer(EdgeCluster* cluster,
+MessageBuffer::MessageBuffer(Cluster* cluster,
                              MessageController *controller)
 {
     m_cluster = cluster;
