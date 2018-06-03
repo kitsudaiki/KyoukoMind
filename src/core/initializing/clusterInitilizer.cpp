@@ -117,6 +117,8 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
             neighbor2.targetSide = 8;
             nodeCluster->addNeighbor(8, neighbor2);
 
+            nodeCluster->initMessageBuffer(m_messageController);
+
             m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId+1, nodeCluster);
             break;
         }
