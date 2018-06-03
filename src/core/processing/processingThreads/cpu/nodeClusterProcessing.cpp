@@ -21,20 +21,127 @@
 #include <core/messaging/messages/replyMessage.h>
 
 #include <core/messaging/messageQueues/outgoingMessageBuffer.h>
-#include <core/processing/processingThreads/cpu/nextChooser.h>
 
 namespace KyoukoMind
 {
 
 /**
- * @brief NodeClusterProcessing::ClusterProcessing
- * @param nextChooser
+ * @brief NodeClusterProcessing::NodeClusterProcessing
+ * @param activeNodes
  */
-NodeClusterProcessing::NodeClusterProcessing(NextChooser* nextChooser,
-                                             PossibleKyoChanNodes* activeNodes)
+NodeClusterProcessing::NodeClusterProcessing(PossibleKyoChanNodes* activeNodes)
 {
-    m_nextChooser = nextChooser;
     m_activeNodes = activeNodes;
+}
+
+
+/**
+ * @brief NodeClusterProcessing::processMessagesNodeCluster
+ * @param cluster
+ * @return
+ */
+bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
+{
+    // get buffer
+    IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
+    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
+
+    // process normal communication
+    std::vector<uint8_t> m_sideOrder = {0, 8};
+    for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
+    {
+        const uint8_t side = m_sideOrder[sidePos];
+
+        uint8_t* data = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
+        uint8_t* end = data + incomBuffer->getMessage(side)->getPayloadSize();
+
+        while(data < end)
+        {
+            switch((int)(*data))
+            {
+                case FOREWARD_EDGE_CONTAINER:
+                {
+                    KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
+                    processEdgeSection(cluster,
+                                       edge->targetEdgeSectionId,
+                                       edge->weight,
+                                       outgoBuffer);
+                    data += sizeof(KyoChanForwardEdgeContainer);
+                    break;
+                }
+                case DIRECT_EDGE_CONTAINER:
+                {
+                    KyoChanDirectEdgeContainer* edge = (KyoChanDirectEdgeContainer*)data;
+                    cluster->getNodeBlock()[edge->targetNodeId].currentState += edge->weight;
+                    data += sizeof(KyoChanDirectEdgeContainer);
+                    break;
+                }
+                default:
+                    return false;
+                    break;
+            }
+        }
+        //incomBuffer->getMessage(side)->closeBuffer();
+        //delete incomBuffer->getMessage(side);
+    }
+
+    return true;
+}
+
+
+/**
+ * @brief NodeClusterProcessing::processNodes processing of the nodes of a specific node-cluster
+ * @param nodeCluster node-cluster which should be processed
+ * @return number of active nodes in this cluster
+ */
+uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
+{
+    assert(nodeCluster != nullptr);
+
+    // get necessary values
+    OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
+
+    uint16_t nodeId = 0;
+    m_activeNodes->numberOfActiveNodes = 0;
+
+    // process nodes
+    KyoChanNode* start = nodeCluster->getNodeBlock();
+    KyoChanNode* end = start + nodeCluster->getNumberOfNodes();
+
+    for(KyoChanNode* node = start;
+        node < end;
+        node++)
+    {
+        const KyoChanNode tempNode = *node;
+        if(tempNode.border <= tempNode.currentState)
+        {
+            // create new axon-edge
+            KyoChanAxonEdgeContainer edge;
+            edge.targetClusterPath = tempNode.targetClusterPath / 17;
+            edge.targetAxonId = tempNode.targetAxonId;
+            edge.weight = tempNode.currentState;
+            outgoBuffer->addAxonEdge(tempNode.targetClusterPath % 17, &edge);
+
+            // active-node-registration
+            if(rand() % 100 <= RANDOM_ADD_ACTIVE_NODE) {
+                m_activeNodes->addNodeId(nodeId);
+            }
+        } else {
+            // add randomly a inactive node to the active-node-list to create new connectons
+            if(rand() % 100 <= RANDOM_ADD_INACTIVE_NODE) {
+                m_activeNodes->addNodeId(nodeId);
+            }
+        }
+        node->currentState /= NODE_COOLDOWN;
+        nodeId++;
+    }
+    // add at least one node to the list of active node even all are inactive
+    if(m_activeNodes->numberOfActiveNodes == 0) {
+        const uint16_t backupNodeId = rand() % nodeCluster->getNumberOfNodes();
+        m_activeNodes->addNodeId(backupNodeId);
+    }
+
+    return m_activeNodes->numberOfActiveNodes;
 }
 
 /**
@@ -58,12 +165,10 @@ inline float NodeClusterProcessing::randFloat(const float b)
  {
      std::cout<<"---"<<std::endl;
      std::cout<<"learningEdgeSection"<<std::endl;
-     std::cout<<"    partitialWeight: "<<partitialWeight<<std::endl;
      // collect necessary values
      const uint16_t numberOfEdge = currentSection->numberOfEdges;
      const uint16_t chooseRange = (numberOfEdge + OVERPROVISIONING) % EDGES_PER_EDGESECTION;
      const uint16_t chooseOfExist = rand() % chooseRange;
-     std::cout<<"    chooseOfExist: "<<(int)chooseOfExist<<std::endl;
 
      if(chooseOfExist >= numberOfEdge)
      {

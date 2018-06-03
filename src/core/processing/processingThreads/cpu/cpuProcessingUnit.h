@@ -16,7 +16,6 @@
 
 namespace KyoukoMind
 {
-class NextChooser;
 class EdgeClusterProcessing;
 class NodeClusterProcessing;
 class MessageProcessing;
@@ -42,7 +41,6 @@ private:
 
     PossibleKyoChanNodes m_activeNodes;
 
-    NextChooser* m_nextChooser = nullptr;
     EdgeClusterProcessing* m_edgeClusterProcessing = nullptr;
     NodeClusterProcessing* m_nodeClusterProcessing = nullptr;
 };

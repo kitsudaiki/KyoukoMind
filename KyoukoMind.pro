@@ -30,7 +30,6 @@ SOURCES += main.cpp \
             src/core/messaging/messageQueues/messageBuffer.cpp \
             src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
             src/core/initializing/networkInitializer.cpp \
-            src/core/processing/processingThreads/cpu/nextChooser.cpp \
             src/control/statusReporter.cpp \
             src/core/initializing/axonInitializer.cpp \
             src/core/initializing/clusterInitilizer.cpp \
@@ -78,7 +77,6 @@ HEADERS +=\
             src/core/structs/kyochanEdges.h \
             src/core/structs/kyochanNodes.h \
             src/core/structs/clusterMeta.h \
-            src/core/processing/processingThreads/cpu/nextChooser.h \
             src/control/statusReporter.h \
             src/core/initializing/axonInitializer.h \
             src/core/initializing/clusterInitilizer.h \

@@ -36,7 +36,6 @@ private:
     std::vector<std::vector<InitMetaDataEntry>>* m_networkMetaStructure = nullptr;
     uint32_t m_networkDimensionX = 0;
     uint32_t m_networkDimensionY = 0;
-    NextChooser* m_chooser = nullptr;
 
     NewAxon getNextAxonPathStep(const uint32_t x,
                                 const uint32_t y,

@@ -42,7 +42,6 @@ private:
     IncomingMessageBuffer* m_incomBuffer= nullptr;
     OutgoingMessageBuffer* m_ougoingBuffer= nullptr;
 
-    NextChooser* m_nextChooser = nullptr;
     EdgeClusterProcessing* m_nodeProcessing = nullptr;
 };
 

@@ -20,14 +20,26 @@ namespace KyoukoMind
 class OutgoingMessageBuffer;
 class EdgeCluster;
 class NodeCluster;
-class NextChooser;
 
 class EdgeClusterProcessing
 {
 public:
-    EdgeClusterProcessing(NextChooser* nextChooser,
-                          PossibleKyoChanNodes* activeNodes);
+    EdgeClusterProcessing(PossibleKyoChanNodes* activeNodes);
 
+    bool processMessagesEdgesCluster(EdgeCluster *cluster);
+
+private:
+    PossibleKyoChanNodes* m_activeNodes = nullptr;
+
+    float randFloat(const float b);
+    void learningForwardEdgeSection(EdgeCluster *cluster,
+                                    KyoChanForwardEdgeSection *currentSection,
+                                    const uint32_t forwardEdgeSectionId,
+                                    const uint8_t inititalSide,
+                                    const float partitialWeight,
+                                    OutgoingMessageBuffer *outgoBuffer);
+    void learningEdgeSection(KyoChanEdgeSection *currentSection,
+                             const float partitialWeight);
     void updateEdgeForwardSection(EdgeCluster *cluster,
                                   const uint32_t forwardEdgeSectionId,
                                   const float status,
@@ -53,19 +65,6 @@ public:
                             const float weight,
                             const uint8_t initSide,
                             OutgoingMessageBuffer *outgoBuffer);
-private:
-    NextChooser* m_nextChooser = nullptr;
-    PossibleKyoChanNodes* m_activeNodes = nullptr;
-
-    float randFloat(const float b);
-    void learningForwardEdgeSection(EdgeCluster *cluster,
-                                    KyoChanForwardEdgeSection *currentSection,
-                                    const uint32_t forwardEdgeSectionId,
-                                    const uint8_t inititalSide,
-                                    const float partitialWeight,
-                                    OutgoingMessageBuffer *outgoBuffer);
-    void learningEdgeSection(KyoChanEdgeSection *currentSection,
-                             const float partitialWeight);
 };
 
 }

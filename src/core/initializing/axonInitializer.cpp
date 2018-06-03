@@ -14,8 +14,6 @@
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
-#include <core/processing/processingThreads/cpu/nextChooser.h>
-
 namespace KyoukoMind
 {
 
@@ -32,8 +30,6 @@ AxonInitializer::AxonInitializer(std::vector<std::vector<InitMetaDataEntry> > *n
     m_networkMetaStructure = networkMetaStructure;
     m_networkDimensionX = networkDimensionX;
     m_networkDimensionY = networkDimensionY;
-
-    m_chooser = new NextChooser();
 }
 
 
@@ -131,8 +127,8 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
         return result;
     }
     // choose the next cluster
-    uint8_t nextSite = m_chooser->getNextCluster((*m_networkMetaStructure)[x][y].neighbors,
-                                                 inputSide);
+    std::vector<uint8_t> m_sideOrder = {2, 3, 4, 14, 13, 12};
+    uint8_t nextSite = m_sideOrder[rand() % m_sideOrder.size()];
 
     // return the current values if no choise
     if(nextSite == 0xFF) {

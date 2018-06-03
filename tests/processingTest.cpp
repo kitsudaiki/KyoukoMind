@@ -16,7 +16,6 @@
 #include <core/clustering/cluster/nodeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 
-#include <core/processing/processingThreads/cpu/nextChooser.h>
 #include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
 
 namespace KyoukoMind
@@ -38,7 +37,6 @@ ProcessingTest::ProcessingTest() : CommonTest("ProcessingTest")
 void ProcessingTest::initTestCase()
 {
     m_controller = new MessageController();
-    m_nextChooser = new NextChooser();
     //m_nodeProcessing = new ClusterProcessing(m_nextChooser);
 
     NodeCluster* initCluster = new NodeCluster(1337, "/tmp/test", 42);
