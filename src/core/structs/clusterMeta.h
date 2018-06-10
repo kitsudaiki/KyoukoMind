@@ -33,7 +33,6 @@ struct Neighbor
     uint8_t targetSide = 0;
     uint8_t neighborType = EMPTY_CLUSTER;
     uint32_t distantToNextNodeCluster = 0;
-    uint16_t activeNodesInNextNodeCluster = 0;
 } __attribute__((packed));
 
 /**

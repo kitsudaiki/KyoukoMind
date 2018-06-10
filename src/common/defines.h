@@ -32,6 +32,7 @@
 #define OVERPROVISIONING 2
 
 #define EDGE_MEMORIZE_UPDATE 2
+#define NEW_FORWARD_EDGE_BORDER 0.1f
 
 // processing-variables
 #define POSSIBLE_NEXT_AXON_STEP 50

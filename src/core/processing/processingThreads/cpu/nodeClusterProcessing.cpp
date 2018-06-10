@@ -62,10 +62,7 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
                 case FOREWARD_EDGE_CONTAINER:
                 {
                     KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
-                    processEdgeSection(cluster,
-                                       edge->targetEdgeSectionId,
-                                       edge->weight,
-                                       outgoBuffer);
+                    processEdgeSection(cluster, edge->targetEdgeSectionId, edge->weight, outgoBuffer);
                     data += sizeof(KyoChanForwardEdgeContainer);
                     break;
                 }

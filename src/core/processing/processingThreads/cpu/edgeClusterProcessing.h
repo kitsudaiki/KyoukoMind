@@ -1,5 +1,5 @@
 /**
- *  @file    clusterProcessing.h
+ *  @file    edgeClusterProcessing.h
  *  @author  Tobias Anker
  *
  *  @section DESCRIPTION
@@ -13,6 +13,7 @@
 #include <common.h>
 #include <core/structs/kyochanEdges.h>
 #include <core/structs/kyochanNodes.h>
+#include <core/structs/clusterMeta.h>
 #include <core/structs/messageContainer.h>
 
 namespace KyoukoMind
@@ -29,13 +30,11 @@ public:
     bool processMessagesEdgesCluster(EdgeCluster *cluster);
 
 private:
+    float m_weightMap[17];
     PossibleKyoChanNodes* m_activeNodes = nullptr;
 
-    float randFloat(const float b);
-    void learningForwardEdgeSection(EdgeCluster *cluster,
-                                    KyoChanForwardEdgeSection *currentSection,
+    void learningForwardEdgeSection(KyoChanForwardEdgeSection *currentSection,
                                     const uint32_t forwardEdgeSectionId,
-                                    const uint8_t inititalSide,
                                     const float partitialWeight,
                                     OutgoingMessageBuffer *outgoBuffer);
     void learningEdgeSection(KyoChanEdgeSection *currentSection,
@@ -65,6 +64,10 @@ private:
                             const float weight,
                             const uint8_t initSide,
                             OutgoingMessageBuffer *outgoBuffer);
+
+    void refillWeightMap(const uint8_t initialSide, Neighbor* neighbors);
+    float randFloat(const float b);
+
 };
 
 }
