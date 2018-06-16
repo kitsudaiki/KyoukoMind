@@ -225,12 +225,12 @@ inline void EdgeClusterProcessing::processPendingEdge(EdgeCluster *cluster,
     KyoChanForwardEdgeSection* forwardStart = &((cluster)->getForwardEdgeSectionBlock()[numberOfForwardEdgeBlocks - 1]);
 
     uint32_t forwardEdgeSectionId = numberOfForwardEdgeBlocks - 1;
-    for(KyoChanForwardEdgeSection* forwardEdge = forwardStart;
-        forwardEdge >= forwardEnd;
-        forwardEdge--)
+    for(KyoChanForwardEdgeSection* forwardEdgeSection = forwardStart;
+        forwardEdgeSection >= forwardEnd;
+        forwardEdgeSection--)
     {
-        if(sourceId == forwardEdge->sourceId
-                && sourceSide == forwardEdge->sourceSide)
+        if(sourceId == forwardEdgeSection->sourceId
+                && sourceSide == forwardEdgeSection->sourceSide)
         {
             processEdgeForwardSection(cluster, forwardEdgeSectionId, weight, outgoBuffer);
         }
@@ -315,23 +315,36 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
         {
             const KyoChanForwardEdge tempForwardEdge = *forwardEdge;
 
-            if(forwardEdge->weight != 0.0
-                    && forwardEdge->targetId != UNINIT_STATE)
+            if(forwardEdge->weight != 0.0)
             {
                 if(sideCounter != 16)
                 {
-                    // normal external edge
-                    KyoChanForwardEdgeContainer newEdge;
-                    newEdge.targetEdgeSectionId = tempForwardEdge.targetId;
-                    newEdge.weight = tempForwardEdge.weight * ratio;
-                    outgoBuffer->addForwardEdge(sideCounter, &newEdge);
+                    if(forwardEdge->targetId != UNINIT_STATE)
+                    {
+                        // normal external edge
+                        KyoChanForwardEdgeContainer newEdge;
+                        newEdge.targetEdgeSectionId = tempForwardEdge.targetId;
+                        newEdge.weight = tempForwardEdge.weight * ratio;
+                        outgoBuffer->addForwardEdge(sideCounter, &newEdge);
+                    }
+                    else
+                    {
+                        KyoChanPendingEdgeContainer newEdge;
+                        newEdge.weight = tempForwardEdge.weight * ratio;
+                        newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
+                        newEdge.sourceSide = 16 - sideCounter;
+                        outgoBuffer->addPendingEdge(sideCounter, &newEdge);
+                    }
                 }
                 else
                 {
-                    KyoChanDirectEdgeContainer newEdge;
-                    newEdge.targetNodeId = 0;
-                    newEdge.weight = tempForwardEdge.weight * ratio;
-                    outgoBuffer->addDirectEdge(sideCounter, &newEdge);
+                    if(forwardEdge->targetId != UNINIT_STATE)
+                    {
+                        KyoChanDirectEdgeContainer newEdge;
+                        newEdge.targetNodeId = 0;
+                        newEdge.weight = tempForwardEdge.weight * ratio;
+                        outgoBuffer->addDirectEdge(sideCounter, &newEdge);
+                    }
                 }
             }
 
