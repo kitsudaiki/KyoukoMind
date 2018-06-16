@@ -78,9 +78,9 @@ void DataMessage::addStatusEdge(const KyoChanStatusEdgeContainer *newEdge)
  * @brief DataMessage::addEdge
  * @param newEdge
  */
-void DataMessage::addInternalEdge(const KyoChanInternalEdgeContainer *newEdge)
+void DataMessage::addPendingEdge(const KyoChanPendingEdgeContainer *newEdge)
 {
-    const uint8_t size = sizeof(KyoChanInternalEdgeContainer);
+    const uint8_t size = sizeof(KyoChanPendingEdgeContainer);
     checkBuffer(size);
     copyToBuffer((void*)newEdge, size);
 }

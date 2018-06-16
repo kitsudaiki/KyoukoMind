@@ -25,7 +25,7 @@ public:
     DataMessage(void *data, uint32_t size);
 
     void addStatusEdge(const KyoChanStatusEdgeContainer* newEdge);
-    void addInternalEdge(const KyoChanInternalEdgeContainer *newEdge);
+    void addPendingEdge(const KyoChanPendingEdgeContainer *newEdge);
     void addDirectEdge(const KyoChanDirectEdgeContainer *newEdge);
     void addForwardEdge(const KyoChanForwardEdgeContainer* newEdge);
     void addAxonEdge(const KyoChanAxonEdgeContainer *newAxonEdge);

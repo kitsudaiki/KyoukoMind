@@ -47,7 +47,6 @@ private:
     void processEdgeForwardSection(EdgeCluster *cluster,
                                    uint32_t forwardEdgeSectionId,
                                    const float weight,
-                                   const uint8_t inititalSide,
                                    OutgoingMessageBuffer *outgoBuffer);
     void processEdgeSection(NodeCluster *cluster,
                             uint32_t edgeSectionId,
@@ -57,12 +56,16 @@ private:
                      const uint32_t targetId,
                      const uint64_t path,
                      const float weight,
-                     const uint8_t initialSide,
                      OutgoingMessageBuffer *outgoBuffer);
     void processLerningEdge(EdgeCluster *cluster,
                             const uint32_t sourceEdgeSectionId,
                             const float weight,
                             const uint8_t initSide,
+                            OutgoingMessageBuffer *outgoBuffer);
+    void processPendingEdge(EdgeCluster* cluster,
+                            const uint32_t sourceId,
+                            const uint8_t sourceSide,
+                            const float weight,
                             OutgoingMessageBuffer *outgoBuffer);
 
     void refillWeightMap(const uint8_t initialSide, Neighbor* neighbors);

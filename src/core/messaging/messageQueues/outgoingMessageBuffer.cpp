@@ -78,11 +78,11 @@ bool OutgoingMessageBuffer::addStatusEdge(const uint8_t sourceSide,
  * @param edge
  * @return
  */
-bool OutgoingMessageBuffer::addInternalEdge(const uint8_t sourceSide,
-                                            const KyoChanInternalEdgeContainer *edge)
+bool OutgoingMessageBuffer::addPendingEdge(const uint8_t sourceSide,
+                                           const KyoChanPendingEdgeContainer *edge)
 {
     if(sourceSide < 17) {
-        m_dataMessageBuffer[sourceSide]->addInternalEdge(edge);
+        m_dataMessageBuffer[sourceSide]->addPendingEdge(edge);
         return true;
     }
     return false;

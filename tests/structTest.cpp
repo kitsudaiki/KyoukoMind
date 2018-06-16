@@ -34,12 +34,6 @@ void StructTest::testEdgeForwardSection()
     UNITTEST(testSection.updateWeight(1, 10.0f), false);
 
     UNITTEST(testSection.totalWeight, 10.0f);
-
-    testSection.setPedingBit(1);
-    UNITTEST(testSection.pendingEdges, 2);
-
-    testSection.zeroPendingBit(1);
-    UNITTEST(testSection.pendingEdges, 0);
 }
 
 /**

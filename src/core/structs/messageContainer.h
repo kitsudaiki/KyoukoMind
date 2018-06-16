@@ -25,14 +25,15 @@ struct KyoChanStatusEdgeContainer
 } __attribute__((packed));
 
 /**
- * @brief The KyoChanEdgeContainer struct
+ * @brief The KyoChanPendingEdgeContainer struct
  */
-struct KyoChanInternalEdgeContainer
+struct KyoChanPendingEdgeContainer
 {
-    uint8_t type = INTERNAL_EDGE_CONTAINER;
+    uint8_t type = PENDING_EDGE_CONTAINER;
 
     float weight = 0.0;
-    uint32_t targetEdgeSectionId = 0;
+    uint32_t sourceEdgeSectionId = 0;
+    uint8_t sourceSide = 0;
 
 } __attribute__((packed));
 

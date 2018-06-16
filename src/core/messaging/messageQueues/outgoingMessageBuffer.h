@@ -28,8 +28,8 @@ public:
 
     bool addStatusEdge(const uint8_t sourceSide,
                        const KyoChanStatusEdgeContainer *edge);
-    bool addInternalEdge(const uint8_t sourceSide,
-                         const KyoChanInternalEdgeContainer *edge);
+    bool addPendingEdge(const uint8_t sourceSide,
+                         const KyoChanPendingEdgeContainer *edge);
     bool addDirectEdge(const uint8_t sourceSide,
                        const KyoChanDirectEdgeContainer *edge);
     bool addForwardEdge(const uint8_t sourceSide,

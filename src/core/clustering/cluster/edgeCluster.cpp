@@ -32,12 +32,21 @@ EdgeCluster::EdgeCluster(const ClusterID &clusterId,
 }
 
 /**
- * @brief EdgeCluster::getNumberOfForwardEdgeSectionBlocks get the number of forward-edge-section-block from meta-data
+ * @brief EdgeCluster::getNumberOfForwardEdgeSectionBlocks get the number of forward-edge-section-blocks from meta-data
  * @return number of forward-edge-section-blocks
  */
 uint32_t EdgeCluster::getNumberOfForwardEdgeSectionBlocks() const
 {
     return m_metaData.numberOfForwardEdgeBlocks;
+}
+
+/**
+ * @brief EdgeCluster::getNumberOfForwardEdgeSections get the number of forward-edge-sections from meta-data
+ * @return number of forward-edge-sections
+ */
+uint32_t EdgeCluster::getNumberOfForwardEdgeSections() const
+{
+    return m_metaData.numberOfForwardEdgeSections;
 }
 
 /**
@@ -117,40 +126,6 @@ uint32_t EdgeCluster::addEmptyForwardEdgeSection(const uint8_t sourceSide,
     m_metaData.numberOfForwardEdgeSections++;
     m_metaData.numberOfPendingForwardEdgeSections++;
     return m_metaData.numberOfForwardEdgeSections-1;
-}
-
-/**
- * @brief EdgeCluster::getPendingForwardEdgeSectionBlock get pending-forward-edges
- * @return nullptr if no pending edge exist, else pointer to the beginning of the pending edges
- */
-KyoChanForwardEdgeSection *EdgeCluster::getPendingForwardEdgeSectionBlock()
-{
-    if(m_metaData.numberOfPendingForwardEdgeSections == 0)
-    {
-        return nullptr;
-    }
-    return &(getForwardEdgeSectionBlock()[m_metaData.numberOfForwardEdgeSections
-            - m_metaData.numberOfPendingForwardEdgeSections]);
-}
-
-/**
- * @brief EdgeCluster::getPendingForwardEdgeSectionId
- * @return
- */
-uint32_t EdgeCluster::getPendingForwardEdgeSectionId() const
-{
-    if(m_metaData.numberOfPendingForwardEdgeSections == 0) {
-        return UNINIT_STATE;
-    }
-    return m_metaData.numberOfForwardEdgeSections - m_metaData.numberOfPendingForwardEdgeSections;
-}
-
-/**
- * @brief EdgeCluster::decreaseNumberOfPendingForwardEdges reduces the number of pending edges by one
- */
-void EdgeCluster::decreaseNumberOfPendingForwardEdges()
-{
-    m_metaData.numberOfPendingForwardEdgeSections--;
 }
 
 }

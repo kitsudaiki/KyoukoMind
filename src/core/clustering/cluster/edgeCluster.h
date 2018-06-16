@@ -24,15 +24,11 @@ public:
 
     // edge-forward-sections
     uint32_t getNumberOfForwardEdgeSectionBlocks() const;
+    uint32_t getNumberOfForwardEdgeSections() const;
     KyoChanForwardEdgeSection* getForwardEdgeSectionBlock();
     bool initForwardEdgeSectionBlocks(const uint32_t numberOfForwardEdgeSections);
     uint32_t addEmptyForwardEdgeSection(const uint8_t sourceSide,
                                         const uint32_t sourceId);
-
-    // pending-forward-edge
-    KyoChanForwardEdgeSection *getPendingForwardEdgeSectionBlock();
-    uint32_t getPendingForwardEdgeSectionId() const;
-    void decreaseNumberOfPendingForwardEdges();
 };
 
 }

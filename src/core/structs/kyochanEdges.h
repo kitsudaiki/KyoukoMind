@@ -41,7 +41,6 @@ struct KyoChanForwardEdgeSection
 {
     KyoChanForwardEdge forwardEdges[17];
     uint8_t numberOfActiveEdges = 0;
-    uint16_t pendingEdges = 0;
     float totalWeight = 0.0;
     uint8_t sourceSide = 0;
     uint32_t sourceId = 0;
@@ -63,26 +62,6 @@ struct KyoChanForwardEdgeSection
         forwardEdges[side].weight += weight;
         totalWeight += weight;
         return true;
-    }
-
-    /**
-     * @brief negatePendingBit
-     * @param pos
-     */
-    void zeroPendingBit(const uint8_t pos)
-    {
-        assert(pos < 17);
-        pendingEdges &= ~((uint16_t)1U << pos);
-    }
-
-    /**
-     * @brief setPedingBit
-     * @param pos
-     */
-    void setPedingBit(const uint8_t pos)
-    {
-        assert(pos < 17);
-        pendingEdges |= (uint16_t)1U << pos;
     }
 
 } __attribute__((packed));
