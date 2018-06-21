@@ -162,10 +162,11 @@ inline float NodeClusterProcessing::randFloat(const float b)
  {
      std::cout<<"---"<<std::endl;
      std::cout<<"learningEdgeSection"<<std::endl;
+
      // collect necessary values
      const uint16_t numberOfEdge = currentSection->numberOfEdges;
      const uint16_t chooseRange = (numberOfEdge + OVERPROVISIONING) % EDGES_PER_EDGESECTION;
-     const uint16_t chooseOfExist = rand() % chooseRange;
+     uint16_t chooseOfExist = rand() % chooseRange;
 
      if(chooseOfExist >= numberOfEdge)
      {
@@ -174,22 +175,22 @@ inline float NodeClusterProcessing::randFloat(const float b)
 
          KyoChanEdge newEdge;
          newEdge.targetNodeId =  m_activeNodes->nodeIds[chooseNewNode];
-         newEdge.weight = partitialWeight / 2.0;
          currentSection->addEdge(newEdge);
+
+         chooseOfExist = currentSection->numberOfEdges - 1;
      }
-     else
-     {
-         // update a existing edge
-         currentSection->edges[chooseOfExist].weight += partitialWeight / 2.0;
-     }
+
+     // update a existing edge
+     currentSection->updateWeight(chooseOfExist,
+                                  partitialWeight / 2.0);
 
      // update two other already existing edges
      if(numberOfEdge > 0) {
-         currentSection->edges[rand() % numberOfEdge].weight += partitialWeight / 4.0;
-         currentSection->edges[rand() % numberOfEdge].weight += partitialWeight / 4.0;
-     }
-     currentSection->totalWeight += partitialWeight;
- }
+         currentSection->updateWeight(rand() % numberOfEdge,
+                                      partitialWeight / 4.0);
+         currentSection->updateWeight(rand() % numberOfEdge,
+                                      partitialWeight / 4.0);
+     } }
 
  /**
  * @brief NodeClusterProcessing::processEdgeSection process of a specific edge-section of a cluster
