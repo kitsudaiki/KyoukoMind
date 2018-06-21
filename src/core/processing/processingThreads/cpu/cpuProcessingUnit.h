@@ -39,8 +39,6 @@ private:
     bool processMessagesEdgesCluster(EdgeCluster* cluster);
     uint16_t processNodes(NodeCluster *nodeCluster);
 
-    PossibleKyoChanNodes m_activeNodes;
-
     EdgeClusterProcessing* m_edgeClusterProcessing = nullptr;
     NodeClusterProcessing* m_nodeClusterProcessing = nullptr;
 };

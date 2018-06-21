@@ -24,14 +24,12 @@ class NodeCluster;
 class NodeClusterProcessing
 {
 public:
-    NodeClusterProcessing(PossibleKyoChanNodes* activeNodes);
+    NodeClusterProcessing();
 
     bool processMessagesNodeCluster(NodeCluster *cluster);
     uint16_t processNodes(NodeCluster *nodeCluster);
 
 private:
-    PossibleKyoChanNodes* m_activeNodes = nullptr;
-
     float randFloat(const float b);
     void learningForwardEdgeSection(EdgeCluster *cluster,
                                     KyoChanForwardEdgeSection *currentSection,
@@ -39,7 +37,8 @@ private:
                                     const uint8_t inititalSide,
                                     const float partitialWeight,
                                     OutgoingMessageBuffer *outgoBuffer);
-    void learningEdgeSection(KyoChanEdgeSection *currentSection,
+    void learningEdgeSection(NodeCluster *cluster,
+                             KyoChanEdgeSection *currentSection,
                              const float partitialWeight);
     void updateEdgeForwardSection(EdgeCluster *cluster,
                                   const uint32_t forwardEdgeSectionId,

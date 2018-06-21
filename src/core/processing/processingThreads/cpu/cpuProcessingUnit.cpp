@@ -33,8 +33,8 @@ namespace KyoukoMind
 CpuProcessingUnit::CpuProcessingUnit(ClusterQueue *clusterQueue):
     ProcessingUnit(clusterQueue)
 {
-    m_edgeClusterProcessing = new EdgeClusterProcessing(&m_activeNodes);
-    m_nodeClusterProcessing = new NodeClusterProcessing(&m_activeNodes);
+    m_edgeClusterProcessing = new EdgeClusterProcessing();
+    m_nodeClusterProcessing = new NodeClusterProcessing();
 }
 
 /**

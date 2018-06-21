@@ -27,11 +27,9 @@ namespace KyoukoMind
 
 /**
  * @brief EdgeClusterProcessing::ClusterProcessing
- * @param nextChooser
  */
-EdgeClusterProcessing::EdgeClusterProcessing(PossibleKyoChanNodes* activeNodes)
+EdgeClusterProcessing::EdgeClusterProcessing()
 {
-    m_activeNodes = activeNodes;
 }
 
 /**

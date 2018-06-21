@@ -25,13 +25,12 @@ class NodeCluster;
 class EdgeClusterProcessing
 {
 public:
-    EdgeClusterProcessing(PossibleKyoChanNodes* activeNodes);
+    EdgeClusterProcessing();
 
     bool processMessagesEdgesCluster(EdgeCluster *cluster);
 
 private:
     float m_weightMap[17];
-    PossibleKyoChanNodes* m_activeNodes = nullptr;
 
     void learningForwardEdgeSection(KyoChanForwardEdgeSection *currentSection,
                                     const uint32_t forwardEdgeSectionId,

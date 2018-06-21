@@ -27,11 +27,9 @@ namespace KyoukoMind
 
 /**
  * @brief NodeClusterProcessing::NodeClusterProcessing
- * @param activeNodes
  */
-NodeClusterProcessing::NodeClusterProcessing(PossibleKyoChanNodes* activeNodes)
+NodeClusterProcessing::NodeClusterProcessing()
 {
-    m_activeNodes = activeNodes;
 }
 
 
@@ -99,7 +97,7 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
 
     uint16_t nodeId = 0;
-    m_activeNodes->numberOfActiveNodes = 0;
+    uint16_t numberOfActiveNodes = 0;
 
     // process nodes
     KyoChanNode* start = nodeCluster->getNodeBlock();
@@ -110,6 +108,7 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
         node++)
     {
         const KyoChanNode tempNode = *node;
+
         if(tempNode.border <= tempNode.currentState)
         {
             // create new axon-edge
@@ -119,26 +118,14 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
             edge.weight = tempNode.currentState;
             outgoBuffer->addAxonEdge(tempNode.targetClusterPath % 17, &edge);
 
-            // active-node-registration
-            if(rand() % 100 <= RANDOM_ADD_ACTIVE_NODE) {
-                m_activeNodes->addNodeId(nodeId);
-            }
-        } else {
-            // add randomly a inactive node to the active-node-list to create new connectons
-            if(rand() % 100 <= RANDOM_ADD_INACTIVE_NODE) {
-                m_activeNodes->addNodeId(nodeId);
-            }
+            numberOfActiveNodes++;
         }
+
         node->currentState /= NODE_COOLDOWN;
         nodeId++;
     }
-    // add at least one node to the list of active node even all are inactive
-    if(m_activeNodes->numberOfActiveNodes == 0) {
-        const uint16_t backupNodeId = rand() % nodeCluster->getNumberOfNodes();
-        m_activeNodes->addNodeId(backupNodeId);
-    }
 
-    return m_activeNodes->numberOfActiveNodes;
+    return numberOfActiveNodes;
 }
 
 /**
@@ -154,10 +141,12 @@ inline float NodeClusterProcessing::randFloat(const float b)
 
  /**
   * @brief NodeClusterProcessing::learningEdgeSection learing-process of the specific edge-section
+  * @param cluster pointer to the node-custer
   * @param currentSection edge-section with should learn the new value
   * @param partitialWeight weight-difference to learn
   */
- inline void NodeClusterProcessing::learningEdgeSection(KyoChanEdgeSection* currentSection,
+ inline void NodeClusterProcessing::learningEdgeSection(NodeCluster *cluster,
+                                                        KyoChanEdgeSection* currentSection,
                                                         const float partitialWeight)
  {
      std::cout<<"---"<<std::endl;
@@ -171,10 +160,10 @@ inline float NodeClusterProcessing::randFloat(const float b)
      if(chooseOfExist >= numberOfEdge)
      {
          // create a new edge-section within the current section
-         const uint16_t chooseNewNode = rand() % m_activeNodes->numberOfActiveNodes;
+         const uint16_t chooseNewNode = rand() % cluster->getMetaData().numberOfNodes;
 
          KyoChanEdge newEdge;
-         newEdge.targetNodeId =  m_activeNodes->nodeIds[chooseNewNode];
+         newEdge.targetNodeId =  chooseNewNode;
          currentSection->addEdge(newEdge);
 
          chooseOfExist = currentSection->numberOfEdges - 1;
@@ -185,7 +174,8 @@ inline float NodeClusterProcessing::randFloat(const float b)
                                   partitialWeight / 2.0);
 
      // update two other already existing edges
-     if(numberOfEdge > 0) {
+     if(numberOfEdge > 0)
+     {
          currentSection->updateWeight(rand() % numberOfEdge,
                                       partitialWeight / 4.0);
          currentSection->updateWeight(rand() % numberOfEdge,
@@ -207,13 +197,16 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
     assert(cluster->getClusterType() == NODE_CLUSTER);
     std::cout<<"---"<<std::endl;
     std::cout<<"processEdgeSection"<<std::endl;
+
     if(weight != 0.0)
     {
         KyoChanEdgeSection* currentSection = &((cluster)->getEdgeSectionBlock()[edgeSectionId]);
+        const float comparismTotalWeight = currentSection->totalWeight;
 
         // learning
         if(weight > currentSection->totalWeight) {
-            learningEdgeSection(currentSection,
+            learningEdgeSection(cluster,
+                                currentSection,
                                 weight - currentSection->totalWeight);
         }
 
@@ -246,10 +239,11 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
             currentSection->totalWeight -= diff;
         }
 
-        //KyoChanStatusEdgeContainer newEdge;
-        //newEdge.status = updateValue;
-        //newEdge.targetId = currentSection->sourceId;
-        //outgoBuffer->addStatusEdge(8, &newEdge);
+        // send status upadate to the parent forward-edge-section
+        KyoChanStatusEdgeContainer newEdge;
+        newEdge.status = comparismTotalWeight - currentSection->totalWeight;
+        newEdge.targetId = currentSection->sourceId;
+        outgoBuffer->addStatusEdge(8, &newEdge);
     }
 }
 

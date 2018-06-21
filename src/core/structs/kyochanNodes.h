@@ -27,28 +27,4 @@ struct KyoChanNode
 
 } __attribute__((packed));
 
-/**
- * @brief The PossibleKyoChanNodes struct
- */
-struct PossibleKyoChanNodes
-{
-    uint16_t nodeIds[MAX_NUMBER_OF_ACTIVE_NODES];
-    uint16_t numberOfActiveNodes = 0;
-
-    /**
-     * @brief addActiveNodeId
-     * @param nodeId
-     * @return
-     */
-    bool addNodeId(const uint16_t &nodeId)
-    {
-        if(numberOfActiveNodes >= MAX_NUMBER_OF_ACTIVE_NODES) {
-            return false;
-        }
-        nodeIds[numberOfActiveNodes] = nodeId;
-        numberOfActiveNodes++;
-        return true;
-    }
-} __attribute__((packed));
-
 #endif // KYOCHANNODES_H
