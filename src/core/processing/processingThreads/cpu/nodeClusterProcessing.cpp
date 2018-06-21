@@ -169,18 +169,20 @@ inline float NodeClusterProcessing::randFloat(const float b)
          chooseOfExist = currentSection->numberOfEdges - 1;
      }
 
-     // update a existing edge
-     currentSection->updateWeight(chooseOfExist,
-                                  partitialWeight / 2.0);
-
-     // update two other already existing edges
-     if(numberOfEdge > 0)
+     const uint8_t splitValue = 5;
+     for(uint8_t i = 0; i < splitValue; i++)
      {
-         currentSection->updateWeight(rand() % numberOfEdge,
-                                      partitialWeight / 4.0);
-         currentSection->updateWeight(rand() % numberOfEdge,
-                                      partitialWeight / 4.0);
-     } }
+         KyoChanEdge* tempEdge = &currentSection->edges[rand() % currentSection->numberOfEdges];
+         if(cluster->getNodeBlock()[tempEdge->targetNodeId].border
+                 <= cluster->getNodeBlock()[tempEdge->targetNodeId].currentState * NODE_COOLDOWN)
+         {
+             tempEdge->weight -= partitialWeight / (float)splitValue;
+         } else {
+             tempEdge->weight += partitialWeight / (float)splitValue;
+         }
+     }
+     currentSection->totalWeight += partitialWeight;
+}
 
  /**
  * @brief NodeClusterProcessing::processEdgeSection process of a specific edge-section of a cluster
@@ -213,6 +215,7 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
         // process edge-section
         const float ratio = currentSection->totalWeight / weight;
         KyoChanNode* nodes = cluster->getNodeBlock();
+        uint16_t edgeId = 0;
 
         // float updateValue = 0;
         KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
@@ -234,9 +237,10 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
             }
 
             // memorize the current edge-weight
-            const float diff = tempEdge.weight * (1.0f - tempEdge.memorize);
-            edge->weight *= tempEdge.memorize;
-            currentSection->totalWeight -= diff;
+            const float diff = (-1.0f) * tempEdge.weight * (1.0f - tempEdge.memorize);
+            currentSection->updateWeight(edgeId, diff);
+
+            edgeId++;
         }
 
         // send status upadate to the parent forward-edge-section
