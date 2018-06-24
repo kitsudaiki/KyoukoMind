@@ -44,7 +44,7 @@ bool AxonInitializer::createAxons()
         for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++) {
 
             // check cluster-type
-            Cluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
+            Cluster* cluster = (*m_networkMetaStructure)[x][y].nodeCluster;
             if(cluster == nullptr) {
                 continue;
             }
@@ -60,7 +60,7 @@ bool AxonInitializer::createAxons()
                 {
                     // create new axon
                     uint32_t axonId = (*m_networkMetaStructure)[x][y].numberOfAxons;
-                    NewAxon newAxon = getNextAxonPathStep(x, y, 0, 0, 0);
+                    NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 0);
 
                     // update values of the cluster and the node
                     (*m_networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
@@ -80,9 +80,8 @@ bool AxonInitializer::createAxons()
                 continue;
             }
             // check cluster-type
-            if(cluster->getClusterType() == EDGE_CLUSTER
-                    || cluster->getClusterType() == NODE_CLUSTER) {
-
+            if(cluster->getClusterType() == EDGE_CLUSTER)
+            {
                 // add the axon-number to the specific cluster
                 EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
                 edgeCluster->initForwardEdgeSectionBlocks((*m_networkMetaStructure)[x][y].numberOfAxons);
@@ -127,11 +126,22 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
         return result;
     }
     // choose the next cluster
-    std::vector<uint8_t> m_sideOrder = {2, 3, 4, 14, 13, 12};
-    uint8_t nextSite = m_sideOrder[rand() % m_sideOrder.size()];
+    std::vector<uint8_t> sideOrder = {2, 3, 4, 14, 13, 12};
+    std::vector<uint8_t> availableSides;
+    for(uint8_t i = 0; i < sideOrder.size(); i++)
+    {
+        if((*m_networkMetaStructure)[x][y].neighbors[sideOrder[i]].targetClusterId != UNINIT_STATE) {
+            availableSides.push_back(sideOrder[i]);
+        }
+    }
 
-    // return the current values if no choise
-    if(nextSite == 0xFF) {
+    uint8_t nextSite = 0;
+    if(availableSides.size() != 0)
+    {
+        nextSite = availableSides[rand() % availableSides.size()];
+    }
+    else
+    {
         AxonInitializer::NewAxon result;
         result.targetX = x;
         result.targetY = y;

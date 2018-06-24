@@ -131,6 +131,7 @@ inline void EdgeClusterProcessing::updateEdgeForwardSection(EdgeCluster *cluster
 {
     std::cout<<"---"<<std::endl;
     std::cout<<"updateEdgeForwardSection"<<std::endl;
+
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
     //currentSection->forwardEdges[inititalSide].updateMemorize(status);
 
@@ -159,6 +160,9 @@ inline void EdgeClusterProcessing::processAxon(EdgeCluster* cluster,
                                                const float weight,
                                                OutgoingMessageBuffer* outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processAxon"<<std::endl;
+
     if(path != 0)
     {
         KyoChanAxonEdgeContainer newEdge;
@@ -188,6 +192,9 @@ inline void EdgeClusterProcessing::processLerningEdge(EdgeCluster* cluster,
                                                       const uint8_t initSide,
                                                       OutgoingMessageBuffer* outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processLerningEdge"<<std::endl;
+
     const uint32_t targetEdgeSectionId = cluster->addEmptyForwardEdgeSection(initSide,
                                                                              sourceEdgeSectionId);
     processEdgeForwardSection(cluster, targetEdgeSectionId, weight, outgoBuffer);
@@ -218,6 +225,9 @@ inline void EdgeClusterProcessing::processPendingEdge(EdgeCluster *cluster,
                                                       const float weight,
                                                       OutgoingMessageBuffer *outgoBuffer)
 {
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processPendingEdge"<<std::endl;
+
     KyoChanForwardEdgeSection* forwardEnd = &((cluster)->getForwardEdgeSectionBlock()[0]);
     const uint32_t numberOfForwardEdgeBlocks = cluster->getNumberOfForwardEdgeSections();
     KyoChanForwardEdgeSection* forwardStart = &((cluster)->getForwardEdgeSectionBlock()[numberOfForwardEdgeBlocks - 1]);

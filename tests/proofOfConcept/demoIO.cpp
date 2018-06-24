@@ -30,7 +30,7 @@ DemoIO::DemoIO(MessageController *messageController,
 {
     m_clusterHandler = clusterHandler;
     m_messageController = messageController;
-    NodeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test");
+    NodeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 2);
     fakeCluster->initMessageBuffer(m_messageController);
 
     Neighbor neighborIn;
@@ -61,21 +61,33 @@ void DemoIO::run()
         uint8_t* data = (uint8_t*)m_incomBuffer->getMessage(0)->getPayload();
         uint8_t* end = data + m_incomBuffer->getMessage(0)->getPayloadSize();
 
+        float out = 0;
+
         while(data < end)
         {
             if((int)(*data) == DIRECT_EDGE_CONTAINER) {
                 KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
 
-                uint32_t out = (uint32_t)edge->weight;
-                if(out > 255) {
-                    out = 255;
+                if(edge->targetEdgeSectionId == 0) {
+                    out += (uint32_t)edge->weight;
+                } else {
+                    if(out - (uint32_t)edge->weight >= 0.0f) {
+                        out -= (uint32_t)edge->weight;
+                    } else {
+                        out = 0.0f;
+                    }
                 }
-                char newChar = (char)out;
-                std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! out: "<<newChar<<"  number: "<<(int)out<<std::endl;
-                sendInnerData(newChar);
-                data += sizeof(KyoChanStatusEdgeContainer);
             }
         }
+
+        if(out > 255.0) {
+            out = 255.0;
+        }
+        char newChar = (char)out;
+
+        std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! out: "<<newChar<<"  number: "<<(int)out<<std::endl;
+        sendInnerData(newChar);
+        data += sizeof(KyoChanStatusEdgeContainer);
     }
 }
 

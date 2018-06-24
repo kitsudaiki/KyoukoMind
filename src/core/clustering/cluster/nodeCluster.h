@@ -27,7 +27,7 @@ public:
     uint16_t getNumberOfNodeBlocks() const;
     uint16_t getNumberOfNodes() const;
     KyoChanNode* getNodeBlock();
-    bool initNodeBlocks(const uint16_t numberOfNodes);
+    bool initNodeBlocks(uint16_t numberOfNodes);
 
     // edge-sections
     KyoChanEdgeSection* getEdgeSectionBlock();

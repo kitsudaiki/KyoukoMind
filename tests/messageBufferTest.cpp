@@ -37,13 +37,13 @@ MessageBufferTest::MessageBufferTest() : CommonTest("MessageBufferTest")
 void MessageBufferTest::initTestCase()
 {
     m_controller = new MessageController();
-    NodeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 42);
+    NodeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test");
 
     Neighbor neighbor;
     neighbor.targetClusterId = 1337;
     neighbor.neighborType = NODE_CLUSTER;
-    fakeCluster->addNeighbor(16, neighbor);
 
+    fakeCluster->addNeighbor(16, neighbor);
     fakeCluster->initMessageBuffer(m_controller);
 
     m_incomBuffer = fakeCluster->getIncomingMessageBuffer();

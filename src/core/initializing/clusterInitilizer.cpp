@@ -120,6 +120,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
             nodeCluster->initMessageBuffer(m_messageController);
 
             m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId+1, nodeCluster);
+            (*m_networkMetaStructure)[x][y].nodeCluster = nodeCluster;
             break;
         }
         default:

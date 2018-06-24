@@ -30,6 +30,7 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
               directoryPath)
 {
     m_metaData.clusterType = NODE_CLUSTER;
+    m_metaData.positionNodeBlocks = 1;
     initNodeBlocks(numberOfNodes);
 }
 
@@ -66,11 +67,15 @@ KyoChanNode *NodeCluster::getNodeBlock()
  * @param numberOfNodes number of new empty nodes
  * @return false if nodes are already initialized, esle true
  */
-bool NodeCluster::initNodeBlocks(const uint16_t numberOfNodes)
+bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
 {
     // prechecks
-    if(numberOfNodes == 0 || m_metaData.numberOfNodes != 0) {
+    if(m_metaData.numberOfNodes != 0) {
         return false;
+    }
+
+    if(numberOfNodes == 0) {
+        numberOfNodes = NUMBER_OF_NODES_PER_CLUSTER;
     }
 
     // update meta-data of the cluster

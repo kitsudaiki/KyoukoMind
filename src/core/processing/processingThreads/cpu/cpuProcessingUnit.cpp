@@ -60,7 +60,6 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
     {
         NodeCluster *nodeCluster = static_cast<NodeCluster*>(cluster);
         numberOfActiveNodes = m_nodeClusterProcessing->processNodes(nodeCluster);
-        assert(numberOfActiveNodes > 0);
         m_nodeClusterProcessing->processMessagesNodeCluster(nodeCluster);
     }
     else

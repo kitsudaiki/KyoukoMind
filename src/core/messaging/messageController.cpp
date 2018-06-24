@@ -51,6 +51,7 @@ bool MessageController::sendMessage(Message *message)
 {
     uint32_t targetClusterId = message->getMetaData().targetClusterId;
     uint8_t targetSite = message->getMetaData().targetSite;
+
     std::map<ClusterID, IncomingMessageBuffer*>::iterator it;
     it = m_messageQueues.find(targetClusterId);
     if(it != m_messageQueues.end())

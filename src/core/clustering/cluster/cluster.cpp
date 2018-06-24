@@ -17,6 +17,8 @@ namespace KyoukoMind
 Cluster::Cluster(const ClusterID &clusterId,
                  const std::string directoryPath)
 {
+    m_metaData.clusterId = clusterId;
+
     // creates a file for the cluster with buffer
     // TODO: readd file-path after tests
     std::string filePath = directoryPath

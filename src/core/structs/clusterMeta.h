@@ -54,13 +54,13 @@ struct ClusterMetaData
     uint32_t numberOfEdgeSections = 0;
     uint32_t numberOfPendingForwardEdgeSections = 0;
 
-    uint32_t positionNodeBlocks = 1;
+    uint32_t positionNodeBlocks = 0;
     uint32_t numberOfNodeBlocks = 0;
 
-    uint32_t positionForwardEdgeBlocks = 1;
+    uint32_t positionForwardEdgeBlocks = 0;
     uint32_t numberOfForwardEdgeBlocks = 0;
 
-    uint32_t positionOfEdgeBlock = 1;
+    uint32_t positionOfEdgeBlock = 0;
     uint32_t numberOfEdgeBlocks = 0;
 
 } __attribute__((packed));
@@ -79,6 +79,7 @@ struct InitMetaDataEntry
     Neighbor neighbors[17];
     KyoukoMind::Cluster* cluster = nullptr;
     uint32_t numberOfAxons = 0;
+    KyoukoMind::Cluster* nodeCluster = nullptr;
 };
 
 #endif // CLUSTERMETA_H

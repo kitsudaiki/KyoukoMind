@@ -93,6 +93,9 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
 {
     assert(nodeCluster != nullptr);
 
+    std::cout<<"---"<<std::endl;
+    std::cout<<"processNodes"<<std::endl;
+
     // get necessary values
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
 

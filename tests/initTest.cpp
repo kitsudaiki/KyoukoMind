@@ -65,11 +65,17 @@ void InitTest::checkInit()
 
     metaData.push_back(m_testClusterHandler->getCluster(7)->getMetaData());
     metaData.push_back(m_testClusterHandler->getCluster(8)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(12)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(13)->getMetaData());
+    metaData.push_back(m_testClusterHandler->getCluster(9)->getMetaData());
+    metaData.push_back(m_testClusterHandler->getCluster(10)->getMetaData());
     metaData.push_back(m_testClusterHandler->getCluster(14)->getMetaData());
+    metaData.push_back(m_testClusterHandler->getCluster(15)->getMetaData());
+    metaData.push_back(m_testClusterHandler->getCluster(16)->getMetaData());
     metaData.push_back(m_testClusterHandler->getCluster(17)->getMetaData());
     metaData.push_back(m_testClusterHandler->getCluster(18)->getMetaData());
+    metaData.push_back(m_testClusterHandler->getCluster(21)->getMetaData());
+    metaData.push_back(m_testClusterHandler->getCluster(22)->getMetaData());
+    metaData.push_back(m_testClusterHandler->getCluster(23)->getMetaData());
+    metaData.push_back(m_testClusterHandler->getCluster(24)->getMetaData());
 
     ClusterMetaData totalData;
     totalData.positionForwardEdgeBlocks = 0;
@@ -80,7 +86,6 @@ void InitTest::checkInit()
     {
         totalData.numberOfNodes += metaData.at(i).numberOfNodes;
         totalData.numberOfForwardEdgeSections += metaData.at(i).numberOfForwardEdgeSections;
-        totalData.numberOfPendingForwardEdgeSections += metaData.at(i).numberOfPendingForwardEdgeSections;
 
         totalData.numberOfNodeBlocks += metaData.at(i).numberOfNodeBlocks;
         totalData.numberOfEdgeBlocks += metaData.at(i).numberOfEdgeBlocks;
@@ -93,15 +98,14 @@ void InitTest::checkInit()
 
     UNITTEST((int)totalData.numberOfNodes, nodeNumberPerCluster*6)
     UNITTEST((int)totalData.numberOfForwardEdgeSections, nodeNumberPerCluster*6)
-    UNITTEST((int)totalData.numberOfPendingForwardEdgeSections, 0)
 
-    UNITTEST((int)totalData.numberOfNodeBlocks, 1*6)
+    UNITTEST((int)totalData.numberOfNodeBlocks, 6)
     UNITTEST((int)totalData.numberOfEdgeBlocks, 0)
-    UNITTEST((int)totalData.numberOfForwardEdgeBlocks, 1*7)
+    UNITTEST((int)totalData.numberOfForwardEdgeBlocks, 6)
 
-    UNITTEST((int)totalData.positionForwardEdgeBlocks, 7*1)
-    UNITTEST((int)totalData.positionNodeBlocks, 7*1)
-    UNITTEST((int)totalData.positionOfEdgeBlock, 7+6)
+    UNITTEST((int)totalData.positionForwardEdgeBlocks, 7)
+    UNITTEST((int)totalData.positionNodeBlocks, 6)
+    UNITTEST((int)totalData.positionOfEdgeBlock, 12)
 }
 
 /**

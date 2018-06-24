@@ -21,6 +21,7 @@
 
 int main(int argc, char *argv[])
 {
+
     KyoukoMind::DataBufferTest();
     KyoukoMind::StorageMemoryTest();
     KyoukoMind::InitTest();
@@ -29,7 +30,6 @@ int main(int argc, char *argv[])
     KyoukoMind::StructTest();
     KyoukoMind::MessageBufferTest();
     KyoukoMind::ProcessingTest();
-    KyoukoMind::MessageBufferTest();
 
 
     //KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");

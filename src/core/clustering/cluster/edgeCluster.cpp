@@ -28,7 +28,7 @@ EdgeCluster::EdgeCluster(const ClusterID &clusterId,
 {
     // set meta-data
     m_metaData.clusterType = EDGE_CLUSTER;
-    m_metaData.clusterId = clusterId;
+    m_metaData.positionForwardEdgeBlocks = 1;
 }
 
 /**
