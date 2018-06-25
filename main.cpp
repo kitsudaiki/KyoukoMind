@@ -22,19 +22,19 @@
 int main(int argc, char *argv[])
 {
 
-    KyoukoMind::DataBufferTest();
+    /*KyoukoMind::DataBufferTest();
     KyoukoMind::StorageMemoryTest();
     KyoukoMind::InitTest();
     KyoukoMind::ClusterTest();
     KyoukoMind::MessageTest();
     KyoukoMind::StructTest();
     KyoukoMind::MessageBufferTest();
-    KyoukoMind::ProcessingTest();
+    KyoukoMind::ProcessingTest();*/
 
 
-    //KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
+    KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
 
-    //KyoukoMind::DemoUserInput input(network->getMessageController(),
-    //                                network->getClusterHandler());
-    //input.inputLoop();
+    KyoukoMind::DemoUserInput input(network->getMessageController(),
+                                    network->getClusterHandler());
+    input.inputLoop();
 }

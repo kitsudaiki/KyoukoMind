@@ -34,11 +34,11 @@ DemoIO::DemoIO(MessageController *messageController,
     fakeCluster->initMessageBuffer(m_messageController);
 
     Neighbor neighborIn;
-    neighborIn.targetClusterId = 12;
+    neighborIn.targetClusterId = 15;
     neighborIn.neighborType = NODE_CLUSTER;
     fakeCluster->addNeighbor(16, neighborIn);
 
-    Cluster* outgoingCluster = clusterHandler->getCluster(14);
+    Cluster* outgoingCluster = clusterHandler->getCluster(17);
 
     Neighbor neighborOut;
     neighborOut.targetClusterId = 1337;

@@ -107,7 +107,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
             m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, edgeCluster);
             (*m_networkMetaStructure)[x][y].cluster = edgeCluster;
 
-            Cluster*  nodeCluster = new NodeCluster((*m_networkMetaStructure)[x][y].clusterId,
+            Cluster*  nodeCluster = new NodeCluster((*m_networkMetaStructure)[x][y].clusterId+1,
                                                     m_directoryPath,
                                                     nodeNumberPerCluster);
 
