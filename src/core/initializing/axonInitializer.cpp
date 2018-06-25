@@ -126,21 +126,9 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
         return result;
     }
     // choose the next cluster
-    std::vector<uint8_t> sideOrder = {2, 3, 4, 14, 13, 12};
-    std::vector<uint8_t> availableSides;
-    for(uint8_t i = 0; i < sideOrder.size(); i++)
-    {
-        if((*m_networkMetaStructure)[x][y].neighbors[sideOrder[i]].targetClusterId != UNINIT_STATE) {
-            availableSides.push_back(sideOrder[i]);
-        }
-    }
+    uint8_t nextSite = chooseNextSide((*m_networkMetaStructure)[x][y].neighbors);
 
-    uint8_t nextSite = 0;
-    if(availableSides.size() != 0)
-    {
-        nextSite = availableSides[rand() % availableSides.size()];
-    }
-    else
+    if(nextSite == 0xFF)
     {
         AxonInitializer::NewAxon result;
         result.targetX = x;
@@ -161,6 +149,30 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
                                16 - nextSite,
                                newPath,
                                currentStep+1);
+}
+
+/**
+ * @brief AxonInitializer::chooseNextSide
+ * @param neighbors
+ * @return
+ */
+uint8_t AxonInitializer::chooseNextSide(Neighbor *neighbors)
+{
+    std::vector<uint8_t> sideOrder = {2, 3, 4, 14, 13, 12};
+    std::vector<uint8_t> availableSides;
+
+    for(uint8_t i = 0; i < sideOrder.size(); i++)
+    {
+        if(neighbors[sideOrder[i]].targetClusterId != UNINIT_STATE) {
+            availableSides.push_back(sideOrder[i]);
+        }
+    }
+
+    if(availableSides.size() != 0) {
+        return availableSides[rand() % availableSides.size()];
+    }
+
+    return 0xFF;
 }
 
 }

@@ -42,6 +42,8 @@ private:
                                 const uint8_t inputSide,
                                 const uint32_t currentPath,
                                 const uint32_t currentStep);
+
+    uint8_t chooseNextSide(Neighbor* neighbors);
 };
 
 }

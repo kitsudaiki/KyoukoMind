@@ -147,13 +147,7 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster
 
         // set the values in the neighbor-struct
         Neighbor tempNeighbor;
-        if((*m_networkMetaStructure)[next.first][next.second].type == EMPTY_CLUSTER)
-        {
-            tempNeighbor.neighborType = (*m_networkMetaStructure)[next.first][next.second].type;
-            tempNeighbor.distantToNextNodeCluster = MAX_DISTANCE;
-            tempNeighbor.targetClusterId = 0;
-        }
-        else
+        if((*m_networkMetaStructure)[next.first][next.second].type != EMPTY_CLUSTER)
         {
             tempNeighbor.targetClusterId = (*m_networkMetaStructure)[next.first][next.second].clusterId;
             tempNeighbor.neighborType = (*m_networkMetaStructure)[next.first][next.second].type;

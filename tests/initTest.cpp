@@ -101,7 +101,7 @@ void InitTest::checkInit()
 
     UNITTEST((int)totalData.numberOfNodeBlocks, 6)
     UNITTEST((int)totalData.numberOfEdgeBlocks, 0)
-    UNITTEST((int)totalData.numberOfForwardEdgeBlocks, 6)
+    UNITTEST((int)totalData.numberOfForwardEdgeBlocks, 7)
 
     UNITTEST((int)totalData.positionForwardEdgeBlocks, 7)
     UNITTEST((int)totalData.positionNodeBlocks, 6)
