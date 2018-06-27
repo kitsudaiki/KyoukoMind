@@ -163,13 +163,15 @@ inline void EdgeClusterProcessing::processAxon(EdgeCluster* cluster,
     std::cout<<"---"<<std::endl;
     std::cout<<"processAxon"<<std::endl;
 
+    std::cout<<"    path: "<<path<<std::endl;
     if(path != 0)
     {
         KyoChanAxonEdgeContainer newEdge;
-        newEdge.targetClusterPath = path / 17;
+        newEdge.targetClusterPath = path / 32;
         newEdge.weight = weight;
         newEdge.targetAxonId = targetId;
-        outgoBuffer->addAxonEdge(path % 17, &newEdge);
+        std::cout<<"    forward to: "<<(int)(path % 32)<<std::endl;
+        outgoBuffer->addAxonEdge(path % 32, &newEdge);
     }
     else
     {
@@ -201,6 +203,7 @@ inline void EdgeClusterProcessing::processLerningEdge(EdgeCluster* cluster,
 
     if(targetEdgeSectionId != UNINIT_STATE)
     {
+        std::cout<<"x"<<std::endl;
         // create reply-message
         KyoChanLearningEdgeReplyContainer reply;
         reply.sourceEdgeSectionId = sourceEdgeSectionId;
@@ -208,6 +211,8 @@ inline void EdgeClusterProcessing::processLerningEdge(EdgeCluster* cluster,
 
         // send reply-message
         outgoBuffer->addLearningReplyMessage(initSide, &reply);
+    } else {
+        std::cout<<"hmmmmmmmmmmmmmmm" <<std::endl;
     }
 }
 

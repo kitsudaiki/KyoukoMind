@@ -60,7 +60,7 @@ bool AxonInitializer::createAxons()
                 {
                     // create new axon
                     uint32_t axonId = (*m_networkMetaStructure)[x][y].numberOfAxons;
-                    NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 0);
+                    NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 1);
 
                     // update values of the cluster and the node
                     (*m_networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
@@ -141,7 +141,7 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
     Neighbor choosenOne = (*m_networkMetaStructure)[x][y].neighbors[nextSite];
 
     // update path
-    uint32_t newPath = (currentPath * 17) + nextSite;
+    uint32_t newPath = currentPath + (nextSite << (currentStep * 5));
 
     // make next iteration
     return getNextAxonPathStep(choosenOne.targetClusterPos.x,

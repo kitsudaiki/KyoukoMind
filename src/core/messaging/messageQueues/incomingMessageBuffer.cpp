@@ -39,12 +39,12 @@ bool IncomingMessageBuffer::initMessageBuffer(Cluster *cluster)
 {
     for(uint32_t side = 0; side < 17; side++)
     {
-        m_dataMessageBuffer1[side] = new DataMessage(cluster->getNeighborId(side),
-                                                     cluster->getClusterId(),
+        m_buffer[side].m_dataMessageBuffer1 = new DataMessage(cluster->getNeighborId(side),
+                                                     0,
                                                      16 - side,
                                                      1);
-        m_dataMessageBuffer2[side] = new DataMessage(cluster->getNeighborId(side),
-                                                     cluster->getClusterId(),
+        m_buffer[side].m_dataMessageBuffer2 = new DataMessage(cluster->getNeighborId(side),
+                                                     0,
                                                      16 - side,
                                                      1);
     }
@@ -61,15 +61,12 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, DataMessage *message)
     if(side < 17)
     {
         m_mutex.lock();
-        if(m_switchFlag) {
-            m_dataMessageBuffer1[side] = message;
+        if(m_buffer[side].switchFlag) {
+            m_buffer[side].m_dataMessageBuffer1 = message;
         } else {
-            m_dataMessageBuffer2[side] = message;
+            m_buffer[side].m_dataMessageBuffer2 = message;
         }
-        m_finishCounter++;
-        if(isReady()) {
-            m_switchFlag = !m_switchFlag;
-        }
+        m_buffer[side].switchFlag = !m_buffer[side].switchFlag;
         m_mutex.unlock();
         return true;
     }
@@ -83,11 +80,11 @@ bool IncomingMessageBuffer::addMessage(const uint8_t side, DataMessage *message)
  */
 Message *IncomingMessageBuffer::getMessage(const uint8_t side)
 {
-    if(!m_switchFlag) {
-        DataMessage* message = m_dataMessageBuffer1[side];
+    if(!m_buffer[side].switchFlag) {
+        DataMessage* message = m_buffer[side].m_dataMessageBuffer1;
         return message;
     } else {
-        DataMessage* message = m_dataMessageBuffer2[side];
+        DataMessage* message = m_buffer[side].m_dataMessageBuffer2;
         return message;
     }
 }

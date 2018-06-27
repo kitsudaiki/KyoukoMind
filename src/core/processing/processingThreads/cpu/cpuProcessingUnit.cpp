@@ -12,14 +12,6 @@
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
-#include <core/messaging/messageController.h>
-#include <core/messaging/messageQueues/incomingMessageBuffer.h>
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
-
-#include <core/messaging/messages/message.h>
-#include <core/messaging/messages/dataMessage.h>
-#include <core/messaging/messages/replyMessage.h>
-
 #include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
 #include <core/processing/processingThreads/cpu/nodeClusterProcessing.h>
 

@@ -40,9 +40,6 @@ NodeClusterProcessing::NodeClusterProcessing()
  */
 bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
 {
-    std::cout<<"---"<<std::endl;
-    std::cout<<"processMessagesNodeCluster: "<<cluster->getMetaData().clusterId<<std::endl;
-
     // get buffer
     IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
     OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
@@ -96,9 +93,6 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
 {
     assert(nodeCluster != nullptr);
 
-    std::cout<<"---"<<std::endl;
-    std::cout<<"processNodes"<<std::endl;
-
     // get necessary values
     OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
 
@@ -118,13 +112,12 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
         if(tempNode.border <= tempNode.currentState)
         {
             std::cout<<"poi"<<std::endl;
-
             // create new axon-edge
             KyoChanAxonEdgeContainer edge;
-            edge.targetClusterPath = tempNode.targetClusterPath / 17;
+            edge.targetClusterPath = tempNode.targetClusterPath / 32;
             edge.targetAxonId = tempNode.targetAxonId;
             edge.weight = tempNode.currentState;
-            outgoBuffer->addAxonEdge(tempNode.targetClusterPath % 17, &edge);
+            outgoBuffer->addAxonEdge(tempNode.targetClusterPath % 32, &edge);
 
             numberOfActiveNodes++;
         }

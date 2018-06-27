@@ -19,6 +19,7 @@ class MessageController;
 class IncomingMessageBuffer;
 class MessageBuffer;
 class OutgoingMessageBuffer;
+class NodeCluster;
 
 class MessageBufferTest : public CommonTest
 {
@@ -31,6 +32,7 @@ private:
     void checkMessageBuffer();
     void cleanupTestCase();
 
+    NodeCluster* m_fakeCluster = nullptr;
     MessageController* m_controller = nullptr;
     IncomingMessageBuffer* m_incomBuffer= nullptr;
     OutgoingMessageBuffer* m_ougoingBuffer= nullptr;
