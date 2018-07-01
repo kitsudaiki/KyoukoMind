@@ -57,6 +57,31 @@ bool ClusterInitilizer::createNetwork()
             addCluster(x, y, nodeNumberPerCluster);
         }
     }
+
+    for(uint32_t x = 0; x < (*m_networkMetaStructure).size(); x++)
+    {
+        for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++)
+        {
+            std::vector<uint8_t> sideOrder = {2,3,4,14,13,12};
+            for(uint8_t i = 0; i < sideOrder.size(); i++)
+            {
+                const uint8_t side = sideOrder[i];
+
+                m_clusterHandler->setNewConnection(
+                            (*m_networkMetaStructure)[x][y].neighbors[side].targetClusterId,
+                            side,
+                            (*m_networkMetaStructure)[x][y].neighbors[side].incomBuffer);
+            }
+
+            if((*m_networkMetaStructure)[x][y].nodeCluster != nullptr)
+            {
+                (*m_networkMetaStructure)[x][y].nodeCluster->setNewConnection(
+                            8, (*m_networkMetaStructure)[x][y].cluster->getIncomingMessageBuffer(8));
+                (*m_networkMetaStructure)[x][y].cluster->setNewConnection(
+                            8, (*m_networkMetaStructure)[x][y].nodeCluster->getIncomingMessageBuffer(8));
+            }
+        }
+    }
     return true;
 }
 
@@ -137,10 +162,13 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster
             tempNeighbor.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
             tempNeighbor.targetClusterPos.x = next.first;
             tempNeighbor.targetClusterPos.y = next.second;
+            // add new neighbor
+            cluster->addNeighbor(side, (*m_networkMetaStructure)[next.first][next.second].clusterId);
+
+            tempNeighbor.incomBuffer = cluster->getIncomingMessageBuffer(side);
+            tempNeighbor.outgoBuffer = cluster->getOutgoingMessageBuffer(side);
         }
 
-        // add new neighbor
-        cluster->addNeighbor(side, (*m_networkMetaStructure)[next.first][next.second].clusterId);
         (*m_networkMetaStructure)[x][y].neighbors[side] = tempNeighbor;
     }
 

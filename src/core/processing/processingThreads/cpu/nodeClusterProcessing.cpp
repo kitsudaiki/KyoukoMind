@@ -46,6 +46,10 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
         Networking::IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer(side);
         Networking::OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer(side);
 
+        if(incomBuffer == nullptr) {
+            continue;
+        }
+
         uint8_t* data = (uint8_t*)incomBuffer->getMessage()->getPayload();
         uint8_t* end = data + incomBuffer->getMessage()->getPayloadSize();
 
@@ -101,15 +105,15 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
         node++)
     {
         const KyoChanNode tempNode = *node;
-
         if(tempNode.border <= tempNode.currentState)
         {
-            //std::cout<<"poi"<<std::endl;
+            std::cout<<"poi2"<<std::endl;
             // create new axon-edge
             KyoChanAxonEdgeContainer edge;
             edge.targetClusterPath = tempNode.targetClusterPath / 32;
             edge.targetAxonId = tempNode.targetAxonId;
             edge.weight = tempNode.currentState;
+            std::cout<<"next side: "<<(int)(tempNode.targetClusterPath % 32)<<std::endl;
             nodeCluster->getOutgoingMessageBuffer(tempNode.targetClusterPath % 32)->addData(&edge);
 
             numberOfActiveNodes++;
@@ -143,8 +147,8 @@ inline float NodeClusterProcessing::randFloat(const float b)
                                                         KyoChanEdgeSection* currentSection,
                                                         const float partitialWeight)
  {
-     //std::cout<<"---"<<std::endl;
-     //std::cout<<"learningEdgeSection"<<std::endl;
+     std::cout<<"---"<<std::endl;
+     std::cout<<"learningEdgeSection"<<std::endl;
 
      // collect necessary values
      const uint16_t numberOfEdge = currentSection->numberOfEdges;

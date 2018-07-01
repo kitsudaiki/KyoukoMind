@@ -48,7 +48,7 @@ public:
     // message-queues
     Networking::IncomingMessageBuffer* getIncomingMessageBuffer(const uint8_t side);
     Networking::OutgoingMessageBuffer* getOutgoingMessageBuffer(const uint8_t side);
-    bool setIncomingMessageBuffer(const uint8_t side, Networking::IncomingMessageBuffer* buffer);
+    bool setNewConnection(const uint8_t side, Networking::IncomingMessageBuffer* buffer);
 
     // neighbors
     bool addNeighbor(const uint8_t side, const ClusterID targetClusterId);

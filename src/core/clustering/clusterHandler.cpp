@@ -102,6 +102,24 @@ void ClusterHandler::clearAllCluster()
 }
 
 /**
+ * @brief ClusterHandler::setNewConnection
+ * @param targetClusterId
+ * @param sourceSide
+ * @param buffer
+ * @return
+ */
+bool ClusterHandler::setNewConnection(const ClusterID targetClusterId,
+                                      const uint8_t sourceSide,
+                                      Networking::IncomingMessageBuffer *buffer)
+{
+    Cluster* cluster = getCluster(targetClusterId);
+    if(cluster != nullptr)  {
+        return cluster->setNewConnection(16 - sourceSide, buffer);
+    }
+    return false;
+}
+
+/**
  * @brief ClusterHandler::getClusterQueue
  * @return
  */

@@ -26,13 +26,19 @@ namespace KyoukoMind
 DemoIO::DemoIO(ClusterHandler *clusterHandler)
 {
     m_clusterHandler = clusterHandler;
-    m_fakeCluster = new NodeCluster(1337, "/tmp/test", 2);
 
+    m_fakeCluster = new NodeCluster(1337, "/tmp/test", 2);
     m_fakeCluster->addNeighbor(16, 15);
+    m_fakeCluster->addNeighbor(0, 17);
+
 
     Cluster* outgoingCluster = clusterHandler->getCluster(17);
-
     outgoingCluster->addNeighbor(16, 1337);
+    outgoingCluster->setNewConnection(16, m_fakeCluster->getIncomingMessageBuffer(0));
+
+    Cluster* ingoingCluster = clusterHandler->getCluster(15);
+    ingoingCluster->addNeighbor(0, 1337);
+    m_fakeCluster->setNewConnection(16, ingoingCluster->getIncomingMessageBuffer(0));
 
     m_incomBuffer = m_fakeCluster->getIncomingMessageBuffer(0);
     m_ougoingBuffer = m_fakeCluster->getOutgoingMessageBuffer(16);
@@ -89,22 +95,24 @@ void DemoIO::sendOutData(const char input)
     std::cout<<"----------------------------------------- sendOutData"<<std::endl;
     uint8_t inputNumber = (uint8_t)input;
 
+    mutexLock();
     KyoChanDirectEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 1;
-    sendData(edge1);
+    m_ougoingBuffer->addData(&edge1);
 
     KyoChanDirectEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 2;
-    sendData(edge2);
+    m_ougoingBuffer->addData(&edge2);
 
     KyoChanDirectEdgeContainer edge3;
     edge3.weight = (float)inputNumber;
     edge3.targetNodeId = 3;
-    sendData(edge3);
+    m_ougoingBuffer->addData(&edge3);
 
-    sendFinishCycle();
+    m_fakeCluster->finishCycle(0);
+    mutexUnlock();
 }
 
 /**
@@ -113,20 +121,23 @@ void DemoIO::sendOutData(const char input)
  */
 void DemoIO::sendInnerData(const char input)
 {
+    return;
     std::cout<<"+++++++++++++++++++++++++++++++++++++ sendInnerData"<<std::endl;
     uint8_t inputNumber = (uint8_t)input;
 
+    mutexLock();
     KyoChanDirectEdgeContainer edge1;
     edge1.weight = (float)inputNumber;
     edge1.targetNodeId = 1;
-    sendData(edge1);
+    m_ougoingBuffer->addData(&edge1);
 
     KyoChanDirectEdgeContainer edge2;
     edge2.weight = (float)inputNumber;
     edge2.targetNodeId = 2;
-    sendData(edge2);
+    m_ougoingBuffer->addData(&edge2);
 
-    sendFinishCycle();
+    m_fakeCluster->finishCycle(0);
+    mutexUnlock();
 }
 
 /**
@@ -146,7 +157,7 @@ void DemoIO::sendFinishCycle()
 void DemoIO::sendData(const KyoChanDirectEdgeContainer &edge)
 {
     mutexLock();
-    m_fakeCluster->getOutgoingMessageBuffer(16)->addData(&edge);
+    m_ougoingBuffer->addData(&edge);
     mutexUnlock();
 }
 

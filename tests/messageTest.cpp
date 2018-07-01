@@ -11,6 +11,7 @@
 
 #include <messages/message.h>
 #include <messages/dataMessage.h>
+#include <core/structs/messageContainer.h>
 
 namespace KyoukoMind
 {
@@ -30,34 +31,34 @@ void MessageTest::initTestCase()
 
 void MessageTest::checkDataMessage()
 {
-    /*DataMessage message(1, 3, 4, 1);
+    Networking::DataMessage message(1, 3, 4, 1);
 
-    CommonMessageData metaData = message.getMetaData();
+    DataMessageHeader metaData = message.getMetaData();
 
     UNITTEST(metaData.requiredReply, 1);
-    UNITTEST((uint32_t)metaData.targetSite, 4);
-    UNITTEST(metaData.type, DATA_MESSAGE);
+    UNITTEST((uint32_t)metaData.commonInfo.targetSide, 3);
+    UNITTEST(metaData.commonInfo.type, DATA_MESSAGE);
 
     KyoChanForwardEdgeContainer testEdge;
     testEdge.targetEdgeSectionId = 1;
     testEdge.weight = 3;
-    message.addForwardEdge(&testEdge);
+    message.addData((void*)(&testEdge), sizeof(KyoChanForwardEdgeContainer));
 
     KyoChanForwardEdgeContainer testEdge2;
     testEdge2.targetEdgeSectionId = 4;
     testEdge2.weight = 6;
-    message.addForwardEdge(&testEdge2);
+    message.addData((void*)(&testEdge2), sizeof(KyoChanForwardEdgeContainer));
 
-    void* data = message.getData();
+    /*void* data = message.getData();
     uint32_t size = message.getDataSize();
 
-    DataMessage newMessage(data, size);
+    Networking::DataMessage newMessage(data, size);
+    newMessage.getMetaDataFromBuffer();
+    DataMessageHeader metaData2 = newMessage.getMetaData();
 
-    CommonMessageData metaData2 = newMessage.getMetaData();
-
-    UNITTEST(metaData2.requiredReply, 1);
-    UNITTEST((uint32_t)metaData2.targetSite, 4);
-    UNITTEST(metaData2.type, DATA_MESSAGE);
+    UNITTEST((uint8_t)metaData2.requiredReply, 1);
+    UNITTEST((uint32_t)metaData2.commonInfo.targetSide, 3);
+    UNITTEST(metaData2.commonInfo.type, DATA_MESSAGE);
 
     uint8_t* newData = (uint8_t*)newMessage.getPayload();
 

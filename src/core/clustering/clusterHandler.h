@@ -12,6 +12,11 @@
 
 #include <common.h>
 
+namespace Networking
+{
+class IncomingMessageBuffer;
+}
+
 namespace KyoukoMind
 {
 class Cluster;
@@ -28,6 +33,10 @@ public:
     uint32_t getNumberOfCluster() const;
     bool deleteCluster(const ClusterID clusterId);
     void clearAllCluster();
+
+    bool setNewConnection(const ClusterID targetClusterId,
+                          const uint8_t sourceSide,
+                          Networking::IncomingMessageBuffer *buffer);
 
     ClusterQueue* getClusterQueue() const;
 

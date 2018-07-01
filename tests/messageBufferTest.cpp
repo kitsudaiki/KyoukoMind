@@ -49,9 +49,9 @@ void MessageBufferTest::checkInitializing()
     UNITTEST(m_fakeCluster->addNeighbor(17, 1337), false);
 
 
-    UNITTEST(m_fakeCluster->setIncomingMessageBuffer(0, m_fakeCluster->getIncomingMessageBuffer(16)), true);
-    UNITTEST(m_fakeCluster->setIncomingMessageBuffer(16, m_fakeCluster->getIncomingMessageBuffer(0)), true);
-    UNITTEST(m_fakeCluster->setIncomingMessageBuffer(17, m_fakeCluster->getIncomingMessageBuffer(0)), false);
+    UNITTEST(m_fakeCluster->setNewConnection(0, m_fakeCluster->getIncomingMessageBuffer(16)), true);
+    UNITTEST(m_fakeCluster->setNewConnection(16, m_fakeCluster->getIncomingMessageBuffer(0)), true);
+    UNITTEST(m_fakeCluster->setNewConnection(17, m_fakeCluster->getIncomingMessageBuffer(0)), false);
 }
 
 /**
