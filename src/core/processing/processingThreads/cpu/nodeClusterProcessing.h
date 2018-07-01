@@ -15,9 +15,13 @@
 #include <core/structs/kyochanNodes.h>
 #include <core/structs/messageContainer.h>
 
-namespace KyoukoMind
+namespace Networking
 {
 class OutgoingMessageBuffer;
+}
+
+namespace KyoukoMind
+{
 class EdgeCluster;
 class NodeCluster;
 
@@ -31,29 +35,13 @@ public:
 
 private:
     float randFloat(const float b);
-    void learningForwardEdgeSection(EdgeCluster *cluster,
-                                    KyoChanForwardEdgeSection *currentSection,
-                                    const uint32_t forwardEdgeSectionId,
-                                    const uint8_t inititalSide,
-                                    const float partitialWeight,
-                                    OutgoingMessageBuffer *outgoBuffer);
     void learningEdgeSection(NodeCluster *cluster,
                              KyoChanEdgeSection *currentSection,
                              const float partitialWeight);
-    void updateEdgeForwardSection(EdgeCluster *cluster,
-                                  const uint32_t forwardEdgeSectionId,
-                                  const float status,
-                                  const uint8_t inititalSide,
-                                  OutgoingMessageBuffer *outgoBuffer);
-    void processEdgeForwardSection(EdgeCluster *cluster,
-                                   const uint32_t forwardEdgeSectionId,
-                                   const float weight,
-                                   const uint8_t inititalSide,
-                                   OutgoingMessageBuffer *outgoBuffer);
     void processEdgeSection(NodeCluster *cluster,
                             uint32_t edgeSectionId,
                             const float weight,
-                            OutgoingMessageBuffer *outgoBuffer);
+                            Networking::OutgoingMessageBuffer *outgoBuffer);
 
 };
 

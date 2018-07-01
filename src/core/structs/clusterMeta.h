@@ -12,6 +12,11 @@
 
 #include <common.h>
 
+namespace Networking
+{
+class IncomingMessageBuffer;
+class OutgoingMessageBuffer;
+}
 /**
  * @brief The ClusterPos struct
  */
@@ -29,6 +34,9 @@ struct Neighbor
 {
     ClusterID targetClusterId = UNINIT_STATE;
     ClusterPos targetClusterPos;
+
+    Networking::IncomingMessageBuffer* incomBuffer = nullptr;
+    Networking::OutgoingMessageBuffer* outgoBuffer = nullptr;
 
     uint8_t targetSide = 0;
     uint8_t neighborType = EMPTY_CLUSTER;

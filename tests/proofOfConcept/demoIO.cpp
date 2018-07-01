@@ -8,12 +8,10 @@
  */
 
 #include "demoIO.h"
-#include <core/messaging/messageController.h>
-#include <core/messaging/messages/dataMessage.h>
+#include <messages/dataMessage.h>
 
-#include <core/messaging/messageQueues/messageBuffer.h>
-#include <core/messaging/messageQueues/incomingMessageBuffer.h>
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
+#include <messageQueues/incomingMessageBuffer.h>
+#include <messageQueues/outgoingMessageBuffer.h>
 
 #include <core/clustering/clusterHandler.h>
 #include <core/clustering/cluster/edgeCluster.h>
@@ -25,28 +23,19 @@ namespace KyoukoMind
 /**
  * @brief DemoIO::DemoIO
  */
-DemoIO::DemoIO(MessageController *messageController,
-               ClusterHandler *clusterHandler)
+DemoIO::DemoIO(ClusterHandler *clusterHandler)
 {
     m_clusterHandler = clusterHandler;
-    m_messageController = messageController;
-    NodeCluster* fakeCluster = new NodeCluster(1337, "/tmp/test", 2);
-    fakeCluster->initMessageBuffer(m_messageController);
+    m_fakeCluster = new NodeCluster(1337, "/tmp/test", 2);
 
-    Neighbor neighborIn;
-    neighborIn.targetClusterId = 15;
-    neighborIn.neighborType = NODE_CLUSTER;
-    fakeCluster->addNeighbor(16, neighborIn);
+    m_fakeCluster->addNeighbor(16, 15);
 
     Cluster* outgoingCluster = clusterHandler->getCluster(17);
 
-    Neighbor neighborOut;
-    neighborOut.targetClusterId = 1337;
-    neighborOut.neighborType = NODE_CLUSTER;
-    outgoingCluster->addNeighbor(16, neighborOut);
+    outgoingCluster->addNeighbor(16, 1337);
 
-    m_incomBuffer = fakeCluster->getIncomingMessageBuffer();
-    m_ougoingBuffer = fakeCluster->getOutgoingMessageBuffer();
+    m_incomBuffer = m_fakeCluster->getIncomingMessageBuffer(0);
+    m_ougoingBuffer = m_fakeCluster->getOutgoingMessageBuffer(16);
 }
 
 /**
@@ -58,8 +47,8 @@ void DemoIO::run()
     {
         usleep(PROCESS_INTERVAL);
 
-        uint8_t* data = (uint8_t*)m_incomBuffer->getMessage(0)->getPayload();
-        uint8_t* end = data + m_incomBuffer->getMessage(0)->getPayloadSize();
+        uint8_t* data = (uint8_t*)m_incomBuffer->getMessage()->getPayload();
+        uint8_t* end = data + m_incomBuffer->getMessage()->getPayloadSize();
 
         float out = 0;
 
@@ -67,7 +56,7 @@ void DemoIO::run()
         {
             if((int)(*data) == DIRECT_EDGE_CONTAINER) {
                 KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
-
+                std::cout<<"YEAH!!!!!!!!!!!!!!!!"<<std::endl;
                 if(edge->targetEdgeSectionId == 0) {
                     out += (uint32_t)edge->weight;
                 } else {
@@ -146,7 +135,7 @@ void DemoIO::sendInnerData(const char input)
 void DemoIO::sendFinishCycle()
 {
     mutexLock();
-    m_ougoingBuffer->finishCycle(16, 0);
+    m_fakeCluster->finishCycle(0);
     mutexUnlock();
 }
 
@@ -157,7 +146,7 @@ void DemoIO::sendFinishCycle()
 void DemoIO::sendData(const KyoChanDirectEdgeContainer &edge)
 {
     mutexLock();
-    m_ougoingBuffer->addDirectEdge(16, &edge);
+    m_fakeCluster->getOutgoingMessageBuffer(16)->addData(&edge);
     mutexUnlock();
 }
 

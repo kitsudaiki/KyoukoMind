@@ -14,19 +14,21 @@
 #include <core/processing/processingThreads/commonThread.h>
 #include <core/structs/messageContainer.h>
 
+namespace Networking
+{
+class IncomingMessageBuffer;
+class OutgoingMessageBuffer;
+}
+
 namespace KyoukoMind
 {
-class MessageController;
 class ClusterHandler;
-class IncomingMessageBuffer;
-class MessageBuffer;
-class OutgoingMessageBuffer;
+class NodeCluster;
 
 class DemoIO : public CommonThread
 {
 public:
-    DemoIO(MessageController *messageController,
-           ClusterHandler *clusterHandler);
+    DemoIO(ClusterHandler *clusterHandler);
 
     void run();
 
@@ -35,10 +37,10 @@ public:
 
 
 private:
-    MessageController* m_messageController = nullptr;
     ClusterHandler* m_clusterHandler = nullptr;
-    IncomingMessageBuffer* m_incomBuffer= nullptr;
-    OutgoingMessageBuffer* m_ougoingBuffer= nullptr;
+    NodeCluster* m_fakeCluster = nullptr;
+    Networking::IncomingMessageBuffer* m_incomBuffer = nullptr;
+    Networking::OutgoingMessageBuffer* m_ougoingBuffer = nullptr;
 
     void sendInnerData(const char input);
 

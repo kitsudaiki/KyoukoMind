@@ -11,6 +11,7 @@
 #define LEARNINGMESSAGES_H
 
 #include <common.h>
+#include <messageObjects.h>
 
 /**
  * @brief The KyoChanStatusEdgeContainer struct

@@ -12,15 +12,11 @@
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
-#include <core/messaging/messageController.h>
-#include <core/messaging/messageQueues/incomingMessageBuffer.h>
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
+#include <messageQueues/incomingMessageBuffer.h>
+#include <messageQueues/outgoingMessageBuffer.h>
 
-#include <core/messaging/messages/message.h>
-#include <core/messaging/messages/dataMessage.h>
-#include <core/messaging/messages/replyMessage.h>
-
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
+#include <messages/message.h>
+#include <messages/dataMessage.h>
 
 namespace KyoukoMind
 {
@@ -40,18 +36,18 @@ NodeClusterProcessing::NodeClusterProcessing()
  */
 bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
 {
-    // get buffer
-    IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer();
-    OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer();
-
     // process normal communication
     std::vector<uint8_t> m_sideOrder = {0, 8};
     for(uint8_t sidePos = 0; sidePos < m_sideOrder.size(); sidePos++)
     {
         const uint8_t side = m_sideOrder[sidePos];
 
-        uint8_t* data = (uint8_t*)incomBuffer->getMessage(side)->getPayload();
-        uint8_t* end = data + incomBuffer->getMessage(side)->getPayloadSize();
+        // get buffer
+        Networking::IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer(side);
+        Networking::OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer(side);
+
+        uint8_t* data = (uint8_t*)incomBuffer->getMessage()->getPayload();
+        uint8_t* end = data + incomBuffer->getMessage()->getPayloadSize();
 
         while(data < end)
         {
@@ -93,9 +89,6 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
 {
     assert(nodeCluster != nullptr);
 
-    // get necessary values
-    OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer();
-
     uint16_t nodeId = 0;
     uint16_t numberOfActiveNodes = 0;
 
@@ -111,13 +104,13 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
 
         if(tempNode.border <= tempNode.currentState)
         {
-            std::cout<<"poi"<<std::endl;
+            //std::cout<<"poi"<<std::endl;
             // create new axon-edge
             KyoChanAxonEdgeContainer edge;
             edge.targetClusterPath = tempNode.targetClusterPath / 32;
             edge.targetAxonId = tempNode.targetAxonId;
             edge.weight = tempNode.currentState;
-            outgoBuffer->addAxonEdge(tempNode.targetClusterPath % 32, &edge);
+            nodeCluster->getOutgoingMessageBuffer(tempNode.targetClusterPath % 32)->addData(&edge);
 
             numberOfActiveNodes++;
         }
@@ -150,8 +143,8 @@ inline float NodeClusterProcessing::randFloat(const float b)
                                                         KyoChanEdgeSection* currentSection,
                                                         const float partitialWeight)
  {
-     std::cout<<"---"<<std::endl;
-     std::cout<<"learningEdgeSection"<<std::endl;
+     //std::cout<<"---"<<std::endl;
+     //std::cout<<"learningEdgeSection"<<std::endl;
 
      // collect necessary values
      const uint16_t numberOfEdge = currentSection->numberOfEdges;
@@ -195,7 +188,7 @@ inline float NodeClusterProcessing::randFloat(const float b)
 void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                                uint32_t edgeSectionId,
                                                const float weight,
-                                               OutgoingMessageBuffer* outgoBuffer)
+                                               Networking::OutgoingMessageBuffer* outgoBuffer)
 {
     assert(cluster->getClusterType() == NODE_CLUSTER);
     std::cout<<"---"<<std::endl;
@@ -248,7 +241,7 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
         KyoChanStatusEdgeContainer newEdge;
         newEdge.status = comparismTotalWeight - currentSection->totalWeight;
         newEdge.targetId = currentSection->sourceId;
-        outgoBuffer->addStatusEdge(8, &newEdge);
+        cluster->getOutgoingMessageBuffer(8)->addData(&newEdge);
     }
 }
 

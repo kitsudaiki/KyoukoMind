@@ -13,13 +13,15 @@
 #include <common.h>
 #include <tests/commonTest.h>
 
+namespace Networking
+{
+class IncomingMessageBuffer;
+class OutgoingMessageBuffer;
+}
+
 namespace KyoukoMind
 {
 class NodeCluster;
-class MessageController;
-class IncomingMessageBuffer;
-class MessageBuffer;
-class OutgoingMessageBuffer;
 
 class NextChooser;
 class EdgeClusterProcessing;
@@ -37,10 +39,6 @@ private:
     NodeCluster *m_nodeCluster1 = nullptr;
     NodeCluster *m_nodeCluster2 = nullptr;
     NodeCluster *m_nodeCluster3 = nullptr;
-
-    MessageController* m_controller = nullptr;
-    IncomingMessageBuffer* m_incomBuffer= nullptr;
-    OutgoingMessageBuffer* m_ougoingBuffer= nullptr;
 
     EdgeClusterProcessing* m_nodeProcessing = nullptr;
 };

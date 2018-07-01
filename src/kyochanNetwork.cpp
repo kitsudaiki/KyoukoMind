@@ -10,7 +10,6 @@
 #include <kyochanNetwork.h>
 #include <core/networkManager.h>
 #include <core/clustering/clusterHandler.h>
-#include <core/messaging/messageController.h>
 
 namespace KyoukoMind
 {
@@ -33,15 +32,6 @@ KyoukoNetwork::KyoukoNetwork(const std::string &configPath)
     // network-manager
     m_networkManager = new NetworkManager();
     m_networkManager->start();
-}
-
-/**
- * @brief KyoukoNetwork::getMessageController
- * @return
- */
-MessageController *KyoukoNetwork::getMessageController() const
-{
-    return m_networkManager->getMessageController();
 }
 
 /**

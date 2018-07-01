@@ -8,15 +8,14 @@
  */
 
 #include "messageBufferTest.h"
-#include <core/messaging/messageController.h>
 
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
-#include <core/messaging/messageQueues/messageBuffer.h>
-#include <core/messaging/messageQueues/incomingMessageBuffer.h>
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
+#include <messageQueues/incomingMessageBuffer.h>
+#include <messageQueues/outgoingMessageBuffer.h>
+#include <core/structs/messageContainer.h>
 
 namespace KyoukoMind
 {
@@ -27,6 +26,7 @@ namespace KyoukoMind
 MessageBufferTest::MessageBufferTest() : CommonTest("MessageBufferTest")
 {
     initTestCase();
+    checkInitializing();
     checkMessageBuffer();
     cleanupTestCase();
 }
@@ -36,34 +36,22 @@ MessageBufferTest::MessageBufferTest() : CommonTest("MessageBufferTest")
  */
 void MessageBufferTest::initTestCase()
 {
-    m_controller = new MessageController();
     m_fakeCluster = new NodeCluster(1337, "/tmp/test");
+}
 
-    Neighbor neighbor;
-    neighbor.targetClusterId = 1337;
-    neighbor.neighborType = NODE_CLUSTER;
+/**
+ * @brief MessageBufferTest::checkInitializing
+ */
+void MessageBufferTest::checkInitializing()
+{
+    UNITTEST(m_fakeCluster->addNeighbor(0, 1337), true);
+    UNITTEST(m_fakeCluster->addNeighbor(16, 1337), true);
+    UNITTEST(m_fakeCluster->addNeighbor(17, 1337), false);
 
-    m_fakeCluster->addNeighbor(0, neighbor);
-    m_fakeCluster->addNeighbor(1, neighbor);
-    m_fakeCluster->addNeighbor(2, neighbor);
-    m_fakeCluster->addNeighbor(3, neighbor);
-    m_fakeCluster->addNeighbor(4, neighbor);
-    m_fakeCluster->addNeighbor(5, neighbor);
-    m_fakeCluster->addNeighbor(6, neighbor);
-    m_fakeCluster->addNeighbor(7, neighbor);
-    m_fakeCluster->addNeighbor(8, neighbor);
-    m_fakeCluster->addNeighbor(9, neighbor);
-    m_fakeCluster->addNeighbor(10, neighbor);
-    m_fakeCluster->addNeighbor(11, neighbor);
-    m_fakeCluster->addNeighbor(12, neighbor);
-    m_fakeCluster->addNeighbor(13, neighbor);
-    m_fakeCluster->addNeighbor(14, neighbor);
-    m_fakeCluster->addNeighbor(15, neighbor);
-    m_fakeCluster->addNeighbor(16, neighbor);
-    m_fakeCluster->initMessageBuffer(m_controller);
 
-    m_incomBuffer = m_fakeCluster->getIncomingMessageBuffer();
-    m_ougoingBuffer = m_fakeCluster->getOutgoingMessageBuffer();
+    UNITTEST(m_fakeCluster->setIncomingMessageBuffer(0, m_fakeCluster->getIncomingMessageBuffer(16)), true);
+    UNITTEST(m_fakeCluster->setIncomingMessageBuffer(16, m_fakeCluster->getIncomingMessageBuffer(0)), true);
+    UNITTEST(m_fakeCluster->setIncomingMessageBuffer(17, m_fakeCluster->getIncomingMessageBuffer(0)), false);
 }
 
 /**
@@ -74,60 +62,34 @@ void MessageBufferTest::checkMessageBuffer()
     KyoChanForwardEdgeContainer edge;
     edge.targetEdgeSectionId = 1;
 
-    UNITTEST(m_ougoingBuffer->addForwardEdge(0, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(1, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(2, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(3, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(4, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(5, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(6, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(7, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(8, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(9, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(10, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(11, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(12, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(13, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(14, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(15, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(16, &edge), true);
-    UNITTEST(m_ougoingBuffer->addForwardEdge(17, &edge), false);
+    UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(0)->addData(&edge), true);
+    UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(16)->addData(&edge), true);
+    UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(17)->addData(&edge), false);
 
-    m_ougoingBuffer->finishCycle(0, 0);
-    m_ougoingBuffer->finishCycle(1, 0);
-    m_ougoingBuffer->finishCycle(2, 0);
-    m_ougoingBuffer->finishCycle(3, 0);
-    m_ougoingBuffer->finishCycle(4, 0);
-    m_ougoingBuffer->finishCycle(5, 0);
-    m_ougoingBuffer->finishCycle(6, 0);
-    m_ougoingBuffer->finishCycle(7, 0);
-    m_ougoingBuffer->finishCycle(8, 0);
-    m_ougoingBuffer->finishCycle(9, 0);
-    m_ougoingBuffer->finishCycle(10, 0);
-    m_ougoingBuffer->finishCycle(11, 0);
-    m_ougoingBuffer->finishCycle(12, 0);
-    m_ougoingBuffer->finishCycle(13, 0);
-    m_ougoingBuffer->finishCycle(14, 0);
-    m_ougoingBuffer->finishCycle(15, 0);
-    m_ougoingBuffer->finishCycle(16, 0);
+    m_fakeCluster->finishCycle(0);
 
-    UNITTEST(m_incomBuffer->getMessage(0)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(1)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(2)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(3)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(4)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(5)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(6)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(7)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(8)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(9)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(10)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(11)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(12)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(13)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(14)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(15)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_incomBuffer->getMessage(16)->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
+    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(0)->getMessage()->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
+    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(16)->getMessage()->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
+
+
+    KyoChanAxonEdgeContainer edge2;
+    edge2.targetAxonId = 1;
+
+    UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(0)->addData(&edge2), true);
+    UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(16)->addData(&edge2), true);
+    UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(17)->addData(&edge2), false);
+
+    m_fakeCluster->finishCycle(0);
+
+    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(0)->getMessage()->getPayloadSize(), sizeof(KyoChanAxonEdgeContainer))
+    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(16)->getMessage()->getPayloadSize(), sizeof(KyoChanAxonEdgeContainer))
+
+
+    m_fakeCluster->finishCycle(0);
+
+    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(0)->getMessage()->getPayloadSize(), 0)
+    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(16)->getMessage()->getPayloadSize(), 0)
+
 }
 
 /**
@@ -135,9 +97,6 @@ void MessageBufferTest::checkMessageBuffer()
  */
 void MessageBufferTest::cleanupTestCase()
 {
-    delete m_incomBuffer;
-    delete m_ougoingBuffer;
-    delete m_controller;
 }
 
 }

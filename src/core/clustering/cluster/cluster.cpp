@@ -1,9 +1,8 @@
 #include "cluster.h"
 
 #include <files/dataBuffer.h>
-#include <core/messaging/messageController.h>
-#include <core/messaging/messageQueues/incomingMessageBuffer.h>
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
+#include <messageQueues/incomingMessageBuffer.h>
+#include <messageQueues/outgoingMessageBuffer.h>
 #include <kyochanNetwork.h>
 
 namespace KyoukoMind
@@ -32,6 +31,7 @@ Cluster::Cluster(const ClusterID &clusterId,
     // init empty neighbor-list to avoid not initialized values
     for(uint32_t i = 0; i < 17; i++) {
         Neighbor emptyNeighbor;
+        emptyNeighbor.targetClusterId = UNINIT_STATE;
         emptyNeighbor.targetSide = 16 - i;
         m_metaData.neighors[i] = emptyNeighbor;
     }
@@ -99,56 +99,68 @@ uint8_t Cluster::getClusterType() const
     return m_metaData.clusterType;
 }
 
-
-/**
- * @brief Cluster::initMessageBuffer initialize the message-buffer
- * @param controller pointer to the central message-controller
- */
-void Cluster::initMessageBuffer(MessageController* controller)
-{
-    m_incomingMessageQueue = new IncomingMessageBuffer(this, controller);
-    m_outgoingMessageQueue = new OutgoingMessageBuffer(this, controller);
-}
-
 /**
  * @brief Cluster::getIncomingMessageBuffer get the incoming message-buffer
  * @return pointer to the incoming message-buffer
  */
-IncomingMessageBuffer* Cluster::getIncomingMessageBuffer()
+Networking::IncomingMessageBuffer* Cluster::getIncomingMessageBuffer(const uint8_t side)
 {
-    return m_incomingMessageQueue;
+    // TODO: method-comment
+    if(side < 17) {
+        return m_metaData.neighors[side].incomBuffer;
+    }
+    return nullptr;
 }
 
 /**
  * @brief Cluster::getOutgoingMessageBuffer get the outgoing message-buffer
  * @return pointer to the outgoing message-buffer
  */
-OutgoingMessageBuffer* Cluster::getOutgoingMessageBuffer()
+Networking::OutgoingMessageBuffer* Cluster::getOutgoingMessageBuffer(const uint8_t side)
 {
-    return m_outgoingMessageQueue;
+    // TODO: method-comment
+    if(side < 17) {
+        return m_metaData.neighors[side].outgoBuffer;
+    }
+    return nullptr;
+}
+
+/**
+ * @brief Cluster::setIncomingMessageBuffer
+ * @param side
+ * @param buffer
+ * @return
+ */
+bool Cluster::setIncomingMessageBuffer(const uint8_t side,
+                                       Networking::IncomingMessageBuffer *buffer)
+{
+    // TODO: method-comment
+    if(side < 17) {
+        m_metaData.neighors[side].outgoBuffer->setIncomingBuffer(buffer);
+        return true;
+    }
+    return false;
 }
 
 /**
  * @brief Cluster::addNeighbor add a new neighbor to the cluster
  * @param side side for the new neighbor
- * @param target neighbor-object
+ * @param targetClusterId id of the neighbor-target
  * @return true, if neighbor was added, else false
  */
-bool Cluster::addNeighbor(const uint8_t side, const Neighbor target)
+bool Cluster::addNeighbor(const uint8_t side, const ClusterID targetClusterId)
 {
     // check if side is valid
-    if(side > 17) {
+    if(side >= 17) {
         return false;
     }
 
     // add the new neighbor
-    m_metaData.neighors[side] = target;
+    m_metaData.neighors[side].targetClusterId = targetClusterId;
     m_metaData.neighors[side].targetSide = 16 - side;
+    m_metaData.neighors[side].incomBuffer = new Networking::IncomingMessageBuffer();
+    m_metaData.neighors[side].outgoBuffer = new Networking::OutgoingMessageBuffer();
 
-    // update message-queue
-    if(m_outgoingMessageQueue != nullptr) {
-        m_outgoingMessageQueue->updateBufferInit();
-    }
     // persist meta-data
     updateMetaData();
     return true;
@@ -179,15 +191,15 @@ ClusterID Cluster::getNeighborId(const uint8_t side)
  */
 void Cluster::finishCycle(const uint16_t numberOfActiveNodes)
 {
-    m_outgoingMessageQueue->finishCycle(0, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(2, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(3, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(4, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(8, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(12, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(13, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(14, numberOfActiveNodes);
-    m_outgoingMessageQueue->finishCycle(16, numberOfActiveNodes);
+    for(uint8_t side = 0; side < 17; side++)
+    {
+        if(m_metaData.neighors[side].targetClusterId != UNINIT_STATE) {
+            m_metaData.neighors[side].outgoBuffer->finishCycle(m_metaData.neighors[side].targetClusterId,
+                                                               16 - side,
+                                                               m_metaData.clusterId,
+                                                               numberOfActiveNodes);
+        }
+    }
 }
 
 }

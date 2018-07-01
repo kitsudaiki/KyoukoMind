@@ -16,7 +16,6 @@
 namespace KyoukoMind
 {
 class NetworkManager;
-class MessageController;
 class ClusterHandler;
 
 class KyoukoNetwork
@@ -25,7 +24,6 @@ class KyoukoNetwork
 public:
     KyoukoNetwork(const std::string &configPath);
 
-    MessageController* getMessageController() const;
     ClusterHandler* getClusterHandler() const;
 
     static KyoukoMind::Config *m_config;

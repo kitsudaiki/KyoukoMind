@@ -18,7 +18,6 @@ namespace KyoukoMind
 
 class Cluster;
 class ClusterHandler;
-class MessageController;
 
 class ClusterInitilizer
 {
@@ -27,8 +26,7 @@ public:
                       const uint32_t networkDimensionX,
                       const uint32_t networkDimensionY,
                       const std::string directoryPath,
-                      ClusterHandler *clusterHandler,
-                      MessageController *messageController);
+                      ClusterHandler *clusterHandler);
 
     bool createNetwork();
 
@@ -38,7 +36,6 @@ private:
     uint32_t m_networkDimensionY = 0;
     std::string m_directoryPath = "";
     ClusterHandler* m_clusterHandler = nullptr;
-    MessageController* m_messageController = nullptr;
 
     bool addCluster(const uint32_t x,
                     const uint32_t y,

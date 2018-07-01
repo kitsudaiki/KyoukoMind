@@ -13,12 +13,14 @@
 #include <common.h>
 #include <tests/commonTest.h>
 
-namespace KyoukoMind
+namespace Networking
 {
-
 class Message;
 class DataMessage;
-class ReplyMessage;
+}
+
+namespace KyoukoMind
+{
 
 class MessageTest : public CommonTest
 {

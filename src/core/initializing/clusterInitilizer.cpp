@@ -16,7 +16,6 @@
 
 #include <core/clustering/clusterHandler.h>
 #include <core/processing/processingUnitHandler.h>
-#include <core/messaging/messageController.h>
 
 namespace KyoukoMind
 {
@@ -28,21 +27,18 @@ namespace KyoukoMind
  * @param networkDimensionY
  * @param directoryPath
  * @param clusterHandler
- * @param messageController
  */
 ClusterInitilizer::ClusterInitilizer(std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure,
                                      const uint32_t networkDimensionX,
                                      const uint32_t networkDimensionY,
                                      const std::string directoryPath,
-                                     ClusterHandler *clusterHandler,
-                                     MessageController* messageController)
+                                     ClusterHandler *clusterHandler)
 {
     m_networkMetaStructure = networkMetaStructure;
     m_networkDimensionX = networkDimensionX;
     m_networkDimensionY = networkDimensionY;
     m_directoryPath = directoryPath;
     m_clusterHandler = clusterHandler;
-    m_messageController = messageController;
 }
 
 /**
@@ -84,7 +80,6 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
             Cluster*  cluster = new EdgeCluster((*m_networkMetaStructure)[x][y].clusterId,
                                                 m_directoryPath);
             addNeighbors(x, y, cluster);
-            cluster->initMessageBuffer(m_messageController);
 
             m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, cluster);
             (*m_networkMetaStructure)[x][y].cluster = cluster;
@@ -96,13 +91,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
                                                     m_directoryPath);
             addNeighbors(x, y, edgeCluster);
 
-            Neighbor neighbor1;
-            neighbor1.neighborType = NODE_CLUSTER;
-            neighbor1.targetClusterId = (*m_networkMetaStructure)[x][y].clusterId+1;
-            neighbor1.targetSide = 8;
-            edgeCluster->addNeighbor(8, neighbor1);
-
-            edgeCluster->initMessageBuffer(m_messageController);
+            edgeCluster->addNeighbor(8, (*m_networkMetaStructure)[x][y].clusterId+1);
 
             m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, edgeCluster);
             (*m_networkMetaStructure)[x][y].cluster = edgeCluster;
@@ -111,13 +100,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
                                                     m_directoryPath,
                                                     nodeNumberPerCluster);
 
-            Neighbor neighbor2;
-            neighbor2.neighborType = EDGE_CLUSTER;
-            neighbor2.targetClusterId = (*m_networkMetaStructure)[x][y].clusterId;
-            neighbor2.targetSide = 8;
-            nodeCluster->addNeighbor(8, neighbor2);
-
-            nodeCluster->initMessageBuffer(m_messageController);
+            nodeCluster->addNeighbor(8, (*m_networkMetaStructure)[x][y].clusterId);
 
             m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId+1, nodeCluster);
             (*m_networkMetaStructure)[x][y].nodeCluster = nodeCluster;
@@ -157,7 +140,7 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster
         }
 
         // add new neighbor
-        cluster->addNeighbor(side, tempNeighbor);
+        cluster->addNeighbor(side, (*m_networkMetaStructure)[next.first][next.second].clusterId);
         (*m_networkMetaStructure)[x][y].neighbors[side] = tempNeighbor;
     }
 

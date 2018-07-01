@@ -20,11 +20,14 @@ namespace PerformanceIO
 class DataBuffer;
 }
 
-namespace KyoukoMind
+namespace Networking
 {
-class MessageController;
 class IncomingMessageBuffer;
 class OutgoingMessageBuffer;
+}
+
+namespace KyoukoMind
+{
 
 class Cluster
 {
@@ -43,12 +46,12 @@ public:
     uint8_t getClusterType() const;
 
     // message-queues
-    void initMessageBuffer(MessageController *controller);
-    IncomingMessageBuffer* getIncomingMessageBuffer();
-    OutgoingMessageBuffer* getOutgoingMessageBuffer();
+    Networking::IncomingMessageBuffer* getIncomingMessageBuffer(const uint8_t side);
+    Networking::OutgoingMessageBuffer* getOutgoingMessageBuffer(const uint8_t side);
+    bool setIncomingMessageBuffer(const uint8_t side, Networking::IncomingMessageBuffer* buffer);
 
     // neighbors
-    bool addNeighbor(const uint8_t side, const Neighbor target);
+    bool addNeighbor(const uint8_t side, const ClusterID targetClusterId);
     Neighbor *getNeighbors();
     ClusterID getNeighborId(const uint8_t side);
 
@@ -57,8 +60,6 @@ public:
 
 protected:
     PerformanceIO::DataBuffer* m_clusterDataBuffer = nullptr;
-    IncomingMessageBuffer* m_incomingMessageQueue = nullptr;
-    OutgoingMessageBuffer* m_outgoingMessageQueue = nullptr;
     ClusterMetaData m_metaData;
 };
 

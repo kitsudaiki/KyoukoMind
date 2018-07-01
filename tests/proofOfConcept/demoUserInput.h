@@ -15,14 +15,12 @@
 namespace KyoukoMind
 {
 class DemoIO;
-class MessageController;
 class ClusterHandler;
 
 class DemoUserInput
 {
 public:
-    DemoUserInput(MessageController* messageController,
-                  ClusterHandler* clusterHandler);
+    DemoUserInput(ClusterHandler* clusterHandler);
 
     void inputLoop();
 

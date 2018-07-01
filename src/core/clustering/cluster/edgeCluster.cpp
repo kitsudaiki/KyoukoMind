@@ -9,9 +9,8 @@
 
 #include <core/clustering/cluster/edgeCluster.h>
 #include <files/dataBuffer.h>
-#include <core/messaging/messageController.h>
-#include <core/messaging/messageQueues/incomingMessageBuffer.h>
-#include <core/messaging/messageQueues/outgoingMessageBuffer.h>
+#include <messageQueues/incomingMessageBuffer.h>
+#include <messageQueues/outgoingMessageBuffer.h>
 #include <kyochanNetwork.h>
 
 namespace KyoukoMind

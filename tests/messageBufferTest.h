@@ -13,12 +13,14 @@
 #include <common.h>
 #include <tests/commonTest.h>
 
+namespace Networking
+{
+class IncomingMessageBuffer;
+class OutgoingMessageBuffer;
+}
+
 namespace KyoukoMind
 {
-class MessageController;
-class IncomingMessageBuffer;
-class MessageBuffer;
-class OutgoingMessageBuffer;
 class NodeCluster;
 
 class MessageBufferTest : public CommonTest
@@ -29,13 +31,11 @@ public:
 
 private:
     void initTestCase();
+    void checkInitializing();
     void checkMessageBuffer();
     void cleanupTestCase();
 
     NodeCluster* m_fakeCluster = nullptr;
-    MessageController* m_controller = nullptr;
-    IncomingMessageBuffer* m_incomBuffer= nullptr;
-    OutgoingMessageBuffer* m_ougoingBuffer= nullptr;
 };
 
 }

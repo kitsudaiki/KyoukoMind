@@ -8,7 +8,6 @@
  */
 
 #include "clusterTest.h"
-#include <core/messaging/messageController.h>
 
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
@@ -28,7 +27,6 @@ ClusterTest::ClusterTest() : CommonTest("ClusterTest")
 
 void ClusterTest::initTestCase()
 {
-    MessageController contr;
     ClusterID tempId;
     tempId = 0;
     m_nodeCluster = new NodeCluster(tempId, "/tmp", 1000);

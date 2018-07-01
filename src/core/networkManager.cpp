@@ -13,10 +13,8 @@
 
 #include <core/clustering/clusterHandler.h>
 #include <core/processing/processingUnitHandler.h>
-#include <core/messaging/messageController.h>
 #include <core/initializing/networkInitializer.h>
 
-#include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
@@ -34,18 +32,8 @@ NetworkManager::NetworkManager()
 
     m_clusterHandler = new ClusterHandler();
     m_processingUnitHandler = new ProcessingUnitHandler(m_clusterHandler);
-    m_messageController = new MessageController();
 
     initNetwork();
-}
-
-/**
- * @brief NetworkManager::getMessageController
- * @return
- */
-MessageController *NetworkManager::getMessageController() const
-{
-    return m_messageController;
 }
 
 /**
@@ -105,8 +93,7 @@ void NetworkManager::initNetwork()
 
         NetworkInitializer init(string_content,
                                 directoryPath,
-                                m_clusterHandler,
-                                m_messageController);
+                                m_clusterHandler);
         bool successfulInit = init.initNetwork();
         assert(successfulInit);
     }

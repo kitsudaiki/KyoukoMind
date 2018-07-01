@@ -21,17 +21,14 @@ namespace KyoukoMind
  * @param filePath
  * @param directoryPath
  * @param clusterManager
- * @param messageController
  */
 NetworkInitializer::NetworkInitializer(const std::string fileContent,
                                        const std::string directoryPath,
-                                       ClusterHandler *clusterHandler,
-                                       MessageController *messageController)
+                                       ClusterHandler *clusterHandler)
 {
     m_fileContent = fileContent;
     m_directoryPath = directoryPath;
     m_clusterHandler = clusterHandler;
-    m_messageController = messageController;
 }
 
 /**
@@ -61,8 +58,7 @@ bool NetworkInitializer::initNetwork()
                                   m_networkDimensions[0],
                                   m_networkDimensions[1],
                                   m_directoryPath,
-                                  m_clusterHandler,
-                                  m_messageController);
+                                  m_clusterHandler);
     if(clusterInit.createNetwork() == false) {
         return false;
     }

@@ -19,13 +19,6 @@ enum ClusterType
     NODE_CLUSTER = 3
 };
 
-enum MessageType
-{
-    UNDEFINED_MESSAGE = 0,
-    DATA_MESSAGE = 1,
-    REPLY_MESSAGE = 2,
-};
-
 enum ContainerType
 {
     UNDEFINED_CONTAINER = 0,

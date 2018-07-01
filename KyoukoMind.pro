@@ -9,6 +9,11 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
+LIBS += -L../libNetworking -lNetworking
+LIBS += -L../libNetworking/debug -lNetworking
+LIBS += -L../libNetworking/release -lNetworking
+INCLUDEPATH += ../libNetworking/include/libNetworking
+
 LIBS += -L../libPerformanceIO -lPerformanceIO
 LIBS += -L../libPerformanceIO/debug -lPerformanceIO
 LIBS += -L../libPerformanceIO/release -lPerformanceIO
@@ -25,18 +30,10 @@ SOURCES += main.cpp \
             src/core/processing/processingUnitHandler.cpp \
             src/core/networkManager.cpp \
             src/settings/config.cpp \
-            src/core/messaging/messages/message.cpp \
-            src/core/messaging/messageQueues/incomingMessageBuffer.cpp \
-            src/core/messaging/messageQueues/messageBuffer.cpp \
-            src/core/messaging/messageQueues/outgoingMessageBuffer.cpp \
             src/core/initializing/networkInitializer.cpp \
             src/control/statusReporter.cpp \
             src/core/initializing/axonInitializer.cpp \
             src/core/initializing/clusterInitilizer.cpp \
-            src/core/messaging/messages/dataMessage.cpp \
-            src/core/messaging/messages/replyMessage.cpp \
-            src/core/messaging/messageController.cpp \
-            src/core/messaging/timeoutHandler.cpp \
             src/core/processing/processingThreads/commonThread.cpp \
             src/kyochanNetwork.cpp \
             tests/proofOfConcept/demoIO.cpp \
@@ -48,13 +45,13 @@ SOURCES += main.cpp \
             tests/proofOfConcept/demoUserInput.cpp \
             tests/dataBufferTest.cpp \
             tests/storageMemoryTest.cpp \
-    tests/processingTest.cpp \
-    src/core/clustering/cluster/edgeCluster.cpp \
-    tests/structTest.cpp \
-    tests/initTest.cpp \
-    src/core/clustering/cluster/cluster.cpp \
-    src/core/processing/processingThreads/cpu/edgeClusterProcessing.cpp \
-    src/core/processing/processingThreads/cpu/nodeClusterProcessing.cpp
+            tests/processingTest.cpp \
+            src/core/clustering/cluster/edgeCluster.cpp \
+            tests/structTest.cpp \
+            tests/initTest.cpp \
+            src/core/clustering/cluster/cluster.cpp \
+            src/core/processing/processingThreads/cpu/edgeClusterProcessing.cpp \
+            src/core/processing/processingThreads/cpu/nodeClusterProcessing.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
@@ -66,13 +63,9 @@ HEADERS +=\
             src/core/processing/processingUnitHandler.h \
             src/settings/config.h \
             src/common/enums.h \
-            src/core/messaging/messages/message.h \
             src/common/includes.h \
             common.h \
             src/common/defines.h \
-            src/core/messaging/messageQueues/incomingMessageBuffer.h \
-            src/core/messaging/messageQueues/messageBuffer.h \
-            src/core/messaging/messageQueues/outgoingMessageBuffer.h \
             src/core/initializing/networkInitializer.h \
             src/core/structs/kyochanEdges.h \
             src/core/structs/kyochanNodes.h \
@@ -80,10 +73,6 @@ HEADERS +=\
             src/control/statusReporter.h \
             src/core/initializing/axonInitializer.h \
             src/core/initializing/clusterInitilizer.h \
-            src/core/messaging/messages/dataMessage.h \
-            src/core/messaging/messages/replyMessage.h \
-            src/core/messaging/messageController.h \
-            src/core/messaging/timeoutHandler.h \
             src/core/processing/processingThreads/commonThread.h \
             src/kyochanNetwork.h \
             tests/clusterTest.h \
@@ -95,15 +84,15 @@ HEADERS +=\
             tests/proofOfConcept/demoIO.h \
             tests/dataBufferTest.h \
             tests/storageMemoryTest.h \
+            src/core/structs/kyochanEmotes.h \
+            tests/processingTest.h \
+            src/core/clustering/cluster/edgeCluster.h \
+            tests/structTest.h \
+            tests/initTest.h \
             src/core/structs/messageContainer.h \
-    src/core/structs/kyochanEmotes.h \
-    tests/processingTest.h \
-    src/core/clustering/cluster/edgeCluster.h \
-    tests/structTest.h \
-    tests/initTest.h \
-    src/core/clustering/cluster/cluster.h \
-    src/core/processing/processingThreads/cpu/edgeClusterProcessing.h \
-    src/core/processing/processingThreads/cpu/nodeClusterProcessing.h
+            src/core/clustering/cluster/cluster.h \
+            src/core/processing/processingThreads/cpu/edgeClusterProcessing.h \
+            src/core/processing/processingThreads/cpu/nodeClusterProcessing.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

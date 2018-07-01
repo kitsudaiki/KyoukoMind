@@ -9,7 +9,6 @@
 
 #include "demoUserInput.h"
 #include "demoIO.h"
-#include <core/messaging/messageController.h>
 #include <core/clustering/clusterHandler.h>
 
 namespace KyoukoMind
@@ -18,10 +17,9 @@ namespace KyoukoMind
 /**
  * @brief DemoUserInput::DemoUserInput
  */
-DemoUserInput::DemoUserInput(MessageController *messageController,
-                             ClusterHandler *clusterHandler)
+DemoUserInput::DemoUserInput(ClusterHandler *clusterHandler)
 {
-    m_dataio = new DemoIO(messageController, clusterHandler);
+    m_dataio = new DemoIO(clusterHandler);
     m_dataio->start();
 }
 

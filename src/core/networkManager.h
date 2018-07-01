@@ -38,7 +38,6 @@ private:
 
     ClusterHandler* m_clusterHandler = nullptr;
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
-    MessageController* m_messageController = nullptr;
 
     uint32_t m_numberOfThreads = 0;
 };

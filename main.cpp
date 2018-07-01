@@ -32,9 +32,8 @@ int main(int argc, char *argv[])
     KyoukoMind::ProcessingTest();
 
 
-    KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
+    //KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork("../../KyoukoMind/config.ini");
 
-    KyoukoMind::DemoUserInput input(network->getMessageController(),
-                                    network->getClusterHandler());
-    input.inputLoop();
+    //KyoukoMind::DemoUserInput input(network->getClusterHandler());
+    //input.inputLoop();
 }

@@ -17,15 +17,13 @@ namespace KyoukoMind
 {
 
 class ClusterHandler;
-class MessageController;
 
 class NetworkInitializer
 {
 public:
     NetworkInitializer(const std::string fileContent,
                        const std::string directoryPath,
-                       ClusterHandler *clusterHandler,
-                       MessageController* messageController);
+                       ClusterHandler *clusterHandler);
 
     bool initNetwork();
 
@@ -55,7 +53,6 @@ private:
     std::string m_fileContent = "";
     std::string m_directoryPath = "";
     ClusterHandler* m_clusterHandler = nullptr;
-    MessageController* m_messageController = nullptr;
 
     // meta-data of the network
     std::vector<std::vector<InitMetaDataEntry>> m_networkMetaStructure;
