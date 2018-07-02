@@ -44,6 +44,7 @@ public:
     // common getter
     ClusterID getClusterId() const;
     uint8_t getClusterType() const;
+    bool isExising() const;
 
     // message-queues
     Networking::IncomingMessageBuffer* getIncomingMessageBuffer(const uint8_t side);

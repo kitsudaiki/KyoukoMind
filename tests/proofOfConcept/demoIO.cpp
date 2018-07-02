@@ -28,6 +28,7 @@ DemoIO::DemoIO(ClusterHandler *clusterHandler)
     m_clusterHandler = clusterHandler;
 
     m_fakeCluster = new NodeCluster(1337, "/tmp/test", 2);
+    m_clusterHandler->addCluster(1337, m_fakeCluster, false);
     m_fakeCluster->addNeighbor(16, 15);
     m_fakeCluster->addNeighbor(0, 17);
 
