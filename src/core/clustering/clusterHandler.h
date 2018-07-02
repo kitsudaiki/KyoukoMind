@@ -28,15 +28,18 @@ public:
     ClusterHandler();
     ~ClusterHandler();
 
-    bool addCluster(const ClusterID clusterId, Cluster* cluster);
+    bool addCluster(const ClusterID clusterId,
+                    Cluster* cluster,
+                    bool addToQueue = true);
     Cluster* getCluster(const ClusterID clusterId);
     uint32_t getNumberOfCluster() const;
     bool deleteCluster(const ClusterID clusterId);
     void clearAllCluster();
 
     bool setNewConnection(const ClusterID targetClusterId,
-                          const uint8_t sourceSide,
-                          Networking::IncomingMessageBuffer *buffer);
+                          const uint8_t targetSide,
+                          const ClusterID sourceClusterId,
+                          const bool bidirect = true);
 
     ClusterQueue* getClusterQueue() const;
 

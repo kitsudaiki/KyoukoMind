@@ -37,13 +37,18 @@ ClusterHandler::~ClusterHandler()
  * @param cluster
  * @return
  */
-bool ClusterHandler::addCluster(const ClusterID clusterId, Cluster* cluster)
+bool ClusterHandler::addCluster(const ClusterID clusterId,
+                                Cluster* cluster,
+                                bool addToQueue)
 {
     if(m_allClusters.find(clusterId) != m_allClusters.end()) {
         return false;
     }
     m_allClusters.insert(std::pair<ClusterID, Cluster*>(clusterId, cluster));
-    m_clusterQueue->addCluster(cluster);
+
+    if(addToQueue) {
+        return m_clusterQueue->addCluster(cluster);
+    }
     return true;
 }
 
@@ -109,12 +114,25 @@ void ClusterHandler::clearAllCluster()
  * @return
  */
 bool ClusterHandler::setNewConnection(const ClusterID targetClusterId,
-                                      const uint8_t sourceSide,
-                                      Networking::IncomingMessageBuffer *buffer)
+                                      const uint8_t targetSide,
+                                      const ClusterID sourceClusterId,
+                                      const bool bidirect)
 {
-    Cluster* cluster = getCluster(targetClusterId);
-    if(cluster != nullptr)  {
-        return cluster->setNewConnection(16 - sourceSide, buffer);
+    Cluster* targetCluster = getCluster(targetClusterId);
+    Cluster* sourceCluster = getCluster(sourceClusterId);
+
+    if(targetCluster != nullptr && sourceCluster != nullptr)
+    {
+        sourceCluster->setNewConnection(
+                    16 - targetSide,
+                    targetCluster->getIncomingMessageBuffer(targetSide));
+
+        if(bidirect) {
+            targetCluster->setNewConnection(
+                        targetSide,
+                        sourceCluster->getIncomingMessageBuffer(16 - targetSide));
+        }
+        return true;
     }
     return false;
 }

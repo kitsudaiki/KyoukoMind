@@ -34,13 +34,10 @@ struct Neighbor
 {
     ClusterID targetClusterId = UNINIT_STATE;
     ClusterPos targetClusterPos;
+    uint8_t targetSide = 0;
 
     Networking::IncomingMessageBuffer* incomBuffer = nullptr;
     Networking::OutgoingMessageBuffer* outgoBuffer = nullptr;
-
-    uint8_t targetSide = 0;
-    uint8_t neighborType = EMPTY_CLUSTER;
-    uint32_t distantToNextNodeCluster = 0;
 } __attribute__((packed));
 
 /**
@@ -53,9 +50,6 @@ struct ClusterMetaData
 
     uint8_t clusterType = EMPTY_CLUSTER;
     Neighbor neighors[17];
-
-    uint8_t outgoing = 0;
-    uint8_t incoming = 0;
 
     uint16_t numberOfNodes = 0;
     uint32_t numberOfForwardEdgeSections = 0;

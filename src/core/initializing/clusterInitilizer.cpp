@@ -69,16 +69,16 @@ bool ClusterInitilizer::createNetwork()
 
                 m_clusterHandler->setNewConnection(
                             (*m_networkMetaStructure)[x][y].neighbors[side].targetClusterId,
-                            side,
-                            (*m_networkMetaStructure)[x][y].neighbors[side].incomBuffer);
+                            (*m_networkMetaStructure)[x][y].neighbors[side].targetSide,
+                            (*m_networkMetaStructure)[x][y].cluster->getClusterId());
             }
 
             if((*m_networkMetaStructure)[x][y].nodeCluster != nullptr)
             {
-                (*m_networkMetaStructure)[x][y].nodeCluster->setNewConnection(
-                            8, (*m_networkMetaStructure)[x][y].cluster->getIncomingMessageBuffer(8));
-                (*m_networkMetaStructure)[x][y].cluster->setNewConnection(
-                            8, (*m_networkMetaStructure)[x][y].nodeCluster->getIncomingMessageBuffer(8));
+                m_clusterHandler->setNewConnection(
+                            (*m_networkMetaStructure)[x][y].nodeCluster->getClusterId(),
+                            8,
+                            (*m_networkMetaStructure)[x][y].cluster->getClusterId());
             }
         }
     }
@@ -158,8 +158,7 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster
         if((*m_networkMetaStructure)[next.first][next.second].type != EMPTY_CLUSTER)
         {
             tempNeighbor.targetClusterId = (*m_networkMetaStructure)[next.first][next.second].clusterId;
-            tempNeighbor.neighborType = (*m_networkMetaStructure)[next.first][next.second].type;
-            tempNeighbor.distantToNextNodeCluster = getDistantToNextNodeCluster(x, y, side);
+            tempNeighbor.targetSide = 16 - side;
             tempNeighbor.targetClusterPos.x = next.first;
             tempNeighbor.targetClusterPos.y = next.second;
             // add new neighbor

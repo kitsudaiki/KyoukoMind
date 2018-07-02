@@ -43,7 +43,7 @@ private:
                                     Networking::OutgoingMessageBuffer *outgoBuffer);
     void learningEdgeSection(KyoChanEdgeSection *currentSection,
                              const float partitialWeight);
-    void updateEdgeForwardSection(EdgeCluster *cluster,
+    void processStatusEdge(EdgeCluster *cluster,
                                   const uint32_t forwardEdgeSectionId,
                                   const float status,
                                   const uint8_t inititalSide,
