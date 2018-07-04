@@ -173,10 +173,12 @@ inline void EdgeClusterProcessing::processAxon(EdgeCluster* cluster,
         newEdge.targetClusterPath = path / 32;
         newEdge.weight = weight;
         newEdge.targetAxonId = targetId;
+        std::cout<<"    current cluster-id: "<<cluster->getClusterId()<<std::endl;
         std::cout<<"    new path: "<<newEdge.targetClusterPath<<std::endl;
-        std::cout<<"    targetId: "<<targetId<<std::endl;
-        std::cout<<"    forward to: "<<(int)(path % 32)<<std::endl;
-        cluster->getOutgoingMessageBuffer(path % 32)->addData(&newEdge);
+        const uint8_t next = path % 32;
+        std::cout<<"    forward to: "<<(int)(next)<<std::endl;
+        std::cout<<"    next cluster-id: "<<cluster->getNeighborId(next)<<std::endl;
+        cluster->getOutgoingMessageBuffer(next)->addData(&newEdge);
     }
     else
     {

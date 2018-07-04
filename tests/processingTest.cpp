@@ -38,19 +38,19 @@ void ProcessingTest::initTestCase()
 
     NodeCluster* initCluster = new NodeCluster(1337, "/tmp/test", 42);
 
-    initCluster->addNeighbor(15, 1);
+    initCluster->setNeighbor(15, 1);
 
     m_nodeCluster1 = new NodeCluster(1, "/tmp/test", 1);
     m_nodeCluster2 = new NodeCluster(2, "/tmp/test", 1);
     m_nodeCluster3 = new NodeCluster(3, "/tmp/test", 1);
 
-    m_nodeCluster1->addNeighbor(3, 2);
+    m_nodeCluster1->setNeighbor(3, 2);
 
     m_nodeCluster1->getNodeBlock()[0].targetClusterPath = 3;
     m_nodeCluster1->getNodeBlock()[0].targetAxonId = 0;
 
-    m_nodeCluster2->addNeighbor(3, 3);
-    m_nodeCluster3->addNeighbor(3, 2);
+    m_nodeCluster2->setNeighbor(3, 3);
+    m_nodeCluster3->setNeighbor(3, 2);
 }
 
 /**

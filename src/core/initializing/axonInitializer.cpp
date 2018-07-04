@@ -60,7 +60,11 @@ bool AxonInitializer::createAxons()
                 {
                     // create new axon
                     uint32_t axonId = (*m_networkMetaStructure)[x][y].numberOfAxons;
+                    //std::cout<<"+++++++++++++++++++"<<std::endl;
+                    //std::cout<<"create new axon: "<<std::endl;
+                    //std::cout<<"8"<<std::endl;
                     NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 1);
+                    //std::cout<<"-------------------"<<std::endl;
 
                     // update values of the cluster and the node
                     (*m_networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
@@ -126,8 +130,9 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
         return result;
     }
     // choose the next cluster
-    uint8_t nextSite = chooseNextSide((*m_networkMetaStructure)[x][y].neighbors);
+    uint8_t nextSite = chooseNextSide(inputSide, (*m_networkMetaStructure)[x][y].neighbors);
 
+    //std::cout<<(int)nextSite<<std::endl;
     if(nextSite == 0xFF)
     {
         AxonInitializer::NewAxon result;
@@ -156,14 +161,15 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
  * @param neighbors
  * @return
  */
-uint8_t AxonInitializer::chooseNextSide(Neighbor *neighbors)
+uint8_t AxonInitializer::chooseNextSide(const uint8_t initialSide, Neighbor *neighbors)
 {
     std::vector<uint8_t> sideOrder = {2, 3, 4, 14, 13, 12};
     std::vector<uint8_t> availableSides;
 
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
-        if(neighbors[sideOrder[i]].targetClusterId != UNINIT_STATE) {
+        if(neighbors[sideOrder[i]].targetClusterId != UNINIT_STATE
+                && sideOrder[i] != initialSide) {
             availableSides.push_back(sideOrder[i]);
         }
     }
@@ -172,7 +178,7 @@ uint8_t AxonInitializer::chooseNextSide(Neighbor *neighbors)
         return availableSides[rand() % availableSides.size()];
     }
 
-    return 0xFF;
+    return initialSide;
 }
 
 }

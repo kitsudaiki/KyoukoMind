@@ -32,6 +32,7 @@ public:
                     Cluster* cluster,
                     bool addToQueue = true);
     Cluster* getCluster(const ClusterID clusterId);
+    Cluster* getClusterByIndex(const uint32_t index);
     uint32_t getNumberOfCluster() const;
     bool deleteCluster(const ClusterID clusterId);
     void clearAllCluster();

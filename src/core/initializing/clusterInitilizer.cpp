@@ -116,7 +116,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
                                                     m_directoryPath);
             addNeighbors(x, y, edgeCluster);
 
-            edgeCluster->addNeighbor(8, (*m_networkMetaStructure)[x][y].clusterId+1);
+            edgeCluster->setNeighbor(8, (*m_networkMetaStructure)[x][y].clusterId+1);
 
             m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId, edgeCluster);
             (*m_networkMetaStructure)[x][y].cluster = edgeCluster;
@@ -125,7 +125,7 @@ bool ClusterInitilizer::addCluster(const uint32_t x,
                                                     m_directoryPath,
                                                     nodeNumberPerCluster);
 
-            nodeCluster->addNeighbor(8, (*m_networkMetaStructure)[x][y].clusterId);
+            nodeCluster->setNeighbor(8, (*m_networkMetaStructure)[x][y].clusterId);
 
             m_clusterHandler->addCluster((*m_networkMetaStructure)[x][y].clusterId+1, nodeCluster);
             (*m_networkMetaStructure)[x][y].nodeCluster = nodeCluster;
@@ -162,7 +162,7 @@ bool ClusterInitilizer::addNeighbors(const uint32_t x, const uint32_t y, Cluster
             tempNeighbor.targetClusterPos.x = next.first;
             tempNeighbor.targetClusterPos.y = next.second;
             // add new neighbor
-            cluster->addNeighbor(side, (*m_networkMetaStructure)[next.first][next.second].clusterId);
+            cluster->setNeighbor(side, (*m_networkMetaStructure)[next.first][next.second].clusterId);
 
             tempNeighbor.incomBuffer = cluster->getIncomingMessageBuffer(side);
             tempNeighbor.outgoBuffer = cluster->getOutgoingMessageBuffer(side);

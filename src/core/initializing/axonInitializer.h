@@ -43,7 +43,7 @@ private:
                                 const uint32_t currentPath,
                                 const uint32_t currentStep);
 
-    uint8_t chooseNextSide(Neighbor* neighbors);
+    uint8_t chooseNextSide(const uint8_t initialSide, Neighbor* neighbors);
 };
 
 }

@@ -52,7 +52,7 @@ public:
     bool setNewConnection(const uint8_t side, Networking::IncomingMessageBuffer* buffer);
 
     // neighbors
-    bool addNeighbor(const uint8_t side, const ClusterID targetClusterId);
+    bool setNeighbor(const uint8_t side, const ClusterID targetClusterId);
     Neighbor *getNeighbors();
     ClusterID getNeighborId(const uint8_t side);
 

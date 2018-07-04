@@ -68,6 +68,27 @@ Cluster *ClusterHandler::getCluster(const ClusterID clusterId)
 }
 
 /**
+ * @brief ClusterHandler::getClusterByPos
+ * @param clusterPos
+ * @return
+ */
+Cluster *ClusterHandler::getClusterByIndex(const uint32_t index)
+{
+    if(index >= m_allClusters.size()) {
+        return nullptr;
+    }
+    uint32_t counter = 0;
+    std::map<ClusterID, Cluster*>::iterator it;
+    for(it = m_allClusters.begin(); it != m_allClusters.end(); ++it) {
+        if(counter == index) {
+            return it->second;
+        }
+        counter++;
+    }
+    return nullptr;
+}
+
+/**
  * @brief ClusterHandler::getNumberOfCluster
  * @return
  */

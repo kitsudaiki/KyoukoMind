@@ -93,6 +93,20 @@ void InitTest::checkInit()
         totalData.positionOfEdgeBlock += metaData.at(i).positionOfEdgeBlock;
     }
 
+    for(uint32_t i = 0; i < m_testClusterHandler->getNumberOfCluster(); i++)
+    {
+        Cluster* cluster = m_testClusterHandler->getClusterByIndex(i);
+        for(uint32_t n = 0; n < 17; n++)
+        {
+            if(cluster->getNeighborId(n) != UNINIT_STATE) {
+                ClusterID sourceId = cluster->getClusterId();
+                ClusterID targetId = cluster->getNeighborId(n);
+                ClusterID compareSource = m_testClusterHandler->getCluster(targetId)->getNeighborId(16 - n);
+                UNITTEST(compareSource, sourceId);
+            }
+        }
+    }
+
     UNITTEST((int)totalData.numberOfNodes, nodeNumberPerCluster*6)
     UNITTEST((int)totalData.numberOfForwardEdgeSections, nodeNumberPerCluster*6)
 

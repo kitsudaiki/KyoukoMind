@@ -29,16 +29,16 @@ DemoIO::DemoIO(ClusterHandler *clusterHandler)
 
     m_fakeCluster = new NodeCluster(1337, "/tmp/test", 2);
     m_clusterHandler->addCluster(1337, m_fakeCluster, false);
-    m_fakeCluster->addNeighbor(16, 15);
-    m_fakeCluster->addNeighbor(0, 17);
+    m_fakeCluster->setNeighbor(16, 15);
+    m_fakeCluster->setNeighbor(0, 17);
 
 
     Cluster* outgoingCluster = clusterHandler->getCluster(17);
-    outgoingCluster->addNeighbor(16, 1337);
+    outgoingCluster->setNeighbor(16, 1337);
     outgoingCluster->setNewConnection(16, m_fakeCluster->getIncomingMessageBuffer(0));
 
     Cluster* ingoingCluster = clusterHandler->getCluster(15);
-    ingoingCluster->addNeighbor(0, 1337);
+    ingoingCluster->setNeighbor(0, 1337);
     m_fakeCluster->setNewConnection(16, ingoingCluster->getIncomingMessageBuffer(0));
 
     m_incomBuffer = m_fakeCluster->getIncomingMessageBuffer(0);

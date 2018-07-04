@@ -118,8 +118,8 @@ uint8_t Cluster::getClusterType() const
 }
 
 /**
- * @brief Cluster::isExising
- * @return
+ * @brief Cluster::isExising check if the instance of the Cluster-class exist
+ * @return true, if exist, else false
  */
 bool Cluster::isExising() const
 {
@@ -174,12 +174,12 @@ bool Cluster::setNewConnection(const uint8_t side,
 }
 
 /**
- * @brief Cluster::addNeighbor add a new neighbor to the cluster
+ * @brief Cluster::setNeighbor set a new neighbor to the cluster
  * @param side side for the new neighbor
  * @param targetClusterId id of the neighbor-target
  * @return true, if neighbor was added, else false
  */
-bool Cluster::addNeighbor(const uint8_t side, const ClusterID targetClusterId)
+bool Cluster::setNeighbor(const uint8_t side, const ClusterID targetClusterId)
 {
     // check if side is valid
     if(this != nullptr && side < 17)
