@@ -219,33 +219,25 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
     switch (side) {
     case 2:
         {
-            result.first = x;
-            if(y == 0) {
-                result.second = m_networkDimensionY - 1;
+            result.first = x - 1;
+            if(x % 2 == 1) {
+                result.second = y + 1;
             } else {
-                result.second = y - 1;
+                result.second = y;
             }
             break;
         }
     case 3:
         {
-            result.first = (x + 1) % m_networkDimensionX;
-            if(y % 2 == 1) {
-                result.second = y;
-            } else {
-                if(y == 0) {
-                    result.second = m_networkDimensionY - 1;
-                } else {
-                    result.second = y - 1;
-                }
-            }
+            result.first = x;
+            result.second = y + 1;
             break;
         }
     case 4:
         {
-            result.first = (x + 1) % m_networkDimensionX;
-            if(y % 2 == 1) {
-                result.second = (y + 1) % m_networkDimensionY;
+            result.first = x + 1;
+            if(x % 2 == 1) {
+                result.second = y + 1;
             } else {
                 result.second = y;
             }
@@ -253,39 +245,27 @@ std::pair<uint32_t, uint32_t> ClusterInitilizer::getNext(const uint32_t x,
         }
     case 14:
         {
-            result.first = x;
-            result.second = (y + 1) % m_networkDimensionY;
+            result.first = x + 1;
+            if(x % 2 == 1) {
+                result.second = y;
+            } else {
+                result.second = y - 1;
+            }
             break;
         }
     case 13:
         {
-            if(x == 0) {
-                result.first = m_networkDimensionX - 1;
-            } else {
-                result.first = x - 1;
-            }
-            if(y % 2 == 1) {
-                result.second = (y + 1) % m_networkDimensionY;
-            } else {
-                result.second = y;
-            }
+            result.first = x;
+            result.second = y - 1;
             break;
         }
     case 12:
         {
-            if(x == 0) {
-                result.first = m_networkDimensionX - 1;
-            } else {
-                result.first = x - 1;
-            }
-            if(y % 2 == 1) {
+            result.first = x - 1;
+            if(x % 2 == 1) {
                 result.second = y;
             } else {
-                if(y == 0) {
-                    result.second = m_networkDimensionY - 1;
-                } else {
-                    result.second = y - 1;
-                }
+                result.second = y - 1;
             }
             break;
         }

@@ -31,6 +31,10 @@ public:
     bool addCluster(const ClusterID clusterId,
                     Cluster* cluster,
                     bool addToQueue = true);
+    bool addCluster(const ClusterID targetClusterId,
+                    const uint8_t targetSide,
+                    Cluster* cluster,
+                    bool addToQueue = true);
     Cluster* getCluster(const ClusterID clusterId);
     Cluster* getClusterByIndex(const uint32_t index);
     uint32_t getNumberOfCluster() const;

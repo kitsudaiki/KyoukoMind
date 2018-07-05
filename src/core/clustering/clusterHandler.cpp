@@ -53,6 +53,21 @@ bool ClusterHandler::addCluster(const ClusterID clusterId,
 }
 
 /**
+ * @brief ClusterHandler::addCluster
+ * @param targetClusterId
+ * @param targetSide
+ * @param addToQueue
+ * @return
+ */
+bool ClusterHandler::addCluster(const ClusterID targetClusterId,
+                                const uint8_t targetSide,
+                                Cluster* cluster,
+                                bool addToQueue)
+{
+
+}
+
+/**
  * @brief ClusterManager::getCluster
  * @param clusterId
  * @return

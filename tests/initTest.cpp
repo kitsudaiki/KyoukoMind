@@ -96,8 +96,11 @@ void InitTest::checkInit()
     for(uint32_t i = 0; i < m_testClusterHandler->getNumberOfCluster(); i++)
     {
         Cluster* cluster = m_testClusterHandler->getClusterByIndex(i);
+        std::cout<<"check cluster index "<<i<<" with id "<<cluster->getClusterId()<<std::endl;
+
         for(uint32_t n = 0; n < 17; n++)
         {
+            std::cout<<"    check side "<<(int)n<<std::endl;
             if(cluster->getNeighborId(n) != UNINIT_STATE) {
                 ClusterID sourceId = cluster->getClusterId();
                 ClusterID targetId = cluster->getNeighborId(n);
