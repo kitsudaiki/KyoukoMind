@@ -173,11 +173,11 @@ inline void EdgeClusterProcessing::processAxon(EdgeCluster* cluster,
         newEdge.targetClusterPath = path / 32;
         newEdge.weight = weight;
         newEdge.targetAxonId = targetId;
-        std::cout<<"    current cluster-id: "<<cluster->getClusterId()<<std::endl;
-        std::cout<<"    new path: "<<newEdge.targetClusterPath<<std::endl;
+        //std::cout<<"    current cluster-id: "<<cluster->getClusterId()<<std::endl;
+        //std::cout<<"    new path: "<<newEdge.targetClusterPath<<std::endl;
         const uint8_t next = path % 32;
-        std::cout<<"    forward to: "<<(int)(next)<<std::endl;
-        std::cout<<"    next cluster-id: "<<cluster->getNeighborId(next)<<std::endl;
+        //std::cout<<"    forward to: "<<(int)(next)<<std::endl;
+        //std::cout<<"    next cluster-id: "<<cluster->getNeighborId(next)<<std::endl;
         cluster->getOutgoingMessageBuffer(next)->addData(&newEdge);
     }
     else
@@ -277,8 +277,7 @@ inline void EdgeClusterProcessing::learningForwardEdgeSection(EdgeCluster *clust
     {
         const float currentSideWeight = partitialWeight * m_weightMap[side];
 
-        if(currentSideWeight <= NEW_FORWARD_EDGE_BORDER * partitialWeight
-                && side != 16) {
+        if(currentSideWeight <= NEW_FORWARD_EDGE_BORDER * partitialWeight) {
             continue;
         }
 
@@ -343,7 +342,7 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
                     if(forwardEdge->targetId != UNINIT_STATE)
                     {
                         // normal external edge
-                        std::cout<<"poi 1"<<std::endl;
+                        //std::cout<<"poi 1"<<std::endl;
                         KyoChanForwardEdgeContainer newEdge;
                         newEdge.targetEdgeSectionId = tempForwardEdge.targetId;
                         newEdge.weight = tempForwardEdge.weight * ratio;
@@ -351,7 +350,7 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
                     }
                     else
                     {
-                        std::cout<<"poi 2"<<std::endl;
+                        //std::cout<<"poi 2"<<std::endl;
                         KyoChanPendingEdgeContainer newEdge;
                         newEdge.weight = tempForwardEdge.weight * ratio;
                         newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
@@ -361,14 +360,11 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
                 }
                 else
                 {
-                    if(forwardEdge->targetId != UNINIT_STATE)
-                    {
-                        std::cout<<"poi 3"<<std::endl;
-                        KyoChanDirectEdgeContainer newEdge;
-                        newEdge.targetNodeId = 0;
-                        newEdge.weight = tempForwardEdge.weight * ratio;
-                        cluster->getOutgoingMessageBuffer(sideCounter)->addData(&newEdge);
-                    }
+                    //std::cout<<"poi 3"<<std::endl;
+                    KyoChanDirectEdgeContainer newEdge;
+                    newEdge.targetNodeId = 0;
+                    newEdge.weight = tempForwardEdge.weight * ratio;
+                    cluster->getOutgoingMessageBuffer(sideCounter)->addData(&newEdge);
                 }
             }
 

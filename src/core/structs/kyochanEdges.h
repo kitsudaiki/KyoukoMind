@@ -53,15 +53,12 @@ struct KyoChanForwardEdgeSection
      */
     bool updateWeight(const uint8_t side, const float weight)
     {
-        if(side >= 17) {
-            return false;
+        if(side < 17) {
+            forwardEdges[side].weight += weight;
+            totalWeight += weight;
+            return true;
         }
-        if(forwardEdges[side].targetId == UNINIT_STATE) {
-            return false;
-        }
-        forwardEdges[side].weight += weight;
-        totalWeight += weight;
-        return true;
+        return false;
     }
 
 } __attribute__((packed));
@@ -84,12 +81,12 @@ struct KyoChanEdgeSection
      */
     bool updateWeight(const uint8_t pos, const float weight)
     {
-        if(pos >= numberOfEdges) {
-            return false;
+        if(pos < numberOfEdges) {
+            edges[pos].weight += weight;
+            totalWeight += weight;
+            return true;
         }
-        edges[pos].weight += weight;
-        totalWeight += weight;
-        return true;
+        return false;
     }
 
     /**

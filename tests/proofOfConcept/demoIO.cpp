@@ -62,9 +62,9 @@ void DemoIO::run()
         while(data < end)
         {
             if((int)(*data) == DIRECT_EDGE_CONTAINER) {
-                KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
-                std::cout<<"YEAH!!!!!!!!!!!!!!!!"<<std::endl;
-                if(edge->targetEdgeSectionId == 0) {
+                KyoChanDirectEdgeContainer* edge = (KyoChanDirectEdgeContainer*)data;
+                //std::cout<<"YEAH!!!!!!!!!!!!!!!!"<<std::endl;
+                if(edge->targetNodeId == 0) {
                     out += (uint32_t)edge->weight;
                 } else {
                     if(out - (uint32_t)edge->weight >= 0.0f) {
@@ -73,15 +73,17 @@ void DemoIO::run()
                         out = 0.0f;
                     }
                 }
+                data += sizeof(KyoChanDirectEdgeContainer);
             }
         }
 
         if(out > 255.0) {
             out = 255.0;
         }
+        std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! out number: "<<(int)out<<std::endl;
+
         char newChar = (char)out;
 
-        std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! out: "<<newChar<<"  number: "<<(int)out<<std::endl;
         sendInnerData(newChar);
         data += sizeof(KyoChanStatusEdgeContainer);
     }
