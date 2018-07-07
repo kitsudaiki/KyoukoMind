@@ -104,6 +104,24 @@ bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
 }
 
 /**
+ * @brief NodeCluster::getNumberOfEdgeSectionBlocks
+ * @return
+ */
+uint32_t NodeCluster::getNumberOfEdgeSectionBlocks() const
+{
+    return m_metaData.numberOfEdgeBlocks;
+}
+
+/**
+ * @brief NodeCluster::getNumberOfEdgeSections
+ * @return
+ */
+uint32_t NodeCluster::getNumberOfEdgeSections() const
+{
+    return m_metaData.numberOfEdgeSections;
+}
+
+/**
  * @brief NodeCluster::getEdgeSectionBlock
  * @return
  */
@@ -127,7 +145,7 @@ bool NodeCluster::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 
     // update meta-data of the cluster
     m_metaData.numberOfEdgeSections = numberOfEdgeSections;
-    m_metaData.positionOfEdgeBlock = 0;
+    m_metaData.positionOfEdgeBlock = m_metaData.numberOfNodeBlocks + 1;
 
     // calculate number of edge-blocks
     uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
@@ -174,11 +192,14 @@ bool NodeCluster::addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEd
 /**
  * @brief NodeCluster::addEmptyEdgeSection add a new empfy edge-section
  * @return id of the new section, or SPECIAL_STATE if memory-allocation failed
+ * @param sourceId id of the source forward-edge-section
+ * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
-uint32_t NodeCluster::addEmptyEdgeSection()
+uint32_t NodeCluster::addEmptyEdgeSection(const uint8_t sourceSide,
+                                          const uint32_t sourceId)
 {
     // allocate a new block, if necessary
-    uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
+    const uint32_t blockSize = m_clusterDataBuffer->getBlockSize();
     if((m_metaData.numberOfEdgeSections * sizeof(KyoChanEdgeSection) )/ blockSize
             < ((m_metaData.numberOfEdgeSections + 1) * sizeof(KyoChanEdgeSection)) / blockSize)
     {
@@ -190,7 +211,10 @@ uint32_t NodeCluster::addEmptyEdgeSection()
 
     // add new edge-forward-section
     KyoChanEdgeSection newSection;
+    newSection.sourceId = sourceId;
+    newSection.sourceSide = sourceSide;
     getEdgeSectionBlock()[m_metaData.numberOfEdgeSections] = newSection;
+
     m_metaData.numberOfEdgeSections++;
     return m_metaData.numberOfEdgeSections-1;
 }

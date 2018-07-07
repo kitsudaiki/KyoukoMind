@@ -71,6 +71,7 @@ struct KyoChanEdgeSection
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
     uint32_t numberOfEdges = 0;
     float totalWeight = 0.0;
+    uint8_t sourceSide = 0;
     uint32_t sourceId = 0;
 
     /**

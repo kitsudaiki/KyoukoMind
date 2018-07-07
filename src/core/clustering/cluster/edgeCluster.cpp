@@ -122,8 +122,8 @@ uint32_t EdgeCluster::addEmptyForwardEdgeSection(const uint8_t sourceSide,
     newSection.sourceId = sourceId;
     newSection.sourceSide = sourceSide;
     getForwardEdgeSectionBlock()[m_metaData.numberOfForwardEdgeSections] = newSection;
+
     m_metaData.numberOfForwardEdgeSections++;
-    m_metaData.numberOfPendingForwardEdgeSections++;
     return m_metaData.numberOfForwardEdgeSections-1;
 }
 

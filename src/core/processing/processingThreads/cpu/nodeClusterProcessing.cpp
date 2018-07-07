@@ -57,6 +57,20 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
         {
             switch((int)(*data))
             {
+                case LEARNING_EDGE_CONTAINER:
+                {
+                    KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
+                    processLerningEdge(cluster, edge->sourceEdgeSectionId, edge->weight, side, outgoBuffer);
+                    data += sizeof(KyoChanLearingEdgeContainer);
+                    break;
+                }
+                case PENDING_EDGE_CONTAINER:
+                {
+                    KyoChanPendingEdgeContainer* edge = (KyoChanPendingEdgeContainer*)data;
+                    processPendingEdge(cluster, edge->sourceEdgeSectionId, edge->sourceSide, edge->weight, outgoBuffer);
+                    data += sizeof(KyoChanPendingEdgeContainer);
+                    break;
+                }
                 case FOREWARD_EDGE_CONTAINER:
                 {
                     KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
@@ -107,13 +121,13 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
         const KyoChanNode tempNode = *node;
         if(tempNode.border <= tempNode.currentState)
         {
-            std::cout<<"poi2"<<std::endl;
+            //std::cout<<"poi2"<<std::endl;
             // create new axon-edge
             KyoChanAxonEdgeContainer edge;
             edge.targetClusterPath = tempNode.targetClusterPath / 32;
             edge.targetAxonId = tempNode.targetAxonId;
             edge.weight = tempNode.currentState;
-            std::cout<<"next side: "<<(int)(tempNode.targetClusterPath % 32)<<std::endl;
+            //std::cout<<"next side: "<<(int)(tempNode.targetClusterPath % 32)<<std::endl;
             nodeCluster->getOutgoingMessageBuffer(tempNode.targetClusterPath % 32)->addData(&edge);
 
             numberOfActiveNodes++;
@@ -137,6 +151,72 @@ inline float NodeClusterProcessing::randFloat(const float b)
     return random * b;
 }
 
+/**
+ * @brief NodeClusterProcessing::processLerningEdge
+ * @param cluster
+ * @param sourceEdgeSectionId
+ * @param weight
+ * @param initSide
+ * @param outgoBuffer
+ */
+inline void NodeClusterProcessing::processLerningEdge(NodeCluster* cluster,
+                                                      const uint32_t sourceEdgeSectionId,
+                                                      const float weight,
+                                                      const uint8_t initSide,
+                                                      Networking::OutgoingMessageBuffer* outgoBuffer)
+{
+    //std::cout<<"---"<<std::endl;
+    //std::cout<<"processLerningEdge"<<std::endl;
+    const uint32_t targetEdgeSectionId = cluster->addEmptyEdgeSection(initSide,
+                                                                      sourceEdgeSectionId);
+
+    if(targetEdgeSectionId != UNINIT_STATE)
+    {
+        // create reply-message
+        KyoChanLearningEdgeReplyContainer reply;
+        reply.sourceEdgeSectionId = sourceEdgeSectionId;
+        reply.targetEdgeSectionId = targetEdgeSectionId;
+
+        // send reply-message
+        cluster->getOutgoingMessageBuffer(initSide)->addData(&reply);
+    }
+}
+
+/**
+ * @brief NodeClusterProcessing::processPendingEdge
+ * @param cluster
+ * @param sourceId
+ * @param sourceSide
+ * @param weight
+ * @param outgoBuffer
+ */
+inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
+                                                      const uint32_t sourceId,
+                                                      const uint8_t sourceSide,
+                                                      const float weight,
+                                                      Networking::OutgoingMessageBuffer *outgoBuffer)
+{
+    //std::cout<<"---"<<std::endl;
+    //std::cout<<"processPendingEdge"<<std::endl;
+
+    KyoChanEdgeSection* forwardEnd = &((cluster)->getEdgeSectionBlock()[0]);
+    const uint32_t numberOfEdgeSections = cluster->getNumberOfEdgeSections();
+    KyoChanEdgeSection* forwardStart = &((cluster)->getEdgeSectionBlock()[numberOfEdgeSections - 1]);
+
+    uint32_t forwardEdgeSectionId = numberOfEdgeSections - 1;
+    for(KyoChanEdgeSection* forwardEdgeSection = forwardStart;
+        forwardEdgeSection >= forwardEnd;
+        forwardEdgeSection--)
+    {
+        if(sourceId == forwardEdgeSection->sourceId
+                && sourceSide == forwardEdgeSection->sourceSide)
+        {
+            processEdgeSection(cluster, forwardEdgeSectionId, weight, outgoBuffer);
+        }
+        forwardEdgeSectionId--;
+    }
+}
+
  /**
   * @brief NodeClusterProcessing::learningEdgeSection learing-process of the specific edge-section
   * @param cluster pointer to the node-custer
@@ -147,8 +227,8 @@ inline float NodeClusterProcessing::randFloat(const float b)
                                                         KyoChanEdgeSection* currentSection,
                                                         const float partitialWeight)
  {
-     std::cout<<"---"<<std::endl;
-     std::cout<<"learningEdgeSection"<<std::endl;
+     //std::cout<<"---"<<std::endl;
+     //std::cout<<"learningEdgeSection"<<std::endl;
 
      // collect necessary values
      const uint16_t numberOfEdge = currentSection->numberOfEdges;
@@ -195,8 +275,8 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                                Networking::OutgoingMessageBuffer* outgoBuffer)
 {
     assert(cluster->getClusterType() == NODE_CLUSTER);
-    std::cout<<"---"<<std::endl;
-    std::cout<<"processEdgeSection"<<std::endl;
+    //std::cout<<"---"<<std::endl;
+    //std::cout<<"processEdgeSection"<<std::endl;
 
     if(weight != 0.0)
     {

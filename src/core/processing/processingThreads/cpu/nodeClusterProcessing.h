@@ -38,11 +38,20 @@ private:
     void learningEdgeSection(NodeCluster *cluster,
                              KyoChanEdgeSection *currentSection,
                              const float partitialWeight);
+    void processLerningEdge(NodeCluster *cluster,
+                            const uint32_t sourceEdgeSectionId,
+                            const float weight,
+                            const uint8_t initSide,
+                            Networking::OutgoingMessageBuffer *outgoBuffer);
+    void processPendingEdge(NodeCluster *cluster,
+                            const uint32_t sourceId,
+                            const uint8_t sourceSide,
+                            const float weight,
+                            Networking::OutgoingMessageBuffer *outgoBuffer);
     void processEdgeSection(NodeCluster *cluster,
                             uint32_t edgeSectionId,
                             const float weight,
                             Networking::OutgoingMessageBuffer *outgoBuffer);
-
 };
 
 }

@@ -31,7 +31,7 @@ void StructTest::testEdgeForwardSection()
 
     testSection.forwardEdges[0].targetId = 1;
     UNITTEST(testSection.updateWeight(0, 10.0f), true);
-    UNITTEST(testSection.updateWeight(1, 10.0f), false);
+    UNITTEST(testSection.updateWeight(17, 10.0f), false);
 
     UNITTEST(testSection.totalWeight, 10.0f);
 }

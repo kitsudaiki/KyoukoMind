@@ -30,9 +30,12 @@ public:
     bool initNodeBlocks(uint16_t numberOfNodes);
 
     // edge-sections
+    uint32_t getNumberOfEdgeSectionBlocks() const;
+    uint32_t getNumberOfEdgeSections() const;
     KyoChanEdgeSection* getEdgeSectionBlock();
     bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
-    uint32_t addEmptyEdgeSection();
+    uint32_t addEmptyEdgeSection(const uint8_t sourceSide,
+                                 const uint32_t sourceId);
     bool addEdge(const uint32_t edgeSectionId, const KyoChanEdge &newEdge);
 };
 

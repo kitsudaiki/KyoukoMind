@@ -60,11 +60,7 @@ bool AxonInitializer::createAxons()
                 {
                     // create new axon
                     uint32_t axonId = (*m_networkMetaStructure)[x][y].numberOfAxons;
-                    //std::cout<<"+++++++++++++++++++"<<std::endl;
-                    //std::cout<<"create new axon: "<<std::endl;
-                    //std::cout<<"8"<<std::endl;
                     NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 1);
-                    //std::cout<<"-------------------"<<std::endl;
 
                     // update values of the cluster and the node
                     (*m_networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
@@ -83,13 +79,10 @@ bool AxonInitializer::createAxons()
             if(cluster == nullptr) {
                 continue;
             }
-            // check cluster-type
-            if(cluster->getClusterType() == EDGE_CLUSTER)
-            {
-                // add the axon-number to the specific cluster
-                EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
-                edgeCluster->initForwardEdgeSectionBlocks((*m_networkMetaStructure)[x][y].numberOfAxons);
-            }
+
+            // add the axon-number to the specific cluster
+            EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
+            edgeCluster->initForwardEdgeSectionBlocks((*m_networkMetaStructure)[x][y].numberOfAxons);
         }
     }
     return true;
@@ -132,7 +125,6 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
     // choose the next cluster
     uint8_t nextSite = chooseNextSide(inputSide, (*m_networkMetaStructure)[x][y].neighbors);
 
-    //std::cout<<(int)nextSite<<std::endl;
     if(nextSite == 0xFF)
     {
         AxonInitializer::NewAxon result;
