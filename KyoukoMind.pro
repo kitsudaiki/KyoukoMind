@@ -9,15 +9,15 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-LIBS += -L../libNetworking -lNetworking
-LIBS += -L../libNetworking/debug -lNetworking
-LIBS += -L../libNetworking/release -lNetworking
-INCLUDEPATH += ../libNetworking/include/libNetworking
+LIBS += -L../libKitsuneChanNetwork -lKitsuneChanNetwork
+LIBS += -L../libKitsuneChanNetwork/debug -lKitsuneChanNetwork
+LIBS += -L../libKitsuneChanNetwork/release -lKitsuneChanNetwork
+INCLUDEPATH += ../libKitsuneChanNetwork/include/libKitsuneChanNetwork
 
-LIBS += -L../libPerformanceIO -lPerformanceIO
-LIBS += -L../libPerformanceIO/debug -lPerformanceIO
-LIBS += -L../libPerformanceIO/release -lPerformanceIO
-INCLUDEPATH += ../libPerformanceIO/include/libPerformanceIO
+LIBS += -L../libKitsunePersistence -lKitsunePersistence
+LIBS += -L../libKitsunePersistence/debug -lKitsunePersistence
+LIBS += -L../libKitsunePersistence/release -lKitsunePersistence
+INCLUDEPATH += ../libKitsunePersistence/include/libKitsunePersistence
 
 INCLUDEPATH += $$PWD \
             src
