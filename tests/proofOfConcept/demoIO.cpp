@@ -63,7 +63,6 @@ void DemoIO::run()
         {
             if((int)(*data) == DIRECT_EDGE_CONTAINER) {
                 KyoChanDirectEdgeContainer* edge = (KyoChanDirectEdgeContainer*)data;
-                //std::cout<<"YEAH!!!!!!!!!!!!!!!!"<<std::endl;
                 if(edge->targetNodeId == 0) {
                     out += (uint32_t)edge->weight;
                 } else {
@@ -80,12 +79,13 @@ void DemoIO::run()
         if(out > 255.0) {
             out = 255.0;
         }
-        std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! out number: "<<(int)out<<std::endl;
+        if(out > 0.0) {
+            std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! out number: "<<(int)out<<std::endl;
+        }
 
         char newChar = (char)out;
 
-        sendInnerData(newChar);
-        data += sizeof(KyoChanStatusEdgeContainer);
+        //sendInnerData(newChar);
     }
 }
 
