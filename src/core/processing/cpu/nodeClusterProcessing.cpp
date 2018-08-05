@@ -121,13 +121,11 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
         const KyoChanNode tempNode = *node;
         if(tempNode.border <= tempNode.currentState)
         {
-            //std::cout<<"poi2"<<std::endl;
             // create new axon-edge
             KyoChanAxonEdgeContainer edge;
             edge.targetClusterPath = tempNode.targetClusterPath / 32;
             edge.targetAxonId = tempNode.targetAxonId;
             edge.weight = tempNode.currentState;
-            //std::cout<<"next side: "<<(int)(tempNode.targetClusterPath % 32)<<std::endl;
             nodeCluster->getOutgoingMessageBuffer(tempNode.targetClusterPath % 32)->addData(&edge);
 
             numberOfActiveNodes++;
@@ -165,8 +163,6 @@ inline void NodeClusterProcessing::processLerningEdge(NodeCluster* cluster,
                                                       const uint8_t initSide,
                                                       Networking::OutgoingMessageBuffer* outgoBuffer)
 {
-    //std::cout<<"---"<<std::endl;
-    //std::cout<<"processLerningEdge"<<std::endl;
     const uint32_t targetEdgeSectionId = cluster->addEmptyEdgeSection(initSide,
                                                                       sourceEdgeSectionId);
 
@@ -196,9 +192,6 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
                                                       const float weight,
                                                       Networking::OutgoingMessageBuffer *outgoBuffer)
 {
-    //std::cout<<"---"<<std::endl;
-    //std::cout<<"processPendingEdge"<<std::endl;
-
     KyoChanEdgeSection* forwardEnd = &((cluster)->getEdgeSectionBlock()[0]);
     const uint32_t numberOfEdgeSections = cluster->getNumberOfEdgeSections();
     KyoChanEdgeSection* forwardStart = &((cluster)->getEdgeSectionBlock()[numberOfEdgeSections - 1]);
@@ -227,9 +220,6 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
                                                         KyoChanEdgeSection* currentSection,
                                                         const float partitialWeight)
  {
-     //std::cout<<"---"<<std::endl;
-     //std::cout<<"learningEdgeSection"<<std::endl;
-
      // collect necessary values
      const uint16_t numberOfEdge = currentSection->numberOfEdges;
      const uint16_t chooseRange = (numberOfEdge + OVERPROVISIONING) % EDGES_PER_EDGESECTION;
@@ -275,8 +265,6 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                                Networking::OutgoingMessageBuffer* outgoBuffer)
 {
     assert(cluster->getClusterType() == NODE_CLUSTER);
-    //std::cout<<"---"<<std::endl;
-    //std::cout<<"processEdgeSection"<<std::endl;
 
     if(weight != 0.0)
     {
@@ -293,9 +281,7 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
         // process edge-section
         const float ratio = currentSection->totalWeight / weight;
         KyoChanNode* nodes = cluster->getNodeBlock();
-        uint16_t edgeId = 0;
 
-        // float updateValue = 0;
         KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;
         for(KyoChanEdge* edge = currentSection->edges;
             edge < end;
@@ -316,9 +302,8 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
 
             // memorize the current edge-weight
             const float diff = (-1.0f) * tempEdge.weight * (1.0f - tempEdge.memorize);
-            currentSection->updateWeight(edgeId, diff);
-
-            edgeId++;
+            edge->weight += diff;
+            currentSection->totalWeight += diff;
         }
 
         // send status upadate to the parent forward-edge-section
