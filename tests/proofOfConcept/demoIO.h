@@ -11,7 +11,7 @@
 #define DEMOIO_H
 
 #include <common.h>
-#include <core/processing/processingThreads/commonThread.h>
+#include <commonThread.h>
 #include <core/structs/messageContainer.h>
 
 namespace Networking
@@ -25,7 +25,7 @@ namespace KyoukoMind
 class ClusterHandler;
 class NodeCluster;
 
-class DemoIO : public CommonThread
+class DemoIO : public Kitsune::CommonThread
 {
 public:
     DemoIO(ClusterHandler *clusterHandler);

@@ -63,6 +63,7 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
                 {
                     KyoChanStatusEdgeContainer* edge = (KyoChanStatusEdgeContainer*)data;
                     processStatusEdge(cluster, edge->targetId, edge->status, side, outgoBuffer);
+                    std::cout<<"get status: "<<edge->status<<std::endl;
                     data += sizeof(KyoChanStatusEdgeContainer);
                     break;
                 }

@@ -10,14 +10,15 @@
 #ifndef PROCESSINGUNIT_H
 #define PROCESSINGUNIT_H
 
-#include <core/processing/processingThreads/commonThread.h>
+#include <common.h>
+#include <commonThread.h>
 
 namespace KyoukoMind
 {
 class Cluster;
 class ClusterQueue;
 
-class ProcessingUnit : public CommonThread
+class ProcessingUnit : public Kitsune::CommonThread
 {
 
 public:

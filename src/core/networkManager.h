@@ -11,7 +11,7 @@
 #define NETTHREADMANAGER_H
 
 #include <common.h>
-#include <core/processing/processingThreads/commonThread.h>
+#include <commonThread.h>
 #include <common/typedefs.h>
 
 namespace KyoukoMind
@@ -22,7 +22,7 @@ class ClusterHandler;
 class ProcessingUnitHandler;
 class MessageController;
 
-class NetworkManager : public CommonThread
+class NetworkManager : public Kitsune::CommonThread
 {
 
 public:

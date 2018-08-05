@@ -9,6 +9,11 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
+LIBS += -L../libKitsuneCommon -lKitsuneCommon
+LIBS += -L../libKitsuneCommon/debug -lKitsuneCommon
+LIBS += -L../libKitsuneCommon/release -lKitsuneCommon
+INCLUDEPATH += ../libKitsuneCommon/include/libKitsuneCommon
+
 LIBS += -L../libKitsuneChanNetwork -lKitsuneChanNetwork
 LIBS += -L../libKitsuneChanNetwork/debug -lKitsuneChanNetwork
 LIBS += -L../libKitsuneChanNetwork/release -lKitsuneChanNetwork
@@ -34,7 +39,6 @@ SOURCES += main.cpp \
             src/control/statusReporter.cpp \
             src/core/initializing/axonInitializer.cpp \
             src/core/initializing/clusterInitilizer.cpp \
-            src/core/processing/processingThreads/commonThread.cpp \
             src/kyochanNetwork.cpp \
             tests/proofOfConcept/demoIO.cpp \
             tests/clusterTest.cpp \
@@ -73,7 +77,6 @@ HEADERS +=\
             src/control/statusReporter.h \
             src/core/initializing/axonInitializer.h \
             src/core/initializing/clusterInitilizer.h \
-            src/core/processing/processingThreads/commonThread.h \
             src/kyochanNetwork.h \
             tests/clusterTest.h \
             tests/commonTest.h \
