@@ -14,7 +14,7 @@
 #include <core/clustering/cluster/nodeCluster.h>
 #include <core/clustering/cluster/edgeCluster.h>
 
-#include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
+#include <core/processing/cpu/edgeClusterProcessing.h>
 
 namespace KyoukoMind
 {

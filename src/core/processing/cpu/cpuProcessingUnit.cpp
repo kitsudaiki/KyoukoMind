@@ -7,13 +7,13 @@
  *  TODO: Description
  */
 
-#include <core/processing/processingThreads/cpu/cpuProcessingUnit.h>
+#include <core/processing/cpu/cpuProcessingUnit.h>
 
 #include <core/clustering/cluster/edgeCluster.h>
 #include <core/clustering/cluster/nodeCluster.h>
 
-#include <core/processing/processingThreads/cpu/edgeClusterProcessing.h>
-#include <core/processing/processingThreads/cpu/nodeClusterProcessing.h>
+#include <core/processing/cpu/edgeClusterProcessing.h>
+#include <core/processing/cpu/nodeClusterProcessing.h>
 
 namespace KyoukoMind
 {

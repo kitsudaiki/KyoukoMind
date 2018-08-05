@@ -30,8 +30,8 @@ INCLUDEPATH += $$PWD \
 SOURCES += main.cpp \
             src/core/clustering/cluster/nodeCluster.cpp \
             src/core/clustering/clusterHandler.cpp \
-            src/core/processing/processingThreads/cpu/cpuProcessingUnit.cpp \
-            src/core/processing/processingThreads/processingUnit.cpp \
+            src/core/processing/cpu/cpuProcessingUnit.cpp \
+            src/core/processing/processingUnit.cpp \
             src/core/processing/processingUnitHandler.cpp \
             src/core/networkManager.cpp \
             src/settings/config.cpp \
@@ -54,16 +54,16 @@ SOURCES += main.cpp \
             tests/structTest.cpp \
             tests/initTest.cpp \
             src/core/clustering/cluster/cluster.cpp \
-            src/core/processing/processingThreads/cpu/edgeClusterProcessing.cpp \
-            src/core/processing/processingThreads/cpu/nodeClusterProcessing.cpp
+            src/core/processing/cpu/edgeClusterProcessing.cpp \
+            src/core/processing/cpu/nodeClusterProcessing.cpp
 
 HEADERS +=\
             src/common/typedefs.h \
             src/core/clustering/clusterHandler.h \
             src/core/clustering/cluster/nodeCluster.h \
             src/core/networkManager.h \
-            src/core/processing/processingThreads/processingUnit.h \
-            src/core/processing/processingThreads/cpu/cpuProcessingUnit.h \
+            src/core/processing/processingUnit.h \
+            src/core/processing/cpu/cpuProcessingUnit.h \
             src/core/processing/processingUnitHandler.h \
             src/settings/config.h \
             src/common/enums.h \
@@ -94,8 +94,8 @@ HEADERS +=\
             tests/initTest.h \
             src/core/structs/messageContainer.h \
             src/core/clustering/cluster/cluster.h \
-            src/core/processing/processingThreads/cpu/edgeClusterProcessing.h \
-            src/core/processing/processingThreads/cpu/nodeClusterProcessing.h
+            src/core/processing/cpu/edgeClusterProcessing.h \
+            src/core/processing/cpu/nodeClusterProcessing.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

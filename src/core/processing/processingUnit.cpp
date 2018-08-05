@@ -7,7 +7,7 @@
  *  TODO: Description
  */
 
-#include <core/processing/processingThreads/processingUnit.h>
+#include <core/processing/processingUnit.h>
 #include <core/clustering/clusterHandler.h>
 #include <core/clustering/clusterQueue.h>
 

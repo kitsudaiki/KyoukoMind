@@ -10,7 +10,7 @@
 #ifndef CPUPROCESSINGUNIT_H
 #define CPUPROCESSINGUNIT_H
 
-#include <core/processing/processingThreads/processingUnit.h>
+#include <core/processing/processingUnit.h>
 #include <core/structs/kyochanNodes.h>
 #include <core/structs/kyochanEdges.h>
 
