@@ -22,7 +22,7 @@ namespace KyoukoMind
 /**
  * @brief ProcessingTest::ProcessingTest
  */
-ProcessingTest::ProcessingTest() : CommonTest("ProcessingTest")
+ProcessingTest::ProcessingTest() : Kitsune::CommonTest("ProcessingTest")
 {
     initTestCase();
     checkProcessing();

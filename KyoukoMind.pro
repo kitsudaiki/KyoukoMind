@@ -42,7 +42,6 @@ SOURCES += main.cpp \
             src/kyochanNetwork.cpp \
             tests/proofOfConcept/demoIO.cpp \
             tests/clusterTest.cpp \
-            tests/commonTest.cpp \
             tests/messageBufferTest.cpp \
             tests/messageTest.cpp \
             src/core/clustering/clusterQueue.cpp \
@@ -79,7 +78,6 @@ HEADERS +=\
             src/core/initializing/clusterInitilizer.h \
             src/kyochanNetwork.h \
             tests/clusterTest.h \
-            tests/commonTest.h \
             tests/messageBufferTest.h \
             tests/messageTest.h \
             src/core/clustering/clusterQueue.h \

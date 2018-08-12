@@ -11,7 +11,7 @@
 #define MESSAGEBUFFERTEST_H
 
 #include <common.h>
-#include <tests/commonTest.h>
+#include <commonTest.h>
 
 namespace Networking
 {
@@ -23,7 +23,7 @@ namespace KyoukoMind
 {
 class NodeCluster;
 
-class MessageBufferTest : public CommonTest
+class MessageBufferTest : public Kitsune::CommonTest
 {
 
 public:

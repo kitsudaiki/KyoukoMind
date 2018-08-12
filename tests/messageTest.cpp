@@ -16,7 +16,7 @@
 namespace KyoukoMind
 {
 
-MessageTest::MessageTest() : CommonTest("MessageTest")
+MessageTest::MessageTest() : Kitsune::CommonTest("MessageTest")
 {
     initTestCase();
     checkDataMessage();

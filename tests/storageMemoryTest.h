@@ -11,13 +11,13 @@
 #define STORAGEMEMORYTEST_H
 
 #include <common.h>
-#include <tests/commonTest.h>
+#include <commonTest.h>
 #include <files/storageMemory.h>
 
 namespace KyoukoMind
 {
 
-class StorageMemoryTest : public CommonTest
+class StorageMemoryTest : public Kitsune::CommonTest
 {
 
 public:

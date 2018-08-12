@@ -6,7 +6,7 @@ namespace KyoukoMind
 /**
  * @brief StructTest::StructTest
  */
-StructTest::StructTest(): CommonTest("StructTest")
+StructTest::StructTest(): Kitsune::CommonTest("StructTest")
 {
     initTestCase();
     testEdgeForwardSection();

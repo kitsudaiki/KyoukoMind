@@ -11,13 +11,13 @@
 #define IOBUFFERTEST_H
 
 #include <common.h>
-#include <tests/commonTest.h>
+#include <commonTest.h>
 #include <files/dataBuffer.h>
 
 namespace KyoukoMind
 {
 
-class DataBufferTest : public CommonTest
+class DataBufferTest : public Kitsune::CommonTest
 {
 
 public:

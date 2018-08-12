@@ -62,8 +62,8 @@ void ProcessingUnitHandler::initNextCycle()
 }
 
 /**
- * @brief ProcessingUnitHandler::closeAllProcessingUnits
- * @return
+ * @brief ProcessingUnitHandler::closeAllProcessingUnits close all processing-units, if exist
+ * @return false, if no processing-units exist, else true
  */
 bool ProcessingUnitHandler::closeAllProcessingUnits()
 {

@@ -15,7 +15,7 @@ namespace KyoukoMind
 /**
  * @brief StorageMemoryTest::StorageMemoryTest
  */
-StorageMemoryTest::StorageMemoryTest() : CommonTest("StorageMemoryTest")
+StorageMemoryTest::StorageMemoryTest() : Kitsune::CommonTest("StorageMemoryTest")
 {
     initTestCase();
     resizeFile();

@@ -16,7 +16,7 @@
 namespace KyoukoMind
 {
 
-ClusterTest::ClusterTest() : CommonTest("ClusterTest")
+ClusterTest::ClusterTest() : Kitsune::CommonTest("ClusterTest")
 {
     initTestCase();
     checkEdgeCluster();

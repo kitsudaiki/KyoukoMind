@@ -26,7 +26,7 @@ namespace KyoukoMind
 /**
  * @brief InitTest::InitTest
  */
-InitTest::InitTest() : CommonTest("InitTest")
+InitTest::InitTest() : Kitsune::CommonTest("InitTest")
 {
     initTestCase();
     checkInit();

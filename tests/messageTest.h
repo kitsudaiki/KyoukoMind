@@ -11,7 +11,7 @@
 #define MESSAGETEST_H
 
 #include <common.h>
-#include <tests/commonTest.h>
+#include <commonTest.h>
 
 namespace Networking
 {
@@ -22,7 +22,7 @@ class DataMessage;
 namespace KyoukoMind
 {
 
-class MessageTest : public CommonTest
+class MessageTest : public Kitsune::CommonTest
 {
 
 public:

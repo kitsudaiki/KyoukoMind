@@ -2,14 +2,14 @@
 #define STRUCTTEST_H
 
 #include <common.h>
-#include <tests/commonTest.h>
+#include <commonTest.h>
 
 #include <core/structs/kyochanEdges.h>
 
 namespace KyoukoMind
 {
 
-class StructTest : public CommonTest
+class StructTest : public Kitsune::CommonTest
 {
 public:
     StructTest();

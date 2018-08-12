@@ -223,7 +223,7 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
      // collect necessary values
      const uint16_t numberOfEdge = currentSection->numberOfEdges;
      const uint16_t chooseRange = (numberOfEdge + OVERPROVISIONING) % EDGES_PER_EDGESECTION;
-     uint16_t chooseOfExist = rand() % chooseRange;
+     uint32_t chooseOfExist = rand() % chooseRange;
 
      if(chooseOfExist >= numberOfEdge)
      {
@@ -266,7 +266,7 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
 {
     assert(cluster->getClusterType() == NODE_CLUSTER);
 
-    if(weight != 0.0)
+    if(weight != 0.0f)
     {
         KyoChanEdgeSection* currentSection = &((cluster)->getEdgeSectionBlock()[edgeSectionId]);
         const float comparismTotalWeight = currentSection->totalWeight;

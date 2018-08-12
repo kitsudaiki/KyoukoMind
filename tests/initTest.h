@@ -11,7 +11,7 @@
 #define INITTEST_H
 
 #include <common.h>
-#include <tests/commonTest.h>
+#include <commonTest.h>
 
 namespace KyoukoMind
 {
@@ -19,7 +19,7 @@ class ClusterHandler;
 class MessageController;
 class NetworkInitializer;
 
-class InitTest : public CommonTest
+class InitTest : public Kitsune::CommonTest
 {
 public:
     InitTest();

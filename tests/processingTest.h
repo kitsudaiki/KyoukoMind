@@ -11,7 +11,7 @@
 #define PROCESSINGTEST_H
 
 #include <common.h>
-#include <tests/commonTest.h>
+#include <commonTest.h>
 
 namespace Networking
 {
@@ -26,7 +26,7 @@ class NodeCluster;
 class NextChooser;
 class EdgeClusterProcessing;
 
-class ProcessingTest : public CommonTest
+class ProcessingTest : public Kitsune::CommonTest
 {
 public:
     ProcessingTest();

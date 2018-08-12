@@ -15,7 +15,7 @@ namespace KyoukoMind
 /**
  * @brief DataBufferTest::DataBufferTest
  */
-DataBufferTest::DataBufferTest() : CommonTest("DataBufferTest")
+DataBufferTest::DataBufferTest() : Kitsune::CommonTest("DataBufferTest")
 {
     initTestCase();
     getNumberOfBlocksAfterInit();

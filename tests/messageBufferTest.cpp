@@ -23,7 +23,7 @@ namespace KyoukoMind
 /**
  * @brief MessageBufferTest::MessageBufferTest
  */
-MessageBufferTest::MessageBufferTest() : CommonTest("MessageBufferTest")
+MessageBufferTest::MessageBufferTest() : Kitsune::CommonTest("MessageBufferTest")
 {
     initTestCase();
     checkInitializing();
