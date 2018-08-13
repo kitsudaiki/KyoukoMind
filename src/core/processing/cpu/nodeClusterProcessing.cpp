@@ -297,7 +297,7 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
             {
                 edge->memorize += (1.0f - tempEdge.memorize) / EDGE_MEMORIZE_UPDATE;
             } else {
-                edge->memorize -= (1.0f - tempEdge.memorize) / EDGE_MEMORIZE_UPDATE;
+                edge->memorize -= (tempEdge.memorize) / EDGE_MEMORIZE_UPDATE;
             }
 
             // memorize the current edge-weight
@@ -307,10 +307,12 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
         }
 
         // send status upadate to the parent forward-edge-section
-        KyoChanStatusEdgeContainer newEdge;
-        newEdge.status = comparismTotalWeight - currentSection->totalWeight;
-        newEdge.targetId = currentSection->sourceId;
-        cluster->getOutgoingMessageBuffer(8)->addData(&newEdge);
+        if(comparismTotalWeight - currentSection->totalWeight < 0) {
+            KyoChanStatusEdgeContainer newEdge;
+            newEdge.status = comparismTotalWeight - currentSection->totalWeight;
+            newEdge.targetId = currentSection->sourceId;
+            cluster->getOutgoingMessageBuffer(8)->addData(&newEdge);
+        }
     }
 }
 

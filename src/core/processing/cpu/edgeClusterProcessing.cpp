@@ -63,7 +63,6 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
                 {
                     KyoChanStatusEdgeContainer* edge = (KyoChanStatusEdgeContainer*)data;
                     processStatusEdge(cluster, edge->targetId, edge->status, side, outgoBuffer);
-                    std::cout<<"get status: "<<edge->status<<std::endl;
                     data += sizeof(KyoChanStatusEdgeContainer);
                     break;
                 }
@@ -107,7 +106,6 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
                 }
                 default:
                     return false;
-                    break;
             }
         }
         //incomBuffer->getMessage(side)->closeBuffer();
@@ -126,20 +124,21 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
  * @param outgoBuffer
  */
 inline void EdgeClusterProcessing::processStatusEdge(EdgeCluster *cluster,
-                                                            const uint32_t forwardEdgeSectionId,
-                                                            const float status,
-                                                            const uint8_t inititalSide,
-                                                            Networking::OutgoingMessageBuffer *outgoBuffer)
+                                                     const uint32_t forwardEdgeSectionId,
+                                                     const float status,
+                                                     const uint8_t inititalSide,
+                                                     Networking::OutgoingMessageBuffer *outgoBuffer)
 {
     KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
-    //currentSection->forwardEdges[inititalSide].updateMemorize(status);
+    currentSection->updateWeight(inititalSide, status);
 
     if(currentSection->numberOfActiveEdges == 0 || currentSection->sourceId == 0) {
         return;
     }
 
     KyoChanStatusEdgeContainer newEdge;
-    newEdge.status = status / currentSection->numberOfActiveEdges;
+    newEdge.status = status;
+    std::cout<<"status: "<<status<<std::endl;
     newEdge.targetId = currentSection->sourceId;
     cluster->getOutgoingMessageBuffer(currentSection->sourceSide)->addData(&newEdge);
 }
