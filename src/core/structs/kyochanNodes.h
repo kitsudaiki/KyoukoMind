@@ -20,6 +20,7 @@ struct KyoChanNode
 {
     float currentState = 0;
     float border = 100.0;
+    uint8_t active = 0;
 
     // Axon
     uint64_t targetClusterPath = 0;

@@ -129,6 +129,9 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
             nodeCluster->getOutgoingMessageBuffer(tempNode.targetClusterPath % 32)->addData(&edge);
 
             numberOfActiveNodes++;
+            node->active = 1;
+        } else {
+            node->active = 0;
         }
 
         node->currentState /= NODE_COOLDOWN;
@@ -288,22 +291,18 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
             edge++)
         {
             const KyoChanEdge tempEdge = *edge;
+
             // update node with the edge-weight
             nodes[tempEdge.targetNodeId].currentState += tempEdge.weight * ratio;
 
-            // update memorize-value
-            if(nodes[tempEdge.targetNodeId].border
-                    <= nodes[tempEdge.targetNodeId].currentState * NODE_COOLDOWN)
-            {
-                edge->memorize += (1.0f - tempEdge.memorize) / EDGE_MEMORIZE_UPDATE;
-            } else {
-                edge->memorize -= (tempEdge.memorize) / EDGE_MEMORIZE_UPDATE;
-            }
+            // update memorize
+            const float active = (float)nodes[tempEdge.targetNodeId].active;
+            edge->memorize += active * ((1.0f - tempEdge.memorize) / EDGE_MEMORIZE_UPDATE);
 
             // memorize the current edge-weight
-            const float diff = (-1.0f) * tempEdge.weight * (1.0f - tempEdge.memorize);
-            edge->weight += diff;
-            currentSection->totalWeight += diff;
+            const float diff = tempEdge.weight * (1.0f - tempEdge.memorize);
+            edge->weight -= diff;
+            currentSection->totalWeight -= diff;
         }
 
         // send status upadate to the parent forward-edge-section

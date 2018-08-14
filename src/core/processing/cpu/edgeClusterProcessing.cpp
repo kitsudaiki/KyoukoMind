@@ -35,7 +35,6 @@ EdgeClusterProcessing::EdgeClusterProcessing()
  */
 bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
 {
-
     // process normal communication
     std::vector<uint8_t> sideOrder = {0, 2, 3, 4, 8, 14, 13, 12};
     for(uint8_t sidePos = 0; sidePos < sideOrder.size(); sidePos++)
@@ -138,7 +137,6 @@ inline void EdgeClusterProcessing::processStatusEdge(EdgeCluster *cluster,
 
     KyoChanStatusEdgeContainer newEdge;
     newEdge.status = status;
-    std::cout<<"status: "<<status<<std::endl;
     newEdge.targetId = currentSection->sourceId;
     cluster->getOutgoingMessageBuffer(currentSection->sourceSide)->addData(&newEdge);
 }
@@ -251,6 +249,7 @@ inline void EdgeClusterProcessing::learningForwardEdgeSection(EdgeCluster *clust
     {
         const float currentSideWeight = partitialWeight * m_weightMap[side];
 
+        // set a border to avoid too many new edges
         if(m_weightMap[side] <= NEW_FORWARD_EDGE_BORDER
                 || currentSideWeight <= 1.0f) {
             continue;
@@ -282,9 +281,6 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
                                                              const float weight,
                                                              Networking::OutgoingMessageBuffer* outgoBuffer)
 {
-    //std::cout<<"---"<<std::endl;
-    //std::cout<<"processEdgeForwardSection"<<std::endl;
-
     if(weight != 0.0)
     {
         KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
@@ -299,6 +295,7 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
         }
 
         const float ratio = currentSection->totalWeight / weight;
+
         // normal processing
         uint8_t sideCounter = 2; // to skip side number 0 and 1
         KyoChanForwardEdge* forwardStart = currentSection->forwardEdges + sideCounter;
@@ -340,11 +337,6 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
                     cluster->getOutgoingMessageBuffer(sideCounter)->addData(&newEdge);
                 }
             }
-
-            // update memorize
-            const float diff = tempForwardEdge.weight * (1.0f - tempForwardEdge.memorize);
-            forwardEdge->weight *= tempForwardEdge.memorize;
-            currentSection->totalWeight -= diff;
 
             sideCounter++;
         }
