@@ -71,10 +71,6 @@ private:
                             const uint8_t sourceSide,
                             const float weight,
                             Networking::OutgoingMessageBuffer *outgoBuffer);
-
-    void refillWeightMap(const uint8_t initialSide, Neighbor* neighbors);
-    float randFloat(const float b);
-
 };
 
 }

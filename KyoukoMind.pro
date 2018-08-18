@@ -93,7 +93,8 @@ HEADERS +=\
             src/core/structs/messageContainer.h \
             src/core/clustering/cluster/cluster.h \
             src/core/processing/cpu/edgeClusterProcessing.h \
-            src/core/processing/cpu/nodeClusterProcessing.h
+            src/core/processing/cpu/nodeClusterProcessing.h \
+    src/core/processing/cpu/weightmap.h
 
         # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings

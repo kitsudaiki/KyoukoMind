@@ -18,6 +18,8 @@
 #include <messages/message.h>
 #include <messages/dataMessage.h>
 
+#include "weightmap.h"
+
 namespace KyoukoMind
 {
 
@@ -49,7 +51,7 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
             continue;
         }
 
-        refillWeightMap(side, cluster->getNeighbors());
+        refillWeightMap(side, cluster->getNeighbors(), m_weightMap);
 
         uint8_t* data = (uint8_t*)incomBuffer->getMessage()->getPayload();
         uint8_t* end = data + incomBuffer->getMessage()->getPayloadSize();
@@ -194,8 +196,6 @@ inline void EdgeClusterProcessing::processLerningEdge(EdgeCluster* cluster,
         KyoChanLearningEdgeReplyContainer reply;
         reply.sourceEdgeSectionId = sourceEdgeSectionId;
         reply.targetEdgeSectionId = targetEdgeSectionId;
-
-        // send reply-message
         cluster->getOutgoingMessageBuffer(initSide)->addData(&reply);
     }
 }
@@ -341,59 +341,6 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
             sideCounter++;
         }
     }
-}
-
-/**
- * @brief EdgeClusterProcessing::refillWeightMap
- * @param initialSide
- * @param neighbors
- */
-inline void EdgeClusterProcessing::refillWeightMap(const uint8_t initialSide, Neighbor *neighbors)
-{
-    std::vector<uint8_t> possibleSides;
-
-    // cleara existing map
-    for(uint8_t side = 0; side < 17; side++)
-    {
-        m_weightMap[side] = 0.0;
-    }
-
-    uint8_t runs = 10;
-
-    // get possible next
-    for(uint8_t side = 0; side < 17; side++)
-    {
-        if(neighbors[side].targetClusterId != UNINIT_STATE
-                && side != initialSide) {
-            possibleSides.push_back(side);
-            if(side == 16) {
-                m_weightMap[side] += 0.1;
-                runs -= 1;
-            }
-            if(side == 8) {
-                m_weightMap[8] += 0.2;
-                runs -= 2;
-            }
-        }
-    }
-
-    // share weights
-    for(uint8_t i = 0; i < runs; i++)
-    {
-        const uint8_t side = possibleSides[rand() % possibleSides.size()];
-        m_weightMap[side] += 0.1;
-    }
-}
-
-/**
- * @brief EdgeClusterProcessing::randFloat
- * @param b
- * @return
- */
-inline float EdgeClusterProcessing::randFloat(const float b)
-{
-    const float random = ((float) rand()) / (float) UNINIT_STATE;
-    return random * b;
 }
 
 }

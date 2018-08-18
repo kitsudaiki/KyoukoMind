@@ -43,17 +43,17 @@ void ClusterTest::checkEdgeCluster()
 
 void ClusterTest::checkNodeCluster()
 {
-    UNITTEST((int)m_nodeCluster->getNumberOfNodeBlocks(), 5);
+    UNITTEST((int)m_nodeCluster->getNumberOfNodeBlocks(), 6);
     UNITTEST(m_nodeCluster->initNodeBlocks(19), false);
 
     KyoChanEdge newEdge;
     newEdge.targetNodeId = 3;
-    newEdge.weight = 3.14;
+    newEdge.weight = 3.14f;
 
     for(int i = 0; i < 51; i++) {
         KyoChanEdge newEdge;
         newEdge.targetNodeId = 3;
-        newEdge.weight = 3.14;
+        newEdge.weight = 3.14f;
         m_nodeCluster->addEdge(42, newEdge);
     }
 

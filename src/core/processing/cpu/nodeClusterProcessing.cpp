@@ -142,6 +142,49 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
 }
 
 /**
+ * @brief NodeClusterProcessing::memorizeEdges
+ * @param nodeCluster
+ * @return
+ */
+void NodeClusterProcessing::memorizeEdges(NodeCluster *nodeCluster)
+{
+    Networking::OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer(8);
+    KyoChanEdgeSection* start = nodeCluster->getEdgeSectionBlock();
+    KyoChanEdgeSection* end = start + nodeCluster->getNumberOfEdgeSections();
+
+    for(KyoChanEdgeSection* section = start;
+        section < end;
+        section++)
+    {
+        const float comparismTotalWeight = section->totalWeight;
+
+        // process edge-section
+        KyoChanEdge* end = section->edges + section->numberOfEdges;
+        for(KyoChanEdge* edge = section->edges;
+            edge < end;
+            edge++)
+        {
+            const KyoChanEdge tempEdge = *edge;
+            const float diff = tempEdge.weight * (1.0f - tempEdge.memorize);
+            //std::cout<<"diff: "<<diff<<"            weight: "<<tempEdge.weight<<std::endl;
+
+            //edge->weight -= diff;
+            //section->totalWeight -= diff;
+        }
+        std::cout<<"comparismTotalWeight: "<<comparismTotalWeight<<"            totalWeight: "<<section->totalWeight<<std::endl;
+
+        // send status upadate to the parent forward-edge-section
+        if(comparismTotalWeight - section->totalWeight < 0)
+        {
+            KyoChanStatusEdgeContainer newEdge;
+            newEdge.status = comparismTotalWeight - section->totalWeight;
+            newEdge.targetId = section->sourceId;
+            //outgoBuffer->addData(&newEdge);
+        }
+    }
+}
+
+/**
  * @brief NodeClusterProcessing::randFloat
  * @param b
  * @return
@@ -240,7 +283,10 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
          chooseOfExist = currentSection->numberOfEdges - 1;
      }
 
-     const uint8_t splitValue = 5;
+     uint8_t splitValue = 5;
+     if(partitialWeight <= 1.0f) {
+         splitValue = 1;
+     }
      for(uint8_t i = 0; i < splitValue; i++)
      {
          KyoChanEdge* tempEdge = &currentSection->edges[rand() % currentSection->numberOfEdges];
@@ -262,17 +308,16 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
  * @param weight incoming weight-value
  * @param outgoBuffer pointer to outgoing message-buffer
  */
-void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
-                                               uint32_t edgeSectionId,
-                                               const float weight,
-                                               Networking::OutgoingMessageBuffer* outgoBuffer)
+inline void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
+                                                      const uint32_t edgeSectionId,
+                                                      const float weight,
+                                                      Networking::OutgoingMessageBuffer* outgoBuffer)
 {
     assert(cluster->getClusterType() == NODE_CLUSTER);
 
     if(weight != 0.0f)
     {
         KyoChanEdgeSection* currentSection = &((cluster)->getEdgeSectionBlock()[edgeSectionId]);
-        const float comparismTotalWeight = currentSection->totalWeight;
 
         // learning
         if(weight > currentSection->totalWeight) {
@@ -295,22 +340,9 @@ void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
             // update node with the edge-weight
             nodes[tempEdge.targetNodeId].currentState += tempEdge.weight * ratio;
 
-            // update memorize
+            // update memorize-value
             const float active = (float)nodes[tempEdge.targetNodeId].active;
             edge->memorize += active * ((1.0f - tempEdge.memorize) / EDGE_MEMORIZE_UPDATE);
-
-            // memorize the current edge-weight
-            const float diff = tempEdge.weight * (1.0f - tempEdge.memorize);
-            edge->weight -= diff;
-            currentSection->totalWeight -= diff;
-        }
-
-        // send status upadate to the parent forward-edge-section
-        if(comparismTotalWeight - currentSection->totalWeight < 0) {
-            KyoChanStatusEdgeContainer newEdge;
-            newEdge.status = comparismTotalWeight - currentSection->totalWeight;
-            newEdge.targetId = currentSection->sourceId;
-            cluster->getOutgoingMessageBuffer(8)->addData(&newEdge);
         }
     }
 }

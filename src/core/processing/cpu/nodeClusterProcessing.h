@@ -32,6 +32,7 @@ public:
 
     bool processMessagesNodeCluster(NodeCluster *cluster);
     uint16_t processNodes(NodeCluster *nodeCluster);
+    void memorizeEdges(NodeCluster *nodeCluster);
 
 private:
     float randFloat(const float b);
@@ -49,7 +50,7 @@ private:
                             const float weight,
                             Networking::OutgoingMessageBuffer *outgoBuffer);
     void processEdgeSection(NodeCluster *cluster,
-                            uint32_t edgeSectionId,
+                            const uint32_t edgeSectionId,
                             const float weight,
                             Networking::OutgoingMessageBuffer *outgoBuffer);
 };
