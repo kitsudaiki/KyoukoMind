@@ -44,7 +44,6 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
 
         // get buffer
         Networking::IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer(side);
-        Networking::OutgoingMessageBuffer* outgoBuffer = cluster->getOutgoingMessageBuffer(side);
 
         if(incomBuffer == nullptr) {
             continue;
@@ -60,21 +59,21 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
                 case LEARNING_EDGE_CONTAINER:
                 {
                     KyoChanLearingEdgeContainer* edge = (KyoChanLearingEdgeContainer*)data;
-                    processLerningEdge(cluster, edge->sourceEdgeSectionId, edge->weight, side, outgoBuffer);
+                    processLerningEdge(cluster, edge->sourceEdgeSectionId, edge->weight, side);
                     data += sizeof(KyoChanLearingEdgeContainer);
                     break;
                 }
                 case PENDING_EDGE_CONTAINER:
                 {
                     KyoChanPendingEdgeContainer* edge = (KyoChanPendingEdgeContainer*)data;
-                    processPendingEdge(cluster, edge->sourceEdgeSectionId, edge->sourceSide, edge->weight, outgoBuffer);
+                    processPendingEdge(cluster, edge->sourceEdgeSectionId, edge->sourceSide, edge->weight);
                     data += sizeof(KyoChanPendingEdgeContainer);
                     break;
                 }
                 case FOREWARD_EDGE_CONTAINER:
                 {
                     KyoChanForwardEdgeContainer* edge = (KyoChanForwardEdgeContainer*)data;
-                    processEdgeSection(cluster, edge->targetEdgeSectionId, edge->weight, outgoBuffer);
+                    processEdgeSection(cluster, edge->targetEdgeSectionId, edge->weight);
                     data += sizeof(KyoChanForwardEdgeContainer);
                     break;
                 }
@@ -185,29 +184,16 @@ void NodeClusterProcessing::memorizeEdges(NodeCluster *nodeCluster)
 }
 
 /**
- * @brief NodeClusterProcessing::randFloat
- * @param b
- * @return
- */
-inline float NodeClusterProcessing::randFloat(const float b)
-{
-    const float random = ((float) rand()) / (float) UNINIT_STATE;
-    return random * b;
-}
-
-/**
  * @brief NodeClusterProcessing::processLerningEdge
  * @param cluster
  * @param sourceEdgeSectionId
  * @param weight
  * @param initSide
- * @param outgoBuffer
  */
 inline void NodeClusterProcessing::processLerningEdge(NodeCluster* cluster,
                                                       const uint32_t sourceEdgeSectionId,
                                                       const float weight,
-                                                      const uint8_t initSide,
-                                                      Networking::OutgoingMessageBuffer* outgoBuffer)
+                                                      const uint8_t initSide)
 {
     const uint32_t targetEdgeSectionId = cluster->addEmptyEdgeSection(initSide,
                                                                       sourceEdgeSectionId);
@@ -230,13 +216,11 @@ inline void NodeClusterProcessing::processLerningEdge(NodeCluster* cluster,
  * @param sourceId
  * @param sourceSide
  * @param weight
- * @param outgoBuffer
  */
 inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
                                                       const uint32_t sourceId,
                                                       const uint8_t sourceSide,
-                                                      const float weight,
-                                                      Networking::OutgoingMessageBuffer *outgoBuffer)
+                                                      const float weight)
 {
     KyoChanEdgeSection* forwardEnd = &((cluster)->getEdgeSectionBlock()[0]);
     const uint32_t numberOfEdgeSections = cluster->getNumberOfEdgeSections();
@@ -250,7 +234,7 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
         if(sourceId == forwardEdgeSection->sourceId
                 && sourceSide == forwardEdgeSection->sourceSide)
         {
-            processEdgeSection(cluster, forwardEdgeSectionId, weight, outgoBuffer);
+            processEdgeSection(cluster, forwardEdgeSectionId, weight);
         }
         forwardEdgeSectionId--;
     }
@@ -267,7 +251,7 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
                                                         const float partitialWeight)
  {
      // collect necessary values
-     const uint16_t numberOfEdge = currentSection->numberOfEdges;
+     const uint32_t numberOfEdge = currentSection->numberOfEdges;
      const uint16_t chooseRange = (numberOfEdge + OVERPROVISIONING) % EDGES_PER_EDGESECTION;
      uint32_t chooseOfExist = rand() % chooseRange;
 
@@ -293,9 +277,9 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
          if(cluster->getNodeBlock()[tempEdge->targetNodeId].border
                  <= cluster->getNodeBlock()[tempEdge->targetNodeId].currentState * NODE_COOLDOWN)
          {
-             tempEdge->weight -= partitialWeight / (float)splitValue;
+             tempEdge->weight -= partitialWeight / static_cast<float>(splitValue);
          } else {
-             tempEdge->weight += partitialWeight / (float)splitValue;
+             tempEdge->weight += partitialWeight / static_cast<float>(splitValue);
          }
      }
      currentSection->totalWeight += partitialWeight;
@@ -306,12 +290,10 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
  * @param cluster pointer to the node-custer
  * @param edgeSectionId id of the edge-section within the current cluster
  * @param weight incoming weight-value
- * @param outgoBuffer pointer to outgoing message-buffer
  */
 inline void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
                                                       const uint32_t edgeSectionId,
-                                                      const float weight,
-                                                      Networking::OutgoingMessageBuffer* outgoBuffer)
+                                                      const float weight)
 {
     assert(cluster->getClusterType() == NODE_CLUSTER);
 
