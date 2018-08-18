@@ -43,7 +43,7 @@ CpuProcessingUnit::~CpuProcessingUnit()
  */
 void CpuProcessingUnit::processCluster(Cluster *cluster)
 {
-    uint8_t clusterType = (uint8_t)cluster->getClusterType();
+    uint8_t clusterType = cluster->getClusterType();
 
     uint16_t numberOfActiveNodes = 0;
     uint16_t memorizeCounter = 0;
@@ -56,7 +56,7 @@ void CpuProcessingUnit::processCluster(Cluster *cluster)
         m_nodeClusterProcessing->processMessagesNodeCluster(nodeCluster);
 
         if(memorizeCounter % 10 == 0) {
-            m_nodeClusterProcessing->memorizeEdges(nodeCluster);
+            //m_nodeClusterProcessing->memorizeEdges(nodeCluster);
             memorizeCounter = 0;
         }
         memorizeCounter++;

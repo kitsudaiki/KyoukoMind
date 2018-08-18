@@ -70,7 +70,8 @@ struct KyoChanEdgeSection
 {
     KyoChanEdge edges[EDGES_PER_EDGESECTION];
     uint32_t numberOfEdges = 0;
-    float totalWeight = 0.0;
+    float totalPosWeight = 0.0;
+    float totalNegWeight = 0.0;
     uint8_t sourceSide = 0;
     uint32_t sourceId = 0;
 
@@ -84,7 +85,7 @@ struct KyoChanEdgeSection
     {
         if(pos < numberOfEdges) {
             edges[pos].weight += weight;
-            totalWeight += weight;
+            totalPosWeight += weight;
             return true;
         }
         return false;

@@ -50,7 +50,7 @@ void StructTest::testEdgeSection()
     UNITTEST(testSection.updateWeight(0, 10.0f), true);
     UNITTEST(testSection.updateWeight(1, 10.0f), false);
 
-    UNITTEST(testSection.totalWeight, 10.0f);
+    UNITTEST(testSection.totalPosWeight, 10.0f);
 
     for(int i = 0; i < EDGES_PER_EDGESECTION - 1; i++) {
         testSection.addEdge(testEdge);

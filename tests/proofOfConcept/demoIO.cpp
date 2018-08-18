@@ -95,7 +95,7 @@ void DemoIO::run()
  */
 void DemoIO::sendOutData(const char input)
 {
-    std::cout<<"----------------------------------------- sendOutData"<<std::endl;
+    //std::cout<<"----------------------------------------- sendOutData"<<std::endl;
     uint8_t inputNumber = (uint8_t)input;
 
     mutexLock();
