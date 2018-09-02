@@ -77,7 +77,7 @@ void DemoIO::run()
         }
 
         if(out > 255.0) {
-            out = 255.0;
+            //out = 255.0;
         }
         if(out > 0.0) {
             std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! out number: "<<(int)out<<std::endl;

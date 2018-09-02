@@ -31,7 +31,7 @@ void MessageTest::initTestCase()
 
 void MessageTest::checkDataMessage()
 {
-    Networking::DataMessage message(1, 3, 4, 1);
+    Kitsune::MindMessaging::DataMessage message(1, 3, 4, 1);
 
     DataMessageHeader metaData = message.getMetaData();
 

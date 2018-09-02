@@ -12,11 +12,14 @@
 
 #include <common.h>
 
-namespace Networking
+namespace Kitsune {
+namespace MindMessaging
 {
 class IncomingMessageBuffer;
 class OutgoingMessageBuffer;
 }
+}
+
 /**
  * @brief The ClusterPos struct
  */
@@ -32,12 +35,12 @@ struct ClusterPos
  */
 struct Neighbor
 {
-    ClusterID targetClusterId = UNINIT_STATE;
+    ClusterID targetClusterId = UNINIT_STATE_32;
     ClusterPos targetClusterPos;
     uint8_t targetSide = 0;
 
-    Networking::IncomingMessageBuffer* incomBuffer = nullptr;
-    Networking::OutgoingMessageBuffer* outgoBuffer = nullptr;
+    Kitsune::MindMessaging::IncomingMessageBuffer* incomBuffer = nullptr;
+    Kitsune::MindMessaging::OutgoingMessageBuffer* outgoBuffer = nullptr;
 } __attribute__((packed));
 
 /**
@@ -45,13 +48,13 @@ struct Neighbor
  */
 struct ClusterMetaData
 {
-    ClusterID clusterId = UNINIT_STATE;
+    ClusterID clusterId = UNINIT_STATE_32;
     ClusterPos clusterPos;
 
     uint8_t clusterType = EMPTY_CLUSTER;
     Neighbor neighors[17];
 
-    uint16_t numberOfNodes = 0;
+    uint32_t numberOfNodes = 0;
     uint32_t numberOfForwardEdgeSections = 0;
     uint32_t numberOfEdgeSections = 0;
     uint32_t numberOfPendingForwardEdgeSections = 0;

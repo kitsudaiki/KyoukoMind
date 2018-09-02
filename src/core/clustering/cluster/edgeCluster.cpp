@@ -112,7 +112,7 @@ uint32_t EdgeCluster::addEmptyForwardEdgeSection(const uint8_t sourceSide,
             < ((m_metaData.numberOfForwardEdgeSections + 1) * sizeof(KyoChanForwardEdgeSection)) / blockSize)
     {
         if(!m_clusterDataBuffer->allocateBlocks(1)) {
-            return UNINIT_STATE;
+            return UNINIT_STATE_32;
         }
         m_metaData.numberOfForwardEdgeBlocks++;
     }

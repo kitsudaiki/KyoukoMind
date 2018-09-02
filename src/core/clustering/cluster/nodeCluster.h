@@ -24,10 +24,10 @@ public:
                 const uint32_t numberOfNodes = 0);
 
     // nodes
-    uint16_t getNumberOfNodeBlocks() const;
-    uint16_t getNumberOfNodes() const;
+    uint32_t getNumberOfNodeBlocks() const;
+    uint32_t getNumberOfNodes() const;
     KyoChanNode* getNodeBlock();
-    bool initNodeBlocks(uint16_t numberOfNodes);
+    bool initNodeBlocks(uint32_t numberOfNodes);
 
     // edge-sections
     uint32_t getNumberOfEdgeSectionBlocks() const;

@@ -43,7 +43,7 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
         const uint8_t side = m_sideOrder[sidePos];
 
         // get buffer
-        Networking::IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer(side);
+        Kitsune::MindMessaging::IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer(side);
 
         if(incomBuffer == nullptr) {
             continue;
@@ -88,8 +88,8 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
                     return false;
             }
         }
-        //incomBuffer->getMessage(side)->closeBuffer();
-        //delete incomBuffer->getMessage(side);
+        //incomBuffer->getMessage()->closeBuffer();
+        //delete incomBuffer->getMessage();
     }
 
     return true;
@@ -105,7 +105,6 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
 {
     assert(nodeCluster != nullptr);
 
-    uint16_t nodeId = 0;
     uint16_t numberOfActiveNodes = 0;
 
     // process nodes
@@ -130,10 +129,11 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
             node->active = 1;
         } else {
             node->active = 0;
+            if(node->currentState < 0.0f) {
+                node->currentState = 0.0f;
+            }
         }
-
         node->currentState /= NODE_COOLDOWN;
-        nodeId++;
     }
 
     return numberOfActiveNodes;
@@ -146,7 +146,7 @@ uint16_t NodeClusterProcessing::processNodes(NodeCluster* nodeCluster)
  */
 void NodeClusterProcessing::memorizeEdges(NodeCluster *nodeCluster)
 {
-    Networking::OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer(8);
+    Kitsune::MindMessaging::OutgoingMessageBuffer* outgoBuffer = nodeCluster->getOutgoingMessageBuffer(8);
     KyoChanEdgeSection* start = nodeCluster->getEdgeSectionBlock();
     KyoChanEdgeSection* end = start + nodeCluster->getNumberOfEdgeSections();
 
@@ -164,12 +164,10 @@ void NodeClusterProcessing::memorizeEdges(NodeCluster *nodeCluster)
         {
             const KyoChanEdge tempEdge = *edge;
             const float diff = tempEdge.weight * (1.0f - tempEdge.memorize);
-            //std::cout<<"diff: "<<diff<<"            weight: "<<tempEdge.weight<<std::endl;
 
             edge->weight -= diff;
             section->totalPosWeight -= diff;
         }
-        //std::cout<<"comparismTotalWeight: "<<comparismTotalWeight<<"            totalWeight: "<<section->totalWeight<<std::endl;
 
         // send status upadate to the parent forward-edge-section
         if(comparismTotalWeight - section->totalPosWeight < 0)
@@ -197,7 +195,7 @@ inline void NodeClusterProcessing::processLerningEdge(NodeCluster* cluster,
     const uint32_t targetEdgeSectionId = cluster->addEmptyEdgeSection(initSide,
                                                                       sourceEdgeSectionId);
 
-    if(targetEdgeSectionId != UNINIT_STATE)
+    if(targetEdgeSectionId != UNINIT_STATE_32)
     {
         // create reply-message
         KyoChanLearningEdgeReplyContainer reply;
@@ -266,13 +264,15 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
          chooseOfExist = currentSection->numberOfEdges - 1;
      }
 
-     uint8_t numberOfParts = 5;
      if(partitialWeight <= 1.0f) {
-         numberOfParts = 1;
+         return;
      }
+
+     uint8_t numberOfParts = 5;
      for(uint8_t i = 0; i < numberOfParts; i++)
      {
-         KyoChanEdge* tempEdge = &currentSection->edges[static_cast<uint32_t>(rand())
+         KyoChanEdge* tempEdge = &currentSection->edges[
+                 static_cast<uint32_t>(rand())
                  % currentSection->numberOfEdges];
 
          const float splitValue = partitialWeight / static_cast<float>(numberOfParts);
@@ -281,8 +281,9 @@ inline void NodeClusterProcessing::processPendingEdge(NodeCluster *cluster,
          {
              tempEdge->weight -= splitValue;
              currentSection->totalNegWeight -= splitValue;
-         } else {
-
+         }
+         else
+         {
              tempEdge->weight += splitValue;
              currentSection->totalPosWeight += splitValue;
          }
@@ -304,18 +305,18 @@ inline void NodeClusterProcessing::processEdgeSection(NodeCluster *cluster,
     if(weight != 0.0f)
     {
         KyoChanEdgeSection* currentSection = &((cluster)->getEdgeSectionBlock()[edgeSectionId]);
-
         const float totalWeight = currentSection->totalPosWeight + ((-1)*currentSection->totalNegWeight);
+
         // learning
-        if(weight > totalWeight)
-        {
-            learningEdgeSection(cluster,
-                                currentSection,
-                                weight - totalWeight);
+        if(weight - totalWeight > 1.0f) {
+            learningEdgeSection(cluster, currentSection, weight - totalWeight);
         }
 
         // process edge-section
-        const float ratio = totalWeight / weight;
+        float ratio = totalWeight / weight;
+        if(ratio > 1.0f) {
+            ratio = 1.0f;
+        }
         KyoChanNode* nodes = cluster->getNodeBlock();
 
         KyoChanEdge* end = currentSection->edges + currentSection->numberOfEdges;

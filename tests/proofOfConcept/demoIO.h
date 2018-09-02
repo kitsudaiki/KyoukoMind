@@ -14,10 +14,12 @@
 #include <commonThread.h>
 #include <core/structs/messageContainer.h>
 
-namespace Networking
+namespace Kitsune {
+namespace MindMessaging
 {
 class IncomingMessageBuffer;
 class OutgoingMessageBuffer;
+}
 }
 
 namespace KyoukoMind
@@ -39,8 +41,8 @@ public:
 private:
     ClusterHandler* m_clusterHandler = nullptr;
     NodeCluster* m_fakeCluster = nullptr;
-    Networking::IncomingMessageBuffer* m_incomBuffer = nullptr;
-    Networking::OutgoingMessageBuffer* m_ougoingBuffer = nullptr;
+    Kitsune::MindMessaging::IncomingMessageBuffer* m_incomBuffer = nullptr;
+    Kitsune::MindMessaging::OutgoingMessageBuffer* m_ougoingBuffer = nullptr;
 
     void sendInnerData(const char input);
 

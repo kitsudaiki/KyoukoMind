@@ -37,7 +37,7 @@ NodeCluster::NodeCluster(const ClusterID clusterId,
  * @brief NodeCluster::getNumberOfNodeBlocks get number of node-blocks of the cluster in the buffer
  * @return number of node-blocks
  */
-uint16_t NodeCluster::getNumberOfNodeBlocks() const
+uint32_t NodeCluster::getNumberOfNodeBlocks() const
 {
     return m_metaData.numberOfNodeBlocks;
 }
@@ -46,7 +46,7 @@ uint16_t NodeCluster::getNumberOfNodeBlocks() const
  * @brief NodeCluster::getNumberOfNode get number of nodes of the cluster
  * @return number of nodes
  */
-uint16_t NodeCluster::getNumberOfNodes() const
+uint32_t NodeCluster::getNumberOfNodes() const
 {
     return m_metaData.numberOfNodes;
 }
@@ -66,7 +66,7 @@ KyoChanNode *NodeCluster::getNodeBlock()
  * @param numberOfNodes number of new empty nodes
  * @return false if nodes are already initialized, esle true
  */
-bool NodeCluster::initNodeBlocks(uint16_t numberOfNodes)
+bool NodeCluster::initNodeBlocks(uint32_t numberOfNodes)
 {
     // prechecks
     if(m_metaData.numberOfNodes != 0) {
@@ -204,7 +204,7 @@ uint32_t NodeCluster::addEmptyEdgeSection(const uint8_t sourceSide,
             < ((m_metaData.numberOfEdgeSections + 1) * sizeof(KyoChanEdgeSection)) / blockSize)
     {
         if(!m_clusterDataBuffer->allocateBlocks(1)) {
-            return UNINIT_STATE;
+            return UNINIT_STATE_32;
         }
         m_metaData.numberOfEdgeBlocks++;
     }

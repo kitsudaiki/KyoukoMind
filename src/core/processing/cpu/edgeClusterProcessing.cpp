@@ -44,7 +44,7 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
         const uint8_t side = sideOrder[sidePos];
 
         // get buffer
-        Networking::IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer(side);
+        Kitsune::MindMessaging::IncomingMessageBuffer* incomBuffer = cluster->getIncomingMessageBuffer(side);
 
         if(incomBuffer == nullptr) {
             continue;
@@ -108,7 +108,7 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
                     return false;
             }
         }
-        //incomBuffer->getMessage(side)->closeBuffer();
+        //incomBuffer->getMessage()->closeBuffer();
         //delete incomBuffer->getMessage(side);
     }
 
@@ -183,7 +183,7 @@ inline void EdgeClusterProcessing::processLerningEdge(EdgeCluster* cluster,
     const uint32_t targetEdgeSectionId = cluster->addEmptyForwardEdgeSection(initSide,
                                                                              sourceEdgeSectionId);
 
-    if(targetEdgeSectionId != UNINIT_STATE)
+    if(targetEdgeSectionId != UNINIT_STATE_32)
     {
         // create reply-message
         KyoChanLearningEdgeReplyContainer reply;
@@ -237,6 +237,10 @@ inline void EdgeClusterProcessing::learningForwardEdgeSection(EdgeCluster *clust
                                                               const uint32_t forwardEdgeSectionId,
                                                               const float partitialWeight)
 {
+    if(partitialWeight < 1.0f) {
+        return;
+    }
+
     for(uint8_t side = 0; side < 17; side++)
     {
         const float currentSideWeight = partitialWeight * m_weightMap[side];
@@ -247,10 +251,9 @@ inline void EdgeClusterProcessing::learningForwardEdgeSection(EdgeCluster *clust
             continue;
         }
 
-        currentSection->updateWeight(side, currentSideWeight);
-
         // cluster-external lerning
-        if(currentSection->forwardEdges[side].targetId == UNINIT_STATE
+        if(currentSection->forwardEdges[side].targetId == UNINIT_STATE_32
+                && currentSection->forwardEdges[side].weight == 0.0f
                 && side != 16)
         {
             // send new learning-edge
@@ -259,6 +262,9 @@ inline void EdgeClusterProcessing::learningForwardEdgeSection(EdgeCluster *clust
             newEdge.weight = currentSideWeight;
             cluster->getOutgoingMessageBuffer(side)->addData(&newEdge);
         }
+
+        currentSection->forwardEdges[side].weight += currentSideWeight;
+        currentSection->totalWeight += currentSideWeight;
     }
 }
 
@@ -276,14 +282,18 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
         KyoChanForwardEdgeSection* currentSection = &((cluster)->getForwardEdgeSectionBlock()[forwardEdgeSectionId]);
 
         // learning
-        if(weight > currentSection->totalWeight) {
+        if(weight - currentSection->totalWeight > 1.0f)
+        {
             learningForwardEdgeSection(cluster,
                                        currentSection,
                                        forwardEdgeSectionId,
                                        weight - currentSection->totalWeight);
         }
 
-        const float ratio = currentSection->totalWeight / weight;
+        float ratio = currentSection->totalWeight / weight;
+        if(ratio > 1.0f) {
+            ratio = 1.0f;
+        }
 
         // normal processing
         uint8_t sideCounter = 2; // to skip side number 0 and 1
@@ -300,7 +310,7 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
             {
                 if(sideCounter != 16)
                 {
-                    if(forwardEdge->targetId != UNINIT_STATE)
+                    if(forwardEdge->targetId != UNINIT_STATE_32)
                     {
                         // normal external edge
                         KyoChanForwardEdgeContainer newEdge;
@@ -319,7 +329,6 @@ inline void EdgeClusterProcessing::processEdgeForwardSection(EdgeCluster *cluste
                 }
                 else
                 {
-                    //std::cout<<"poi 3"<<std::endl;
                     KyoChanDirectEdgeContainer newEdge;
                     newEdge.targetNodeId = 0;
                     newEdge.weight = tempForwardEdge.weight * ratio;

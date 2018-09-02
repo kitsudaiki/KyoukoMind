@@ -32,7 +32,7 @@ Cluster::Cluster(const ClusterID &clusterId,
     for(uint32_t i = 0; i < 17; i++)
     {
         Neighbor emptyNeighbor;
-        emptyNeighbor.targetClusterId = UNINIT_STATE;
+        emptyNeighbor.targetClusterId = UNINIT_STATE_32;
         emptyNeighbor.targetSide = 16 - i;
         m_metaData.neighors[i] = emptyNeighbor;
     }
@@ -62,7 +62,7 @@ ClusterMetaData Cluster::getMetaData() const
         return m_metaData;
     }
     ClusterMetaData tempMeta;
-    tempMeta.clusterId = UNINIT_STATE;
+    tempMeta.clusterId = UNINIT_STATE_32;
     return tempMeta;
 }
 
@@ -102,7 +102,7 @@ ClusterID Cluster::getClusterId() const
     if(this != nullptr) {
         return m_metaData.clusterId;
     }
-    return UNINIT_STATE;
+    return UNINIT_STATE_32;
 }
 
 /**
@@ -114,7 +114,7 @@ uint8_t Cluster::getClusterType() const
     if(this != nullptr) {
         return m_metaData.clusterType;
     }
-    return UNINIT_STATE;
+    return UNINIT_STATE_32;
 }
 
 /**
@@ -133,7 +133,7 @@ bool Cluster::isExising() const
  * @brief Cluster::getIncomingMessageBuffer get the incoming message-buffer
  * @return pointer to the incoming message-buffer
  */
-Networking::IncomingMessageBuffer* Cluster::getIncomingMessageBuffer(const uint8_t side)
+Kitsune::MindMessaging::IncomingMessageBuffer* Cluster::getIncomingMessageBuffer(const uint8_t side)
 {
     // TODO: method-comment
     if(this != nullptr && side < 17) {
@@ -146,7 +146,7 @@ Networking::IncomingMessageBuffer* Cluster::getIncomingMessageBuffer(const uint8
  * @brief Cluster::getOutgoingMessageBuffer get the outgoing message-buffer
  * @return pointer to the outgoing message-buffer
  */
-Networking::OutgoingMessageBuffer* Cluster::getOutgoingMessageBuffer(const uint8_t side)
+Kitsune::MindMessaging::OutgoingMessageBuffer* Cluster::getOutgoingMessageBuffer(const uint8_t side)
 {
     // TODO: method-comment
     if(this != nullptr && side < 17) {
@@ -162,7 +162,7 @@ Networking::OutgoingMessageBuffer* Cluster::getOutgoingMessageBuffer(const uint8
  * @return
  */
 bool Cluster::setNewConnection(const uint8_t side,
-                               Networking::IncomingMessageBuffer *buffer)
+                               Kitsune::MindMessaging::IncomingMessageBuffer *buffer)
 {
     // TODO: method-comment
     if(this != nullptr && side < 17)
@@ -187,8 +187,8 @@ bool Cluster::setNeighbor(const uint8_t side, const ClusterID targetClusterId)
         // add the new neighbor
         m_metaData.neighors[side].targetClusterId = targetClusterId;
         m_metaData.neighors[side].targetSide = 16 - side;
-        m_metaData.neighors[side].incomBuffer = new Networking::IncomingMessageBuffer();
-        m_metaData.neighors[side].outgoBuffer = new Networking::OutgoingMessageBuffer();
+        m_metaData.neighors[side].incomBuffer = new Kitsune::MindMessaging::IncomingMessageBuffer();
+        m_metaData.neighors[side].outgoBuffer = new Kitsune::MindMessaging::OutgoingMessageBuffer();
 
         // persist meta-data
         updateMetaData();
@@ -219,7 +219,7 @@ ClusterID Cluster::getNeighborId(const uint8_t side)
     if(this != nullptr && side < 17) {
         return m_metaData.neighors[side].targetClusterId;
     }
-    return UNINIT_STATE;
+    return UNINIT_STATE_32;
 }
 
 /**
@@ -233,7 +233,7 @@ void Cluster::finishCycle(const uint16_t numberOfActiveNodes)
     }
     for(uint8_t side = 0; side < 17; side++)
     {
-        if(m_metaData.neighors[side].targetClusterId != UNINIT_STATE)
+        if(m_metaData.neighors[side].targetClusterId != UNINIT_STATE_32)
         {
             m_metaData.neighors[side].outgoBuffer->finishCycle(m_metaData.neighors[side].targetClusterId,
                                                                16 - side,

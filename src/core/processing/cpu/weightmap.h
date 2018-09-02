@@ -27,7 +27,7 @@ inline void refillWeightMap(const uint8_t initialSide, Neighbor *neighbors, floa
     // get possible next
     for(uint8_t side = 0; side < 17; side++)
     {
-        if(neighbors[side].targetClusterId != UNINIT_STATE
+        if(neighbors[side].targetClusterId != UNINIT_STATE_32
                 && side != initialSide) {
             possibleSides.push_back(side);
             if(side == 16) {
@@ -56,7 +56,7 @@ inline void refillWeightMap(const uint8_t initialSide, Neighbor *neighbors, floa
  */
 inline float randFloat(const float b)
 {
-    const float random = ((float) rand()) / (float) UNINIT_STATE;
+    const float random = ((float) rand()) / (float) UNINIT_STATE_32;
     return random * b;
 }
 

@@ -101,7 +101,7 @@ void InitTest::checkInit()
         for(uint32_t n = 0; n < 17; n++)
         {
             std::cout<<"    check side "<<(int)n<<std::endl;
-            if(cluster->getNeighborId(n) != UNINIT_STATE) {
+            if(cluster->getNeighborId(n) != UNINIT_STATE_32) {
                 ClusterID sourceId = cluster->getClusterId();
                 ClusterID targetId = cluster->getNeighborId(n);
                 ClusterID compareSource = m_testClusterHandler->getCluster(targetId)->getNeighborId(16 - n);

@@ -160,7 +160,7 @@ uint8_t AxonInitializer::chooseNextSide(const uint8_t initialSide, Neighbor *nei
 
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
-        if(neighbors[sideOrder[i]].targetClusterId != UNINIT_STATE
+        if(neighbors[sideOrder[i]].targetClusterId != UNINIT_STATE_32
                 && sideOrder[i] != initialSide) {
             availableSides.push_back(sideOrder[i]);
         }
