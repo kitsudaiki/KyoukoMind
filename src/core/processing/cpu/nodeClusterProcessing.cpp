@@ -88,8 +88,6 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
                     return false;
             }
         }
-        //incomBuffer->getMessage()->closeBuffer();
-        //delete incomBuffer->getMessage();
     }
 
     return true;

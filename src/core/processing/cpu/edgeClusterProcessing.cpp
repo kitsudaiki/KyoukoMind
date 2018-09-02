@@ -108,8 +108,6 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
                     return false;
             }
         }
-        //incomBuffer->getMessage()->closeBuffer();
-        //delete incomBuffer->getMessage(side);
     }
 
     return true;
