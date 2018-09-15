@@ -27,6 +27,8 @@ public:
 
 private:
     void initTestCase();
+    void checkInitializing();
+    void checkMessageBuffer();
     void checkNodeCluster();
     void checkEdgeCluster();
     void checkEmptyCluster();
@@ -34,6 +36,7 @@ private:
 
     NodeCluster *m_nodeCluster = nullptr;
     EdgeCluster *m_edgeCluster = nullptr;
+    NodeCluster* m_messageBufferCluster = nullptr;
 };
 
 }

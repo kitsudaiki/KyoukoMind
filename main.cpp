@@ -11,7 +11,6 @@
 #include <tests/clusterTest.h>
 #include <tests/messageTest.h>
 #include <tests/initTest.h>
-#include <tests/messageBufferTest.h>
 #include <tests/processingTest.h>
 #include <tests/storageMemoryTest.h>
 #include <tests/dataBufferTest.h>
@@ -28,7 +27,6 @@ int main(int argc, char *argv[])
     KyoukoMind::ClusterTest();
     KyoukoMind::MessageTest();
     KyoukoMind::StructTest();
-    KyoukoMind::MessageBufferTest();
     KyoukoMind::ProcessingTest();
 
 
