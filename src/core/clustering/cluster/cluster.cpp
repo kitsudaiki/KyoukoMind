@@ -58,12 +58,7 @@ Cluster::~Cluster()
  */
 ClusterMetaData Cluster::getMetaData() const
 {
-    if(this != nullptr) {
-        return m_metaData;
-    }
-    ClusterMetaData tempMeta;
-    tempMeta.clusterId = UNINIT_STATE_32;
-    return tempMeta;
+    return m_metaData;
 }
 
 /**
@@ -71,9 +66,6 @@ ClusterMetaData Cluster::getMetaData() const
  */
 void Cluster::getMetaDataFromBuffer()
 {
-    if(this == nullptr) {
-        return;
-    }
     ClusterMetaData* metaDataPointer = (ClusterMetaData*)m_clusterDataBuffer->getBlock(0);
     m_metaData = *metaDataPointer;
 }
@@ -84,9 +76,6 @@ void Cluster::getMetaDataFromBuffer()
  */
 void Cluster::updateMetaData()
 {
-    if(this == nullptr) {
-        return;
-    }
     uint32_t size = sizeof(ClusterMetaData);
     void* metaDataBlock = m_clusterDataBuffer->getBlock(0);
     memcpy(metaDataBlock, &m_metaData, size);
@@ -99,10 +88,7 @@ void Cluster::updateMetaData()
  */
 ClusterID Cluster::getClusterId() const
 {
-    if(this != nullptr) {
-        return m_metaData.clusterId;
-    }
-    return UNINIT_STATE_32;
+    return m_metaData.clusterId;
 }
 
 /**
@@ -111,32 +97,17 @@ ClusterID Cluster::getClusterId() const
  */
 uint8_t Cluster::getClusterType() const
 {
-    if(this != nullptr) {
-        return m_metaData.clusterType;
-    }
-    return UNINIT_STATE_32;
-}
-
-/**
- * @brief Cluster::isExising check if the instance of the Cluster-class exist
- * @return true, if exist, else false
- */
-bool Cluster::isExising() const
-{
-    if(this != nullptr) {
-        return true;
-    }
-    return false;
+    return m_metaData.clusterType;
 }
 
 /**
  * @brief Cluster::getIncomingMessageBuffer get the incoming message-buffer
  * @return pointer to the incoming message-buffer
  */
-Kitsune::MindMessaging::IncomingMessageBuffer* Cluster::getIncomingMessageBuffer(const uint8_t side)
+IncomingMessageBuffer* Cluster::getIncomingMessageBuffer(const uint8_t side)
 {
     // TODO: method-comment
-    if(this != nullptr && side < 17) {
+    if(side < 17) {
         return m_metaData.neighors[side].incomBuffer;
     }
     return nullptr;
@@ -146,10 +117,10 @@ Kitsune::MindMessaging::IncomingMessageBuffer* Cluster::getIncomingMessageBuffer
  * @brief Cluster::getOutgoingMessageBuffer get the outgoing message-buffer
  * @return pointer to the outgoing message-buffer
  */
-Kitsune::MindMessaging::OutgoingMessageBuffer* Cluster::getOutgoingMessageBuffer(const uint8_t side)
+OutgoingMessageBuffer* Cluster::getOutgoingMessageBuffer(const uint8_t side)
 {
     // TODO: method-comment
-    if(this != nullptr && side < 17) {
+    if(side < 17) {
         return m_metaData.neighors[side].outgoBuffer;
     }
     return nullptr;
@@ -162,15 +133,29 @@ Kitsune::MindMessaging::OutgoingMessageBuffer* Cluster::getOutgoingMessageBuffer
  * @return
  */
 bool Cluster::setNewConnection(const uint8_t side,
-                               Kitsune::MindMessaging::IncomingMessageBuffer *buffer)
+                               IncomingMessageBuffer *buffer)
 {
-    // TODO: method-comment
-    if(this != nullptr && side < 17)
+    if(side < 17)
     {
         m_metaData.neighors[side].outgoBuffer->setIncomingBuffer(buffer);
         return true;
     }
     return false;
+}
+
+/**
+ * @brief Cluster::isBufferReady
+ * @return
+ */
+bool Cluster::isBufferReady()
+{
+    bool result = true;
+    for(uint8_t i = 1; i < 16; i++) {
+        if(m_metaData.neighors[i].targetClusterId != UNINIT_STATE_32) {
+            result = result && m_metaData.neighors[i].incomBuffer->isReady();
+        }
+    }
+    return result;
 }
 
 /**
@@ -182,7 +167,7 @@ bool Cluster::setNewConnection(const uint8_t side,
 bool Cluster::setNeighbor(const uint8_t side, const ClusterID targetClusterId)
 {
     // check if side is valid
-    if(this != nullptr && side < 17)
+    if(side < 17)
     {
         // add the new neighbor
         m_metaData.neighors[side].targetClusterId = targetClusterId;
@@ -203,10 +188,7 @@ bool Cluster::setNeighbor(const uint8_t side, const ClusterID targetClusterId)
  */
 Neighbor* Cluster::getNeighbors()
 {
-    if(this != nullptr) {
-        return &m_metaData.neighors[0];
-    }
-    return nullptr;
+    return &m_metaData.neighors[0];
 }
 
 /**
@@ -216,7 +198,7 @@ Neighbor* Cluster::getNeighbors()
  */
 ClusterID Cluster::getNeighborId(const uint8_t side)
 {
-    if(this != nullptr && side < 17) {
+    if(side < 17) {
         return m_metaData.neighors[side].targetClusterId;
     }
     return UNINIT_STATE_32;
@@ -228,13 +210,11 @@ ClusterID Cluster::getNeighborId(const uint8_t side)
  */
 void Cluster::finishCycle(const uint16_t numberOfActiveNodes)
 {
-    if(this == nullptr) {
-        return;
-    }
     for(uint8_t side = 0; side < 17; side++)
     {
         if(m_metaData.neighors[side].targetClusterId != UNINIT_STATE_32)
         {
+            m_metaData.neighors[side].incomBuffer->finish();
             m_metaData.neighors[side].outgoBuffer->finishCycle(m_metaData.neighors[side].targetClusterId,
                                                                16 - side,
                                                                m_metaData.clusterId,

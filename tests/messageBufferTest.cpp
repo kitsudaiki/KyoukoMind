@@ -60,32 +60,59 @@ void MessageBufferTest::checkInitializing()
 void MessageBufferTest::checkMessageBuffer()
 {
     KyoChanForwardEdgeContainer edge;
-    edge.targetEdgeSectionId = 1;
 
+    // get
+    UNITTEST(m_fakeCluster->isBufferReady(), true);
+    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(0)->getMessage()->getPayloadSize(), 0)
+    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(16)->getMessage()->getPayloadSize(), 0)
+
+    m_fakeCluster->finishCycle(0);
+    UNITTEST(m_fakeCluster->isBufferReady(), true);
+
+    // get
+    m_fakeCluster->getIncomingMessageBuffer(0)->getMessage();
+    m_fakeCluster->getIncomingMessageBuffer(16)->getMessage();
+
+    edge.targetEdgeSectionId = 1;
+    // set
     UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(0)->addData(&edge), true);
     UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(16)->addData(&edge), true);
     UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(17)->addData(&edge), false);
 
     m_fakeCluster->finishCycle(0);
+    UNITTEST(m_fakeCluster->isBufferReady(), true);
 
-    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(0)->getMessage()->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
-    UNITTEST(m_fakeCluster->getIncomingMessageBuffer(16)->getMessage()->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
+    // get
+    Kitsune::MindMessaging::DataMessage* message0 = m_fakeCluster->getIncomingMessageBuffer(0)->getMessage();
+    Kitsune::MindMessaging::DataMessage* message16 = m_fakeCluster->getIncomingMessageBuffer(16)->getMessage();
+    UNITTEST(message0->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
+    UNITTEST(message16->getPayloadSize(), sizeof(KyoChanForwardEdgeContainer))
 
+    m_fakeCluster->finishCycle(0);
+    UNITTEST(m_fakeCluster->isBufferReady(), true);
 
     KyoChanAxonEdgeContainer edge2;
     edge2.targetAxonId = 1;
 
+    // get
+    m_fakeCluster->getIncomingMessageBuffer(0)->getMessage();
+    m_fakeCluster->getIncomingMessageBuffer(16)->getMessage();
+
+    // set
     UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(0)->addData(&edge2), true);
     UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(16)->addData(&edge2), true);
     UNITTEST(m_fakeCluster->getOutgoingMessageBuffer(17)->addData(&edge2), false);
 
     m_fakeCluster->finishCycle(0);
+    UNITTEST(m_fakeCluster->isBufferReady(), true);
 
+    // get
     UNITTEST(m_fakeCluster->getIncomingMessageBuffer(0)->getMessage()->getPayloadSize(), sizeof(KyoChanAxonEdgeContainer))
     UNITTEST(m_fakeCluster->getIncomingMessageBuffer(16)->getMessage()->getPayloadSize(), sizeof(KyoChanAxonEdgeContainer))
 
 
     m_fakeCluster->finishCycle(0);
+    UNITTEST(m_fakeCluster->isBufferReady(), true);
 
     UNITTEST(m_fakeCluster->getIncomingMessageBuffer(0)->getMessage()->getPayloadSize(), 0)
     UNITTEST(m_fakeCluster->getIncomingMessageBuffer(16)->getMessage()->getPayloadSize(), 0)

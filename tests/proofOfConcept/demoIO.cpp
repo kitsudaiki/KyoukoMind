@@ -54,8 +54,13 @@ void DemoIO::run()
     {
         usleep(PROCESS_INTERVAL);
 
-        uint8_t* data = (uint8_t*)m_incomBuffer->getMessage()->getPayload();
-        uint8_t* end = data + m_incomBuffer->getMessage()->getPayloadSize();
+        Kitsune::MindMessaging::DataMessage* message = m_incomBuffer->getMessage();
+        if(message == nullptr) {
+            continue;
+        }
+
+        uint8_t* data = (uint8_t*)message->getPayload();
+        uint8_t* end = data + message->getPayloadSize();
 
         float out = 0;
 
@@ -75,6 +80,7 @@ void DemoIO::run()
                 data += sizeof(KyoChanDirectEdgeContainer);
             }
         }
+        m_incomBuffer->finish();
 
         if(out > 255.0) {
             //out = 255.0;

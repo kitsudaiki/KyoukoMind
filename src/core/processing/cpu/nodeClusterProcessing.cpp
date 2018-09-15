@@ -49,8 +49,14 @@ bool NodeClusterProcessing::processMessagesNodeCluster(NodeCluster *cluster)
             continue;
         }
 
-        uint8_t* data = (uint8_t*)incomBuffer->getMessage()->getPayload();
-        uint8_t* end = data + incomBuffer->getMessage()->getPayloadSize();
+        Kitsune::MindMessaging::DataMessage* currentMessage = incomBuffer->getMessage();
+
+        if(currentMessage == nullptr) {
+            continue;
+        }
+
+        uint8_t* data = currentMessage->getPayload();
+        uint8_t* end = data + currentMessage->getPayloadSize();
 
         while(data < end)
         {

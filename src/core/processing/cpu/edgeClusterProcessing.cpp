@@ -52,8 +52,9 @@ bool EdgeClusterProcessing::processMessagesEdgesCluster(EdgeCluster* cluster)
 
         refillWeightMap(side, cluster->getNeighbors(), m_weightMap);
 
-        uint8_t* data = (uint8_t*)incomBuffer->getMessage()->getPayload();
-        uint8_t* end = data + incomBuffer->getMessage()->getPayloadSize();
+        Kitsune::MindMessaging::DataMessage* currentMessage = incomBuffer->getMessage();
+        uint8_t* data = currentMessage->getPayload();
+        uint8_t* end = data + currentMessage->getPayloadSize();
 
         while(data < end)
         {

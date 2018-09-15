@@ -66,11 +66,12 @@ bool ClusterInitilizer::createNetwork()
             for(uint8_t i = 0; i < sideOrder.size(); i++)
             {
                 const uint8_t side = sideOrder[i];
-
-                m_clusterHandler->setNewConnection(
-                            (*m_networkMetaStructure)[x][y].neighbors[side].targetClusterId,
-                            (*m_networkMetaStructure)[x][y].neighbors[side].targetSide,
-                            (*m_networkMetaStructure)[x][y].cluster->getClusterId());
+                if((*m_networkMetaStructure)[x][y].cluster != nullptr) {
+                    m_clusterHandler->setNewConnection(
+                                (*m_networkMetaStructure)[x][y].neighbors[side].targetClusterId,
+                                (*m_networkMetaStructure)[x][y].neighbors[side].targetSide,
+                                (*m_networkMetaStructure)[x][y].cluster->getClusterId());
+                }
             }
 
             if((*m_networkMetaStructure)[x][y].nodeCluster != nullptr)

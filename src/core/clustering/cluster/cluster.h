@@ -20,13 +20,9 @@ namespace PerformanceIO
 class DataBuffer;
 }
 
-namespace Kitsune {
-namespace MindMessaging
-{
-class IncomingMessageBuffer;
-class OutgoingMessageBuffer;
-}
-}
+using Kitsune::MindMessaging::IncomingMessageBuffer;
+using Kitsune::MindMessaging::OutgoingMessageBuffer;
+
 namespace KyoukoMind
 {
 
@@ -45,12 +41,12 @@ public:
     // common getter
     ClusterID getClusterId() const;
     uint8_t getClusterType() const;
-    bool isExising() const;
 
     // message-queues
-    Kitsune::MindMessaging::IncomingMessageBuffer* getIncomingMessageBuffer(const uint8_t side);
-    Kitsune::MindMessaging::OutgoingMessageBuffer* getOutgoingMessageBuffer(const uint8_t side);
-    bool setNewConnection(const uint8_t side, Kitsune::MindMessaging::IncomingMessageBuffer* buffer);
+    IncomingMessageBuffer* getIncomingMessageBuffer(const uint8_t side);
+    OutgoingMessageBuffer* getOutgoingMessageBuffer(const uint8_t side);
+    bool setNewConnection(const uint8_t side, IncomingMessageBuffer* buffer);
+    bool isBufferReady();
 
     // neighbors
     bool setNeighbor(const uint8_t side, const ClusterID targetClusterId);

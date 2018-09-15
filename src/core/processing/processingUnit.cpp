@@ -47,9 +47,7 @@ void ProcessingUnit::run()
             m_finishClusterBuffer.clear();
         } else {
             // process if ready or readd to queue if not ready
-
-            // TODO: check if cluster is ready
-            if(true) {
+            if(cluster->isBufferReady()) {
                 processCluster(cluster);
                 m_finishClusterBuffer.push_back(cluster);
             } else {
