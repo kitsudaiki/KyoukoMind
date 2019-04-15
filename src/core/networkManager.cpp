@@ -19,6 +19,8 @@
 #include <core/clustering/cluster/nodeCluster.h>
 
 #include <core/structs/clusterMeta.h>
+#include <mindClient.h>
+#include <core/networkInteraction/connectionTrigger.h>
 
 namespace KyoukoMind
 {
@@ -32,6 +34,9 @@ NetworkManager::NetworkManager()
 
     m_clusterHandler = new ClusterHandler();
     m_processingUnitHandler = new ProcessingUnitHandler(m_clusterHandler);
+
+    m_trigger = new KyoukoMind::ConnectionTrigger(m_clusterHandler);
+    KyoukoNetwork::m_mindClient->addNetworkTrigger(m_trigger);
 
     initNetwork();
 }

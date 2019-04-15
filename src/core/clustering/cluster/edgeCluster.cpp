@@ -408,9 +408,6 @@ EdgeCluster::processAxon(const uint32_t targetId,
     }
     else
     {
-        m_processingData.numberOfActiveAxons++;
-        m_processingData.averagetAxonPotential += weight;
-
         // if target cluster reached, update the state of the target-axon with the edge
         processEdgeForwardSection(targetId, weight);
     }

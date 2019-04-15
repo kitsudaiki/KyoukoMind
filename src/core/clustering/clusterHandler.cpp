@@ -200,8 +200,9 @@ ClusterHandler::getGlobalValuesHandler() const
  * @param nodeId
  * @return
  */
-JsonItem ClusterHandler::extractNode(const uint32_t clusterId,
-                                     const uint16_t nodeId)
+JsonItem
+ClusterHandler::extractNode(const uint32_t clusterId,
+                            const uint16_t nodeId)
 {
     JsonObject* result = new JsonObject();
     NodeCluster* sourceCluster = static_cast<NodeCluster*>(getCluster(clusterId));

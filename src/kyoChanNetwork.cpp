@@ -15,7 +15,7 @@ namespace KyoukoMind
 {
 
 Config* KyoukoNetwork::m_config = nullptr;
-StatusReporter* KyoukoNetwork::m_reporter = nullptr;
+Kitsune::Chan::Communication::MindClient* KyoukoNetwork::m_mindClient = nullptr;
 
 /**
  * @brief KyoChanNetwork::KyoChanNetwork
@@ -26,10 +26,8 @@ KyoukoNetwork::KyoukoNetwork()
     // config-file
     m_config = new Config();
 
-    // reporter
-    m_reporter = new StatusReporter();
-    // TODO: get port-number from config
-    m_reporter->initServer(1337);
+    m_mindClient = new Kitsune::Chan::Communication::MindClient();
+    m_mindClient->initConnection();
 
     // logger
     bool ok = false;

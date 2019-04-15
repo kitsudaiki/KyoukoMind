@@ -11,8 +11,6 @@
 #include <src/kyoChanNetwork.h>
 #include <tests/runUnitTests.h>
 
-#include <tests/proofOfConcept/demoUserInput.h>
-
 int
 main(int argc, char *argv[])
 {
@@ -23,8 +21,9 @@ main(int argc, char *argv[])
 
     KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork();
 
-    KyoukoMind::DemoUserInput input(network->getClusterHandler());
-    input.inputLoop();
-
     #endif
+
+    int a = 0;
+    std::cin >> a;
+    return 0;
 }

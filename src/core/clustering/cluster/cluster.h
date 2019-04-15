@@ -20,7 +20,10 @@
 
 #include <tests/core/clustering/cluster/clusterTest.h>
 #include <common/methods.h>
-#include <structs/container.h>
+
+#include <communicationStructs/monitorinContianer.h>
+using Kitsune::Chan::Communication::MonitoringMetaData;
+using Kitsune::Chan::Communication::MonitoringProcessData;
 
 namespace Kitsune
 {
@@ -62,6 +65,7 @@ public:
     IncomingMessageBuffer* getIncomingMessageBuffer(const uint8_t side);
     OutgoingMessageBuffer* getOutgoingMessageBuffer(const uint8_t side);
     bool setNewConnection(const uint8_t side, IncomingMessageBuffer* buffer);
+    bool setIncomBuffer(const uint8_t side, IncomingMessageBuffer *buffer);
     bool isBufferReady();
 
     // neighbors
@@ -93,10 +97,12 @@ protected:
     const uint32_t m_staticItemSize;
     const uint32_t m_dynamicItemSize;
 
+    MonitoringMetaData m_monitoringMetaData;
+    MonitoringProcessData m_monitoringProcessingData;
+
     // global values
     GlobalValuesHandler* m_globalValuesHandler = nullptr;
     GlobalValues m_globalValue;
-    MonitoringProcessData m_processingData;
 
     // cycle specific data
     NeighborInformation m_neighborInfo;

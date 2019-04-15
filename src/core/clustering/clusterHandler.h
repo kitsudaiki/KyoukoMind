@@ -12,11 +12,6 @@
 
 #include <common.h>
 
-namespace Networking
-{
-class IncomingMessageBuffer;
-}
-
 namespace KyoukoMind
 {
 class Cluster;

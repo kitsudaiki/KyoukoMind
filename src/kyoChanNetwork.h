@@ -7,12 +7,12 @@
  *  Apache License Version 2.0
  */
 
-#ifndef KYSANETWORK_H
-#define KYSANETWORK_H
+#ifndef KYOCHANNETWORK_H
+#define KYOCHANNETWORK_H
 
 #include <common.h>
 #include <settings/config.h>
-#include <monitoring/statusReporter.h>
+#include <mindClient.h>
 
 namespace KyoukoMind
 {
@@ -29,7 +29,7 @@ public:
     NetworkManager* getNodeManager() const;
 
     static KyoukoMind::Config* m_config;
-    static KyoukoMind::StatusReporter* m_reporter;
+    static Kitsune::Chan::Communication::MindClient* m_mindClient;
 
 private:
     NetworkManager* m_networkManager = nullptr;
@@ -39,4 +39,4 @@ private:
 
 }
 
-#endif //KYSANETWORK_H
+#endif //KYOCHANNETWORK_H
