@@ -20,6 +20,7 @@ class Config;
 class ClusterHandler;
 class ProcessingUnitHandler;
 class MessageController;
+class ConnectionTrigger;
 
 class NetworkManager : public Kitsune::CommonThread
 {
@@ -32,13 +33,12 @@ public:
 
     void run();
 
-    static KyoukoMind::Config *m_globalValues;
-
 private:
     void initNetwork();
 
     ClusterHandler* m_clusterHandler = nullptr;
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
+    ConnectionTrigger* m_trigger = nullptr;
 
     uint32_t m_numberOfThreads = 0;
 };

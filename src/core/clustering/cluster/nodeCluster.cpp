@@ -18,6 +18,8 @@
 #include <core/messaging/messages/message.h>
 #include <core/messaging/messages/dataMessage.h>
 
+#include <kyoChanNetwork.h>
+
 namespace KyoukoMind
 {
 
@@ -245,7 +247,6 @@ NodeCluster::addEmptyEdgeSection(const uint8_t sourceSide,
         getEdgeSectionBlock()[position] = newSection;
     }
 
-
     return position;
 }
 
@@ -349,6 +350,12 @@ NodeCluster::processNodeCluster()
     m_memorizeCounter++;*/
 
     finishCycle();
+
+    if(m_metaData.outputCluster == 1)
+    {
+        float sum = getSummedValue();
+        KyoukoNetwork::m_mindClient->sendData(m_metaData.clusterId, sum);
+    }
     return result;
 }
 
@@ -375,6 +382,7 @@ NodeCluster::processNodes()
     }
 
     uint16_t numberOfActiveNodes = 0;
+    float totalPotential = 0.0f;
 
     // process nodes
     KyoChanNode* start = getNodeBlock();
@@ -431,12 +439,14 @@ NodeCluster::processNodes()
         }
 
         // make cooldown in the node
-        m_processingData.averagetNodePotential += node->potential;
+        totalPotential += node->potential;
         node->potential /= NODE_COOLDOWN;
         node->currentState /= NODE_COOLDOWN;
     }
 
-    m_processingData.numberOfActiveNodes = numberOfActiveNodes;
+    m_monitoringProcessingData.numberOfActiveAxons += numberOfActiveNodes;
+    m_monitoringProcessingData.averagetAxonPotential += totalPotential;
+
     m_neighborInfo.localLearing += (float) numberOfActiveNodes / (float)m_metaData.numberOfStaticItems;
     return numberOfActiveNodes;
 }

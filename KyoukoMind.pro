@@ -23,22 +23,20 @@ LIBS += -L../libKitsunePersistence/debug -lKitsunePersistence
 LIBS += -L../libKitsunePersistence/release -lKitsunePersistence
 INCLUDEPATH += ../libKitsunePersistence/include/libKitsunePersistence
 
-LIBS += -L../libKitsuneNetwork -lKitsuneNetwork
-LIBS += -L../libKitsuneNetwork/debug -lKitsuneNetwork
-LIBS += -L../libKitsuneNetwork/release -lKitsuneNetwork
+LIBS += -L../libKitsuneNetwork/src -lKitsuneNetwork
+LIBS += -L../libKitsuneNetwork/src/debug -lKitsuneNetwork
+LIBS += -L../libKitsuneNetwork/src/release -lKitsuneNetwork
 INCLUDEPATH += ../libKitsuneNetwork/include/libKitsuneNetwork
 
-LIBS += -L../libKitsuneChanMonitoring -lKitsuneChanMonitoring
-LIBS += -L../libKitsuneChanMonitoring/debug -lKitsuneChanMonitoring
-LIBS += -L../libKitsuneChanMonitoring/release -lKitsuneChanMonitoring
-INCLUDEPATH += ../libKitsuneChanMonitoring/include/libKitsuneChanMonitoring
-
+LIBS += -L../libKitsuneChanCommunication -lKitsuneChanCommunication
+LIBS += -L../libKitsuneChanCommunication/debug -lKitsuneChanCommunication
+LIBS += -L../libKitsuneChanCommunication/release -lKitsuneChanCommunication
+INCLUDEPATH += ../libKitsuneChanCommunication/include/libKitsuneChanCommunication
 
 INCLUDEPATH += $$PWD \
             src
 
 SOURCES += \
-    src/monitoring/statusReporter.cpp \
     src/core/clustering/cluster/cluster.cpp \
     src/core/clustering/cluster/edgeCluster.cpp \
     src/core/clustering/cluster/nodeCluster.cpp \
@@ -57,8 +55,6 @@ SOURCES += \
     src/initializing/networkInitializer.cpp \
     src/settings/config.cpp \
     src/kyoChanNetwork.cpp \
-    tests/proofOfConcept/demoIO.cpp \
-    tests/proofOfConcept/demoUserInput.cpp \
     tests/initializing/initTest.cpp \
     tests/core/messaging/message/messageTest.cpp \
     main.cpp \
@@ -67,8 +63,7 @@ SOURCES += \
     tests/core/clustering/cluster/edgeClusterTest.cpp \
     tests/core/clustering/cluster/nodeClusterTest.cpp \
     tests/runUnitTests.cpp \
-    src/clusterOutput.cpp \
-    src/clusterInput.cpp
+    src/core/networkInteraction/connectionTrigger.cpp
 
 
 HEADERS += \
@@ -76,7 +71,6 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/monitoring/statusReporter.h \
     src/core/clustering/cluster/cluster.h \
     src/core/clustering/cluster/edgeCluster.h \
     src/core/clustering/cluster/nodeCluster.h \
@@ -101,8 +95,6 @@ HEADERS += \
     src/settings/config.h \
     src/common.h \
     src/kyoChanNetwork.h \
-    tests/proofOfConcept/demoIO.h \
-    tests/proofOfConcept/demoUserInput.h \
     tests/initializing/initTest.h \
     tests/core/messaging/message/messageTest.h \
     src/core/common/weightmap.h \
@@ -114,5 +106,4 @@ HEADERS += \
     tests/runUnitTests.h \
     src/common/methods.h \
     src/common/using.h \
-    src/clusterOutput.h \
-    src/clusterInput.h
+    src/core/networkInteraction/connectionTrigger.h

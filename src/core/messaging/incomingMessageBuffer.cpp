@@ -62,17 +62,23 @@ IncomingMessageBuffer::addMessage(DataMessage *message)
 DataMessage*
 IncomingMessageBuffer::getMessage()
 {
-    if(m_currentProcessingMessage != nullptr) {
-        return m_currentProcessingMessage;
+    DataMessage* returnMessage = nullptr;
+    m_mutex.lock();
+    if(m_currentProcessingMessage != nullptr)
+    {
+        returnMessage = m_currentProcessingMessage;
+        m_mutex.unlock();
+        return returnMessage;
     }
 
-    m_mutex.lock();
     m_oldestBufferPos = (m_oldestBufferPos + 1) % INCOM_BUFFER_SIZE;
     m_currentProcessingMessage = m_waitingMessages[m_oldestBufferPos];
     m_waitingMessages[m_oldestBufferPos] = nullptr;
+
+    returnMessage = m_currentProcessingMessage;
     m_mutex.unlock();
 
-    return m_currentProcessingMessage;
+    return returnMessage;
 }
 
 /**
@@ -96,7 +102,8 @@ IncomingMessageBuffer::isReady()
     m_mutex.lock();
     if((m_currentProcessingMessage == nullptr
             && m_waitingMessages[(m_oldestBufferPos + 1) % INCOM_BUFFER_SIZE] != nullptr)
-            || m_currentProcessingMessage != nullptr) {
+            || m_currentProcessingMessage != nullptr)
+    {
         result = true;
     }
     m_mutex.unlock();
@@ -110,7 +117,10 @@ IncomingMessageBuffer::isReady()
 bool
 IncomingMessageBuffer::clearCurrentMessage()
 {
-    if(m_currentProcessingMessage == nullptr) {
+    m_mutex.lock();
+    if(m_currentProcessingMessage == nullptr)
+    {
+        m_mutex.unlock();
         return false;
     }
 
@@ -119,6 +129,7 @@ IncomingMessageBuffer::clearCurrentMessage()
     m_currentProcessingMessage->closeBuffer();
     delete m_currentProcessingMessage;
     m_currentProcessingMessage = nullptr;
+    m_mutex.unlock();
     return true;
 }
 

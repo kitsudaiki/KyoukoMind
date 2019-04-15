@@ -178,6 +178,26 @@ Cluster::setNewConnection(const uint8_t side,
 }
 
 /**
+ * @brief Cluster::setIncomBuffer
+ * @param side
+ * @param buffer
+ * @return
+ */
+bool
+Cluster::setIncomBuffer(const uint8_t side,
+                       IncomingMessageBuffer* buffer)
+{
+    if(side < 17 && buffer != nullptr)
+    {
+        m_metaData.neighors[side].targetClusterId = UNINIT_STATE_32-1;
+        // TODO: clear and delete old buffer if exist
+        m_metaData.neighors[side].incomBuffer = buffer;
+        return true;
+    }
+    return false;
+}
+
+/**
  * @brief Cluster::isBufferReady check if all incoming message-buffers of the cluster are ready for processing
  * @return true if all message-buffer of the cluster have an incoming message, else false
  */
@@ -310,10 +330,12 @@ Cluster::finishCycle(NeighborInformation *externalInfo)
     }
     for(uint8_t side = 0; side < 17; side++)
     {
-        if(m_metaData.neighors[side].incomBuffer != nullptr
-                && m_metaData.neighors[side].outgoBuffer != nullptr)
-        {
+        if(m_metaData.neighors[side].incomBuffer != nullptr) {
             m_metaData.neighors[side].incomBuffer->finish();
+        }
+
+        if(m_metaData.neighors[side].outgoBuffer != nullptr)
+        {
             m_metaData.neighors[side].outgoBuffer->finishCycle(
                         m_metaData.neighors[side].targetClusterId,
                         16 - side,
@@ -333,28 +355,24 @@ Cluster::finishCycle(NeighborInformation *externalInfo)
 void
 Cluster::reportStatus()
 {
-    // construct metadata for monitoring
-    MonitoringMetaData metaDataMonitoring;
-    metaDataMonitoring.numberOfStaticItems = m_metaData.numberOfStaticItems;
-    metaDataMonitoring.numberOfDynamicItems = m_metaData.numberOfDynamicItems;
-    metaDataMonitoring.numberOfDeletedDynamicItems = m_metaData.numberOfDeletedDynamicItems;
-    metaDataMonitoring.numberOfStaticBlocks = m_metaData.numberOfStaticBlocks;
-    metaDataMonitoring.numberOfDynamicBlocks = m_metaData.numberOfDynamicBlocks;
-
     m_globalValue = m_globalValuesHandler->getGlobalValues();
-    metaDataMonitoring.globalLearning = m_globalValue.globalLearningOffset;
-    metaDataMonitoring.globalMemorizing = m_globalValue.globalMemorizingOffset;
 
-    m_processingData.averagetAxonPotential /= m_processingData.numberOfActiveAxons;
-    m_processingData.averagetNodePotential /= m_processingData.numberOfNodes;
+    // construct metadata for monitoring    
+    m_monitoringMetaData.numberOfStaticItems = m_metaData.numberOfStaticItems;
+    m_monitoringMetaData.numberOfDynamicItems = m_metaData.numberOfDynamicItems;
+    m_monitoringMetaData.numberOfDeletedDynamicItems = m_metaData.numberOfDeletedDynamicItems;
+    m_monitoringMetaData.numberOfStaticBlocks = m_metaData.numberOfStaticBlocks;
+    m_monitoringMetaData.numberOfDynamicBlocks = m_metaData.numberOfDynamicBlocks;
+    m_monitoringMetaData.globalLearning = m_globalValue.globalLearningOffset;
+    m_monitoringMetaData.globalMemorizing = m_globalValue.globalMemorizingOffset;
 
-    KyoukoNetwork::m_reporter->sendStatus(m_metaData.clusterId,
-                                          m_metaData.clusterPos.x,
-                                          m_metaData.clusterPos.y,
-                                          m_metaData.clusterType,
-                                          metaDataMonitoring,
-                                          m_processingData);
-    m_processingData.reset();
+    //return;
+    KyoukoNetwork::m_mindClient->sendStatus(m_metaData.clusterId,
+                                            m_metaData.clusterPos.x,
+                                            m_metaData.clusterPos.y,
+                                            m_metaData.clusterType,
+                                            &m_monitoringMetaData,
+                                            &m_monitoringProcessingData);
 }
 
 /**
