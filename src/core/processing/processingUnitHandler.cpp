@@ -9,19 +9,21 @@
 
 #include <core/processing/processingUnitHandler.h>
 #include <core/processing/processingUnit.h>
-#include <core/processing/cpuProcessingUnit.h>
-#include <core/clustering/clusterHandler.h>
+#include <core/bricks/brickHandler.h>
+
+#include <threading/commonThread.h>
+
+#include <kyoukoNetwork.h>
 
 namespace KyoukoMind
 {
 
 /**
  * @brief ProcessingUnitHandler::ProcessingUnitHandler
- * @param clusterHandler
+ * @param brickHandler
  */
-ProcessingUnitHandler::ProcessingUnitHandler(ClusterHandler* clusterHandler)
+ProcessingUnitHandler::ProcessingUnitHandler()
 {
-    m_clusterHandler = clusterHandler;
 }
 
 /**
@@ -45,7 +47,7 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
     }
     for(uint16_t i = 0; i < numberOfThreads; i++)
     {
-        ProcessingUnit* newUnit = new CpuProcessingUnit(m_clusterHandler->getClusterQueue());
+        ProcessingUnit* newUnit = new ProcessingUnit();
         m_allProcessingUnits.push_back(newUnit);
         newUnit->start();
     }
@@ -58,7 +60,8 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
 void
 ProcessingUnitHandler::initNextCycle()
 {
-    for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++) {
+    for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++)
+    {
         m_allProcessingUnits.at(i)->continueThread();
     }
 }
@@ -73,12 +76,14 @@ ProcessingUnitHandler::closeAllProcessingUnits()
     if(m_allProcessingUnits.size() == 0) {
         return false;
     }
+
     for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++)
     {
-        CpuProcessingUnit* unit = static_cast<CpuProcessingUnit*>(m_allProcessingUnits.at(i));
+        ProcessingUnit* unit = m_allProcessingUnits.at(i);
         unit->stop();
         delete unit;
     }
+
     m_allProcessingUnits.clear();;
     return true;
 }

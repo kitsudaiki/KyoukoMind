@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <src/kyoChanNetwork.h>
+#include <src/kyoukoNetwork.h>
 #include <tests/runUnitTests.h>
 
 int
@@ -20,7 +20,7 @@ main(int argc, char *argv[])
     #else
 
     KyoukoMind::KyoukoNetwork* network = new KyoukoMind::KyoukoNetwork();
-
+    network->start();
     #endif
 
     int a = 0;

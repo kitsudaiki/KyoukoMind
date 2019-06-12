@@ -9,6 +9,11 @@
 
 #include "runUnitTests.h"
 
+#include <tests/core/bricks/brickMethods/bufferControlMethodsTest.h>
+#include <tests/initializing/initTest.h>
+#include <tests/core/messaging/messageBufferTest.h>
+#include <tests/core/messaging/messageMarker/incomingBufferTest.h>
+
 namespace KyoukoMind
 {
 
@@ -21,12 +26,11 @@ void
 RunUnitTests::run()
 {
     #ifdef RUN_UNIT_TEST
+    KyoukoMind::BufferControlMethodsTest();
     KyoukoMind::InitTest();
-    KyoukoMind::ClusterTest();
-    KyoukoMind::EdgeClusterTest();
+    KyoukoMind::MessageBufferTest();
+    KyoukoMind::IncomingBufferTest();
     #endif
-
-    //KyoukoMind::MessageTest();
 }
 
 }

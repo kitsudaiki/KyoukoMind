@@ -41,11 +41,11 @@ Config::getNumberOfThreads() const
  * @param ok
  * @return
  */
-int
+uint32_t
 Config::getNumberOfNodes() const
 {
     return 10;
-    //return m_configFile->getInt("number_of_nodes_per_cluster",
+    //return m_configFile->getInt("number_of_nodes_per_brick",
     //                            std::stringList()<<"GENERAL",
     //                            ok);
 }

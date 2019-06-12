@@ -12,10 +12,6 @@
 
 #include <common.h>
 
-#include <tests/core/clustering/cluster/clusterTest.h>
-#include <tests/core/clustering/cluster/edgeClusterTest.h>
-#include <tests/core/messaging/message/messageTest.h>
-#include <tests/initializing/initTest.h>
 
 namespace KyoukoMind
 {

@@ -1,5 +1,5 @@
 /**
- *  @file    initTestcpp
+ *  @file    initTest.cpp
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -8,16 +8,12 @@
  */
 
 #include "initTest.h"
-#include <kyoChanNetwork.h>
+#include <kyoukoNetwork.h>
 
-#include <core/clustering/clusterHandler.h>
-#include <core/clustering/clusterQueue.h>
-
-#include <core/clustering/cluster/edgeCluster.h>
-#include <core/clustering/cluster/nodeCluster.h>
+#include <core/bricks/brickHandler.h>
+#include <core/bricks/brickObjects/brick.h>
 
 #include <initializing/axonInitializer.h>
-#include <initializing/clusterInitilizer.h>
 #include <initializing/networkInitializer.h>
 
 namespace KyoukoMind
@@ -38,11 +34,9 @@ InitTest::InitTest() : Kitsune::CommonTest("InitTest")
  */
 void InitTest::initTestCase()
 {
-    m_testClusterHandler = new ClusterHandler();
-    m_networkInitializer = new NetworkInitializer(m_testClusterContent,
-                                                  "/tmp/",
-                                                  m_testClusterHandler);
-    m_networkInitializer->initNetwork();
+    m_network = new KyoukoMind::KyoukoNetwork();
+    KyoukoNetwork::m_brickHandler = new BrickHandler();
+    createNewNetwork(m_testBrickContent);
 }
 
 /**
@@ -50,69 +44,46 @@ void InitTest::initTestCase()
  */
 void InitTest::checkInit()
 {
-    std::vector<ClusterMetaData> metaData;
-    uint32_t nodeNumberPerCluster = KyoukoNetwork::m_config->getNumberOfNodes();
+    std::vector<Brick*> bricks;
+    uint32_t nodeNumberPerBrick = KyoukoNetwork::m_config->getNumberOfNodes();
 
-    uint32_t numberOfInitCluster = m_testClusterHandler->getNumberOfCluster();
-    UNITTEST(numberOfInitCluster, 13)
+    uint64_t numberOfInitBrick = KyoukoNetwork::m_brickHandler->getNumberOfBrick();
+    UNITTEST(numberOfInitBrick, 7);
 
-    UNITTEST((int)m_testClusterHandler->getCluster(7)->getClusterType(), EDGE_CLUSTER)
-    UNITTEST((int)m_testClusterHandler->getCluster(8)->getClusterType(), NODE_CLUSTER)
+    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(6));
+    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(7));
+    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(11));
+    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(12));
+    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(13));
+    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(16));
+    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(17));
 
-    metaData.push_back(m_testClusterHandler->getCluster(7)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(8)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(9)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(10)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(14)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(15)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(16)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(17)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(18)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(21)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(22)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(23)->getMetaData());
-    metaData.push_back(m_testClusterHandler->getCluster(24)->getMetaData());
-
-    ClusterMetaData totalData;
-    totalData.positionOfDynamicBlocks = 0;
-    totalData.positionOfStaticBlocks = 0;
-
-    for(uint32_t i = 0; i < metaData.size(); i++)
+    for(uint32_t i = 0; i < KyoukoNetwork::m_brickHandler->getNumberOfBrick(); i++)
     {
-        totalData.numberOfStaticItems += metaData.at(i).numberOfStaticItems;
-        totalData.numberOfDynamicItems += metaData.at(i).numberOfDynamicItems;
+        Brick* brick = KyoukoNetwork::m_brickHandler->getBrickByIndex(i);
 
-        totalData.numberOfStaticBlocks += metaData.at(i).numberOfStaticBlocks;
-        totalData.numberOfDynamicBlocks += metaData.at(i).numberOfDynamicBlocks;
-
-        totalData.positionOfDynamicBlocks += metaData.at(i).positionOfDynamicBlocks;
-        totalData.positionOfStaticBlocks += metaData.at(i).positionOfStaticBlocks;
-    }
-
-    for(uint32_t i = 0; i < m_testClusterHandler->getNumberOfCluster(); i++)
-    {
-        Cluster* cluster = m_testClusterHandler->getClusterByIndex(i);
-
-        for(uint32_t side = 0; side < 17; side++)
+        for(uint32_t side = 0; side < 24; side++)
         {
-            if(cluster->getNeighborId(side) != UNINIT_STATE_32)
+            if(brick->neighbors[side].targetBrickId != UNINIT_STATE_32)
             {
-                ClusterID sourceId = cluster->getClusterId();
-                ClusterID targetId = cluster->getNeighborId(side);
-                ClusterID compareSource = m_testClusterHandler->getCluster(targetId)->getNeighborId(16 - side);
+                BrickID sourceId = brick->brickId;
+                BrickID targetId = brick->neighbors[side].targetBrickId;
+                BrickID compareSource = KyoukoNetwork::m_brickHandler->getBrick(targetId)->neighbors[23 - side].targetBrickId;
                 UNITTEST(compareSource, sourceId);
             }
         }
     }
 
-    UNITTEST((int)totalData.numberOfStaticItems, nodeNumberPerCluster*6)
-    UNITTEST((int)totalData.numberOfDynamicItems, nodeNumberPerCluster*6)
+    Brick totalData(0,0,0);
 
-    UNITTEST((int)totalData.numberOfStaticBlocks, 6)
-    UNITTEST((int)totalData.numberOfDynamicBlocks, 7)
+    for(uint32_t i = 0; i < bricks.size(); i++)
+    {
+        totalData.dataConnections[FORWARDEDGE_DATA].numberOfItems += bricks.at(i)->dataConnections[FORWARDEDGE_DATA].numberOfItems;
+        totalData.dataConnections[FORWARDEDGE_DATA].numberOfItemBlocks += bricks.at(i)->dataConnections[FORWARDEDGE_DATA].numberOfItemBlocks;
+    }
 
-    UNITTEST((int)totalData.positionOfDynamicBlocks, 19)
-    UNITTEST((int)totalData.positionOfStaticBlocks, 6)
+    UNITTEST((int)totalData.dataConnections[FORWARDEDGE_DATA].numberOfItems, (nodeNumberPerBrick*6));
+    UNITTEST((int)totalData.dataConnections[FORWARDEDGE_DATA].numberOfItemBlocks, 7);
 }
 
 /**
@@ -121,7 +92,6 @@ void InitTest::checkInit()
 void InitTest::cleanupTestCase()
 {
     delete m_networkInitializer;
-    delete m_testClusterHandler;
 }
 
 }

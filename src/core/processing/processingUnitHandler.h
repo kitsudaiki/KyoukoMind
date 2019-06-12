@@ -15,12 +15,12 @@
 namespace KyoukoMind
 {
 class ProcessingUnit;
-class ClusterHandler;
+class BrickHandler;
 
 class ProcessingUnitHandler
 {
 public:
-    ProcessingUnitHandler(ClusterHandler* clusterHandler);
+    ProcessingUnitHandler();
     ~ProcessingUnitHandler();
 
     bool initProcessingUnits(const uint16_t numberOfThreads);
@@ -28,7 +28,6 @@ public:
     bool closeAllProcessingUnits();
 private:
     std::vector<ProcessingUnit*> m_allProcessingUnits;
-    ClusterHandler* m_clusterHandler = nullptr;
 };
 
 }

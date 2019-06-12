@@ -11,28 +11,50 @@
 #define PROCESSINGUNIT_H
 
 #include <common.h>
-#include <commonThread.h>
+#include <threading/commonThread.h>
+
+#include <core/messaging/messageObjects/messages.h>
+#include <communicationStructs/commonMessages.h>
+
+using Kitsune::Chan::Communication::TransferDataMessage;
+
+struct NeighborInformation;
 
 namespace KyoukoMind
 {
-class Cluster;
-class ClusterQueue;
+class GlobalValuesHandler;
+struct Brick;
+struct Neighbor;
 
 class ProcessingUnit : public Kitsune::CommonThread
 {
 
 public:
-    ProcessingUnit(ClusterQueue* clusterQueue);
+    ProcessingUnit();
 
     void run();
 
-    virtual void processCluster(Cluster* cluster) = 0;
+private:
+    std::vector<Brick*> m_finishBrickBuffer;
 
-protected:
-    ClusterQueue* m_clusterQueue = nullptr;
+    // cycle
+    void processIncomingMessages(Brick *brick);
+    bool processIncomingMessage(Brick *brick,
+                                const uint8_t side,
+                                DataMessage* message);
+    void refillWeightMap(Brick* brick,
+                         const uint8_t initialSide,
+                         Neighbor* neighbors);
 
-    std::vector<Cluster*> m_finishClusterBuffer;
+    // cycle specific data
+    NeighborInformation m_neighborInfo;    
+    float m_weightMap[25];
 
+    bool m_enableMonitoring = true;
+    TransferDataMessage* m_monitoringMessage = nullptr;
+
+    bool m_enableClient = true;
+    TransferDataMessage* m_clienOutputMessage = nullptr;
 };
 
 }

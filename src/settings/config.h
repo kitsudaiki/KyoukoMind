@@ -26,7 +26,7 @@ public:
 
     //general
     std::vector<std::string> getIpAdresses() const;
-    int getNumberOfNodes() const;
+    uint32_t getNumberOfNodes() const;
     int getPort() const;
     std::string getDirectoryPath() const;
     std::string getInitialFilePath() const;

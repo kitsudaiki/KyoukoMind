@@ -1,6 +1,6 @@
 QT -= qt core gui
 
-CONFIG += c++14
+CONFIG += c++17
 
 TARGET = KyoukoMind
 CONFIG += console
@@ -8,9 +8,9 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-LIBS += -L../libKitsuneCommon -lKitsuneCommon
-LIBS += -L../libKitsuneCommon/debug -lKitsuneCommon
-LIBS += -L../libKitsuneCommon/release -lKitsuneCommon
+LIBS += -L../libKitsuneCommon/src -lKitsuneCommon
+LIBS += -L../libKitsuneCommon/src/debug -lKitsuneCommon
+LIBS += -L../libKitsuneCommon/src/release -lKitsuneCommon
 INCLUDEPATH += ../libKitsuneCommon/include/libKitsuneCommon
 
 LIBS += -L../libKitsuneJson/src -lKitsuneJson
@@ -28,42 +28,38 @@ LIBS += -L../libKitsuneNetwork/src/debug -lKitsuneNetwork
 LIBS += -L../libKitsuneNetwork/src/release -lKitsuneNetwork
 INCLUDEPATH += ../libKitsuneNetwork/include/libKitsuneNetwork
 
-LIBS += -L../libKitsuneChanCommunication -lKitsuneChanCommunication
-LIBS += -L../libKitsuneChanCommunication/debug -lKitsuneChanCommunication
-LIBS += -L../libKitsuneChanCommunication/release -lKitsuneChanCommunication
-INCLUDEPATH += ../libKitsuneChanCommunication/include/libKitsuneChanCommunication
+LIBS += -L../libKitsuneChanCommon -lKitsuneChanCommon
+LIBS += -L../libKitsuneChanCommon/debug -lKitsuneChanCommon
+LIBS += -L../libKitsuneChanCommon/release -lKitsuneChanCommon
+INCLUDEPATH += ../libKitsuneChanCommon/include/libKitsuneChanCommon
+
 
 INCLUDEPATH += $$PWD \
             src
 
 SOURCES += \
-    src/core/clustering/cluster/cluster.cpp \
-    src/core/clustering/cluster/edgeCluster.cpp \
-    src/core/clustering/cluster/nodeCluster.cpp \
-    src/core/clustering/clusterHandler.cpp \
-    src/core/clustering/clusterQueue.cpp \
-    src/core/messaging/messages/dataMessage.cpp \
-    src/core/messaging/messages/message.cpp \
-    src/core/messaging/incomingMessageBuffer.cpp \
-    src/core/messaging/outgoingMessageBuffer.cpp \
-    src/core/processing/cpuProcessingUnit.cpp \
     src/core/processing/processingUnit.cpp \
     src/core/processing/processingUnitHandler.cpp \
     src/core/networkManager.cpp \
-    src/initializing/axonInitializer.cpp \
-    src/initializing/clusterInitilizer.cpp \
-    src/initializing/networkInitializer.cpp \
     src/settings/config.cpp \
-    src/kyoChanNetwork.cpp \
-    tests/initializing/initTest.cpp \
-    tests/core/messaging/message/messageTest.cpp \
     main.cpp \
-    src/core/clustering/globalValuesHandler.cpp \
-    tests/core/clustering/cluster/clusterTest.cpp \
-    tests/core/clustering/cluster/edgeClusterTest.cpp \
-    tests/core/clustering/cluster/nodeClusterTest.cpp \
+    src/core/bricks/globalValuesHandler.cpp \
     tests/runUnitTests.cpp \
-    src/core/networkInteraction/connectionTrigger.cpp
+    src/core/networkInteraction/connectionTrigger.cpp \
+    src/initializing/axonInitializer.cpp \
+    src/initializing/networkInitializer.cpp \
+    src/core/bricks/brickMethods/bufferControlMethods.cpp \
+    tests/initializing/initTest.cpp \
+    tests/core/bricks/brickMethods/bufferControlMethodsTest.cpp \
+    src/core/bricks/brickMethods/commonBrickMethods.cpp \
+    src/core/bricks/brickHandler.cpp \
+    src/core/processing/processingMethods/brickProcessingMethods.cpp \
+    src/initializing/fileParser.cpp \
+    tests/core/messaging/messageBufferTest.cpp \
+    tests/core/messaging/messageMarker/incomingBufferTest.cpp \
+    src/core/messaging/messageBlockBuffer.cpp \
+    src/kyoukoNetwork.cpp \
+    src/core/networkInteraction/mindClient.cpp
 
 
 HEADERS += \
@@ -71,39 +67,37 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/clustering/cluster/cluster.h \
-    src/core/clustering/cluster/edgeCluster.h \
-    src/core/clustering/cluster/nodeCluster.h \
-    src/core/clustering/clusterHandler.h \
-    src/core/clustering/clusterQueue.h \
-    src/core/messaging/messages/dataMessage.h \
-    src/core/messaging/messages/message.h \
-    src/core/messaging/incomingMessageBuffer.h \
-    src/core/messaging/outgoingMessageBuffer.h \
-    src/core/processing/cpuProcessingUnit.h \
     src/core/processing/processingUnit.h \
     src/core/processing/processingUnitHandler.h \
-    src/core/structs/clusterMeta.h \
-    src/core/structs/kyochanEdges.h \
-    src/core/structs/kyochanNodes.h \
-    src/core/structs/messageContainer.h \
-    src/core/structs/messageHeader.h \
     src/core/networkManager.h \
-    src/initializing/axonInitializer.h \
-    src/initializing/clusterInitilizer.h \
-    src/initializing/networkInitializer.h \
     src/settings/config.h \
     src/common.h \
-    src/kyoChanNetwork.h \
-    tests/initializing/initTest.h \
-    tests/core/messaging/message/messageTest.h \
-    src/core/common/weightmap.h \
-    src/core/structs/globalValues.h \
-    src/core/clustering/globalValuesHandler.h \
-    tests/core/clustering/cluster/clusterTest.h \
-    tests/core/clustering/cluster/edgeClusterTest.h \
-    tests/core/clustering/cluster/nodeClusterTest.h \
+    src/core/bricks/globalValuesHandler.h \
     tests/runUnitTests.h \
     src/common/methods.h \
     src/common/using.h \
-    src/core/networkInteraction/connectionTrigger.h
+    src/core/networkInteraction/connectionTrigger.h \
+    src/initializing/axonInitializer.h \
+    src/initializing/networkInitializer.h \
+    src/initializing/initMetaData.h \
+    src/core/bricks/brickMethods/bufferControlMethods.h \
+    src/core/processing/processingMethods/messageProcessingMethods.h \
+    tests/initializing/initTest.h \
+    tests/core/bricks/brickMethods/bufferControlMethodsTest.h \
+    src/core/bricks/brickMethods/commonBrickMethods.h \
+    src/core/bricks/brickObjects/brick.h \
+    src/core/bricks/brickHandler.h \
+    src/core/processing/processingMethods/brickProcessingMethods.h \
+    src/core/bricks/brickObjects/edges.h \
+    src/core/bricks/brickObjects/node.h \
+    src/initializing/fileParser.h \
+    src/core/messaging/messageObjects/messages.h \
+    src/core/messaging/messageObjects/messageBlock.h \
+    src/core/messaging/messageMarker/outgoingBuffer.h \
+    src/core/messaging/messageMarker/incomingBuffer.h \
+    tests/core/messaging/messageBufferTest.h \
+    tests/core/messaging/messageMarker/incomingBufferTest.h \
+    src/core/messaging/messageObjects/contentContainer.h \
+    src/core/messaging/messageBlockBuffer.h \
+    src/kyoukoNetwork.h \
+    src/core/networkInteraction/mindClient.h

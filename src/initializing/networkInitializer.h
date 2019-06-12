@@ -11,57 +11,28 @@
 #define NETWORKINITIALIZER_H
 
 #include <common.h>
-#include <core/structs/clusterMeta.h>
+#include "initMetaData.h"
 
 namespace KyoukoMind
 {
 
-class ClusterHandler;
+class BrickHandler;
 
-class NetworkInitializer
-{
-public:
-    NetworkInitializer(const std::string fileContent,
-                       const std::string directoryPath,
-                       ClusterHandler *clusterHandler);
+bool createNewNetwork(const std::string fileContent);
 
-    bool initNetwork();
+bool connectAllBricks(InitStructure* networkMetaStructure);
 
+void addBricks(const uint32_t nodeNumberPerBrick,
+               std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure);
 
-    std::vector<std::string> splitString(const std::string &s, char delim) {
-        std::stringstream ss(s);
-        std::string item;
-        std::vector<std::string> tokens;
-        while(std::getline(ss, item, delim)) {
-            tokens.push_back(item);
-        }
-        return tokens;
-    }
+std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
+                                      const uint32_t y,
+                                      const uint8_t side);
 
-    void removeEmptyStrings(std::vector<std::string>& strings)
-    {
-        std::vector<std::string>::iterator it = std::remove_if(
-                  strings.begin(),
-                  strings.end(),
-                  std::mem_fun_ref(&std::string::empty));
-        // erase the removed elements
-        strings.erase(it, strings.end());
-    }
+uint32_t getDistantToNextNodeBrick(const uint32_t x,
+                                   const uint32_t y,
+                                   const uint8_t side);
 
-private:
-    // initial values from constructor
-    std::string m_fileContent = "";
-    std::string m_directoryPath = "";
-    ClusterHandler* m_clusterHandler = nullptr;
-
-    // meta-data of the network
-    std::vector<std::vector<InitMetaDataEntry>> m_networkMetaStructure;
-    uint32_t m_networkDimensions[2];
-    ClusterID m_idCounter = 0;
-
-    // process initial file
-    bool getNetworkMetaStructure();
-};
 
 }
 
