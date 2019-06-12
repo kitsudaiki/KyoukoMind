@@ -8,85 +8,77 @@
  */
 
 #include "axonInitializer.h"
-#include <kyoChanNetwork.h>
+#include <kyoukoNetwork.h>
 
-#include <core/clustering/cluster/cluster.h>
-#include <core/clustering/cluster/edgeCluster.h>
-#include <core/clustering/cluster/nodeCluster.h>
+#include <core/bricks/brickObjects/brick.h>
+#include <core/bricks/brickMethods/commonBrickMethods.h>
+#include <core/bricks/brickMethods/bufferControlMethods.h>
 
 namespace KyoukoMind
 {
 
 /**
- * @brief AxonInitializer::AxonInitializer
- * @param networkMetaStructure
- * @param networkDimensionX
- * @param networkDimensionY
- */
-AxonInitializer::AxonInitializer(std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure,
-                                 const uint32_t networkDimensionX,
-                                 const uint32_t networkDimensionY)
-{
-    m_networkMetaStructure = networkMetaStructure;
-    m_networkDimensionX = networkDimensionX;
-    m_networkDimensionY = networkDimensionY;
-}
-
-
-/**
- * @brief AxonInitializer::createAxons
+ * @brief createAxons
  * @return
  */
-bool AxonInitializer::createAxons()
+bool
+createAxons(InitStructure* networkMetaStructure)
 {
-    // calculate number of axons per cluster
-    for(uint32_t x = 0; x < (*m_networkMetaStructure).size(); x++) {
-        for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++) {
-
-            // check cluster-type
-            Cluster* cluster = (*m_networkMetaStructure)[x][y].nodeCluster;
-            if(cluster == nullptr) {
+    // calculate number of axons per brick
+    for(uint32_t x = 0; x < (*networkMetaStructure).size(); x++)
+    {
+        for(uint32_t y = 0; y < (*networkMetaStructure)[x].size(); y++)
+        {
+            // check brick-type
+            Brick* brick = (*networkMetaStructure)[x][y].brick;
+            if(brick == nullptr) {
                 continue;
             }
-            if(cluster->getClusterType() == NODE_CLUSTER)
+            if((*networkMetaStructure)[x][y].type == NODE_BRICK)
             {
-                // get node-cluster
-                NodeCluster* nodeCluster = static_cast<NodeCluster*>(cluster);
-                uint32_t nodeNumberPerCluster = nodeCluster->getNumberOfNodes();
-                KyoChanNode* nodes = nodeCluster->getNodeBlock();
+                DataConnection* data = &brick->dataConnections[NODE_DATA];
 
-                // iterate over all nodes of the cluster and create an axon for each node
-                for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerCluster; nodeNumber++)
+                // get node-brick
+                uint32_t nodeNumberPerBrick = data->numberOfItems;
+                Node* nodes = (Node*)data->buffer.data;
+
+                // iterate over all nodes of the brick and create an axon for each node
+                for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)
                 {
                     // create new axon
-                    uint32_t axonId = (*m_networkMetaStructure)[x][y].numberOfAxons;
-                    NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 1);
+                    uint32_t axonId = (*networkMetaStructure)[x][y].numberOfAxons;
+                    NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 1, networkMetaStructure);
 
-                    // update values of the cluster and the node
-                    (*m_networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
-                    nodes[nodeNumber].targetClusterPath = newAxon.targetPath;
+                    // update values of the brick and the node
+                    (*networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
+                    nodes[nodeNumber].targetBrickPath = newAxon.targetPath;
                     nodes[nodeNumber].targetAxonId = axonId;
                 }
             }
         }
     }
 
-    // add the calculated number of axons to all clusters
-    for(uint32_t x = 0; x < (*m_networkMetaStructure).size(); x++) {
-        for(uint32_t y = 0; y < (*m_networkMetaStructure)[x].size(); y++) {
+    // add the calculated number of axons to all bricks
+    for(uint32_t x = 0; x < (*networkMetaStructure).size(); x++)
+    {
+        for(uint32_t y = 0; y < (*networkMetaStructure)[x].size(); y++)
+        {
 
-            Cluster* cluster = (*m_networkMetaStructure)[x][y].cluster;
-            if(cluster == nullptr) {
+            Brick* brick = (*networkMetaStructure)[x][y].brick;
+            if(brick == nullptr) {
                 continue;
             }
 
-            // add the axon-number to the specific cluster
-            EdgeCluster* edgeCluster = static_cast<EdgeCluster*>(cluster);
-            edgeCluster->initForwardEdgeSectionBlocks((*m_networkMetaStructure)[x][y].numberOfAxons);
+            // add the axon-number to the specific brick
+            if((*networkMetaStructure)[x][y].numberOfAxons == 0) {
+                (*networkMetaStructure)[x][y].numberOfAxons = 1;
+            }
+            initForwardEdgeSectionBlocks(brick, (*networkMetaStructure)[x][y].numberOfAxons);
         }
     }
     return true;
 }
+
 
 /**
  * @brief AxonInitializer::getNextAxonPathStep
@@ -97,11 +89,13 @@ bool AxonInitializer::createAxons()
  * @param currentStep
  * @return
  */
-AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
-                                                              const uint32_t y,
-                                                              const uint8_t inputSide,
-                                                              const uint64_t currentPath,
-                                                              const uint32_t currentStep)
+NewAxon
+getNextAxonPathStep(const uint32_t x,
+                    const uint32_t y,
+                    const uint8_t inputSide,
+                    const uint64_t currentPath,
+                    const uint32_t currentStep,
+                    InitStructure* networkMetaStructure)
 {
     // check if go to next
     bool goToNext = false;
@@ -117,18 +111,21 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
     // return the current values if no next or path long enough
     if(goToNext == false || currentStep == 8)
     {
-        AxonInitializer::NewAxon result;
+        NewAxon result;
         result.targetX = x;
         result.targetY = y;
         result.targetPath = currentPath;
         return result;
     }
-    // choose the next cluster
-    uint8_t nextSite = chooseNextSide(inputSide, (*m_networkMetaStructure)[x][y].neighbors);
+    // choose the next brick
+    uint8_t nextSite = 0xFF;
+    if((*networkMetaStructure)[x][y].type != EMPTY_BRICK) {
+        nextSite = chooseNextSide(inputSide, (*networkMetaStructure)[x][y].brick->neighbors);
+    }
 
     if(nextSite == 0xFF)
     {
-        AxonInitializer::NewAxon result;
+        NewAxon result;
         result.targetX = x;
         result.targetY = y;
         result.targetPath = currentPath;
@@ -136,17 +133,18 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
     }
 
     // get the neighbor of the choosen side
-    Neighbor choosenOne = (*m_networkMetaStructure)[x][y].neighbors[nextSite];
+    Neighbor* choosenOne = &(*networkMetaStructure)[x][y].brick->neighbors[nextSite];
 
     // update path
     uint64_t newPath = currentPath + ((uint64_t)nextSite << ((uint64_t)currentStep * (uint64_t)5));
 
     // make next iteration
-    return getNextAxonPathStep(choosenOne.targetClusterPos.x,
-                               choosenOne.targetClusterPos.y,
-                               16 - nextSite,
+    return getNextAxonPathStep(choosenOne->targetBrickPos.x,
+                               choosenOne->targetBrickPos.y,
+                               23 - nextSite,
                                newPath,
-                               currentStep+1);
+                               currentStep+1,
+                               networkMetaStructure);
 }
 
 /**
@@ -155,15 +153,16 @@ AxonInitializer::NewAxon AxonInitializer::getNextAxonPathStep(const uint32_t x,
  * @return
  */
 uint8_t
-AxonInitializer::chooseNextSide(const uint8_t initialSide, Neighbor *neighbors)
+chooseNextSide(const uint8_t initialSide, Neighbor* neighbors)
 {
-    std::vector<uint8_t> sideOrder = {2, 3, 4, 14, 13, 12};
+    std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
     std::vector<uint8_t> availableSides;
 
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
-        if(neighbors[sideOrder[i]].targetClusterId != UNINIT_STATE_32
-                && sideOrder[i] != initialSide) {
+        if(neighbors[sideOrder[i]].targetBrickId != UNINIT_STATE_32
+                && sideOrder[i] != initialSide)
+        {
             availableSides.push_back(sideOrder[i]);
         }
     }

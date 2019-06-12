@@ -10,14 +10,6 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-enum ClusterType
-{
-    UNDEFINED_CLUSTER = 0,
-    EMPTY_CLUSTER = 1,
-    EDGE_CLUSTER = 2,
-    NODE_CLUSTER = 3
-};
-
 enum SectionStatus
 {
     UNDEFINED_SECTION = 0,

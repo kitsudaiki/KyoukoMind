@@ -11,13 +11,13 @@
 #define NETTHREADMANAGER_H
 
 #include <common.h>
-#include <commonThread.h>
+#include <threading/commonThread.h>
 
 namespace KyoukoMind
 {
 
 class Config;
-class ClusterHandler;
+class BrickHandler;
 class ProcessingUnitHandler;
 class MessageController;
 class ConnectionTrigger;
@@ -29,14 +29,12 @@ public:
     NetworkManager();
 
     MessageController* getMessageController() const;
-    ClusterHandler* getClusterHandler() const;
 
     void run();
 
 private:
     void initNetwork();
 
-    ClusterHandler* m_clusterHandler = nullptr;
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
     ConnectionTrigger* m_trigger = nullptr;
 

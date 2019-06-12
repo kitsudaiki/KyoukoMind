@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <cmath>
 #include <utility>
+#include <atomic>
 
 #include <jsonObjects.h>
 #include <jsonItem.h>

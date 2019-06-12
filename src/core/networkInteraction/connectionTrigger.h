@@ -13,31 +13,35 @@
 #include <networkTrigger.h>
 #include <vector>
 #include <string>
+#include <common.h>
+#include <communicationStructs/communicationMessages.h>
 
 namespace Kitsune
 {
 namespace Network
 {
 class TcpClient;
+struct MessageRingBuffer;
 }
 }
+using Kitsune::Network::MessageRingBuffer;
+using Kitsune::Chan::Communication::MessageSizes;
 
 namespace KyoukoMind
 {
-class ClusterHandler;
+class BrickHandler;
 
 class ConnectionTrigger : public Kitsune::Network::NetworkTrigger
 {
 public:
-    ConnectionTrigger(ClusterHandler *model);
+    ConnectionTrigger();
     ~ConnectionTrigger();
 
-    void runTask(uint8_t* buffer,
-                 const long bufferSize,
-                 Kitsune::Network::TcpClient* client);
+    uint32_t runTask(const MessageRingBuffer &recvBuffer,
+                     Kitsune::Network::TcpClient *client);
 
-private:
-    ClusterHandler* m_model = nullptr;
+    uint8_t m_tempBuffer[8192];
+    MessageSizes m_messageSize;
 
 };
 

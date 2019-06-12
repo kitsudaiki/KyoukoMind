@@ -9,18 +9,17 @@
 
 #include <core/networkManager.h>
 #include <settings/config.h>
-#include <kyoChanNetwork.h>
+#include <kyoukoNetwork.h>
 
-#include <core/clustering/clusterHandler.h>
+#include <core/bricks/brickHandler.h>
 #include <core/processing/processingUnitHandler.h>
-#include <initializing/networkInitializer.h>
 
-#include <core/clustering/cluster/edgeCluster.h>
-#include <core/clustering/cluster/nodeCluster.h>
-
-#include <core/structs/clusterMeta.h>
-#include <mindClient.h>
+#include <core/bricks/brickObjects/brick.h>
+#include <core/networkInteraction/mindClient.h>
 #include <core/networkInteraction/connectionTrigger.h>
+
+#include <initializing/fileParser.h>
+#include <initializing/networkInitializer.h>
 
 namespace KyoukoMind
 {
@@ -30,25 +29,15 @@ namespace KyoukoMind
  */
 NetworkManager::NetworkManager()
 {
-    assert(sizeof(ClusterMetaData) < 4096);
+    assert(sizeof(Brick) < 4096);
 
-    m_clusterHandler = new ClusterHandler();
-    m_processingUnitHandler = new ProcessingUnitHandler(m_clusterHandler);
+    m_processingUnitHandler = new ProcessingUnitHandler();
 
-    m_trigger = new KyoukoMind::ConnectionTrigger(m_clusterHandler);
+    m_trigger = new KyoukoMind::ConnectionTrigger();
     KyoukoNetwork::m_mindClient->addNetworkTrigger(m_trigger);
 
+    std::string initialFile = KyoukoNetwork::m_config->getInitialFilePath();
     initNetwork();
-}
-
-/**
- * @brief NetworkManager::getClusterHandler
- * @return
- */
-ClusterHandler*
-NetworkManager::getClusterHandler() const
-{
-    return m_clusterHandler;
 }
 
 /**
@@ -75,7 +64,7 @@ NetworkManager::initNetwork()
 
     m_processingUnitHandler->initProcessingUnits(NUMBER_OF_PROCESSING_UNITS);
 
-    std::vector<std::string> clusterFiles;
+    std::vector<std::string> brickFiles;
     // get all files in the directory
     DIR *dir;
     struct dirent *ent;
@@ -83,29 +72,19 @@ NetworkManager::initNetwork()
         while((ent = readdir(dir)) != nullptr) {
             std::string tempFileName = ent->d_name;
             if(tempFileName.at(0) != '.') {
-                clusterFiles.push_back(ent->d_name);
+                brickFiles.push_back(ent->d_name);
             }
         }
         closedir (dir);
     }
 
-    if(clusterFiles.size() == 0)
+    if(brickFiles.size() == 0)
     {
-        // read into string
-        std::ifstream inFile;
-        inFile.open(initialFile);
-        std::stringstream strStream;
-        strStream << inFile.rdbuf();
-        std::string string_content = strStream.str();
-
-        NetworkInitializer init(string_content,
-                                directoryPath,
-                                m_clusterHandler);
-        bool successfulInit = init.initNetwork();
-        assert(successfulInit);
+        std::string fileContent = readFile(initialFile);
+        createNewNetwork(fileContent);
     }
     else {
-        for(uint32_t i = 0; i < clusterFiles.size(); i++) {
+        for(uint32_t i = 0; i < brickFiles.size(); i++) {
             // TODO
         }
     }
