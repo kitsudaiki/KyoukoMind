@@ -1,0 +1,59 @@
+image: registry.gitlab.com/kitsune_other/kitsune_docker_unittest:0.1.0
+
+build:
+  script:
+    - echo Working on branch $CI_COMMIT_REF_NAME
+    - mkdir /builds/build
+
+    - ssh-keyscan -H 192.168.178.200 >> ~/.ssh/known_hosts
+
+    - git clone --branch 0.1.0 git@gitlab.com:kitsune_libs/LibKitsuneCommon.git /builds/kitsune/libKitsuneCommon
+
+    - cd /builds/build
+    - mkdir libKitsuneCommon
+    - cd libKitsuneCommon
+    - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /builds/kitsune/libKitsuneCommon/libKitsuneCommon.pro -spec linux-g++ CONFIG+=debug CONFIG+=c++14
+    - /usr/bin/make
+
+    - git clone --branch master git@gitlab.com:kitsune_libs/LibKitsuneNetwork.git /builds/kitsune/libKitsuneNetwork
+
+    - cd /builds/build
+    - mkdir libKitsuneNetwork
+    - cd libKitsuneNetwork
+    - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /builds/kitsune/libKitsuneNetwork/libKitsuneNetwork.pro -spec linux-g++ CONFIG+=debug CONFIG+=c++14
+    - /usr/bin/make
+
+    - git clone git@gitlab.com:kitsune_libs/LibKitsuneJson.git /builds/kitsune/libKitsuneJson
+
+    - cd /builds/build
+    - mkdir libKitsuneJson
+    - cd libKitsuneJson
+    - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /builds/kitsune/libKitsuneJson/libKitsuneJson.pro -spec linux-g++ CONFIG+=debug CONFIG+=c++14
+    - /usr/bin/make
+
+
+
+    - git clone git@192.168.178.200:kitsune/libKitsuneChanCommon.git /builds/kitsune/libKitsuneChanCommon
+
+    - cd /builds/build
+    - mkdir libKitsuneChanCommon
+    - cd libKitsuneChanCommon
+    - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /builds/kitsune/libKitsuneChanCommon/libKitsuneChanCommon.pro -spec linux-g++ CONFIG+=debug CONFIG+=c++14
+    - /usr/bin/make
+
+
+
+    - cd /builds/build
+    - mkdir KyoukoMind
+    - cd KyoukoMind
+    - /usr/lib/x86_64-linux-gnu/qt5/bin/qmake /builds/kitsune/KyoukoMind/KyoukoMind.pro -spec linux-g++ "QMAKE_CXXFLAGS += -DRUN_UNIT_TEST" CONFIG+=debug CONFIG+=c++14
+    - /usr/bin/make
+
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'/builds/build/libKitsuneCommon/src'
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'/builds/build/libKitsuneNetwork/src'
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'/builds/build/libKitsuneJson/src'
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'/builds/build/libKitsuneChanCommon'
+    - ./KyoukoMind
+
+  tags:
+    - docker
