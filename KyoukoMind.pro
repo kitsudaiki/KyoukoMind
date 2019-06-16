@@ -1,6 +1,6 @@
 QT -= qt core gui
 
-CONFIG += c++17
+CONFcIG += c++17
 
 TARGET = KyoukoMind
 CONFIG += console
@@ -17,11 +17,6 @@ LIBS += -L../libKitsuneJson/src -lKitsuneJson
 LIBS += -L../libKitsuneJson/src/debug -lKitsuneJson
 LIBS += -L../libKitsuneJson/src/release -lKitsuneJson
 INCLUDEPATH += ../libKitsuneJson/include/libKitsuneJson
-
-LIBS += -L../libKitsunePersistence -lKitsunePersistence
-LIBS += -L../libKitsunePersistence/debug -lKitsunePersistence
-LIBS += -L../libKitsunePersistence/release -lKitsunePersistence
-INCLUDEPATH += ../libKitsunePersistence/include/libKitsunePersistence
 
 LIBS += -L../libKitsuneNetwork/src -lKitsuneNetwork
 LIBS += -L../libKitsuneNetwork/src/debug -lKitsuneNetwork
