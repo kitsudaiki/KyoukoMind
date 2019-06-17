@@ -138,16 +138,16 @@ processNodes(Brick* brick, float* weightMap)
 void
 postLearning(Brick* brick)
 {
-    const DataConnection* data = &brick->dataConnections[EDGE_DATA];
+    const DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
     if(data->inUse != 1) {
         return;
     }
 
-    EdgeSection* sectionStart = getEdgeSectionBlock(data);
-    EdgeSection* sectionEnd = sectionStart + data->numberOfItems;
+    SynapseSection* sectionStart = getSynapseSectionBlock(data);
+    SynapseSection* sectionEnd = sectionStart + data->numberOfItems;
 
     // iterate over all edge-sections
-    for(EdgeSection* section = sectionStart;
+    for(SynapseSection* section = sectionStart;
         section < sectionEnd;
         section++)
     {
@@ -155,10 +155,10 @@ postLearning(Brick* brick)
             continue;
         }
         // update values based on the memorizing-value
-        Edge* end = section->edges + section->numberOfEdges;
-        for(Edge* edge = section->edges;
-            edge < end;
-            edge++)
+        Synapse* end = section->synapses + section->numberOfSynapses;
+        for(Synapse* synapse = section->synapses;
+            synapse < end;
+            synapse++)
         {
 
             // normal learn
@@ -173,9 +173,9 @@ postLearning(Brick* brick)
             // mem
             if(brick->globalValues.globalMemorizingTemp != 0.0f)
             {
-                edge->memorize = brick->globalValues.globalMemorizingTemp;
-                if(edge->memorize > 1.0f) {
-                    edge->memorize = 1.0f;
+                synapse->memorize = brick->globalValues.globalMemorizingTemp;
+                if(synapse->memorize > 1.0f) {
+                    synapse->memorize = 1.0f;
                 }
             }
         }
@@ -187,19 +187,19 @@ postLearning(Brick* brick)
  * @param brick
  */
 void
-memorizeEdges(Brick* brick)
+memorizeSynapses(Brick* brick)
 {
-    const DataConnection* data = &brick->dataConnections[EDGE_DATA];
+    const DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
     if(data->inUse != 1) {
         return;
     }
 
-    EdgeSection* sectionStart = getEdgeSectionBlock(data);
-    EdgeSection* sectionEnd = sectionStart + data->numberOfItems;
+    SynapseSection* sectionStart = getSynapseSectionBlock(data);
+    SynapseSection* sectionEnd = sectionStart + data->numberOfItems;
 
-    // iterate over all edge-sections
+    // iterate over all synapse-sections
     uint32_t sectionPos = 0;
-    for(EdgeSection* section = sectionStart;
+    for(SynapseSection* section = sectionStart;
         section < sectionEnd;
         section++)
     {
@@ -211,33 +211,33 @@ memorizeEdges(Brick* brick)
         }
 
         // update values based on the memorizing-value
-        Edge* end = section->edges + section->numberOfEdges;
-        for(Edge* edge = section->edges;
-            edge < end;
-            edge++)
+        Synapse* end = section->synapses + section->numberOfSynapses;
+        for(Synapse* synapse = section->synapses;
+            synapse < end;
+            synapse++)
         {
-            if(edge->inProcess == 1) {
+            if(synapse->inProcess == 1) {
                 continue;
             }
 
-            const float newWeight = edge->weight * (1.0f - edge->memorize);
-            edge->weight -= newWeight;
+            const float newWeight = synapse->weight * (1.0f - synapse->memorize);
+            synapse->weight -= newWeight;
         }
         section->makeClean();
 
         // delete dynamic item if value is too low
-        if(section->getTotalWeight() < DELETE_EDGE_BORDER)
+        if(section->getTotalWeight() < DELETE_SYNAPSE_BORDER)
         {
-            ForwardEdgeSection* currentSection = &getForwardEdgeBlock(&brick->dataConnections[FORWARDEDGE_DATA])[section->sourceId];
-            processUpdateDeleteForwardEdge(brick, currentSection, section->sourceId, 24);
-            deleteDynamicItem(brick, EDGE_DATA, sectionPos);
+            EdgeSection* currentSection = &getEdgeBlock(&brick->dataConnections[EDGE_DATA])[section->sourceId];
+            processUpdateDeleteEdge(brick, currentSection, section->sourceId, 24);
+            deleteDynamicItem(brick, SYNAPSE_DATA, sectionPos);
         }
         else
         {
-            ForwardEdgeSection* currentSection = &getForwardEdgeBlock(&brick->dataConnections[FORWARDEDGE_DATA])[section->sourceId];
+            EdgeSection* currentSection = &getEdgeBlock(&brick->dataConnections[EDGE_DATA])[section->sourceId];
             const float updateValue = section->getTotalWeight();
             if(updateValue > 0.0f) {
-                processUpdateSetForwardEdge(brick, currentSection, updateValue, 24);
+                processUpdateSetEdge(brick, currentSection, updateValue, 24);
             }
         }
         sectionPos++;
@@ -344,17 +344,17 @@ writeStatus(Brick* brick, TransferDataMessage* message)
     monitoringMessage.brickId = brick->brickId;
     monitoringMessage.xPos = brick->brickPos.x;
     monitoringMessage.yPos = brick->brickPos.y;
-    if(brick->dataConnections[FORWARDEDGE_DATA].inUse == 1) {
-        monitoringMessage.numberOfForwardEdgeSections = brick->dataConnections[FORWARDEDGE_DATA].numberOfItems
-                - brick->dataConnections[FORWARDEDGE_DATA].numberOfDeletedDynamicItems;
+    if(brick->dataConnections[EDGE_DATA].inUse == 1) {
+        monitoringMessage.numberOfEdgeSections = brick->dataConnections[EDGE_DATA].numberOfItems
+                - brick->dataConnections[EDGE_DATA].numberOfDeletedDynamicItems;
     }
     if(brick->dataConnections[NODE_DATA].inUse == 1) {
         monitoringMessage.numberOfNodes = brick->dataConnections[NODE_DATA].numberOfItems
                 - brick->dataConnections[NODE_DATA].numberOfDeletedDynamicItems;
     }
-    if(brick->dataConnections[EDGE_DATA].inUse == 1) {
-        monitoringMessage.numberOfEdgeSections = brick->dataConnections[EDGE_DATA].numberOfItems
-                - brick->dataConnections[EDGE_DATA].numberOfDeletedDynamicItems;
+    if(brick->dataConnections[SYNAPSE_DATA].inUse == 1) {
+        monitoringMessage.numberOfSynapseSections = brick->dataConnections[SYNAPSE_DATA].numberOfItems
+                - brick->dataConnections[SYNAPSE_DATA].numberOfDeletedDynamicItems;
     }
     monitoringMessage.globalLearning = globalValue.globalLearningOffset;
     monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;

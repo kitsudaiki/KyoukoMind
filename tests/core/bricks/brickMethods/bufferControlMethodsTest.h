@@ -29,12 +29,12 @@ private:
     void testDeleteDynamicItem();
 
     void testInitNodeBlocks();
+    void testInitSynapseSectionBlocks();
     void testInitEdgeSectionBlocks();
-    void testInitForwardEdgeSectionBlocks();
 
     void testAddEdge();
+    void testAddEmptySynapseSection();
     void testAddEmptyEdgeSection();
-    void testAddEmptyForwardEdgeSection();
 };
 
 }

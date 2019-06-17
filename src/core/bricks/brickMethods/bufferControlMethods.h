@@ -25,16 +25,16 @@ getNodeBlock(DataConnection* data)
     return (Node*)data->buffer.data;
 }
 
-inline EdgeSection*
-getEdgeSectionBlock(const DataConnection* data)
+inline SynapseSection*
+getSynapseSectionBlock(const DataConnection* data)
 {
-    return (EdgeSection*)data->buffer.data;
+    return (SynapseSection*)data->buffer.data;
 }
 
-inline ForwardEdgeSection*
-getForwardEdgeBlock(const DataConnection* data)
+inline EdgeSection*
+getEdgeBlock(const DataConnection* data)
 {
-    return (ForwardEdgeSection*)data->buffer.data;
+    return (EdgeSection*)data->buffer.data;
 }
 
 // init blocks
@@ -46,10 +46,10 @@ bool initDataBlocks(Brick* brick,
 // init lists
 bool initNodeBlocks(Brick* brick,
                     uint32_t numberOfNodes);
-bool initEdgeSectionBlocks(Brick* brick,
-                           const uint32_t numberOfEdgeSections);
-bool initForwardEdgeSectionBlocks(Brick *brick,
-                                  const uint32_t numberOfForwardEdgeSections);
+bool initSynapseSectionBlocks(Brick* brick,
+                           const uint32_t numberOfSynapseSections);
+bool initEdgeSectionBlocks(Brick *brick,
+                                  const uint32_t numberOfEdgeSections);
 
 
 // delete items
@@ -63,12 +63,12 @@ uint32_t reserveDynamicItem(Brick* brick,
 
 
 // expand lists
-bool addEdge(Brick* brick,
-             const uint32_t edgeSectionId,
-             const Edge &newEdge);
-uint32_t addEmptyEdgeSection(Brick* brick,
+bool addSynapse(Brick* brick,
+             const uint32_t synapseSectionId,
+             const Synapse &newSynapse);
+uint32_t addEmptySynapseSection(Brick* brick,
                              const uint32_t sourceId);
-uint32_t addEmptyForwardEdgeSection(Brick* brick,
+uint32_t addEmptyEdgeSection(Brick* brick,
                                     const uint8_t sourceSide,
                                     const uint32_t sourceId);
 

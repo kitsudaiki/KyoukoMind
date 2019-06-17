@@ -20,7 +20,7 @@ uint16_t processOutputNodes(Brick* brick);
 uint16_t processNodes(Brick* brick, float *weightMap);
 
 void postLearning(Brick* brick);
-void memorizeEdges(Brick* brick);
+void memorizeSynapses(Brick* brick);
 
 bool finishSide(Brick* brick,
                 const uint8_t side);

@@ -73,7 +73,7 @@ createAxons(InitStructure* networkMetaStructure)
             if((*networkMetaStructure)[x][y].numberOfAxons == 0) {
                 (*networkMetaStructure)[x][y].numberOfAxons = 1;
             }
-            initForwardEdgeSectionBlocks(brick, (*networkMetaStructure)[x][y].numberOfAxons);
+            initEdgeSectionBlocks(brick, (*networkMetaStructure)[x][y].numberOfAxons);
         }
     }
     return true;

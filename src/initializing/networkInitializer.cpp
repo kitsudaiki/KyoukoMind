@@ -86,7 +86,7 @@ addBricks(const uint32_t nodeNumberPerBrick,
                 {
                     Brick* brick = new Brick((*networkMetaStructure)[x][y].brickId, x, y);
                     initNodeBlocks(brick, nodeNumberPerBrick);
-                    initEdgeSectionBlocks(brick, 0);
+                    initSynapseSectionBlocks(brick, 0);
                     (*networkMetaStructure)[x][y].brick = brick;
                     KyoukoNetwork::m_brickHandler->addBrick((*networkMetaStructure)[x][y].brickId, brick);
                     break;

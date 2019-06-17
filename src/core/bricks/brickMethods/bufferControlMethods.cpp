@@ -87,29 +87,29 @@ initNodeBlocks(Brick* brick,
 /**
  * init the edge-sections of thebrick
  *
- * @param numberOfEdgeSections number of edge-sections which should be initialized
+ * @param numberOfSynapseSections number of edge-sections which should be initialized
  * @return false, if already initialized, else true
  */
 bool
-initEdgeSectionBlocks(Brick* brick,
-                      const uint32_t numberOfEdgeSections)
+initSynapseSectionBlocks(Brick* brick,
+                         const uint32_t numberOfSynapseSections)
 {
-    DataConnection* data = &brick->dataConnections[EDGE_DATA];
+    DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
 
     // prechecks
     if(data->inUse != 0) {
         return false;
     }
 
-    if(initDataBlocks(brick, EDGE_DATA, numberOfEdgeSections, sizeof(EdgeSection)) == false) {
+    if(initDataBlocks(brick, SYNAPSE_DATA, numberOfSynapseSections, sizeof(SynapseSection)) == false) {
         return false;
     }
 
-    // fill array with empty edgesections
-    EdgeSection* array = getEdgeSectionBlock(data);
-    for(uint32_t i = 0; i < numberOfEdgeSections; i++)
+    // fill array with empty synapsesections
+    SynapseSection* array = getSynapseSectionBlock(data);
+    for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
-        EdgeSection newSection;
+        SynapseSection newSection;
         newSection.sourceId = i;
         array[i] = newSection;
     }
@@ -121,30 +121,30 @@ initEdgeSectionBlocks(Brick* brick,
 /**
  * initialize forward-edge-block
  *
- * @param numberOfForwardEdgeSections number of forward-edge-sections
+ * @param numberOfEdgeSections number of forward-edge-sections
  * @return true if success, else false
  */
 bool
-initForwardEdgeSectionBlocks(Brick* brick,
-                             const uint32_t numberOfForwardEdgeSections)
+initEdgeSectionBlocks(Brick* brick,
+                             const uint32_t numberOfEdgeSections)
 {
-    DataConnection* data = &brick->dataConnections[FORWARDEDGE_DATA];
+    DataConnection* data = &brick->dataConnections[EDGE_DATA];
 
     // prechecks
     if(data->numberOfItems != 0
-            || numberOfForwardEdgeSections == 0) {
+            || numberOfEdgeSections == 0) {
         return false;
     }
 
-    if(initDataBlocks(brick, FORWARDEDGE_DATA, numberOfForwardEdgeSections, sizeof(ForwardEdgeSection)) == false) {
+    if(initDataBlocks(brick, EDGE_DATA, numberOfEdgeSections, sizeof(EdgeSection)) == false) {
         return false;
     }
 
     // fill array with empty forward-edge-sections
-    ForwardEdgeSection* array = getForwardEdgeBlock(data);
-    for(uint32_t i = 0; i < numberOfForwardEdgeSections; i++)
+    EdgeSection* array = getEdgeBlock(data);
+    for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
-        ForwardEdgeSection newSection;
+        EdgeSection newSection;
         array[i] = newSection;
     }
 
@@ -274,20 +274,20 @@ reserveDynamicItem(Brick *brick,
  * @return false, if edgeSectionId is too big, else true
  */
 bool
-addEdge(Brick* brick,
-        const uint32_t edgeSectionId,
-        const Edge &newEdge)
+addSynapse(Brick* brick,
+           const uint32_t synapseSectionId,
+           const Synapse &newSynapse)
 {
-    const DataConnection* data = &brick->dataConnections[EDGE_DATA];
+    const DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
 
     // check if id is valid
-    if(edgeSectionId >= data->numberOfItems) {
+    if(synapseSectionId >= data->numberOfItems) {
         return false;
     }
 
     // get section and add the new edge
-    EdgeSection* edgeSection = &getEdgeSectionBlock(data)[edgeSectionId];
-    return edgeSection->addEdge(newEdge);
+    SynapseSection* synapseSection = &getSynapseSectionBlock(data)[synapseSectionId];
+    return synapseSection->addSynapse(newSynapse);
 }
 
 /**
@@ -296,17 +296,17 @@ addEdge(Brick* brick,
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
 uint32_t
-addEmptyEdgeSection(Brick* brick, const uint32_t sourceId)
+addEmptySynapseSection(Brick* brick, const uint32_t sourceId)
 {
-    const uint32_t position = reserveDynamicItem(brick, EDGE_DATA);
+    const uint32_t position = reserveDynamicItem(brick, SYNAPSE_DATA);
 
     if(position != UNINIT_STATE_32)
     {
         // add new edge-forward-section
-        EdgeSection newSection;
+        SynapseSection newSection;
         newSection.sourceId = sourceId;
-        const DataConnection* data = &brick->dataConnections[EDGE_DATA];
-        getEdgeSectionBlock(data)[position] = newSection;
+        const DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
+        getSynapseSectionBlock(data)[position] = newSection;
     }
 
     return position;
@@ -320,18 +320,18 @@ addEmptyEdgeSection(Brick* brick, const uint32_t sourceId)
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
 uint32_t
-addEmptyForwardEdgeSection(Brick *brick,
+addEmptyEdgeSection(Brick *brick,
                            const uint8_t sourceSide,
                            const uint32_t sourceId)
 {
-    const uint32_t position = reserveDynamicItem(brick, FORWARDEDGE_DATA);
+    const uint32_t position = reserveDynamicItem(brick, EDGE_DATA);
 
     // add new edge-forward-section
-    ForwardEdgeSection newSection;
+    EdgeSection newSection;
     newSection.sourceId = sourceId;
     newSection.sourceSide = sourceSide;
-    const DataConnection* connection = &brick->dataConnections[FORWARDEDGE_DATA];
-    ForwardEdgeSection* array = getForwardEdgeBlock(connection);
+    const DataConnection* connection = &brick->dataConnections[EDGE_DATA];
+    EdgeSection* array = getEdgeBlock(connection);
     array[position] = newSection;
 
     return position;
