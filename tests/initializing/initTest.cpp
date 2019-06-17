@@ -78,12 +78,12 @@ void InitTest::checkInit()
 
     for(uint32_t i = 0; i < bricks.size(); i++)
     {
-        totalData.dataConnections[FORWARDEDGE_DATA].numberOfItems += bricks.at(i)->dataConnections[FORWARDEDGE_DATA].numberOfItems;
-        totalData.dataConnections[FORWARDEDGE_DATA].numberOfItemBlocks += bricks.at(i)->dataConnections[FORWARDEDGE_DATA].numberOfItemBlocks;
+        totalData.dataConnections[EDGE_DATA].numberOfItems += bricks.at(i)->dataConnections[EDGE_DATA].numberOfItems;
+        totalData.dataConnections[EDGE_DATA].numberOfItemBlocks += bricks.at(i)->dataConnections[EDGE_DATA].numberOfItemBlocks;
     }
 
-    UNITTEST((int)totalData.dataConnections[FORWARDEDGE_DATA].numberOfItems, (nodeNumberPerBrick*6));
-    UNITTEST((int)totalData.dataConnections[FORWARDEDGE_DATA].numberOfItemBlocks, 7);
+    UNITTEST((int)totalData.dataConnections[EDGE_DATA].numberOfItems, (nodeNumberPerBrick*6));
+    UNITTEST((int)totalData.dataConnections[EDGE_DATA].numberOfItemBlocks, 7);
 }
 
 /**

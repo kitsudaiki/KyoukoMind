@@ -84,7 +84,7 @@ ProcessingUnit::run()
 
             // post-processing
             postLearning(brick);
-            memorizeEdges(brick);
+            memorizeSynapses(brick);
 
             // monitoring
             if(m_enableMonitoring) {
@@ -235,7 +235,7 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
                 if(edge->targetId == UNINIT_STATE_32 && edge->updateValue >= 0.0f) {
                     continue;
                 }
-                processUpdateForwardEdge(brick, edge->targetId, edge->updateValue, edge->updateType, side);
+                processUpdateEdge(brick, edge->targetId, edge->updateValue, edge->updateType, side);
                 break;
             }
             // ------------------------------------------------------------------------------------------
@@ -246,14 +246,14 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
                 if(edge->sourceEdgeSectionId == UNINIT_STATE_32 && edge->weight >= 0.0f) {
                     continue;
                 }
-                processPendingForwardEdge(brick, edge->sourceEdgeSectionId, edge->sourceSide, edge->weight, m_weightMap);
+                processPendingEdge(brick, edge->sourceEdgeSectionId, edge->sourceSide, edge->weight, m_weightMap);
                 break;
             }
             // ------------------------------------------------------------------------------------------
             case FOREWARD_EDGE_CONTAINER:
             {
-                ForwardEdgeContainer* edge = (ForwardEdgeContainer*)data;
-                data += sizeof(ForwardEdgeContainer);
+                EdgeContainer* edge = (EdgeContainer*)data;
+                data += sizeof(EdgeContainer);
                 if(edge->targetEdgeSectionId == UNINIT_STATE_32 && edge->weight > 0.0f) {
                     continue;
                 }
@@ -279,7 +279,7 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
                 if(edge->sourceEdgeSectionId == UNINIT_STATE_32 && edge->weight >= 0.0f) {
                     continue;
                 }
-                processLerningForwardEdge(brick, edge->sourceEdgeSectionId, edge->weight, side, m_weightMap);
+                processLerningEdge(brick, edge->sourceEdgeSectionId, edge->weight, side, m_weightMap);
                 break;
             }
             // ------------------------------------------------------------------------------------------
@@ -288,7 +288,7 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
                 LearningEdgeReplyContainer* edge = (LearningEdgeReplyContainer*)data;
                 data += sizeof(LearningEdgeReplyContainer);
 
-                ForwardEdgeSection* edgeForwardSections = getForwardEdgeBlock(&brick->dataConnections[FORWARDEDGE_DATA]);
+                EdgeSection* edgeForwardSections = getEdgeBlock(&brick->dataConnections[EDGE_DATA]);
 
                 if(edge->sourceEdgeSectionId == UNINIT_STATE_32) {
                     continue;

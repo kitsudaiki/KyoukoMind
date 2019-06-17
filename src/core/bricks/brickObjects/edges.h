@@ -16,9 +16,9 @@ namespace KyoukoMind
 {
 
 /**
- * @brief The ForwardEdge struct
+ * @brief The Edge struct
  */
-struct ForwardEdge
+struct Edge
 {
     float weight = 0.0;
     uint32_t targetId = UNINIT_STATE_32;
@@ -28,7 +28,7 @@ struct ForwardEdge
 /**
  * @brief The Edge struct
  */
-struct Edge
+struct Synapse
 {
     float weight = 0.0;
     uint16_t targetNodeId = UNINIT_STATE_16;
@@ -39,25 +39,25 @@ struct Edge
 } __attribute__((packed));
 
 /**
- * @brief The ForwardEdgeSection struct
+ * @brief The EdgeSection struct
  */
-struct ForwardEdgeSection
+struct EdgeSection
 {
     uint8_t status = ACTIVE_SECTION;
-    ForwardEdge forwardEdges[25];
+    Edge forwardEdges[25];
     //uint8_t numberOfActiveEdges = 0;
     float totalWeight = 0.0000001f;
     uint8_t sourceSide = 0;
     uint32_t sourceId = UNINIT_STATE_32;
 
     /**
-     * @brief ForwardEdgeSection
+     * @brief EdgeSection
      */
-    ForwardEdgeSection()
+    EdgeSection()
     {
         for(uint32_t i = 0; i < 25; i++)
         {
-            ForwardEdge newEdge;
+            Edge newEdge;
             forwardEdges[i] = newEdge;
         }
     }
@@ -92,22 +92,22 @@ struct ForwardEdgeSection
 /**
  * @brief The EdgeSection struct
  */
-struct EdgeSection
+struct SynapseSection
 {
     uint8_t status = ACTIVE_SECTION;
-    uint32_t numberOfEdges = 0;
+    uint32_t numberOfSynapses = 0;
     uint32_t sourceId = UNINIT_STATE_32;
-    Edge edges[EDGES_PER_EDGESECTION];
+    Synapse synapses[EDGES_PER_SYNAPSESECTION];
 
     /**
      * @brief EdgeSection
      */
-    EdgeSection()
+    SynapseSection()
     {
-        for(uint32_t i = 0; i < EDGES_PER_EDGESECTION; i++)
+        for(uint32_t i = 0; i < EDGES_PER_SYNAPSESECTION; i++)
         {
-            Edge newEdge;
-            edges[i] = newEdge;
+            Synapse newSynapse;
+            synapses[i] = newSynapse;
         }
     }
 
@@ -118,9 +118,9 @@ struct EdgeSection
     float getTotalWeight()
     {
         float result = 0.0000001f;
-        for(uint32_t i = 0; i < numberOfEdges; i++)
+        for(uint32_t i = 0; i < numberOfSynapses; i++)
         {
-            result += std::abs(edges[i].weight);
+            result += std::abs(synapses[i].weight);
         }
         return result;
     }
@@ -130,12 +130,12 @@ struct EdgeSection
      */
     void makeClean()
     {
-        for(uint32_t i = 0; i < numberOfEdges; i++)
+        for(uint32_t i = 0; i < numberOfSynapses; i++)
         {
-            if(edges[i].weight < 0.1f && edges[i].weight > -0.1f)
+            if(synapses[i].weight < 0.1f && synapses[i].weight > -0.1f)
             {
-                edges[i] = edges[numberOfEdges-1];
-                numberOfEdges--;
+                synapses[i] = synapses[numberOfSynapses-1];
+                numberOfSynapses--;
             }
         }
     }
@@ -146,24 +146,24 @@ struct EdgeSection
      */
     bool isFull() const
     {
-        if(numberOfEdges >= EDGES_PER_EDGESECTION) {
+        if(numberOfSynapses >= EDGES_PER_SYNAPSESECTION) {
             return true;
         }
         return false;
     }
 
     /**
-     * @brief addEdge
-     * @param newEdge
+     * @brief addSynapse
+     * @param newSynapse
      * @return
      */
-    bool addEdge(const Edge &newEdge)
+    bool addSynapse(const Synapse &newSynapse)
     {
-        if(numberOfEdges >= EDGES_PER_EDGESECTION) {
+        if(numberOfSynapses >= EDGES_PER_SYNAPSESECTION) {
             return false;
         }
-        edges[numberOfEdges] = newEdge;
-        numberOfEdges++;
+        synapses[numberOfSynapses] = newSynapse;
+        numberOfSynapses++;
         return true;
     }
 } __attribute__((packed));

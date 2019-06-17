@@ -20,7 +20,7 @@ BufferControlMethodsTest::BufferControlMethodsTest() : Kitsune::CommonTest("Buff
 
     testInitNodeBlocks();
     testInitEdgeSectionBlocks();
-    testInitForwardEdgeSectionBlocks();
+    testInitEdgeSectionBlocks();
 
     testDeleteDynamicItem();
     testReserveDynamicItem();
@@ -28,7 +28,7 @@ BufferControlMethodsTest::BufferControlMethodsTest() : Kitsune::CommonTest("Buff
 
     testAddEdge();
     testAddEmptyEdgeSection();
-    testAddEmptyForwardEdgeSection();
+    testAddEmptyEdgeSection();
 }
 
 void BufferControlMethodsTest::testInitDataBlocks()
@@ -37,15 +37,15 @@ void BufferControlMethodsTest::testInitDataBlocks()
     Brick testObject(0,0,0);
 
     // precheck
-    UNITTEST(testObject.dataConnections[FORWARDEDGE_DATA].itemSize, 0);
-    UNITTEST(testObject.dataConnections[FORWARDEDGE_DATA].numberOfItemBlocks, 0);
+    UNITTEST(testObject.dataConnections[EDGE_DATA].itemSize, 0);
+    UNITTEST(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 0);
 
     // run test
-    UNITTEST(initDataBlocks(&testObject, FORWARDEDGE_DATA, 420, 10), true);
+    UNITTEST(initDataBlocks(&testObject, EDGE_DATA, 420, 10), true);
 
     // postcheck
-    UNITTEST(testObject.dataConnections[FORWARDEDGE_DATA].numberOfItems, 420);
-    UNITTEST(testObject.dataConnections[FORWARDEDGE_DATA].numberOfItemBlocks, 2);
+    UNITTEST(testObject.dataConnections[EDGE_DATA].numberOfItems, 420);
+    UNITTEST(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 2);
 }
 
 void BufferControlMethodsTest::testInitNodeBlocks()
@@ -64,22 +64,22 @@ void BufferControlMethodsTest::testInitNodeBlocks()
     UNITTEST(nodes[4].border, 42.0f);
 }
 
-void BufferControlMethodsTest::testInitEdgeSectionBlocks()
+void BufferControlMethodsTest::testInitSynapseSectionBlocks()
 {
     // init
     Brick testObject(0,0,0);
     srand(42);
 
     // run test
-    UNITTEST(initEdgeSectionBlocks(&testObject, 10), true);
-    UNITTEST(initEdgeSectionBlocks(&testObject, 10), false);
+    UNITTEST(initSynapseSectionBlocks(&testObject, 10), true);
+    UNITTEST(initSynapseSectionBlocks(&testObject, 10), false);
 
     // postcheck
-    EdgeSection* sections = getEdgeSectionBlock(&testObject.dataConnections[EDGE_DATA]);
+    SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     UNITTEST(sections[4].sourceId, 4);
 }
 
-void BufferControlMethodsTest::testInitForwardEdgeSectionBlocks()
+void BufferControlMethodsTest::testInitEdgeSectionBlocks()
 {
     // init
     Brick testObject(0,0,0);
@@ -89,12 +89,12 @@ void BufferControlMethodsTest::testInitForwardEdgeSectionBlocks()
 
 
     // run test
-    UNITTEST(initForwardEdgeSectionBlocks(&testObject, 10), true);
-    UNITTEST(initForwardEdgeSectionBlocks(&testObject, 10), false);
+    UNITTEST(initEdgeSectionBlocks(&testObject, 10), true);
+    UNITTEST(initEdgeSectionBlocks(&testObject, 10), false);
 
     // postcheck
-    UNITTEST(testObject.dataConnections[FORWARDEDGE_DATA].numberOfItems, 10);
-    ForwardEdgeSection* sections = getForwardEdgeBlock(&testObject.dataConnections[FORWARDEDGE_DATA]);
+    UNITTEST(testObject.dataConnections[EDGE_DATA].numberOfItems, 10);
+    EdgeSection* sections = getEdgeBlock(&testObject.dataConnections[EDGE_DATA]);
     UNITTEST(sections[4].status, ACTIVE_SECTION);
 }
 
@@ -103,19 +103,19 @@ void BufferControlMethodsTest::testDeleteDynamicItem()
     // init
     Brick testObject(0,0,0);
     srand(42);
-    initEdgeSectionBlocks(&testObject, 10);
+    initSynapseSectionBlocks(&testObject, 10);
 
     // precheck
-    EdgeSection* sections = getEdgeSectionBlock(&testObject.dataConnections[EDGE_DATA]);
+    SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     UNITTEST(sections[4].status, ACTIVE_SECTION);
 
     // run test
-    UNITTEST(deleteDynamicItem(&testObject, EDGE_DATA, 4), true);
-    UNITTEST(deleteDynamicItem(&testObject, EDGE_DATA, 4), false);
-    UNITTEST(deleteDynamicItem(&testObject, EDGE_DATA, 10), false);
+    UNITTEST(deleteDynamicItem(&testObject, SYNAPSE_DATA, 4), true);
+    UNITTEST(deleteDynamicItem(&testObject, SYNAPSE_DATA, 4), false);
+    UNITTEST(deleteDynamicItem(&testObject, SYNAPSE_DATA, 10), false);
 
     // postcheck
-    sections = getEdgeSectionBlock(&testObject.dataConnections[EDGE_DATA]);
+    sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     UNITTEST(sections[4].status, DELETED_SECTION);
 }
 
@@ -124,16 +124,16 @@ void BufferControlMethodsTest::testReuseItemPosition()
     // init
     Brick testObject(0,0,0);
     srand(42);
-    initEdgeSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, EDGE_DATA, 4);
+    initSynapseSectionBlocks(&testObject, 10);
+    deleteDynamicItem(&testObject, SYNAPSE_DATA, 4);
 
     // precheck
-    EdgeSection* sections = getEdgeSectionBlock(&testObject.dataConnections[EDGE_DATA]);
+    SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     UNITTEST(sections[4].status, DELETED_SECTION);
 
     // run test
-    UNITTEST(reuseItemPosition(&testObject, EDGE_DATA), 4);
-    UNITTEST(reuseItemPosition(&testObject, EDGE_DATA), UNINIT_STATE_32);
+    UNITTEST(reuseItemPosition(&testObject, SYNAPSE_DATA), 4);
+    UNITTEST(reuseItemPosition(&testObject, SYNAPSE_DATA), UNINIT_STATE_32);
 }
 
 void BufferControlMethodsTest::testReserveDynamicItem()
@@ -141,28 +141,49 @@ void BufferControlMethodsTest::testReserveDynamicItem()
     // init
     Brick testObject(0,0,0);
     srand(42);
-    initEdgeSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, EDGE_DATA, 4);
+    initSynapseSectionBlocks(&testObject, 10);
+    deleteDynamicItem(&testObject, SYNAPSE_DATA, 4);
 
     // precheck
-    EdgeSection* sections = getEdgeSectionBlock(&testObject.dataConnections[EDGE_DATA]);
+    SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     UNITTEST(sections[4].status, DELETED_SECTION);
 
     // run test
-    UNITTEST(reserveDynamicItem(&testObject, EDGE_DATA), 4);
-    UNITTEST(reserveDynamicItem(&testObject, EDGE_DATA), 10);
+    UNITTEST(reserveDynamicItem(&testObject, SYNAPSE_DATA), 4);
+    UNITTEST(reserveDynamicItem(&testObject, SYNAPSE_DATA), 10);
 }
 
 void BufferControlMethodsTest::testAddEdge()
 {
     Brick testObject(0,0,0);
     srand(42);
-    initEdgeSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, EDGE_DATA, 4);
+    initSynapseSectionBlocks(&testObject, 10);
+    deleteDynamicItem(&testObject, SYNAPSE_DATA, 4);
 
     // run test
-    Edge newEdge;
-    UNITTEST(addEdge(&testObject, 1, newEdge), true);
+    Synapse newEdge;
+    UNITTEST(addSynapse(&testObject, 1, newEdge), true);
+}
+
+void BufferControlMethodsTest::testAddEmptySynapseSection()
+{
+    // init
+    Brick testObject(0,0,0);
+    srand(42);
+    initSynapseSectionBlocks(&testObject, 10);
+    deleteDynamicItem(&testObject, SYNAPSE_DATA, 4);
+
+    // precheck
+    SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
+    UNITTEST(sections[4].status, DELETED_SECTION);
+
+    // run test
+    UNITTEST(addEmptySynapseSection(&testObject, 42), 4);
+    UNITTEST(addEmptySynapseSection(&testObject, 42), 10);
+
+    // postcheck
+    sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
+    UNITTEST(sections[4].status, ACTIVE_SECTION);
 }
 
 void BufferControlMethodsTest::testAddEmptyEdgeSection()
@@ -174,36 +195,15 @@ void BufferControlMethodsTest::testAddEmptyEdgeSection()
     deleteDynamicItem(&testObject, EDGE_DATA, 4);
 
     // precheck
-    EdgeSection* sections = getEdgeSectionBlock(&testObject.dataConnections[EDGE_DATA]);
+    EdgeSection* sections = getEdgeBlock(&testObject.dataConnections[0]);
     UNITTEST(sections[4].status, DELETED_SECTION);
 
     // run test
-    UNITTEST(addEmptyEdgeSection(&testObject, 42), 4);
-    UNITTEST(addEmptyEdgeSection(&testObject, 42), 10);
+    UNITTEST(addEmptyEdgeSection(&testObject, 10, 42), 4);
+    UNITTEST(addEmptyEdgeSection(&testObject, 10, 42), 10);
 
     // postcheck
-    sections = getEdgeSectionBlock(&testObject.dataConnections[EDGE_DATA]);
-    UNITTEST(sections[4].status, ACTIVE_SECTION);
-}
-
-void BufferControlMethodsTest::testAddEmptyForwardEdgeSection()
-{
-    // init
-    Brick testObject(0,0,0);
-    srand(42);
-    initForwardEdgeSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, FORWARDEDGE_DATA, 4);
-
-    // precheck
-    ForwardEdgeSection* sections = getForwardEdgeBlock(&testObject.dataConnections[0]);
-    UNITTEST(sections[4].status, DELETED_SECTION);
-
-    // run test
-    UNITTEST(addEmptyForwardEdgeSection(&testObject, 10, 42), 4);
-    UNITTEST(addEmptyForwardEdgeSection(&testObject, 10, 42), 10);
-
-    // postcheck
-    sections = getForwardEdgeBlock(&testObject.dataConnections[FORWARDEDGE_DATA]);
+    sections = getEdgeBlock(&testObject.dataConnections[EDGE_DATA]);
     UNITTEST(sections[4].status, ACTIVE_SECTION);
 }
 

@@ -64,7 +64,7 @@ struct DirectEdgeContainer
 /**
  * @brief The EdgeForewardContainer struct
  */
-struct ForwardEdgeContainer
+struct EdgeContainer
 {
     uint8_t type = FOREWARD_EDGE_CONTAINER;
 

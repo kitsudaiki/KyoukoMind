@@ -40,9 +40,9 @@ struct BrickPos
  */
 enum DataConnectionTypes
 {
-    FORWARDEDGE_DATA = 0,
+    EDGE_DATA = 0,
     NODE_DATA = 1,
-    EDGE_DATA = 2
+    SYNAPSE_DATA = 2
 };
 
 /**
