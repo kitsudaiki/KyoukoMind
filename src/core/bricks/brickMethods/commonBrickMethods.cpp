@@ -32,7 +32,7 @@ addClientConnection(Brick *brick,
                     bool isOutput)
 {
     // precheck
-    assert(brick == nullptr);
+    assert(brick != nullptr);
 
     // add input-connection
     if(isInput)
@@ -83,7 +83,7 @@ float
 getSummedValue(Brick* brick)
 {
     // precheck
-    assert(brick == nullptr);
+    assert(brick != nullptr);
     if(brick->isOutputBrick > 0) {
         return false;
     }

@@ -106,56 +106,49 @@ ProcessingUnit::run()
 
 /**
  * refillWeightMap fill the weight-map which is required for learing-process
- *
- * @param initialSide brick-side where the message comes in
- * @param neighbors pointer to the neighbor-list to check which neighbors are initialized
- * @param weightMap pointer to the map which should be refilled
  */
 void
 ProcessingUnit::refillWeightMap(Brick* brick,
                                 const uint8_t initialSide,
                                 Neighbor* neighbors)
 {
-    uint8_t possibleSides[25];
-    uint8_t possibleSidesPos = 0;
+    m_totalWeightMap = 0.0f;
 
-    // cleara existing map
-    for(uint8_t side = 0; side < 25; side++)
-    {
-        m_weightMap[side] = 0.0;
-    }
-
-    uint8_t runs = 10;
-
-    // get possible next
+    // set all weights
     for(uint8_t side = 0; side < 24; side++)
     {
         if(neighbors[side].targetBrickId != UNINIT_STATE_32
                 && side != initialSide)
         {
-            possibleSides[possibleSidesPos] = side;
-            possibleSidesPos++;
+            const float randVal = static_cast<float>(rand() % UNINIT_STATE_16);
+            m_totalWeightMap += randVal;
+            m_weightMap[side] += randVal;
+        }
+        else
+        {
+            m_weightMap[side] = 0.0f;
         }
     }
 
+    // if brick contains nodes, the have to get a big part of the incoming weight
     if(brick->dataConnections[NODE_DATA].inUse == 1
             && brick->isInputBrick == 0)
     {
-        m_weightMap[24] = 0.2;
-        possibleSides[possibleSidesPos] = 24;
-        possibleSidesPos++;
-        runs -= 2;
+        // TODO: replace the const-value of 0.2f by define
+        const float val = m_totalWeightMap * 0.2f;
+        m_weightMap[24] = val;
+        m_totalWeightMap += val;
     }
-
-    if(possibleSidesPos == 0) {
-        return;
-    }
-
-    // share weights
-    for(uint8_t i = 0; i < runs; i++)
+    else
     {
-        const uint8_t side = possibleSides[rand() % possibleSidesPos];
-        m_weightMap[side] += 0.1;
+        m_weightMap[24] = 0.0f;
+    }
+
+    // recalc values
+    m_totalWeightMap = 1.0f / m_totalWeightMap;
+    for(uint8_t side = 0; side < 25; side++)
+    {
+        m_weightMap[side] *= m_totalWeightMap;
     }
 }
 

@@ -442,10 +442,10 @@ processEdgeForwardSection(Brick* brick,
     if(ratio > 1.0f)
     {
         learningEdgeSection(brick,
-                                   currentSection,
-                                   weightMap,
-                                   forwardEdgeSectionId,
-                                   weight - totalWeight);
+                            currentSection,
+                            weightMap,
+                            forwardEdgeSectionId,
+                            weight - totalWeight);
         ratio = 1.0f;
 
         if(checkAndDelete(brick, currentSection, forwardEdgeSectionId)) {

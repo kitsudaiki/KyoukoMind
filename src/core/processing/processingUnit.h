@@ -49,6 +49,7 @@ private:
     // cycle specific data
     NeighborInformation m_neighborInfo;    
     float m_weightMap[25];
+    float m_totalWeightMap = 0.0f;
 
     bool m_enableMonitoring = true;
     TransferDataMessage* m_monitoringMessage = nullptr;
