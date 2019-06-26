@@ -15,9 +15,8 @@
 namespace KyoukoMind
 {
 
-/**
- * @brief The Edge struct
- */
+//==================================================================================================
+
 struct Edge
 {
     float weight = 0.0;
@@ -25,9 +24,8 @@ struct Edge
 
 } __attribute__((packed));
 
-/**
- * @brief The Edge struct
- */
+//==================================================================================================
+
 struct Synapse
 {
     float weight = 0.0;
@@ -38,48 +36,55 @@ struct Synapse
 
 } __attribute__((packed));
 
-/**
- * @brief The EdgeSection struct
- */
+//==================================================================================================
+
 struct EdgeSection
 {
     uint8_t status = ACTIVE_SECTION;
-    Edge forwardEdges[25];
-    //uint8_t numberOfActiveEdges = 0;
+    Edge edges[25];
     float totalWeight = 0.0000001f;
     uint8_t sourceSide = 0;
     uint32_t sourceId = UNINIT_STATE_32;
 
-    /**
-     * @brief EdgeSection
-     */
     EdgeSection()
     {
         for(uint32_t i = 0; i < 25; i++)
         {
             Edge newEdge;
-            forwardEdges[i] = newEdge;
+            edges[i] = newEdge;
         }
     }
 
-    float getTotalWeight()
+    /**
+     * summarize all sides of the edge-section
+     *
+     * @return the total weight of the section
+     */
+    float
+    getTotalWeight()
     {
         float result = 0.0000001f;
         for(uint32_t i = 0; i < 25; i++)
         {
-            assert(forwardEdges[i].weight >= 0.0f);
-            result += forwardEdges[i].weight;
+            assert(edges[i].weight >= 0.0f);
+            result += edges[i].weight;
         }
         return result;
     }
 
-    uint8_t getActiveEdges()
+    /**
+     * count the active sides of the section
+     *
+     * @return number of active edges in the section
+     */
+    uint8_t
+    getActiveEdges()
     {
         uint8_t count = 0;
         for(int i = 0; i < 25; i++)
         {
-            if(forwardEdges[i].targetId != UNINIT_STATE_32
-                    || forwardEdges[i].weight > 0.0f)
+            if(edges[i].targetId != UNINIT_STATE_32
+                    || edges[i].weight > 0.0f)
             {
                 count++;
             }
@@ -89,9 +94,8 @@ struct EdgeSection
 
 } __attribute__((packed));
 
-/**
- * @brief The EdgeSection struct
- */
+//==================================================================================================
+
 struct SynapseSection
 {
     uint8_t status = ACTIVE_SECTION;
@@ -99,9 +103,6 @@ struct SynapseSection
     uint32_t sourceId = UNINIT_STATE_32;
     Synapse synapses[EDGES_PER_SYNAPSESECTION];
 
-    /**
-     * @brief EdgeSection
-     */
     SynapseSection()
     {
         for(uint32_t i = 0; i < EDGES_PER_SYNAPSESECTION; i++)
@@ -112,10 +113,12 @@ struct SynapseSection
     }
 
     /**
-     * @brief getTotalWeight
-     * @return
+     * summarize all sides of the synapse-section
+     *
+     * @return the total weight of the section
      */
-    float getTotalWeight()
+    float
+    getTotalWeight()
     {
         float result = 0.0000001f;
         for(uint32_t i = 0; i < numberOfSynapses; i++)
@@ -126,9 +129,10 @@ struct SynapseSection
     }
 
     /**
-     * @brief makeClean
+     * erase all synapses from the section, which are too weak
      */
-    void makeClean()
+    void
+    makeClean()
     {
         for(uint32_t i = 0; i < numberOfSynapses; i++)
         {
@@ -141,10 +145,12 @@ struct SynapseSection
     }
 
     /**
-     * @brief isFull
-     * @return
+     * check if all slots of the section are filled
+     *
+     * @return true, if full, else false
      */
-    bool isFull() const
+    bool
+    isFull() const
     {
         if(numberOfSynapses >= EDGES_PER_SYNAPSESECTION) {
             return true;
@@ -153,11 +159,12 @@ struct SynapseSection
     }
 
     /**
-     * @brief addSynapse
-     * @param newSynapse
-     * @return
+     * add a new synapse to the current section
+     *
+     * @return false, if the section is already full, else true
      */
-    bool addSynapse(const Synapse &newSynapse)
+    bool
+    addSynapse(const Synapse &newSynapse)
     {
         if(numberOfSynapses >= EDGES_PER_SYNAPSESECTION) {
             return false;
@@ -167,6 +174,8 @@ struct SynapseSection
         return true;
     }
 } __attribute__((packed));
+
+//==================================================================================================
 
 }
 

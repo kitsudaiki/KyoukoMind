@@ -47,9 +47,9 @@ bool initDataBlocks(Brick* brick,
 bool initNodeBlocks(Brick* brick,
                     uint32_t numberOfNodes);
 bool initSynapseSectionBlocks(Brick* brick,
-                           const uint32_t numberOfSynapseSections);
+                              const uint32_t numberOfSynapseSections);
 bool initEdgeSectionBlocks(Brick *brick,
-                                  const uint32_t numberOfEdgeSections);
+                           const uint32_t numberOfEdgeSections);
 
 
 // delete items
@@ -64,13 +64,13 @@ uint32_t reserveDynamicItem(Brick* brick,
 
 // expand lists
 bool addSynapse(Brick* brick,
-             const uint32_t synapseSectionId,
-             const Synapse &newSynapse);
+                const uint32_t synapseSectionId,
+                const Synapse &newSynapse);
 uint32_t addEmptySynapseSection(Brick* brick,
-                             const uint32_t sourceId);
+                                const uint32_t sourceId);
 uint32_t addEmptyEdgeSection(Brick* brick,
-                                    const uint8_t sourceSide,
-                                    const uint32_t sourceId);
+                             const uint8_t sourceSide,
+                             const uint32_t sourceId);
 
 }
 

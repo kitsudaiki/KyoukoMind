@@ -65,7 +65,8 @@ ProcessingUnit::run()
             KyoukoNetwork::m_globalValuesHandler->setGlobalValues(globalValues);
 
             end = std::chrono::system_clock::now();
-            std::cout << "time: " << (std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() / 1000.0f) << '\n';
+            const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+            std::cout << "time: " << (duration / 1000.0f) << '\n';
 
             // block thread until next cycle if queue is empty
             blockThread();
@@ -173,34 +174,36 @@ ProcessingUnit::processIncomingMessages(Brick *brick)
         {
             refillWeightMap(brick, side, brick->neighbors);
 
-            uint64_t  currentBufferPosition = brick->neighbors[side].incomBuffer.getMessage();
+            uint64_t bufferPosition = brick->neighbors[side].incomBuffer.getMessage();
             assert(brick->isReady() == true);
 
             // skip init-messages
-            if(currentBufferPosition == UNINIT_STATE_64 - 1) {
+            if(bufferPosition == UNINIT_STATE_64 - 1) {
                 continue;
             }
             if(side == 24
-                    && currentBufferPosition == UNINIT_STATE_64) {
+                    && bufferPosition == UNINIT_STATE_64)
+            {
                 continue;
             }
-            assert(currentBufferPosition != UNINIT_STATE_64);
+            assert(bufferPosition != UNINIT_STATE_64);
 
             // pre-check
-            DataMessage* message = KyoukoNetwork::m_internalMessageBuffer->getMessage(currentBufferPosition);
+            DataMessage* message = KyoukoNetwork::m_messageBuffer->getMessage(bufferPosition);
             if(side == 24
-                    && message->isLast == 0) {
+                    && message->isLast == 0)
+            {
                 continue;
             }
             assert(message->isLast == 1);
 
             // run processing
-            while(currentBufferPosition != UNINIT_STATE_64)
+            while(bufferPosition != UNINIT_STATE_64)
             {
-                message = KyoukoNetwork::m_internalMessageBuffer->getMessage(currentBufferPosition);
+                message = KyoukoNetwork::m_messageBuffer->getMessage(bufferPosition);
                 processIncomingMessage(brick, side, message);
-                currentBufferPosition = message->prePosition;
-                KyoukoNetwork::m_internalMessageBuffer->finishMessage(message->currentPosition);
+                bufferPosition = message->prePosition;
+                KyoukoNetwork::m_messageBuffer->finishMessage(message->currentPosition);
             }
         }
     }
@@ -227,84 +230,123 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
         const uint8_t type = data[0];
         switch(type)
         {
-            // ------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------
             case STATUS_EDGE_CONTAINER:
             {
                 UpdateEdgeContainer* edge = (UpdateEdgeContainer*)data;
                 data += sizeof(UpdateEdgeContainer);
-                if(edge->targetId == UNINIT_STATE_32 && edge->updateValue >= 0.0f) {
+
+                if(edge->targetId == UNINIT_STATE_32
+                        && edge->updateValue >= 0.0f)
+                {
                     continue;
                 }
-                processUpdateEdge(brick, edge->targetId, edge->updateValue, edge->updateType, side);
+
+                processUpdateEdge(brick,
+                                  edge->targetId,
+                                  edge->updateValue,
+                                  edge->updateType,
+                                  side);
                 break;
             }
-            // ------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------
             case PENDING_EDGE_CONTAINER:
             {
                 PendingEdgeContainer* edge = (PendingEdgeContainer*)data;
                 data += sizeof(PendingEdgeContainer);
-                if(edge->sourceEdgeSectionId == UNINIT_STATE_32 && edge->weight >= 0.0f) {
+
+                if(edge->sourceEdgeSectionId == UNINIT_STATE_32
+                        && edge->weight >= 0.0f)
+                {
                     continue;
                 }
-                processPendingEdge(brick, edge->sourceEdgeSectionId, edge->sourceSide, edge->weight, m_weightMap);
+
+                processPendingEdge(brick,
+                                   edge->sourceEdgeSectionId,
+                                   edge->sourceSide,
+                                   edge->weight,
+                                   m_weightMap);
                 break;
             }
-            // ------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------
             case FOREWARD_EDGE_CONTAINER:
             {
                 EdgeContainer* edge = (EdgeContainer*)data;
                 data += sizeof(EdgeContainer);
-                if(edge->targetEdgeSectionId == UNINIT_STATE_32 && edge->weight > 0.0f) {
+
+                if(edge->targetEdgeSectionId == UNINIT_STATE_32
+                        && edge->weight > 0.0f)
+                {
                     continue;
                 }
-                processEdgeForwardSection(brick, edge->targetEdgeSectionId, edge->weight, m_weightMap);
+
+                processEdgeForwardSection(brick,
+                                          edge->targetEdgeSectionId,
+                                          edge->weight,
+                                          m_weightMap);
                 break;
             }
-            // ------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------
             case AXON_EDGE_CONTAINER:
             {
                 AxonEdgeContainer* edge = (AxonEdgeContainer*)data;
                 data += sizeof(AxonEdgeContainer);
+
                 if(edge->targetAxonId == UNINIT_STATE_32 && edge->weight >= 0.0f) {
                     continue;
                 }
-                processAxon(brick, edge->targetAxonId, edge->targetBrickPath, edge->weight, m_weightMap);
+
+                processAxon(brick,
+                            edge->targetAxonId,
+                            edge->targetBrickPath,
+                            edge->weight,
+                            m_weightMap);
                 break;
             }
-            // ------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------
             case LEARNING_EDGE_CONTAINER:
             {
                 LearingEdgeContainer* edge = (LearingEdgeContainer*)data;
                 data += sizeof(LearingEdgeContainer);
-                if(edge->sourceEdgeSectionId == UNINIT_STATE_32 && edge->weight >= 0.0f) {
+
+                if(edge->sourceEdgeSectionId == UNINIT_STATE_32
+                        && edge->weight >= 0.0f)
+                {
                     continue;
                 }
-                processLerningEdge(brick, edge->sourceEdgeSectionId, edge->weight, side, m_weightMap);
+
+                processLerningEdge(brick,
+                                   edge->sourceEdgeSectionId,
+                                   edge->weight,
+                                   side,
+                                   m_weightMap);
                 break;
             }
-            // ------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------
             case LEARNING_REPLY_EDGE_CONTAINER:
             {
                 LearningEdgeReplyContainer* edge = (LearningEdgeReplyContainer*)data;
                 data += sizeof(LearningEdgeReplyContainer);
 
-                EdgeSection* edgeForwardSections = getEdgeBlock(&brick->dataConnections[EDGE_DATA]);
+                EdgeSection* edgeSections = getEdgeBlock(&brick->dataConnections[EDGE_DATA]);
 
                 if(edge->sourceEdgeSectionId == UNINIT_STATE_32) {
                     continue;
                 }
-                if(edgeForwardSections[edge->sourceEdgeSectionId].forwardEdges[side].weight == 0.0f) {
+                if(edgeSections[edge->sourceEdgeSectionId].edges[side].weight == 0.0f) {
                     continue;
                 }
-                edgeForwardSections[edge->sourceEdgeSectionId].forwardEdges[side].targetId =
+
+                edgeSections[edge->sourceEdgeSectionId].edges[side].targetId =
                         edge->targetEdgeSectionId;
                 break;
             }
-            // ------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------
             case DIRECT_EDGE_CONTAINER:
             {
                 DirectEdgeContainer* edge = (DirectEdgeContainer*)data;
                 data += sizeof(DirectEdgeContainer);
+
                 if(brick->isInputBrick == 0
                         || brick->dataConnections[NODE_DATA].inUse == 0)
                 {
@@ -316,11 +358,12 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
                 node->currentState = edge->weight;
                 break;
             }
+            // -------------------------------------------------------------------------------------
             case UNDEFINED_TYPE:
             {
                 return result;
             }
-            // ------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------
             default:
                 result = false;
         }

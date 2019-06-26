@@ -51,10 +51,9 @@ ConnectionTrigger::~ConnectionTrigger()
 }
 
 /**
- * @brief ConnectionTrigger::runTask
- * @param buffer
- * @param bufferSize
- * @param client
+ * process data coming from the tcp-socket
+ *
+ * @return number of processed bytes
  */
 uint32_t
 ConnectionTrigger::runTask(const MessageRingBuffer &recvBuffer,
@@ -68,7 +67,9 @@ ConnectionTrigger::runTask(const MessageRingBuffer &recvBuffer,
             break;
         }
 
-        const uint8_t type = recvBuffer.data[(recvBuffer.readPosition + processedBytes) % recvBuffer.totalBufferSize];
+        const uint32_t bufferPosition = (recvBuffer.readPosition + processedBytes)
+                                        % recvBuffer.totalBufferSize;
+        const uint8_t type = recvBuffer.data[bufferPosition];
 
         // get message-size
         const uint32_t messageSize = m_messageSize.sizes[type];
@@ -84,7 +85,10 @@ ConnectionTrigger::runTask(const MessageRingBuffer &recvBuffer,
         }
 
         // get data-block
-        const uint8_t* dataPointer = getDataPointer(recvBuffer, m_tempBuffer, messageSize, processedBytes);
+        const uint8_t* dataPointer = getDataPointer(recvBuffer,
+                                                    m_tempBuffer,
+                                                    messageSize,
+                                                    processedBytes);
         processedBytes += messageSize;
 
         if(type == CLIENT_REGISTER_INPUT)
@@ -116,7 +120,6 @@ ConnectionTrigger::runTask(const MessageRingBuffer &recvBuffer,
             gValues.globalLearningOffset = content.learnOffset;
             handler->setGlobalValues(gValues);
         }
-
 
         if(type == CLIENT_CONTROL_MEMORIZING)
         {

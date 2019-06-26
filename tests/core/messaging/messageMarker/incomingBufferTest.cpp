@@ -5,7 +5,8 @@ namespace KyoukoMind
 {
 
 
-IncomingBufferTest::IncomingBufferTest() : Kitsune::CommonTest("IncomingBufferTest")
+IncomingBufferTest::IncomingBufferTest()
+    : Kitsune::CommonTest("IncomingBufferTest")
 {
     testAddMessageAndFinish();
     testGetMessage();

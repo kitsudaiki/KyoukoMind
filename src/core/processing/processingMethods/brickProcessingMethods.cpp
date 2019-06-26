@@ -226,15 +226,16 @@ memorizeSynapses(Brick* brick)
         section->makeClean();
 
         // delete dynamic item if value is too low
+        const DataConnection* connection = &brick->dataConnections[EDGE_DATA];
         if(section->getTotalWeight() < DELETE_SYNAPSE_BORDER)
         {
-            EdgeSection* currentSection = &getEdgeBlock(&brick->dataConnections[EDGE_DATA])[section->sourceId];
+            EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
             processUpdateDeleteEdge(brick, currentSection, section->sourceId, 24);
             deleteDynamicItem(brick, SYNAPSE_DATA, sectionPos);
         }
         else
         {
-            EdgeSection* currentSection = &getEdgeBlock(&brick->dataConnections[EDGE_DATA])[section->sourceId];
+            EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
             const float updateValue = section->getTotalWeight();
             if(updateValue > 0.0f) {
                 processUpdateSetEdge(brick, currentSection, updateValue, 24);
@@ -277,7 +278,7 @@ finishSide(Brick* brick, const uint8_t side)
 
     // reinit outgoing buffer for next cycle
     OutgoingBuffer* outBuffer = &brick->neighbors[side].outgoBuffer;
-    outBuffer->message = KyoukoNetwork::m_internalMessageBuffer->reserveBuffer();
+    outBuffer->message = KyoukoNetwork::m_messageBuffer->reserveBuffer();
     outBuffer->initMessage();
     assert(outBuffer->message->type != UNDEFINED_MESSAGE);
 
@@ -344,18 +345,28 @@ writeStatus(Brick* brick, TransferDataMessage* message)
     monitoringMessage.brickId = brick->brickId;
     monitoringMessage.xPos = brick->brickPos.x;
     monitoringMessage.yPos = brick->brickPos.y;
-    if(brick->dataConnections[EDGE_DATA].inUse == 1) {
-        monitoringMessage.numberOfEdgeSections = brick->dataConnections[EDGE_DATA].numberOfItems
-                - brick->dataConnections[EDGE_DATA].numberOfDeletedDynamicItems;
+
+    // edges
+    const DataConnection* edgeConnection = &brick->dataConnections[EDGE_DATA];
+    if(edgeConnection->inUse == 1) {
+        monitoringMessage.numberOfEdgeSections = edgeConnection->numberOfItems
+                                                 - edgeConnection->numberOfDeletedDynamicItems;
     }
-    if(brick->dataConnections[NODE_DATA].inUse == 1) {
-        monitoringMessage.numberOfNodes = brick->dataConnections[NODE_DATA].numberOfItems
-                - brick->dataConnections[NODE_DATA].numberOfDeletedDynamicItems;
+
+    // nodes
+    const DataConnection* nodeConnection = &brick->dataConnections[NODE_DATA];
+    if(nodeConnection->inUse == 1) {
+        monitoringMessage.numberOfNodes = nodeConnection->numberOfItems
+                                          - nodeConnection->numberOfDeletedDynamicItems;
     }
-    if(brick->dataConnections[SYNAPSE_DATA].inUse == 1) {
-        monitoringMessage.numberOfSynapseSections = brick->dataConnections[SYNAPSE_DATA].numberOfItems
-                - brick->dataConnections[SYNAPSE_DATA].numberOfDeletedDynamicItems;
+
+    // synapses
+    const DataConnection* synapseConnection = &brick->dataConnections[SYNAPSE_DATA];
+    if(synapseConnection->inUse == 1) {
+        monitoringMessage.numberOfSynapseSections = synapseConnection->numberOfItems
+                                                   - synapseConnection->numberOfDeletedDynamicItems;
     }
+
     monitoringMessage.globalLearning = globalValue.globalLearningOffset;
     monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
 

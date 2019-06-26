@@ -20,10 +20,10 @@ class BrickHandler;
 
 bool createNewNetwork(const std::string fileContent);
 
-bool connectAllBricks(InitStructure* networkMetaStructure);
+void connectAllBricks(InitStructure* networkMetaStructure);
 
 void addBricks(const uint32_t nodeNumberPerBrick,
-               std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure);
+               InitStructure* networkMetaStructure);
 
 std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
                                       const uint32_t y,

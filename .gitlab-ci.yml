@@ -7,7 +7,7 @@ build:
 
     - ssh-keyscan -H 10.0.3.10 >> ~/.ssh/known_hosts
 
-    - git clone --branch 0.1.0 git@gitlab.com:kitsune_libs/LibKitsuneCommon.git /builds/kitsune_chan/libKitsuneCommon
+    - git clone git@gitlab.com:kitsune_libs/LibKitsuneCommon.git /builds/kitsune_chan/libKitsuneCommon
 
     - cd /builds/build
     - mkdir libKitsuneCommon

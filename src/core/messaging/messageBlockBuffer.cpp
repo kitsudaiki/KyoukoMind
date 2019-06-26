@@ -25,14 +25,17 @@ MessageBlockBuffer::~MessageBlockBuffer()
         ; // spin
     }
 
+    // delete all blocks
     for(uint32_t i = 0; i < m_blocks.size(); i++)
     {
         delete m_blocks[i];
     }
-    if(m_reserveBlock != nullptr)
-    {
+
+    // delete reserve
+    if(m_reserveBlock != nullptr) {
         delete m_reserveBlock;
     }
+
     m_lock.clear(std::memory_order_release);
 }
 
@@ -44,17 +47,22 @@ DataMessage*
 MessageBlockBuffer::reserveBuffer(const uint64_t prePosition)
 {
     DataMessage* result = nullptr;
+
     while(m_lock.test_and_set(std::memory_order_acquire)) {
         ; // spin
     }
+
     const uint64_t arrayPos = (m_currentWritePos / MESSAGES_PER_BLOCK) - m_offset;
     const uint32_t positionInBlock = (m_currentWritePos % MESSAGES_PER_BLOCK);
 
     while(m_blocks.size() <= arrayPos)
     {
-        if(m_reserveBlock == nullptr) {
+        if(m_reserveBlock == nullptr)
+        {
             m_blocks.push_back(new MessageBlock());
-        } else {
+        }
+        else
+        {
             m_blocks.push_back(m_reserveBlock);
             m_reserveBlock = nullptr;
         }
@@ -85,6 +93,7 @@ MessageBlockBuffer::finishReservedBuffer(const uint64_t pos)
     {
         Brick* brick = KyoukoNetwork::m_brickHandler->getBrick(bufferPointer->targetBrickId);
         brick->neighbors[bufferPointer->targetSide].incomBuffer.addMessage(pos);
+
         if(brick->isReady()) {
             KyoukoNetwork::m_brickHandler->addToQueue(brick);
         }
@@ -214,9 +223,12 @@ MessageBlockBuffer::checkAndDelete()
         {
             block->reset();
             m_reserveBlock = block;
-        } else {
+        }
+        else
+        {
             delete block;
         }
+
         m_blocks.erase(m_blocks.begin(), m_blocks.begin()+1);
         m_offset++;
     }

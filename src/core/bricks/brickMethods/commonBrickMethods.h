@@ -24,10 +24,11 @@ struct Brick;
 
 
 bool addClientConnection(Brick *brick,
-                         bool input,
-                         bool output);
+                         bool isInput,
+                         bool isOutput);
 
 float getSummedValue(Brick *brick);
+
 
 bool connectBricks(Brick* sourceBrick,
                    const uint8_t sourceSide,
@@ -36,6 +37,7 @@ bool connectBricks(Brick* sourceBrick,
 bool disconnectBricks(Brick* sourceBrick,
                       const uint8_t sourceSide,
                       Brick *targetBrick);
+
 
 bool initNeighbor(Brick* brick,
                   const uint8_t sourceSide,
