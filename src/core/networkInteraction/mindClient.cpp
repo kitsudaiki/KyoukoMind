@@ -26,8 +26,9 @@ MindClient::MindClient()
 }
 
 /**
- * @brief MindClient::initConnection
- * @return
+ * init the connection to the server
+ *
+ * @return result of the sub-call
  */
 bool
 MindClient::initConnection()
@@ -38,31 +39,34 @@ MindClient::initConnection()
     usleep(1000);
     m_client->start();
 
+    // init session
     SessionInit initMessage;
     initMessage.source = MIND;
     initMessage.target = TORII;
+
     return m_client->sendMessage((uint8_t*)(&initMessage), sizeof(SessionInit));
 }
 
 /**
- * @brief MindClient::addNetworkTrigger
- * @param trigger
- * @return
+ * add trigger-object to the client
+ *
+ * @return false, if client not exist, else result of the sub-call
  */
-bool MindClient::addNetworkTrigger(Network::NetworkTrigger *trigger)
+bool
+MindClient::addNetworkTrigger(Network::NetworkTrigger *trigger)
 {
+    // precheck
     if(m_client == nullptr) {
         return false;
     }
-    std::cout<<"add trigger "<<std::endl;
+
     return m_client->addNetworkTrigger(trigger);
 }
 
 /**
- * @brief MindClient::sendData
- * @param clusterId
- * @param value
- * @return
+ * send data to the server
+ *
+ * @return result of the sub-call
  */
 bool
 MindClient::sendData(uint8_t* message, const uint32_t size)

@@ -1,5 +1,5 @@
 /**
- *  @file    kyoChanNetwork.h
+ *  @file    kyoukoNetwork.h
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -7,8 +7,8 @@
  *  Apache License Version 2.0
  */
 
-#ifndef NETWORK_H
-#define NETWORK_H
+#ifndef KYOUKONETWORK_H
+#define KYOUKONETWORK_H
 
 #include <common.h>
 
@@ -29,22 +29,19 @@ class KyoukoNetwork
 
 public:
     KyoukoNetwork();
-    NetworkManager* getNodeManager() const;
 
     static KyoukoMind::Config* m_config;
     static Kitsune::Chan::Communication::MindClient* m_mindClient;
     static KyoukoMind::BrickHandler* m_brickHandler;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
-    static KyoukoMind::MessageBlockBuffer* m_internalMessageBuffer;
+    static KyoukoMind::MessageBlockBuffer* m_messageBuffer;
 
     void start();
 
 private:
     NetworkManager* m_networkManager = nullptr;
-
-    bool initLogger(bool *ok);
 };
 
 }
 
-#endif //NETWORK_H
+#endif //KYOUKONETWORK_H

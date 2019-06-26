@@ -36,15 +36,11 @@ createNewNetwork(const std::string fileContent)
     srand(time(NULL));
 
     // check if values are valid
-    if(fileContent == "")
-    {
+    if(fileContent == "") {
         return false;
     }
 
     InitStructure networkMetaStructure;
-
-    //std::string fileContent = readFile(filePath);
-
     if(parse2dTestfile(fileContent, &networkMetaStructure) == false) {
         return false;
     }
@@ -71,24 +67,25 @@ addBricks(const uint32_t nodeNumberPerBrick,
     {
         for(uint32_t y = 0; y < (*networkMetaStructure)[x].size(); y++)
         {
+            const BrickID brickId = (*networkMetaStructure)[x][y].brickId;
             switch((*networkMetaStructure)[x][y].type)
             {
                 case 1:
                     break;
                 case 2:
                 {
-                    Brick* brick = new Brick((*networkMetaStructure)[x][y].brickId, x, y);
+                    Brick* brick = new Brick(brickId, x, y);
                     (*networkMetaStructure)[x][y].brick = brick;
-                    KyoukoNetwork::m_brickHandler->addBrick((*networkMetaStructure)[x][y].brickId, brick);
+                    KyoukoNetwork::m_brickHandler->addBrick(brickId, brick);
                     break;
                 }
                 case 3:
                 {
-                    Brick* brick = new Brick((*networkMetaStructure)[x][y].brickId, x, y);
+                    Brick* brick = new Brick(brickId, x, y);
                     initNodeBlocks(brick, nodeNumberPerBrick);
                     initSynapseSectionBlocks(brick, 0);
                     (*networkMetaStructure)[x][y].brick = brick;
-                    KyoukoNetwork::m_brickHandler->addBrick((*networkMetaStructure)[x][y].brickId, brick);
+                    KyoukoNetwork::m_brickHandler->addBrick(brickId, brick);
                     break;
                 }
                 default:
@@ -96,19 +93,19 @@ addBricks(const uint32_t nodeNumberPerBrick,
             }
         }
     }
+
     return;
 }
 
 /**
- * @brief BrickInitilizer::createNetwork
- * @return
+ * connect all brickts of the initializing data with each other
  */
-bool
-connectAllBricks(InitStructure *networkMetaStructure)
+void
+connectAllBricks(InitStructure *metaStructure)
 {
-    for(uint32_t x = 0; x < (*networkMetaStructure).size(); x++)
+    for(uint32_t x = 0; x < (*metaStructure).size(); x++)
     {
-        for(uint32_t y = 0; y < (*networkMetaStructure)[x].size(); y++)
+        for(uint32_t y = 0; y < (*metaStructure)[x].size(); y++)
         {
             std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
             for(uint8_t i = 0; i < sideOrder.size(); i++)
@@ -119,51 +116,52 @@ connectAllBricks(InitStructure *networkMetaStructure)
 
                 // set the values in the neighbor-struct
                 if(next.first != UNINIT_STATE_32 && next.second != UNINIT_STATE_32
-                         && (*networkMetaStructure)[x][y].type != EMPTY_BRICK
-                         && (*networkMetaStructure)[next.first][next.second].type != EMPTY_BRICK)
+                         && (*metaStructure)[x][y].type != EMPTY_BRICK
+                         && (*metaStructure)[next.first][next.second].type != EMPTY_BRICK)
                 {
-                    KyoukoNetwork::m_brickHandler->connect(
-                                (*networkMetaStructure)[x][y].brick->brickId,
-                                side,
-                                 (*networkMetaStructure)[next.first][next.second].brickId);
+                    const BrickID sourceId = (*metaStructure)[x][y].brick->brickId;
+                    const BrickID targetId = (*metaStructure)[next.first][next.second].brickId;
+                    KyoukoNetwork::m_brickHandler->connect(sourceId,
+                                                           side,
+                                                           targetId);
 
-                    (*networkMetaStructure)[x][y].brick->neighbors[side].targetBrickPos.x = next.first;
-                    (*networkMetaStructure)[x][y].brick->neighbors[side].targetBrickPos.y = next.second;
+                    Neighbor* neighbor = &(*metaStructure)[x][y].brick->neighbors[side];
+                    neighbor->targetBrickPos.x = next.first;
+                    neighbor->targetBrickPos.y = next.second;
 
                 }
             }
         }
     }
-    return true;
+
+    return;
 }
 
 /**
- * @brief NetworkInitializer::getDistantToNextNodeBrick
- * @param x
- * @param y
- * @param side
- * @return
+ * calculate the distance to the next node-brick from a specific brick in a specific direction
+ *
+ * @return number of bricks to the next node-brick
  */
 uint32_t
 getDistantToNextNodeBrick(const uint32_t x,
                           const uint32_t y,
                           const uint8_t side,
-                          InitStructure* networkMetaStructure)
+                          InitStructure* metaStructure)
 {
     std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
-    uint32_t maxDistance = (*networkMetaStructure).size();
+    uint32_t maxDistance = (*metaStructure).size();
 
     if(maxDistance > MAX_DISTANCE-1) {
         maxDistance = MAX_DISTANCE-1;
     }
 
-    for(uint32_t distance = 1; distance < (*networkMetaStructure).size(); distance++)
+    for(uint32_t distance = 1; distance < (*metaStructure).size(); distance++)
     {
-        if((*networkMetaStructure)[next.first][next.second].type == (uint8_t)EMPTY_BRICK) {
+        if((*metaStructure)[next.first][next.second].type == (uint8_t)EMPTY_BRICK) {
             return MAX_DISTANCE;
         }
-        if((*networkMetaStructure)[next.first][next.second].type == (uint8_t)NODE_BRICK) {
+        if((*metaStructure)[next.first][next.second].type == (uint8_t)NODE_BRICK) {
             return distance;
         }
 
@@ -173,11 +171,9 @@ getDistantToNextNodeBrick(const uint32_t x,
 }
 
 /**
- * @brief BrickInitilizer::getNext
- * @param x
- * @param y
- * @param side
- * @return
+ * get the next position in the raster for a specific node and side
+ *
+ * @return pair of the x-y-coordinates of the next node
  */
 std::pair<uint32_t, uint32_t>
 getNext(const uint32_t x,

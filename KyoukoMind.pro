@@ -69,7 +69,6 @@ HEADERS += \
     src/common.h \
     src/core/bricks/globalValuesHandler.h \
     tests/runUnitTests.h \
-    src/common/methods.h \
     src/common/using.h \
     src/core/networkInteraction/connectionTrigger.h \
     src/initializing/axonInitializer.h \

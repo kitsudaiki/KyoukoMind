@@ -18,7 +18,6 @@ namespace KyoukoMind
 /**
  * initialize the node-list of the brick
  *
- * @param numberOfItems number of new empty items
  * @return false if nodes are already initialized, esle true
 */
 bool
@@ -28,6 +27,7 @@ initDataBlocks(Brick *brick,
                const uint32_t itemSize)
 {
     DataConnection *data = &brick->dataConnections[connectionId];
+
     // prechecks
     if(data->numberOfItems != 0
             || itemSize == 0) {
@@ -49,7 +49,6 @@ initDataBlocks(Brick *brick,
 /**
  * initialize the node-list of the brick
  *
- * @param numberOfNodes number of new empty nodes
  * @return false if nodes are already initialized, esle true
  */
 bool
@@ -63,10 +62,12 @@ initNodeBlocks(Brick* brick,
         return false;
     }
 
+    // if not set by user, use default-value
     if(numberOfNodes == 0) {
         numberOfNodes = NUMBER_OF_NODES_PER_BRICK;
     }
 
+    // init
     if(initDataBlocks(brick, NODE_DATA, numberOfNodes, sizeof(Node)) == false) {
         return false;
     }
@@ -87,7 +88,6 @@ initNodeBlocks(Brick* brick,
 /**
  * init the edge-sections of thebrick
  *
- * @param numberOfSynapseSections number of edge-sections which should be initialized
  * @return false, if already initialized, else true
  */
 bool
@@ -101,7 +101,12 @@ initSynapseSectionBlocks(Brick* brick,
         return false;
     }
 
-    if(initDataBlocks(brick, SYNAPSE_DATA, numberOfSynapseSections, sizeof(SynapseSection)) == false) {
+    // init
+    if(initDataBlocks(brick,
+                      SYNAPSE_DATA,
+                      numberOfSynapseSections,
+                      sizeof(SynapseSection)) == false)
+    {
         return false;
     }
 
@@ -121,22 +126,25 @@ initSynapseSectionBlocks(Brick* brick,
 /**
  * initialize forward-edge-block
  *
- * @param numberOfEdgeSections number of forward-edge-sections
  * @return true if success, else false
  */
 bool
 initEdgeSectionBlocks(Brick* brick,
-                             const uint32_t numberOfEdgeSections)
+                      const uint32_t numberOfEdgeSections)
 {
     DataConnection* data = &brick->dataConnections[EDGE_DATA];
 
     // prechecks
-    if(data->numberOfItems != 0
-            || numberOfEdgeSections == 0) {
+    if(data->inUse != 0) {
         return false;
     }
 
-    if(initDataBlocks(brick, EDGE_DATA, numberOfEdgeSections, sizeof(EdgeSection)) == false) {
+    // init
+    if(initDataBlocks(brick,
+                      EDGE_DATA,
+                      numberOfEdgeSections,
+                      sizeof(EdgeSection)) == false)
+    {
         return false;
     }
 
@@ -154,8 +162,9 @@ initEdgeSectionBlocks(Brick* brick,
 }
 
 /**
-* @param itemPos
-* @return
+* delete a specific item from the buffer by replacing it with a placeholder-item
+*
+* @return false if buffer is invalid or item already deleted, else true
 */
 bool
 deleteDynamicItem(Brick* brick,
@@ -164,28 +173,34 @@ deleteDynamicItem(Brick* brick,
 {
     DataConnection *data = &brick->dataConnections[connectionId];
 
-    if(itemPos >= data->numberOfItems || data->inUse == 0) {
+    // precheck
+    if(itemPos >= data->numberOfItems
+            || data->inUse == 0)
+    {
         return false;
     }
 
     // get buffer
     uint8_t* blockBegin = data->buffer.data;
 
-    // overwrite item
+    // data of the position
     const uint32_t currentBytePos = itemPos * data->itemSize;
     EmptyPlaceHolder* placeHolder = (EmptyPlaceHolder*)&blockBegin[currentBytePos];
 
+    // check that the position is active and not already deleted
     if(placeHolder->status == DELETED_SECTION) {
         return false;
     }
 
+    // overwrite item with a placeholder and set the position as delted
     placeHolder->bytePositionOfNextEmptyBlock = UNINIT_STATE_32;
     placeHolder->status = DELETED_SECTION;
 
     // modify last place-holder
-    if(data->bytePositionOfLastEmptyBlock != UNINIT_STATE_32)
+    const uint32_t blockPosition = data->bytePositionOfLastEmptyBlock;
+    if(blockPosition != UNINIT_STATE_32)
     {
-        EmptyPlaceHolder* lastPlaceHolder = (EmptyPlaceHolder*)&blockBegin[data->bytePositionOfLastEmptyBlock];
+        EmptyPlaceHolder* lastPlaceHolder = (EmptyPlaceHolder*)&blockBegin[blockPosition];
         lastPlaceHolder->bytePositionOfNextEmptyBlock = currentBytePos;
     }
 
@@ -201,10 +216,9 @@ deleteDynamicItem(Brick* brick,
 }
 
 /**
- * @brief reuseItemPosition
- * @param brick
- * @param connectionId
- * @return
+ * try to reuse a deleted buffer segment
+ *
+ * @return item-position in the buffer, else UNINIT_STATE_32 if no empty space in buffer exist
  */
 uint32_t
 reuseItemPosition(Brick* brick,
@@ -212,36 +226,44 @@ reuseItemPosition(Brick* brick,
 {
     DataConnection *data = &brick->dataConnections[connectionId];
 
+    // get byte-position of free space, if exist
     const uint32_t selectedPosition = data->bytePositionOfFirstEmptyBlock;
     if(selectedPosition == UNINIT_STATE_32) {
         return UNINIT_STATE_32;
     }
 
+    // set pointer to the next empty space
     uint8_t* blockBegin = data->buffer.data;
     EmptyPlaceHolder* secetedPlaceHolder = (EmptyPlaceHolder*)&blockBegin[selectedPosition];
     data->bytePositionOfFirstEmptyBlock = secetedPlaceHolder->bytePositionOfNextEmptyBlock;
 
+    // reset pointer, if no more free spaces exist
     if(data->bytePositionOfFirstEmptyBlock == UNINIT_STATE_32) {
         data->bytePositionOfLastEmptyBlock = UNINIT_STATE_32;
     }
 
+    // convert byte-position to item-position and return this
     data->numberOfDeletedDynamicItems--;
     assert(selectedPosition % data->itemSize == 0);
+
     return selectedPosition / data->itemSize;
 }
 
 /**
 * add a new forward-edge-section
 *
-* @return id of the new section, else SPECIAL_STATE if allocation failed
+* @return id of the new section, else UNINIT_STATE_32 if allocation failed
 */
 uint32_t
 reserveDynamicItem(Brick *brick,
                    const uint8_t connectionId)
 {
-    DataConnection *data = &brick->dataConnections[connectionId];
+    DataConnection* data = &brick->dataConnections[connectionId];
 
-    if(data->itemSize == 0 || data->inUse == 0) {
+    // precheck
+    if(data->itemSize == 0
+            || data->inUse == 0)
+    {
         return UNINIT_STATE_32;
     }
 
@@ -251,26 +273,28 @@ reserveDynamicItem(Brick *brick,
         return reusePos;
     }
 
+    // calculate size information
+    const uint32_t blockSize = data->buffer.blockSize;
+    const uint32_t currentNumberOfBlocks = (data->numberOfItems * data->itemSize)/ blockSize;
+    const uint32_t newNumberOfBlocks = ((data->numberOfItems + 1) * data->itemSize) / blockSize;
+
     // allocate a new block, if necessary
-    uint32_t blockSize = data->buffer.blockSize;
-    if((data->numberOfItems * data->itemSize)/ blockSize
-            < ((data->numberOfItems + 1) * data->itemSize) / blockSize)
+    if(currentNumberOfBlocks < newNumberOfBlocks)
     {
-        if(!allocateBlocks(&data->buffer, 1)) {
+        if(allocateBlocks(&data->buffer, 1) == false) {
             return UNINIT_STATE_32;
         }
         data->numberOfItemBlocks++;
     }
 
     data->numberOfItems++;
+
     return data->numberOfItems-1;
 }
 
 /**
  * add an existing edge to a specifig edge-sections
  *
- * @param edgeSectionId id of the edge-section for the new edge
- * @param newEdge new edge, which should be added
  * @return false, if edgeSectionId is too big, else true
  */
 bool
@@ -296,7 +320,8 @@ addSynapse(Brick* brick,
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
 uint32_t
-addEmptySynapseSection(Brick* brick, const uint32_t sourceId)
+addEmptySynapseSection(Brick* brick,
+                       const uint32_t sourceId)
 {
     const uint32_t position = reserveDynamicItem(brick, SYNAPSE_DATA);
 
@@ -313,23 +338,23 @@ addEmptySynapseSection(Brick* brick, const uint32_t sourceId)
 }
 
 /**
- * add a new forward-edge-section
+ * add a new edge-section to a specific brick with information about the source of the edge
  *
- * @param sourceSide id of the incoming side
- * @param sourceId id of the source forward-edge-section
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
 uint32_t
 addEmptyEdgeSection(Brick *brick,
-                           const uint8_t sourceSide,
-                           const uint32_t sourceId)
+                    const uint8_t sourceSide,
+                    const uint32_t sourceId)
 {
     const uint32_t position = reserveDynamicItem(brick, EDGE_DATA);
 
-    // add new edge-forward-section
+    // create new edge-section
     EdgeSection newSection;
     newSection.sourceId = sourceId;
     newSection.sourceSide = sourceSide;
+
+    // add edge-section to the databuffer
     const DataConnection* connection = &brick->dataConnections[EDGE_DATA];
     EdgeSection* array = getEdgeBlock(connection);
     array[position] = newSection;

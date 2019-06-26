@@ -25,19 +25,18 @@ namespace KyoukoMind
 
 struct GlobalValues;
 
-/**
- * @brief The BrickPos struct
- */
+//==================================================================================================
+
 struct BrickPos
 {
     uint32_t x = 0;
     uint32_t y = 0;
     uint32_t z = 0;
+
 } __attribute__((packed));
 
-/**
- * @brief The DataConnectionTypes enum
- */
+//==================================================================================================
+
 enum DataConnectionTypes
 {
     EDGE_DATA = 0,
@@ -45,9 +44,8 @@ enum DataConnectionTypes
     SYNAPSE_DATA = 2
 };
 
-/**
- * @brief The DataConnection struct
- */
+//==================================================================================================
+
 struct DataConnection
 {
     uint8_t inUse = 0;
@@ -63,9 +61,8 @@ struct DataConnection
 
 } __attribute__((packed));
 
-/**
- * @brief The Neighbor struct
- */
+//==================================================================================================
+
 struct Neighbor
 {
     uint8_t inUse = 0;
@@ -76,11 +73,11 @@ struct Neighbor
 
     OutgoingBuffer outgoBuffer;
     IncomingBuffer incomBuffer;
+
 } __attribute__((packed));
 
-/**
- * @brief The BrickMetaData struct
- */
+//==================================================================================================
+
 struct Brick
 {
     // common
@@ -91,6 +88,7 @@ struct Brick
     Kitsune::CommonDataBuffer headerBuffer;
 
     // 0 - 23: neighbor-bricks
+    // 24: the current brick
     Neighbor neighbors[25];
     uint8_t isOutputBrick = 0;
     uint8_t isInputBrick = 0;
@@ -102,17 +100,6 @@ struct Brick
 
     float outBuffer[10];
     uint8_t outBufferPos = 0;
-
-    /**
-     * write the current mata-data to the buffer and the file
-     */
-    void updateBufferData()
-    {
-        return;
-        uint32_t size = sizeof(Brick);
-        memcpy(headerBuffer.data, this, size);
-        // TODO: readd persist meta-data-changes
-    }
 
     Brick(const BrickID &brickId,
           const uint32_t x,
@@ -135,8 +122,9 @@ struct Brick
     }
 
     /**
-     * @brief isReady
-     * @return
+     * check all incoming buffer of the brick
+     *
+     * @return true if ready, else false
      */
     bool isReady()
     {
@@ -149,16 +137,29 @@ struct Brick
         return true;
     }
 
+    /**
+     * write the current mata-data to the buffer and the file
+     */
+    void updateBufferData()
+    {
+        return;
+        uint32_t size = sizeof(Brick);
+        memcpy(headerBuffer.data, this, size);
+        // TODO: readd persist meta-data-changes
+    }
+
 } __attribute__((packed));
 
-/**
- * @brief The EmptyPlaceHolder struct
- */
+//==================================================================================================
+
 struct EmptyPlaceHolder
 {
     uint8_t status = DELETED_SECTION;
     uint32_t bytePositionOfNextEmptyBlock = UNINIT_STATE_32;
+
 } __attribute__((packed));
+
+//==================================================================================================
 
 }
 

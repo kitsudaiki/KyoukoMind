@@ -19,8 +19,9 @@ GlobalValuesHandler::GlobalValuesHandler()
 }
 
 /**
- * @brief GlobalValuesHandler::getGlobalValues
- * @return
+ * getter for the global-values
+ *
+ * @return copy of the global-value-object
  */
 GlobalValues
 GlobalValuesHandler::getGlobalValues()
@@ -33,8 +34,7 @@ GlobalValuesHandler::getGlobalValues()
 }
 
 /**
- * @brief GlobalValuesHandler::setGlobalValues
- * @param values
+ * overrides the global values with a new object
  */
 void
 GlobalValuesHandler::setGlobalValues(const GlobalValues &values)

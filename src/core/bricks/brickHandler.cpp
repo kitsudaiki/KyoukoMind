@@ -16,34 +16,30 @@
 namespace KyoukoMind
 {
 
-/**
- * @brief BrickManager::BrickManager
- */
 BrickHandler::BrickHandler()
 {
 }
 
-/**
- * @brief BrickManager::~BrickManager
- */
 BrickHandler::~BrickHandler()
 {
     clearAllBrick();
 }
 
 /**
- * @brief BrickManager::addBrick
- * @param brickId
- * @param brick
- * @return
+ * add a new brick to the handler
+ *
+ * @return false, if brick-id already exist in the handler, else true
  */
 bool
 BrickHandler::addBrick(const BrickID brickId,
                        Brick *brick)
 {
+    // check if id already in use
     if(m_allBricks.find(brickId) != m_allBricks.end()) {
         return false;
     }
+
+    // add brick to handler and initial add to the processing-queue
     m_allBricks.insert(std::pair<BrickID, Brick*>(brickId, brick));
     addToQueue(brick);
 
@@ -51,9 +47,9 @@ BrickHandler::addBrick(const BrickID brickId,
 }
 
 /**
- * @brief BrickManager::getBrick
- * @param brickId
- * @return
+ * request a specific brick from the handler
+ *
+ * @return null-pointer, if id is unknown, else pointer to the brick-object
  */
 Brick*
 BrickHandler::getBrick(const BrickID brickId)
@@ -63,20 +59,24 @@ BrickHandler::getBrick(const BrickID brickId)
     if(it != m_allBricks.end()) {
         return it->second;
     }
+
     return nullptr;
 }
 
 /**
- * @brief BrickHandler::getBrickByPos
- * @param brickPos
- * @return
+ * request brick from the handler by position in the handler-memory instead of its id
+ *
+ * @return null-pointer, if index is too big, else pointer to the brick-object
  */
 Brick*
 BrickHandler::getBrickByIndex(const uint32_t index)
 {
+    // check index
     if(index >= m_allBricks.size()) {
         return nullptr;
     }
+
+    // iterate over all bricks until index is reached
     uint32_t counter = 0;
     std::map<BrickID, Brick*>::iterator it;
     for(it = m_allBricks.begin(); it != m_allBricks.end(); ++it)
@@ -86,12 +86,14 @@ BrickHandler::getBrickByIndex(const uint32_t index)
         }
         counter++;
     }
+
     return nullptr;
 }
 
 /**
- * @brief BrickHandler::getNumberOfBrick
- * @return
+ * get number of registered bricks
+ *
+ * @return number of bricks
  */
 uint64_t
 BrickHandler::getNumberOfBrick() const
@@ -100,9 +102,9 @@ BrickHandler::getNumberOfBrick() const
 }
 
 /**
- * @brief BrickManager::deleteBrick
- * @param brickId
- * @return
+ * delete a specific brick by its id
+ *
+ * @return false if id doesn't exist, else true
  */
 bool
 BrickHandler::deleteBrick(const BrickID brickId)
@@ -113,11 +115,12 @@ BrickHandler::deleteBrick(const BrickID brickId)
         m_allBricks.erase(it);
         return true;
     }
+
     return false;
 }
 
 /**
- * @brief BrickManager::clearAllBrick
+ * delete all bricks from the handler
  */
 void
 BrickHandler::clearAllBrick()
@@ -132,11 +135,9 @@ BrickHandler::clearAllBrick()
 }
 
 /**
- * @brief BrickHandler::connect
- * @param sourceBrickId
- * @param sourceSide
- * @param targetBrickId
- * @return
+ * connect two bricks from the handler with each other at a specific side
+ *
+ * @return result of the sub-call
  */
 bool
 BrickHandler::connect(const BrickID sourceBrickId,
@@ -150,11 +151,9 @@ BrickHandler::connect(const BrickID sourceBrickId,
 }
 
 /**
- * @brief BrickHandler::connect
- * @param sourceBrickId
- * @param sourceSide
- * @param targetBrickId
- * @return
+ * disconnect two bricks from the handler from each other
+ *
+ * @return result of the sub-call
  */
 bool
 BrickHandler::disconnect(const BrickID sourceBrickId,
@@ -168,28 +167,36 @@ BrickHandler::disconnect(const BrickID sourceBrickId,
 }
 
 /**
- * @brief BrickHandler::addToQueue
- * @param brick
+ * add a brick to the queue of bricks with are ready for processing
+ *
+ * @return false if already in the queue, else true
  */
 bool
 BrickHandler::addToQueue(Brick *brick)
 {
+    // precheck
     if(brick->inQueue == 1) {
         return false;
     }
+
     while (m_queueLock.test_and_set(std::memory_order_acquire)) {
         ; // spin
     }
+
+    // add to queue
     brick->inQueue = 1;
     assert(brick->isReady() == true);
     m_readyBricks.push(brick);
+
     m_queueLock.clear(std::memory_order_release);
+
     return true;
 }
 
 /**
- * @brief BrickHandler::getFromQueue
- * @return
+ * get the next brick from the queue
+ *
+ * @return nullpointer, if queue is empty, else pointer to the brick
  */
 Brick*
 BrickHandler::getFromQueue()
@@ -208,6 +215,7 @@ BrickHandler::getFromQueue()
         return nullptr;
     }
 
+    // get the next from the queue
     if(m_readyBricks.empty() == false)
     {
         result = m_readyBricks.front();
@@ -215,7 +223,9 @@ BrickHandler::getFromQueue()
         result->inQueue = 0;
         assert(result->isReady() == true);
     }
+
     m_queueLock.clear(std::memory_order_release);
+
     return result;
 }
 
