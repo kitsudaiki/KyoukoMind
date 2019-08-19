@@ -8,8 +8,8 @@
  */
 
 #include <common.h>
-#include <src/kyoukoNetwork.h>
-#include <tests/runUnitTests.h>
+#include <src/kyouko_network.h>
+#include <tests/run_unit_tests.h>
 
 int
 main(int argc, char *argv[])

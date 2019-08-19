@@ -1,12 +1,9 @@
 QT -= qt core gui
 
-CONFcIG += c++17
-
 TARGET = KyoukoMind
 CONFIG += console
 CONFIG -= app_bundle
-
-TEMPLATE = app
+CONFIG += c++14
 
 LIBS += -L../libKitsuneCommon/src -lKitsuneCommon
 LIBS += -L../libKitsuneCommon/src/debug -lKitsuneCommon
@@ -33,28 +30,28 @@ INCLUDEPATH += $$PWD \
             src
 
 SOURCES += \
-    src/core/processing/processingUnit.cpp \
-    src/core/processing/processingUnitHandler.cpp \
-    src/core/networkManager.cpp \
     src/settings/config.cpp \
     main.cpp \
-    src/core/bricks/globalValuesHandler.cpp \
-    tests/runUnitTests.cpp \
-    src/core/networkInteraction/connectionTrigger.cpp \
-    src/initializing/axonInitializer.cpp \
-    src/initializing/networkInitializer.cpp \
-    src/core/bricks/brickMethods/bufferControlMethods.cpp \
-    tests/initializing/initTest.cpp \
-    tests/core/bricks/brickMethods/bufferControlMethodsTest.cpp \
-    src/core/bricks/brickMethods/commonBrickMethods.cpp \
-    src/core/bricks/brickHandler.cpp \
-    src/core/processing/processingMethods/brickProcessingMethods.cpp \
-    src/initializing/fileParser.cpp \
-    tests/core/messaging/messageBufferTest.cpp \
-    tests/core/messaging/messageMarker/incomingBufferTest.cpp \
-    src/core/messaging/messageBlockBuffer.cpp \
-    src/kyoukoNetwork.cpp \
-    src/core/networkInteraction/mindClient.cpp
+    src/core/bricks/brick_methods/buffer_control_methods.cpp \
+    src/core/bricks/brick_methods/common_brick_methods.cpp \
+    src/core/bricks/brick_handler.cpp \
+    src/core/bricks/global_values_handler.cpp \
+    src/core/messaging/message_block_buffer.cpp \
+    src/core/network_interaction/connection_trigger.cpp \
+    src/core/network_interaction/mind_client.cpp \
+    src/core/processing/processing_methods/brick_processing_methods.cpp \
+    src/core/processing/processing_unit.cpp \
+    src/core/processing/processing_unit_handler.cpp \
+    src/core/network_manager.cpp \
+    src/initializing/axon_initializer.cpp \
+    src/initializing/file_parser.cpp \
+    src/initializing/network_initializer.cpp \
+    src/kyouko_network.cpp \
+    tests/core/bricks/brick_methods/buffer_control_methods_test.cpp \
+    tests/core/messaging/message_buffer/incoming_buffer_test.cpp \
+    tests/core/messaging/message_buffer_test.cpp \
+    tests/initializing/init_test.cpp \
+    tests/run_unit_tests.cpp
 
 
 HEADERS += \
@@ -62,36 +59,36 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/processing/processingUnit.h \
-    src/core/processing/processingUnitHandler.h \
-    src/core/networkManager.h \
     src/settings/config.h \
     src/common.h \
-    src/core/bricks/globalValuesHandler.h \
-    tests/runUnitTests.h \
     src/common/using.h \
-    src/core/networkInteraction/connectionTrigger.h \
-    src/initializing/axonInitializer.h \
-    src/initializing/networkInitializer.h \
-    src/initializing/initMetaData.h \
-    src/core/bricks/brickMethods/bufferControlMethods.h \
-    src/core/processing/processingMethods/messageProcessingMethods.h \
-    tests/initializing/initTest.h \
-    tests/core/bricks/brickMethods/bufferControlMethodsTest.h \
-    src/core/bricks/brickMethods/commonBrickMethods.h \
-    src/core/bricks/brickObjects/brick.h \
-    src/core/bricks/brickHandler.h \
-    src/core/processing/processingMethods/brickProcessingMethods.h \
-    src/core/bricks/brickObjects/edges.h \
-    src/core/bricks/brickObjects/node.h \
-    src/initializing/fileParser.h \
+    src/core/bricks/brick_objects/brick.h \
+    src/core/bricks/brick_objects/edges.h \
+    src/core/bricks/brick_objects/node.h \
     src/core/messaging/messageObjects/messages.h \
-    src/core/messaging/messageObjects/messageBlock.h \
-    src/core/messaging/messageMarker/outgoingBuffer.h \
-    src/core/messaging/messageMarker/incomingBuffer.h \
-    tests/core/messaging/messageBufferTest.h \
-    tests/core/messaging/messageMarker/incomingBufferTest.h \
-    src/core/messaging/messageObjects/contentContainer.h \
-    src/core/messaging/messageBlockBuffer.h \
-    src/kyoukoNetwork.h \
-    src/core/networkInteraction/mindClient.h
+    src/core/bricks/brick_methods/buffer_control_methods.h \
+    src/core/bricks/brick_methods/common_brick_methods.h \
+    src/core/bricks/brick_handler.h \
+    src/core/bricks/global_values_handler.h \
+    src/core/messaging/message_buffer/incoming_buffer.h \
+    src/core/messaging/message_buffer/outgoing_buffer.h \
+    src/core/messaging/message_objects/content_container.h \
+    src/core/messaging/message_objects/message_block.h \
+    src/core/messaging/message_block_buffer.h \
+    src/core/network_interaction/connection_trigger.h \
+    src/core/network_interaction/mind_client.h \
+    src/core/processing/processing_methods/brick_processing_methods.h \
+    src/core/processing/processing_methods/message_processing_methods.h \
+    src/core/processing/processing_unit.h \
+    src/core/processing/processing_unit_handler.h \
+    src/initializing/axon_initializer.h \
+    src/core/network_manager.h \
+    src/initializing/file_parser.h \
+    src/initializing/network_initializer.h \
+    src/kyouko_network.h \
+    src/initializing/init_meta_data.h \
+    tests/core/bricks/brick_methods/buffer_control_methods_test.h \
+    tests/core/messaging/message_buffer/incoming_buffer_test.h \
+    tests/core/messaging/message_buffer_test.h \
+    tests/initializing/init_test.h \
+    tests/run_unit_tests.h

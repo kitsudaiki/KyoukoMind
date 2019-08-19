@@ -1,5 +1,5 @@
 /**
- *  @file    config.h
+ *  @file    run_unit_tests.h
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -7,23 +7,23 @@
  *  Apache License Version 2.0
  */
 
-#ifndef CONFIG
-#define CONFIG
+#ifndef RUN_UNIT_TESTS_H
+#define RUN_UNIT_TESTS_H
 
 #include <common.h>
+
 
 namespace KyoukoMind
 {
 
-class Config
+class RunUnitTests
 {
 public:
-    Config();
-    std::string getDirectoryPath() const;
-    std::string getInitialFilePath() const;
+    RunUnitTests();
+
+    void run();
 };
 
 } // namespace KyoukoMind
 
-#endif // CONFIG_H
-
+#endif // RUN_UNIT_TESTS_H
