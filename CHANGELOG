@@ -1,0 +1,11 @@
+# Changelog
+
+## [0.1.0] - 2019-08-19
+
+### Added
+
+- PoC-state:
+    - this is basically the PoC-state with tcp-connection to ToriiGateway/KistuneClien/MiyuMonitoring
+    - its primary to have a consistent tagged state which is linked against tagged versions of kitsune-repos
+    - at the moment it can only learn simple outputs and is still really static
+
