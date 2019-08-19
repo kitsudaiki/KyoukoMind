@@ -30,4 +30,4 @@ Config::getInitialFilePath() const
     return "/home/neptune/Schreibtisch/Projekte/KyoukoMind/test_cluster2";
 }
 
-}
+} // namespace KyoukoMind
