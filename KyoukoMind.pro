@@ -5,29 +5,30 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG += c++14
 
-LIBS += -L../libKitsuneCommon/src -lKitsuneCommon
-LIBS += -L../libKitsuneCommon/src/debug -lKitsuneCommon
-LIBS += -L../libKitsuneCommon/src/release -lKitsuneCommon
-INCLUDEPATH += ../libKitsuneCommon/include/libKitsuneCommon
+LIBS += -L../libKitsunemimiCommon/src -lKitsunemimiCommon
+LIBS += -L../libKitsunemimiCommon/src/debug -lKitsunemimiCommon
+LIBS += -L../libKitsunemimiCommon/src/release -lKitsunemimiCommon
+INCLUDEPATH += ../libKitsunemimiCommon/include
 
-LIBS += -L../libKitsuneJson/src -lKitsuneJson
-LIBS += -L../libKitsuneJson/src/debug -lKitsuneJson
-LIBS += -L../libKitsuneJson/src/release -lKitsuneJson
-INCLUDEPATH += ../libKitsuneJson/include/libKitsuneJson
+LIBS += -L../libKitsunemimiJson/src -lKitsunemimiJson
+LIBS += -L../libKitsunemimiJson/src/debug -lKitsunemimiJson
+LIBS += -L../libKitsunemimiJson/src/release -lKitsunemimiJson
+INCLUDEPATH += ../libKitsunemimiJson/include
 
-LIBS += -L../libKitsuneNetwork/src -lKitsuneNetwork
-LIBS += -L../libKitsuneNetwork/src/debug -lKitsuneNetwork
-LIBS += -L../libKitsuneNetwork/src/release -lKitsuneNetwork
-INCLUDEPATH += ../libKitsuneNetwork/include/libKitsuneNetwork
+#LIBS += -L../libKitsunemimiNetwork/src -lKitsunemimiNetwork
+#LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
+#LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
+#INCLUDEPATH += ../libKitsunemimiNetwork/include
 
-LIBS += -L../libKitsuneChanCommon -lKitsuneChanCommon
-LIBS += -L../libKitsuneChanCommon/debug -lKitsuneChanCommon
-LIBS += -L../libKitsuneChanCommon/release -lKitsuneChanCommon
-INCLUDEPATH += ../libKitsuneChanCommon/include/libKitsuneChanCommon
+#LIBS += -L../libKitsunemimiKyoukoCommon -lKitsunemimiKyoukoCommon
+#LIBS += -L../libKitsunemimiKyoukoCommon/debug -lKitsunemimiKyoukoCommon
+#LIBS += -L../libKitsunemimiKyoukoCommon/release -lKitsunemimiKyoukoCommon
+#INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
 
+LIBS +=  -lboost_filesystem -lboost_system -lboost_program_options  -lssl -lcrypt
 
 INCLUDEPATH += $$PWD \
-            src
+               src
 
 SOURCES += \
     src/settings/config.cpp \
@@ -37,8 +38,6 @@ SOURCES += \
     src/core/bricks/brick_handler.cpp \
     src/core/bricks/global_values_handler.cpp \
     src/core/messaging/message_block_buffer.cpp \
-    src/core/network_interaction/connection_trigger.cpp \
-    src/core/network_interaction/mind_client.cpp \
     src/core/processing/processing_methods/brick_processing_methods.cpp \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
@@ -75,8 +74,6 @@ HEADERS += \
     src/core/messaging/message_objects/content_container.h \
     src/core/messaging/message_objects/message_block.h \
     src/core/messaging/message_block_buffer.h \
-    src/core/network_interaction/connection_trigger.h \
-    src/core/network_interaction/mind_client.h \
     src/core/processing/processing_methods/brick_processing_methods.h \
     src/core/processing/processing_methods/message_processing_methods.h \
     src/core/processing/processing_unit.h \

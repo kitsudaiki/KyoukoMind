@@ -14,13 +14,13 @@
 
 #include <core/processing/processing_methods/message_processing_methods.h>
 
-#include <communication_structs/monitorin_contianer.h>
-#include <communication_structs/mind_container.h>
-#include <communication_structs/common_messages.h>
+//#include <libKitsunemimiKyoukoCommon/communication_structs/monitorin_contianer.h>
+//#include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
+//#include <libKitsunemimiKyoukoCommon/communication_structs/common_messages.h>
 
-using Kitsune::Chan::Common::MonitoringMessage;
-using Kitsune::Chan::Common::MindOutputData;
-using Kitsune::Chan::Common::TransferDataMessage;
+//using Kitsunemimi::Chan::Common::MonitoringMessage;
+//using Kitsunemimi::Chan::Common::MindOutputData;
+//using Kitsunemimi::Chan::Common::TransferDataMessage;
 
 namespace KyoukoMind
 {
@@ -311,6 +311,7 @@ finishCycle(Brick* brick,
         finishSide(brick, side);
     }
 
+    /*
     // finish monitoring
     if(monitoringMessage != nullptr)
     {
@@ -335,6 +336,7 @@ finishCycle(Brick* brick,
                                               sizeof(DataMessage));
         clientMessage->init();
     }
+    */
 }
 
 /**
@@ -349,6 +351,7 @@ writeStatus(Brick* brick, TransferDataMessage* message)
 
     GlobalValues globalValue = KyoukoNetwork::m_globalValuesHandler->getGlobalValues();
 
+    /*
     // fill message
     MonitoringMessage monitoringMessage;
     monitoringMessage.brickId = brick->brickId;
@@ -394,6 +397,7 @@ writeStatus(Brick* brick, TransferDataMessage* message)
                                               sizeof(DataMessage));
         message->init();
     }
+    */
 }
 
 /**
@@ -405,7 +409,7 @@ writeOutput(Brick* brick, TransferDataMessage* message)
     if(message == nullptr) {
         return;
     }
-
+    /*
     // fill message
     MindOutputData outputMessage;
     outputMessage.value = getSummedValue(brick);
@@ -426,6 +430,7 @@ writeOutput(Brick* brick, TransferDataMessage* message)
                                               sizeof(DataMessage));
         message->init();
     }
+    */
 }
 
 } // namespace KyoukoMind

@@ -15,7 +15,7 @@ namespace KyoukoMind
 {
 
 MessageBufferTest::MessageBufferTest()
-    : Kitsune::Common::Test("MessageBufferTest")
+    : Kitsunemimi::Common::Test("MessageBufferTest")
 {
     initTest();
     appandMessageBlock_test();
@@ -51,23 +51,23 @@ MessageBufferTest::appandMessageBlock_test()
     testMessage.targetBrickId = 42;
 
     // run test
-    UNITTEST(buffer.m_blocks.size(), 0);
-    UNITTEST(buffer.appandMessageBlock(&testMessage), 0);
-    UNITTEST(buffer.m_blocks[0]->containsMessages, 1);
-    UNITTEST(buffer.m_blocks.size(), 1);
+    TEST_EQUAL(buffer.m_blocks.size(), 0);
+    TEST_EQUAL(buffer.appandMessageBlock(&testMessage), 0);
+    TEST_EQUAL(buffer.m_blocks[0]->containsMessages, 1);
+    TEST_EQUAL(buffer.m_blocks.size(), 1);
 
     for(uint32_t i = 0; i < 1023; i++)
     {
         buffer.appandMessageBlock(&testMessage);
     }
 
-    UNITTEST(buffer.m_blocks.size(), 1);
-    UNITTEST(buffer.appandMessageBlock(&testMessage), 1024);
-    UNITTEST(buffer.m_blocks.size(), 2);
+    TEST_EQUAL(buffer.m_blocks.size(), 1);
+    TEST_EQUAL(buffer.appandMessageBlock(&testMessage), 1024);
+    TEST_EQUAL(buffer.m_blocks.size(), 2);
 
     testMessage.isLast = 1;
-    UNITTEST(buffer.appandMessageBlock(&testMessage), 1025);
-    UNITTEST(buffer.m_blocks[0]->containsMessages, 1024);
+    TEST_EQUAL(buffer.appandMessageBlock(&testMessage), 1025);
+    TEST_EQUAL(buffer.m_blocks[0]->containsMessages, 1024);
 }
 
 /**
@@ -84,23 +84,23 @@ MessageBufferTest::addMessageBlock_test()
     testMessage.targetBrickId = 42;
 
     // run test
-    UNITTEST(buffer.m_blocks.size(), 0);
+    TEST_EQUAL(buffer.m_blocks.size(), 0);
     buffer.addMessageBlock(0, (uint8_t*)&testMessage, 1);
-    UNITTEST(buffer.m_blocks[0]->containsMessages, 1);
-    UNITTEST(buffer.m_blocks.size(), 1);
+    TEST_EQUAL(buffer.m_blocks[0]->containsMessages, 1);
+    TEST_EQUAL(buffer.m_blocks.size(), 1);
 
     for(uint32_t i = 1; i < 1024; i++)
     {
         buffer.addMessageBlock(i, (uint8_t*)&testMessage, 1);
     }
 
-    UNITTEST(buffer.m_blocks.size(), 1);
+    TEST_EQUAL(buffer.m_blocks.size(), 1);
     buffer.addMessageBlock(1024, (uint8_t*)&testMessage, 1);
-    UNITTEST(buffer.m_blocks.size(), 2);
+    TEST_EQUAL(buffer.m_blocks.size(), 2);
 
     testMessage.isLast = 1;
     buffer.addMessageBlock(1025, (uint8_t*)&testMessage, 1);
-    UNITTEST(buffer.m_blocks[0]->containsMessages, 1024);
+    TEST_EQUAL(buffer.m_blocks[0]->containsMessages, 1024);
 }
 
 /**
@@ -127,7 +127,7 @@ MessageBufferTest::getMessage_test()
 
     // run test
     DataMessage* message = buffer.getMessage(1500);
-    UNITTEST(message->type, 42);
+    TEST_EQUAL(message->type, 42);
 }
 
 /**
@@ -168,9 +168,9 @@ MessageBufferTest::getNextMessage_test()
 
     // run test
     DataMessage* message = (DataMessage*)buffer.getNextMessage();
-    UNITTEST((uint32_t)message->type, 42);
+    TEST_EQUAL((uint32_t)message->type, 42);
     message = (DataMessage*)buffer.getNextMessage();
-    UNITTEST((uint32_t)message->type, 123);
+    TEST_EQUAL((uint32_t)message->type, 123);
 }
 
 /**
@@ -192,19 +192,19 @@ MessageBufferTest::finishMessage_test()
     }
 
     // precheck
-    UNITTEST(buffer.m_blocks[0]->containsMessages, 1024);
-    UNITTEST(buffer.m_blocks[0]->processedMessages, 0);
-    UNITTEST(buffer.m_blocks.size(), 3);
+    TEST_EQUAL(buffer.m_blocks[0]->containsMessages, 1024);
+    TEST_EQUAL(buffer.m_blocks[0]->processedMessages, 0);
+    TEST_EQUAL(buffer.m_blocks.size(), 3);
 
     // run test
     buffer.finishMessage(0);
-    UNITTEST(buffer.m_blocks[0]->containsMessages, 1024);
-    UNITTEST(buffer.m_blocks[0]->processedMessages, 1);
+    TEST_EQUAL(buffer.m_blocks[0]->containsMessages, 1024);
+    TEST_EQUAL(buffer.m_blocks[0]->processedMessages, 1);
     for(uint32_t i = 1; i < 2000; i++)
     {
         buffer.finishMessage(i);
     }
-    UNITTEST(buffer.m_blocks.size(), 2);
+    TEST_EQUAL(buffer.m_blocks.size(), 2);
 }
 
 /**

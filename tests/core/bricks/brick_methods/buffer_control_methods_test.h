@@ -11,12 +11,13 @@
 #define BUFFER_CONTROL_METHODS_TEST_H
 
 #include <common.h>
-#include <testing/test.h>
+#include <libKitsunemimiCommon/test.h>
 
 namespace KyoukoMind
 {
 
-class BufferControlMethodsTest : public Kitsune::Common::Test
+class BufferControlMethodsTest
+        : public Kitsunemimi::Common::Test
 {
 public:
     BufferControlMethodsTest();

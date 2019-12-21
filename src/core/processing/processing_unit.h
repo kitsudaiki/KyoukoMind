@@ -11,12 +11,12 @@
 #define PROCESSING_UNIT_H
 
 #include <common.h>
-#include <threading/thread.h>
+#include <libKitsunemimiCommon/threading/thread.h>
 
 #include <core/messaging/message_objects/messages.h>
-#include <communication_structs/common_messages.h>
+//#include <libKitsunemimiKyoukoCommon/communication_structs/common_messages.h>
 
-using Kitsune::Chan::Common::TransferDataMessage;
+//using Kitsunemimi::Chan::Common::TransferDataMessage;
 
 struct NeighborInformation;
 
@@ -26,7 +26,7 @@ class GlobalValuesHandler;
 struct Brick;
 struct Neighbor;
 
-class ProcessingUnit : public Kitsune::Common::Thread
+class ProcessingUnit : public Kitsunemimi::Common::Thread
 {
 
 public:
@@ -52,10 +52,10 @@ private:
     float m_totalWeightMap = 0.0f;
 
     bool m_enableMonitoring = true;
-    TransferDataMessage* m_monitoringMessage = nullptr;
+    //TransferDataMessage* m_monitoringMessage = nullptr;
 
     bool m_enableClient = true;
-    TransferDataMessage* m_clienOutputMessage = nullptr;
+    //TransferDataMessage* m_clienOutputMessage = nullptr;
 };
 
 } // namespace KyoukoMind

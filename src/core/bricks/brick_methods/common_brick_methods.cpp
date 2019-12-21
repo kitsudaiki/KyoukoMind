@@ -11,8 +11,7 @@
 
 #include <kyouko_network.h>
 
-#include <buffering/data_buffer.h>
-#include <buffering/data_buffer_methods.h>
+#include <libKitsunemimiCommon/data_buffer_methods.h>
 
 #include <core/messaging/message_block_buffer.h>
 #include <core/bricks/brick_objects/brick.h>

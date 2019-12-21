@@ -13,7 +13,6 @@
 #include <common.h>
 
 #include <settings/config.h>
-#include <core/network_interaction/mind_client.h>
 
 #include <core/bricks/brick_handler.h>
 #include <core/messaging/message_block_buffer.h>
@@ -31,7 +30,6 @@ public:
     KyoukoNetwork();
 
     static KyoukoMind::Config* m_config;
-    static KyoukoMind::MindClient* m_mindClient;
     static KyoukoMind::BrickHandler* m_brickHandler;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
     static KyoukoMind::MessageBlockBuffer* m_messageBuffer;

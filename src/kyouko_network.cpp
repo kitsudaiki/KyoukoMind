@@ -16,7 +16,6 @@ namespace KyoukoMind
 
 // init static variables
 KyoukoMind::Config* KyoukoNetwork::m_config = nullptr;
-KyoukoMind::MindClient* KyoukoNetwork::m_mindClient = nullptr;
 KyoukoMind::BrickHandler* KyoukoNetwork::m_brickHandler = nullptr;
 KyoukoMind::GlobalValuesHandler* KyoukoNetwork::m_globalValuesHandler = nullptr;
 KyoukoMind::MessageBlockBuffer* KyoukoNetwork::m_messageBuffer = nullptr;
@@ -27,8 +26,6 @@ KyoukoMind::MessageBlockBuffer* KyoukoNetwork::m_messageBuffer = nullptr;
 KyoukoNetwork::KyoukoNetwork()
 {
     m_config = new Config();
-    m_mindClient = new MindClient();
-    m_mindClient->initConnection();
     m_brickHandler = new BrickHandler();
     m_globalValuesHandler = new GlobalValuesHandler();
 
@@ -43,7 +40,6 @@ KyoukoNetwork::start()
 {
     // network-manager
     m_networkManager = new NetworkManager();
-    m_networkManager->start();
 }
 
 } // namespace KyoukoMind

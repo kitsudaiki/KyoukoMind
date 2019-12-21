@@ -15,7 +15,7 @@ namespace KyoukoMind
 
 
 IncomingBufferTest::IncomingBufferTest()
-    : Kitsune::Common::Test("IncomingBufferTest")
+    : Kitsunemimi::Common::Test("IncomingBufferTest")
 {
     addMessageAndFinish_test();
     getMessage_test();
@@ -29,11 +29,11 @@ void
 IncomingBufferTest::addMessageAndFinish_test()
 {
     IncomingBuffer testBuffer;
-    UNITTEST(testBuffer.addMessage(1), true);
-    UNITTEST(testBuffer.addMessage(1), true);
-    UNITTEST(testBuffer.addMessage(1), true);
-    UNITTEST(testBuffer.addMessage(1), true);
-    UNITTEST(testBuffer.addMessage(1), false);
+    TEST_EQUAL(testBuffer.addMessage(1), true);
+    TEST_EQUAL(testBuffer.addMessage(1), true);
+    TEST_EQUAL(testBuffer.addMessage(1), true);
+    TEST_EQUAL(testBuffer.addMessage(1), true);
+    TEST_EQUAL(testBuffer.addMessage(1), false);
 }
 
 /**
@@ -47,12 +47,12 @@ IncomingBufferTest::getMessage_test()
     testBuffer.addMessage(2);
     testBuffer.addMessage(3);
 
-    UNITTEST(testBuffer.getMessage(), 1);
+    TEST_EQUAL(testBuffer.getMessage(), 1);
     testBuffer.reset();
-    UNITTEST(testBuffer.getMessage(), 2);
-    UNITTEST(testBuffer.getMessage(), 2);
+    TEST_EQUAL(testBuffer.getMessage(), 2);
+    TEST_EQUAL(testBuffer.getMessage(), 2);
     testBuffer.reset();
-    UNITTEST(testBuffer.getMessage(), 3);
+    TEST_EQUAL(testBuffer.getMessage(), 3);
 }
 
 /**
@@ -62,16 +62,16 @@ void
 IncomingBufferTest::isReady_test()
 {
     IncomingBuffer testBuffer;
-    UNITTEST(testBuffer.isReady(), false);
+    TEST_EQUAL(testBuffer.isReady(), false);
     testBuffer.addMessage(1);
-    UNITTEST(testBuffer.isReady(), true);
-    UNITTEST(testBuffer.getMessage(), 1);
+    TEST_EQUAL(testBuffer.isReady(), true);
+    TEST_EQUAL(testBuffer.getMessage(), 1);
     testBuffer.reset();
-    UNITTEST(testBuffer.isReady(), false);
+    TEST_EQUAL(testBuffer.isReady(), false);
     testBuffer.addMessage(1);
     testBuffer.addMessage(2);
     testBuffer.addMessage(3);
-    UNITTEST(testBuffer.isReady(), true);
+    TEST_EQUAL(testBuffer.isReady(), true);
 }
 
 } // namespace KyoukoMind

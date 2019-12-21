@@ -11,7 +11,7 @@
 #include <core/processing/processing_unit.h>
 #include <core/bricks/brick_handler.h>
 
-#include <threading/thread.h>
+#include <libKitsunemimiCommon/threading/thread.h>
 
 #include <kyouko_network.h>
 
@@ -49,7 +49,7 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
     {
         ProcessingUnit* newUnit = new ProcessingUnit();
         m_allProcessingUnits.push_back(newUnit);
-        newUnit->start();
+        newUnit->startThread();
     }
     return true;
 }
@@ -80,7 +80,7 @@ ProcessingUnitHandler::closeAllProcessingUnits()
     for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++)
     {
         ProcessingUnit* unit = m_allProcessingUnits.at(i);
-        unit->stop();
+        unit->stopThread();
         delete unit;
     }
 

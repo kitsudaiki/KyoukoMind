@@ -11,7 +11,7 @@
 #define NETWORK_MANAGER_H
 
 #include <common.h>
-#include <threading/thread.h>
+#include <libKitsunemimiCommon/threading/thread.h>
 
 namespace KyoukoMind
 {
@@ -22,7 +22,7 @@ class ProcessingUnitHandler;
 class MessageController;
 class ConnectionTrigger;
 
-class NetworkManager : public Kitsune::Common::Thread
+class NetworkManager : public Kitsunemimi::Common::Thread
 {
 
 public:

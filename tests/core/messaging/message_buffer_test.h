@@ -11,13 +11,14 @@
 #define MESSAGE_BUFFER_TEST_H
 
 #include <common.h>
-#include <testing/test.h>
+#include <libKitsunemimiCommon/test.h>
 #include <kyouko_network.h>
 
 namespace KyoukoMind
 {
 
-class MessageBufferTest: public Kitsune::Common::Test
+class MessageBufferTest
+        : public Kitsunemimi::Common::Test
 {
 public:
     MessageBufferTest();
