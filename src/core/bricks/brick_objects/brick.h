@@ -19,8 +19,6 @@
 #include <core/messaging/message_buffer/incoming_buffer.h>
 #include <core/messaging/message_buffer/outgoing_buffer.h>
 
-#include <buffering/data_buffer.h>
-
 namespace KyoukoMind
 {
 
@@ -54,7 +52,7 @@ struct DataConnection
     uint32_t numberOfItems = 0;
     uint32_t numberOfItemBlocks = 0;
     uint32_t numberOfDeletedDynamicItems = 0;
-    Kitsune::Common::DataBuffer buffer;
+    DataBuffer buffer;
 
     uint32_t bytePositionOfFirstEmptyBlock = UNINIT_STATE_32;
     uint32_t bytePositionOfLastEmptyBlock = UNINIT_STATE_32;
@@ -86,7 +84,7 @@ struct Brick
     BrickPos brickPos;
     uint8_t inQueue = 0;
 
-    Kitsune::Common::DataBuffer headerBuffer;
+    DataBuffer headerBuffer;
 
     // 0 - 23: neighbor-bricks
     // 24: the current brick

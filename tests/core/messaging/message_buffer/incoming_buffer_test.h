@@ -11,12 +11,13 @@
 #define INCOMING_BUFFER_TEST_H
 
 #include <common.h>
-#include <testing/test.h>
+#include <libKitsunemimiCommon/test.h>
 
 namespace KyoukoMind
 {
 
-class IncomingBufferTest: public Kitsune::Common::Test
+class IncomingBufferTest
+        : public Kitsunemimi::Common::Test
 {
 public:
     IncomingBufferTest();

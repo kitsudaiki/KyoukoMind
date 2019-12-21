@@ -20,7 +20,7 @@ namespace KyoukoMind
 {
 
 InitTest::InitTest()
-    : Kitsune::Common::Test("InitTest")
+    : Kitsunemimi::Common::Test("InitTest")
 {
     initTestCase();
     checkInit();
@@ -46,7 +46,7 @@ void InitTest::checkInit()
     uint32_t nodeNumberPerBrick = 10;
 
     uint64_t numberOfInitBrick = KyoukoNetwork::m_brickHandler->getNumberOfBrick();
-    UNITTEST(numberOfInitBrick, 7);
+    TEST_EQUAL(numberOfInitBrick, 7);
 
     bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(6));
     bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(7));
@@ -70,7 +70,7 @@ void InitTest::checkInit()
                 const Brick* targetBrick = KyoukoNetwork::m_brickHandler->getBrick(targetId);
                 BrickID compareSource = targetBrick->neighbors[23 - side].targetBrickId;
 
-                UNITTEST(compareSource, sourceId);
+                TEST_EQUAL(compareSource, sourceId);
             }
         }
     }
@@ -85,8 +85,8 @@ void InitTest::checkInit()
         totalData.dataConnections[EDGE_DATA].numberOfItemBlocks += blockCount;
     }
 
-    UNITTEST((int)totalData.dataConnections[EDGE_DATA].numberOfItems, (nodeNumberPerBrick*6));
-    UNITTEST((int)totalData.dataConnections[EDGE_DATA].numberOfItemBlocks, 7);
+    TEST_EQUAL((int)totalData.dataConnections[EDGE_DATA].numberOfItems, (nodeNumberPerBrick*6));
+    TEST_EQUAL((int)totalData.dataConnections[EDGE_DATA].numberOfItemBlocks, 7);
 }
 
 /**

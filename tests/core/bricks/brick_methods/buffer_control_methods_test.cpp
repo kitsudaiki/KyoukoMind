@@ -15,7 +15,7 @@ namespace KyoukoMind
 {
 
 BufferControlMethodsTest::BufferControlMethodsTest()
-    : Kitsune::Common::Test("BufferControlMethodsTest")
+    : Kitsunemimi::Common::Test("BufferControlMethodsTest")
 {
     initDataBlocks_test();
 
@@ -42,15 +42,15 @@ BufferControlMethodsTest::initDataBlocks_test()
     Brick testObject(0,0,0);
 
     // precheck
-    UNITTEST(testObject.dataConnections[EDGE_DATA].itemSize, 0);
-    UNITTEST(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 0);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].itemSize, 0);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 0);
 
     // run test
-    UNITTEST(initDataBlocks(&testObject, EDGE_DATA, 420, 10), true);
+    TEST_EQUAL(initDataBlocks(&testObject, EDGE_DATA, 420, 10), true);
 
     // postcheck
-    UNITTEST(testObject.dataConnections[EDGE_DATA].numberOfItems, 420);
-    UNITTEST(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 2);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItems, 420);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 2);
 }
 
 /**
@@ -64,13 +64,13 @@ BufferControlMethodsTest::initNodeBlocks_test()
     srand(42);
 
     // run test
-    UNITTEST(initNodeBlocks(&testObject, 10), true);
-    UNITTEST(initNodeBlocks(&testObject, 10), false);
+    TEST_EQUAL(initNodeBlocks(&testObject, 10), true);
+    TEST_EQUAL(initNodeBlocks(&testObject, 10), false);
 
     // postcheck
-    UNITTEST(testObject.dataConnections[NODE_DATA].numberOfItems, 10);
+    TEST_EQUAL(testObject.dataConnections[NODE_DATA].numberOfItems, 10);
     Node* nodes = getNodeBlock(&testObject.dataConnections[NODE_DATA]);
-    UNITTEST(nodes[4].border, 42.0f);
+    TEST_EQUAL(nodes[4].border, 42.0f);
 }
 
 /**
@@ -84,12 +84,12 @@ BufferControlMethodsTest::initSynapseSectionBlocks_test()
     srand(42);
 
     // run test
-    UNITTEST(initSynapseSectionBlocks(&testObject, 10), true);
-    UNITTEST(initSynapseSectionBlocks(&testObject, 10), false);
+    TEST_EQUAL(initSynapseSectionBlocks(&testObject, 10), true);
+    TEST_EQUAL(initSynapseSectionBlocks(&testObject, 10), false);
 
     // postcheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
-    UNITTEST(sections[4].sourceId, 4);
+    TEST_EQUAL(sections[4].sourceId, 4);
 }
 
 /**
@@ -106,13 +106,13 @@ BufferControlMethodsTest::initEdgeSectionBlocks_test()
 
 
     // run test
-    UNITTEST(initEdgeSectionBlocks(&testObject, 10), true);
-    UNITTEST(initEdgeSectionBlocks(&testObject, 10), false);
+    TEST_EQUAL(initEdgeSectionBlocks(&testObject, 10), true);
+    TEST_EQUAL(initEdgeSectionBlocks(&testObject, 10), false);
 
     // postcheck
-    UNITTEST(testObject.dataConnections[EDGE_DATA].numberOfItems, 10);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItems, 10);
     EdgeSection* sections = getEdgeBlock(&testObject.dataConnections[EDGE_DATA]);
-    UNITTEST(sections[4].status, ACTIVE_SECTION);
+    TEST_EQUAL(sections[4].status, ACTIVE_SECTION);
 }
 
 /**
@@ -128,16 +128,16 @@ BufferControlMethodsTest::deleteDynamicItem_test()
 
     // precheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
-    UNITTEST(sections[4].status, ACTIVE_SECTION);
+    TEST_EQUAL(sections[4].status, ACTIVE_SECTION);
 
     // run test
-    UNITTEST(deleteDynamicItem(&testObject, SYNAPSE_DATA, 4), true);
-    UNITTEST(deleteDynamicItem(&testObject, SYNAPSE_DATA, 4), false);
-    UNITTEST(deleteDynamicItem(&testObject, SYNAPSE_DATA, 10), false);
+    TEST_EQUAL(deleteDynamicItem(&testObject, SYNAPSE_DATA, 4), true);
+    TEST_EQUAL(deleteDynamicItem(&testObject, SYNAPSE_DATA, 4), false);
+    TEST_EQUAL(deleteDynamicItem(&testObject, SYNAPSE_DATA, 10), false);
 
     // postcheck
     sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
-    UNITTEST(sections[4].status, DELETED_SECTION);
+    TEST_EQUAL(sections[4].status, DELETED_SECTION);
 }
 
 /**
@@ -154,11 +154,11 @@ BufferControlMethodsTest::reuseItemPosition_test()
 
     // precheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
-    UNITTEST(sections[4].status, DELETED_SECTION);
+    TEST_EQUAL(sections[4].status, DELETED_SECTION);
 
     // run test
-    UNITTEST(reuseItemPosition(&testObject, SYNAPSE_DATA), 4);
-    UNITTEST(reuseItemPosition(&testObject, SYNAPSE_DATA), UNINIT_STATE_32);
+    TEST_EQUAL(reuseItemPosition(&testObject, SYNAPSE_DATA), 4);
+    TEST_EQUAL(reuseItemPosition(&testObject, SYNAPSE_DATA), UNINIT_STATE_32);
 }
 
 /**
@@ -175,11 +175,11 @@ BufferControlMethodsTest::reserveDynamicItem_test()
 
     // precheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
-    UNITTEST(sections[4].status, DELETED_SECTION);
+    TEST_EQUAL(sections[4].status, DELETED_SECTION);
 
     // run test
-    UNITTEST(reserveDynamicItem(&testObject, SYNAPSE_DATA), 4);
-    UNITTEST(reserveDynamicItem(&testObject, SYNAPSE_DATA), 10);
+    TEST_EQUAL(reserveDynamicItem(&testObject, SYNAPSE_DATA), 4);
+    TEST_EQUAL(reserveDynamicItem(&testObject, SYNAPSE_DATA), 10);
 }
 
 /**
@@ -195,7 +195,7 @@ BufferControlMethodsTest::addEdge_test()
 
     // run test
     Synapse newEdge;
-    UNITTEST(addSynapse(&testObject, 1, newEdge), true);
+    TEST_EQUAL(addSynapse(&testObject, 1, newEdge), true);
 }
 
 /**
@@ -212,15 +212,15 @@ BufferControlMethodsTest::addEmptySynapseSection_test()
 
     // precheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
-    UNITTEST(sections[4].status, DELETED_SECTION);
+    TEST_EQUAL(sections[4].status, DELETED_SECTION);
 
     // run test
-    UNITTEST(addEmptySynapseSection(&testObject, 42), 4);
-    UNITTEST(addEmptySynapseSection(&testObject, 42), 10);
+    TEST_EQUAL(addEmptySynapseSection(&testObject, 42), 4);
+    TEST_EQUAL(addEmptySynapseSection(&testObject, 42), 10);
 
     // postcheck
     sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
-    UNITTEST(sections[4].status, ACTIVE_SECTION);
+    TEST_EQUAL(sections[4].status, ACTIVE_SECTION);
 }
 
 /**
@@ -237,15 +237,15 @@ BufferControlMethodsTest::addEmptyEdgeSection_test()
 
     // precheck
     EdgeSection* sections = getEdgeBlock(&testObject.dataConnections[0]);
-    UNITTEST(sections[4].status, DELETED_SECTION);
+    TEST_EQUAL(sections[4].status, DELETED_SECTION);
 
     // run test
-    UNITTEST(addEmptyEdgeSection(&testObject, 10, 42), 4);
-    UNITTEST(addEmptyEdgeSection(&testObject, 10, 42), 10);
+    TEST_EQUAL(addEmptyEdgeSection(&testObject, 10, 42), 4);
+    TEST_EQUAL(addEmptyEdgeSection(&testObject, 10, 42), 10);
 
     // postcheck
     sections = getEdgeBlock(&testObject.dataConnections[EDGE_DATA]);
-    UNITTEST(sections[4].status, ACTIVE_SECTION);
+    TEST_EQUAL(sections[4].status, ACTIVE_SECTION);
 }
 
 } // namespace KyoukoMind

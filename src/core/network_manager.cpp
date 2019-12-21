@@ -15,8 +15,6 @@
 #include <core/processing/processing_unit_handler.h>
 
 #include <core/bricks/brick_objects/brick.h>
-#include <core/network_interaction/mind_client.h>
-#include <core/network_interaction/connection_trigger.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
@@ -33,8 +31,8 @@ NetworkManager::NetworkManager()
 
     m_processingUnitHandler = new ProcessingUnitHandler();
 
-    m_trigger = new KyoukoMind::ConnectionTrigger();
-    KyoukoNetwork::m_mindClient->addNetworkTrigger(m_trigger);
+    //m_trigger = new KyoukoMind::ConnectionTrigger();
+    //KyoukoNetwork::m_mindClient->addNetworkTrigger(m_trigger);
 
     std::string initialFile = KyoukoNetwork::m_config->getInitialFilePath();
     initNetwork();

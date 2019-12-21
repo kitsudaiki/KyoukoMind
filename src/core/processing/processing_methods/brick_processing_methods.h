@@ -13,14 +13,14 @@
 #include <common.h>
 #include <core/bricks/brick_objects/brick.h>
 
-namespace Kitsune {
+namespace Kitsunemimi {
 namespace Chan {
 namespace Common {
 struct TransferDataMessage;
 }
 }
 }
-using Kitsune::Chan::Common::TransferDataMessage;
+using Kitsunemimi::Chan::Common::TransferDataMessage;
 
 namespace KyoukoMind
 {

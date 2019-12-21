@@ -36,10 +36,10 @@ namespace KyoukoMind
 ProcessingUnit::ProcessingUnit()
 {
     m_block = true;
-    m_monitoringMessage = new TransferDataMessage();
+    /*m_monitoringMessage = new TransferDataMessage();
     m_monitoringMessage->init();
     m_clienOutputMessage = new TransferDataMessage();
-    m_clienOutputMessage->init();
+    m_clienOutputMessage->init();*/
 }
 
 /**
@@ -87,6 +87,7 @@ ProcessingUnit::run()
             postLearning(brick);
             memorizeSynapses(brick);
 
+            /*
             // monitoring
             if(m_enableMonitoring) {
                 writeStatus(brick, m_monitoringMessage);
@@ -100,6 +101,7 @@ ProcessingUnit::run()
             finishCycle(brick,
                         m_monitoringMessage,
                         m_clienOutputMessage);
+            */
         }
     }
 }
@@ -352,7 +354,7 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
                 break;
             }
             // -------------------------------------------------------------------------------------
-            case UNDEFINED_TYPE:
+            case UNDEFINED_CONTAINER:
             {
                 return result;
             }

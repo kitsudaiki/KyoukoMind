@@ -11,7 +11,7 @@
 #define INIT_TEST_H
 
 #include <common.h>
-#include <testing/test.h>
+#include <libKitsunemimiCommon/test.h>
 #include <kyouko_network.h>
 
 namespace KyoukoMind
@@ -20,7 +20,8 @@ class BrickHandler;
 class MessageController;
 class NetworkInitializer;
 
-class InitTest : public Kitsune::Common::Test
+class InitTest
+        : public Kitsunemimi::Common::Test
 {
 public:
     InitTest();

@@ -39,4 +39,17 @@
 #include <utility>
 #include <atomic>
 
+#include <libKitsunemimiCommon/common_items/data_items.h>
+#include <libKitsunemimiCommon/data_buffer.h>
+
+using Kitsunemimi::Common::DataBuffer;
+using Kitsunemimi::Common::DataItem;
+using Kitsunemimi::Common::DataArray;
+using Kitsunemimi::Common::DataValue;
+using Kitsunemimi::Common::DataMap;
+
+#include <libKitsunemimiJson/json_item.h>
+
+using Kitsunemimi::Json::JsonItem;
+
 #endif // INCLUDES_H
