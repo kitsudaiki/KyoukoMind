@@ -22,7 +22,7 @@ MessageBlockBuffer::MessageBlockBuffer()
 MessageBlockBuffer::~MessageBlockBuffer()
 {
     while(m_lock.test_and_set(std::memory_order_acquire)) {
-        ; // spin
+        asm("");
     }
 
     // delete all blocks
@@ -49,7 +49,7 @@ MessageBlockBuffer::reserveBuffer(const uint64_t prePosition)
     DataMessage* result = nullptr;
 
     while(m_lock.test_and_set(std::memory_order_acquire)) {
-        ; // spin
+        asm("");
     }
 
     const uint64_t arrayPos = (m_currentWritePos / MESSAGES_PER_BLOCK) - m_offset;
@@ -161,7 +161,7 @@ MessageBlockBuffer::getNextMessage()
 {
     DataMessage* result = nullptr;
     while(m_lock.test_and_set(std::memory_order_acquire)) {
-        ; // spin
+        asm("");
     }
 
     while(m_currentWritePos > m_currentGetPos)
@@ -191,7 +191,7 @@ void
 MessageBlockBuffer::finishMessage(const uint64_t pos)
 {
     while(m_lock.test_and_set(std::memory_order_acquire)) {
-        ; // spin
+        asm("");
     }
 
     const uint64_t arrayPos = (pos / MESSAGES_PER_BLOCK) - m_offset;

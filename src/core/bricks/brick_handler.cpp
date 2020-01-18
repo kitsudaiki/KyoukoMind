@@ -180,7 +180,7 @@ BrickHandler::addToQueue(Brick *brick)
     }
 
     while (m_queueLock.test_and_set(std::memory_order_acquire)) {
-        ; // spin
+        asm("");
     }
 
     // add to queue
@@ -203,7 +203,7 @@ BrickHandler::getFromQueue()
 {
     Brick* result = nullptr;
     while (m_queueLock.test_and_set(std::memory_order_acquire)) {
-        ; // spin
+        asm("");
     }
 
     // force the processing-unit into wait state for one cycle

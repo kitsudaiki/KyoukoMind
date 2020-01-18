@@ -41,7 +41,7 @@ struct IncomingBuffer
     {
         bool result = false;
         while(lock.test_and_set(std::memory_order_acquire)) {
-            ; // spin
+            asm("");
         }
         if((newestBufferPos + 1) % INCOMING_BUFFER_SIZE != oldestBufferPos)
         {
@@ -62,7 +62,7 @@ struct IncomingBuffer
     {
         uint64_t returnMessage = UNINIT_STATE_64;
         while(lock.test_and_set(std::memory_order_acquire)) {
-            ; // spin
+            asm("");
         }
         if(currentProcessingMessage != UNINIT_STATE_64)
         {
@@ -90,7 +90,7 @@ struct IncomingBuffer
     reset()
     {
         while(lock.test_and_set(std::memory_order_acquire)) {
-            ; // spin
+            asm("");
         }
 
         currentProcessingMessage = UNINIT_STATE_64;
@@ -106,7 +106,7 @@ struct IncomingBuffer
     {
         bool result = false;
         while(lock.test_and_set(std::memory_order_acquire)) {
-            ; // spin
+            asm("");
         }
         if((currentProcessingMessage == UNINIT_STATE_64
                 && bufferPositions[(oldestBufferPos + 1) % INCOMING_BUFFER_SIZE] != UNINIT_STATE_64)
