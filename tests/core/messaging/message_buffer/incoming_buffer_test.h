@@ -17,7 +17,7 @@ namespace KyoukoMind
 {
 
 class IncomingBufferTest
-        : public Kitsunemimi::Common::Test
+        : public Kitsunemimi::Test
 {
 public:
     IncomingBufferTest();

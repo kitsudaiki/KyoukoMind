@@ -10,7 +10,7 @@
 #include "buffer_control_methods.h"
 #include <core/messaging/message_objects/content_container.h>
 #include <core/messaging/message_buffer/outgoing_buffer.h>
-#include <libKitsunemimiCommon/data_buffer_methods.h>
+#include <libKitsunemimiCommon/data_buffer.h>
 
 namespace KyoukoMind
 {

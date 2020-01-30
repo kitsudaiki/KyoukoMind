@@ -22,7 +22,8 @@ class ProcessingUnitHandler;
 class MessageController;
 class ConnectionTrigger;
 
-class NetworkManager : public Kitsunemimi::Common::Thread
+class NetworkManager
+        : public Kitsunemimi::Thread
 {
 
 public:

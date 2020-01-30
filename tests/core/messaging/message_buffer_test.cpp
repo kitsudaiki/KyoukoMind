@@ -15,7 +15,7 @@ namespace KyoukoMind
 {
 
 MessageBufferTest::MessageBufferTest()
-    : Kitsunemimi::Common::Test("MessageBufferTest")
+    : Kitsunemimi::Test("MessageBufferTest")
 {
     initTest();
     appandMessageBlock_test();

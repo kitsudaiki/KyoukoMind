@@ -20,7 +20,7 @@ namespace KyoukoMind
 {
 
 InitTest::InitTest()
-    : Kitsunemimi::Common::Test("InitTest")
+    : Kitsunemimi::Test("InitTest")
 {
     initTestCase();
     checkInit();

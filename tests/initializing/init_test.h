@@ -21,7 +21,7 @@ class MessageController;
 class NetworkInitializer;
 
 class InitTest
-        : public Kitsunemimi::Common::Test
+        : public Kitsunemimi::Test
 {
 public:
     InitTest();

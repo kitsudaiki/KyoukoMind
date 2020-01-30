@@ -17,7 +17,7 @@ namespace KyoukoMind
 {
 
 class BufferControlMethodsTest
-        : public Kitsunemimi::Common::Test
+        : public Kitsunemimi::Test
 {
 public:
     BufferControlMethodsTest();

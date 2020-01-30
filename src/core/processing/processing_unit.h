@@ -26,7 +26,8 @@ class GlobalValuesHandler;
 struct Brick;
 struct Neighbor;
 
-class ProcessingUnit : public Kitsunemimi::Common::Thread
+class ProcessingUnit
+        : public Kitsunemimi::Thread
 {
 
 public:
