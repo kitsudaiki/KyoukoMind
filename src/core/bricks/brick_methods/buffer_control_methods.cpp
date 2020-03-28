@@ -10,7 +10,7 @@
 #include "buffer_control_methods.h"
 #include <core/messaging/message_objects/content_container.h>
 #include <core/messaging/message_buffer/outgoing_buffer.h>
-#include <libKitsunemimiCommon/data_buffer.h>
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
 
 namespace KyoukoMind
 {
@@ -40,7 +40,7 @@ initDataBlocks(Brick *brick,
     data->numberOfItemBlocks = (numberOfItems * data->itemSize) / data->buffer.blockSize + 1;
 
     // allocate blocks in buffer
-    allocateBlocks(&data->buffer, data->numberOfItemBlocks);
+    allocateBlocks(data->buffer, data->numberOfItemBlocks);
     brick->updateBufferData();
 
     return true;
@@ -281,7 +281,7 @@ reserveDynamicItem(Brick *brick,
     // allocate a new block, if necessary
     if(currentNumberOfBlocks < newNumberOfBlocks)
     {
-        if(allocateBlocks(&data->buffer, 1) == false) {
+        if(allocateBlocks(data->buffer, 1) == false) {
             return UNINIT_STATE_32;
         }
         data->numberOfItemBlocks++;

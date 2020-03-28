@@ -11,7 +11,7 @@
 #define INIT_TEST_H
 
 #include <common.h>
-#include <libKitsunemimiCommon/test.h>
+#include <libKitsunemimiCommon/test_helper/compare_test_helper.h>
 #include <kyouko_network.h>
 
 namespace KyoukoMind
@@ -21,7 +21,7 @@ class MessageController;
 class NetworkInitializer;
 
 class InitTest
-        : public Kitsunemimi::Test
+        : public Kitsunemimi::CompareTestHelper
 {
 public:
     InitTest();

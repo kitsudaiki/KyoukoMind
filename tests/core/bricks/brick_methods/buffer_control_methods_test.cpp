@@ -15,7 +15,7 @@ namespace KyoukoMind
 {
 
 BufferControlMethodsTest::BufferControlMethodsTest()
-    : Kitsunemimi::Test("BufferControlMethodsTest")
+    : Kitsunemimi::CompareTestHelper("BufferControlMethodsTest")
 {
     initDataBlocks_test();
 

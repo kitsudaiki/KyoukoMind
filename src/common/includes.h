@@ -40,7 +40,7 @@
 #include <atomic>
 
 #include <libKitsunemimiCommon/common_items/data_items.h>
-#include <libKitsunemimiCommon/data_buffer.h>
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
 
 using Kitsunemimi::DataBuffer;
 using Kitsunemimi::DataItem;

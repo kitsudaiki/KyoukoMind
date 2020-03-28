@@ -15,7 +15,7 @@ namespace KyoukoMind
 
 
 IncomingBufferTest::IncomingBufferTest()
-    : Kitsunemimi::Test("IncomingBufferTest")
+    : Kitsunemimi::CompareTestHelper("IncomingBufferTest")
 {
     addMessageAndFinish_test();
     getMessage_test();
