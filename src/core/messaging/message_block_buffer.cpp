@@ -8,7 +8,7 @@
  */
 
 #include "message_block_buffer.h"
-#include <kyouko_network.h>
+#include <root_object.h>
 #include <core/bricks/brick_objects/brick.h>
 
 namespace KyoukoMind
@@ -91,11 +91,11 @@ MessageBlockBuffer::finishReservedBuffer(const uint64_t pos)
 
     if(bufferPointer->isLast == 1)
     {
-        Brick* brick = KyoukoNetwork::m_brickHandler->getBrick(bufferPointer->targetBrickId);
+        Brick* brick = RootObject::m_brickHandler->getBrick(bufferPointer->targetBrickId);
         brick->neighbors[bufferPointer->targetSide].incomBuffer.addMessage(pos);
 
-        if(brick->isReady()) {
-            KyoukoNetwork::m_brickHandler->addToQueue(brick);
+        if(isReady(*brick)) {
+            RootObject::m_brickHandler->addToQueue(brick);
         }
     }
 }

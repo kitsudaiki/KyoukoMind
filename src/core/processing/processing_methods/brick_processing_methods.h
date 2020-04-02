@@ -25,20 +25,20 @@ using Kitsunemimi::Chan::Common::TransferDataMessage;
 namespace KyoukoMind
 {
 
-uint16_t processOutputNodes(Brick* brick);
-uint16_t processNodes(Brick* brick, float *weightMap);
+uint16_t processOutputNodes(Brick &brick);
+uint16_t processNodes(Brick &brick, float *weightMap);
 
-void postLearning(Brick* brick);
-void memorizeSynapses(Brick* brick);
+void postLearning(Brick &brick);
+void memorizeSynapses(Brick &brick);
 
-bool finishSide(Brick* brick,
+bool finishSide(Brick &brick,
                 const uint8_t side);
-void finishCycle(Brick* brick,
+void finishCycle(Brick &brick,
                  TransferDataMessage* monitoringMessage,
                  TransferDataMessage* clientMessage);
 
-void writeStatus(Brick* brick, TransferDataMessage *message);
-void writeOutput(Brick* brick, TransferDataMessage* message);
+void writeStatus(Brick &brick, TransferDataMessage *message);
+void writeOutput(Brick &brick, TransferDataMessage* message);
 
 } // namespace KyoukoMind
 

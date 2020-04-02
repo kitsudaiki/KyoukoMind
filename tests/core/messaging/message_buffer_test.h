@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <libKitsunemimiCommon/test_helper/compare_test_helper.h>
-#include <kyouko_network.h>
+#include <root_object.h>
 
 namespace KyoukoMind
 {
@@ -32,7 +32,7 @@ private:
     void finishMessage_test();
     void clostTest();
 
-    KyoukoMind::KyoukoNetwork* m_network = nullptr;
+    KyoukoMind::RootObject* m_network = nullptr;
     Brick* m_testBrick = nullptr;
 };
 

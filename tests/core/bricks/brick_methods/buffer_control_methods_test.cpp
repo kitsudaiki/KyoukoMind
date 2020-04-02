@@ -46,7 +46,7 @@ BufferControlMethodsTest::initDataBlocks_test()
     TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 0);
 
     // run test
-    TEST_EQUAL(initDataBlocks(&testObject, EDGE_DATA, 420, 10), true);
+    TEST_EQUAL(initDataBlocks(testObject, EDGE_DATA, 420, 10), true);
 
     // postcheck
     TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItems, 420);
@@ -64,8 +64,8 @@ BufferControlMethodsTest::initNodeBlocks_test()
     srand(42);
 
     // run test
-    TEST_EQUAL(initNodeBlocks(&testObject, 10), true);
-    TEST_EQUAL(initNodeBlocks(&testObject, 10), false);
+    TEST_EQUAL(initNodeBlocks(testObject, 10), true);
+    TEST_EQUAL(initNodeBlocks(testObject, 10), false);
 
     // postcheck
     TEST_EQUAL(testObject.dataConnections[NODE_DATA].numberOfItems, 10);
@@ -84,8 +84,8 @@ BufferControlMethodsTest::initSynapseSectionBlocks_test()
     srand(42);
 
     // run test
-    TEST_EQUAL(initSynapseSectionBlocks(&testObject, 10), true);
-    TEST_EQUAL(initSynapseSectionBlocks(&testObject, 10), false);
+    TEST_EQUAL(initSynapseSectionBlocks(testObject, 10), true);
+    TEST_EQUAL(initSynapseSectionBlocks(testObject, 10), false);
 
     // postcheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
@@ -106,8 +106,8 @@ BufferControlMethodsTest::initEdgeSectionBlocks_test()
 
 
     // run test
-    TEST_EQUAL(initEdgeSectionBlocks(&testObject, 10), true);
-    TEST_EQUAL(initEdgeSectionBlocks(&testObject, 10), false);
+    TEST_EQUAL(initEdgeSectionBlocks(testObject, 10), true);
+    TEST_EQUAL(initEdgeSectionBlocks(testObject, 10), false);
 
     // postcheck
     TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItems, 10);
@@ -124,16 +124,16 @@ BufferControlMethodsTest::deleteDynamicItem_test()
     // init
     Brick testObject(0,0,0);
     srand(42);
-    initSynapseSectionBlocks(&testObject, 10);
+    initSynapseSectionBlocks(testObject, 10);
 
     // precheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     TEST_EQUAL(sections[4].status, ACTIVE_SECTION);
 
     // run test
-    TEST_EQUAL(deleteDynamicItem(&testObject, SYNAPSE_DATA, 4), true);
-    TEST_EQUAL(deleteDynamicItem(&testObject, SYNAPSE_DATA, 4), false);
-    TEST_EQUAL(deleteDynamicItem(&testObject, SYNAPSE_DATA, 10), false);
+    TEST_EQUAL(deleteDynamicItem(testObject, SYNAPSE_DATA, 4), true);
+    TEST_EQUAL(deleteDynamicItem(testObject, SYNAPSE_DATA, 4), false);
+    TEST_EQUAL(deleteDynamicItem(testObject, SYNAPSE_DATA, 10), false);
 
     // postcheck
     sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
@@ -149,16 +149,16 @@ BufferControlMethodsTest::reuseItemPosition_test()
     // init
     Brick testObject(0,0,0);
     srand(42);
-    initSynapseSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, SYNAPSE_DATA, 4);
+    initSynapseSectionBlocks(testObject, 10);
+    deleteDynamicItem(testObject, SYNAPSE_DATA, 4);
 
     // precheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     TEST_EQUAL(sections[4].status, DELETED_SECTION);
 
     // run test
-    TEST_EQUAL(reuseItemPosition(&testObject, SYNAPSE_DATA), 4);
-    TEST_EQUAL(reuseItemPosition(&testObject, SYNAPSE_DATA), UNINIT_STATE_32);
+    TEST_EQUAL(reuseItemPosition(testObject, SYNAPSE_DATA), 4);
+    TEST_EQUAL(reuseItemPosition(testObject, SYNAPSE_DATA), UNINIT_STATE_32);
 }
 
 /**
@@ -170,16 +170,16 @@ BufferControlMethodsTest::reserveDynamicItem_test()
     // init
     Brick testObject(0,0,0);
     srand(42);
-    initSynapseSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, SYNAPSE_DATA, 4);
+    initSynapseSectionBlocks(testObject, 10);
+    deleteDynamicItem(testObject, SYNAPSE_DATA, 4);
 
     // precheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     TEST_EQUAL(sections[4].status, DELETED_SECTION);
 
     // run test
-    TEST_EQUAL(reserveDynamicItem(&testObject, SYNAPSE_DATA), 4);
-    TEST_EQUAL(reserveDynamicItem(&testObject, SYNAPSE_DATA), 10);
+    TEST_EQUAL(reserveDynamicItem(testObject, SYNAPSE_DATA), 4);
+    TEST_EQUAL(reserveDynamicItem(testObject, SYNAPSE_DATA), 10);
 }
 
 /**
@@ -190,12 +190,12 @@ BufferControlMethodsTest::addEdge_test()
 {
     Brick testObject(0,0,0);
     srand(42);
-    initSynapseSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, SYNAPSE_DATA, 4);
+    initSynapseSectionBlocks(testObject, 10);
+    deleteDynamicItem(testObject, SYNAPSE_DATA, 4);
 
     // run test
     Synapse newEdge;
-    TEST_EQUAL(addSynapse(&testObject, 1, newEdge), true);
+    TEST_EQUAL(addSynapse(testObject, 1, newEdge), true);
 }
 
 /**
@@ -207,16 +207,16 @@ BufferControlMethodsTest::addEmptySynapseSection_test()
     // init
     Brick testObject(0,0,0);
     srand(42);
-    initSynapseSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, SYNAPSE_DATA, 4);
+    initSynapseSectionBlocks(testObject, 10);
+    deleteDynamicItem(testObject, SYNAPSE_DATA, 4);
 
     // precheck
     SynapseSection* sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
     TEST_EQUAL(sections[4].status, DELETED_SECTION);
 
     // run test
-    TEST_EQUAL(addEmptySynapseSection(&testObject, 42), 4);
-    TEST_EQUAL(addEmptySynapseSection(&testObject, 42), 10);
+    TEST_EQUAL(addEmptySynapseSection(testObject, 42), 4);
+    TEST_EQUAL(addEmptySynapseSection(testObject, 42), 10);
 
     // postcheck
     sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);
@@ -232,16 +232,16 @@ BufferControlMethodsTest::addEmptyEdgeSection_test()
     // init
     Brick testObject(0,0,0);
     srand(42);
-    initEdgeSectionBlocks(&testObject, 10);
-    deleteDynamicItem(&testObject, EDGE_DATA, 4);
+    initEdgeSectionBlocks(testObject, 10);
+    deleteDynamicItem(testObject, EDGE_DATA, 4);
 
     // precheck
     EdgeSection* sections = getEdgeBlock(&testObject.dataConnections[0]);
     TEST_EQUAL(sections[4].status, DELETED_SECTION);
 
     // run test
-    TEST_EQUAL(addEmptyEdgeSection(&testObject, 10, 42), 4);
-    TEST_EQUAL(addEmptyEdgeSection(&testObject, 10, 42), 10);
+    TEST_EQUAL(addEmptyEdgeSection(testObject, 10, 42), 4);
+    TEST_EQUAL(addEmptyEdgeSection(testObject, 10, 42), 10);
 
     // postcheck
     sections = getEdgeBlock(&testObject.dataConnections[EDGE_DATA]);

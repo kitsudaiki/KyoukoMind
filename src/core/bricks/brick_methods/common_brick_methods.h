@@ -23,27 +23,27 @@ class OutgoingMessageBuffer;
 struct Brick;
 
 
-bool addClientConnection(Brick *brick,
-                         bool isInput,
-                         bool isOutput);
+bool addClientConnection(Brick &brick,
+                         const bool isInput,
+                         const bool isOutput);
 
 float getSummedValue(Brick *brick);
 
 
-bool connectBricks(Brick* sourceBrick,
+bool connectBricks(Brick &sourceBrick,
                    const uint8_t sourceSide,
-                   Brick* targetBrick);
+                   Brick &targetBrick);
 
-bool disconnectBricks(Brick* sourceBrick,
+bool disconnectBricks(Brick &sourceBrick,
                       const uint8_t sourceSide,
-                      Brick *targetBrick);
+                      Brick &targetBrick);
 
 
-bool initNeighbor(Brick* brick,
+bool initNeighbor(Brick &brick,
                   const uint8_t sourceSide,
                   const uint32_t targetBrickId = UNINIT_STATE_32);
 
-bool uninitNeighbor(Brick* brick,
+bool uninitNeighbor(Brick &brick,
                     const uint8_t side);
 
 } // namespace KyoukoMind

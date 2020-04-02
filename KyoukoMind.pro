@@ -32,7 +32,7 @@ INCLUDEPATH += $$PWD \
 
 SOURCES += \
     src/settings/config.cpp \
-    main.cpp \
+    src/main.cpp \
     src/core/bricks/brick_methods/buffer_control_methods.cpp \
     src/core/bricks/brick_methods/common_brick_methods.cpp \
     src/core/bricks/brick_handler.cpp \
@@ -45,12 +45,12 @@ SOURCES += \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
-    src/kyouko_network.cpp \
     tests/core/bricks/brick_methods/buffer_control_methods_test.cpp \
     tests/core/messaging/message_buffer/incoming_buffer_test.cpp \
     tests/core/messaging/message_buffer_test.cpp \
     tests/initializing/init_test.cpp \
-    tests/run_unit_tests.cpp
+    tests/run_unit_tests.cpp \
+    src/root_object.cpp
 
 
 HEADERS += \
@@ -82,10 +82,15 @@ HEADERS += \
     src/core/network_manager.h \
     src/initializing/file_parser.h \
     src/initializing/network_initializer.h \
-    src/kyouko_network.h \
     src/initializing/init_meta_data.h \
     tests/core/bricks/brick_methods/buffer_control_methods_test.h \
     tests/core/messaging/message_buffer/incoming_buffer_test.h \
     tests/core/messaging/message_buffer_test.h \
     tests/initializing/init_test.h \
-    tests/run_unit_tests.h
+    tests/run_unit_tests.h \
+    src/core/bricks/brick_objects/synapses.h \
+    src/root_object.h \
+    src/core/bricks/brick_objects/data_connection.h \
+    src/core/bricks/brick_objects/neighbor.h \
+    src/core/bricks/brick_objects/brick_pos.h \
+    src/core/bricks/brick_objects/empty_placeholder.h

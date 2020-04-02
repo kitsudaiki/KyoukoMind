@@ -7,7 +7,7 @@
  *  Apache License Version 2.0
  */
 
-#include <kyouko_network.h>
+#include <root_object.h>
 #include <core/network_manager.h>
 #include <core/bricks/global_values_handler.h>
 
@@ -15,15 +15,15 @@ namespace KyoukoMind
 {
 
 // init static variables
-KyoukoMind::Config* KyoukoNetwork::m_config = nullptr;
-KyoukoMind::BrickHandler* KyoukoNetwork::m_brickHandler = nullptr;
-KyoukoMind::GlobalValuesHandler* KyoukoNetwork::m_globalValuesHandler = nullptr;
-KyoukoMind::MessageBlockBuffer* KyoukoNetwork::m_messageBuffer = nullptr;
+KyoukoMind::Config* RootObject::m_config = nullptr;
+KyoukoMind::BrickHandler* RootObject::m_brickHandler = nullptr;
+KyoukoMind::GlobalValuesHandler* RootObject::m_globalValuesHandler = nullptr;
+KyoukoMind::MessageBlockBuffer* RootObject::m_messageBuffer = nullptr;
 
 /**
  * main-class
  */
-KyoukoNetwork::KyoukoNetwork()
+RootObject::RootObject()
 {
     m_config = new Config();
     m_brickHandler = new BrickHandler();
@@ -36,7 +36,7 @@ KyoukoNetwork::KyoukoNetwork()
  * init all components
  */
 void
-KyoukoNetwork::start()
+RootObject::start()
 {
     // network-manager
     m_networkManager = new NetworkManager();

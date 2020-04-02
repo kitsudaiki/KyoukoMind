@@ -147,7 +147,7 @@ BrickHandler::connect(const BrickID sourceBrickId,
     Brick* sourceBrick = getBrick(sourceBrickId);
     Brick* targetBrick = getBrick(targetBrickId);
 
-    return connectBricks(sourceBrick, sourceSide, targetBrick);
+    return connectBricks(*sourceBrick, sourceSide, *targetBrick);
 }
 
 /**
@@ -163,7 +163,7 @@ BrickHandler::disconnect(const BrickID sourceBrickId,
     Brick* sourceBrick = getBrick(sourceBrickId);
     Brick* targetBrick = getBrick(targetBrickId);
 
-    return disconnectBricks(sourceBrick, sourceSide, targetBrick);
+    return disconnectBricks(*sourceBrick, sourceSide, *targetBrick);
 }
 
 /**
@@ -185,7 +185,7 @@ BrickHandler::addToQueue(Brick *brick)
 
     // add to queue
     brick->inQueue = 1;
-    assert(brick->isReady() == true);
+    assert(isReady(*brick) == true);
     m_readyBricks.push(brick);
 
     m_queueLock.clear(std::memory_order_release);
@@ -221,7 +221,7 @@ BrickHandler::getFromQueue()
         result = m_readyBricks.front();
         m_readyBricks.pop();
         result->inQueue = 0;
-        assert(result->isReady() == true);
+        assert(isReady(*result) == true);
     }
 
     m_queueLock.clear(std::memory_order_release);

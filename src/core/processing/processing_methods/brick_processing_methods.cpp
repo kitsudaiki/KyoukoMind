@@ -54,11 +54,11 @@ processOutputNodes(Brick* brick)
  * @return number of active nodes in this brick
  */
 uint16_t
-processNodes(Brick* brick, float* weightMap)
+processNodes(Brick &brick, float* weightMap)
 {
-    DataConnection* data = &brick->dataConnections[NODE_DATA];
+    DataConnection* data = &brick.dataConnections[NODE_DATA];
 
-    if(brick->isOutputBrick == 1)
+    if(brick.isOutputBrick == 1)
     {
         // process nodes
         Node* start = (Node*)data->buffer.data;
@@ -145,9 +145,9 @@ processNodes(Brick* brick, float* weightMap)
  * @brief NodeBrick::memorizeEdges
  */
 void
-postLearning(Brick* brick)
+postLearning(Brick &brick)
 {
-    const DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
+    const DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
     if(data->inUse != 1) {
         return;
     }
@@ -180,9 +180,9 @@ postLearning(Brick* brick)
             }*/
 
             // mem
-            if(brick->globalValues.globalMemorizingTemp != 0.0f)
+            if(brick.globalValues.globalMemorizingTemp != 0.0f)
             {
-                synapse->memorize = brick->globalValues.globalMemorizingTemp;
+                synapse->memorize = brick.globalValues.globalMemorizingTemp;
                 if(synapse->memorize > 1.0f) {
                     synapse->memorize = 1.0f;
                 }
@@ -196,9 +196,9 @@ postLearning(Brick* brick)
  * @param brick
  */
 void
-memorizeSynapses(Brick* brick)
+memorizeSynapses(Brick &brick)
 {
-    const DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
+    const DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
     if(data->inUse != 1) {
         return;
     }
@@ -232,22 +232,22 @@ memorizeSynapses(Brick* brick)
             const float newWeight = synapse->weight * (1.0f - synapse->memorize);
             synapse->weight -= newWeight;
         }
-        section->makeClean();
+        makeClean(*section);
 
         // delete dynamic item if value is too low
-        const DataConnection* connection = &brick->dataConnections[EDGE_DATA];
-        if(section->getTotalWeight() < DELETE_SYNAPSE_BORDER)
+        const DataConnection* connection = &brick.dataConnections[EDGE_DATA];
+        if(getTotalWeight(*section) < DELETE_SYNAPSE_BORDER)
         {
             EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
-            processUpdateDeleteEdge(brick, currentSection, section->sourceId, 24);
+            processUpdateDeleteEdge(brick, *currentSection, section->sourceId, 24);
             deleteDynamicItem(brick, SYNAPSE_DATA, sectionPos);
         }
         else
         {
             EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
-            const float updateValue = section->getTotalWeight();
+            const float updateValue = getTotalWeight(*section);
             if(updateValue > 0.0f) {
-                processUpdateSetEdge(brick, currentSection, updateValue, 24);
+                processUpdateSetEdge(brick, *currentSection, updateValue, 24);
             }
         }
         sectionPos++;
@@ -260,34 +260,34 @@ memorizeSynapses(Brick* brick)
  * @param side
  */
 bool
-finishSide(Brick* brick, const uint8_t side)
+finishSide(Brick &brick,
+           const uint8_t side)
 {
     // precheck
-    if(brick == nullptr
-            || brick->neighbors[side].inUse == 0
+    if(brick.neighbors[side].inUse == 0
             || side >= 25)
     {
         return false;
     }
 
     // reset incoming buffer
-    brick->neighbors[side].incomBuffer.reset();
+    brick.neighbors[side].incomBuffer.reset();
 
     // finish message and give it to the target-brick
-    DataMessage* message = brick->neighbors[side].outgoBuffer.message;
+    DataMessage* message = brick.neighbors[side].outgoBuffer.message;
     message->isLast = 1;
     assert(message->type != UNDEFINED_MESSAGE);
-    Brick* targetBrick = KyoukoNetwork::m_brickHandler->getBrick(message->targetBrickId);
+    Brick* targetBrick = RootObject::m_brickHandler->getBrick(message->targetBrickId);
     targetBrick->neighbors[message->targetSide].incomBuffer.addMessage(message->currentPosition);
 
     // check if target is finish
-    if(targetBrick->isReady()) {
-        KyoukoNetwork::m_brickHandler->addToQueue(targetBrick);
+    if(isReady(*targetBrick)) {
+        RootObject::m_brickHandler->addToQueue(targetBrick);
     }
 
     // reinit outgoing buffer for next cycle
-    OutgoingBuffer* outBuffer = &brick->neighbors[side].outgoBuffer;
-    outBuffer->message = KyoukoNetwork::m_messageBuffer->reserveBuffer();
+    OutgoingBuffer* outBuffer = &brick.neighbors[side].outgoBuffer;
+    outBuffer->message = RootObject::m_messageBuffer->reserveBuffer();
     outBuffer->initMessage();
     assert(outBuffer->message->type != UNDEFINED_MESSAGE);
 
@@ -301,7 +301,7 @@ finishSide(Brick* brick, const uint8_t side)
  * @param clientMessage
  */
 void
-finishCycle(Brick* brick,
+finishCycle(Brick &brick,
             TransferDataMessage* monitoringMessage,
             TransferDataMessage* clientMessage)
 {
@@ -343,13 +343,13 @@ finishCycle(Brick* brick,
  * @brief reportStatus
  */
 void
-writeStatus(Brick* brick, TransferDataMessage* message)
+writeStatus(Brick &brick, TransferDataMessage* message)
 {
     if(message == nullptr) {
         return;
     }
 
-    GlobalValues globalValue = KyoukoNetwork::m_globalValuesHandler->getGlobalValues();
+    GlobalValues globalValue = RootObject::m_globalValuesHandler->getGlobalValues();
 
     /*
     // fill message
@@ -404,7 +404,7 @@ writeStatus(Brick* brick, TransferDataMessage* message)
  * @brief reportStatus
  */
 void
-writeOutput(Brick* brick, TransferDataMessage* message)
+writeOutput(Brick &brick, TransferDataMessage* message)
 {
     if(message == nullptr) {
         return;

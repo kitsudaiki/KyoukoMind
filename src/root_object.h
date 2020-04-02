@@ -23,11 +23,11 @@ namespace KyoukoMind
 class NetworkManager;
 class BrickHandler;
 
-class KyoukoNetwork
+class RootObject
 {
 
 public:
-    KyoukoNetwork();
+    RootObject();
 
     static KyoukoMind::Config* m_config;
     static KyoukoMind::BrickHandler* m_brickHandler;

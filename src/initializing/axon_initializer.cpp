@@ -8,7 +8,7 @@
  */
 
 #include "axon_initializer.h"
-#include <kyouko_network.h>
+#include <root_object.h>
 
 #include <core/bricks/brick_objects/brick.h>
 #include <core/bricks/brick_methods/common_brick_methods.h>
@@ -73,7 +73,7 @@ createAxons(InitStructure* networkMetaStructure)
             if((*networkMetaStructure)[x][y].numberOfAxons == 0) {
                 (*networkMetaStructure)[x][y].numberOfAxons = 1;
             }
-            initEdgeSectionBlocks(brick, (*networkMetaStructure)[x][y].numberOfAxons);
+            initEdgeSectionBlocks(*brick, (*networkMetaStructure)[x][y].numberOfAxons);
         }
     }
     return true;
@@ -139,7 +139,7 @@ getNextAxonPathStep(const uint32_t x,
     uint64_t newPath = currentPath + ((uint64_t)nextSite << ((uint64_t)currentStep * (uint64_t)5));
 
     // make next iteration
-    return getNextAxonPathStep(choosenOne->targetBrickPos.x,
+    return getNextAxonPathStep(choosenOne->targetBrickPos.x1,
                                choosenOne->targetBrickPos.y,
                                23 - nextSite,
                                newPath,

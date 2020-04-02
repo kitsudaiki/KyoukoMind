@@ -32,9 +32,9 @@ MessageBufferTest::MessageBufferTest()
 void
 MessageBufferTest::initTest()
 {
-    m_network = new KyoukoMind::KyoukoNetwork();
+    m_network = new KyoukoMind::RootObject();
     m_testBrick = new Brick(42, 0, 0);
-    KyoukoNetwork::m_brickHandler->addBrick(42, m_testBrick);
+    RootObject::m_brickHandler->addBrick(42, m_testBrick);
 }
 
 /**

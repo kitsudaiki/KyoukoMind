@@ -10,6 +10,8 @@
 #include "buffer_control_methods.h"
 #include <core/messaging/message_objects/content_container.h>
 #include <core/messaging/message_buffer/outgoing_buffer.h>
+#include <core/bricks/brick_objects/empty_placeholder.h>
+
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 
 namespace KyoukoMind
@@ -21,12 +23,12 @@ namespace KyoukoMind
  * @return false if nodes are already initialized, esle true
 */
 bool
-initDataBlocks(Brick *brick,
+initDataBlocks(Brick &brick,
                const uint8_t connectionId,
                const uint32_t numberOfItems,
                const uint32_t itemSize)
 {
-    DataConnection *data = &brick->dataConnections[connectionId];
+    DataConnection *data = &brick.dataConnections[connectionId];
 
     // prechecks
     if(data->numberOfItems != 0
@@ -41,7 +43,7 @@ initDataBlocks(Brick *brick,
 
     // allocate blocks in buffer
     allocateBlocks(data->buffer, data->numberOfItemBlocks);
-    brick->updateBufferData();
+    updateBufferData(brick);
 
     return true;
 }
@@ -52,10 +54,10 @@ initDataBlocks(Brick *brick,
  * @return false if nodes are already initialized, esle true
  */
 bool
-initNodeBlocks(Brick* brick,
+initNodeBlocks(Brick &brick,
                uint32_t numberOfNodes)
 {
-    DataConnection* data = &brick->dataConnections[NODE_DATA];
+    DataConnection* data = &brick.dataConnections[NODE_DATA];
 
     // prechecks
     if(data->numberOfItems != 0) {
@@ -91,10 +93,10 @@ initNodeBlocks(Brick* brick,
  * @return false, if already initialized, else true
  */
 bool
-initSynapseSectionBlocks(Brick* brick,
+initSynapseSectionBlocks(Brick &brick,
                          const uint32_t numberOfSynapseSections)
 {
-    DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
+    DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
 
     // prechecks
     if(data->inUse != 0) {
@@ -129,10 +131,10 @@ initSynapseSectionBlocks(Brick* brick,
  * @return true if success, else false
  */
 bool
-initEdgeSectionBlocks(Brick* brick,
+initEdgeSectionBlocks(Brick &brick,
                       const uint32_t numberOfEdgeSections)
 {
-    DataConnection* data = &brick->dataConnections[EDGE_DATA];
+    DataConnection* data = &brick.dataConnections[EDGE_DATA];
 
     // prechecks
     if(data->inUse != 0) {
@@ -167,11 +169,11 @@ initEdgeSectionBlocks(Brick* brick,
 * @return false if buffer is invalid or item already deleted, else true
 */
 bool
-deleteDynamicItem(Brick* brick,
+deleteDynamicItem(Brick &brick,
                   const uint8_t connectionId,
                   const uint32_t itemPos)
 {
-    DataConnection *data = &brick->dataConnections[connectionId];
+    DataConnection *data = &brick.dataConnections[connectionId];
 
     // precheck
     if(itemPos >= data->numberOfItems
@@ -221,10 +223,10 @@ deleteDynamicItem(Brick* brick,
  * @return item-position in the buffer, else UNINIT_STATE_32 if no empty space in buffer exist
  */
 uint32_t
-reuseItemPosition(Brick* brick,
+reuseItemPosition(Brick &brick,
                   const uint8_t connectionId)
 {
-    DataConnection *data = &brick->dataConnections[connectionId];
+    DataConnection *data = &brick.dataConnections[connectionId];
 
     // get byte-position of free space, if exist
     const uint32_t selectedPosition = data->bytePositionOfFirstEmptyBlock;
@@ -255,10 +257,10 @@ reuseItemPosition(Brick* brick,
 * @return id of the new section, else UNINIT_STATE_32 if allocation failed
 */
 uint32_t
-reserveDynamicItem(Brick *brick,
+reserveDynamicItem(Brick &brick,
                    const uint8_t connectionId)
 {
-    DataConnection* data = &brick->dataConnections[connectionId];
+    DataConnection* data = &brick.dataConnections[connectionId];
 
     // precheck
     if(data->itemSize == 0
@@ -298,11 +300,11 @@ reserveDynamicItem(Brick *brick,
  * @return false, if edgeSectionId is too big, else true
  */
 bool
-addSynapse(Brick* brick,
+addSynapse(Brick &brick,
            const uint32_t synapseSectionId,
            const Synapse &newSynapse)
 {
-    const DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
+    const DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
 
     // check if id is valid
     if(synapseSectionId >= data->numberOfItems) {
@@ -311,7 +313,7 @@ addSynapse(Brick* brick,
 
     // get section and add the new edge
     SynapseSection* synapseSection = &getSynapseSectionBlock(data)[synapseSectionId];
-    return synapseSection->addSynapse(newSynapse);
+    return addSynapse(*synapseSection, newSynapse);
 }
 
 /**
@@ -320,7 +322,7 @@ addSynapse(Brick* brick,
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
 uint32_t
-addEmptySynapseSection(Brick* brick,
+addEmptySynapseSection(Brick &brick,
                        const uint32_t sourceId)
 {
     const uint32_t position = reserveDynamicItem(brick, SYNAPSE_DATA);
@@ -330,7 +332,7 @@ addEmptySynapseSection(Brick* brick,
         // add new edge-forward-section
         SynapseSection newSection;
         newSection.sourceId = sourceId;
-        const DataConnection* data = &brick->dataConnections[SYNAPSE_DATA];
+        const DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
         getSynapseSectionBlock(data)[position] = newSection;
     }
 
@@ -343,7 +345,7 @@ addEmptySynapseSection(Brick* brick,
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
 uint32_t
-addEmptyEdgeSection(Brick *brick,
+addEmptyEdgeSection(Brick &brick,
                     const uint8_t sourceSide,
                     const uint32_t sourceId)
 {
@@ -355,7 +357,7 @@ addEmptyEdgeSection(Brick *brick,
     newSection.sourceSide = sourceSide;
 
     // add edge-section to the databuffer
-    const DataConnection* connection = &brick->dataConnections[EDGE_DATA];
+    const DataConnection* connection = &brick.dataConnections[EDGE_DATA];
     EdgeSection* array = getEdgeBlock(connection);
     array[position] = newSection;
 

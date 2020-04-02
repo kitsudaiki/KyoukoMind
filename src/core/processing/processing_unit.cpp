@@ -9,7 +9,7 @@
 
 #include <core/processing/processing_unit.h>
 #include <core/bricks/brick_handler.h>
-#include <kyouko_network.h>
+#include <root_object.h>
 
 #include <core/bricks/global_values_handler.h>
 
@@ -56,13 +56,13 @@ ProcessingUnit::run()
         if(m_block) {
             blockThread();
         }
-        Brick* brick = KyoukoNetwork::m_brickHandler->getFromQueue();
+        Brick* brick = RootObject::m_brickHandler->getFromQueue();
         if(brick == nullptr)
         {
-            GlobalValues globalValues = KyoukoNetwork::m_globalValuesHandler->getGlobalValues();
+            GlobalValues globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
             globalValues.globalLearningTemp = 0.0f;
             globalValues.globalMemorizingTemp = 0.0f;
-            KyoukoNetwork::m_globalValuesHandler->setGlobalValues(globalValues);
+            RootObject::m_globalValuesHandler->setGlobalValues(globalValues);
 
             end = std::chrono::system_clock::now();
             const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
@@ -76,16 +76,16 @@ ProcessingUnit::run()
         else
         {
             // main-processing
-            assert(brick->isReady() == true);
-            brick->globalValues = KyoukoNetwork::m_globalValuesHandler->getGlobalValues();
-            processIncomingMessages(brick);
+            assert(isReady(*brick) == true);
+            brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
+            processIncomingMessages(*brick);
             if(brick->dataConnections[NODE_DATA].inUse == 1) {
-                processNodes(brick, m_weightMap);
+                processNodes(*brick, m_weightMap);
             }
 
             // post-processing
-            postLearning(brick);
-            memorizeSynapses(brick);
+            postLearning(*brick);
+            memorizeSynapses(*brick);
 
             /*
             // monitoring
@@ -110,7 +110,7 @@ ProcessingUnit::run()
  * refillWeightMap fill the weight-map which is required for learing-process
  */
 void
-ProcessingUnit::refillWeightMap(Brick* brick,
+ProcessingUnit::refillWeightMap(Brick &brick,
                                 const uint8_t initialSide,
                                 Neighbor* neighbors)
 {
@@ -133,8 +133,8 @@ ProcessingUnit::refillWeightMap(Brick* brick,
     }
 
     // if brick contains nodes, the have to get a big part of the incoming weight
-    if(brick->dataConnections[NODE_DATA].inUse == 1
-            && brick->isInputBrick == 0)
+    if(brick.dataConnections[NODE_DATA].inUse == 1
+            && brick.isInputBrick == 0)
     {
         // TODO: replace the const-value of 0.2f by define
         const float val = m_totalWeightMap * 0.2f;
@@ -160,17 +160,17 @@ ProcessingUnit::refillWeightMap(Brick* brick,
  * @return
  */
 void
-ProcessingUnit::processIncomingMessages(Brick *brick)
+ProcessingUnit::processIncomingMessages(Brick &brick)
 {
     // process normal communication
     for(uint8_t side = 0; side < 25; side++)
     {
-        if(brick->neighbors[side].inUse == 1)
+        if(brick.neighbors[side].inUse == 1)
         {
-            refillWeightMap(brick, side, brick->neighbors);
+            refillWeightMap(brick, side, brick.neighbors);
 
-            uint64_t bufferPosition = brick->neighbors[side].incomBuffer.getMessage();
-            assert(brick->isReady() == true);
+            uint64_t bufferPosition = brick.neighbors[side].incomBuffer.getMessage();
+            assert(isReady(brick) == true);
 
             // skip init-messages
             if(bufferPosition == UNINIT_STATE_64 - 1) {
@@ -184,7 +184,7 @@ ProcessingUnit::processIncomingMessages(Brick *brick)
             assert(bufferPosition != UNINIT_STATE_64);
 
             // pre-check
-            DataMessage* message = KyoukoNetwork::m_messageBuffer->getMessage(bufferPosition);
+            DataMessage* message = RootObject::m_messageBuffer->getMessage(bufferPosition);
             if(side == 24
                     && message->isLast == 0)
             {
@@ -195,10 +195,10 @@ ProcessingUnit::processIncomingMessages(Brick *brick)
             // run processing
             while(bufferPosition != UNINIT_STATE_64)
             {
-                message = KyoukoNetwork::m_messageBuffer->getMessage(bufferPosition);
+                message = RootObject::m_messageBuffer->getMessage(bufferPosition);
                 processIncomingMessage(brick, side, message);
                 bufferPosition = message->prePosition;
-                KyoukoNetwork::m_messageBuffer->finishMessage(message->currentPosition);
+                RootObject::m_messageBuffer->finishMessage(message->currentPosition);
             }
         }
     }
@@ -210,7 +210,7 @@ ProcessingUnit::processIncomingMessages(Brick *brick)
  * @return false if a message-type does not exist, else true
  */
 bool
-ProcessingUnit::processIncomingMessage(Brick *brick,
+ProcessingUnit::processIncomingMessage(Brick &brick,
                                        const uint8_t side,
                                        DataMessage* message)
 {
@@ -323,7 +323,7 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
                 LearningEdgeReplyContainer* edge = (LearningEdgeReplyContainer*)data;
                 data += sizeof(LearningEdgeReplyContainer);
 
-                EdgeSection* edgeSections = getEdgeBlock(&brick->dataConnections[EDGE_DATA]);
+                EdgeSection* edgeSections = getEdgeBlock(&brick.dataConnections[EDGE_DATA]);
 
                 if(edge->sourceEdgeSectionId == UNINIT_STATE_32) {
                     continue;
@@ -342,13 +342,13 @@ ProcessingUnit::processIncomingMessage(Brick *brick,
                 DirectEdgeContainer* edge = (DirectEdgeContainer*)data;
                 data += sizeof(DirectEdgeContainer);
 
-                if(brick->isInputBrick == 0
-                        || brick->dataConnections[NODE_DATA].inUse == 0)
+                if(brick.isInputBrick == 0
+                        || brick.dataConnections[NODE_DATA].inUse == 0)
                 {
                     continue;
                 }
 
-                Node* nodes = (Node*)brick->dataConnections[NODE_DATA].buffer.data;
+                Node* nodes = (Node*)brick.dataConnections[NODE_DATA].buffer.data;
                 Node* node = &nodes[edge->targetNodeId];
                 node->currentState = edge->weight;
                 break;

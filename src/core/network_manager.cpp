@@ -9,7 +9,7 @@
 
 #include <core/network_manager.h>
 #include <settings/config.h>
-#include <kyouko_network.h>
+#include <root_object.h>
 
 #include <core/bricks/brick_handler.h>
 #include <core/processing/processing_unit_handler.h>
@@ -34,7 +34,7 @@ NetworkManager::NetworkManager()
     //m_trigger = new KyoukoMind::ConnectionTrigger();
     //KyoukoNetwork::m_mindClient->addNetworkTrigger(m_trigger);
 
-    std::string initialFile = KyoukoNetwork::m_config->getInitialFilePath();
+    std::string initialFile = RootObject::m_config->getInitialFilePath();
     initNetwork();
 }
 
@@ -57,8 +57,8 @@ NetworkManager::run()
 void
 NetworkManager::initNetwork()
 {
-    std::string initialFile = KyoukoNetwork::m_config->getInitialFilePath();
-    std::string directoryPath = KyoukoNetwork::m_config->getDirectoryPath();
+    std::string initialFile = RootObject::m_config->getInitialFilePath();
+    std::string directoryPath = RootObject::m_config->getDirectoryPath();
 
     m_processingUnitHandler->initProcessingUnits(NUMBER_OF_PROCESSING_UNITS);
 

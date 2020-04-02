@@ -39,11 +39,11 @@ private:
     std::vector<Brick*> m_finishBrickBuffer;
 
     // cycle
-    void processIncomingMessages(Brick *brick);
-    bool processIncomingMessage(Brick *brick,
+    void processIncomingMessages(Brick &brick);
+    bool processIncomingMessage(Brick &brick,
                                 const uint8_t side,
                                 DataMessage* message);
-    void refillWeightMap(Brick* brick,
+    void refillWeightMap(Brick &brick,
                          const uint8_t initialSide,
                          Neighbor* neighbors);
 
