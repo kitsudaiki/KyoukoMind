@@ -16,10 +16,8 @@
 
 #include <core/bricks/brick_handler.h>
 #include <core/processing/processing_unit_handler.h>
-
-#include <core/bricks/brick_methods/common_brick_methods.h>
-#include <core/bricks/brick_methods/buffer_control_methods.h>
 #include <core/processing/processing_methods/message_processing_methods.h>
+#include <core/processing/processing_methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
 {

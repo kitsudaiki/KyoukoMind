@@ -10,9 +10,9 @@
 #include "brick_processing_methods.h"
 
 #include <core/bricks/brick_objects/brick.h>
-#include <core/bricks/brick_methods/common_brick_methods.h>
 
 #include <core/processing/processing_methods/message_processing_methods.h>
+#include <core/processing/processing_methods/brick_item_methods.h>
 
 //#include <libKitsunemimiKyoukoCommon/communication_structs/monitorin_contianer.h>
 //#include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
@@ -31,11 +31,11 @@ namespace KyoukoMind
  * @return
  */
 uint16_t
-processOutputNodes(Brick* brick)
+processOutputNodes(Brick &brick)
 {
-    const DataConnection data = brick->dataConnections[NODE_DATA];
+    const DataConnection data = brick.dataConnections[NODE_DATA];
     // process nodes
-    Node* start = (Node*)data.buffer.data;
+    Node* start = static_cast<Node*>(data.buffer.data);
     Node* end = start + data.numberOfItems;
 
     // iterate over all nodes in the brick
@@ -61,7 +61,7 @@ processNodes(Brick &brick, float* weightMap)
     if(brick.isOutputBrick == 1)
     {
         // process nodes
-        Node* start = (Node*)data->buffer.data;
+        Node* start = static_cast<Node*>(data->buffer.data);
         Node* end = start + data->numberOfItems;
 
         // iterate over all nodes in the cluster
@@ -259,39 +259,20 @@ memorizeSynapses(Brick &brick)
  * @param brick
  * @param side
  */
-bool
+void
 finishSide(Brick &brick,
            const uint8_t side)
 {
-    // precheck
-    if(brick.neighbors[side].inUse == 0
-            || side >= 25)
-    {
-        return false;
-    }
+    Neighbor* sourceNeighbor = &brick.neighbors[side];
+    Brick* targetBrick = RootObject::m_brickHandler->getBrick(sourceNeighbor->targetBrickId);
+    Neighbor* targetNeighbor = &targetBrick->neighbors[sourceNeighbor->targetSide];
 
-    // reset incoming buffer
-    brick.neighbors[side].incomBuffer.reset();
-
-    // finish message and give it to the target-brick
-    DataMessage* message = brick.neighbors[side].outgoBuffer.message;
-    message->isLast = 1;
-    assert(message->type != UNDEFINED_MESSAGE);
-    Brick* targetBrick = RootObject::m_brickHandler->getBrick(message->targetBrickId);
-    targetBrick->neighbors[message->targetSide].incomBuffer.addMessage(message->currentPosition);
+    sendBuffer(*sourceNeighbor, *targetNeighbor);
 
     // check if target is finish
     if(isReady(*targetBrick)) {
         RootObject::m_brickHandler->addToQueue(targetBrick);
     }
-
-    // reinit outgoing buffer for next cycle
-    OutgoingBuffer* outBuffer = &brick.neighbors[side].outgoBuffer;
-    outBuffer->message = RootObject::m_messageBuffer->reserveBuffer();
-    outBuffer->initMessage();
-    assert(outBuffer->message->type != UNDEFINED_MESSAGE);
-
-    return true;
 }
 
 /**
@@ -431,6 +412,55 @@ writeOutput(Brick &brick, TransferDataMessage* message)
         message->init();
     }
     */
+}
+//==================================================================================================
+
+/**
+ * summarize the state of all nodes in a brick
+ * and return the average value of the last two cycles
+ * for a cleaner output
+ *
+ * @return summend value of all nodes of the brick
+ */
+inline float
+getSummedValue(Brick &brick)
+{
+    // precheck
+    if(brick.isOutputBrick > 0) {
+        return false;
+    }
+
+    // get and check connection-item
+    DataConnection* data = &brick.dataConnections[NODE_DATA];
+    if(data->buffer.data == nullptr) {
+        return 0.0f;
+    }
+
+    // iterate over all nodes in the brick and
+    // summarize the states of all nodes
+    Node* start = static_cast<Node*>(data->buffer.data);
+    Node* end = start + data->numberOfItems;
+    float sum = 0.0f;
+    for(Node* node = start;
+        node < end;
+        node++)
+    {
+        sum += node->currentState;
+    }
+
+    // write value to the internal ring-buffer
+    brick.outBuffer[brick.outBufferPos] = sum;
+    brick.outBufferPos = (brick.outBufferPos + 1) % 10;
+
+    // summarize the ring-buffer and get the average value
+    float result = 0.0f;
+    for(uint32_t i = 0; i < 10; i++)
+    {
+        result += brick.outBuffer[i];
+    }
+    result /= 10.0f;
+
+    return result;
 }
 
 } // namespace KyoukoMind

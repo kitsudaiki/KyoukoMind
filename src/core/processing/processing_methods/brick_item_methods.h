@@ -1,174 +1,21 @@
-/**
- *  @file    bufferControlMethods.h
- *
- *  @author  Tobias Anker
- *  Contact: tobias.anker@kitsunemimi.moe
- *
- *  Apache License Version 2.0
- */
+#ifndef BRICK_ITEM_METHODS_H
+#define BRICK_ITEM_METHODS_H
 
-#include "buffer_control_methods.h"
-#include <core/messaging/message_objects/content_container.h>
-#include <core/messaging/message_buffer/outgoing_buffer.h>
-#include <core/bricks/brick_objects/empty_placeholder.h>
+#include <common.h>
 
-#include <libKitsunemimiCommon/buffer/data_buffer.h>
+#include <core/bricks/brick_objects/brick.h>
 
 namespace KyoukoMind
 {
 
-/**
- * initialize the node-list of the brick
- *
- * @return false if nodes are already initialized, esle true
-*/
-bool
-initDataBlocks(Brick &brick,
-               const uint8_t connectionId,
-               const uint32_t numberOfItems,
-               const uint32_t itemSize)
-{
-    DataConnection *data = &brick.dataConnections[connectionId];
-
-    // prechecks
-    if(data->numberOfItems != 0
-            || itemSize == 0) {
-        return false;
-    }
-
-    // update meta-data of the brick
-    data->itemSize = itemSize;
-    data->numberOfItems = numberOfItems;
-    data->numberOfItemBlocks = (numberOfItems * data->itemSize) / data->buffer.blockSize + 1;
-
-    // allocate blocks in buffer
-    allocateBlocks(data->buffer, data->numberOfItemBlocks);
-    updateBufferData(brick);
-
-    return true;
-}
-
-/**
- * initialize the node-list of the brick
- *
- * @return false if nodes are already initialized, esle true
- */
-bool
-initNodeBlocks(Brick &brick,
-               uint32_t numberOfNodes)
-{
-    DataConnection* data = &brick.dataConnections[NODE_DATA];
-
-    // prechecks
-    if(data->numberOfItems != 0) {
-        return false;
-    }
-
-    // if not set by user, use default-value
-    if(numberOfNodes == 0) {
-        numberOfNodes = NUMBER_OF_NODES_PER_BRICK;
-    }
-
-    // init
-    if(initDataBlocks(brick, NODE_DATA, numberOfNodes, sizeof(Node)) == false) {
-        return false;
-    }
-
-    // fill array with empty nodes
-    Node* array = (Node*)data->buffer.data;
-    for(uint16_t i = 0; i < numberOfNodes; i++)
-    {
-        Node tempNode;
-        tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
-        array[i] = tempNode;
-    }
-    data->inUse = 1;
-
-    return true;
-}
-
-/**
- * init the edge-sections of thebrick
- *
- * @return false, if already initialized, else true
- */
-bool
-initSynapseSectionBlocks(Brick &brick,
-                         const uint32_t numberOfSynapseSections)
-{
-    DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
-
-    // prechecks
-    if(data->inUse != 0) {
-        return false;
-    }
-
-    // init
-    if(initDataBlocks(brick,
-                      SYNAPSE_DATA,
-                      numberOfSynapseSections,
-                      sizeof(SynapseSection)) == false)
-    {
-        return false;
-    }
-
-    // fill array with empty synapsesections
-    SynapseSection* array = getSynapseSectionBlock(data);
-    for(uint32_t i = 0; i < numberOfSynapseSections; i++)
-    {
-        SynapseSection newSection;
-        newSection.sourceId = i;
-        array[i] = newSection;
-    }
-    data->inUse = 1;
-
-    return true;
-}
-
-/**
- * initialize forward-edge-block
- *
- * @return true if success, else false
- */
-bool
-initEdgeSectionBlocks(Brick &brick,
-                      const uint32_t numberOfEdgeSections)
-{
-    DataConnection* data = &brick.dataConnections[EDGE_DATA];
-
-    // prechecks
-    if(data->inUse != 0) {
-        return false;
-    }
-
-    // init
-    if(initDataBlocks(brick,
-                      EDGE_DATA,
-                      numberOfEdgeSections,
-                      sizeof(EdgeSection)) == false)
-    {
-        return false;
-    }
-
-    // fill array with empty forward-edge-sections
-    EdgeSection* array = getEdgeBlock(data);
-    for(uint32_t i = 0; i < numberOfEdgeSections; i++)
-    {
-        EdgeSection newSection;
-        array[i] = newSection;
-    }
-
-    data->inUse = 1;
-
-    return true;
-}
+//==================================================================================================
 
 /**
 * delete a specific item from the buffer by replacing it with a placeholder-item
 *
 * @return false if buffer is invalid or item already deleted, else true
 */
-bool
+inline bool
 deleteDynamicItem(Brick &brick,
                   const uint8_t connectionId,
                   const uint32_t itemPos)
@@ -217,12 +64,14 @@ deleteDynamicItem(Brick &brick,
     return true;
 }
 
+//==================================================================================================
+
 /**
  * try to reuse a deleted buffer segment
  *
  * @return item-position in the buffer, else UNINIT_STATE_32 if no empty space in buffer exist
  */
-uint32_t
+inline uint32_t
 reuseItemPosition(Brick &brick,
                   const uint8_t connectionId)
 {
@@ -251,12 +100,14 @@ reuseItemPosition(Brick &brick,
     return selectedPosition / data->itemSize;
 }
 
+//==================================================================================================
+
 /**
 * add a new forward-edge-section
 *
 * @return id of the new section, else UNINIT_STATE_32 if allocation failed
 */
-uint32_t
+inline uint32_t
 reserveDynamicItem(Brick &brick,
                    const uint8_t connectionId)
 {
@@ -294,12 +145,14 @@ reserveDynamicItem(Brick &brick,
     return data->numberOfItems-1;
 }
 
+//==================================================================================================
+
 /**
  * add an existing edge to a specifig edge-sections
  *
  * @return false, if edgeSectionId is too big, else true
  */
-bool
+inline bool
 addSynapse(Brick &brick,
            const uint32_t synapseSectionId,
            const Synapse &newSynapse)
@@ -316,12 +169,14 @@ addSynapse(Brick &brick,
     return addSynapse(*synapseSection, newSynapse);
 }
 
+//==================================================================================================
+
 /**
  * add a new empfy edge-section
  *
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
-uint32_t
+inline uint32_t
 addEmptySynapseSection(Brick &brick,
                        const uint32_t sourceId)
 {
@@ -339,12 +194,14 @@ addEmptySynapseSection(Brick &brick,
     return position;
 }
 
+//==================================================================================================
+
 /**
  * add a new edge-section to a specific brick with information about the source of the edge
  *
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
-uint32_t
+inline uint32_t
 addEmptyEdgeSection(Brick &brick,
                     const uint8_t sourceSide,
                     const uint32_t sourceId)
@@ -364,4 +221,8 @@ addEmptyEdgeSection(Brick &brick,
     return position;
 }
 
-} // namespace KyoukoMind
+//==================================================================================================
+
+}
+
+#endif // BRICK_ITEM_METHODS_H

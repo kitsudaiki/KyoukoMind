@@ -11,7 +11,7 @@
 #include <core/bricks/global_values_handler.h>
 
 #include <core/bricks/brick_objects/brick.h>
-#include <core/bricks/brick_methods/common_brick_methods.h>
+#include <core/processing/processing_methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
 {

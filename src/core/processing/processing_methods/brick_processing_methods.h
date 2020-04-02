@@ -31,7 +31,7 @@ uint16_t processNodes(Brick &brick, float *weightMap);
 void postLearning(Brick &brick);
 void memorizeSynapses(Brick &brick);
 
-bool finishSide(Brick &brick,
+void finishSide(Brick &brick,
                 const uint8_t side);
 void finishCycle(Brick &brick,
                  TransferDataMessage* monitoringMessage,

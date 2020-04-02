@@ -18,7 +18,6 @@ namespace KyoukoMind
 KyoukoMind::Config* RootObject::m_config = nullptr;
 KyoukoMind::BrickHandler* RootObject::m_brickHandler = nullptr;
 KyoukoMind::GlobalValuesHandler* RootObject::m_globalValuesHandler = nullptr;
-KyoukoMind::MessageBlockBuffer* RootObject::m_messageBuffer = nullptr;
 
 /**
  * main-class
@@ -28,8 +27,6 @@ RootObject::RootObject()
     m_config = new Config();
     m_brickHandler = new BrickHandler();
     m_globalValuesHandler = new GlobalValuesHandler();
-
-    m_messageBuffer = new MessageBlockBuffer();
 }
 
 /**

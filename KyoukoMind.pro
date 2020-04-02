@@ -33,11 +33,8 @@ INCLUDEPATH += $$PWD \
 SOURCES += \
     src/settings/config.cpp \
     src/main.cpp \
-    src/core/bricks/brick_methods/buffer_control_methods.cpp \
-    src/core/bricks/brick_methods/common_brick_methods.cpp \
     src/core/bricks/brick_handler.cpp \
     src/core/bricks/global_values_handler.cpp \
-    src/core/messaging/message_block_buffer.cpp \
     src/core/processing/processing_methods/brick_processing_methods.cpp \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
@@ -46,11 +43,10 @@ SOURCES += \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     tests/core/bricks/brick_methods/buffer_control_methods_test.cpp \
-    tests/core/messaging/message_buffer/incoming_buffer_test.cpp \
-    tests/core/messaging/message_buffer_test.cpp \
     tests/initializing/init_test.cpp \
     tests/run_unit_tests.cpp \
-    src/root_object.cpp
+    src/root_object.cpp \
+    src/core/processing/processing_methods/brick_initializing_methods.cpp
 
 
 HEADERS += \
@@ -65,15 +61,8 @@ HEADERS += \
     src/core/bricks/brick_objects/edges.h \
     src/core/bricks/brick_objects/node.h \
     src/core/messaging/messageObjects/messages.h \
-    src/core/bricks/brick_methods/buffer_control_methods.h \
-    src/core/bricks/brick_methods/common_brick_methods.h \
     src/core/bricks/brick_handler.h \
     src/core/bricks/global_values_handler.h \
-    src/core/messaging/message_buffer/incoming_buffer.h \
-    src/core/messaging/message_buffer/outgoing_buffer.h \
-    src/core/messaging/message_objects/content_container.h \
-    src/core/messaging/message_objects/message_block.h \
-    src/core/messaging/message_block_buffer.h \
     src/core/processing/processing_methods/brick_processing_methods.h \
     src/core/processing/processing_methods/message_processing_methods.h \
     src/core/processing/processing_unit.h \
@@ -84,8 +73,6 @@ HEADERS += \
     src/initializing/network_initializer.h \
     src/initializing/init_meta_data.h \
     tests/core/bricks/brick_methods/buffer_control_methods_test.h \
-    tests/core/messaging/message_buffer/incoming_buffer_test.h \
-    tests/core/messaging/message_buffer_test.h \
     tests/initializing/init_test.h \
     tests/run_unit_tests.h \
     src/core/bricks/brick_objects/synapses.h \
@@ -93,4 +80,7 @@ HEADERS += \
     src/core/bricks/brick_objects/data_connection.h \
     src/core/bricks/brick_objects/neighbor.h \
     src/core/bricks/brick_objects/brick_pos.h \
-    src/core/bricks/brick_objects/empty_placeholder.h
+    src/core/bricks/brick_objects/empty_placeholder.h \
+    src/core/messaging/message_objects/container_definitions.h \
+    src/core/processing/processing_methods/brick_initializing_methods.h \
+    src/core/processing/processing_methods/brick_item_methods.h

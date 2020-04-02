@@ -11,8 +11,8 @@
 #include <root_object.h>
 
 #include <core/bricks/brick_objects/brick.h>
-#include <core/bricks/brick_methods/common_brick_methods.h>
-#include <core/bricks/brick_methods/buffer_control_methods.h>
+#include <core/processing/processing_methods/brick_item_methods.h>
+#include <core/processing/processing_methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
 {

@@ -12,19 +12,15 @@
 
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
+#include <core/bricks/brick_objects/brick.h>
 
-#include <core/messaging/message_objects/messages.h>
 //#include <libKitsunemimiKyoukoCommon/communication_structs/common_messages.h>
 
 //using Kitsunemimi::Chan::Common::TransferDataMessage;
 
-struct NeighborInformation;
-
 namespace KyoukoMind
 {
 class GlobalValuesHandler;
-struct Brick;
-struct Neighbor;
 
 class ProcessingUnit
         : public Kitsunemimi::Thread
@@ -42,13 +38,12 @@ private:
     void processIncomingMessages(Brick &brick);
     bool processIncomingMessage(Brick &brick,
                                 const uint8_t side,
-                                DataMessage* message);
+                                DataBuffer* message);
     void refillWeightMap(Brick &brick,
                          const uint8_t initialSide,
                          Neighbor* neighbors);
 
     // cycle specific data
-    NeighborInformation m_neighborInfo;    
     float m_weightMap[25];
     float m_totalWeightMap = 0.0f;
 

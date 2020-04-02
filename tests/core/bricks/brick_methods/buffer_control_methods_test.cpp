@@ -9,7 +9,8 @@
 
 #include "buffer_control_methods_test.h"
 #include <core/bricks/brick_objects/brick.h>
-#include <core/bricks/brick_methods/buffer_control_methods.h>
+#include <core/processing/processing_methods/brick_initializing_methods.h>
+#include <core/processing/processing_methods/brick_item_methods.h>
 
 namespace KyoukoMind
 {

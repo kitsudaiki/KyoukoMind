@@ -15,7 +15,6 @@
 #include <settings/config.h>
 
 #include <core/bricks/brick_handler.h>
-#include <core/messaging/message_block_buffer.h>
 #include <core/bricks/global_values_handler.h>
 
 namespace KyoukoMind
@@ -32,7 +31,6 @@ public:
     static KyoukoMind::Config* m_config;
     static KyoukoMind::BrickHandler* m_brickHandler;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
-    static KyoukoMind::MessageBlockBuffer* m_messageBuffer;
 
     void start();
 

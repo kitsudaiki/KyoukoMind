@@ -15,16 +15,12 @@
 
 #include <core/bricks/brick_objects/brick.h>
 
-#include <core/bricks/brick_methods/common_brick_methods.h>
-#include <core/bricks/brick_methods/buffer_control_methods.h>
 #include <core/processing/processing_methods/message_processing_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
 
-#include <core/messaging/message_buffer/outgoing_buffer.h>
-#include <core/messaging/message_objects/content_container.h>
+#include <core/messaging/message_objects/container_definitions.h>
 
 #include <core/bricks/brick_objects/brick.h>
-#include <core/bricks/brick_methods/buffer_control_methods.h>
 
 namespace KyoukoMind
 {
@@ -56,6 +52,7 @@ ProcessingUnit::run()
         if(m_block) {
             blockThread();
         }
+
         Brick* brick = RootObject::m_brickHandler->getFromQueue();
         if(brick == nullptr)
         {
@@ -169,36 +166,14 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
         {
             refillWeightMap(brick, side, brick.neighbors);
 
-            uint64_t bufferPosition = brick.neighbors[side].incomBuffer.getMessage();
-            assert(isReady(brick) == true);
+            StackBuffer* currentBuffer = brick.neighbors[side].currentBuffer;
+            DataBuffer* currentBlock = getFirstElement(*currentBuffer);
 
-            // skip init-messages
-            if(bufferPosition == UNINIT_STATE_64 - 1) {
-                continue;
-            }
-            if(side == 24
-                    && bufferPosition == UNINIT_STATE_64)
+            while(currentBlock != nullptr)
             {
-                continue;
-            }
-            assert(bufferPosition != UNINIT_STATE_64);
-
-            // pre-check
-            DataMessage* message = RootObject::m_messageBuffer->getMessage(bufferPosition);
-            if(side == 24
-                    && message->isLast == 0)
-            {
-                continue;
-            }
-            assert(message->isLast == 1);
-
-            // run processing
-            while(bufferPosition != UNINIT_STATE_64)
-            {
-                message = RootObject::m_messageBuffer->getMessage(bufferPosition);
-                processIncomingMessage(brick, side, message);
-                bufferPosition = message->prePosition;
-                RootObject::m_messageBuffer->finishMessage(message->currentPosition);
+                processIncomingMessage(brick, side, currentBlock);
+                removeFirstFromStack(*currentBuffer);
+                currentBlock = getFirstElement(*currentBuffer);
             }
         }
     }
@@ -212,13 +187,13 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
 bool
 ProcessingUnit::processIncomingMessage(Brick &brick,
                                        const uint8_t side,
-                                       DataMessage* message)
+                                       DataBuffer* message)
 {
     bool result = true;
 
     // get start and end of the message-payload
-    uint8_t* data = message->data;
-    uint8_t* end = data + message->size;
+    uint8_t* data = static_cast<uint8_t*>(message->data);
+    uint8_t* end = data + message->bufferPosition;
 
     while(data < end)
     {

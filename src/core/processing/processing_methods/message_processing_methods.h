@@ -13,40 +13,13 @@
 #include <common.h>
 #include <root_object.h>
 
-#include <core/messaging/message_buffer/outgoing_buffer.h>
-#include <core/messaging/message_objects/content_container.h>
+#include <core/messaging/message_objects/container_definitions.h>
+#include <core/processing/processing_methods/brick_item_methods.h>
 
 #include <core/bricks/brick_objects/brick.h>
-#include <core/bricks/brick_methods/buffer_control_methods.h>
 
 namespace KyoukoMind
 {
-
-template <typename T>
-inline bool
-sendData(Brick &brick,
-         const uint8_t side,
-         const T data,
-         const bool force = false)
-{
-    if(brick.neighbors[side].inUse == 0) {
-        return false;
-    }
-
-    OutgoingBuffer* outBuffer = &brick.neighbors[side].outgoBuffer;
-    DataMessage* message = outBuffer->message;
-    assert(message->type != UNDEFINED_MESSAGE);
-    memcpy(&message->data[message->size], &data, sizeof(T));
-    message->size += sizeof(T);
-
-    if(message->size > 460 || force)
-    {
-        const uint64_t current = message->currentPosition;
-        outBuffer->message = RootObject::m_messageBuffer->reserveBuffer(current);
-        outBuffer->initMessage();
-    }
-    return true;
-}
 
 /**
  * @brief NodeBrick::createNewEdge
@@ -83,7 +56,8 @@ checkAndDelete(Brick &brick,
         if(currentSection.sourceId != UNINIT_STATE_32)
         {
             newEdge.targetId = currentSection.sourceId;
-            sendData(brick, currentSection.sourceSide, newEdge);
+            addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                              &newEdge);
         }
 
         deleteDynamicItem(brick, EDGE_DATA, forwardEdgeSectionId);
@@ -240,7 +214,8 @@ processUpdateSetEdge(Brick &brick,
         if(currentSection.sourceId != UNINIT_STATE_32)
         {
             newEdge.targetId = currentSection.sourceId;
-            sendData(brick, currentSection.sourceSide, newEdge);
+            addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                              &newEdge);
         }
     }
 }
@@ -268,12 +243,14 @@ processUpdateSubEdge(Brick &brick,
     replyEdge.updateValue = currentSection.edges[inititalSide].weight;
 
     newEdge.targetId = currentSection.sourceId;
-    sendData(brick, currentSection.sourceSide, replyEdge);
+    addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                      &replyEdge);
 
     if(currentSection.sourceId != UNINIT_STATE_32)
     {
         newEdge.targetId = currentSection.sourceId;
-        sendData(brick, currentSection.sourceSide, newEdge);
+        addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                          &newEdge);
     }
 }
 
@@ -302,7 +279,8 @@ processUpdateDeleteEdge(Brick &brick,
         if(currentSection.sourceId != UNINIT_STATE_32)
         {
             newEdge.targetId = currentSection.sourceId;
-            sendData(brick, currentSection.sourceSide, newEdge);
+            addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                              &newEdge);
         }
     }
 }
@@ -411,7 +389,8 @@ learningEdgeSection(Brick &brick,
                     LearingEdgeContainer newEdge;
                     newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
                     newEdge.weight = currentSideWeight;
-                    sendData(brick, side, newEdge);
+                    addObjectToBuffer(*brick.neighbors[side].outgoingBuffer,
+                                      &newEdge);
                 }
 
                 currentSection->edges[side].weight += currentSideWeight;
@@ -477,7 +456,8 @@ processEdgeForwardSection(Brick &brick,
                 EdgeContainer newEdge;
                 newEdge.targetEdgeSectionId = tempEdge.targetId;
                 newEdge.weight = tempEdge.weight * ratio;
-                sendData(brick, sideCounter, newEdge);
+                addObjectToBuffer(*brick.neighbors[sideCounter].outgoingBuffer,
+                                  &newEdge);
             }
             else
             {
@@ -486,7 +466,8 @@ processEdgeForwardSection(Brick &brick,
                 newEdge.weight = tempEdge.weight * ratio;
                 newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
                 newEdge.sourceSide = 23 - sideCounter;
-                sendData(brick, sideCounter, newEdge);
+                addObjectToBuffer(*brick.neighbors[sideCounter].outgoingBuffer,
+                                  &newEdge);
             }
         }
     }
@@ -514,7 +495,8 @@ processAxon(Brick &brick,
         newEdge.weight = weight * brick.globalValues.globalGlia;
         newEdge.targetAxonId = targetId;
         const uint8_t side = path % 32;
-        sendData(brick, side, newEdge);
+        addObjectToBuffer(*brick.neighbors[side].outgoingBuffer,
+                          &newEdge);
     }
     else
     {
@@ -547,7 +529,8 @@ processLerningEdge(Brick &brick,
         LearningEdgeReplyContainer reply;
         reply.sourceEdgeSectionId = sourceEdgeSectionId;
         reply.targetEdgeSectionId = targetEdgeSectionId;
-        sendData(brick, initSide, reply);
+        addObjectToBuffer(*brick.neighbors[initSide].outgoingBuffer,
+                          &reply);
 
         processEdgeForwardSection(brick, targetEdgeSectionId, weight, weightMap);
     }
