@@ -25,6 +25,8 @@ struct Neighbor
 
 } __attribute__((packed));
 
+//==================================================================================================
+
 /**
  * @brief initNeighbor
  * @param neighbor
@@ -48,6 +50,8 @@ initNeighbor(Neighbor &neighbor,
     neighbor.inUse = 1;
 }
 
+//==================================================================================================
+
 /**
  * @brief setNextBuffer
  * @param sourceNeighbor
@@ -68,6 +72,8 @@ sendBuffer(Neighbor &sourceNeighbor,
     sourceNeighbor.lock.clear(std::memory_order_release);
 }
 
+//==================================================================================================
+
 /**
  * @brief switchBuffer
  * @param neighbor
@@ -85,6 +91,8 @@ switchBuffer(Neighbor &neighbor)
     neighbor.lock.clear(std::memory_order_release);
 }
 
+//==================================================================================================
+
 /**
  * @brief isReady
  * @param neighbor
@@ -101,6 +109,8 @@ isReady(Neighbor &neighbor)
 
     return result;
 }
+
+//==================================================================================================
 
 }
 

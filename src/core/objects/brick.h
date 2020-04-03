@@ -48,6 +48,9 @@ struct Brick
     uint8_t isOutputBrick = 0;
     uint8_t isInputBrick = 0;
 
+    uint32_t readyMask = 0;
+    uint32_t readyStatus = 0;
+
     // data
     DataConnection dataConnections[3];
     float learningOverride = 0.5;
@@ -75,6 +78,7 @@ struct Brick
     ~Brick()
     {
     }
+
 } __attribute__((packed));
 
 //==================================================================================================
@@ -87,14 +91,11 @@ struct Brick
 inline bool
 isReady(Brick &brick)
 {
-    for(uint8_t i = 0; i < 25; i++)
-    {
-        if(brick.neighbors[i].inUse == 1
-                && brick.neighbors[i].nextBuffer == nullptr)
-        {
-            return false;
-        }
+    if(brick.readyStatus != brick.readyMask) {
+        return false;
     }
+
+    brick.readyStatus = 0;
 
     for(uint8_t i = 0; i < 25; i++)
     {
@@ -104,6 +105,21 @@ isReady(Brick &brick)
     }
 
     return true;
+}
+
+//==================================================================================================
+
+/**
+ * @brief updateReadyStatus
+ *
+ * @param brick
+ * @param side
+ */
+inline void
+updateReadyStatus(Brick &brick, const uint8_t side)
+{
+    uint32_t pos = 0x1;
+    brick.readyStatus = brick.readyStatus + (pos << side);
 }
 
 //==================================================================================================

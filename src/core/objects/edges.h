@@ -44,6 +44,8 @@ struct EdgeSection
     }
 } __attribute__((packed));
 
+//==================================================================================================
+
 /**
  * summarize all sides of the edge-section
  *
@@ -60,6 +62,8 @@ getTotalWeight(EdgeSection &section)
     }
     return result;
 }
+
+//==================================================================================================
 
 /**
  * count the active sides of the section
@@ -80,6 +84,8 @@ getActiveEdges(EdgeSection &section)
     }
     return count;
 }
+
+//==================================================================================================
 
 } // namespace KyoukoMind
 

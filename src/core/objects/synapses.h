@@ -40,6 +40,8 @@ struct SynapseSection
     }
 } __attribute__((packed));
 
+//==================================================================================================
+
 /**
  * summarize all sides of the synapse-section
  *
@@ -55,6 +57,8 @@ getTotalWeight(SynapseSection &section)
     }
     return result;
 }
+
+//==================================================================================================
 
 /**
  * erase all synapses from the section, which are too weak
@@ -73,6 +77,8 @@ makeClean(SynapseSection &section)
     }
 }
 
+//==================================================================================================
+
 /**
  * check if all slots of the section are filled
  *
@@ -83,6 +89,8 @@ isFull(SynapseSection &section)
 {
     return section.numberOfSynapses >= EDGES_PER_SYNAPSESECTION;
 }
+
+//==================================================================================================
 
 /**
  * add a new synapse to the current section

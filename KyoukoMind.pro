@@ -2,8 +2,22 @@ QT -= qt core gui
 
 TARGET = KyoukoMind
 CONFIG += console
-CONFIG -= app_bundle
 CONFIG += c++14
+
+LIBS += -L../libKitsunemimiKyoukoNetwork/src -lKitsunemimiKyoukoNetwork
+LIBS += -L../libKitsunemimiKyoukoNetwork/src/debug -lKitsunemimiKyoukoNetwork
+LIBS += -L../libKitsunemimiKyoukoNetwork/src/release -lKitsunemimiKyoukoNetwork
+INCLUDEPATH += ../libKitsunemimiKyoukoNetwork/include
+
+LIBS += -L../libKitsunemimiProjectNetwork/src -lKitsunemimiProjectNetwork
+LIBS += -L../libKitsunemimiProjectNetwork/src/debug -lKitsunemimiProjectNetwork
+LIBS += -L../libKitsunemimiProjectNetwork/src/release -lKitsunemimiProjectNetwork
+INCLUDEPATH += ../libKitsunemimiProjectNetwork/include
+
+LIBS += -L../libKitsunemimiNetwork/src -lKitsunemimiNetwork
+LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
+LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
+INCLUDEPATH += ../libKitsunemimiNetwork/include
 
 LIBS += -L../libKitsunemimiCommon/src -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/debug -lKitsunemimiCommon
@@ -15,17 +29,13 @@ LIBS += -L../libKitsunemimiJson/src/debug -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/release -lKitsunemimiJson
 INCLUDEPATH += ../libKitsunemimiJson/include
 
-#LIBS += -L../libKitsunemimiNetwork/src -lKitsunemimiNetwork
-#LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
-#LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
-#INCLUDEPATH += ../libKitsunemimiNetwork/include
 
-#LIBS += -L../libKitsunemimiKyoukoCommon -lKitsunemimiKyoukoCommon
-#LIBS += -L../libKitsunemimiKyoukoCommon/debug -lKitsunemimiKyoukoCommon
-#LIBS += -L../libKitsunemimiKyoukoCommon/release -lKitsunemimiKyoukoCommon
-#INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
+LIBS += -L../libKitsunemimiPersistence/src -lKitsunemimiPersistence
+LIBS += -L./libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
+LIBS += -L./libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
+INCLUDEPATH += ../libKitsunemimiPersistence/include
 
-LIBS +=  -lboost_filesystem -lboost_system -lboost_program_options  -lssl -lcrypt
+LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt
 
 INCLUDEPATH += $$PWD \
                src

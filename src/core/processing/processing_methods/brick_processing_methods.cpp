@@ -261,15 +261,16 @@ memorizeSynapses(Brick &brick)
  */
 void
 finishSide(Brick &brick,
-           const uint8_t side)
+           const uint8_t sourceSide)
 {
-    Neighbor* sourceNeighbor = &brick.neighbors[side];
+    Neighbor* sourceNeighbor = &brick.neighbors[sourceSide];
     Brick* targetBrick = RootObject::m_brickHandler->getBrick(sourceNeighbor->targetBrickId);
     Neighbor* targetNeighbor = &targetBrick->neighbors[sourceNeighbor->targetSide];
 
     sendBuffer(*sourceNeighbor, *targetNeighbor);
 
     // check if target is finish
+    updateReadyStatus(*targetBrick, sourceNeighbor->targetSide);
     if(isReady(*targetBrick)) {
         RootObject::m_brickHandler->addToQueue(targetBrick);
     }

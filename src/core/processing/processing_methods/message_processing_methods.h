@@ -21,6 +21,8 @@
 namespace KyoukoMind
 {
 
+//==================================================================================================
+
 /**
  * @brief NodeBrick::createNewEdge
  * @param currentSection
@@ -36,6 +38,8 @@ createNewSynapse(Brick &brick,
     newSynapse.somaDistance = static_cast<uint8_t>(rand() % (MAX_SOMA_DISTANCE - 1)) + 1;
     addSynapse(currentSection, newSynapse);
 }
+
+//==================================================================================================
 
 /**
  * @brief EdgeBrick::checkAndDelete
@@ -66,6 +70,8 @@ checkAndDelete(Brick &brick,
     }
     return false;
 }
+
+//==================================================================================================
 
 /**
  * learing-process of the specific synapse-section
@@ -128,38 +134,42 @@ learningSynapseSection(Brick &brick,
     }
 }
 
- /**
-  * @brief NodeBrick::checkEdge
-  * @param currentSection
-  * @param weight
-  * @return
-  */
- inline float
- checkSynapse(Brick &brick,
-              SynapseSection &currentSection,
-              const float weight)
- {
-     const float totalWeight = getTotalWeight(currentSection);
-     const float ratio = weight / totalWeight;
+//==================================================================================================
 
-     if(ratio > 1.0f)
-     {
-         if(weight - totalWeight >= NEW_SYNAPSE_BORDER
-                 && brick.globalValues.globalLearningOffset > 0.01f)
-         {
-             learningSynapseSection(brick, currentSection, weight - totalWeight);
-         }
-         return 1.0f;
-     }
-     return ratio;
- }
-
- /**
- * process of a specific edge-section of a brick
- *
- * @param edgeSectionId id of the edge-section within the current brick
- * @param weight incoming weight-value
+/**
+ * @brief NodeBrick::checkEdge
+ * @param currentSection
+ * @param weight
+ * @return
  */
+inline float
+checkSynapse(Brick &brick,
+             SynapseSection &currentSection,
+             const float weight)
+{
+    const float totalWeight = getTotalWeight(currentSection);
+    const float ratio = weight / totalWeight;
+
+    if(ratio > 1.0f)
+    {
+        if(weight - totalWeight >= NEW_SYNAPSE_BORDER
+                && brick.globalValues.globalLearningOffset > 0.01f)
+        {
+            learningSynapseSection(brick, currentSection, weight - totalWeight);
+        }
+        return 1.0f;
+    }
+    return ratio;
+}
+
+//==================================================================================================
+
+/**
+* process of a specific edge-section of a brick
+*
+* @param edgeSectionId id of the edge-section within the current brick
+* @param weight incoming weight-value
+*/
 inline void
 processSynapseSection(Brick &brick,
                       const uint32_t synapseSectionId,
@@ -193,6 +203,8 @@ processSynapseSection(Brick &brick,
     }
 }
 
+//==================================================================================================
+
 /**
  * @brief EdgeBrick::processUpdateSetEdge
  * @param currentSection
@@ -219,6 +231,8 @@ processUpdateSetEdge(Brick &brick,
         }
     }
 }
+
+//==================================================================================================
 
 /**
  * @brief EdgeBrick::processUpdateSubEdge
@@ -254,6 +268,8 @@ processUpdateSubEdge(Brick &brick,
     }
 }
 
+//==================================================================================================
+
 /**
  * @brief EdgeBrick::processUpdateDeleteEdge
  * @param currentSection
@@ -284,6 +300,8 @@ processUpdateDeleteEdge(Brick &brick,
         }
     }
 }
+
+//==================================================================================================
 
 /**
  * process status
@@ -327,6 +345,8 @@ processUpdateEdge(Brick &brick,
         }
     }
 }
+
+//==================================================================================================
 
 /**
  * create new edges for the current section
@@ -398,6 +418,8 @@ learningEdgeSection(Brick &brick,
         }
     }
 }
+
+//==================================================================================================
 
 /**
  * processEdgeForwardSection
@@ -473,6 +495,8 @@ processEdgeForwardSection(Brick &brick,
     }
 }
 
+//==================================================================================================
+
 /**
  * process axon
  *
@@ -505,6 +529,8 @@ processAxon(Brick &brick,
     }
 }
 
+//==================================================================================================
+
 /**
  * process learning-edge to create a new forward-edge
  *
@@ -519,22 +545,19 @@ processLerningEdge(Brick &brick,
                    const uint8_t initSide,
                    float* weightMap)
 {
-    const uint32_t targetEdgeSectionId = addEmptyEdgeSection(brick,
-                                                             initSide,
-                                                             sourceEdgeSectionId);
+    const uint32_t targetEdgeSectionId = addEmptyEdgeSection(brick, initSide, sourceEdgeSectionId);
 
-    if(targetEdgeSectionId != UNINIT_STATE_32)
-    {
-        // create reply-message
-        LearningEdgeReplyContainer reply;
-        reply.sourceEdgeSectionId = sourceEdgeSectionId;
-        reply.targetEdgeSectionId = targetEdgeSectionId;
-        addObjectToBuffer(*brick.neighbors[initSide].outgoingBuffer,
-                          &reply);
+    // create reply-message
+    LearningEdgeReplyContainer reply;
+    reply.sourceEdgeSectionId = sourceEdgeSectionId;
+    reply.targetEdgeSectionId = targetEdgeSectionId;
+    addObjectToBuffer(*brick.neighbors[initSide].outgoingBuffer,
+                      &reply);
 
-        processEdgeForwardSection(brick, targetEdgeSectionId, weight, weightMap);
-    }
+    processEdgeForwardSection(brick, targetEdgeSectionId, weight, weightMap);
 }
+
+//==================================================================================================
 
 /**
  * process pending-edge in the cycle after the learning-edge
@@ -575,6 +598,8 @@ processPendingEdge(Brick &brick,
         forwardEdgeSectionId--;
     }
 }
+
+//==================================================================================================
 
 } // namespace KyoukoMind
 

@@ -51,7 +51,7 @@ private:
     //TransferDataMessage* m_monitoringMessage = nullptr;
 
     bool m_enableClient = true;
-    //TransferDataMessage* m_clienOutputMessage = nullptr;
+    //* m_clienOutputMessage = nullptr;
 };
 
 } // namespace KyoukoMind

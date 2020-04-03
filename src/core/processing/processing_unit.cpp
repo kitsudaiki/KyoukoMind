@@ -81,6 +81,8 @@ ProcessingUnit::run()
             postLearning(*brick);
             memorizeSynapses(*brick);
 
+            finishCycle(*brick, nullptr, nullptr);
+
             /*
             // monitoring
             if(m_enableMonitoring) {
@@ -195,12 +197,14 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
     while(data < end)
     {
         const uint8_t type = data[0];
+        void* obj = static_cast<void*>(data);
+
         switch(type)
         {
             // -------------------------------------------------------------------------------------
             case STATUS_EDGE_CONTAINER:
             {
-                UpdateEdgeContainer* edge = (UpdateEdgeContainer*)data;
+                UpdateEdgeContainer* edge = static_cast<UpdateEdgeContainer*>(obj);
                 data += sizeof(UpdateEdgeContainer);
 
                 if(edge->targetId == UNINIT_STATE_32
@@ -219,7 +223,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             // -------------------------------------------------------------------------------------
             case PENDING_EDGE_CONTAINER:
             {
-                PendingEdgeContainer* edge = (PendingEdgeContainer*)data;
+                PendingEdgeContainer* edge = static_cast<PendingEdgeContainer*>(obj);
                 data += sizeof(PendingEdgeContainer);
 
                 if(edge->sourceEdgeSectionId == UNINIT_STATE_32
@@ -238,7 +242,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             // -------------------------------------------------------------------------------------
             case FOREWARD_EDGE_CONTAINER:
             {
-                EdgeContainer* edge = (EdgeContainer*)data;
+                EdgeContainer* edge = static_cast<EdgeContainer*>(obj);
                 data += sizeof(EdgeContainer);
 
                 if(edge->targetEdgeSectionId == UNINIT_STATE_32
@@ -256,10 +260,12 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             // -------------------------------------------------------------------------------------
             case AXON_EDGE_CONTAINER:
             {
-                AxonEdgeContainer* edge = (AxonEdgeContainer*)data;
+                AxonEdgeContainer* edge = static_cast<AxonEdgeContainer*>(obj);
                 data += sizeof(AxonEdgeContainer);
 
-                if(edge->targetAxonId == UNINIT_STATE_32 && edge->weight >= 0.0f) {
+                if(edge->targetAxonId == UNINIT_STATE_32
+                        && edge->weight >= 0.0f)
+                {
                     continue;
                 }
 
@@ -273,7 +279,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             // -------------------------------------------------------------------------------------
             case LEARNING_EDGE_CONTAINER:
             {
-                LearingEdgeContainer* edge = (LearingEdgeContainer*)data;
+                LearingEdgeContainer* edge = static_cast<LearingEdgeContainer*>(obj);
                 data += sizeof(LearingEdgeContainer);
 
                 if(edge->sourceEdgeSectionId == UNINIT_STATE_32
@@ -292,7 +298,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             // -------------------------------------------------------------------------------------
             case LEARNING_REPLY_EDGE_CONTAINER:
             {
-                LearningEdgeReplyContainer* edge = (LearningEdgeReplyContainer*)data;
+                LearningEdgeReplyContainer* edge = static_cast<LearningEdgeReplyContainer*>(obj);
                 data += sizeof(LearningEdgeReplyContainer);
 
                 EdgeSection* edgeSections = getEdgeBlock(&brick.dataConnections[EDGE_DATA]);
@@ -311,7 +317,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             // -------------------------------------------------------------------------------------
             case DIRECT_EDGE_CONTAINER:
             {
-                DirectEdgeContainer* edge = (DirectEdgeContainer*)data;
+                DirectEdgeContainer* edge = static_cast<DirectEdgeContainer*>(obj);
                 data += sizeof(DirectEdgeContainer);
 
                 if(brick.isInputBrick == 0
@@ -320,7 +326,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                     continue;
                 }
 
-                Node* nodes = (Node*)brick.dataConnections[NODE_DATA].buffer.data;
+                Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
                 Node* node = &nodes[edge->targetNodeId];
                 node->currentState = edge->weight;
                 break;

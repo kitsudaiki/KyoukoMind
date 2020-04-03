@@ -22,6 +22,11 @@ initNeighbor(Brick &brick,
         return false;
     }
 
+    // update ready-mask
+    uint32_t pos = 0x1;
+    brick.readyMask = brick.readyMask + (pos << sourceSide);
+
+    // init neighbo
     initNeighbor(*neighbor,
                  sourceSide,
                  targetBrickId);
@@ -46,6 +51,10 @@ uninitNeighbor(Brick &brick,
     if(neighbor->inUse == 0) {
         return false;
     }
+
+    // update ready-mask
+    uint32_t pos = 0x1;
+    brick.readyMask = brick.readyMask - (pos << side);
 
     // uninit
     // TODO: issue #58
