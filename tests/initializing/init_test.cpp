@@ -10,8 +10,8 @@
 #include "init_test.h"
 #include <root_object.h>
 
-#include <core/bricks/brick_handler.h>
-#include <core/bricks/brick_objects/brick.h>
+#include <core/brick_handler.h>
+#include <core/objects/brick.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/network_initializer.h>

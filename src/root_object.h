@@ -14,8 +14,8 @@
 
 #include <settings/config.h>
 
-#include <core/bricks/brick_handler.h>
-#include <core/bricks/global_values_handler.h>
+#include <core/brick_handler.h>
+#include <core/global_values_handler.h>
 
 namespace KyoukoMind
 {

@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
 
 //#include <libKitsunemimiKyoukoCommon/communication_structs/common_messages.h>
 

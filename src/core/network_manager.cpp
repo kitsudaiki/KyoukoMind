@@ -11,10 +11,10 @@
 #include <settings/config.h>
 #include <root_object.h>
 
-#include <core/bricks/brick_handler.h>
+#include <core/brick_handler.h>
 #include <core/processing/processing_unit_handler.h>
 
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>

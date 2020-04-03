@@ -11,7 +11,7 @@
 #define BRICK_PROCESSING_METHODS_H
 
 #include <common.h>
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
 
 namespace Kitsunemimi {
 namespace Chan {

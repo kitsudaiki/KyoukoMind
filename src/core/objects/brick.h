@@ -13,13 +13,13 @@
 #include <common.h>
 #include <root_object.h>
 
-#include <core/bricks/brick_objects/brick_pos.h>
-#include <core/bricks/brick_objects/edges.h>
-#include <core/bricks/brick_objects/synapses.h>
-#include <core/bricks/brick_objects/node.h>
-#include <core/bricks/brick_objects/data_connection.h>
-#include <core/bricks/brick_objects/neighbor.h>
-#include <core/bricks/brick_objects/empty_placeholder.h>
+#include <core/objects/brick_pos.h>
+#include <core/objects/edges.h>
+#include <core/objects/synapses.h>
+#include <core/objects/node.h>
+#include <core/objects/data_connection.h>
+#include <core/objects/neighbor.h>
+#include <core/objects/empty_placeholder.h>
 
 namespace KyoukoMind
 {

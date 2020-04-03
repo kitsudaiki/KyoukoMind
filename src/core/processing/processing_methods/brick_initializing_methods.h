@@ -3,7 +3,7 @@
 
 #include <common.h>
 
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
 
 namespace KyoukoMind
 {

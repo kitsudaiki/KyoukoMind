@@ -9,12 +9,12 @@
 
 #include "network_initializer.h"
 #include <root_object.h>
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>
 
-#include <core/bricks/brick_handler.h>
+#include <core/brick_handler.h>
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/processing_methods/message_processing_methods.h>
 #include <core/processing/processing_methods/brick_initializing_methods.h>

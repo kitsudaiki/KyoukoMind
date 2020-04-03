@@ -2,7 +2,7 @@
 #define NEIGHBOR_H
 
 #include <common.h>
-#include <core/bricks/brick_objects/brick_pos.h>
+#include <core/objects/brick_pos.h>
 
 namespace KyoukoMind
 {

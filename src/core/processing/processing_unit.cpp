@@ -8,19 +8,16 @@
  */
 
 #include <core/processing/processing_unit.h>
-#include <core/bricks/brick_handler.h>
+#include <core/brick_handler.h>
 #include <root_object.h>
 
-#include <core/bricks/global_values_handler.h>
+#include <core/global_values_handler.h>
 
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
+#include <core/objects/container_definitions.h>
 
 #include <core/processing/processing_methods/message_processing_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
-
-#include <core/messaging/message_objects/container_definitions.h>
-
-#include <core/bricks/brick_objects/brick.h>
 
 namespace KyoukoMind
 {

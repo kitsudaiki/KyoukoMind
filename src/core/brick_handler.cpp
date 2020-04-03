@@ -7,10 +7,10 @@
  *  Apache License Version 2.0
  */
 
-#include <core/bricks/brick_handler.h>
-#include <core/bricks/global_values_handler.h>
+#include <core/brick_handler.h>
+#include <core/global_values_handler.h>
 
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
 #include <core/processing/processing_methods/brick_initializing_methods.h>
 
 namespace KyoukoMind

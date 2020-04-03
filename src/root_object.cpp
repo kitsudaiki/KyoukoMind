@@ -9,7 +9,7 @@
 
 #include <root_object.h>
 #include <core/network_manager.h>
-#include <core/bricks/global_values_handler.h>
+#include <core/global_values_handler.h>
 
 namespace KyoukoMind
 {

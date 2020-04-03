@@ -9,7 +9,7 @@
 
 #include "brick_processing_methods.h"
 
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
 
 #include <core/processing/processing_methods/message_processing_methods.h>
 #include <core/processing/processing_methods/brick_item_methods.h>

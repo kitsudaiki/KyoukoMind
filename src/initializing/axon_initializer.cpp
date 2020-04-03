@@ -10,7 +10,7 @@
 #include "axon_initializer.h"
 #include <root_object.h>
 
-#include <core/bricks/brick_objects/brick.h>
+#include <core/objects/brick.h>
 #include <core/processing/processing_methods/brick_item_methods.h>
 #include <core/processing/processing_methods/brick_initializing_methods.h>
 
