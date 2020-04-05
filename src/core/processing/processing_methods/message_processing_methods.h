@@ -52,7 +52,7 @@ checkAndDelete(Brick &brick,
                const uint32_t forwardEdgeSectionId)
 {
     if(currentSection.sourceId != UNINIT_STATE_32
-            && getActiveEdges(currentSection) == 0)
+            && currentSection.activeEdges == 0)
     {
         UpdateEdgeContainer newEdge;
         newEdge.updateType = UpdateEdgeContainer::DELETE_TYPE;
@@ -94,7 +94,8 @@ learningSynapseSection(Brick &brick,
         weight -= value;
 
         // choose synapse
-        uint32_t choosePosition = static_cast<uint32_t>(rand()) % (currentSection.numberOfSynapses + 1);
+        uint32_t choosePosition = static_cast<uint32_t>(rand())
+                                  % (currentSection.numberOfSynapses + 1);
 
         // create new synapse if necessary
         if(choosePosition == currentSection.numberOfSynapses)
@@ -109,7 +110,7 @@ learningSynapseSection(Brick &brick,
         }
 
         Synapse* synapse = &currentSection.synapses[choosePosition];
-        Node* nodeBuffer = (Node*)brick.dataConnections[NODE_DATA].buffer.data;
+        Node* nodeBuffer = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
         Node* node = &nodeBuffer[synapse->targetNodeId];
 
         const uint8_t tooHeight = nodeBuffer[synapse->targetNodeId].tooHeight;
@@ -147,7 +148,7 @@ checkSynapse(Brick &brick,
              SynapseSection &currentSection,
              const float weight)
 {
-    const float totalWeight = getTotalWeight(currentSection);
+    const float totalWeight = currentSection.totalWeight;
     const float ratio = weight / totalWeight;
 
     if(ratio > 1.0f)
@@ -190,7 +191,7 @@ processSynapseSection(Brick &brick,
 
     const float ratio = checkSynapse(brick, *currentSection, inputWeight);
 
-    Node* nodes = (Node*)brick.dataConnections[NODE_DATA].buffer.data;
+    Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
     Synapse* end = currentSection->synapses + currentSection->numberOfSynapses;
 
     for(Synapse* synapse = currentSection->synapses;
@@ -217,18 +218,17 @@ processUpdateSetEdge(Brick &brick,
                      const float updateValue,
                      const uint8_t inititalSide)
 {
-    if(updateValue > 0.0f)
-    {
-        UpdateEdgeContainer newEdge;
-        newEdge.updateValue = updateValue;
-        currentSection.edges[inititalSide].weight = updateValue;
+    const uint16_t ok = updateValue > 0.0f;
 
-        if(currentSection.sourceId != UNINIT_STATE_32)
-        {
-            newEdge.targetId = currentSection.sourceId;
-            addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                              &newEdge);
-        }
+    UpdateEdgeContainer newEdge;
+    newEdge.updateValue = ok * updateValue;
+    currentSection.edges[inititalSide].weight = ok * updateValue;
+
+    if(currentSection.sourceId != UNINIT_STATE_32)
+    {
+        newEdge.targetId = currentSection.sourceId;
+        addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                          &newEdge);
     }
 }
 
@@ -441,7 +441,7 @@ processEdgeForwardSection(Brick &brick,
     }
 
     // process learning, if the incoming weight is too big
-    const float totalWeight = getTotalWeight(*currentSection);
+    const float totalWeight = currentSection->totalWeight;
     float ratio = weight / totalWeight;
     if(ratio > 1.0f)
     {

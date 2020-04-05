@@ -160,6 +160,7 @@ postLearning(Brick &brick)
         if(section->status != ACTIVE_SECTION) {
             continue;
         }
+
         // update values based on the memorizing-value
         Synapse* end = section->synapses + section->numberOfSynapses;
         for(Synapse* synapse = section->synapses;
@@ -229,11 +230,10 @@ memorizeSynapses(Brick &brick)
             const float newWeight = synapse->weight * (1.0f - synapse->memorize);
             synapse->weight -= newWeight;
         }
-        makeClean(*section);
 
         // delete dynamic item if value is too low
         const DataConnection* connection = &brick.dataConnections[EDGE_DATA];
-        if(getTotalWeight(*section) < DELETE_SYNAPSE_BORDER)
+        if(section->totalWeight < DELETE_SYNAPSE_BORDER)
         {
             EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
             processUpdateDeleteEdge(brick, *currentSection, section->sourceId, 24);
@@ -242,7 +242,7 @@ memorizeSynapses(Brick &brick)
         else
         {
             EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
-            const float updateValue = getTotalWeight(*section);
+            const float updateValue = section->totalWeight;
             if(updateValue > 0.0f) {
                 processUpdateSetEdge(brick, *currentSection, updateValue, 24);
             }

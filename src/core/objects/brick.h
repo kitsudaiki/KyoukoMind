@@ -39,15 +39,14 @@ struct Brick
     BrickID brickId = UNINIT_STATE_32;
     BrickPos brickPos;
     uint8_t inQueue = 0;
+    uint8_t isOutputBrick = 0;
+    uint8_t isInputBrick = 0;
 
     DataBuffer headerBuffer;
 
     // 0 - 23: neighbor-bricks
     // 24: the current brick
     Neighbor neighbors[25];
-    uint8_t isOutputBrick = 0;
-    uint8_t isInputBrick = 0;
-
     uint32_t readyMask = 0;
     uint32_t readyStatus = 0;
 
@@ -83,28 +82,10 @@ struct Brick
 
 //==================================================================================================
 
-/**
- * check all incoming buffer of the brick
- *
- * @return true if ready, else false
- */
 inline bool
 isReady(Brick &brick)
 {
-    if(brick.readyStatus != brick.readyMask) {
-        return false;
-    }
-
-    brick.readyStatus = 0;
-
-    for(uint8_t i = 0; i < 25; i++)
-    {
-        if(brick.neighbors[i].inUse == 1) {
-            switchBuffer(brick.neighbors[i]);
-        }
-    }
-
-    return true;
+    return brick.readyMask == brick.readyStatus;
 }
 
 //==================================================================================================
@@ -119,7 +100,7 @@ inline void
 updateReadyStatus(Brick &brick, const uint8_t side)
 {
     uint32_t pos = 0x1;
-    brick.readyStatus = brick.readyStatus + (pos << side);
+    brick.readyStatus = brick.readyStatus | (pos << side);
 }
 
 //==================================================================================================

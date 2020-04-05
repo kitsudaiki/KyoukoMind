@@ -30,7 +30,10 @@ struct EdgeSection
 {
     uint8_t status = ACTIVE_SECTION;
     Edge edges[25];
+
     float totalWeight = 0.0000001f;
+    uint32_t activeEdges = 0;
+
     uint8_t sourceSide = 0;
     uint32_t sourceId = UNINIT_STATE_32;
 
@@ -46,43 +49,43 @@ struct EdgeSection
 
 //==================================================================================================
 
-/**
- * summarize all sides of the edge-section
- *
- * @return the total weight of the section
- */
-inline float
-getTotalWeight(EdgeSection &section)
+inline void
+deleteEdge(EdgeSection &section,
+           const uint8_t position)
 {
-    float result = 0.0000001f;
-    for(uint32_t i = 0; i < 25; i++)
-    {
-        assert(section.edges[i].weight >= 0.0f);
-        result += section.edges[i].weight;
-    }
-    return result;
+    const uint32_t ok = section.edges[position].targetId != UNINIT_STATE_32;
+    section.edges[position].targetId = UNINIT_STATE_32;
+    section.activeEdges -= ok * (1 << position);
+}
+
+//==================================================================================================
+
+inline void
+addEdge(EdgeSection &section,
+        const uint8_t position,
+        const Edge newEdge)
+{
+    section.edges[position] = newEdge;
+    section.activeEdges = section.activeEdges | (1 << position);
 }
 
 //==================================================================================================
 
 /**
- * count the active sides of the section
- *
- * @return number of active edges in the section
+ * @brief updateSynapseWeight
+ * @param section
+ * @param position
+ * @return
  */
-inline uint8_t
-getActiveEdges(EdgeSection &section)
+inline void
+updateEdgeWeight(EdgeSection &section,
+                 const uint32_t position,
+                 const float weightUpdate)
 {
-    uint8_t count = 0;
-    for(int i = 0; i < 25; i++)
-    {
-        if(section.edges[i].targetId != UNINIT_STATE_32
-                || section.edges[i].weight > 0.0f)
-        {
-            count++;
-        }
-    }
-    return count;
+    float diff = section.edges[position].weight;
+    section.edges[position].weight += weightUpdate;
+    diff -= section.edges[position].weight;
+    section.totalWeight -= diff;
 }
 
 //==================================================================================================

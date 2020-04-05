@@ -26,6 +26,8 @@ struct SynapseSection
 
     uint8_t numberOfSynapses = 0;
     uint64_t activeMapping = 0;
+    // has to be at least a very small value to avoid division by zero
+    float totalWeight = 0.0000001f;
 
     uint32_t sourceId = UNINIT_STATE_32;
     Synapse synapses[EDGES_PER_SYNAPSESECTION];
@@ -42,39 +44,14 @@ struct SynapseSection
 
 //==================================================================================================
 
-/**
- * summarize all sides of the synapse-section
- *
- * @return the total weight of the section
- */
 inline float
-getTotalWeight(SynapseSection &section)
+abs(const float input)
 {
-    float result = 0.0000001f;
-    for(uint32_t i = 0; i < section.numberOfSynapses; i++)
-    {
-        result += std::abs(section.synapses[i].weight);
-    }
-    return result;
-}
-
-//==================================================================================================
-
-/**
- * erase all synapses from the section, which are too weak
- */
-inline void
-makeClean(SynapseSection &section)
-{
-    for(uint32_t i = 0; i < section.numberOfSynapses; i++)
-    {
-        if(section.synapses[i].weight < 0.1f
-                && section.synapses[i].weight > -0.1f)
-        {
-            section.synapses[i] = section.synapses[section.numberOfSynapses-1];
-            section.numberOfSynapses--;
-        }
-    }
+    float floatRep = input;
+    uint32_t* convertedValue = (uint32_t*)(&floatRep);
+    // delete sign-bit
+    *convertedValue = 0x7FFFFFFF & *convertedValue;
+    return *(float*)(convertedValue);
 }
 
 //==================================================================================================
@@ -97,18 +74,41 @@ isFull(SynapseSection &section)
  *
  * @return false, if the section is already full, else true
  */
-inline bool
+inline void
 addSynapse(SynapseSection &section,
            const Synapse &newSynapse)
 {
-    if(section.numberOfSynapses >= EDGES_PER_SYNAPSESECTION) {
-        return false;
-    }
+    const uint8_t ok = section.numberOfSynapses < EDGES_PER_SYNAPSESECTION;
+    const uint32_t pos = ((ok * section.numberOfSynapses) +
+                          (EDGES_PER_SYNAPSESECTION-1))
+                         % EDGES_PER_SYNAPSESECTION;
 
-    section.synapses[section.numberOfSynapses] = newSynapse;
-    section.numberOfSynapses++;
+    section.synapses[pos] = newSynapse;
+    section.numberOfSynapses += ok;
+}
 
-    return true;
+//==================================================================================================
+
+/**
+ * @brief updateSynapseWeight
+ * @param section
+ * @param position
+ * @return
+ */
+inline void
+updateSynapseWeight(SynapseSection &section,
+                    const uint32_t position,
+                    const float weightUpdate)
+{
+    const uint8_t ok = position < section.numberOfSynapses;
+    const uint32_t pos = ((ok * position) +
+                          (EDGES_PER_SYNAPSESECTION-1))
+                         % EDGES_PER_SYNAPSESECTION;
+
+    float diff = abs(section.synapses[pos].weight);
+    section.synapses[pos].weight += weightUpdate;
+    diff -= abs(section.synapses[pos].weight);
+    section.totalWeight -= ok * diff;
 }
 
 //==================================================================================================

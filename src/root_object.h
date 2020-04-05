@@ -39,12 +39,14 @@ public:
     static KyoukoMind::BrickHandler* m_brickHandler;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
 
+    static Kitsunemimi::Project::Session* m_clientSession;
+    static Kitsunemimi::Project::Session* m_monitoringSession;
+
     void start();
+
 
 private:
     Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
-    Kitsunemimi::Project::Session* m_clientSession = nullptr;
-    Kitsunemimi::Project::Session* m_monitoringSession = nullptr;
     NetworkManager* m_networkManager = nullptr;
 };
 

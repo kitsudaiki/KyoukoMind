@@ -148,30 +148,6 @@ reserveDynamicItem(Brick &brick,
 //==================================================================================================
 
 /**
- * add an existing edge to a specifig edge-sections
- *
- * @return false, if edgeSectionId is too big, else true
- */
-inline bool
-addSynapse(Brick &brick,
-           const uint32_t synapseSectionId,
-           const Synapse &newSynapse)
-{
-    const DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
-
-    // check if id is valid
-    if(synapseSectionId >= data->numberOfItems) {
-        return false;
-    }
-
-    // get section and add the new edge
-    SynapseSection* synapseSection = &getSynapseSectionBlock(data)[synapseSectionId];
-    return addSynapse(*synapseSection, newSynapse);
-}
-
-//==================================================================================================
-
-/**
  * add a new empfy edge-section
  *
  * @return id of the new section, else SPECIAL_STATE if allocation failed
