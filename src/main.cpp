@@ -11,9 +11,13 @@
 #include <root_object.h>
 #include <tests/run_unit_tests.h>
 
+#include <libKitsunemimiPersistence/logger/logger.h>
+
 int
 main(int argc, char *argv[])
 {
+    Kitsunemimi::Persistence::initConsoleLogger(true);
+
     KyoukoMind::RootObject* rootObject = new KyoukoMind::RootObject();
     rootObject->start();
 

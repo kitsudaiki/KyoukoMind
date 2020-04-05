@@ -64,7 +64,7 @@ struct Brick
           const uint32_t y)
     {
         this->brickId = brickId;
-        this->brickPos.x1 = x;
+        this->brickPos.x = x;
         this->brickPos.y = y;
 
         for(uint8_t side = 0; side < 24; side++)

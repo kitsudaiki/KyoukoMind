@@ -139,7 +139,7 @@ getNextAxonPathStep(const uint32_t x,
     uint64_t newPath = currentPath + ((uint64_t)nextSite << ((uint64_t)currentStep * (uint64_t)5));
 
     // make next iteration
-    return getNextAxonPathStep(choosenOne->targetBrickPos.x1,
+    return getNextAxonPathStep(choosenOne->targetBrickPos.x,
                                choosenOne->targetBrickPos.y,
                                23 - nextSite,
                                newPath,

@@ -11,6 +11,8 @@
 #include <core/network_manager.h>
 #include <core/global_values_handler.h>
 
+#include <libKitsunemimiPersistence/logger/logger.h>
+
 namespace KyoukoMind
 {
 

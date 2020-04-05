@@ -14,10 +14,6 @@
 #include <libKitsunemimiCommon/threading/thread.h>
 #include <core/objects/brick.h>
 
-//#include <libKitsunemimiKyoukoCommon/communication_structs/common_messages.h>
-
-//using Kitsunemimi::Chan::Common::TransferDataMessage;
-
 namespace KyoukoMind
 {
 class GlobalValuesHandler;
@@ -47,11 +43,8 @@ private:
     float m_weightMap[25];
     float m_totalWeightMap = 0.0f;
 
-    bool m_enableMonitoring = true;
-    //TransferDataMessage* m_monitoringMessage = nullptr;
-
-    bool m_enableClient = true;
-    //* m_clienOutputMessage = nullptr;
+    DataBuffer m_clientBuffer;
+    DataBuffer m_monitoringBuffer;
 };
 
 } // namespace KyoukoMind

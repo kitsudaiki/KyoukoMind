@@ -81,7 +81,9 @@ ProcessingUnit::run()
             postLearning(*brick);
             memorizeSynapses(*brick);
 
-            finishCycle(*brick, nullptr, nullptr);
+            finishCycle(*brick,
+                        m_clientBuffer,
+                        m_monitoringBuffer);
 
             /*
             // monitoring

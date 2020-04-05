@@ -4,10 +4,10 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
-LIBS += -L../libKitsunemimiKyoukoNetwork/src -lKitsunemimiKyoukoNetwork
-LIBS += -L../libKitsunemimiKyoukoNetwork/src/debug -lKitsunemimiKyoukoNetwork
-LIBS += -L../libKitsunemimiKyoukoNetwork/src/release -lKitsunemimiKyoukoNetwork
-INCLUDEPATH += ../libKitsunemimiKyoukoNetwork/include
+LIBS += -L../libKitsunemimiKyoukoCommon -lKitsunemimiKyoukoCommon
+LIBS += -L../libKitsunemimiKyoukoCommon/debug -lKitsunemimiKyoukoCommon
+LIBS += -L../libKitsunemimiKyoukoCommon/release -lKitsunemimiKyoukoCommon
+INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
 
 LIBS += -L../libKitsunemimiProjectNetwork/src -lKitsunemimiProjectNetwork
 LIBS += -L../libKitsunemimiProjectNetwork/src/debug -lKitsunemimiProjectNetwork
@@ -29,10 +29,14 @@ LIBS += -L../libKitsunemimiJson/src/debug -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/release -lKitsunemimiJson
 INCLUDEPATH += ../libKitsunemimiJson/include
 
+LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
+LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
+LIBS += -L../libKitsunemimiArgs/src/release -lKitsunemimiArgs
+INCLUDEPATH += ../libKitsunemimiArgs/include
 
 LIBS += -L../libKitsunemimiPersistence/src -lKitsunemimiPersistence
-LIBS += -L./libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
-LIBS += -L./libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
+LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
+LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
 
 LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt

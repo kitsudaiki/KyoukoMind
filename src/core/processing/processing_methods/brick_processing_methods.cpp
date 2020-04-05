@@ -10,17 +10,14 @@
 #include "brick_processing_methods.h"
 
 #include <core/objects/brick.h>
+#include <core/objects/container_definitions.h>
 
 #include <core/processing/processing_methods/message_processing_methods.h>
 #include <core/processing/processing_methods/brick_item_methods.h>
 
-//#include <libKitsunemimiKyoukoCommon/communication_structs/monitorin_contianer.h>
-//#include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
-//#include <libKitsunemimiKyoukoCommon/communication_structs/common_messages.h>
-
-//using Kitsunemimi::Chan::Common::MonitoringMessage;
-//using Kitsunemimi::Chan::Common::MindOutputData;
-//using Kitsunemimi::Chan::Common::TransferDataMessage;
+#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
+#include <libKitsunemimiKyoukoCommon/communication_structs/client_contianer.h>
+#include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
 
 namespace KyoukoMind
 {
@@ -276,144 +273,6 @@ finishSide(Brick &brick,
     }
 }
 
-/**
- * @brief finishCycle
- * @param brick
- * @param monitoringMessage
- * @param clientMessage
- */
-void
-finishCycle(Brick &brick,
-            TransferDataMessage* monitoringMessage,
-            TransferDataMessage* clientMessage)
-{
-    // finish standard-neighbors
-    for(uint8_t side = 0; side < 25; side++)
-    {
-        finishSide(brick, side);
-    }
-
-    /*
-    // finish monitoring
-    if(monitoringMessage != nullptr)
-    {
-        assert(monitoringMessage->type != UNDEFINED_MESSAGE);
-
-        monitoringMessage->source = MIND;
-        monitoringMessage->target = MONITORING;
-        KyoukoNetwork::m_mindClient->sendData((uint8_t*)monitoringMessage,
-                                              sizeof(DataMessage));
-        monitoringMessage->init();
-    }
-
-    // finish client
-    if(clientMessage != nullptr
-            && brick->isOutputBrick)
-    {
-        assert(clientMessage->type != UNDEFINED_MESSAGE);
-
-        clientMessage->source = MIND;
-        clientMessage->target = CLIENT;
-        KyoukoNetwork::m_mindClient->sendData((uint8_t*)clientMessage,
-                                              sizeof(DataMessage));
-        clientMessage->init();
-    }
-    */
-}
-
-/**
- * @brief reportStatus
- */
-void
-writeStatus(Brick &brick, TransferDataMessage* message)
-{
-    if(message == nullptr) {
-        return;
-    }
-
-    GlobalValues globalValue = RootObject::m_globalValuesHandler->getGlobalValues();
-
-    /*
-    // fill message
-    MonitoringMessage monitoringMessage;
-    monitoringMessage.brickId = brick->brickId;
-    monitoringMessage.xPos = brick->brickPos.x;
-    monitoringMessage.yPos = brick->brickPos.y;
-
-    // edges
-    const DataConnection* edgeConnection = &brick->dataConnections[EDGE_DATA];
-    if(edgeConnection->inUse == 1) {
-        monitoringMessage.numberOfEdgeSections = edgeConnection->numberOfItems
-                                                 - edgeConnection->numberOfDeletedDynamicItems;
-    }
-
-    // nodes
-    const DataConnection* nodeConnection = &brick->dataConnections[NODE_DATA];
-    if(nodeConnection->inUse == 1) {
-        monitoringMessage.numberOfNodes = nodeConnection->numberOfItems
-                                          - nodeConnection->numberOfDeletedDynamicItems;
-    }
-
-    // synapses
-    const DataConnection* synapseConnection = &brick->dataConnections[SYNAPSE_DATA];
-    if(synapseConnection->inUse == 1) {
-        monitoringMessage.numberOfSynapseSections = synapseConnection->numberOfItems
-                                                   - synapseConnection->numberOfDeletedDynamicItems;
-    }
-
-    monitoringMessage.globalLearning = globalValue.globalLearningOffset;
-    monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
-
-    // add new container to message
-    assert(message->type != UNDEFINED_MESSAGE);
-    memcpy(&message->data[message->size], &monitoringMessage,
-           sizeof(MonitoringMessage));
-    message->size += sizeof(MonitoringMessage);
-
-    // send message if necessary
-    if(message->size > 460)
-    {
-        message->source = MIND;
-        message->target = MONITORING;
-        KyoukoNetwork::m_mindClient->sendData((uint8_t*)message,
-                                              sizeof(DataMessage));
-        message->init();
-    }
-    */
-}
-
-/**
- * @brief reportStatus
- */
-void
-writeOutput(Brick &brick, TransferDataMessage* message)
-{
-    if(message == nullptr) {
-        return;
-    }
-    /*
-    // fill message
-    MindOutputData outputMessage;
-    outputMessage.value = getSummedValue(brick);
-    outputMessage.brickId = brick->brickId;
-
-    assert(message->type != UNDEFINED_MESSAGE);
-
-    memcpy(&message->data[message->size],
-           &outputMessage,
-           sizeof(MindOutputData));
-    message->size += sizeof(MindOutputData);
-
-    if(message->size > 460)
-    {
-        message->source = MIND;
-        message->target = CLIENT;
-        KyoukoNetwork::m_mindClient->sendData((uint8_t*)message,
-                                              sizeof(DataMessage));
-        message->init();
-    }
-    */
-}
 //==================================================================================================
 
 /**
@@ -462,6 +321,87 @@ getSummedValue(Brick &brick)
     result /= 10.0f;
 
     return result;
+}
+
+/**
+ * @brief finishCycle
+ * @param brick
+ * @param monitoringMessage
+ * @param clientMessage
+ */
+void
+finishCycle(Brick &brick,
+            DataBuffer &clientMessage,
+            DataBuffer &monitoringMessage)
+{
+    // finish standard-neighbors
+    for(uint8_t side = 0; side < 25; side++)
+    {
+        finishSide(brick, side);
+    }
+
+    clientMessage.bufferPosition = 0;
+    monitoringMessage.bufferPosition = 0;
+
+    // TODO: send
+}
+
+/**
+ * @brief reportStatus
+ */
+void
+writeStatus(Brick &brick,
+            DataBuffer &buffer)
+{
+    GlobalValues globalValue = RootObject::m_globalValuesHandler->getGlobalValues();
+
+    // fill message
+    Kitsunemimi::Kyouko::MonitoringMessage monitoringMessage;
+    monitoringMessage.brickId = brick.brickId;
+    monitoringMessage.xPos = brick.brickPos.x;
+    monitoringMessage.yPos = brick.brickPos.y;
+
+    // edges
+    const DataConnection* edgeConnection = &brick.dataConnections[EDGE_DATA];
+    if(edgeConnection->inUse == 1) {
+        monitoringMessage.numberOfEdgeSections = edgeConnection->numberOfItems
+                                                 - edgeConnection->numberOfDeletedDynamicItems;
+    }
+
+    // nodes
+    const DataConnection* nodeConnection = &brick.dataConnections[NODE_DATA];
+    if(nodeConnection->inUse == 1) {
+        monitoringMessage.numberOfNodes = nodeConnection->numberOfItems
+                                          - nodeConnection->numberOfDeletedDynamicItems;
+    }
+
+    // synapses
+    const DataConnection* synapseConnection = &brick.dataConnections[SYNAPSE_DATA];
+    if(synapseConnection->inUse == 1) {
+        monitoringMessage.numberOfSynapseSections = synapseConnection->numberOfItems
+                                                   - synapseConnection->numberOfDeletedDynamicItems;
+    }
+
+    monitoringMessage.globalLearning = globalValue.globalLearningOffset;
+    monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
+
+    Kitsunemimi::addObjectToBuffer(buffer, &monitoringMessage);
+}
+
+/**
+ * @brief writeOutput
+ * @param brick
+ * @param buffer
+ */
+void
+writeOutput(Brick &brick,
+            DataBuffer &buffer)
+{
+    Kitsunemimi::Kyouko::MindOutputData outputMessage;
+    outputMessage.value = getSummedValue(brick);
+    outputMessage.brickId = brick.brickId;
+
+    Kitsunemimi::addObjectToBuffer(buffer, &outputMessage);
 }
 
 } // namespace KyoukoMind

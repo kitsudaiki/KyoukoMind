@@ -34,11 +34,11 @@ void memorizeSynapses(Brick &brick);
 void finishSide(Brick &brick,
                 const uint8_t side);
 void finishCycle(Brick &brick,
-                 TransferDataMessage* monitoringMessage,
-                 TransferDataMessage* clientMessage);
+                 DataBuffer &monitoringMessage,
+                 DataBuffer &clientMessage);
 
-void writeStatus(Brick &brick, TransferDataMessage *message);
-void writeOutput(Brick &brick, TransferDataMessage* message);
+void writeStatus(Brick &brick, DataBuffer &buffer);
+void writeOutput(Brick &brick, DataBuffer &buffer);
 
 } // namespace KyoukoMind
 

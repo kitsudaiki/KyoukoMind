@@ -123,7 +123,7 @@ connectAllBricks(InitStructure *metaStructure)
                                                            targetId);
 
                     Neighbor* neighbor = &(*metaStructure)[x][y].brick->neighbors[side];
-                    neighbor->targetBrickPos.x1 = next.first;
+                    neighbor->targetBrickPos.x = next.first;
                     neighbor->targetBrickPos.y = next.second;
 
                 }

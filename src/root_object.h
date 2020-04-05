@@ -7,8 +7,8 @@
  *  Apache License Version 2.0
  */
 
-#ifndef KYOUKO_NETWORK_H
-#define KYOUKO_NETWORK_H
+#ifndef KYOUKO_ROOT_OBJECT_H
+#define KYOUKO_ROOT_OBJECT_H
 
 #include <common.h>
 
@@ -16,6 +16,13 @@
 
 #include <core/brick_handler.h>
 #include <core/global_values_handler.h>
+
+namespace Kitsunemimi {
+namespace Project {
+class Session;
+class SessionController;
+}
+}
 
 namespace KyoukoMind
 {
@@ -35,9 +42,12 @@ public:
     void start();
 
 private:
+    Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
+    Kitsunemimi::Project::Session* m_clientSession = nullptr;
+    Kitsunemimi::Project::Session* m_monitoringSession = nullptr;
     NetworkManager* m_networkManager = nullptr;
 };
 
 } // namespace KyoukoMind
 
-#endif //KYOUKO_NETWORK_H
+#endif //KYOUKO_ROOT_OBJECT_H
