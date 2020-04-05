@@ -11,6 +11,7 @@
 #include <core/network_manager.h>
 #include <core/global_values_handler.h>
 #include <core/objects/brick.h>
+#include <network_callbacks.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
@@ -34,6 +35,16 @@ RootObject::RootObject()
 {
     m_brickHandler = new BrickHandler();
     m_globalValuesHandler = new GlobalValuesHandler();
+
+    m_sessionController = new Kitsunemimi::Project::SessionController(this, &sessionCallback,
+                                                                      this, &streamDataCallback,
+                                                                      this, &standaloneDataCallback,
+                                                                      this, &errorCallback);
+}
+
+RootObject::~RootObject()
+{
+    m_sessionController->closeServer(m_serverId);
 }
 
 /**

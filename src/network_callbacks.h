@@ -4,6 +4,7 @@
 #include <root_object.h>
 #include <core/objects/container_definitions.h>
 #include <core/processing/processing_methods/brick_initializing_methods.h>
+#include <core/processing/processing_methods/brick_processing_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -45,93 +46,111 @@ streamDataCallback(void* target,
     {
         const uint8_t type = dataObj[dataPos];
 
-        if(type == CLIENT_REGISTER_INPUT)
+        switch(type)
         {
-            std::cout<<"CLIENT_REGISTER_INPUT"<<std::endl;
-            const ClientRegisterInput content = *((ClientRegisterInput*)&dataObj[dataPos]);
-
-            Brick* incomingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
-            addClientConnection(*incomingBrick, true, false);
-            dataPos += sizeof(ClientRegisterInput);
-        }
-
-        if(type == CLIENT_REGISTER_OUTPUT)
-        {
-            std::cout<<"CLIENT_REGISTER_OUTPUT"<<std::endl;
-            const ClientRegisterOutput content = *((ClientRegisterOutput*)&dataObj[dataPos]);
-
-            Brick* outgoingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
-            addClientConnection(*outgoingBrick, false, true);
-            dataPos += sizeof(ClientRegisterOutput);
-        }
-
-        if(type == CLIENT_CONTROL_LEARNING)
-        {
-            std::cout<<"CLIENT_CONTROL_LEARNING"<<std::endl;
-            const ClientControlLearning content = *((ClientControlLearning*)&dataObj[dataPos]);
-
-            GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
-            GlobalValues gValues = handler->getGlobalValues();
-            gValues.globalLearningTemp = content.learnTemp;
-            gValues.globalLearningOffset = content.learnOffset;
-            handler->setGlobalValues(gValues);
-            dataPos += sizeof(ClientControlLearning);
-        }
-
-        if(type == CLIENT_CONTROL_MEMORIZING)
-        {
-            std::cout<<"CLIENT_CONTROL_MEMORIZING"<<std::endl;
-            ClientControlMemorizing content = *((ClientControlMemorizing*)&dataObj[dataPos]);
-
-            GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
-            GlobalValues gValues = handler->getGlobalValues();
-            gValues.globalMemorizingTemp = content.memTemp;
-            gValues.globalMemorizingOffset = content.memOffset;
-            handler->setGlobalValues(gValues);
-            dataPos += sizeof(ClientControlMemorizing);
-        }
-
-        if(type == CLIENT_CONTROL_GLIA)
-        {
-            std::cout<<"CLIENT_CONTROL_GLIA"<<std::endl;
-            const ClientControlGlia content = *((ClientControlGlia*)&dataObj[dataPos]);
-
-            GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
-            GlobalValues gValues = handler->getGlobalValues();
-            gValues.globalGlia = content.glia;
-            handler->setGlobalValues(gValues);
-            dataPos += sizeof(ClientControlGlia);
-        }
-
-        if(type == CLIENT_CONTROL_OUTPUT_LEARNING)
-        {
-            std::cout<<"CLIENT_CONTROL_OUTPUT_LEARNING"<<std::endl;
-            const ClientControlOutputLearning content
-                    = *((ClientControlOutputLearning*)&dataObj[dataPos]);
-            Brick* brick = rootObject->m_brickHandler->getBrick(content.brickId);
-
-            if(brick != nullptr) {
-                brick->learningOverride = content.outputLearning;
-            }
-            dataPos += sizeof(ClientControlOutputLearning);
-        }
-
-        if(type == CLIENT_LEARN_INPUT)
-        {
-            //std::cout<<"CLIENT_LEARN_INPUT"<<std::endl;
-            const ClientLearnInputData content = *((ClientLearnInputData*)&dataObj[dataPos]);
-            Brick* brick = rootObject->m_brickHandler->getBrick(content.brickId);
-            if(brick->dataConnections[NODE_DATA].inUse > 0)
+            case CLIENT_REGISTER_INPUT:
             {
-                for(uint16_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
-                {
-                    DirectEdgeContainer edge;
-                    edge.weight = content.value;
-                    edge.targetNodeId = i;
-                    //sendData(brick, 24, edge);
-                }
+                LOG_DEBUG("CLIENT_REGISTER_INPUT");
+                const ClientRegisterInput content = *((ClientRegisterInput*)&dataObj[dataPos]);
+
+                Brick* incomingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
+                addClientConnection(*incomingBrick, true, false);
+                dataPos += sizeof(ClientRegisterInput);
+                break;
             }
-            dataPos += sizeof(ClientLearnInputData);
+
+            case CLIENT_REGISTER_OUTPUT:
+            {
+                LOG_DEBUG("CLIENT_REGISTER_OUTPUT");
+                const ClientRegisterOutput content = *((ClientRegisterOutput*)&dataObj[dataPos]);
+
+                Brick* outgoingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
+                addClientConnection(*outgoingBrick, false, true);
+                dataPos += sizeof(ClientRegisterOutput);
+                break;
+            }
+
+            case CLIENT_CONTROL_LEARNING:
+            {
+                LOG_DEBUG("CLIENT_CONTROL_LEARNING");
+                const ClientControlLearning content = *((ClientControlLearning*)&dataObj[dataPos]);
+
+                GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
+                GlobalValues gValues = handler->getGlobalValues();
+                gValues.globalLearningTemp = content.learnTemp;
+                gValues.globalLearningOffset = content.learnOffset;
+                handler->setGlobalValues(gValues);
+                dataPos += sizeof(ClientControlLearning);
+                break;
+            }
+
+            case CLIENT_CONTROL_MEMORIZING:
+            {
+                LOG_DEBUG("CLIENT_CONTROL_MEMORIZING");
+                ClientControlMemorizing content = *((ClientControlMemorizing*)&dataObj[dataPos]);
+
+                GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
+                GlobalValues gValues = handler->getGlobalValues();
+                gValues.globalMemorizingTemp = content.memTemp;
+                gValues.globalMemorizingOffset = content.memOffset;
+                handler->setGlobalValues(gValues);
+                dataPos += sizeof(ClientControlMemorizing);
+                break;
+            }
+
+            case CLIENT_CONTROL_GLIA:
+            {
+                LOG_DEBUG("CLIENT_CONTROL_GLIA");
+                const ClientControlGlia content = *((ClientControlGlia*)&dataObj[dataPos]);
+
+                GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
+                GlobalValues gValues = handler->getGlobalValues();
+                gValues.globalGlia = content.glia;
+                handler->setGlobalValues(gValues);
+                dataPos += sizeof(ClientControlGlia);
+                break;
+            }
+
+            case CLIENT_CONTROL_OUTPUT_LEARNING:
+            {
+                LOG_DEBUG("CLIENT_CONTROL_OUTPUT_LEARNING");
+                const ClientControlOutputLearning content
+                        = *((ClientControlOutputLearning*)&dataObj[dataPos]);
+                Brick* brick = rootObject->m_brickHandler->getBrick(content.brickId);
+                assert(brick != nullptr);
+
+                brick->learningOverride = content.outputLearning;
+
+                dataPos += sizeof(ClientControlOutputLearning);
+                break;
+            }
+
+            case CLIENT_LEARN_INPUT:
+            {
+                LOG_DEBUG("CLIENT_LEARN_INPUT");
+                const ClientLearnInputData content = *((ClientLearnInputData*)&dataObj[dataPos]);
+                Brick* brick = rootObject->m_brickHandler->getBrick(content.brickId);
+                assert(brick != nullptr);
+
+                Kitsunemimi::StackBuffer* newBuffer = new StackBuffer();
+                const uint16_t ok = brick->dataConnections[NODE_DATA].inUse > 0;
+
+                for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
+                {
+                    DirectEdgeContainer newEdge;
+                    newEdge.weight = content.value;
+                    newEdge.targetNodeId = i;
+                    addObjectToBuffer(*newBuffer, &newEdge);
+                }
+
+                finishSide(*brick, 24);
+                dataPos += sizeof(ClientLearnInputData);
+                break;
+            }
+
+            default:
+                assert(false);
+                break;
         }
     }
 }

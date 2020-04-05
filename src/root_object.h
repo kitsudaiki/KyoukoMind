@@ -32,6 +32,7 @@ class RootObject
 
 public:
     RootObject();
+    ~RootObject();
 
     static KyoukoMind::BrickHandler* m_brickHandler;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;

@@ -49,7 +49,7 @@ main(int argc, char *argv[])
     if(argParser.wasSet("log-dir")) {
         logDirPath = argParser.getStringValues("log-dir").at(0);
     }
-    std::string logBaseName = "ToriiGateway";
+    std::string logBaseName = "KyoukoMind";
     if(argParser.wasSet("log-base")) {
         logBaseName = argParser.getStringValues("log-base").at(0);
     }

@@ -343,7 +343,6 @@ finishCycle(Brick &brick,
     clientMessage.bufferPosition = 0;
     monitoringMessage.bufferPosition = 0;
 
-    // TODO: send
 }
 
 /**
