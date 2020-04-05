@@ -42,12 +42,14 @@ public:
     static Kitsunemimi::Project::Session* m_clientSession;
     static Kitsunemimi::Project::Session* m_monitoringSession;
 
-    void start();
-
+    bool start();
+    bool initServer();
 
 private:
     Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
     NetworkManager* m_networkManager = nullptr;
+    uint32_t m_serverId = 0;
+
 };
 
 } // namespace KyoukoMind

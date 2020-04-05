@@ -4,6 +4,16 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
+LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
+LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
+LIBS += -L../libKitsunemimiArgs/src/release -lKitsunemimiArgs
+INCLUDEPATH += ../libKitsunemimiArgs/include
+
+LIBS += -L../libKitsunemimiConfig/src -lKitsunemimiConfig
+LIBS += -L../libKitsunemimiConfig/src/debug -lKitsunemimiConfig
+LIBS += -L../libKitsunemimiConfig/src/release -lKitsunemimiConfig
+INCLUDEPATH += ../libKitsunemimiConfig/include
+
 LIBS += -L../libKitsunemimiKyoukoCommon -lKitsunemimiKyoukoCommon
 LIBS += -L../libKitsunemimiKyoukoCommon/debug -lKitsunemimiKyoukoCommon
 LIBS += -L../libKitsunemimiKyoukoCommon/release -lKitsunemimiKyoukoCommon
@@ -28,11 +38,6 @@ LIBS += -L../libKitsunemimiJson/src -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/debug -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/release -lKitsunemimiJson
 INCLUDEPATH += ../libKitsunemimiJson/include
-
-LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
-LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
-LIBS += -L../libKitsunemimiArgs/src/release -lKitsunemimiArgs
-INCLUDEPATH += ../libKitsunemimiArgs/include
 
 LIBS += -L../libKitsunemimiPersistence/src -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
@@ -77,7 +82,10 @@ HEADERS += \
     src/root_object.h \
     tests/core/bricks/brick_methods/buffer_control_methods_test.h \
     tests/initializing/init_test.h \
-    tests/run_unit_tests.h
+    tests/run_unit_tests.h \
+    src/args.h \
+    src/config.h \
+    src/network_callbacks.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
