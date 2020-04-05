@@ -77,7 +77,6 @@ HEADERS += \
     src/initializing/file_parser.h \
     src/initializing/init_meta_data.h \
     src/initializing/network_initializer.h \
-    src/settings/config.h \
     src/common.h \
     src/root_object.h \
     tests/core/bricks/brick_methods/buffer_control_methods_test.h \
@@ -98,7 +97,6 @@ SOURCES += \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
-    src/settings/config.cpp \
     src/main.cpp \
     src/root_object.cpp \
     tests/core/bricks/brick_methods/buffer_control_methods_test.cpp \

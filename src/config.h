@@ -9,10 +9,11 @@ namespace ToriiGateway
 void
 registerConfigs()
 {
-    REGISTER_INT_CONFIG("Torii", "port", 1337);
+    REGISTER_INT_CONFIG("Network", "port", 2448);
 
-    REGISTER_STRING_CONFIG("Kyouko", "address", "127.0.0.1");
-    REGISTER_INT_CONFIG("Kyouko", "port", 2448);
+    REGISTER_STRING_CONFIG("Init", "file", "");
+
+    REGISTER_STRING_CONFIG("Storage", "path", "/tmp/KyoukoMind/");
 }
 
 }

@@ -12,8 +12,6 @@
 
 #include <common.h>
 
-#include <settings/config.h>
-
 #include <core/brick_handler.h>
 #include <core/global_values_handler.h>
 
@@ -35,7 +33,6 @@ class RootObject
 public:
     RootObject();
 
-    static KyoukoMind::Config* m_config;
     static KyoukoMind::BrickHandler* m_brickHandler;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
 

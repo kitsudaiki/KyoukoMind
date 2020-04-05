@@ -22,7 +22,6 @@ namespace KyoukoMind
 {
 
 // init static variables
-KyoukoMind::Config* RootObject::m_config = nullptr;
 KyoukoMind::BrickHandler* RootObject::m_brickHandler = nullptr;
 KyoukoMind::GlobalValuesHandler* RootObject::m_globalValuesHandler = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_clientSession = nullptr;
@@ -33,7 +32,6 @@ Kitsunemimi::Project::Session* RootObject::m_monitoringSession = nullptr;
  */
 RootObject::RootObject()
 {
-    m_config = new Config();
     m_brickHandler = new BrickHandler();
     m_globalValuesHandler = new GlobalValuesHandler();
 }
@@ -54,7 +52,7 @@ bool
 RootObject::initServer()
 {
     bool success = false;
-    uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("Kyouko", "port", success));
+    uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("Network", "port", success));
 
     LOG_INFO("create server on port " + std::to_string(port));
     m_serverId = m_sessionController->addTcpServer(port);
