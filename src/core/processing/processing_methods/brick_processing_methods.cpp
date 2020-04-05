@@ -12,8 +12,11 @@
 #include <core/objects/brick.h>
 #include <core/objects/container_definitions.h>
 
-#include <core/processing/processing_methods/message_processing_methods.h>
+#include <core/processing/processing_methods/container_processing_methods.h>
 #include <core/processing/processing_methods/brick_item_methods.h>
+
+#include <libKitsunemimiProjectNetwork/session.h>
+#include <libKitsunemimiProjectNetwork/session_controller.h>
 
 #include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/client_contianer.h>
@@ -21,6 +24,8 @@
 
 namespace KyoukoMind
 {
+
+//==================================================================================================
 
 /**
  * @brief processOutputNodes
@@ -44,6 +49,8 @@ processOutputNodes(Brick &brick)
     }
     return 0;
 }
+
+//==================================================================================================
 
 /**
  * processing of the nodes of a specific node-brick
@@ -138,6 +145,8 @@ processNodes(Brick &brick, float* weightMap)
     return numberOfActiveNodes;
 }
 
+//==================================================================================================
+
 /**
  * @brief NodeBrick::memorizeEdges
  */
@@ -189,6 +198,8 @@ postLearning(Brick &brick)
     }
 }
 
+//==================================================================================================
+
 /**
  * @brief memorizeEdges
  * @param brick
@@ -236,7 +247,7 @@ memorizeSynapses(Brick &brick)
         if(section->totalWeight < DELETE_SYNAPSE_BORDER)
         {
             EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
-            processUpdateDeleteEdge(brick, *currentSection, section->sourceId, 24);
+            processUpdateDeleteEdge(brick, *currentSection, section->sourceId, 22);
             deleteDynamicItem(brick, SYNAPSE_DATA, sectionPos);
         }
         else
@@ -244,32 +255,10 @@ memorizeSynapses(Brick &brick)
             EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
             const float updateValue = section->totalWeight;
             if(updateValue > 0.0f) {
-                processUpdateSetEdge(brick, *currentSection, updateValue, 24);
+                processUpdateSetEdge(brick, *currentSection, updateValue, 22);
             }
         }
         sectionPos++;
-    }
-}
-
-/**
- * @brief finishSide
- * @param brick
- * @param side
- */
-void
-finishSide(Brick &brick,
-           const uint8_t sourceSide)
-{
-    Neighbor* sourceNeighbor = &brick.neighbors[sourceSide];
-    Brick* targetBrick = RootObject::m_brickHandler->getBrick(sourceNeighbor->targetBrickId);
-    Neighbor* targetNeighbor = &targetBrick->neighbors[sourceNeighbor->targetSide];
-
-    sendBuffer(*sourceNeighbor, *targetNeighbor);
-
-    // check if target is finish
-    updateReadyStatus(*targetBrick, sourceNeighbor->targetSide);
-    if(isReady(*targetBrick)) {
-        RootObject::m_brickHandler->addToQueue(targetBrick);
     }
 }
 
@@ -323,6 +312,46 @@ getSummedValue(Brick &brick)
     return result;
 }
 
+//==================================================================================================
+
+/**
+ * @brief finishSide
+ * @param brick
+ * @param side
+ */
+void
+finishSide(Brick &brick,
+           const uint8_t sourceSide)
+{
+    Neighbor* sourceNeighbor = &brick.neighbors[sourceSide];
+    if(sourceNeighbor->targetBrickId == UNINIT_STATE_32) {
+        return;
+    }
+
+    Brick* targetBrick = RootObject::m_brickHandler->getBrick(sourceNeighbor->targetBrickId);
+    assert(targetBrick != nullptr);
+    Neighbor* targetNeighbor = &targetBrick->neighbors[sourceNeighbor->targetSide];
+    assert(sourceSide == targetNeighbor->targetSide);
+
+    // finish side
+    sendBuffer(*sourceNeighbor, *targetNeighbor);
+    updateReadyStatus(*targetBrick, sourceNeighbor->targetSide);
+
+    // check and reschedule target-brick
+    if(isReady(*targetBrick))
+    {
+        LOG_DEBUG("switch brick: " + std::to_string(targetBrick->brickId));
+        targetBrick->readyStatus = 0;
+        for(uint8_t i = 0; i < 23; i++)
+        {
+            switchBuffer(targetBrick->neighbors[i]);
+        }
+        RootObject::m_brickHandler->addToQueue(targetBrick);
+    }
+}
+
+//==================================================================================================
+
 /**
  * @brief finishCycle
  * @param brick
@@ -334,22 +363,34 @@ finishCycle(Brick &brick,
             DataBuffer &clientMessage,
             DataBuffer &monitoringMessage)
 {
+    LOG_DEBUG("finish cycle for brick: " + std::to_string(brick.brickId));
     // finish standard-neighbors
-    for(uint8_t side = 0; side < 25; side++)
+    for(uint8_t side = 0; side < 23; side++)
     {
         finishSide(brick, side);
     }
 
+    if(RootObject::m_clientSession != nullptr) {
+        RootObject::m_clientSession->sendStreamData(clientMessage.data,
+                                                    clientMessage.bufferPosition);
+    }
+
+    if(RootObject::m_monitoringSession != nullptr) {
+        RootObject::m_monitoringSession->sendStreamData(monitoringMessage.data,
+                                                        monitoringMessage.bufferPosition);
+    }
+
     clientMessage.bufferPosition = 0;
     monitoringMessage.bufferPosition = 0;
-
 }
+
+//==================================================================================================
 
 /**
  * @brief reportStatus
  */
 void
-writeStatus(Brick &brick,
+writeMonitoringOutput(Brick &brick,
             DataBuffer &buffer)
 {
     GlobalValues globalValue = RootObject::m_globalValuesHandler->getGlobalValues();
@@ -387,13 +428,15 @@ writeStatus(Brick &brick,
     Kitsunemimi::addObjectToBuffer(buffer, &monitoringMessage);
 }
 
+//==================================================================================================
+
 /**
  * @brief writeOutput
  * @param brick
  * @param buffer
  */
 void
-writeOutput(Brick &brick,
+writeClientOutput(Brick &brick,
             DataBuffer &buffer)
 {
     Kitsunemimi::Kyouko::MindOutputData outputMessage;
@@ -402,5 +445,7 @@ writeOutput(Brick &brick,
 
     Kitsunemimi::addObjectToBuffer(buffer, &outputMessage);
 }
+
+//==================================================================================================
 
 } // namespace KyoukoMind

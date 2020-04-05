@@ -40,7 +40,7 @@ private:
                          Neighbor* neighbors);
 
     // cycle specific data
-    float m_weightMap[25];
+    float m_weightMap[23];
     float m_totalWeightMap = 0.0f;
 
     DataBuffer m_clientBuffer;

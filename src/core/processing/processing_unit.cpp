@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  @file    processing_unit.cpp
  *
  *  @author  Tobias Anker
@@ -16,8 +16,10 @@
 #include <core/objects/brick.h>
 #include <core/objects/container_definitions.h>
 
-#include <core/processing/processing_methods/message_processing_methods.h>
+#include <core/processing/processing_methods/container_processing_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
+
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 namespace KyoukoMind
 {
@@ -29,10 +31,6 @@ namespace KyoukoMind
 ProcessingUnit::ProcessingUnit()
 {
     m_block = true;
-    /*m_monitoringMessage = new TransferDataMessage();
-    m_monitoringMessage->init();
-    m_clienOutputMessage = new TransferDataMessage();
-    m_clienOutputMessage->init();*/
 }
 
 /**
@@ -60,7 +58,7 @@ ProcessingUnit::run()
 
             end = std::chrono::system_clock::now();
             const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-            std::cout << "time: " << (duration / 1000.0f) << '\n';
+            LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
 
             // block thread until next cycle if queue is empty
             blockThread();
@@ -70,7 +68,6 @@ ProcessingUnit::run()
         else
         {
             // main-processing
-            assert(isReady(*brick) == true);
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*brick);
             if(brick->dataConnections[NODE_DATA].inUse == 1) {
@@ -81,25 +78,14 @@ ProcessingUnit::run()
             postLearning(*brick);
             memorizeSynapses(*brick);
 
+            // write output
+            writeClientOutput(*brick, m_clientBuffer);
+            writeMonitoringOutput(*brick, m_monitoringBuffer);
+
+            // finish current block
             finishCycle(*brick,
                         m_clientBuffer,
                         m_monitoringBuffer);
-
-            /*
-            // monitoring
-            if(m_enableMonitoring) {
-                writeStatus(brick, m_monitoringMessage);
-            }
-
-            // client-output
-            if(m_enableClient && brick->isOutputBrick) {
-                writeOutput(brick, m_clienOutputMessage);
-            }
-
-            finishCycle(brick,
-                        m_monitoringMessage,
-                        m_clienOutputMessage);
-            */
         }
     }
 }
@@ -115,7 +101,7 @@ ProcessingUnit::refillWeightMap(Brick &brick,
     m_totalWeightMap = 0.0f;
 
     // set all weights
-    for(uint8_t side = 0; side < 24; side++)
+    for(uint8_t side = 0; side < 22; side++)
     {
         if(neighbors[side].targetBrickId != UNINIT_STATE_32
                 && side != initialSide)
@@ -136,17 +122,17 @@ ProcessingUnit::refillWeightMap(Brick &brick,
     {
         // TODO: replace the const-value of 0.2f by define
         const float val = m_totalWeightMap * 0.2f;
-        m_weightMap[24] = val;
+        m_weightMap[22] = val;
         m_totalWeightMap += val;
     }
     else
     {
-        m_weightMap[24] = 0.0f;
+        m_weightMap[22] = 0.0f;
     }
 
     // recalc values
     m_totalWeightMap = 1.0f / m_totalWeightMap;
-    for(uint8_t side = 0; side < 25; side++)
+    for(uint8_t side = 0; side < 23; side++)
     {
         m_weightMap[side] *= m_totalWeightMap;
     }
@@ -161,7 +147,7 @@ void
 ProcessingUnit::processIncomingMessages(Brick &brick)
 {
     // process normal communication
-    for(uint8_t side = 0; side < 25; side++)
+    for(uint8_t side = 0; side < 23; side++)
     {
         if(brick.neighbors[side].inUse == 1)
         {
@@ -209,12 +195,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 UpdateEdgeContainer* edge = static_cast<UpdateEdgeContainer*>(obj);
                 data += sizeof(UpdateEdgeContainer);
 
-                if(edge->targetId == UNINIT_STATE_32
-                        && edge->updateValue >= 0.0f)
-                {
-                    continue;
-                }
-
+                assert(edge->targetId != UNINIT_STATE_32);
                 processUpdateEdge(brick,
                                   edge->targetId,
                                   edge->updateValue,
@@ -228,12 +209,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 PendingEdgeContainer* edge = static_cast<PendingEdgeContainer*>(obj);
                 data += sizeof(PendingEdgeContainer);
 
-                if(edge->sourceEdgeSectionId == UNINIT_STATE_32
-                        && edge->weight >= 0.0f)
-                {
-                    continue;
-                }
-
+                assert(edge->sourceEdgeSectionId != UNINIT_STATE_32);
                 processPendingEdge(brick,
                                    edge->sourceEdgeSectionId,
                                    edge->sourceSide,
@@ -247,12 +223,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 EdgeContainer* edge = static_cast<EdgeContainer*>(obj);
                 data += sizeof(EdgeContainer);
 
-                if(edge->targetEdgeSectionId == UNINIT_STATE_32
-                        && edge->weight > 0.0f)
-                {
-                    continue;
-                }
-
+                assert(edge->targetEdgeSectionId != UNINIT_STATE_32);
                 processEdgeForwardSection(brick,
                                           edge->targetEdgeSectionId,
                                           edge->weight,
@@ -265,12 +236,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 AxonEdgeContainer* edge = static_cast<AxonEdgeContainer*>(obj);
                 data += sizeof(AxonEdgeContainer);
 
-                if(edge->targetAxonId == UNINIT_STATE_32
-                        && edge->weight >= 0.0f)
-                {
-                    continue;
-                }
-
+                assert(edge->targetAxonId != UNINIT_STATE_32);
                 processAxon(brick,
                             edge->targetAxonId,
                             edge->targetBrickPath,
@@ -284,12 +250,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 LearingEdgeContainer* edge = static_cast<LearingEdgeContainer*>(obj);
                 data += sizeof(LearingEdgeContainer);
 
-                if(edge->sourceEdgeSectionId == UNINIT_STATE_32
-                        && edge->weight >= 0.0f)
-                {
-                    continue;
-                }
-
+                assert(edge->sourceEdgeSectionId != UNINIT_STATE_32);
                 processLerningEdge(brick,
                                    edge->sourceEdgeSectionId,
                                    edge->weight,
@@ -304,14 +265,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 data += sizeof(LearningEdgeReplyContainer);
 
                 EdgeSection* edgeSections = getEdgeBlock(&brick.dataConnections[EDGE_DATA]);
-
-                if(edge->sourceEdgeSectionId == UNINIT_STATE_32) {
-                    continue;
-                }
-                if(edgeSections[edge->sourceEdgeSectionId].edges[side].weight == 0.0f) {
-                    continue;
-                }
-
+                assert(edge->sourceEdgeSectionId != UNINIT_STATE_32);
                 edgeSections[edge->sourceEdgeSectionId].edges[side].targetId =
                         edge->targetEdgeSectionId;
                 break;
@@ -322,12 +276,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 DirectEdgeContainer* edge = static_cast<DirectEdgeContainer*>(obj);
                 data += sizeof(DirectEdgeContainer);
 
-                if(brick.isInputBrick == 0
-                        || brick.dataConnections[NODE_DATA].inUse == 0)
-                {
-                    continue;
-                }
-
+                assert(brick.isInputBrick != 0);
                 Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
                 Node* node = &nodes[edge->targetNodeId];
                 node->currentState = edge->weight;

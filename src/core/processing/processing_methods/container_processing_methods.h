@@ -284,7 +284,7 @@ processUpdateDeleteEdge(Brick &brick,
     UpdateEdgeContainer newEdge;
     newEdge.updateValue = currentSection.edges[inititalSide].weight;
 
-    if(inititalSide < 25)
+    if(inititalSide < 23)
     {
         currentSection.edges[inititalSide].weight = 0.0f;
         currentSection.edges[inititalSide].targetId = UNINIT_STATE_32;
@@ -364,11 +364,11 @@ learningEdgeSection(Brick &brick,
 {
     if(weight >= 0.5f || currentSection->status == ACTIVE_SECTION)
     {
-        for(uint8_t side = 0; side < 25; side++)
+        for(uint8_t side = 0; side < 23; side++)
         {
             const float currentSideWeight = weight * weightMap[side];
 
-            if(side == 24)
+            if(side == 22)
             {
                 if(brick.isInputBrick
                         || weightMap[side] <= NEW_FORWARD_EDGE_BORDER
@@ -465,7 +465,7 @@ processEdgeForwardSection(Brick &brick,
             continue;
         }
 
-        if(sideCounter == 24)
+        if(sideCounter == 22)
         {
             assert(tempEdge.targetId != UNINIT_STATE_32);
             processSynapseSection(brick, tempEdge.targetId, tempEdge.weight);
@@ -487,7 +487,7 @@ processEdgeForwardSection(Brick &brick,
                 PendingEdgeContainer newEdge;
                 newEdge.weight = tempEdge.weight * ratio;
                 newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
-                newEdge.sourceSide = 23 - sideCounter;
+                newEdge.sourceSide = 25 - sideCounter;
                 addObjectToBuffer(*brick.neighbors[sideCounter].outgoingBuffer,
                                   &newEdge);
             }

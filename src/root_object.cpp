@@ -55,6 +55,7 @@ RootObject::start()
 {
     // network-manager
     m_networkManager = new NetworkManager();
+    m_networkManager->startThread();
 
     return initServer();
 }

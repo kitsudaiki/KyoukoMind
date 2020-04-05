@@ -40,6 +40,8 @@ streamDataCallback(void* target,
     RootObject* rootObject = static_cast<RootObject*>(target);
     const uint8_t* dataObj = static_cast<const uint8_t*>(data);
 
+    LOG_DEBUG("process incoming message");
+
     uint64_t dataPos = 0;
 
     while(dataPos < dataSize)
@@ -143,7 +145,19 @@ streamDataCallback(void* target,
                     addObjectToBuffer(*newBuffer, &newEdge);
                 }
 
-                finishSide(*brick, 24);
+                const bool ret = sendBuffer(brick->neighbors[22], newBuffer);
+                if(ret)
+                {
+                    updateReadyStatus(*brick, 22);
+                    if(isReady(*brick)) {
+                        RootObject::m_brickHandler->addToQueue(brick);
+                    }
+                }
+                else
+                {
+                    delete newBuffer;
+                }
+
                 dataPos += sizeof(ClientLearnInputData);
                 break;
             }

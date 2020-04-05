@@ -60,7 +60,7 @@ void InitTest::checkInit()
     {
         Brick* brick = RootObject::m_brickHandler->getBrickByIndex(i);
 
-        for(uint32_t side = 0; side < 24; side++)
+        for(uint32_t side = 0; side < 22; side++)
         {
             if(brick->neighbors[side].targetBrickId != UNINIT_STATE_32)
             {

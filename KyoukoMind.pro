@@ -69,7 +69,6 @@ HEADERS += \
     src/core/processing/processing_methods/brick_initializing_methods.h \
     src/core/processing/processing_methods/brick_item_methods.h \
     src/core/processing/processing_methods/brick_processing_methods.h \
-    src/core/processing/processing_methods/message_processing_methods.h \
     src/core/brick_handler.h \
     src/core/global_values_handler.h \
     src/core/network_manager.h \
@@ -84,7 +83,8 @@ HEADERS += \
     tests/run_unit_tests.h \
     src/args.h \
     src/config.h \
-    src/network_callbacks.h
+    src/network_callbacks.h \
+    src/core/processing/processing_methods/container_processing_methods.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \

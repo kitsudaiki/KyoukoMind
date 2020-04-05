@@ -22,10 +22,16 @@ initNeighbor(Brick &brick,
         return false;
     }
 
+    if(brick.brickId == 22) {
+        LOG_DEBUG("+++++++++++++++++++++ side: " + std::to_string(sourceSide) + "    readyMask: " + std::to_string(brick.readyMask));
+    }
     // update ready-mask
     uint32_t pos = 0x1;
-    brick.readyMask = brick.readyMask + (pos << sourceSide);
-
+    brick.readyMask = brick.readyMask | (pos << sourceSide);
+    //brick.readyStatus = brick.readyMask | (pos << sourceSide);
+    if(brick.brickId == 22) {
+        LOG_DEBUG("+++++++++++++++++++++ side: " + std::to_string(sourceSide) + "    readyMask: " + std::to_string(brick.readyMask));
+    }
     // init neighbo
     initNeighbor(*neighbor,
                  sourceSide,
@@ -55,6 +61,7 @@ uninitNeighbor(Brick &brick,
     // update ready-mask
     uint32_t pos = 0x1;
     brick.readyMask = brick.readyMask - (pos << side);
+    brick.readyStatus = brick.readyMask - (pos << side);
 
     // uninit
     // TODO: issue #58
@@ -79,7 +86,7 @@ connectBricks(Brick &sourceBrick,
               Brick &targetBrick)
 {
     // check if side is valid
-    if(sourceSide >= 24) {
+    if(sourceSide >= 26) {
         return false;
     }
 
@@ -98,6 +105,9 @@ connectBricks(Brick &sourceBrick,
     initNeighbor(sourceBrick, sourceSide, targetBrick.brickId);
     initNeighbor(targetBrick, 23-sourceSide, sourceBrick.brickId);
 
+    assert(sourceNeighbor->targetSide == 23 - sourceSide);
+    assert(targetNeighbor->targetSide == sourceSide);
+
     return true;
 }
 
@@ -114,7 +124,7 @@ disconnectBricks(Brick &sourceBrick,
                  Brick &targetBrick)
 {
     // check if side is valid
-    if(sourceSide >= 24) {
+    if(sourceSide >= 26) {
         return false;
     }
 
@@ -311,7 +321,7 @@ addClientConnection(Brick &brick,
 
         // init the incoming-message-queue
         // for incoming messages from the client
-        initNeighbor(brick, 24, UNINIT_STATE_32);
+        initNeighbor(brick, 22, UNINIT_STATE_32);
     }
 
     // add output-connection

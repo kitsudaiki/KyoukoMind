@@ -21,6 +21,8 @@
 #include <core/objects/neighbor.h>
 #include <core/objects/empty_placeholder.h>
 
+#include <libKitsunemimiPersistence/logger/logger.h>
+
 namespace KyoukoMind
 {
 
@@ -44,9 +46,9 @@ struct Brick
 
     DataBuffer headerBuffer;
 
-    // 0 - 23: neighbor-bricks
-    // 24: the current brick
-    Neighbor neighbors[25];
+    // 0 - 21: neighbor-bricks
+    // 22: the current brick
+    Neighbor neighbors[23];
     uint32_t readyMask = 0;
     uint32_t readyStatus = 0;
 
@@ -66,11 +68,6 @@ struct Brick
         this->brickPos.x = x;
         this->brickPos.y = y;
 
-        for(uint8_t side = 0; side < 24; side++)
-        {
-            this->neighbors[side].targetSide = 23 - side;
-        }
-
         updateBufferData(*this);
     }
 
@@ -85,7 +82,7 @@ struct Brick
 inline bool
 isReady(Brick &brick)
 {
-    return brick.readyMask == brick.readyStatus;
+    return brick.readyStatus == brick.readyMask;
 }
 
 //==================================================================================================
@@ -100,7 +97,15 @@ inline void
 updateReadyStatus(Brick &brick, const uint8_t side)
 {
     uint32_t pos = 0x1;
+    if(brick.brickId == 22) {
+        LOG_DEBUG("####################### side: " + std::to_string(side));
+        LOG_DEBUG("####################### is: " + std::to_string(brick.readyStatus) + "   should: " + std::to_string(brick.readyMask));
+    }
     brick.readyStatus = brick.readyStatus | (pos << side);
+    if(brick.brickId == 22) {
+        LOG_DEBUG("####################### is: " + std::to_string(brick.readyStatus) + "   should: " + std::to_string(brick.readyMask));
+
+    }
 }
 
 //==================================================================================================

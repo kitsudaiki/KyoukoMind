@@ -43,11 +43,36 @@ initNeighbor(Neighbor &neighbor,
     assert(neighbor.inUse == 0);
 
     // init side
-    neighbor.targetSide = 28 - sourceSide;
+    neighbor.targetSide = 23 - sourceSide;
     neighbor.targetBrickId = targetBrickId;
     neighbor.outgoingBuffer = new StackBuffer();
     neighbor.currentBuffer = new StackBuffer();
+
     neighbor.inUse = 1;
+}
+
+//==================================================================================================
+
+/**
+ * @brief setNextBuffer
+ * @param sourceNeighbor
+ * @param targetNeighbor
+ */
+inline bool
+sendBuffer(Neighbor &targetNeighbor,
+           Kitsunemimi::StackBuffer* buffer)
+{
+    while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    if(targetNeighbor.nextBuffer != nullptr)
+    {
+        targetNeighbor.lock.clear(std::memory_order_release);
+        return false;
+    }
+    targetNeighbor.nextBuffer = buffer;
+
+    targetNeighbor.lock.clear(std::memory_order_release);
+    return true;
 }
 
 //==================================================================================================
@@ -64,7 +89,7 @@ sendBuffer(Neighbor &sourceNeighbor,
     while(sourceNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    assert(targetNeighbor.nextBuffer != nullptr);
+    assert(targetNeighbor.nextBuffer == nullptr);
     targetNeighbor.nextBuffer = sourceNeighbor.outgoingBuffer;
     sourceNeighbor.outgoingBuffer = nullptr;
 
@@ -81,6 +106,10 @@ sendBuffer(Neighbor &sourceNeighbor,
 inline void
 switchBuffer(Neighbor &neighbor)
 {
+    if(neighbor.targetBrickId == UNINIT_STATE_32) {
+        return;
+    }
+
     while(neighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
     neighbor.outgoingBuffer = neighbor.currentBuffer;
@@ -89,25 +118,6 @@ switchBuffer(Neighbor &neighbor)
     neighbor.nextBuffer = nullptr;
 
     neighbor.lock.clear(std::memory_order_release);
-}
-
-//==================================================================================================
-
-/**
- * @brief isReady
- * @param neighbor
- * @return
- */
-inline bool
-isReady(Neighbor &neighbor)
-{
-    bool result = false;
-
-    while(neighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    result = neighbor.nextBuffer != nullptr;
-    neighbor.lock.clear(std::memory_order_release);
-
-    return result;
 }
 
 //==================================================================================================

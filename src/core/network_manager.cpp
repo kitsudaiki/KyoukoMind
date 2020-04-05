@@ -32,9 +32,6 @@ NetworkManager::NetworkManager()
     assert(sizeof(Brick) < 4096);
 
     m_processingUnitHandler = new ProcessingUnitHandler();
-
-    //m_trigger = new KyoukoMind::ConnectionTrigger();
-    //KyoukoNetwork::m_mindClient->addNetworkTrigger(m_trigger);
     initNetwork();
 }
 
@@ -65,7 +62,8 @@ NetworkManager::initNetwork()
 
     std::vector<std::string> brickFiles;
     Kitsunemimi::Persistence::listFiles(brickFiles, directoryPath, false);
-    if(brickFiles.size() == 0)
+    if(brickFiles.size() == 0
+            || Kitsunemimi::Persistence::doesPathExist(directoryPath) == false)
     {
         LOG_INFO("no files found. Try to create a new cluster");
         const std::string initialFile = GET_STRING_CONFIG("Init", "file", success);

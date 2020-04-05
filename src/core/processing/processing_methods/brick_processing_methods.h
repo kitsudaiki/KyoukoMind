@@ -37,8 +37,8 @@ void finishCycle(Brick &brick,
                  DataBuffer &monitoringMessage,
                  DataBuffer &clientMessage);
 
-void writeStatus(Brick &brick, DataBuffer &buffer);
-void writeOutput(Brick &brick, DataBuffer &buffer);
+void writeMonitoringOutput(Brick &brick, DataBuffer &buffer);
+void writeClientOutput(Brick &brick, DataBuffer &buffer);
 
 } // namespace KyoukoMind
 

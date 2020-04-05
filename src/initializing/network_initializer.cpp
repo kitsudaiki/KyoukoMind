@@ -16,7 +16,7 @@
 
 #include <core/brick_handler.h>
 #include <core/processing/processing_unit_handler.h>
-#include <core/processing/processing_methods/message_processing_methods.h>
+#include <core/processing/processing_methods/container_processing_methods.h>
 #include <core/processing/processing_methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
@@ -119,13 +119,14 @@ connectAllBricks(InitStructure *metaStructure)
                     const BrickID sourceId = (*metaStructure)[x][y].brick->brickId;
                     const BrickID targetId = (*metaStructure)[next.first][next.second].brickId;
                     RootObject::m_brickHandler->connect(sourceId,
-                                                           side,
-                                                           targetId);
+                                                        side,
+                                                        targetId);
 
                     Neighbor* neighbor = &(*metaStructure)[x][y].brick->neighbors[side];
                     neighbor->targetBrickPos.x = next.first;
                     neighbor->targetBrickPos.y = next.second;
 
+                    assert((*metaStructure)[x][y].brick->neighbors[side].targetSide == 23-side);
                 }
             }
         }

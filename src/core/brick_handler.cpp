@@ -185,7 +185,6 @@ BrickHandler::addToQueue(Brick *brick)
 
     // add to queue
     brick->inQueue = 1;
-    assert(isReady(*brick) == true);
     m_readyBricks.push(brick);
 
     m_queueLock.clear(std::memory_order_release);
@@ -221,7 +220,6 @@ BrickHandler::getFromQueue()
         result = m_readyBricks.front();
         m_readyBricks.pop();
         result->inQueue = 0;
-        assert(isReady(*result) == true);
     }
 
     m_queueLock.clear(std::memory_order_release);
