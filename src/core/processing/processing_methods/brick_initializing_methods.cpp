@@ -22,16 +22,11 @@ initNeighbor(Brick &brick,
         return false;
     }
 
-    if(brick.brickId == 22) {
-        LOG_DEBUG("+++++++++++++++++++++ side: " + std::to_string(sourceSide) + "    readyMask: " + std::to_string(brick.readyMask));
-    }
     // update ready-mask
     uint32_t pos = 0x1;
     brick.readyMask = brick.readyMask | (pos << sourceSide);
     //brick.readyStatus = brick.readyMask | (pos << sourceSide);
-    if(brick.brickId == 22) {
-        LOG_DEBUG("+++++++++++++++++++++ side: " + std::to_string(sourceSide) + "    readyMask: " + std::to_string(brick.readyMask));
-    }
+
     // init neighbo
     initNeighbor(*neighbor,
                  sourceSide,

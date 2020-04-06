@@ -97,15 +97,7 @@ inline void
 updateReadyStatus(Brick &brick, const uint8_t side)
 {
     uint32_t pos = 0x1;
-    if(brick.brickId == 22) {
-        LOG_DEBUG("####################### side: " + std::to_string(side));
-        LOG_DEBUG("####################### is: " + std::to_string(brick.readyStatus) + "   should: " + std::to_string(brick.readyMask));
-    }
     brick.readyStatus = brick.readyStatus | (pos << side);
-    if(brick.brickId == 22) {
-        LOG_DEBUG("####################### is: " + std::to_string(brick.readyStatus) + "   should: " + std::to_string(brick.readyMask));
-
-    }
 }
 
 //==================================================================================================
