@@ -17,9 +17,9 @@ struct Neighbor
     BrickPos targetBrickPos;
     uint8_t targetSide = 0;
 
+    std::queue<StackBuffer*> bufferQueue;
     StackBuffer* outgoingBuffer = nullptr;
     StackBuffer* currentBuffer = nullptr;
-    StackBuffer* nextBuffer = nullptr;
 
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
@@ -63,14 +63,7 @@ sendBuffer(Neighbor &targetNeighbor,
            Kitsunemimi::StackBuffer* buffer)
 {
     while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-
-    if(targetNeighbor.nextBuffer != nullptr)
-    {
-        targetNeighbor.lock.clear(std::memory_order_release);
-        return false;
-    }
-    targetNeighbor.nextBuffer = buffer;
-
+    targetNeighbor.bufferQueue.push(buffer);
     targetNeighbor.lock.clear(std::memory_order_release);
     return true;
 }
@@ -89,8 +82,7 @@ sendBuffer(Neighbor &sourceNeighbor,
     while(sourceNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    assert(targetNeighbor.nextBuffer == nullptr);
-    targetNeighbor.nextBuffer = sourceNeighbor.outgoingBuffer;
+    targetNeighbor.bufferQueue.push(sourceNeighbor.outgoingBuffer);
     sourceNeighbor.outgoingBuffer = nullptr;
 
     targetNeighbor.lock.clear(std::memory_order_release);
@@ -114,8 +106,8 @@ switchBuffer(Neighbor &neighbor)
 
     neighbor.outgoingBuffer = neighbor.currentBuffer;
     resetBuffer(*neighbor.currentBuffer);
-    neighbor.currentBuffer = neighbor.nextBuffer;
-    neighbor.nextBuffer = nullptr;
+    neighbor.currentBuffer = neighbor.bufferQueue.front();
+    neighbor.bufferQueue.pop();
 
     neighbor.lock.clear(std::memory_order_release);
 }

@@ -334,12 +334,19 @@ finishSide(Brick &brick,
     assert(sourceSide == targetNeighbor->targetSide);
 
     // finish side
+    if(brick.brickId == 68){
+        LOG_ERROR("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ sourceSide: " + std::to_string(sourceSide));
+    }
+
     sendBuffer(*sourceNeighbor, *targetNeighbor);
     updateReadyStatus(*targetBrick, sourceNeighbor->targetSide);
 
     // check and reschedule target-brick
     if(isReady(*targetBrick))
     {
+        if(brick.brickId == 68){
+            LOG_ERROR("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ switch brick ");
+        }
         LOG_DEBUG("switch brick: " + std::to_string(targetBrick->brickId));
         targetBrick->readyStatus = 0;
         for(uint8_t i = 0; i < 23; i++)
