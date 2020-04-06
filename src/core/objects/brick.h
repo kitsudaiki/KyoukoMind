@@ -30,8 +30,8 @@ struct GlobalValues;
 
 //==================================================================================================
 
-inline bool isReady(Brick &brick);
-inline void updateBufferData(Brick &brick);
+inline bool isBrickReady(Brick &brick);
+inline void updateBrickBufferData(Brick &brick);
 
 //==================================================================================================
 
@@ -68,7 +68,7 @@ struct Brick
         this->brickPos.x = x;
         this->brickPos.y = y;
 
-        updateBufferData(*this);
+        updateBrickBufferData(*this);
     }
 
     ~Brick()
@@ -76,44 +76,6 @@ struct Brick
     }
 
 } __attribute__((packed));
-
-//==================================================================================================
-
-inline bool
-isReady(Brick &brick)
-{
-    return brick.readyStatus == brick.readyMask;
-}
-
-//==================================================================================================
-
-/**
- * @brief updateReadyStatus
- *
- * @param brick
- * @param side
- */
-inline void
-updateReadyStatus(Brick &brick, const uint8_t side)
-{
-    uint32_t pos = 0x1;
-    brick.readyStatus = brick.readyStatus | (pos << side);
-}
-
-//==================================================================================================
-
-/**
- * write the current mata-data to the buffer and the file
- */
-inline void
-updateBufferData(Brick &brick)
-{
-    uint32_t size = sizeof(Brick);
-    memcpy(brick.headerBuffer.data, &brick, size);
-    // TODO: readd persist meta-data-changes
-}
-
-//==================================================================================================
 
 } // namespace KyoukoMind
 

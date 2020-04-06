@@ -5,6 +5,7 @@
 #include <core/objects/container_definitions.h>
 #include <core/processing/processing_methods/brick_initializing_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
+#include <core/processing/processing_methods/neighbor_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>

@@ -15,6 +15,7 @@
 
 #include <core/objects/container_definitions.h>
 #include <core/processing/processing_methods/brick_item_methods.h>
+#include <core/processing/processing_methods/synapse_methods.h>
 
 #include <core/objects/brick.h>
 

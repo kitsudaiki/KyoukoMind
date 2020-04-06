@@ -14,6 +14,7 @@
 
 #include <core/processing/processing_methods/container_processing_methods.h>
 #include <core/processing/processing_methods/brick_item_methods.h>
+#include <core/processing/processing_methods/neighbor_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -335,10 +336,10 @@ finishSide(Brick &brick,
 
     if(targetBrick != nullptr)
     {
-        updateReadyStatus(*targetBrick, 23 - sourceSide);
+        updateBrickReadyStatus(*targetBrick, 23 - sourceSide);
 
         // check and reschedule target-brick
-        if(isReady(*targetBrick))
+        if(isBrickReady(*targetBrick))
         {
             targetBrick->readyStatus = 0;
             for(uint8_t i = 0; i < 23; i++)

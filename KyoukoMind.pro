@@ -84,7 +84,10 @@ HEADERS += \
     src/args.h \
     src/config.h \
     src/network_callbacks.h \
-    src/core/processing/processing_methods/container_processing_methods.h
+    src/core/processing/processing_methods/container_processing_methods.h \
+    src/core/processing/processing_methods/edge_methods.h \
+    src/core/processing/processing_methods/neighbor_methods.h \
+    src/core/processing/processing_methods/synapse_methods.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
