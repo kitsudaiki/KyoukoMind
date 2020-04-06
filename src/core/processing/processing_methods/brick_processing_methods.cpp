@@ -329,13 +329,15 @@ finishSide(Brick &brick,
         return;
     }
 
-    Brick* targetBrick = RootObject::m_brickHandler->getBrick(sourceNeighbor->targetBrickId);
-
     // finish side
     sendNeighborBuffer(*sourceNeighbor, *sourceNeighbor->targetNeighbor);
 
+    Brick* targetBrick = sourceNeighbor->targetBrick;
     if(targetBrick != nullptr)
     {
+        if(targetBrick->brickId == 10012) {
+            //LOG_DEBUG("check 10012");
+        }
         updateBrickReadyStatus(*targetBrick, 23 - sourceSide);
 
         // check and reschedule target-brick
@@ -364,6 +366,9 @@ finishCycle(Brick &brick,
             DataBuffer &clientMessage,
             DataBuffer &monitoringMessage)
 {
+    if(brick.brickId == 10012) {
+        std::cout<<"poi"<<std::endl;
+    }
     // finish standard-neighbors
     for(uint8_t side = 0; side < 23; side++)
     {

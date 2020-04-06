@@ -18,6 +18,7 @@
 
 #include <core/processing/processing_methods/container_processing_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
+#include <core/processing/processing_methods/neighbor_methods.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -103,7 +104,7 @@ ProcessingUnit::refillWeightMap(Brick &brick,
     // set all weights
     for(uint8_t side = 0; side < 22; side++)
     {
-        if(neighbors[side].targetBrickId != UNINIT_STATE_32
+        if(neighbors[side].targetBrick != nullptr
                 && side != initialSide)
         {
             const float randVal = static_cast<float>(rand() % UNINIT_STATE_16);
@@ -117,8 +118,7 @@ ProcessingUnit::refillWeightMap(Brick &brick,
     }
 
     // if brick contains nodes, the have to get a big part of the incoming weight
-    if(brick.dataConnections[NODE_DATA].inUse == 1
-            && brick.isInputBrick == 0)
+    if(brick.dataConnections[NODE_DATA].inUse == 1)
     {
         // TODO: replace the const-value of 0.2f by define
         const float val = m_totalWeightMap * 0.2f;
@@ -153,7 +153,7 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
         {
             refillWeightMap(brick, side, brick.neighbors);
 
-            StackBuffer* currentBuffer = brick.neighbors[side].currentBuffer;
+            StackBuffer* currentBuffer = getCurrentBuffer(brick.neighbors[side]);
             DataBuffer* currentBlock = getFirstElement(*currentBuffer);
 
             while(currentBlock != nullptr)
@@ -276,7 +276,6 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 DirectEdgeContainer* edge = static_cast<DirectEdgeContainer*>(obj);
                 data += sizeof(DirectEdgeContainer);
 
-                assert(brick.isInputBrick != 0);
                 Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
                 Node* node = &nodes[edge->targetNodeId];
                 node->currentState = edge->weight;

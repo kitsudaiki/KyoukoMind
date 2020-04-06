@@ -395,7 +395,7 @@ learningEdgeSection(Brick &brick,
             else
             {
                 // set a border to avoid too many new edges
-                if(brick.neighbors[side].targetBrickId == UNINIT_STATE_32
+                if(brick.neighbors[side].targetBrick == nullptr
                         || weightMap[side] <= NEW_FORWARD_EDGE_BORDER
                         || currentSideWeight <= 1.0f)
                 {

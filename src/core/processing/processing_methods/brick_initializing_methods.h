@@ -10,7 +10,7 @@ namespace KyoukoMind
 
 bool initBrickNeighbor(Brick &sourceBrick,
                        const uint8_t sourceSide,
-                       const uint32_t targetBrickId,
+                       Brick* targetBrick,
                        Neighbor* targetNeighbor);
 
 bool uninitBrickNeighbor(Brick &sourceBrick,

@@ -62,13 +62,11 @@ void InitTest::checkInit()
 
         for(uint32_t side = 0; side < 22; side++)
         {
-            if(brick->neighbors[side].targetBrickId != UNINIT_STATE_32)
+            if(brick->neighbors[side].targetBrick != nullptr)
             {
                 BrickID sourceId = brick->brickId;
-                BrickID targetId = brick->neighbors[side].targetBrickId;
-
-                const Brick* targetBrick = RootObject::m_brickHandler->getBrick(targetId);
-                BrickID compareSource = targetBrick->neighbors[23 - side].targetBrickId;
+                const Brick* targetBrick = brick->neighbors[side].targetBrick;
+                BrickID compareSource = targetBrick->neighbors[23 - side].targetBrick->brickId;
 
                 TEST_EQUAL(compareSource, sourceId);
             }

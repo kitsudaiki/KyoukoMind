@@ -6,12 +6,13 @@
 
 namespace KyoukoMind
 {
+struct Brick;
 
 struct Neighbor
 {
     uint8_t inUse = 0;
 
-    BrickID targetBrickId = UNINIT_STATE_32;
+    Brick* targetBrick = nullptr;
     Neighbor* targetNeighbor = nullptr;
     BrickPos targetBrickPos;
 

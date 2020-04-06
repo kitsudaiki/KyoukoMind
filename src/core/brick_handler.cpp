@@ -175,7 +175,9 @@ bool
 BrickHandler::addToQueue(Brick *brick)
 {
     // precheck
-    if(brick->inQueue == 1) {
+    if(brick->inQueue == 1
+            || brick->isInputBrick != 0)
+    {
         return false;
     }
 

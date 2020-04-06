@@ -160,7 +160,7 @@ chooseNextSide(const uint8_t initialSide, Neighbor* neighbors)
 
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
-        if(neighbors[sideOrder[i]].targetBrickId != UNINIT_STATE_32
+        if(neighbors[sideOrder[i]].targetBrick != nullptr
                 && sideOrder[i] != initialSide)
         {
             availableSides.push_back(sideOrder[i]);

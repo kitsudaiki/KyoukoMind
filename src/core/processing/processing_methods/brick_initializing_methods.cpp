@@ -15,7 +15,7 @@ namespace KyoukoMind
 bool
 initBrickNeighbor(Brick &sourceBrick,
                   const uint8_t sourceSide,
-                  const uint32_t targetBrickId,
+                  Brick* targetBrick,
                   Neighbor* targetNeighbor)
 {
 
@@ -31,7 +31,7 @@ initBrickNeighbor(Brick &sourceBrick,
     //brick.readyStatus = brick.readyMask | (pos << sourceSide);
 
     // init neighbor
-    initNeighbor(*neighbor, targetBrickId, targetNeighbor);
+    initNeighbor(*neighbor, targetBrick, targetNeighbor);
     updateBrickBufferData(sourceBrick);
 
     return true;
@@ -100,11 +100,11 @@ connectBricks(Brick &sourceBrick,
     // init the new neighbors
     initBrickNeighbor(sourceBrick,
                       sourceSide,
-                      targetBrick.brickId,
+                      &targetBrick,
                       targetNeighbor);
     initBrickNeighbor(targetBrick,
                       23 - sourceSide,
-                      sourceBrick.brickId,
+                      &sourceBrick,
                       sourceNeighbor);
 
     return true;

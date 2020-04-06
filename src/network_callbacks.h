@@ -61,6 +61,7 @@ streamDataCallback(void* target,
                 const uint8_t sourceSide = 22;
 
                 Brick* newBrick = new Brick(fakeId, 0, 0);
+                newBrick->isInputBrick = 1;
                 rootObject->m_inputBricks->insert(std::pair<uint32_t, Brick*>(content.brickId,
                                                                               newBrick));
                 Brick* targetBrick = rootObject->m_brickHandler->getBrick(content.brickId);

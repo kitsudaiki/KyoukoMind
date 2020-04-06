@@ -4,6 +4,8 @@
 #include <common.h>
 #include <core/objects/neighbor.h>
 
+#include <libKitsunemimiPersistence/logger/logger.h>
+
 namespace KyoukoMind
 {
 
@@ -19,16 +21,17 @@ namespace KyoukoMind
  */
 inline void
 initNeighbor(Neighbor &neighbor,
-             const uint32_t targetBrickId,
+             Brick* targetBrick,
              Neighbor* targetNeighbor)
 {
     assert(neighbor.inUse == 0);
 
     // init side
     neighbor.targetNeighbor = targetNeighbor;
-    neighbor.targetBrickId = targetBrickId;
+    neighbor.targetBrick = targetBrick;
     neighbor.outgoingBuffer = new StackBuffer();
     neighbor.currentBuffer = new StackBuffer();
+    neighbor.bufferQueue.push(new StackBuffer());
 
     neighbor.inUse = 1;
 }
@@ -47,6 +50,7 @@ sendNeighborBuffer(Neighbor &targetNeighbor,
     while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     targetNeighbor.bufferQueue.push(buffer);
     targetNeighbor.lock.clear(std::memory_order_release);
+
     return true;
 }
 
@@ -92,6 +96,23 @@ switchNeighborBuffer(Neighbor &neighbor)
     neighbor.bufferQueue.pop();
 
     neighbor.lock.clear(std::memory_order_release);
+}
+
+//==================================================================================================
+
+inline StackBuffer*
+getCurrentBuffer(Neighbor &neighbor)
+{
+    StackBuffer* result = nullptr;
+
+    while(neighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    assert(neighbor.currentBuffer != nullptr);
+    result = neighbor.currentBuffer;
+
+    neighbor.lock.clear(std::memory_order_release);
+
+    return result;
 }
 
 //==================================================================================================
