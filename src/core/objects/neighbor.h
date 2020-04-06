@@ -14,8 +14,8 @@ struct Neighbor
     uint8_t inUse = 0;
 
     BrickID targetBrickId = UNINIT_STATE_32;
+    Neighbor* targetNeighbor = nullptr;
     BrickPos targetBrickPos;
-    uint8_t targetSide = 0;
 
     std::queue<StackBuffer*> bufferQueue;
     StackBuffer* outgoingBuffer = nullptr;
@@ -37,13 +37,13 @@ struct Neighbor
  */
 inline void
 initNeighbor(Neighbor &neighbor,
-             const uint8_t sourceSide,
-             const uint32_t targetBrickId)
+             const uint32_t targetBrickId,
+             Neighbor* targetNeighbor)
 {
     assert(neighbor.inUse == 0);
 
     // init side
-    neighbor.targetSide = 23 - sourceSide;
+    neighbor.targetNeighbor = targetNeighbor;
     neighbor.targetBrickId = targetBrickId;
     neighbor.outgoingBuffer = new StackBuffer();
     neighbor.currentBuffer = new StackBuffer();
@@ -59,8 +59,8 @@ initNeighbor(Neighbor &neighbor,
  * @param targetNeighbor
  */
 inline bool
-sendBuffer(Neighbor &targetNeighbor,
-           Kitsunemimi::StackBuffer* buffer)
+sendNeighborBuffer(Neighbor &targetNeighbor,
+                   Kitsunemimi::StackBuffer* buffer)
 {
     while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     targetNeighbor.bufferQueue.push(buffer);
@@ -76,8 +76,8 @@ sendBuffer(Neighbor &targetNeighbor,
  * @param targetNeighbor
  */
 inline void
-sendBuffer(Neighbor &sourceNeighbor,
-           Neighbor &targetNeighbor)
+sendNeighborBuffer(Neighbor &sourceNeighbor,
+                   Neighbor &targetNeighbor)
 {
     while(sourceNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
@@ -96,9 +96,9 @@ sendBuffer(Neighbor &sourceNeighbor,
  * @param neighbor
  */
 inline void
-switchBuffer(Neighbor &neighbor)
+switchNeighborBuffer(Neighbor &neighbor)
 {
-    if(neighbor.targetBrickId == UNINIT_STATE_32) {
+    if(neighbor.inUse == 0) {
         return;
     }
 

@@ -27,6 +27,7 @@ KyoukoMind::BrickHandler* RootObject::m_brickHandler = nullptr;
 KyoukoMind::GlobalValuesHandler* RootObject::m_globalValuesHandler = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_clientSession = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_monitoringSession = nullptr;
+std::map<uint32_t, Brick*>* RootObject::m_inputBricks = nullptr;
 
 /**
  * main-class
@@ -35,6 +36,7 @@ RootObject::RootObject()
 {
     m_brickHandler = new BrickHandler();
     m_globalValuesHandler = new GlobalValuesHandler();
+    m_inputBricks = new std::map<uint32_t, Brick*>();
 
     m_sessionController = new Kitsunemimi::Project::SessionController(this, &sessionCallback,
                                                                       this, &streamDataCallback,

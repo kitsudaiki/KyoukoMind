@@ -125,8 +125,6 @@ connectAllBricks(InitStructure *metaStructure)
                     Neighbor* neighbor = &(*metaStructure)[x][y].brick->neighbors[side];
                     neighbor->targetBrickPos.x = next.first;
                     neighbor->targetBrickPos.y = next.second;
-
-                    assert((*metaStructure)[x][y].brick->neighbors[side].targetSide == 23-side);
                 }
             }
         }

@@ -40,6 +40,8 @@ public:
     static Kitsunemimi::Project::Session* m_clientSession;
     static Kitsunemimi::Project::Session* m_monitoringSession;
 
+    static std::map<uint32_t, Brick*>* m_inputBricks;
+
     bool start();
     bool initServer();
 

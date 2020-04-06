@@ -21,6 +21,7 @@ using Kitsunemimi::Kyouko::ClientControlMemorizing;
 using Kitsunemimi::Kyouko::ClientControlGlia;
 using Kitsunemimi::Kyouko::ClientControlOutputLearning;
 using Kitsunemimi::Kyouko::ClientLearnInputData;
+using Kitsunemimi::Kyouko::ClientLearnFinishCycleData;
 
 namespace KyoukoMind
 {
@@ -40,7 +41,7 @@ streamDataCallback(void* target,
     RootObject* rootObject = static_cast<RootObject*>(target);
     const uint8_t* dataObj = static_cast<const uint8_t*>(data);
 
-    LOG_DEBUG("process incoming message");
+    LOG_DEBUG("process incoming message with size: " + std::to_string(dataSize));
 
     uint64_t dataPos = 0;
 
@@ -55,8 +56,17 @@ streamDataCallback(void* target,
                 LOG_DEBUG("CLIENT_REGISTER_INPUT");
                 const ClientRegisterInput content = *((ClientRegisterInput*)&dataObj[dataPos]);
 
-                Brick* incomingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
-                addClientConnection(*incomingBrick, true, false);
+                const uint32_t fakeId = 10000 + content.brickId;
+                const uint8_t sourceSide = 22;
+
+                Brick* newBrick = new Brick(fakeId, 0, 0);
+                rootObject->m_inputBricks->insert(std::pair<uint32_t, Brick*>(content.brickId,
+                                                                              newBrick));
+                Brick* targetBrick = rootObject->m_brickHandler->getBrick(content.brickId);
+
+                // init the new neighbors
+                connectBricks(*newBrick, sourceSide, *targetBrick);
+
                 dataPos += sizeof(ClientRegisterInput);
                 break;
             }
@@ -67,7 +77,9 @@ streamDataCallback(void* target,
                 const ClientRegisterOutput content = *((ClientRegisterOutput*)&dataObj[dataPos]);
 
                 Brick* outgoingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
-                addClientConnection(*outgoingBrick, false, true);
+
+                addClientOutputConnection(*outgoingBrick);
+
                 dataPos += sizeof(ClientRegisterOutput);
                 break;
             }
@@ -78,10 +90,13 @@ streamDataCallback(void* target,
                 const ClientControlLearning content = *((ClientControlLearning*)&dataObj[dataPos]);
 
                 GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
+
                 GlobalValues gValues = handler->getGlobalValues();
                 gValues.globalLearningTemp = content.learnTemp;
                 gValues.globalLearningOffset = content.learnOffset;
+
                 handler->setGlobalValues(gValues);
+
                 dataPos += sizeof(ClientControlLearning);
                 break;
             }
@@ -92,10 +107,13 @@ streamDataCallback(void* target,
                 ClientControlMemorizing content = *((ClientControlMemorizing*)&dataObj[dataPos]);
 
                 GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
+
                 GlobalValues gValues = handler->getGlobalValues();
                 gValues.globalMemorizingTemp = content.memTemp;
                 gValues.globalMemorizingOffset = content.memOffset;
+
                 handler->setGlobalValues(gValues);
+
                 dataPos += sizeof(ClientControlMemorizing);
                 break;
             }
@@ -106,9 +124,12 @@ streamDataCallback(void* target,
                 const ClientControlGlia content = *((ClientControlGlia*)&dataObj[dataPos]);
 
                 GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
+
                 GlobalValues gValues = handler->getGlobalValues();
                 gValues.globalGlia = content.glia;
+
                 handler->setGlobalValues(gValues);
+
                 dataPos += sizeof(ClientControlGlia);
                 break;
             }
@@ -130,35 +151,51 @@ streamDataCallback(void* target,
             case CLIENT_LEARN_INPUT:
             {
                 LOG_DEBUG("CLIENT_LEARN_INPUT");
+
                 const ClientLearnInputData content = *((ClientLearnInputData*)&dataObj[dataPos]);
-                Brick* brick = rootObject->m_brickHandler->getBrick(content.brickId);
-                assert(brick != nullptr);
 
-                Kitsunemimi::StackBuffer* newBuffer = new StackBuffer();
-                const uint16_t ok = brick->dataConnections[NODE_DATA].inUse > 0;
-
-                for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
+                std::map<uint32_t, Brick*>::const_iterator it;
+                it = rootObject->m_inputBricks->find(content.brickId);
+                if(it != rootObject->m_inputBricks->end())
                 {
-                    DirectEdgeContainer newEdge;
-                    newEdge.weight = content.value;
-                    newEdge.targetNodeId = i;
-                    addObjectToBuffer(*newBuffer, &newEdge);
-                }
+                    Brick* brick = it->second;
+                    Neighbor* neighbor = &brick->neighbors[22];
+                    const uint16_t ok = brick->dataConnections[NODE_DATA].inUse > 0;
 
-                const bool ret = sendBuffer(brick->neighbors[22], newBuffer);
-                if(ret)
-                {
-                    updateReadyStatus(*brick, 22);
-                    if(isReady(*brick)) {
-                        RootObject::m_brickHandler->addToQueue(brick);
+                    for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
+                    {
+                        if(neighbor->currentBuffer == nullptr) {
+                            switchNeighborBuffer(*neighbor);
+                        }
+                        assert(neighbor->currentBuffer != nullptr);
+
+                        DirectEdgeContainer newEdge;
+                        newEdge.weight = content.value;
+                        newEdge.targetNodeId = i;
+                        addObjectToBuffer(*neighbor->currentBuffer, &newEdge);
                     }
-                }
-                else
-                {
-                    delete newBuffer;
                 }
 
                 dataPos += sizeof(ClientLearnInputData);
+                break;
+            }
+
+            case CLIENT_LEARN_FINISH_CYCLE:
+            {
+                LOG_DEBUG("CLIENT_LEARN_FINISH_CYCLE");
+
+                const ClientLearnFinishCycleData content =
+                        *((ClientLearnFinishCycleData*)&dataObj[dataPos]);
+
+                std::map<uint32_t, Brick*>::const_iterator it;
+                it = rootObject->m_inputBricks->find(content.brickId);
+                if(it != rootObject->m_inputBricks->end())
+                {
+                    Brick* brick = it->second;
+                    finishSide(*brick, 22);
+                }
+
+                dataPos += sizeof(ClientLearnFinishCycleData);
                 break;
             }
 
@@ -181,9 +218,6 @@ standaloneDataCallback(void* target,
                        const uint64_t,
                        DataBuffer* data)
 {
-
-    RootObject* rootObject = static_cast<RootObject*>(target);
-
     delete data;
 }
 

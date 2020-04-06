@@ -49,6 +49,11 @@ struct EdgeSection
 
 //==================================================================================================
 
+/**
+ * @brief deleteEdge
+ * @param section
+ * @param position
+ */
 inline void
 deleteEdge(EdgeSection &section,
            const uint8_t position)
@@ -60,6 +65,12 @@ deleteEdge(EdgeSection &section,
 
 //==================================================================================================
 
+/**
+ * @brief addEdge
+ * @param section
+ * @param position
+ * @param newEdge
+ */
 inline void
 addEdge(EdgeSection &section,
         const uint8_t position,

@@ -11,27 +11,26 @@ namespace KyoukoMind
  * @return true, if successful, else false
  */
 bool
-initNeighbor(Brick &brick,
-             const uint8_t sourceSide,
-             const uint32_t targetBrickId)
+initBrickNeighbor(Brick &sourceBrick,
+                  const uint8_t sourceSide,
+                  const uint32_t targetBrickId,
+                  Neighbor* targetNeighbor)
 {
 
     // get and check neighbor
-    Neighbor* neighbor = &brick.neighbors[sourceSide];
+    Neighbor* neighbor = &sourceBrick.neighbors[sourceSide];
     if(neighbor->inUse == 1) {
         return false;
     }
 
     // update ready-mask
     uint32_t pos = 0x1;
-    brick.readyMask = brick.readyMask | (pos << sourceSide);
+    sourceBrick.readyMask = sourceBrick.readyMask | (pos << sourceSide);
     //brick.readyStatus = brick.readyMask | (pos << sourceSide);
 
-    // init neighbo
-    initNeighbor(*neighbor,
-                 sourceSide,
-                 targetBrickId);
-    updateBufferData(brick);
+    // init neighbor
+    initNeighbor(*neighbor, targetBrickId, targetNeighbor);
+    updateBufferData(sourceBrick);
 
     return true;
 }
@@ -44,26 +43,26 @@ initNeighbor(Brick &brick,
  * @return true, if successful, else false
  */
 bool
-uninitNeighbor(Brick &brick,
-               const uint8_t side)
+uninitBrickNeighbor(Brick &sourceBrick,
+                    const uint8_t side)
 {
     // get and check neighbor
-    Neighbor* neighbor = &brick.neighbors[side];
+    Neighbor* neighbor = &sourceBrick.neighbors[side];
     if(neighbor->inUse == 0) {
         return false;
     }
 
     // update ready-mask
     uint32_t pos = 0x1;
-    brick.readyMask = brick.readyMask - (pos << side);
-    brick.readyStatus = brick.readyMask - (pos << side);
+    sourceBrick.readyMask = sourceBrick.readyMask - (pos << side);
+    sourceBrick.readyStatus = sourceBrick.readyMask - (pos << side);
 
     // uninit
     // TODO: issue #58
     neighbor->inUse = 0;
 
     // write brick-metadata to buffer
-    updateBufferData(brick);
+    updateBufferData(sourceBrick);
 
     return true;
 }
@@ -97,11 +96,14 @@ connectBricks(Brick &sourceBrick,
     }
 
     // init the new neighbors
-    initNeighbor(sourceBrick, sourceSide, targetBrick.brickId);
-    initNeighbor(targetBrick, 23-sourceSide, sourceBrick.brickId);
-
-    assert(sourceNeighbor->targetSide == 23 - sourceSide);
-    assert(targetNeighbor->targetSide == sourceSide);
+    initBrickNeighbor(sourceBrick,
+                      sourceSide,
+                      targetBrick.brickId,
+                      targetNeighbor);
+    initBrickNeighbor(targetBrick,
+                      23 - sourceSide,
+                      sourceBrick.brickId,
+                      sourceNeighbor);
 
     return true;
 }
@@ -135,8 +137,8 @@ disconnectBricks(Brick &sourceBrick,
     }
 
     // add the new neighbor
-    uninitNeighbor(sourceBrick, sourceSide);
-    uninitNeighbor(targetBrick, 23-sourceSide);
+    uninitBrickNeighbor(sourceBrick, sourceSide);
+    uninitBrickNeighbor(targetBrick, 23-sourceSide);
 
     return true;
 }
@@ -304,43 +306,26 @@ initEdgeSectionBlocks(Brick &brick,
  * @return true, if successful, else false
  */
 bool
-addClientConnection(Brick &brick,
-                    const bool isInput,
-                    const bool isOutput)
+addClientOutputConnection(Brick &brick)
 {
-    // add input-connection
-    if(isInput)
-    {
-        // set brick as input-brick
-        brick.isInputBrick = 1;
-
-        // init the incoming-message-queue
-        // for incoming messages from the client
-        initNeighbor(brick, 22, UNINIT_STATE_32);
+    // get and check connection-item
+    DataConnection* data = &brick.dataConnections[NODE_DATA];
+    if(data->inUse == 0) {
+        return false;
     }
 
-    // add output-connection
-    if(isOutput)
+    // set brick as output-brick
+    brick.isOutputBrick = 1;
+
+    // set the border-value of all nodes within the brick
+    // to a high-value, so the node can never become active
+    Node* start = static_cast<Node*>(data->buffer.data);
+    Node* end = start + data->numberOfItems;
+    for(Node* node = start;
+        node < end;
+        node++)
     {
-        // get and check connection-item
-        DataConnection* data = &brick.dataConnections[NODE_DATA];
-        if(data->inUse == 0) {
-            return false;
-        }
-
-        // set brick as output-brick
-        brick.isOutputBrick = 1;
-
-        // set the border-value of all nodes within the brick
-        // to a high-value, so the node can never become active
-        Node* start = static_cast<Node*>(data->buffer.data);
-        Node* end = start + data->numberOfItems;
-        for(Node* node = start;
-            node < end;
-            node++)
-        {
-            node->border = 100000.0f;
-        }
+        node->border = 100000.0f;
     }
 
     return true;

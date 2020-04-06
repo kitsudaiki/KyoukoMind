@@ -8,12 +8,13 @@
 namespace KyoukoMind
 {
 
-bool initNeighbor(Brick &brick,
-                  const uint8_t sourceSide,
-                  const uint32_t targetBrickId);
+bool initBrickNeighbor(Brick &sourceBrick,
+                       const uint8_t sourceSide,
+                       const uint32_t targetBrickId,
+                       Neighbor* targetNeighbor);
 
-bool uninitNeighbor(Brick &brick,
-                    const uint8_t side);
+bool uninitBrickNeighbor(Brick &sourceBrick,
+                         const uint8_t side);
 
 bool connectBricks(Brick &sourceBrick,
                    const uint8_t sourceSide,
@@ -37,9 +38,10 @@ bool initSynapseSectionBlocks(Brick &brick,
 bool initEdgeSectionBlocks(Brick &brick,
                            const uint32_t numberOfEdgeSections);
 
-bool addClientConnection(Brick &brick,
-                         const bool isInput,
-                         const bool isOutput);
+bool addClientInputConnection(Brick &brick,
+                              const uint32_t targetBrickId);
+
+bool addClientOutputConnection(Brick &brick);
 
 }
 

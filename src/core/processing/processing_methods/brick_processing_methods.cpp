@@ -324,28 +324,29 @@ finishSide(Brick &brick,
            const uint8_t sourceSide)
 {
     Neighbor* sourceNeighbor = &brick.neighbors[sourceSide];
-    if(sourceNeighbor->targetBrickId == UNINIT_STATE_32) {
+    if(sourceNeighbor->inUse == 0) {
         return;
     }
 
     Brick* targetBrick = RootObject::m_brickHandler->getBrick(sourceNeighbor->targetBrickId);
-    assert(targetBrick != nullptr);
-    Neighbor* targetNeighbor = &targetBrick->neighbors[sourceNeighbor->targetSide];
-    assert(sourceSide == targetNeighbor->targetSide);
 
     // finish side
-    sendBuffer(*sourceNeighbor, *targetNeighbor);
-    updateReadyStatus(*targetBrick, sourceNeighbor->targetSide);
+    sendNeighborBuffer(*sourceNeighbor, *sourceNeighbor->targetNeighbor);
 
-    // check and reschedule target-brick
-    if(isReady(*targetBrick))
+    if(targetBrick != nullptr)
     {
-        targetBrick->readyStatus = 0;
-        for(uint8_t i = 0; i < 23; i++)
+        updateReadyStatus(*targetBrick, 23 - sourceSide);
+
+        // check and reschedule target-brick
+        if(isReady(*targetBrick))
         {
-            switchBuffer(targetBrick->neighbors[i]);
+            targetBrick->readyStatus = 0;
+            for(uint8_t i = 0; i < 23; i++)
+            {
+                switchNeighborBuffer(targetBrick->neighbors[i]);
+            }
+            RootObject::m_brickHandler->addToQueue(targetBrick);
         }
-        RootObject::m_brickHandler->addToQueue(targetBrick);
     }
 }
 
