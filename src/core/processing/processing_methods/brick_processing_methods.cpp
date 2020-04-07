@@ -68,7 +68,9 @@ finishCycle(Brick* brick,
 
     processReady(brick);
 
-    if(RootObject::m_clientSession != nullptr) {
+    if(RootObject::m_clientSession != nullptr
+            && brick->isOutputBrick == 1)
+    {
         RootObject::m_clientSession->sendStreamData(clientMessage.data,
                                                     clientMessage.bufferPosition);
     }

@@ -82,7 +82,9 @@ ProcessingUnit::run()
             memorizeSynapses(*brick);
 
             // write output
-            writeClientOutput(*brick, m_clientBuffer);
+            if(brick->isOutputBrick == 1) {
+                writeClientOutput(*brick, m_clientBuffer);
+            }
             writeMonitoringOutput(*brick, m_monitoringBuffer);
 
             // finish current block

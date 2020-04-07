@@ -459,7 +459,7 @@ processEdgeForwardSection(Brick &brick,
     }
 
     // iterate over all forward-edges in the current section
-    for(uint8_t sideCounter = 0; sideCounter < 25; sideCounter++)
+    for(uint8_t sideCounter = 0; sideCounter < 23; sideCounter++)
     {
         const Edge tempEdge = currentSection->edges[sideCounter];
         if(tempEdge.weight <= 0.0f) {
@@ -488,7 +488,7 @@ processEdgeForwardSection(Brick &brick,
                 PendingEdgeContainer newEdge;
                 newEdge.weight = tempEdge.weight * ratio;
                 newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
-                newEdge.sourceSide = 25 - sideCounter;
+                newEdge.sourceSide = 23 - sideCounter;
                 addObjectToBuffer(*brick.neighbors[sideCounter].outgoingBuffer,
                                   &newEdge);
             }
