@@ -106,7 +106,7 @@ finishSide(Brick* brick,
     assert(targetBrick != nullptr);
 
     // finish side
-    sendNeighborBuffer(*sourceNeighbor);
+    sendNeighborBuffer(*sourceNeighbor, *sourceNeighbor->targetNeighbor);
     processReady(targetBrick);
 
     targetBrick->lock.clear(std::memory_order_release);

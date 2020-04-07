@@ -155,7 +155,7 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
         {
             refillWeightMap(brick, side, brick.neighbors);
 
-            StackBuffer* currentBuffer = getCurrentBuffer(brick.neighbors[side]);
+            StackBuffer* currentBuffer = brick.neighbors[side].currentBuffer;
             DataBuffer* currentBlock = getFirstElement(*currentBuffer);
 
             while(currentBlock != nullptr)

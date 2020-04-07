@@ -163,7 +163,7 @@ streamDataCallback(void* target,
                 {
                     Brick* brick = it->second;
                     Neighbor* neighbor = &brick->neighbors[22];
-                    const uint16_t ok = brick->dataConnections[NODE_DATA].inUse > 0;
+                    const uint16_t ok = neighbor->targetBrick->dataConnections[NODE_DATA].inUse > 0;
 
                     for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
                     {

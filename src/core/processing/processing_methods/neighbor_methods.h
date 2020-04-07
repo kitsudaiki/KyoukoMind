@@ -46,18 +46,13 @@ initNeighbor(Neighbor &neighbor,
  * @param targetNeighbor
  */
 inline void
-sendNeighborBuffer(Neighbor &sourceNeighbor)
+sendNeighborBuffer(Neighbor &sourceNeighbor,
+                   Neighbor &targetNeighbor)
 {
-    while(sourceNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    while(sourceNeighbor.targetNeighbor->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-
     assert(sourceNeighbor.outgoingBuffer != nullptr);
 
-    sourceNeighbor.targetNeighbor->bufferQueue.push(sourceNeighbor.outgoingBuffer);
+    targetNeighbor.bufferQueue.push(sourceNeighbor.outgoingBuffer);
     sourceNeighbor.outgoingBuffer = nullptr;
-
-    sourceNeighbor.targetNeighbor->lock.clear(std::memory_order_release);
-    sourceNeighbor.lock.clear(std::memory_order_release);
 }
 
 //==================================================================================================
@@ -73,8 +68,6 @@ switchNeighborBuffer(Neighbor &neighbor)
         return;
     }
 
-    while(neighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-
     assert(neighbor.outgoingBuffer == nullptr);
     assert(neighbor.currentBuffer != nullptr);
     assert(neighbor.bufferQueue.size() > 0);
@@ -83,25 +76,6 @@ switchNeighborBuffer(Neighbor &neighbor)
     resetBuffer(*neighbor.currentBuffer);
     neighbor.currentBuffer = neighbor.bufferQueue.front();
     neighbor.bufferQueue.pop();
-
-    neighbor.lock.clear(std::memory_order_release);
-}
-
-//==================================================================================================
-
-inline StackBuffer*
-getCurrentBuffer(Neighbor &neighbor)
-{
-    StackBuffer* result = nullptr;
-
-    while(neighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-
-    assert(neighbor.currentBuffer != nullptr);
-    result = neighbor.currentBuffer;
-
-    neighbor.lock.clear(std::memory_order_release);
-
-    return result;
 }
 
 //==================================================================================================

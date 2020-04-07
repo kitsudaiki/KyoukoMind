@@ -20,8 +20,6 @@ struct Neighbor
     StackBuffer* outgoingBuffer = nullptr;
     StackBuffer* currentBuffer = nullptr;
 
-    std::atomic_flag lock = ATOMIC_FLAG_INIT;
-
 } __attribute__((packed));
 
 }
