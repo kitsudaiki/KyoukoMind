@@ -11,31 +11,24 @@
 #define BRICK_PROCESSING_METHODS_H
 
 #include <common.h>
-#include <core/objects/brick.h>
-
-namespace Kitsunemimi {
-namespace Chan {
-namespace Common {
-struct TransferDataMessage;
-}
-}
-}
-using Kitsunemimi::Chan::Common::TransferDataMessage;
 
 namespace KyoukoMind
 {
+struct Brick;
+
+void initCycle(Brick* brick);
+void finishCycle(Brick* brick,
+                 DataBuffer &monitoringMessage,
+                 DataBuffer &clientMessage);
+void finishSide(Brick* brick, const uint8_t side);
+bool processReady(Brick* brick);
+bool isReady(Brick* brick);
 
 uint16_t processOutputNodes(Brick &brick);
 uint16_t processNodes(Brick &brick, float *weightMap);
 
 void postLearning(Brick &brick);
 void memorizeSynapses(Brick &brick);
-
-void finishSide(Brick &brick,
-                const uint8_t side);
-void finishCycle(Brick &brick,
-                 DataBuffer &monitoringMessage,
-                 DataBuffer &clientMessage);
 
 void writeMonitoringOutput(Brick &brick, DataBuffer &buffer);
 void writeClientOutput(Brick &brick, DataBuffer &buffer);

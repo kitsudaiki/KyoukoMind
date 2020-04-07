@@ -20,6 +20,7 @@
 #include <core/objects/data_connection.h>
 #include <core/objects/neighbor.h>
 #include <core/objects/empty_placeholder.h>
+#include <core/processing/processing_methods/brick_processing_methods.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -27,11 +28,6 @@ namespace KyoukoMind
 {
 
 struct GlobalValues;
-
-//==================================================================================================
-
-inline bool isBrickReady(Brick &brick);
-inline void updateBrickBufferData(Brick &brick);
 
 //==================================================================================================
 
@@ -46,11 +42,12 @@ struct Brick
 
     DataBuffer headerBuffer;
 
+    uint32_t counter = 0;
+
     // 0 - 21: neighbor-bricks
     // 22: the current brick
     Neighbor neighbors[23];
-    uint32_t readyMask = 0;
-    uint32_t readyStatus = 0;
+    std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
     // data
     DataConnection dataConnections[3];
@@ -67,8 +64,6 @@ struct Brick
         this->brickId = brickId;
         this->brickPos.x = x;
         this->brickPos.y = y;
-
-        updateBrickBufferData(*this);
     }
 
     ~Brick()

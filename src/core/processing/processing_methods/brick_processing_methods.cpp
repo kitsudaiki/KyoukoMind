@@ -29,6 +29,135 @@ namespace KyoukoMind
 //==================================================================================================
 
 /**
+ * @brief initCycle
+ * @param brick
+ */
+void
+initCycle(Brick *brick)
+{
+    while(brick->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    for(uint8_t side = 0; side < 23; side++)
+    {
+        switchNeighborBuffer(brick->neighbors[side]);
+    }
+
+    brick->lock.clear(std::memory_order_release);
+}
+
+//==================================================================================================
+
+/**
+ * @brief finishCycle
+ * @param brick
+ * @param monitoringMessage
+ * @param clientMessage
+ */
+void
+finishCycle(Brick* brick,
+            DataBuffer &clientMessage,
+            DataBuffer &monitoringMessage)
+{
+    while(brick->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    // finish standard-neighbors
+    for(uint8_t side = 0; side < 23; side++)
+    {
+        finishSide(brick, side);
+    }
+
+    processReady(brick);
+
+    if(RootObject::m_clientSession != nullptr) {
+        RootObject::m_clientSession->sendStreamData(clientMessage.data,
+                                                    clientMessage.bufferPosition);
+    }
+
+    if(RootObject::m_monitoringSession != nullptr) {
+        RootObject::m_monitoringSession->sendStreamData(monitoringMessage.data,
+                                                        monitoringMessage.bufferPosition);
+    }
+
+    clientMessage.bufferPosition = 0;
+    monitoringMessage.bufferPosition = 0;
+
+    brick->lock.clear(std::memory_order_release);
+}
+
+//==================================================================================================
+
+/**
+ * @brief finishSide
+ * @param brick
+ * @param side
+ */
+void
+finishSide(Brick* brick,
+           const uint8_t sourceSide)
+{
+    Neighbor* sourceNeighbor = &brick->neighbors[sourceSide];
+    if(sourceNeighbor->inUse == 0) {
+        return;
+    }
+
+    Brick* targetBrick = sourceNeighbor->targetBrick;
+    while(targetBrick->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    assert(targetBrick != nullptr);
+
+    // finish side
+    sendNeighborBuffer(*sourceNeighbor);
+    processReady(targetBrick);
+
+    targetBrick->lock.clear(std::memory_order_release);
+}
+
+//==================================================================================================
+
+/**
+ * @brief processReady
+ * @param brick
+ * @return
+ */
+bool
+processReady(Brick* brick)
+{
+    if(isReady(brick)
+            && brick->inQueue == 0)
+    {
+        RootObject::m_brickHandler->addToQueue(brick);
+        brick->lock.clear(std::memory_order_release);
+        return true;
+    }
+
+    return false;
+}
+
+//==================================================================================================
+
+/**
+ * @brief updateReady
+ * @param brick
+ * @param side
+ */
+bool
+isReady(Brick* brick)
+{
+    for(uint8_t side = 0; side < 23; side++)
+    {
+        if(brick->neighbors[side].inUse == 1
+                && brick->neighbors[side].bufferQueue.size() == 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+//==================================================================================================
+
+/**
  * @brief processOutputNodes
  * @param brick
  * @return
@@ -316,82 +445,6 @@ getSummedValue(Brick &brick)
 //==================================================================================================
 
 /**
- * @brief finishSide
- * @param brick
- * @param side
- */
-void
-finishSide(Brick &brick,
-           const uint8_t sourceSide)
-{
-    Neighbor* sourceNeighbor = &brick.neighbors[sourceSide];
-    if(sourceNeighbor->inUse == 0) {
-        return;
-    }
-
-    // finish side
-    sendNeighborBuffer(*sourceNeighbor, *sourceNeighbor->targetNeighbor);
-
-    Brick* targetBrick = sourceNeighbor->targetBrick;
-    if(targetBrick != nullptr)
-    {
-        if(targetBrick->brickId == 10012) {
-            //LOG_DEBUG("check 10012");
-        }
-        updateBrickReadyStatus(*targetBrick, 23 - sourceSide);
-
-        // check and reschedule target-brick
-        if(isBrickReady(*targetBrick))
-        {
-            targetBrick->readyStatus = 0;
-            for(uint8_t i = 0; i < 23; i++)
-            {
-                switchNeighborBuffer(targetBrick->neighbors[i]);
-            }
-            RootObject::m_brickHandler->addToQueue(targetBrick);
-        }
-    }
-}
-
-//==================================================================================================
-
-/**
- * @brief finishCycle
- * @param brick
- * @param monitoringMessage
- * @param clientMessage
- */
-void
-finishCycle(Brick &brick,
-            DataBuffer &clientMessage,
-            DataBuffer &monitoringMessage)
-{
-    if(brick.brickId == 10012) {
-        std::cout<<"poi"<<std::endl;
-    }
-    // finish standard-neighbors
-    for(uint8_t side = 0; side < 23; side++)
-    {
-        finishSide(brick, side);
-    }
-
-    if(RootObject::m_clientSession != nullptr) {
-        RootObject::m_clientSession->sendStreamData(clientMessage.data,
-                                                    clientMessage.bufferPosition);
-    }
-
-    if(RootObject::m_monitoringSession != nullptr) {
-        RootObject::m_monitoringSession->sendStreamData(monitoringMessage.data,
-                                                        monitoringMessage.bufferPosition);
-    }
-
-    clientMessage.bufferPosition = 0;
-    monitoringMessage.bufferPosition = 0;
-}
-
-//==================================================================================================
-
-/**
  * @brief reportStatus
  */
 void
@@ -442,7 +495,7 @@ writeMonitoringOutput(Brick &brick,
  */
 void
 writeClientOutput(Brick &brick,
-            DataBuffer &buffer)
+                  DataBuffer &buffer)
 {
     Kitsunemimi::Kyouko::MindOutputData outputMessage;
     outputMessage.value = getSummedValue(brick);

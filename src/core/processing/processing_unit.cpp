@@ -68,6 +68,8 @@ ProcessingUnit::run()
         }
         else
         {
+            initCycle(brick);
+
             // main-processing
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*brick);
@@ -84,7 +86,7 @@ ProcessingUnit::run()
             writeMonitoringOutput(*brick, m_monitoringBuffer);
 
             // finish current block
-            finishCycle(*brick,
+            finishCycle(brick,
                         m_clientBuffer,
                         m_monitoringBuffer);
         }

@@ -68,6 +68,7 @@ streamDataCallback(void* target,
 
                 // init the new neighbors
                 connectBricks(*newBrick, sourceSide, *targetBrick);
+                initCycle(newBrick);
 
                 dataPos += sizeof(ClientRegisterInput);
                 break;
@@ -166,15 +167,13 @@ streamDataCallback(void* target,
 
                     for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
                     {
-                        if(neighbor->currentBuffer == nullptr) {
-                            switchNeighborBuffer(*neighbor);
-                        }
-                        assert(neighbor->currentBuffer != nullptr);
+                        assert(neighbor->outgoingBuffer != nullptr);
 
                         DirectEdgeContainer newEdge;
                         newEdge.weight = content.value;
                         newEdge.targetNodeId = i;
-                        addObjectToBuffer(*neighbor->currentBuffer, &newEdge);
+                        assert(neighbor->outgoingBuffer != nullptr);
+                        addObjectToBuffer(*neighbor->outgoingBuffer, &newEdge);
                     }
                 }
 
@@ -185,7 +184,6 @@ streamDataCallback(void* target,
             case CLIENT_LEARN_FINISH_CYCLE:
             {
                 LOG_DEBUG("CLIENT_LEARN_FINISH_CYCLE");
-
                 const ClientLearnFinishCycleData content =
                         *((ClientLearnFinishCycleData*)&dataObj[dataPos]);
 
@@ -194,7 +192,13 @@ streamDataCallback(void* target,
                 if(it != rootObject->m_inputBricks->end())
                 {
                     Brick* brick = it->second;
-                    finishSide(*brick, 22);
+                    brick->counter++;
+                    assert(brick->neighbors[22].outgoingBuffer != nullptr);
+                    finishSide(brick, 22);
+                    while(isReady(brick) == false) {
+                        usleep(1000);
+                    }
+                    initCycle(brick);
                 }
 
                 dataPos += sizeof(ClientLearnFinishCycleData);

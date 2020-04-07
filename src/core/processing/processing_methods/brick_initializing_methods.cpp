@@ -1,6 +1,7 @@
 #include <core/processing/processing_methods/brick_initializing_methods.h>
 
 #include <core/processing/processing_methods/neighbor_methods.h>
+#include <core/processing/processing_methods/brick_processing_methods.h>
 
 namespace KyoukoMind
 {
@@ -25,14 +26,8 @@ initBrickNeighbor(Brick &sourceBrick,
         return false;
     }
 
-    // update ready-mask
-    uint32_t pos = 0x1;
-    sourceBrick.readyMask = sourceBrick.readyMask | (pos << sourceSide);
-    //brick.readyStatus = brick.readyMask | (pos << sourceSide);
-
     // init neighbor
     initNeighbor(*neighbor, targetBrick, targetNeighbor);
-    updateBrickBufferData(sourceBrick);
 
     return true;
 }
@@ -54,17 +49,9 @@ uninitBrickNeighbor(Brick &sourceBrick,
         return false;
     }
 
-    // update ready-mask
-    uint32_t pos = 0x1;
-    sourceBrick.readyMask = sourceBrick.readyMask - (pos << side);
-    sourceBrick.readyStatus = sourceBrick.readyMask - (pos << side);
-
     // uninit
     // TODO: issue #58
     neighbor->inUse = 0;
-
-    // write brick-metadata to buffer
-    updateBrickBufferData(sourceBrick);
 
     return true;
 }
@@ -173,7 +160,6 @@ initDataBlocks(Brick &brick,
 
     // allocate blocks in buffer
     allocateBlocks(data->buffer, data->numberOfItemBlocks);
-    updateBrickBufferData(brick);
 
     return true;
 }

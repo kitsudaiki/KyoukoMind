@@ -8,43 +8,6 @@
 namespace KyoukoMind
 {
 
-
-//==================================================================================================
-
-inline bool
-isBrickReady(Brick &brick)
-{
-    return brick.readyStatus == brick.readyMask;
-}
-
-//==================================================================================================
-
-/**
- * @brief updateReadyStatus
- *
- * @param brick
- * @param side
- */
-inline void
-updateBrickReadyStatus(Brick &brick, const uint8_t side)
-{
-    uint32_t pos = 0x1;
-    brick.readyStatus = brick.readyStatus | (pos << side);
-}
-
-//==================================================================================================
-
-/**
- * write the current mata-data to the buffer and the file
- */
-inline void
-updateBrickBufferData(Brick &brick)
-{
-    uint32_t size = sizeof(Brick);
-    memcpy(brick.headerBuffer.data, &brick, size);
-    // TODO: readd persist meta-data-changes
-}
-
 //==================================================================================================
 
 /**

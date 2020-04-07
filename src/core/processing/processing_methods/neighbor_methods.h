@@ -3,6 +3,7 @@
 
 #include <common.h>
 #include <core/objects/neighbor.h>
+#include <core/objects/brick.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -29,8 +30,9 @@ initNeighbor(Neighbor &neighbor,
     // init side
     neighbor.targetNeighbor = targetNeighbor;
     neighbor.targetBrick = targetBrick;
-    neighbor.outgoingBuffer = new StackBuffer();
+    neighbor.outgoingBuffer = nullptr;
     neighbor.currentBuffer = new StackBuffer();
+    neighbor.bufferQueue.push(new StackBuffer());
     neighbor.bufferQueue.push(new StackBuffer());
 
     neighbor.inUse = 1;
@@ -43,35 +45,18 @@ initNeighbor(Neighbor &neighbor,
  * @param sourceNeighbor
  * @param targetNeighbor
  */
-inline bool
-sendNeighborBuffer(Neighbor &targetNeighbor,
-                   Kitsunemimi::StackBuffer* buffer)
-{
-    while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    targetNeighbor.bufferQueue.push(buffer);
-    targetNeighbor.lock.clear(std::memory_order_release);
-
-    return true;
-}
-
-//==================================================================================================
-
-/**
- * @brief setNextBuffer
- * @param sourceNeighbor
- * @param targetNeighbor
- */
 inline void
-sendNeighborBuffer(Neighbor &sourceNeighbor,
-                   Neighbor &targetNeighbor)
+sendNeighborBuffer(Neighbor &sourceNeighbor)
 {
     while(sourceNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    while(targetNeighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    while(sourceNeighbor.targetNeighbor->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    targetNeighbor.bufferQueue.push(sourceNeighbor.outgoingBuffer);
+    assert(sourceNeighbor.outgoingBuffer != nullptr);
+
+    sourceNeighbor.targetNeighbor->bufferQueue.push(sourceNeighbor.outgoingBuffer);
     sourceNeighbor.outgoingBuffer = nullptr;
 
-    targetNeighbor.lock.clear(std::memory_order_release);
+    sourceNeighbor.targetNeighbor->lock.clear(std::memory_order_release);
     sourceNeighbor.lock.clear(std::memory_order_release);
 }
 
@@ -89,6 +74,10 @@ switchNeighborBuffer(Neighbor &neighbor)
     }
 
     while(neighbor.lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    assert(neighbor.outgoingBuffer == nullptr);
+    assert(neighbor.currentBuffer != nullptr);
+    assert(neighbor.bufferQueue.size() > 0);
 
     neighbor.outgoingBuffer = neighbor.currentBuffer;
     resetBuffer(*neighbor.currentBuffer);
