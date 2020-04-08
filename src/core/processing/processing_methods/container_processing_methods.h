@@ -61,8 +61,8 @@ checkAndDelete(Brick &brick,
         if(currentSection.sourceId != UNINIT_STATE_32)
         {
             newEdge.targetId = currentSection.sourceId;
-            addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                              &newEdge);
+            addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                                   &newEdge);
         }
 
         deleteDynamicItem(brick, EDGE_DATA, forwardEdgeSectionId);
@@ -228,8 +228,8 @@ processUpdateSetEdge(Brick &brick,
     if(currentSection.sourceId != UNINIT_STATE_32)
     {
         newEdge.targetId = currentSection.sourceId;
-        addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                          &newEdge);
+        addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                               &newEdge);
     }
 }
 
@@ -258,14 +258,14 @@ processUpdateSubEdge(Brick &brick,
     replyEdge.updateValue = currentSection.edges[inititalSide].weight;
 
     newEdge.targetId = currentSection.sourceId;
-    addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                      &replyEdge);
+    addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                           &replyEdge);
 
     if(currentSection.sourceId != UNINIT_STATE_32)
     {
         newEdge.targetId = currentSection.sourceId;
-        addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                          &newEdge);
+        addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                               &newEdge);
     }
 }
 
@@ -296,8 +296,8 @@ processUpdateDeleteEdge(Brick &brick,
         if(currentSection.sourceId != UNINIT_STATE_32)
         {
             newEdge.targetId = currentSection.sourceId;
-            addObjectToBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                              &newEdge);
+            addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                                   &newEdge);
         }
     }
 }
@@ -410,8 +410,8 @@ learningEdgeSection(Brick &brick,
                     LearingEdgeContainer newEdge;
                     newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
                     newEdge.weight = currentSideWeight;
-                    addObjectToBuffer(*brick.neighbors[side].outgoingBuffer,
-                                      &newEdge);
+                    addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
+                                           &newEdge);
                 }
 
                 currentSection->edges[side].weight += currentSideWeight;
@@ -479,8 +479,8 @@ processEdgeForwardSection(Brick &brick,
                 EdgeContainer newEdge;
                 newEdge.targetEdgeSectionId = tempEdge.targetId;
                 newEdge.weight = tempEdge.weight * ratio;
-                addObjectToBuffer(*brick.neighbors[sideCounter].outgoingBuffer,
-                                  &newEdge);
+                addObjectToStackBuffer(*brick.neighbors[sideCounter].outgoingBuffer,
+                                       &newEdge);
             }
             else
             {
@@ -489,8 +489,8 @@ processEdgeForwardSection(Brick &brick,
                 newEdge.weight = tempEdge.weight * ratio;
                 newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
                 newEdge.sourceSide = 23 - sideCounter;
-                addObjectToBuffer(*brick.neighbors[sideCounter].outgoingBuffer,
-                                  &newEdge);
+                addObjectToStackBuffer(*brick.neighbors[sideCounter].outgoingBuffer,
+                                       &newEdge);
             }
         }
     }
@@ -520,8 +520,8 @@ processAxon(Brick &brick,
         newEdge.weight = weight * brick.globalValues.globalGlia;
         newEdge.targetAxonId = targetId;
         const uint8_t side = path % 32;
-        addObjectToBuffer(*brick.neighbors[side].outgoingBuffer,
-                          &newEdge);
+        addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
+                               &newEdge);
     }
     else
     {
@@ -552,8 +552,8 @@ processLerningEdge(Brick &brick,
     LearningEdgeReplyContainer reply;
     reply.sourceEdgeSectionId = sourceEdgeSectionId;
     reply.targetEdgeSectionId = targetEdgeSectionId;
-    addObjectToBuffer(*brick.neighbors[initSide].outgoingBuffer,
-                      &reply);
+    addObjectToStackBuffer(*brick.neighbors[initSide].outgoingBuffer,
+                           &reply);
 
     processEdgeForwardSection(brick, targetEdgeSectionId, weight, weightMap);
 }

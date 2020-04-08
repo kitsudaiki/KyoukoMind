@@ -173,7 +173,7 @@ streamDataCallback(void* target,
                         newEdge.weight = content.value;
                         newEdge.targetNodeId = i;
                         assert(neighbor->outgoingBuffer != nullptr);
-                        addObjectToBuffer(*neighbor->outgoingBuffer, &newEdge);
+                        addObjectToStackBuffer(*neighbor->outgoingBuffer, &newEdge);
                     }
                 }
 

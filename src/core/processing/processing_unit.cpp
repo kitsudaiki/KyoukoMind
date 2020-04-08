@@ -158,13 +158,13 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
             refillWeightMap(brick, side, brick.neighbors);
 
             StackBuffer* currentBuffer = brick.neighbors[side].currentBuffer;
-            DataBuffer* currentBlock = getFirstElement(*currentBuffer);
+            DataBuffer* currentBlock = getFirstElementFromStackBuffer(*currentBuffer);
 
             while(currentBlock != nullptr)
             {
                 processIncomingMessage(brick, side, currentBlock);
-                removeFirstFromStack(*currentBuffer);
-                currentBlock = getFirstElement(*currentBuffer);
+                removeFirstFromStackBuffer(*currentBuffer);
+                currentBlock = getFirstElementFromStackBuffer(*currentBuffer);
             }
         }
     }

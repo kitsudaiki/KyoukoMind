@@ -73,7 +73,7 @@ switchNeighborBuffer(Neighbor &neighbor)
     assert(neighbor.bufferQueue.size() > 0);
 
     neighbor.outgoingBuffer = neighbor.currentBuffer;
-    resetBuffer(*neighbor.currentBuffer);
+    resetStackBuffer(*neighbor.currentBuffer);
     neighbor.currentBuffer = neighbor.bufferQueue.front();
     neighbor.bufferQueue.pop();
 }
