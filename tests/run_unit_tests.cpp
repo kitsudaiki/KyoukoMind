@@ -26,8 +26,6 @@ RunUnitTests::run()
     #ifdef RUN_UNIT_TEST
     KyoukoMind::BufferControlMethodsTest();
     KyoukoMind::InitTest();
-    KyoukoMind::MessageBufferTest();
-    KyoukoMind::IncomingBufferTest();
     #endif
 }
 
