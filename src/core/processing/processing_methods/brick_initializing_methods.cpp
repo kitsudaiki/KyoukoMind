@@ -22,9 +22,7 @@ initBrickNeighbor(Brick &sourceBrick,
 
     // get and check neighbor
     Neighbor* neighbor = &sourceBrick.neighbors[sourceSide];
-    if(neighbor->inUse == 1) {
-        return false;
-    }
+    assert(neighbor->inUse == 0);
 
     // init neighbor
     initNeighbor(*neighbor, targetBrick, targetNeighbor);
@@ -45,9 +43,7 @@ uninitBrickNeighbor(Brick &sourceBrick,
 {
     // get and check neighbor
     Neighbor* neighbor = &sourceBrick.neighbors[side];
-    if(neighbor->inUse == 0) {
-        return false;
-    }
+    assert(neighbor->inUse == 1);
 
     // uninit
     // TODO: issue #58
@@ -68,10 +64,7 @@ connectBricks(Brick &sourceBrick,
               const uint8_t sourceSide,
               Brick &targetBrick)
 {
-    // check if side is valid
-    if(sourceSide >= 26) {
-        return false;
-    }
+    assert(sourceSide < 23);
 
     // get neighbor-pointers
     Neighbor* sourceNeighbor = &sourceBrick.neighbors[sourceSide];
@@ -109,10 +102,7 @@ disconnectBricks(Brick &sourceBrick,
                  const uint8_t sourceSide,
                  Brick &targetBrick)
 {
-    // check if side is valid
-    if(sourceSide >= 26) {
-        return false;
-    }
+    assert(sourceSide < 23);
 
     // get neighbor-pointers
     Neighbor* sourceNeighbor = &sourceBrick.neighbors[sourceSide];
@@ -145,13 +135,9 @@ initDataBlocks(Brick &brick,
                const uint32_t numberOfItems,
                const uint32_t itemSize)
 {
-    DataConnection *data = &brick.dataConnections[connectionId];
-
-    // prechecks
-    if(data->numberOfItems != 0
-            || itemSize == 0) {
-        return false;
-    }
+    DataConnection* data = &brick.dataConnections[connectionId];
+    assert(itemSize != 0);
+    assert(data->numberOfItems == 0);
 
     // update meta-data of the brick
     data->itemSize = itemSize;
@@ -176,11 +162,7 @@ initNodeBlocks(Brick &brick,
                uint32_t numberOfNodes)
 {
     DataConnection* data = &brick.dataConnections[NODE_DATA];
-
-    // prechecks
-    if(data->numberOfItems != 0) {
-        return false;
-    }
+    assert(data->numberOfItems == 0);
 
     // if not set by user, use default-value
     if(numberOfNodes == 0) {
@@ -217,11 +199,7 @@ initSynapseSectionBlocks(Brick &brick,
                          const uint32_t numberOfSynapseSections)
 {
     DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
-
-    // prechecks
-    if(data->inUse != 0) {
-        return false;
-    }
+    assert(data->inUse == 0);
 
     // init
     if(initDataBlocks(brick,
@@ -257,11 +235,7 @@ initEdgeSectionBlocks(Brick &brick,
                       const uint32_t numberOfEdgeSections)
 {
     DataConnection* data = &brick.dataConnections[EDGE_DATA];
-
-    // prechecks
-    if(data->inUse != 0) {
-        return false;
-    }
+    assert(data->inUse == 0);
 
     // init
     if(initDataBlocks(brick,
@@ -298,9 +272,7 @@ addClientOutputConnection(Brick &brick)
 {
     // get and check connection-item
     DataConnection* data = &brick.dataConnections[NODE_DATA];
-    if(data->inUse == 0) {
-        return false;
-    }
+    assert(data->inUse == 0);
 
     // set brick as output-brick
     brick.isOutputBrick = 1;
