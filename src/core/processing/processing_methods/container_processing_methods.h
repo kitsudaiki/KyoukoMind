@@ -59,13 +59,9 @@ checkAndDelete(Brick &brick,
     {
         UpdateEdgeContainer newEdge;
         newEdge.updateType = UpdateEdgeContainer::DELETE_TYPE;
-
-        if(currentSection.sourceId != UNINIT_STATE_32)
-        {
-            newEdge.targetId = currentSection.sourceId;
-            addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                                   &newEdge);
-        }
+        newEdge.targetId = currentSection.sourceId;
+        addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                               &newEdge);
 
         deleteDynamicItem(brick, EDGE_DATA, forwardEdgeSectionId);
 
@@ -366,7 +362,8 @@ learningEdgeSection(Brick &brick,
                     const uint32_t forwardEdgeSectionId,
                     const float weight)
 {
-    if(weight >= 0.5f || currentSection->status == ACTIVE_SECTION)
+    if(weight >= 0.5f
+            || currentSection->status == ACTIVE_SECTION)
     {
         for(uint8_t side = 0; side < 23; side++)
         {
