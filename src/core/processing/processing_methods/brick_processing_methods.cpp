@@ -160,31 +160,6 @@ isReady(Brick* brick)
 //==================================================================================================
 
 /**
- * @brief processOutputNodes
- * @param brick
- * @return
- */
-uint16_t
-processOutputNodes(Brick &brick)
-{
-    const DataConnection data = brick.dataConnections[NODE_DATA];
-    // process nodes
-    Node* start = static_cast<Node*>(data.buffer.data);
-    Node* end = start + data.numberOfItems;
-
-    // iterate over all nodes in the brick
-    for(Node* node = start;
-        node < end;
-        node++)
-    {
-        node->currentState /= NODE_COOLDOWN;
-    }
-    return 0;
-}
-
-//==================================================================================================
-
-/**
  * processing of the nodes of a specific node-brick
  *
  * @return number of active nodes in this brick
@@ -194,24 +169,11 @@ processNodes(Brick &brick, float* weightMap)
 {
     DataConnection* data = &brick.dataConnections[NODE_DATA];
 
-    if(brick.isOutputBrick == 1)
-    {
-        // process nodes
-        Node* start = static_cast<Node*>(data->buffer.data);
-        Node* end = start + data->numberOfItems;
-
-        // iterate over all nodes in the cluster
-        for(Node* node = start;
-            node < end;
-            node++)
-        {
-            node->currentState /= NODE_COOLDOWN;
-        }
+    if(brick.isOutputBrick != 0) {
         return 0;
     }
 
     uint16_t numberOfActiveNodes = 0;
-    float totalPotential = 0.0f;
 
     // process nodes
     Node* start = (Node*)data->buffer.data;
@@ -222,10 +184,9 @@ processNodes(Brick &brick, float* weightMap)
         node < end;
         node++)
     {
-        // limit the node-state to 255
-        if(node->currentState > 255.0f) {
-            node->currentState = 255.0f;
-        }
+        // set to 255.0f, if value is too high
+        const uint8_t tooBig = node->currentState > 255.0f;
+        node->currentState -= tooBig * (255.0f + node->currentState);
 
         // init
         const Node tempNode = *node;
@@ -259,26 +220,18 @@ processNodes(Brick &brick, float* weightMap)
         // post-steps
         node->refractionTime = node->refractionTime >> 1;
 
-        if(node->currentState < 0.0f) {
-            node->currentState = 0.0f;
-        }
+        // set to 0.0f, if value is negative
+        const uint8_t tooSmall = node->currentState < 0.0f;
+        node->currentState -= tooSmall * node->currentState;
 
-        if(node->currentState > 1.2f * node->border) {
-            node->tooHeight = 1;
-        } else {
-            node->tooHeight = 0;
-        }
+        // check if node-state is too high compared to the border
+        node->tooHigh = node->currentState > 1.2f * node->border;
 
         // make cooldown in the node
-        totalPotential += node->potential;
         node->potential /= NODE_COOLDOWN;
         node->currentState /= NODE_COOLDOWN;
     }
 
-    //m_monitoringProcessingData.numberOfActiveAxons += numberOfActiveNodes;
-    //m_monitoringProcessingData.averagetAxonPotential += totalPotential;
-
-    //m_neighborInfo.localLearing += (float) numberOfActiveNodes / (float)m_brickData.numberOfStaticItems;
     return numberOfActiveNodes;
 }
 
@@ -411,10 +364,7 @@ memorizeSynapses(Brick &brick)
 inline float
 getSummedValue(Brick &brick)
 {
-    // precheck
-    if(brick.isOutputBrick > 0) {
-        return false;
-    }
+    assert(brick.isOutputBrick != 0);
 
     // get and check connection-item
     DataConnection* data = &brick.dataConnections[NODE_DATA];
@@ -432,6 +382,7 @@ getSummedValue(Brick &brick)
         node++)
     {
         sum += node->currentState;
+        node->currentState /= NODE_COOLDOWN;
     }
 
     // write value to the internal ring-buffer

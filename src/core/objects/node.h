@@ -26,7 +26,7 @@ struct Node
     uint8_t refractionTime = 0;
 
     uint8_t active = 0;
-    uint8_t tooHeight = 0;
+    uint8_t tooHigh = 0;
 
     // Axon
     uint64_t targetBrickPath = 0;

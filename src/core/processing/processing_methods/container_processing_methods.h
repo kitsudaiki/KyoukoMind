@@ -116,7 +116,7 @@ learningSynapseSection(Brick &brick,
         Node* nodeBuffer = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
         Node* node = &nodeBuffer[synapse->targetNodeId];
 
-        const uint8_t tooHeight = nodeBuffer[synapse->targetNodeId].tooHeight;
+        const uint8_t tooHeight = nodeBuffer[synapse->targetNodeId].tooHigh;
 
         float newVal = 0.0f;
         if(brick.isOutputBrick == 0)
