@@ -43,13 +43,12 @@ inline void
 addSynapse(SynapseSection &section,
            const Synapse &newSynapse)
 {
-    const uint8_t ok = section.numberOfSynapses < EDGES_PER_SYNAPSESECTION;
-    const uint32_t pos = ((ok * section.numberOfSynapses) +
-                          (EDGES_PER_SYNAPSESECTION-1))
-                         % EDGES_PER_SYNAPSESECTION;
-
-    section.synapses[pos] = newSynapse;
-    section.numberOfSynapses += ok;
+    if(section.numberOfSynapses < EDGES_PER_SYNAPSESECTION)
+    {
+        const uint32_t pos = section.numberOfSynapses;
+        section.synapses[pos] = newSynapse;
+        section.numberOfSynapses++;
+    }
 }
 
 //==================================================================================================
@@ -65,15 +64,13 @@ updateSynapseWeight(SynapseSection &section,
                     const uint32_t position,
                     const float weightUpdate)
 {
-    const uint8_t ok = position < section.numberOfSynapses;
-    const uint32_t pos = ((ok * position) +
-                          (EDGES_PER_SYNAPSESECTION-1))
-                         % EDGES_PER_SYNAPSESECTION;
-
-    float diff = abs(section.synapses[pos].weight);
-    section.synapses[pos].weight += weightUpdate;
-    diff -= abs(section.synapses[pos].weight);
-    section.totalWeight -= ok * diff;
+    if(position < section.numberOfSynapses)
+    {
+        float diff = abs(section.synapses[position].weight);
+        section.synapses[position].weight += weightUpdate;
+        diff -= abs(section.synapses[position].weight);
+        section.totalWeight -= diff;
+    }
 }
 
 //==================================================================================================
