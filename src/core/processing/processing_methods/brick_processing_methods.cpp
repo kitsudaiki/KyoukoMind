@@ -248,12 +248,17 @@ processNodes(Brick &brick, float* weightMap)
         {
             const float weight = node->potential * PROCESSING_MULTIPLICATOR;
             const uint64_t path = tempNode.targetBrickPath/32;
-            processAxon(brick, tempNode.targetAxonId, path, weight, weightMap);
+
+            AxonEdgeContainer newEdge;
+            newEdge.targetAxonId = tempNode.targetAxonId;
+            newEdge.targetBrickPath = path;
+            newEdge.weight = weight;
+
+            processAxon(brick, newEdge, weightMap);
         }
         // post-steps
-        if(node->refractionTime != 0) {
-            node->refractionTime--;
-        }
+        node->refractionTime = node->refractionTime >> 1;
+
         if(node->currentState < 0.0f) {
             node->currentState = 0.0f;
         }

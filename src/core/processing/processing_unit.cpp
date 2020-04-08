@@ -196,93 +196,63 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             // -------------------------------------------------------------------------------------
             case STATUS_EDGE_CONTAINER:
             {
-                UpdateEdgeContainer* edge = static_cast<UpdateEdgeContainer*>(obj);
+                const UpdateEdgeContainer edge = *static_cast<UpdateEdgeContainer*>(obj);
+                assert(edge.targetId != UNINIT_STATE_32);
+                processUpdateEdge(brick, edge, side);
                 data += sizeof(UpdateEdgeContainer);
-
-                assert(edge->targetId != UNINIT_STATE_32);
-                processUpdateEdge(brick,
-                                  edge->targetId,
-                                  edge->updateValue,
-                                  edge->updateType,
-                                  side);
                 break;
             }
             // -------------------------------------------------------------------------------------
             case PENDING_EDGE_CONTAINER:
             {
-                PendingEdgeContainer* edge = static_cast<PendingEdgeContainer*>(obj);
+                const PendingEdgeContainer edge = *static_cast<PendingEdgeContainer*>(obj);
+                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
+                processPendingEdge(brick, edge, m_weightMap);
                 data += sizeof(PendingEdgeContainer);
-
-                assert(edge->sourceEdgeSectionId != UNINIT_STATE_32);
-                processPendingEdge(brick,
-                                   edge->sourceEdgeSectionId,
-                                   edge->sourceSide,
-                                   edge->weight,
-                                   m_weightMap);
                 break;
             }
             // -------------------------------------------------------------------------------------
             case FOREWARD_EDGE_CONTAINER:
             {
-                EdgeContainer* edge = static_cast<EdgeContainer*>(obj);
+                const EdgeContainer edge = *static_cast<EdgeContainer*>(obj);
+                assert(edge.targetEdgeSectionId != UNINIT_STATE_32);
+                processEdgeForwardSection(brick, edge, m_weightMap);
                 data += sizeof(EdgeContainer);
-
-                assert(edge->targetEdgeSectionId != UNINIT_STATE_32);
-                processEdgeForwardSection(brick,
-                                          edge->targetEdgeSectionId,
-                                          edge->weight,
-                                          m_weightMap);
                 break;
             }
             // -------------------------------------------------------------------------------------
             case AXON_EDGE_CONTAINER:
             {
-                AxonEdgeContainer* edge = static_cast<AxonEdgeContainer*>(obj);
+                const AxonEdgeContainer edge = *static_cast<AxonEdgeContainer*>(obj);
+                assert(edge.targetAxonId != UNINIT_STATE_32);
+                processAxon(brick, edge, m_weightMap);
                 data += sizeof(AxonEdgeContainer);
-
-                assert(edge->targetAxonId != UNINIT_STATE_32);
-                processAxon(brick,
-                            edge->targetAxonId,
-                            edge->targetBrickPath,
-                            edge->weight,
-                            m_weightMap);
                 break;
             }
             // -------------------------------------------------------------------------------------
             case LEARNING_EDGE_CONTAINER:
             {
-                LearingEdgeContainer* edge = static_cast<LearingEdgeContainer*>(obj);
+                const LearingEdgeContainer edge = *static_cast<LearingEdgeContainer*>(obj);
+                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
+                processLerningEdge(brick, edge, side, m_weightMap);
                 data += sizeof(LearingEdgeContainer);
-
-                assert(edge->sourceEdgeSectionId != UNINIT_STATE_32);
-                processLerningEdge(brick,
-                                   edge->sourceEdgeSectionId,
-                                   edge->weight,
-                                   side,
-                                   m_weightMap);
                 break;
             }
             // -------------------------------------------------------------------------------------
             case LEARNING_REPLY_EDGE_CONTAINER:
             {
-                LearningEdgeReplyContainer* edge = static_cast<LearningEdgeReplyContainer*>(obj);
+                const LearningEdgeReplyContainer edge = *static_cast<LearningEdgeReplyContainer*>(obj);
+                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
+                processLearningEdgeReply(brick, edge, side);
                 data += sizeof(LearningEdgeReplyContainer);
-
-                EdgeSection* edgeSections = getEdgeBlock(&brick.dataConnections[EDGE_DATA]);
-                assert(edge->sourceEdgeSectionId != UNINIT_STATE_32);
-                edgeSections[edge->sourceEdgeSectionId].edges[side].targetId =
-                        edge->targetEdgeSectionId;
                 break;
             }
             // -------------------------------------------------------------------------------------
             case DIRECT_EDGE_CONTAINER:
             {
-                DirectEdgeContainer* edge = static_cast<DirectEdgeContainer*>(obj);
+                const DirectEdgeContainer edge = *static_cast<DirectEdgeContainer*>(obj);
+                processDirectEdge(brick, edge);
                 data += sizeof(DirectEdgeContainer);
-
-                Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
-                Node* node = &nodes[edge->targetNodeId];
-                node->currentState = edge->weight;
                 break;
             }
             // -------------------------------------------------------------------------------------
