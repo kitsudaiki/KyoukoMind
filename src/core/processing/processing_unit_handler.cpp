@@ -9,11 +9,11 @@
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/processing_unit.h>
-#include <core/bricks/brick_handler.h>
+#include <core/brick_handler.h>
 
 #include <libKitsunemimiCommon/threading/thread.h>
 
-#include <kyouko_network.h>
+#include <root_object.h>
 
 namespace KyoukoMind
 {

@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <libKitsunemimiCommon/test_helper/compare_test_helper.h>
-#include <kyouko_network.h>
+#include <root_object.h>
 
 namespace KyoukoMind
 {
@@ -32,7 +32,7 @@ private:
     void cleanupTestCase();
 
     NetworkInitializer* m_networkInitializer = nullptr;
-    KyoukoMind::KyoukoNetwork* m_network = nullptr;
+    KyoukoMind::RootObject* m_network = nullptr;
     std::string m_testBrickContent = "|0|0|0|0|0|\n"
                                      "|0|2|2|0|0|\n"
                                      "|0|2|1|2|0|\n"

@@ -8,18 +8,16 @@
  */
 
 #include "network_initializer.h"
-#include <kyouko_network.h>
-#include <core/bricks/brick_objects/brick.h>
+#include <root_object.h>
+#include <core/objects/brick.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>
 
-#include <core/bricks/brick_handler.h>
+#include <core/brick_handler.h>
 #include <core/processing/processing_unit_handler.h>
-
-#include <core/bricks/brick_methods/common_brick_methods.h>
-#include <core/bricks/brick_methods/buffer_control_methods.h>
-#include <core/processing/processing_methods/message_processing_methods.h>
+#include <core/processing/processing_methods/container_processing_methods.h>
+#include <core/processing/processing_methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
 {
@@ -75,16 +73,16 @@ addBricks(const uint32_t nodeNumberPerBrick,
                 {
                     Brick* brick = new Brick(brickId, x, y);
                     (*networkMetaStructure)[x][y].brick = brick;
-                    KyoukoNetwork::m_brickHandler->addBrick(brickId, brick);
+                    RootObject::m_brickHandler->addBrick(brickId, brick);
                     break;
                 }
                 case 3:
                 {
                     Brick* brick = new Brick(brickId, x, y);
-                    initNodeBlocks(brick, nodeNumberPerBrick);
-                    initSynapseSectionBlocks(brick, 0);
+                    initNodeBlocks(*brick, nodeNumberPerBrick);
+                    initSynapseSectionBlocks(*brick, 0);
                     (*networkMetaStructure)[x][y].brick = brick;
-                    KyoukoNetwork::m_brickHandler->addBrick(brickId, brick);
+                    RootObject::m_brickHandler->addBrick(brickId, brick);
                     break;
                 }
                 default:
@@ -120,14 +118,13 @@ connectAllBricks(InitStructure *metaStructure)
                 {
                     const BrickID sourceId = (*metaStructure)[x][y].brick->brickId;
                     const BrickID targetId = (*metaStructure)[next.first][next.second].brickId;
-                    KyoukoNetwork::m_brickHandler->connect(sourceId,
-                                                           side,
-                                                           targetId);
+                    RootObject::m_brickHandler->connect(sourceId,
+                                                        side,
+                                                        targetId);
 
                     Neighbor* neighbor = &(*metaStructure)[x][y].brick->neighbors[side];
                     neighbor->targetBrickPos.x = next.first;
                     neighbor->targetBrickPos.y = next.second;
-
                 }
             }
         }

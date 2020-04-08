@@ -8,11 +8,11 @@
  */
 
 #include "axon_initializer.h"
-#include <kyouko_network.h>
+#include <root_object.h>
 
-#include <core/bricks/brick_objects/brick.h>
-#include <core/bricks/brick_methods/common_brick_methods.h>
-#include <core/bricks/brick_methods/buffer_control_methods.h>
+#include <core/objects/brick.h>
+#include <core/processing/processing_methods/brick_item_methods.h>
+#include <core/processing/processing_methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
 {
@@ -73,7 +73,7 @@ createAxons(InitStructure* networkMetaStructure)
             if((*networkMetaStructure)[x][y].numberOfAxons == 0) {
                 (*networkMetaStructure)[x][y].numberOfAxons = 1;
             }
-            initEdgeSectionBlocks(brick, (*networkMetaStructure)[x][y].numberOfAxons);
+            initEdgeSectionBlocks(*brick, (*networkMetaStructure)[x][y].numberOfAxons);
         }
     }
     return true;
@@ -160,7 +160,7 @@ chooseNextSide(const uint8_t initialSide, Neighbor* neighbors)
 
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
-        if(neighbors[sideOrder[i]].targetBrickId != UNINIT_STATE_32
+        if(neighbors[sideOrder[i]].targetBrick != nullptr
                 && sideOrder[i] != initialSide)
         {
             availableSides.push_back(sideOrder[i]);

@@ -7,11 +7,11 @@
  *  Apache License Version 2.0
  */
 
-#include <core/bricks/brick_handler.h>
-#include <core/bricks/global_values_handler.h>
+#include <core/brick_handler.h>
+#include <core/global_values_handler.h>
 
-#include <core/bricks/brick_objects/brick.h>
-#include <core/bricks/brick_methods/common_brick_methods.h>
+#include <core/objects/brick.h>
+#include <core/processing/processing_methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
 {
@@ -147,7 +147,7 @@ BrickHandler::connect(const BrickID sourceBrickId,
     Brick* sourceBrick = getBrick(sourceBrickId);
     Brick* targetBrick = getBrick(targetBrickId);
 
-    return connectBricks(sourceBrick, sourceSide, targetBrick);
+    return connectBricks(*sourceBrick, sourceSide, *targetBrick);
 }
 
 /**
@@ -163,7 +163,7 @@ BrickHandler::disconnect(const BrickID sourceBrickId,
     Brick* sourceBrick = getBrick(sourceBrickId);
     Brick* targetBrick = getBrick(targetBrickId);
 
-    return disconnectBricks(sourceBrick, sourceSide, targetBrick);
+    return disconnectBricks(*sourceBrick, sourceSide, *targetBrick);
 }
 
 /**
@@ -175,7 +175,9 @@ bool
 BrickHandler::addToQueue(Brick *brick)
 {
     // precheck
-    if(brick->inQueue == 1) {
+    if(brick->inQueue == 1
+            || brick->isInputBrick != 0)
+    {
         return false;
     }
 
@@ -185,7 +187,6 @@ BrickHandler::addToQueue(Brick *brick)
 
     // add to queue
     brick->inQueue = 1;
-    assert(brick->isReady() == true);
     m_readyBricks.push(brick);
 
     m_queueLock.clear(std::memory_order_release);
@@ -221,7 +222,6 @@ BrickHandler::getFromQueue()
         result = m_readyBricks.front();
         m_readyBricks.pop();
         result->inQueue = 0;
-        assert(result->isReady() == true);
     }
 
     m_queueLock.clear(std::memory_order_release);

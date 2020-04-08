@@ -34,7 +34,7 @@ public:
     void run();
 
 private:
-    void initNetwork();
+    bool initNetwork();
 
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
     ConnectionTrigger* m_trigger = nullptr;

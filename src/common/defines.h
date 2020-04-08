@@ -10,7 +10,7 @@
 #include <common/includes.h>
 
 #define OUTPUT(OUT) std::cout<<(OUT)<<std::endl;
-//#define RUN_UNIT_TEST
+#define RUN_UNIT_TEST
 
 // const predefined values
 #define UNINIT_STATE_64 0xFFFFFFFFFFFFFFFF
@@ -18,7 +18,7 @@
 #define UNINIT_STATE_16 0xFFFF
 
 // network-predefines
-#define EDGES_PER_SYNAPSESECTION 145
+#define EDGES_PER_SYNAPSESECTION 64
 #define NUMBER_OF_NODES_PER_BRICK 10
 #define MINIMUM_NODE_BODER 20
 #define MAXIMUM_NODE_BODER 50

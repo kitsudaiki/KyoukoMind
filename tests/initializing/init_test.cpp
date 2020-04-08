@@ -8,10 +8,10 @@
  */
 
 #include "init_test.h"
-#include <kyouko_network.h>
+#include <root_object.h>
 
-#include <core/bricks/brick_handler.h>
-#include <core/bricks/brick_objects/brick.h>
+#include <core/brick_handler.h>
+#include <core/objects/brick.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/network_initializer.h>
@@ -32,8 +32,8 @@ InitTest::InitTest()
  */
 void InitTest::initTestCase()
 {
-    m_network = new KyoukoMind::KyoukoNetwork();
-    KyoukoNetwork::m_brickHandler = new BrickHandler();
+    m_network = new KyoukoMind::RootObject();
+    RootObject::m_brickHandler = new BrickHandler();
     createNewNetwork(m_testBrickContent);
 }
 
@@ -45,30 +45,28 @@ void InitTest::checkInit()
     std::vector<Brick*> bricks;
     uint32_t nodeNumberPerBrick = 10;
 
-    uint64_t numberOfInitBrick = KyoukoNetwork::m_brickHandler->getNumberOfBrick();
+    uint64_t numberOfInitBrick = RootObject::m_brickHandler->getNumberOfBrick();
     TEST_EQUAL(numberOfInitBrick, 7);
 
-    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(6));
-    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(7));
-    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(11));
-    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(12));
-    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(13));
-    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(16));
-    bricks.push_back(KyoukoNetwork::m_brickHandler->getBrick(17));
+    bricks.push_back(RootObject::m_brickHandler->getBrick(6));
+    bricks.push_back(RootObject::m_brickHandler->getBrick(7));
+    bricks.push_back(RootObject::m_brickHandler->getBrick(11));
+    bricks.push_back(RootObject::m_brickHandler->getBrick(12));
+    bricks.push_back(RootObject::m_brickHandler->getBrick(13));
+    bricks.push_back(RootObject::m_brickHandler->getBrick(16));
+    bricks.push_back(RootObject::m_brickHandler->getBrick(17));
 
-    for(uint32_t i = 0; i < KyoukoNetwork::m_brickHandler->getNumberOfBrick(); i++)
+    for(uint32_t i = 0; i < RootObject::m_brickHandler->getNumberOfBrick(); i++)
     {
-        Brick* brick = KyoukoNetwork::m_brickHandler->getBrickByIndex(i);
+        Brick* brick = RootObject::m_brickHandler->getBrickByIndex(i);
 
-        for(uint32_t side = 0; side < 24; side++)
+        for(uint32_t side = 0; side < 22; side++)
         {
-            if(brick->neighbors[side].targetBrickId != UNINIT_STATE_32)
+            if(brick->neighbors[side].targetBrick != nullptr)
             {
                 BrickID sourceId = brick->brickId;
-                BrickID targetId = brick->neighbors[side].targetBrickId;
-
-                const Brick* targetBrick = KyoukoNetwork::m_brickHandler->getBrick(targetId);
-                BrickID compareSource = targetBrick->neighbors[23 - side].targetBrickId;
+                const Brick* targetBrick = brick->neighbors[side].targetBrick;
+                BrickID compareSource = targetBrick->neighbors[23 - side].targetBrick->brickId;
 
                 TEST_EQUAL(compareSource, sourceId);
             }
