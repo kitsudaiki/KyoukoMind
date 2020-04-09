@@ -102,6 +102,27 @@ BrickHandler::getNumberOfBrick() const
 }
 
 /**
+ * @brief BrickHandler::getMetadata
+ * @return
+ */
+const BrickHandler::Metadata
+BrickHandler::getMetadata()
+{
+    BrickHandler::Metadata metadata;
+
+    std::map<BrickID, Brick*>::iterator it;
+    for(it = m_allBricks.begin();
+        it != m_allBricks.end();
+        ++it)
+    {
+        metadata.numberOfNodeBricks += it->second->dataConnections[NODE_DATA].inUse;
+        metadata.numberOfEdgeBricks += it->second->dataConnections[EDGE_DATA].inUse;
+    }
+
+    return metadata;
+}
+
+/**
  * delete a specific brick by its id
  *
  * @return false if id doesn't exist, else true
