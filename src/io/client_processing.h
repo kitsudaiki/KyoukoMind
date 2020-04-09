@@ -1,5 +1,5 @@
-#ifndef NETWORK_CALLBACKS_H
-#define NETWORK_CALLBACKS_H
+#ifndef CLIENT_PROCESSING_H
+#define CLIENT_PROCESSING_H
 
 #include <root_object.h>
 #include <core/objects/container_definitions.h>
@@ -34,10 +34,10 @@ namespace KyoukoMind
  * @param dataSize
  */
 void
-streamDataCallback(void* target,
-                   Kitsunemimi::Project::Session*,
-                   const void* data,
-                   const uint64_t dataSize)
+clientCallback(void* target,
+               Kitsunemimi::Project::Session*,
+               const void* data,
+               const uint64_t dataSize)
 {
     RootObject* rootObject = static_cast<RootObject*>(target);
     const uint8_t* dataObj = static_cast<const uint8_t*>(data);
@@ -212,73 +212,6 @@ streamDataCallback(void* target,
     }
 }
 
-/**
- * @brief standaloneDataCallback
- * @param target
- * @param data
- * @param dataSize
- */
-void
-standaloneDataCallback(void* target,
-                       Kitsunemimi::Project::Session*,
-                       const uint64_t,
-                       DataBuffer* data)
-{
-    delete data;
 }
 
-/**
- * @brief errorCallback
- */
-void
-errorCallback(void*,
-              Kitsunemimi::Project::Session*,
-              const uint8_t,
-              const std::string message)
-{
-    LOG_ERROR("error-callback: " + message);
-}
-
-/**
- * @brief sessionCallback
- * @param target
- * @param isInit
- * @param session
- * @param sessionIdentifier
- */
-void
-sessionCallback(void* target,
-                bool isInit,
-                Kitsunemimi::Project::Session* session,
-                const std::string sessionIdentifier)
-{
-    LOG_INFO("register incoming session with identifier: " + sessionIdentifier);
-
-    RootObject* rootObject = static_cast<RootObject*>(target);
-    if(isInit)
-    {
-        if(sessionIdentifier == "client") {
-            rootObject->m_clientSession = session;
-        }
-        if(sessionIdentifier == "monitoring") {
-            rootObject->m_monitoringSession = session;
-        }
-    }
-    else
-    {
-        if(session->m_sessionIdentifier == "client")
-        {
-            delete rootObject->m_clientSession;
-            rootObject->m_clientSession = nullptr;
-        }
-        if(session->m_sessionIdentifier == "monitoring")
-        {
-            delete rootObject->m_monitoringSession;
-            rootObject->m_clientSession = nullptr;
-        }
-    }
-}
-
-}
-
-#endif // NETWORK_CALLBACKS_H
+#endif // CLIENT_PROCESSING_H
