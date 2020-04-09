@@ -1,5 +1,5 @@
-#ifndef NETWORK_CALLBACKS_H
-#define NETWORK_CALLBACKS_H
+#ifndef CLIENT_PROCESSING_H
+#define CLIENT_PROCESSING_H
 
 #include <root_object.h>
 #include <core/objects/container_definitions.h>
@@ -11,12 +11,8 @@
 #include <libKitsunemimiProjectNetwork/session_controller.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-#include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
-#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/client_contianer.h>
 
-using Kitsunemimi::Kyouko::ClientRegisterInput;
-using Kitsunemimi::Kyouko::ClientRegisterOutput;
 using Kitsunemimi::Kyouko::ClientControlLearning;
 using Kitsunemimi::Kyouko::ClientControlMemorizing;
 using Kitsunemimi::Kyouko::ClientControlGlia;
@@ -34,15 +30,15 @@ namespace KyoukoMind
  * @param dataSize
  */
 void
-streamDataCallback(void* target,
-                   Kitsunemimi::Project::Session*,
-                   const void* data,
-                   const uint64_t dataSize)
+clientCallback(void* target,
+               Kitsunemimi::Project::Session*,
+               const void* data,
+               const uint64_t dataSize)
 {
     RootObject* rootObject = static_cast<RootObject*>(target);
     const uint8_t* dataObj = static_cast<const uint8_t*>(data);
 
-    LOG_DEBUG("process incoming message with size: " + std::to_string(dataSize));
+    LOG_DEBUG("process incoming client message with size: " + std::to_string(dataSize));
 
     uint64_t dataPos = 0;
 
@@ -52,41 +48,6 @@ streamDataCallback(void* target,
 
         switch(type)
         {
-            case CLIENT_REGISTER_INPUT:
-            {
-                LOG_DEBUG("CLIENT_REGISTER_INPUT");
-                const ClientRegisterInput content = *((ClientRegisterInput*)&dataObj[dataPos]);
-
-                const uint32_t fakeId = 10000 + content.brickId;
-                const uint8_t sourceSide = 22;
-
-                Brick* newBrick = new Brick(fakeId, 0, 0);
-                newBrick->isInputBrick = 1;
-                rootObject->m_inputBricks->insert(std::pair<uint32_t, Brick*>(content.brickId,
-                                                                              newBrick));
-                Brick* targetBrick = rootObject->m_brickHandler->getBrick(content.brickId);
-
-                // init the new neighbors
-                connectBricks(*newBrick, sourceSide, *targetBrick);
-                initCycle(newBrick);
-
-                dataPos += sizeof(ClientRegisterInput);
-                break;
-            }
-
-            case CLIENT_REGISTER_OUTPUT:
-            {
-                LOG_DEBUG("CLIENT_REGISTER_OUTPUT");
-                const ClientRegisterOutput content = *((ClientRegisterOutput*)&dataObj[dataPos]);
-
-                Brick* outgoingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
-
-                addClientOutputConnection(*outgoingBrick);
-
-                dataPos += sizeof(ClientRegisterOutput);
-                break;
-            }
-
             case CLIENT_CONTROL_LEARNING:
             {
                 LOG_DEBUG("CLIENT_CONTROL_LEARNING");
@@ -212,73 +173,6 @@ streamDataCallback(void* target,
     }
 }
 
-/**
- * @brief standaloneDataCallback
- * @param target
- * @param data
- * @param dataSize
- */
-void
-standaloneDataCallback(void* target,
-                       Kitsunemimi::Project::Session*,
-                       const uint64_t,
-                       DataBuffer* data)
-{
-    delete data;
 }
 
-/**
- * @brief errorCallback
- */
-void
-errorCallback(void*,
-              Kitsunemimi::Project::Session*,
-              const uint8_t,
-              const std::string message)
-{
-    LOG_ERROR("error-callback: " + message);
-}
-
-/**
- * @brief sessionCallback
- * @param target
- * @param isInit
- * @param session
- * @param sessionIdentifier
- */
-void
-sessionCallback(void* target,
-                bool isInit,
-                Kitsunemimi::Project::Session* session,
-                const std::string sessionIdentifier)
-{
-    LOG_INFO("register incoming session with identifier: " + sessionIdentifier);
-
-    RootObject* rootObject = static_cast<RootObject*>(target);
-    if(isInit)
-    {
-        if(sessionIdentifier == "client") {
-            rootObject->m_clientSession = session;
-        }
-        if(sessionIdentifier == "monitoring") {
-            rootObject->m_monitoringSession = session;
-        }
-    }
-    else
-    {
-        if(session->m_sessionIdentifier == "client")
-        {
-            delete rootObject->m_clientSession;
-            rootObject->m_clientSession = nullptr;
-        }
-        if(session->m_sessionIdentifier == "monitoring")
-        {
-            delete rootObject->m_monitoringSession;
-            rootObject->m_clientSession = nullptr;
-        }
-    }
-}
-
-}
-
-#endif // NETWORK_CALLBACKS_H
+#endif // CLIENT_PROCESSING_H

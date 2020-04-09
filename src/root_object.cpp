@@ -11,7 +11,10 @@
 #include <core/network_manager.h>
 #include <core/global_values_handler.h>
 #include <core/objects/brick.h>
-#include <network_callbacks.h>
+
+#include <io/network_callbacks.h>
+#include <io/client_processing.h>
+#include <io/control_processing.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
@@ -26,6 +29,7 @@ namespace KyoukoMind
 KyoukoMind::BrickHandler* RootObject::m_brickHandler = nullptr;
 KyoukoMind::GlobalValuesHandler* RootObject::m_globalValuesHandler = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_clientSession = nullptr;
+Kitsunemimi::Project::Session* RootObject::m_controlSession = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_monitoringSession = nullptr;
 std::map<uint32_t, Brick*>* RootObject::m_inputBricks = nullptr;
 
@@ -39,8 +43,8 @@ RootObject::RootObject()
     m_inputBricks = new std::map<uint32_t, Brick*>();
 
     m_sessionController = new Kitsunemimi::Project::SessionController(this, &sessionCallback,
-                                                                      this, &streamDataCallback,
-                                                                      this, &standaloneDataCallback,
+                                                                      this, &clientCallback,
+                                                                      this, &controlCallback,
                                                                       this, &errorCallback);
 }
 

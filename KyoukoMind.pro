@@ -85,11 +85,13 @@ HEADERS += \
     tests/run_unit_tests.h \
     src/args.h \
     src/config.h \
-    src/network_callbacks.h \
+    src/io/network_callbacks.h \
     src/core/processing/processing_methods/container_processing_methods.h \
     src/core/processing/processing_methods/edge_methods.h \
     src/core/processing/processing_methods/neighbor_methods.h \
-    src/core/processing/processing_methods/synapse_methods.h
+    src/core/processing/processing_methods/synapse_methods.h \
+    src/io/client_processing.h \
+    src/io/control_processing.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \

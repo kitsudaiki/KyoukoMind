@@ -21,6 +21,12 @@ struct Brick;
 class BrickHandler
 {
 public:
+    struct Metadata
+    {
+        uint32_t numberOfNodeBricks = 0;
+        uint32_t numberOfEdgeBricks = 0;
+    };
+
     BrickHandler();
     ~BrickHandler();
 
@@ -31,6 +37,7 @@ public:
     Brick* getBrick(const BrickID brickId);
     Brick* getBrickByIndex(const uint32_t index);
     uint64_t getNumberOfBrick() const;
+    const Metadata getMetadata();
 
     // delete
     bool deleteBrick(const BrickID brickId);
