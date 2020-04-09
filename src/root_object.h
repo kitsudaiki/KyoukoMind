@@ -38,6 +38,7 @@ public:
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
 
     static Kitsunemimi::Project::Session* m_clientSession;
+    static Kitsunemimi::Project::Session* m_controlSession;
     static Kitsunemimi::Project::Session* m_monitoringSession;
 
     static std::map<uint32_t, Brick*>* m_inputBricks;

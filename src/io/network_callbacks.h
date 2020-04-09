@@ -42,6 +42,9 @@ sessionCallback(void* target,
         if(sessionIdentifier == "client") {
             rootObject->m_clientSession = session;
         }
+        if(sessionIdentifier == "control") {
+            rootObject->m_controlSession = session;
+        }
         if(sessionIdentifier == "monitoring") {
             rootObject->m_monitoringSession = session;
         }
@@ -52,6 +55,11 @@ sessionCallback(void* target,
         {
             delete rootObject->m_clientSession;
             rootObject->m_clientSession = nullptr;
+        }
+        if(session->m_sessionIdentifier == "control")
+        {
+            delete rootObject->m_controlSession;
+            rootObject->m_controlSession = nullptr;
         }
         if(session->m_sessionIdentifier == "monitoring")
         {

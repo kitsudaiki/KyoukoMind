@@ -159,7 +159,6 @@ process_registerInput(const ControlRegisterInput &content,
     rootObject->m_inputBricks->insert(std::pair<uint32_t, Brick*>(content.brickId,
                                                                   newBrick));
     initCycle(newBrick);
-
     send_generic_response(true, "", session, blockerId);
 
     return true;

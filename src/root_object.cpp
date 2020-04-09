@@ -29,6 +29,7 @@ namespace KyoukoMind
 KyoukoMind::BrickHandler* RootObject::m_brickHandler = nullptr;
 KyoukoMind::GlobalValuesHandler* RootObject::m_globalValuesHandler = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_clientSession = nullptr;
+Kitsunemimi::Project::Session* RootObject::m_controlSession = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_monitoringSession = nullptr;
 std::map<uint32_t, Brick*>* RootObject::m_inputBricks = nullptr;
 
