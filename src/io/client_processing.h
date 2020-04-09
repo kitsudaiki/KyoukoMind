@@ -11,12 +11,8 @@
 #include <libKitsunemimiProjectNetwork/session_controller.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-#include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
-#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/client_contianer.h>
 
-using Kitsunemimi::Kyouko::ClientRegisterInput;
-using Kitsunemimi::Kyouko::ClientRegisterOutput;
 using Kitsunemimi::Kyouko::ClientControlLearning;
 using Kitsunemimi::Kyouko::ClientControlMemorizing;
 using Kitsunemimi::Kyouko::ClientControlGlia;
@@ -42,7 +38,7 @@ clientCallback(void* target,
     RootObject* rootObject = static_cast<RootObject*>(target);
     const uint8_t* dataObj = static_cast<const uint8_t*>(data);
 
-    LOG_DEBUG("process incoming message with size: " + std::to_string(dataSize));
+    LOG_DEBUG("process incoming client message with size: " + std::to_string(dataSize));
 
     uint64_t dataPos = 0;
 
@@ -52,41 +48,6 @@ clientCallback(void* target,
 
         switch(type)
         {
-            case CLIENT_REGISTER_INPUT:
-            {
-                LOG_DEBUG("CLIENT_REGISTER_INPUT");
-                const ClientRegisterInput content = *((ClientRegisterInput*)&dataObj[dataPos]);
-
-                const uint32_t fakeId = 10000 + content.brickId;
-                const uint8_t sourceSide = 22;
-
-                Brick* newBrick = new Brick(fakeId, 0, 0);
-                newBrick->isInputBrick = 1;
-                rootObject->m_inputBricks->insert(std::pair<uint32_t, Brick*>(content.brickId,
-                                                                              newBrick));
-                Brick* targetBrick = rootObject->m_brickHandler->getBrick(content.brickId);
-
-                // init the new neighbors
-                connectBricks(*newBrick, sourceSide, *targetBrick);
-                initCycle(newBrick);
-
-                dataPos += sizeof(ClientRegisterInput);
-                break;
-            }
-
-            case CLIENT_REGISTER_OUTPUT:
-            {
-                LOG_DEBUG("CLIENT_REGISTER_OUTPUT");
-                const ClientRegisterOutput content = *((ClientRegisterOutput*)&dataObj[dataPos]);
-
-                Brick* outgoingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
-
-                addClientOutputConnection(*outgoingBrick);
-
-                dataPos += sizeof(ClientRegisterOutput);
-                break;
-            }
-
             case CLIENT_CONTROL_LEARNING:
             {
                 LOG_DEBUG("CLIENT_CONTROL_LEARNING");

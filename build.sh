@@ -99,7 +99,7 @@ get_required_kitsune_lib_repo "libKitsunemimiConfig" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo "libKitsunemimiKyoukoCommon" "master" 4
+get_required_private_repo "libKitsunemimiKyoukoCommon" "add-control-connection" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
