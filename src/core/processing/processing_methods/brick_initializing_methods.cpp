@@ -272,7 +272,7 @@ addClientOutputConnection(Brick &brick)
 {
     // get and check connection-item
     DataConnection* data = &brick.dataConnections[NODE_DATA];
-    assert(data->inUse == 0);
+    assert(data->inUse != 0);
 
     // set brick as output-brick
     brick.isOutputBrick = 1;
