@@ -165,7 +165,7 @@ isReady(Brick* brick)
  * @return number of active nodes in this brick
  */
 uint16_t
-processNodes(Brick &brick, float* weightMap)
+processNodes(Brick &brick)
 {
     DataConnection* data = &brick.dataConnections[NODE_DATA];
 
@@ -215,7 +215,7 @@ processNodes(Brick &brick, float* weightMap)
             newEdge.targetBrickPath = path;
             newEdge.weight = weight;
 
-            processAxon(brick, newEdge, weightMap);
+            processAxon(brick, newEdge);
         }
         // post-steps
         node->refractionTime = node->refractionTime >> 1;

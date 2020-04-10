@@ -24,7 +24,7 @@ void finishSide(Brick* brick, const uint8_t side);
 bool processReady(Brick* brick);
 bool isReady(Brick* brick);
 
-uint16_t processNodes(Brick &brick, float *weightMap);
+uint16_t processNodes(Brick &brick);
 
 void postLearning(Brick &brick);
 void memorizeSynapses(Brick &brick);

@@ -73,12 +73,14 @@ addBricks(const uint32_t nodeNumberPerBrick,
                 {
                     Brick* brick = new Brick(brickId, x, y);
                     (*networkMetaStructure)[x][y].brick = brick;
+                    initRandValues(*brick);
                     RootObject::m_brickHandler->addBrick(brickId, brick);
                     break;
                 }
                 case 3:
                 {
                     Brick* brick = new Brick(brickId, x, y);
+                    initRandValues(*brick);
                     initNodeBlocks(*brick, nodeNumberPerBrick);
                     initSynapseSectionBlocks(*brick, 0);
                     (*networkMetaStructure)[x][y].brick = brick;

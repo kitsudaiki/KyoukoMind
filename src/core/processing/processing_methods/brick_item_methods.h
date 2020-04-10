@@ -193,7 +193,9 @@ addEmptyEdgeSection(Brick &brick,
     }
 
     // if node-brick, then connect side 22
-    if(brick.dataConnections[NODE_DATA].inUse != 0) {
+    if(brick.dataConnections[NODE_DATA].inUse != 0
+            && brick.isInputBrick == 0)
+    {
         addEdge(newSection, 22);
     }
 

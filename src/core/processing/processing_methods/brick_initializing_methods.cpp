@@ -291,4 +291,39 @@ addClientOutputConnection(Brick &brick)
     return true;
 }
 
+//==================================================================================================
+
+/**
+ * @brief initRandValues
+ * @param brick
+ */
+void
+initRandValues(Brick &brick)
+{
+    brick.randWeight = new float[999];
+    float compare = 0.0f;
+    for(uint32_t i = 0; i < 999; i++)
+    {
+        if(i % 3 == 0) {
+            compare = 0.0f;
+        }
+
+        float tempValue = static_cast<float>(rand()) / 0x7FFFFFFF;
+        assert(tempValue <= 1.0f);
+        if(tempValue + compare > 1.0f) {
+            tempValue = 1.0f - compare;
+        }
+        compare += tempValue;
+        brick.randWeight[i] = tempValue;
+    }
+
+    brick.randValue = new uint32_t[1024];
+    for(uint32_t i = 0; i < 1024; i++)
+    {
+        brick.randValue[i] = static_cast<uint32_t>(rand());
+    }
+}
+
+//==================================================================================================
+
 }

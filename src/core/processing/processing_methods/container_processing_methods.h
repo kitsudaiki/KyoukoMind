@@ -353,7 +353,6 @@ processUpdateEdge(Brick &brick,
 inline void
 learningEdgeSection(Brick &brick,
                     EdgeSection* currentSection,
-                    float* weightMap,
                     const uint32_t forwardEdgeSectionId,
                     const float weight)
 {
@@ -361,20 +360,22 @@ learningEdgeSection(Brick &brick,
 
     if(weight >= 0.5f)
     {
-        for(uint8_t position = 0; position < currentSection->activeEdges; position++)
+        for(uint8_t i = 0; i < 3; i++)
         {
+            const uint32_t position = brick.randValue[brick.randValuePos]
+                                      % currentSection->activeEdges;
+            brick.randValuePos = (brick.randValuePos + 1) % 1024;
+
             const uint8_t side = currentSection->edges[position].side;
-            const float currentSideWeight = weight * weightMap[side];
+
+            const float currentSideWeight = brick.randWeight[brick.randWeightPos] * weight;
+            brick.randWeightPos = (brick.randWeightPos + 1) % 999;
+            assert(currentSideWeight >= 0.0f);
+
+            currentSection->totalWeight += weight;
 
             if(side == 22)
             {
-                if(brick.isInputBrick == 1
-                        || weightMap[side] <= NEW_FORWARD_EDGE_BORDER
-                        || currentSideWeight <= 1.0f)
-                {
-                    continue;
-                }
-
                 currentSection->edges[position].weight += currentSideWeight;
                 uint32_t edgeSectionId = currentSection->edges[position].targetId;
                 if(edgeSectionId == UNINIT_STATE_32)
@@ -390,27 +391,17 @@ learningEdgeSection(Brick &brick,
             }
             else
             {
-                // set a border to avoid too many new edges
-                if(weightMap[side] <= NEW_FORWARD_EDGE_BORDER
-                        || currentSideWeight <= 1.0f)
-                {
-                    continue;
-                }
-
                 // brick-external lerning
-                const uint32_t targetId = currentSection->edges[side].targetId;
-                if(targetId == UNINIT_STATE_32
-                        && currentSection->edges[side].weight == 0.0f)
+                const uint32_t targetId = currentSection->edges[position].targetId;
+                if(targetId == UNINIT_STATE_32)
                 {
                     // send new learning-edge
                     LearingEdgeContainer newEdge;
                     newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
                     newEdge.weight = currentSideWeight;
-                    addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
+                    addObjectToStackBuffer(*brick.neighbors[position].outgoingBuffer,
                                            &newEdge);
                 }
-
-                currentSection->edges[side].weight += currentSideWeight;
             }
         }
     }
@@ -426,15 +417,12 @@ learningEdgeSection(Brick &brick,
  */
 inline void
 processEdgeForwardSection(Brick &brick,
-                          const EdgeContainer &edge,
-                          float* weightMap)
+                          const EdgeContainer &edge)
 {
     DataConnection* connection = &brick.dataConnections[EDGE_DATA];
     assert(connection->inUse != 0);
     EdgeSection* currentSection = &getEdgeBlock(connection)[edge.targetEdgeSectionId];
-    if(currentSection->status != ACTIVE_SECTION) {
-        return;
-    }
+    assert(currentSection->status == ACTIVE_SECTION);
 
     // process learning, if the incoming weight is too big
     const float totalWeight = currentSection->totalWeight;
@@ -443,7 +431,6 @@ processEdgeForwardSection(Brick &brick,
     {
         learningEdgeSection(brick,
                             currentSection,
-                            weightMap,
                             edge.targetEdgeSectionId,
                             edge.weight - totalWeight);
         ratio = 1.0f;
@@ -502,8 +489,7 @@ processEdgeForwardSection(Brick &brick,
  */
 inline void
 processAxon(Brick &brick,
-            const AxonEdgeContainer &edge,
-            float* weightMap)
+            const AxonEdgeContainer &edge)
 {
     if(edge.targetBrickPath != 0)
     {
@@ -522,7 +508,7 @@ processAxon(Brick &brick,
         EdgeContainer newEdge;
         newEdge.targetEdgeSectionId = edge.targetAxonId;
         newEdge.weight = edge.weight;
-        processEdgeForwardSection(brick, newEdge, weightMap);
+        processEdgeForwardSection(brick, newEdge);
     }
 }
 
@@ -538,8 +524,7 @@ processAxon(Brick &brick,
 inline void
 processLerningEdge(Brick &brick,
                    const LearingEdgeContainer &edge,
-                   const uint8_t initSide,
-                   float* weightMap)
+                   const uint8_t initSide)
 {
     const uint32_t targetEdgeId = addEmptyEdgeSection(brick, initSide, edge.sourceEdgeSectionId);
 
@@ -553,7 +538,7 @@ processLerningEdge(Brick &brick,
     EdgeContainer newEdge;
     newEdge.targetEdgeSectionId = targetEdgeId;
     newEdge.weight = edge.weight;
-    processEdgeForwardSection(brick, newEdge, weightMap);
+    processEdgeForwardSection(brick, newEdge);
 }
 
 //==================================================================================================
@@ -567,8 +552,7 @@ processLerningEdge(Brick &brick,
  */
 inline void
 processPendingEdge(Brick &brick,
-                   const PendingEdgeContainer &edge,
-                   float* weightMap)
+                   const PendingEdgeContainer &edge)
 {
     DataConnection* connection = &brick.dataConnections[EDGE_DATA];
 
@@ -593,7 +577,7 @@ processPendingEdge(Brick &brick,
             EdgeContainer newEdge;
             newEdge.targetEdgeSectionId = forwardEdgeSectionId;
             newEdge.weight = edge.weight;
-            processEdgeForwardSection(brick, newEdge, weightMap);
+            processEdgeForwardSection(brick, newEdge);
         }
         forwardEdgeSectionId--;
     }
