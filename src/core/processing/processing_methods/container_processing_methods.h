@@ -427,18 +427,15 @@ processEdgeForwardSection(Brick &brick,
     // process learning, if the incoming weight is too big
     const float totalWeight = currentSection->totalWeight;
     float ratio = edge.weight / totalWeight;
-    if(ratio > 1.0f)
-    {
-        learningEdgeSection(brick,
-                            currentSection,
-                            edge.targetEdgeSectionId,
-                            edge.weight - totalWeight);
-        ratio = 1.0f;
 
-        if(checkAndDelete(brick, *currentSection, edge.targetEdgeSectionId)) {
-            return;
-        }
-    }
+    // limit ration to 1.0f
+    const uint8_t tooBig = ratio > 1.0f;
+    ratio -= tooBig * (1.0f + ratio);
+
+    learningEdgeSection(brick,
+                        currentSection,
+                        edge.targetEdgeSectionId,
+                        edge.weight - totalWeight);
 
     // iterate over all forward-edges in the current section
     for(uint8_t position = 0; position < currentSection->activeEdges; position++)
@@ -451,7 +448,7 @@ processEdgeForwardSection(Brick &brick,
         if(tempEdge.side == 22)
         {
             assert(tempEdge.targetId != UNINIT_STATE_32);
-            processSynapseSection(brick, tempEdge.targetId, tempEdge.weight);
+            processSynapseSection(brick, tempEdge.targetId, tempEdge.weight * ratio);
         }
         else
         {
