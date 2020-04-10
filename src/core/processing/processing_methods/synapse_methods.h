@@ -41,10 +41,18 @@ isFull(SynapseSection &section)
  */
 inline void
 addSynapse(SynapseSection &section,
-           const Synapse &newSynapse)
+           const float globalMemorizingOffset,
+           const uint32_t targetNodeId,
+           const uint32_t somaDistance)
 {
     if(section.numberOfSynapses < SYNAPSES_PER_SYNAPSESECTION)
     {
+        Synapse newSynapse;
+
+        newSynapse.targetNodeId = static_cast<uint16_t>(targetNodeId) % NUMBER_OF_NODES_PER_BRICK;
+        newSynapse.memorize = globalMemorizingOffset;
+        newSynapse.somaDistance = static_cast<uint8_t>(somaDistance % (MAX_SOMA_DISTANCE - 1)) + 1;
+
         const uint32_t pos = section.numberOfSynapses;
         section.synapses[pos] = newSynapse;
         section.numberOfSynapses++;

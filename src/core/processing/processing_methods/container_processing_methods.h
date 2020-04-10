@@ -33,13 +33,17 @@ inline void
 createNewSynapse(Brick &brick,
                  SynapseSection &currentSection)
 {
-    Synapse newSynapse;
+    const uint32_t targetNodeId = brick.randValue[brick.randValuePos]
+                                  % currentSection.numberOfSynapses + 1;
+    brick.randValuePos = (brick.randValuePos + 1) % 1024;
+    const uint32_t somaDistance = brick.randValue[brick.randValuePos]
+                                  % currentSection.numberOfSynapses + 1;
+    brick.randValuePos = (brick.randValuePos + 1) % 1024;
 
-    newSynapse.targetNodeId = static_cast<uint16_t>(rand()) % NUMBER_OF_NODES_PER_BRICK;
-    newSynapse.memorize = brick.globalValues.globalMemorizingOffset;
-    newSynapse.somaDistance = static_cast<uint8_t>(rand() % (MAX_SOMA_DISTANCE - 1)) + 1;
-
-    addSynapse(currentSection, newSynapse);
+    addSynapse(currentSection,
+               brick.globalValues.globalMemorizingOffset,
+               targetNodeId,
+               somaDistance);
 }
 
 //==================================================================================================
@@ -83,83 +87,53 @@ learningSynapseSection(Brick &brick,
                        SynapseSection &currentSection,
                        float weight)
 {
-    while(weight > 0.0f)
-    {
-        // calculate new value
-        float value = weight;
-        if(value > MINIMUM_NEW_EDGE_BODER * 2) {
-            value /= 2.0f;
-        }
-        weight -= value;
+    if(weight < NEW_SYNAPSE_BORDER) {
+        return;
+    }
 
-        // choose synapse
-        uint32_t choosePosition = static_cast<uint32_t>(rand())
-                                  % (currentSection.numberOfSynapses + 1);
+    for(uint8_t i = 0; i < 3; i++)
+    {
+        const uint32_t choosePosition = brick.randValue[brick.randValuePos]
+                                        % currentSection.numberOfSynapses + 1;
+        brick.randValuePos = (brick.randValuePos + 1) % 1024;
+
+        const float currentSideWeight = brick.randWeight[brick.randWeightPos] * weight;
+        brick.randWeightPos = (brick.randWeightPos + 1) % 999;
+        assert(currentSideWeight >= 0.0f);
 
         // create new synapse if necessary
-        if(choosePosition == currentSection.numberOfSynapses)
-        {
-            createNewSynapse(brick, currentSection);
-        }
-        // synapses, which are fully memorized, are not allowed to be overwritten!
-        else if(currentSection.synapses[choosePosition].memorize >= 0.99f)
-        {
-            choosePosition = currentSection.numberOfSynapses;
+        if(choosePosition == currentSection.numberOfSynapses) {
             createNewSynapse(brick, currentSection);
         }
 
+        // synapses, which are fully memorized, are not allowed to be overwritten!!!
+        if(currentSection.synapses[choosePosition].memorize >= 0.99f) {
+            continue;
+        }
+
+        // get node of the synapse
         Synapse* synapse = &currentSection.synapses[choosePosition];
         Node* nodeBuffer = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
         Node* node = &nodeBuffer[synapse->targetNodeId];
 
+        // check, if therer is already too much input on the node
         const uint8_t tooHeight = nodeBuffer[synapse->targetNodeId].tooHigh;
 
+        // calculate new value
         float newVal = 0.0f;
-        if(brick.isOutputBrick == 0)
+        newVal = brick.globalValues.globalLearningOffset
+                * currentSideWeight
+                * ((tooHeight * -2) + 1);
+
+        // make sure it is not too height
+        if(node->currentState + newVal > 1.1f * node->border)
         {
-            newVal = brick.globalValues.globalLearningOffset * value * ((tooHeight * -2) + 1);
-            // make sure it is not too height
-            if(node->currentState + newVal > 1.1f * node->border)
-            {
-                const float diff = (node->currentState + newVal) - (1.1f * node->border);
-                newVal -= diff;
-            }
-        }
-        else
-        {
-            newVal = brick.learningOverride * value;
+            const float diff = (node->currentState + newVal) - (1.1f * node->border);
+            newVal -= diff;
         }
 
         currentSection.synapses[choosePosition].weight += newVal;
     }
-}
-
-//==================================================================================================
-
-/**
- * @brief NodeBrick::checkEdge
- * @param currentSection
- * @param weight
- * @return
- */
-inline float
-checkSynapse(Brick &brick,
-             SynapseSection &currentSection,
-             const float weight)
-{
-    const float totalWeight = currentSection.totalWeight;
-    const float ratio = weight / totalWeight;
-
-    if(ratio > 1.0f)
-    {
-        if(weight - totalWeight >= NEW_SYNAPSE_BORDER
-                && brick.globalValues.globalLearningOffset > 0.01f)
-        {
-            learningSynapseSection(brick, currentSection, weight - totalWeight);
-        }
-        return 1.0f;
-    }
-    return ratio;
 }
 
 //==================================================================================================
@@ -180,12 +154,14 @@ processSynapseSection(Brick &brick,
     SynapseSection* currentSection = &getSynapseSectionBlock(connection)[synapseSectionId];
     assert(currentSection->status == ACTIVE_SECTION);
 
-    // precheck
-    if(inputWeight < 0.5f) {
-        return;
-    }
+    learningSynapseSection(brick,
+                           *currentSection,
+                           inputWeight - currentSection->totalWeight);
 
-    const float ratio = checkSynapse(brick, *currentSection, inputWeight);
+    // limit ration to 1.0f
+    float ratio = inputWeight / currentSection->totalWeight;
+    const uint8_t tooBig = ratio > 1.0f;
+    ratio -= tooBig * (1.0f + ratio);
 
     Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
     Synapse* end = currentSection->synapses + currentSection->numberOfSynapses;
@@ -358,50 +334,47 @@ learningEdgeSection(Brick &brick,
 {
     assert(currentSection->status == ACTIVE_SECTION);
 
-    if(weight >= 0.5f)
+    if(weight < 0.5f) {
+        return;
+    }
+
+    for(uint8_t i = 0; i < 3; i++)
     {
-        for(uint8_t i = 0; i < 3; i++)
+        const uint32_t position = brick.randValue[brick.randValuePos]
+                                  % currentSection->activeEdges;
+        brick.randValuePos = (brick.randValuePos + 1) % 1024;
+
+        const uint8_t side = currentSection->edges[position].side;
+
+        const float currentSideWeight = brick.randWeight[brick.randWeightPos] * weight;
+        brick.randWeightPos = (brick.randWeightPos + 1) % 999;
+        assert(currentSideWeight >= 0.0f);
+
+        currentSection->totalWeight += weight;
+
+        if(side == 22)
         {
-            const uint32_t position = brick.randValue[brick.randValuePos]
-                                      % currentSection->activeEdges;
-            brick.randValuePos = (brick.randValuePos + 1) % 1024;
-
-            const uint8_t side = currentSection->edges[position].side;
-
-            const float currentSideWeight = brick.randWeight[brick.randWeightPos] * weight;
-            brick.randWeightPos = (brick.randWeightPos + 1) % 999;
-            assert(currentSideWeight >= 0.0f);
-
-            currentSection->totalWeight += weight;
-
-            if(side == 22)
+            currentSection->edges[position].weight += currentSideWeight;
+            uint32_t edgeSectionId = currentSection->edges[position].targetId;
+            if(edgeSectionId == UNINIT_STATE_32)
             {
-                currentSection->edges[position].weight += currentSideWeight;
-                uint32_t edgeSectionId = currentSection->edges[position].targetId;
-                if(edgeSectionId == UNINIT_STATE_32)
-                {
-                    edgeSectionId = addEmptySynapseSection(brick, forwardEdgeSectionId);
-                    assert(edgeSectionId != UNINIT_STATE_32);
-                    currentSection->edges[position].targetId = edgeSectionId;
-                }
-
-                processSynapseSection(brick,
-                                      edgeSectionId,
-                                      currentSection->edges[position].weight);
+                edgeSectionId = addEmptySynapseSection(brick, forwardEdgeSectionId);
+                assert(edgeSectionId != UNINIT_STATE_32);
+                currentSection->edges[position].targetId = edgeSectionId;
             }
-            else
+        }
+        else
+        {
+            // brick-external lerning
+            const uint32_t targetId = currentSection->edges[position].targetId;
+            if(targetId == UNINIT_STATE_32)
             {
-                // brick-external lerning
-                const uint32_t targetId = currentSection->edges[position].targetId;
-                if(targetId == UNINIT_STATE_32)
-                {
-                    // send new learning-edge
-                    LearingEdgeContainer newEdge;
-                    newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
-                    newEdge.weight = currentSideWeight;
-                    addObjectToStackBuffer(*brick.neighbors[position].outgoingBuffer,
-                                           &newEdge);
-                }
+                // send new learning-edge
+                LearingEdgeContainer newEdge;
+                newEdge.sourceEdgeSectionId = forwardEdgeSectionId;
+                newEdge.weight = currentSideWeight;
+                addObjectToStackBuffer(*brick.neighbors[position].outgoingBuffer,
+                                       &newEdge);
             }
         }
     }
@@ -426,16 +399,15 @@ processEdgeForwardSection(Brick &brick,
 
     // process learning, if the incoming weight is too big
     const float totalWeight = currentSection->totalWeight;
-    float ratio = edge.weight / totalWeight;
-
-    // limit ration to 1.0f
-    const uint8_t tooBig = ratio > 1.0f;
-    ratio -= tooBig * (1.0f + ratio);
-
     learningEdgeSection(brick,
                         currentSection,
                         edge.targetEdgeSectionId,
                         edge.weight - totalWeight);
+
+    // limit ration to 1.0f
+    float ratio = edge.weight / totalWeight;
+    const uint8_t tooBig = ratio > 1.0f;
+    ratio -= tooBig * (1.0f + ratio);
 
     // iterate over all forward-edges in the current section
     for(uint8_t position = 0; position < currentSection->activeEdges; position++)
