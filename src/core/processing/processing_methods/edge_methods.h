@@ -39,7 +39,7 @@ deleteEdgeBySide(EdgeSection &section,
 {
     for(uint8_t pos = 0; pos < section.activeEdges; pos++)
     {
-        const uint32_t currentSide = section.edges[pos].targetId >> 24;
+        const uint32_t currentSide = section.edges[pos].side;
         if(currentSide == side)
         {
             deleteEdgeByPosition(section, pos);
@@ -58,13 +58,11 @@ deleteEdgeBySide(EdgeSection &section,
  */
 inline void
 addEdge(EdgeSection &section,
-        const uint8_t side,
-        const Edge newEdge)
+        const uint8_t side)
 {
-    assert(newEdge.targetId <= 0xFFFFFF);
+    Edge newEdge;
+    newEdge.side = side;
 
-    const uint32_t convertedSide = static_cast<uint32_t>(side);
-    section.edges[section.activeEdges].targetId = newEdge.targetId | (convertedSide << 24);
     section.edges[section.activeEdges] = newEdge;
     section.activeEdges++;
     section.totalWeight += newEdge.weight;

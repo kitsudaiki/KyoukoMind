@@ -4,6 +4,7 @@
 #include <common.h>
 
 #include <core/objects/brick.h>
+#include <core/processing/processing_methods/edge_methods.h>
 
 namespace KyoukoMind
 {
@@ -23,11 +24,8 @@ deleteDynamicItem(Brick &brick,
     DataConnection *data = &brick.dataConnections[connectionId];
 
     // precheck
-    if(itemPos >= data->numberOfItems
-            || data->inUse == 0)
-    {
-        return false;
-    }
+    assert(itemPos < data->numberOfItems);
+    assert(data->inUse != 0);
 
     // get buffer
     uint8_t* blockBegin = static_cast<uint8_t*>(data->buffer.data);
@@ -112,13 +110,8 @@ reserveDynamicItem(Brick &brick,
                    const uint8_t connectionId)
 {
     DataConnection* data = &brick.dataConnections[connectionId];
-
-    // precheck
-    if(data->itemSize == 0
-            || data->inUse == 0)
-    {
-        return UNINIT_STATE_32;
-    }
+    assert(data->itemSize != 0);
+    assert(data->inUse != 0);
 
     // try to reuse item
     const uint32_t reusePos = reuseItemPosition(brick, connectionId);
@@ -188,6 +181,21 @@ addEmptyEdgeSection(Brick &brick,
     EdgeSection newSection;
     newSection.sourceId = sourceId;
     newSection.sourceSide = sourceSide;
+
+    // connect all available sides
+    for(uint8_t side = 9; side < 15; side++)
+    {
+        if(side != sourceSide
+                && brick.neighbors[side].inUse != 0)
+        {
+            addEdge(newSection, side);
+        }
+    }
+
+    // if node-brick, then connect side 22
+    if(brick.dataConnections[NODE_DATA].inUse != 0) {
+        addEdge(newSection, 22);
+    }
 
     // add edge-section to the databuffer
     const DataConnection* connection = &brick.dataConnections[EDGE_DATA];

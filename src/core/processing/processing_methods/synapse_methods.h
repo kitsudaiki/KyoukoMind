@@ -29,7 +29,7 @@ abs(const float input)
 inline bool
 isFull(SynapseSection &section)
 {
-    return section.numberOfSynapses >= EDGES_PER_SYNAPSESECTION;
+    return section.numberOfSynapses >= SYNAPSES_PER_SYNAPSESECTION;
 }
 
 //==================================================================================================
@@ -43,7 +43,7 @@ inline void
 addSynapse(SynapseSection &section,
            const Synapse &newSynapse)
 {
-    if(section.numberOfSynapses < EDGES_PER_SYNAPSESECTION)
+    if(section.numberOfSynapses < SYNAPSES_PER_SYNAPSESECTION)
     {
         const uint32_t pos = section.numberOfSynapses;
         section.synapses[pos] = newSynapse;
