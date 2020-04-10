@@ -29,10 +29,10 @@ struct Edge
 struct EdgeSection
 {
     uint8_t status = ACTIVE_SECTION;
-    Edge edges[25];
-
-    float totalWeight = 0.0000001f;
+    Edge edges[10];
     uint32_t activeEdges = 0;
+
+    float totalWeight = 0.0f;
 
     uint8_t sourceSide = 0;
     uint32_t sourceId = UNINIT_STATE_32;

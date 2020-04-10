@@ -15,12 +15,37 @@ namespace KyoukoMind
  * @param position
  */
 inline void
-deleteEdge(EdgeSection &section,
-           const uint8_t position)
+deleteEdgeByPosition(EdgeSection &section,
+                     const uint8_t position)
 {
-    const uint32_t ok = section.edges[position].targetId != UNINIT_STATE_32;
-    section.edges[position].targetId = UNINIT_STATE_32;
-    section.activeEdges -= ok * (1 << position);
+    assert(position < section.activeEdges);
+    assert(section.activeEdges > 0);
+
+    section.totalWeight -= section.edges[position].weight;
+    section.edges[position] = section.edges[section.activeEdges - 1];
+    section.activeEdges--;
+}
+
+//==================================================================================================
+
+/**
+ * @brief deleteEdge
+ * @param section
+ * @param position
+ */
+inline void
+deleteEdgeBySide(EdgeSection &section,
+                 const uint8_t side)
+{
+    for(uint8_t pos = 0; pos < section.activeEdges; pos++)
+    {
+        const uint32_t currentSide = section.edges[pos].targetId >> 24;
+        if(currentSide == side)
+        {
+            deleteEdgeByPosition(section, pos);
+            return;
+        }
+    }
 }
 
 //==================================================================================================
@@ -33,11 +58,16 @@ deleteEdge(EdgeSection &section,
  */
 inline void
 addEdge(EdgeSection &section,
-        const uint8_t position,
+        const uint8_t side,
         const Edge newEdge)
 {
-    section.edges[position] = newEdge;
-    section.activeEdges = section.activeEdges | (1 << position);
+    assert(newEdge.targetId <= 0xFFFFFF);
+
+    const uint32_t convertedSide = static_cast<uint32_t>(side);
+    section.edges[section.activeEdges].targetId = newEdge.targetId | (convertedSide << 24);
+    section.edges[section.activeEdges] = newEdge;
+    section.activeEdges++;
+    section.totalWeight += newEdge.weight;
 }
 
 //==================================================================================================
@@ -53,6 +83,8 @@ updateEdgeWeight(EdgeSection &section,
                  const uint32_t position,
                  const float weightUpdate)
 {
+    assert(position < section.activeEdges);
+
     float diff = section.edges[position].weight;
     section.edges[position].weight += weightUpdate;
     diff -= section.edges[position].weight;
