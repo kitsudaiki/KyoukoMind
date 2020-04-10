@@ -15,11 +15,8 @@
 
 using Kitsunemimi::Kyouko::ControlRegisterInput;
 using Kitsunemimi::Kyouko::ControlRegisterOutput;
-using Kitsunemimi::Kyouko::ControlResponse;
 using Kitsunemimi::Kyouko::ControlDoesBrickExist;
-using Kitsunemimi::Kyouko::ControlDoesBrickExistResponse;
 using Kitsunemimi::Kyouko::ControlGetMetadata;
-using Kitsunemimi::Kyouko::ControlGetMetadataResponse;
 
 namespace KyoukoMind
 {
@@ -37,17 +34,12 @@ send_generic_response(const bool success,
                       Kitsunemimi::Project::Session* session,
                       const uint64_t blockerId)
 {
+    DataMap response;
+    response.insert("success", new DataValue(success));
+    response.insert("error-message", new DataValue(errorMessage));
 
-    // build and send response message
-    ControlResponse response;
-    response.success = success;
-    if(success == false)
-    {
-        strncpy(response.errorMessage, errorMessage.c_str(), errorMessage.size());
-        response.messageSize = errorMessage.size();
-    }
-
-    session->sendResponse(&response, sizeof(ControlResponse), blockerId);
+    const std::string message = response.toString();
+    session->sendResponse(message.c_str(), message.size(), blockerId);
 }
 
 /**
@@ -62,10 +54,11 @@ send_doesBrickExist_response(const bool result,
                              Kitsunemimi::Project::Session* session,
                              const uint64_t blockerId)
 {
-    ControlDoesBrickExistResponse response;
-    response.result = result;
+    DataMap response;
+    response.insert("result", new DataValue(result));
 
-    session->sendResponse(&response, sizeof(ControlDoesBrickExistResponse), blockerId);
+    const std::string message = response.toString();
+    session->sendResponse(message.c_str(), message.size(), blockerId);
 }
 
 /**
@@ -75,16 +68,13 @@ send_doesBrickExist_response(const bool result,
  * @param blockerId
  */
 void
-send_metadata_response(const BrickHandler::Metadata metadata,
+send_metadata_response(DataItem* metadata,
                        Kitsunemimi::Project::Session* session,
                        const uint64_t blockerId)
 {
-    ControlGetMetadataResponse response;
-    response.numberOfEdgeBricks = metadata.numberOfEdgeBricks;
-    response.numberOfNodeBricks = metadata.numberOfNodeBricks;
-    response.numberOfNodesPerBrick = NUMBER_OF_NODES_PER_BRICK;
-
-    session->sendResponse(&response, sizeof(ControlGetMetadataResponse), blockerId);
+    const std::string message = metadata->toString();
+    session->sendResponse(message.c_str(), message.size(), blockerId);
+    delete metadata;
 }
 
 /**
@@ -239,8 +229,8 @@ process_getMetadata(RootObject* rootObject,
                     Kitsunemimi::Project::Session* session,
                     const uint64_t blockerId)
 {
-    const BrickHandler::Metadata metadata = rootObject->m_brickHandler->getMetadata();
-    send_metadata_response(metadata, session, blockerId);
+    DataItem* response = rootObject->m_brickHandler->getMetadata();
+    send_metadata_response(response, session, blockerId);
 }
 
 /**
