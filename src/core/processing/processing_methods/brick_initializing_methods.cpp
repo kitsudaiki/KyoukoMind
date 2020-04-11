@@ -258,7 +258,7 @@ initEdgeSectionBlocks(Brick &brick,
         for(uint8_t side = 0; side < 21; side++)
         {
             if(brick.neighbors[side].inUse != 0) {
-                addEmptyEdge(newSection, side);
+                newSection.edges[side].available = 1;
             }
         }
 

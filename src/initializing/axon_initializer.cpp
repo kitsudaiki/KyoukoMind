@@ -46,8 +46,8 @@ createAxons(InitStructure* networkMetaStructure)
                 for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)
                 {
                     // create new axon
-                    uint32_t axonId = (*networkMetaStructure)[x][y].numberOfAxons;
                     NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 1, networkMetaStructure);
+                    uint32_t axonId = (*networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons;
 
                     // update values of the brick and the node
                     (*networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
@@ -109,7 +109,8 @@ getNextAxonPathStep(const uint32_t x,
     }
 
     // return the current values if no next or path long enough
-    if(goToNext == false || currentStep == 8)
+    if(goToNext == false
+            || currentStep == 8)
     {
         NewAxon result;
         result.targetX = x;
@@ -117,6 +118,7 @@ getNextAxonPathStep(const uint32_t x,
         result.targetPath = currentPath;
         return result;
     }
+
     // choose the next brick
     uint8_t nextSite = 0xFF;
     if((*networkMetaStructure)[x][y].type != EMPTY_BRICK) {
@@ -143,7 +145,7 @@ getNextAxonPathStep(const uint32_t x,
                                choosenOne->targetBrickPos.y,
                                23 - nextSite,
                                newPath,
-                               currentStep+1,
+                               currentStep + 1,
                                networkMetaStructure);
 }
 
@@ -155,7 +157,7 @@ getNextAxonPathStep(const uint32_t x,
 uint8_t
 chooseNextSide(const uint8_t initialSide, Neighbor* neighbors)
 {
-    std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
+    const std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
     std::vector<uint8_t> availableSides;
 
     for(uint8_t i = 0; i < sideOrder.size(); i++)

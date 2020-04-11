@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  @file    message_processing_methods.h
  *
  *  @author  Tobias Anker
@@ -56,19 +56,22 @@ checkAndDelete(Brick &brick,
                EdgeSection &currentSection,
                const uint32_t forwardEdgeSectionId)
 {
-    if(currentSection.sourceId != UNINIT_STATE_32
-            && currentSection.totalWeight < 0.1f)
+    if(currentSection.totalWeight < 0.1f)
     {
-        UpdateEdgeContainer newEdge;
-        newEdge.updateType = UpdateEdgeContainer::DELETE_TYPE;
-        newEdge.targetId = currentSection.sourceId;
-        addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                               &newEdge);
+        if(currentSection.sourceId != UNINIT_STATE_32)
+        {
+            UpdateEdgeContainer newEdge;
+            newEdge.updateType = UpdateEdgeContainer::DELETE_TYPE;
+            newEdge.targetId = currentSection.sourceId;
+            addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                                   &newEdge);
+        }
 
         deleteDynamicItem(brick, EDGE_DATA, forwardEdgeSectionId);
 
         return true;
     }
+
     return false;
 }
 
@@ -276,11 +279,9 @@ processUpdateEdge(Brick &brick,
                   const uint8_t inititalSide)
 {
     DataConnection* connection = &brick.dataConnections[EDGE_DATA];
+    assert(connection->inUse != 0);
     EdgeSection* currentSection = &getEdgeBlock(connection)[edge.targetId];
-    //assert(currentSection->status == ACTIVE_SECTION);
-    if(currentSection->status != ACTIVE_SECTION) {
-        return;
-    }
+    assert(currentSection->status == ACTIVE_SECTION);
 
     switch(edge.updateType)
     {
@@ -385,10 +386,7 @@ processEdgeForwardSection(Brick &brick,
     DataConnection* connection = &brick.dataConnections[EDGE_DATA];
     assert(connection->inUse != 0);
     EdgeSection* edgeSection = &getEdgeBlock(connection)[edge.targetEdgeSectionId];
-    //assert(edgeSection->status == ACTIVE_SECTION);
-    if(edgeSection->status != ACTIVE_SECTION) {
-        return;
-    }
+    assert(edgeSection->status == ACTIVE_SECTION);
 
     // process learning, if the incoming weight is too big
     const float totalWeight = edgeSection->totalWeight;
@@ -458,10 +456,10 @@ processAxon(Brick &brick,
     {
         // forward axon the the next in the path
         AxonEdgeContainer newEdge;
-        newEdge.targetBrickPath = edge.targetBrickPath / 32;
+        newEdge.targetBrickPath = edge.targetBrickPath >> 5;
         newEdge.weight = edge.weight * brick.globalValues.globalGlia;
         newEdge.targetAxonId = edge.targetAxonId;
-        const uint8_t side = edge.targetBrickPath % 32;
+        const uint8_t side = edge.targetBrickPath & 0x1F;
         addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
                                &newEdge);
     }
