@@ -15,37 +15,12 @@ namespace KyoukoMind
  * @param position
  */
 inline void
-deleteEdgeByPosition(EdgeSection &section,
-                     const uint8_t position)
+deleteEdge(EdgeSection &section,
+           const uint8_t side)
 {
-    assert(position < section.totalNumberOfEdges);
-    assert(section.totalNumberOfEdges > 0);
 
-    section.totalWeight -= section.edges[position].weight;
-    section.edges[position] = section.edges[section.totalNumberOfEdges - 1];
-    section.totalNumberOfEdges--;
-}
-
-//==================================================================================================
-
-/**
- * @brief deleteEdge
- * @param section
- * @param position
- */
-inline void
-deleteEdgeBySide(EdgeSection &section,
-                 const uint8_t side)
-{
-    for(uint8_t pos = 0; pos < section.totalNumberOfEdges; pos++)
-    {
-        const uint32_t currentSide = section.edges[pos].side;
-        if(currentSide == side)
-        {
-            deleteEdgeByPosition(section, pos);
-            return;
-        }
-    }
+    section.edges[side].targetId = UNINIT_STATE_32;
+    section.totalWeight -= section.edges[side].weight;
 }
 
 //==================================================================================================
@@ -57,15 +32,12 @@ deleteEdgeBySide(EdgeSection &section,
  * @param newEdge
  */
 inline void
-addEdge(EdgeSection &section,
-        const uint8_t side)
+addEmptyEdge(EdgeSection &section,
+             const uint8_t side)
 {
     Edge newEdge;
-    newEdge.side = side;
-
-    section.edges[section.totalNumberOfEdges] = newEdge;
-    section.totalNumberOfEdges++;
-    section.totalWeight += newEdge.weight;
+    newEdge.available = 1;
+    section.edges[side] = newEdge;
 }
 
 //==================================================================================================
@@ -78,14 +50,12 @@ addEdge(EdgeSection &section,
  */
 inline void
 updateEdgeWeight(EdgeSection &section,
-                 const uint32_t position,
+                 const uint32_t side,
                  const float weightUpdate)
 {
-    assert(position < section.totalNumberOfEdges);
-
-    float diff = section.edges[position].weight;
-    section.edges[position].weight += weightUpdate;
-    diff -= section.edges[position].weight;
+    float diff = section.edges[side].weight;
+    section.edges[side].weight += weightUpdate;
+    diff -= section.edges[side].weight;
     section.totalWeight -= diff;
 }
 

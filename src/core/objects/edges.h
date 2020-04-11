@@ -21,7 +21,7 @@ struct Edge
 {
     float weight = 0.0;
     uint32_t targetId = UNINIT_STATE_32;
-    uint8_t side = 0;
+    uint8_t available = 0;
 
 } __attribute__((packed));
 
@@ -31,13 +31,20 @@ struct EdgeSection
 {
     uint8_t status = ACTIVE_SECTION;
 
-    Edge edges[EDGES_PER_EDGESECTION];
-    uint32_t totalNumberOfEdges = 0;
-
+    Edge edges[23];
     float totalWeight = 0.0000001f;
 
     uint8_t sourceSide = 0;
     uint32_t sourceId = UNINIT_STATE_32;
+
+    EdgeSection()
+    {
+        for(uint8_t side = 0; side < 23; side++)
+        {
+            Edge newEdge;
+            edges[side] = newEdge;
+        }
+    }
 
 } __attribute__((packed));
 

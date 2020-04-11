@@ -255,14 +255,12 @@ initEdgeSectionBlocks(Brick &brick,
         EdgeSection newSection;
 
         // connect all available sides
-        for(uint8_t side = 9; side < 15; side++)
+        for(uint8_t side = 0; side < 21; side++)
         {
             if(brick.neighbors[side].inUse != 0) {
-                addEdge(newSection, side);
+                addEmptyEdge(newSection, side);
             }
         }
-
-        assert(newSection.totalNumberOfEdges != 0);
 
         array[i] = newSection;
     }

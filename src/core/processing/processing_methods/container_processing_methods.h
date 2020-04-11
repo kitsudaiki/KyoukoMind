@@ -191,25 +191,16 @@ processUpdateSetEdge(Brick &brick,
                      const float updateValue,
                      const uint8_t inititalSide)
 {
-    for(uint8_t pos = 0; pos < currentSection.totalNumberOfEdges; pos++)
+    const uint16_t ok = updateValue > 0.0f;
+    currentSection.edges[inititalSide].weight = ok * updateValue;
+
+    if(currentSection.sourceId != UNINIT_STATE_32)
     {
-        const uint8_t side = currentSection.edges[pos].side;
-        if(side == inititalSide)
-        {
-            const uint16_t ok = updateValue > 0.0f;
-            currentSection.edges[pos].weight = ok * updateValue;
-
-            if(currentSection.sourceId != UNINIT_STATE_32)
-            {
-                UpdateEdgeContainer newEdge;
-                newEdge.updateValue = ok * updateValue;
-                newEdge.targetId = currentSection.sourceId;
-                addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                                       &newEdge);
-            }
-
-            return;
-        }
+        UpdateEdgeContainer newEdge;
+        newEdge.updateValue = ok * updateValue;
+        newEdge.targetId = currentSection.sourceId;
+        addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                               &newEdge);
     }
 }
 
@@ -227,29 +218,16 @@ processUpdateSubEdge(Brick &brick,
                      float updateValue,
                      const uint8_t inititalSide)
 {
-    for(uint8_t pos = 0; pos < currentSection.totalNumberOfEdges; pos++)
+    updateEdgeWeight(currentSection, inititalSide, updateValue);
+
+    if(currentSection.sourceId != UNINIT_STATE_32)
     {
-        const uint8_t side = currentSection.edges[pos].side;
-        if(side == inititalSide)
-        {
-            currentSection.edges[pos].weight -= updateValue;
-
-            UpdateEdgeContainer replyEdge;
-            replyEdge.updateType = UpdateEdgeContainer::SET_TYPE;
-            replyEdge.targetId = currentSection.edges[pos].targetId;
-            replyEdge.updateValue = currentSection.edges[pos].weight;
-
-            if(currentSection.sourceId != UNINIT_STATE_32)
-            {
-                UpdateEdgeContainer newEdge;
-                newEdge.updateValue = updateValue;
-                newEdge.targetId = currentSection.sourceId;
-                addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                                       &newEdge);
-            }
-
-            return;
-        }
+        UpdateEdgeContainer replyEdge;
+        replyEdge.updateType = UpdateEdgeContainer::SUB_TYPE;
+        replyEdge.targetId = currentSection.sourceId;
+        replyEdge.updateValue = updateValue;
+        addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                               &replyEdge);
     }
 }
 
@@ -266,27 +244,19 @@ processUpdateDeleteEdge(Brick &brick,
                         const uint32_t forwardEdgeSectionId,
                         const uint8_t inititalSide)
 {
-    for(uint8_t pos = 0; pos < currentSection.totalNumberOfEdges; pos++)
+    currentSection.totalWeight -= currentSection.edges[inititalSide].weight;
+    currentSection.edges[inititalSide].weight = 0.0f;
+    currentSection.edges[inititalSide].targetId = UNINIT_STATE_32;
+
+    if(checkAndDelete(brick, currentSection, forwardEdgeSectionId) == false
+            && currentSection.sourceId != UNINIT_STATE_32)
     {
-        const uint8_t side = currentSection.edges[pos].side;
-        if(side == inititalSide)
-        {
-            currentSection.edges[pos].weight = 0.0f;
-            currentSection.edges[pos].targetId = UNINIT_STATE_32;
-
-            if(checkAndDelete(brick, currentSection, forwardEdgeSectionId) == false
-                    && currentSection.sourceId != UNINIT_STATE_32)
-            {
-                UpdateEdgeContainer newEdge;
-                newEdge.updateType = UpdateEdgeContainer::SUB_TYPE;
-                newEdge.updateValue = currentSection.edges[pos].weight;
-                newEdge.targetId = currentSection.sourceId;
-                addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
-                                       &newEdge);
-            }
-
-            return;
-        }
+        UpdateEdgeContainer newEdge;
+        newEdge.updateType = UpdateEdgeContainer::SUB_TYPE;
+        newEdge.updateValue = currentSection.edges[inititalSide].weight;
+        newEdge.targetId = currentSection.sourceId;
+        addObjectToStackBuffer(*brick.neighbors[currentSection.sourceSide].outgoingBuffer,
+                               &newEdge);
     }
 }
 
@@ -307,7 +277,10 @@ processUpdateEdge(Brick &brick,
 {
     DataConnection* connection = &brick.dataConnections[EDGE_DATA];
     EdgeSection* currentSection = &getEdgeBlock(connection)[edge.targetId];
-    assert(currentSection->status == ACTIVE_SECTION);
+    //assert(currentSection->status == ACTIVE_SECTION);
+    if(currentSection->status != ACTIVE_SECTION) {
+        return;
+    }
 
     switch(edge.updateType)
     {
@@ -354,11 +327,14 @@ learningEdgeSection(Brick &brick,
 
     for(uint8_t i = 0; i < 3; i++)
     {
-        const uint32_t position = brick.randValue[brick.randValuePos]
-                                  % currentSection->totalNumberOfEdges;
+        // TODO: offset +9 only for now
+        const uint32_t side = (brick.randValue[brick.randValuePos] % 14) + 9;
         brick.randValuePos = (brick.randValuePos + 1) % 1024;
 
-        const uint8_t side = currentSection->edges[position].side;
+        // only process available edges
+        if(currentSection->edges[side].available == 0) {
+            continue;
+        }
 
         const float currentSideWeight = brick.randWeight[brick.randWeightPos] * weight;
         brick.randWeightPos = (brick.randWeightPos + 1) % 999;
@@ -368,19 +344,19 @@ learningEdgeSection(Brick &brick,
 
         if(side == 22)
         {
-            currentSection->edges[position].weight += currentSideWeight;
-            uint32_t edgeSectionId = currentSection->edges[position].targetId;
+            currentSection->edges[side].weight += currentSideWeight;
+            uint32_t edgeSectionId = currentSection->edges[side].targetId;
             if(edgeSectionId == UNINIT_STATE_32)
             {
                 edgeSectionId = addEmptySynapseSection(brick, forwardEdgeSectionId);
                 assert(edgeSectionId != UNINIT_STATE_32);
-                currentSection->edges[position].targetId = edgeSectionId;
+                currentSection->edges[side].targetId = edgeSectionId;
             }
         }
         else
         {
             // brick-external lerning
-            const uint32_t targetId = currentSection->edges[position].targetId;
+            const uint32_t targetId = currentSection->edges[side].targetId;
             if(targetId == UNINIT_STATE_32)
             {
                 // send new learning-edge
@@ -427,14 +403,15 @@ processEdgeForwardSection(Brick &brick,
     ratio -= tooBig * (1.0f + ratio);
 
     // iterate over all forward-edges in the current section
-    for(uint8_t position = 0; position < edgeSection->totalNumberOfEdges; position++)
+    for(uint8_t side = 0; side < 23; side++)
     {
-        const Edge tempEdge = edgeSection->edges[position];
-        if(tempEdge.weight <= 0.0f) {
+        const Edge tempEdge = edgeSection->edges[side];
+        if(tempEdge.available == 0
+                || tempEdge.weight <= 0.0f) {
             continue;
         }
 
-        if(tempEdge.side == 22)
+        if(side == 22)
         {
             assert(tempEdge.targetId != UNINIT_STATE_32);
             processSynapseSection(brick, tempEdge.targetId, tempEdge.weight * ratio);
@@ -447,7 +424,7 @@ processEdgeForwardSection(Brick &brick,
                 EdgeContainer newEdge;
                 newEdge.targetEdgeSectionId = tempEdge.targetId;
                 newEdge.weight = tempEdge.weight * ratio;
-                addObjectToStackBuffer(*brick.neighbors[tempEdge.side].outgoingBuffer,
+                addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
                                        &newEdge);
             }
             else
@@ -456,8 +433,8 @@ processEdgeForwardSection(Brick &brick,
                 PendingEdgeContainer newEdge;
                 newEdge.weight = tempEdge.weight * ratio;
                 newEdge.sourceEdgeSectionId = edge.targetEdgeSectionId;
-                newEdge.sourceSide = 23 - tempEdge.side;
-                addObjectToStackBuffer(*brick.neighbors[tempEdge.side].outgoingBuffer,
+                newEdge.sourceSide = 23 - side;
+                addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
                                        &newEdge);
             }
         }

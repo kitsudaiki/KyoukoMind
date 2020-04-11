@@ -183,12 +183,12 @@ addEmptyEdgeSection(Brick &brick,
     newSection.sourceSide = sourceSide;
 
     // connect all available sides
-    for(uint8_t side = 9; side < 15; side++)
+    for(uint8_t side = 0; side < 21; side++)
     {
         if(side != sourceSide
                 && brick.neighbors[side].inUse != 0)
         {
-            addEdge(newSection, side);
+            addEmptyEdge(newSection, side);
         }
     }
 
@@ -196,9 +196,8 @@ addEmptyEdgeSection(Brick &brick,
     if(brick.dataConnections[NODE_DATA].inUse != 0
             && brick.isInputBrick == 0)
     {
-        addEdge(newSection, 22);
+        addEmptyEdge(newSection, 22);
     }
-    assert(newSection.totalNumberOfEdges != 0);
 
     // add edge-section to the databuffer
     const DataConnection* connection = &brick.dataConnections[EDGE_DATA];
