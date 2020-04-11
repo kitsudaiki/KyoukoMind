@@ -32,9 +32,9 @@ struct EdgeSection
     uint8_t status = ACTIVE_SECTION;
 
     Edge edges[EDGES_PER_EDGESECTION];
-    uint32_t activeEdges = 0;
+    uint32_t totalNumberOfEdges = 0;
 
-    float totalWeight = 0.0f;
+    float totalWeight = 0.0000001f;
 
     uint8_t sourceSide = 0;
     uint32_t sourceId = UNINIT_STATE_32;

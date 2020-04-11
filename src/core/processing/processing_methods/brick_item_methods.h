@@ -198,6 +198,7 @@ addEmptyEdgeSection(Brick &brick,
     {
         addEdge(newSection, 22);
     }
+    assert(newSection.totalNumberOfEdges != 0);
 
     // add edge-section to the databuffer
     const DataConnection* connection = &brick.dataConnections[EDGE_DATA];

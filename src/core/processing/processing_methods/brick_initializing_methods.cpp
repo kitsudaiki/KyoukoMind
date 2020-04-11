@@ -2,6 +2,7 @@
 
 #include <core/processing/processing_methods/neighbor_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
+#include <core/processing/processing_methods/brick_item_methods.h>
 
 namespace KyoukoMind
 {
@@ -250,7 +251,19 @@ initEdgeSectionBlocks(Brick &brick,
     EdgeSection* array = getEdgeBlock(data);
     for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
+        // create new edge-section
         EdgeSection newSection;
+
+        // connect all available sides
+        for(uint8_t side = 9; side < 15; side++)
+        {
+            if(brick.neighbors[side].inUse != 0) {
+                addEdge(newSection, side);
+            }
+        }
+
+        assert(newSection.totalNumberOfEdges != 0);
+
         array[i] = newSection;
     }
 
