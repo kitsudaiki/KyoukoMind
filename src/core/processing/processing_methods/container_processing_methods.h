@@ -102,6 +102,10 @@ learningSynapseSection(Brick &brick,
         brick.randWeightPos = (brick.randWeightPos + 1) % 999;
         assert(currentSideWeight >= 0.0f);
 
+        if(brick.globalValues.globalLearningOffset < 0.01f) {
+            return;
+        }
+
         // create new synapse if necessary
         if(choosePosition == currentSection.numberOfSynapses) {
             createNewSynapse(brick, currentSection);
@@ -134,6 +138,7 @@ learningSynapseSection(Brick &brick,
         }
 
         currentSection.synapses[choosePosition].weight += newVal;
+        currentSection.totalWeight += abs(newVal);
     }
 }
 
@@ -153,6 +158,11 @@ processSynapseSection(Brick &brick,
     DataConnection* connection = &brick.dataConnections[SYNAPSE_DATA];
     assert(connection->inUse != 0);
     SynapseSection* currentSection = &getSynapseSectionBlock(connection)[synapseSectionId];
+    std::vector<SynapseSection*> debugList;
+    for(uint32_t i = 0; i < connection->numberOfItems; i++)
+    {
+        debugList.push_back(&getSynapseSectionBlock(connection)[i]);
+    }
     assert(currentSection->status == ACTIVE_SECTION);
 
     learningSynapseSection(brick,
@@ -161,8 +171,9 @@ processSynapseSection(Brick &brick,
 
     // limit ration to 1.0f
     float ratio = inputWeight / currentSection->totalWeight;
-    const uint8_t tooBig = ratio > 1.0f;
-    ratio -= tooBig * (1.0f + ratio);
+    if(ratio > 1.0f) {
+        ratio = 1.0f;
+    }
 
     Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
     Synapse* end = currentSection->synapses + currentSection->numberOfSynapses;
@@ -364,6 +375,10 @@ learningEdgeSection(Brick &brick,
             {
                 targetId = addEmptySynapseSection(brick, edgeSectionId);
                 assert(targetId != UNINIT_STATE_32);
+                DataConnection* connection = &brick.dataConnections[SYNAPSE_DATA];
+                assert(connection->inUse != 0);
+                SynapseSection* synapseSection = &getSynapseSectionBlock(connection)[targetId];
+                assert(synapseSection->status == ACTIVE_SECTION);
                 edgeSection->edges[22].targetId = targetId;
             }
             else
@@ -394,9 +409,7 @@ processEdgeForwardSection(Brick &brick,
     DataConnection* connection = &brick.dataConnections[EDGE_DATA];
     assert(connection->inUse != 0);
     EdgeSection* edgeSection = &getEdgeBlock(connection)[container.targetEdgeSectionId];
-    if(edgeSection->status != ACTIVE_SECTION) {
-        return;
-    }
+    assert(edgeSection->status == ACTIVE_SECTION);
 
     // process learning, if the incoming weight is too big
     const float totalWeight = edgeSection->totalWeight;
@@ -541,6 +554,7 @@ inline void
 processPendingEdge(Brick &brick,
                    const PendingEdgeContainer &container)
 {
+    assert(container.sourceSide != 0);
     DataConnection* connection = &brick.dataConnections[EDGE_DATA];
     assert(connection->inUse != 0);
 
@@ -559,7 +573,7 @@ processPendingEdge(Brick &brick,
     {
         if(edgeSection->status == ACTIVE_SECTION)
         {
-            if(edgeSection->sourceId != UNINIT_STATE_32) {
+            if(edgeSection->sourceId != UNINIT_STATE_32 && edgeSection->sourceId != 0) {
                 assert(edgeSection->sourceSide != 0);
             }
             assert(container.sourceSide != 0);

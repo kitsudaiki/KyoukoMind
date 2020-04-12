@@ -78,13 +78,13 @@ void InitTest::checkInit()
     for(uint32_t i = 0; i < bricks.size(); i++)
     {
         const uint32_t itemCount = bricks.at(i)->dataConnections[EDGE_DATA].numberOfItems;
-        const uint32_t blockCount = bricks.at(i)->dataConnections[EDGE_DATA].numberOfItemBlocks;
+        const uint32_t blockCount = bricks.at(i)->dataConnections[EDGE_DATA].buffer.numberOfBlocks;
         totalData.dataConnections[EDGE_DATA].numberOfItems += itemCount;
-        totalData.dataConnections[EDGE_DATA].numberOfItemBlocks += blockCount;
+        totalData.dataConnections[EDGE_DATA].buffer.numberOfBlocks += blockCount;
     }
 
     TEST_EQUAL((int)totalData.dataConnections[EDGE_DATA].numberOfItems, (nodeNumberPerBrick*6));
-    TEST_EQUAL((int)totalData.dataConnections[EDGE_DATA].numberOfItemBlocks, 7);
+    TEST_EQUAL((int)totalData.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 7);
 }
 
 /**

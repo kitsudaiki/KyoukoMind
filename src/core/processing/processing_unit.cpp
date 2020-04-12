@@ -78,8 +78,8 @@ ProcessingUnit::run()
             }
 
             // post-processing
-            //postLearning(*brick);
-            //memorizeSynapses(*brick);
+            postLearning(*brick);
+            memorizeSynapses(*brick);
 
             // write output
             if(brick->isOutputBrick == 1) {

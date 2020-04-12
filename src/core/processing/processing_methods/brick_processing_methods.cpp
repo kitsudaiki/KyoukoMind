@@ -222,7 +222,6 @@ processNodes(Brick &brick)
         node->refractionTime = node->refractionTime >> 1;
 
         // set to 0.0f, if value is negative
-        // set to 255.0f, if value is too high
         if(node->currentState < 0.0f) {
             node->currentState = 0.0f;
         }
