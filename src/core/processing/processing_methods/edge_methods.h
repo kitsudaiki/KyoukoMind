@@ -26,23 +26,6 @@ deleteEdge(EdgeSection &section,
 //==================================================================================================
 
 /**
- * @brief addEdge
- * @param section
- * @param position
- * @param newEdge
- */
-inline void
-addEmptyEdge(EdgeSection &section,
-             const uint8_t side)
-{
-    Edge newEdge;
-    newEdge.available = 1;
-    section.edges[side] = newEdge;
-}
-
-//==================================================================================================
-
-/**
  * @brief updateSynapseWeight
  * @param section
  * @param position

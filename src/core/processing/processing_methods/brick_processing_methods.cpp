@@ -185,8 +185,9 @@ processNodes(Brick &brick)
         node++)
     {
         // set to 255.0f, if value is too high
-        const uint8_t tooBig = node->currentState > 255.0f;
-        node->currentState -= tooBig * (255.0f + node->currentState);
+        if(node->currentState > 255.0f) {
+            node->currentState = 255.0f;
+        }
 
         // init
         const Node tempNode = *node;
@@ -221,8 +222,10 @@ processNodes(Brick &brick)
         node->refractionTime = node->refractionTime >> 1;
 
         // set to 0.0f, if value is negative
-        const uint8_t tooSmall = node->currentState < 0.0f;
-        node->currentState -= tooSmall * node->currentState;
+        // set to 255.0f, if value is too high
+        if(node->currentState < 0.0f) {
+            node->currentState = 0.0f;
+        }
 
         // check if node-state is too high compared to the border
         node->tooHigh = node->currentState > 1.2f * node->border;
@@ -307,20 +310,20 @@ memorizeSynapses(Brick &brick)
 
     // iterate over all synapse-sections
     uint32_t sectionPos = 0;
-    for(SynapseSection* section = sectionStart;
-        section < sectionEnd;
-        section++)
+    for(SynapseSection* synapseSection = sectionStart;
+        synapseSection < sectionEnd;
+        synapseSection++)
     {
         // skip if section is deleted
-        if(section->status != ACTIVE_SECTION)
+        if(synapseSection->status != ACTIVE_SECTION)
         {
             sectionPos++;
             continue;
         }
 
         // update values based on the memorizing-value
-        Synapse* end = section->synapses + section->numberOfSynapses;
-        for(Synapse* synapse = section->synapses;
+        Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
+        for(Synapse* synapse = synapseSection->synapses;
             synapse < end;
             synapse++)
         {
@@ -333,19 +336,22 @@ memorizeSynapses(Brick &brick)
         }
 
         // delete dynamic item if value is too low
-        const DataConnection* connection = &brick.dataConnections[EDGE_DATA];
-        if(section->totalWeight < DELETE_SYNAPSE_BORDER)
+        const DataConnection* edgeConnection = &brick.dataConnections[EDGE_DATA];
+        assert(edgeConnection->inUse != 0);
+        std::cout<<"get id: "<<synapseSection->sourceId<<std::endl;
+        EdgeSection* edgeSection = &getEdgeBlock(edgeConnection)[synapseSection->sourceId];
+        assert(edgeSection->status == ACTIVE_SECTION);
+
+        if(synapseSection->totalWeight < DELETE_SYNAPSE_BORDER)
         {
-            EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
-            processUpdateDeleteEdge(brick, *currentSection, section->sourceId, 22);
             deleteDynamicItem(brick, SYNAPSE_DATA, sectionPos);
+            processUpdateDeleteEdge(brick, *edgeSection, synapseSection->sourceId, 22);
         }
         else
         {
-            EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
-            const float updateValue = section->totalWeight;
+            const float updateValue = synapseSection->totalWeight;
             if(updateValue > 0.0f) {
-                processUpdateSetEdge(brick, *currentSection, updateValue, 22);
+                processUpdateSetEdge(brick, *edgeSection, updateValue, 22);
             }
         }
         sectionPos++;

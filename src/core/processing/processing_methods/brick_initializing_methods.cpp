@@ -107,7 +107,7 @@ disconnectBricks(Brick &sourceBrick,
 
     // get neighbor-pointers
     Neighbor* sourceNeighbor = &sourceBrick.neighbors[sourceSide];
-    Neighbor* targetNeighbor = &targetBrick.neighbors[23-sourceSide];
+    Neighbor* targetNeighbor = &targetBrick.neighbors[23 - sourceSide];
 
     // check neighbors
     if(sourceNeighbor->inUse == 0
@@ -118,7 +118,7 @@ disconnectBricks(Brick &sourceBrick,
 
     // add the new neighbor
     uninitBrickNeighbor(sourceBrick, sourceSide);
-    uninitBrickNeighbor(targetBrick, 23-sourceSide);
+    uninitBrickNeighbor(targetBrick, 23 - sourceSide);
 
     return true;
 }
@@ -143,10 +143,11 @@ initDataBlocks(Brick &brick,
     // update meta-data of the brick
     data->itemSize = itemSize;
     data->numberOfItems = numberOfItems;
-    data->numberOfItemBlocks = (numberOfItems * data->itemSize) / data->buffer.blockSize + 1;
+    const uint32_t requiredNumberOfBlocks = ((numberOfItems * itemSize)
+                                             / data->buffer.blockSize) + 1;
 
     // allocate blocks in buffer
-    allocateBlocks(data->buffer, data->numberOfItemBlocks);
+    allocateBlocks(data->buffer, requiredNumberOfBlocks);
 
     return true;
 }
@@ -164,6 +165,7 @@ initNodeBlocks(Brick &brick,
 {
     DataConnection* data = &brick.dataConnections[NODE_DATA];
     assert(data->numberOfItems == 0);
+    assert(data->inUse == 0);
 
     // if not set by user, use default-value
     if(numberOfNodes == 0) {
@@ -171,7 +173,11 @@ initNodeBlocks(Brick &brick,
     }
 
     // init
-    if(initDataBlocks(brick, NODE_DATA, numberOfNodes, sizeof(Node)) == false) {
+    if(initDataBlocks(brick,
+                      NODE_DATA,
+                      numberOfNodes,
+                      sizeof(Node)) == false)
+    {
         return false;
     }
 

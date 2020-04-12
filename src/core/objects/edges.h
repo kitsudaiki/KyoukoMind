@@ -34,7 +34,7 @@ struct EdgeSection
     Edge edges[23];
     float totalWeight = 0.0000001f;
 
-    uint8_t sourceSide = 0;
+    uint8_t sourceSide = UNINIT_STATE_8;
     uint32_t sourceId = UNINIT_STATE_32;
 
     EdgeSection()

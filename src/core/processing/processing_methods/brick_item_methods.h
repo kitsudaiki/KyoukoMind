@@ -21,11 +21,10 @@ deleteDynamicItem(Brick &brick,
                   const uint8_t connectionId,
                   const uint32_t itemPos)
 {
+    std::cout<<"delete brick: "<<brick.brickId<<"  type: "<<(int)connectionId<<" item-Pos: "<<itemPos<<std::endl;
     DataConnection *data = &brick.dataConnections[connectionId];
-
-    // precheck
-    assert(itemPos < data->numberOfItems);
     assert(data->inUse != 0);
+    assert(itemPos < data->numberOfItems);
 
     // get buffer
     uint8_t* blockBegin = static_cast<uint8_t*>(data->buffer.data);
@@ -110,12 +109,12 @@ reserveDynamicItem(Brick &brick,
                    const uint8_t connectionId)
 {
     DataConnection* data = &brick.dataConnections[connectionId];
-    assert(data->itemSize != 0);
     assert(data->inUse != 0);
 
     // try to reuse item
     const uint32_t reusePos = reuseItemPosition(brick, connectionId);
     if(reusePos != UNINIT_STATE_32) {
+        assert(false);
         return reusePos;
     }
 
@@ -128,6 +127,8 @@ reserveDynamicItem(Brick &brick,
     if(currentNumberOfBlocks < newNumberOfBlocks)
     {
         if(allocateBlocks(data->buffer, 1) == false) {
+            // TODO: handle this case
+            assert(false);
             return UNINIT_STATE_32;
         }
         data->numberOfItemBlocks++;
@@ -149,6 +150,8 @@ inline uint32_t
 addEmptySynapseSection(Brick &brick,
                        const uint32_t sourceId)
 {
+    assert(sourceId != UNINIT_STATE_32);
+
     const uint32_t position = reserveDynamicItem(brick, SYNAPSE_DATA);
 
     if(position != UNINIT_STATE_32)
@@ -156,7 +159,8 @@ addEmptySynapseSection(Brick &brick,
         // add new edge-forward-section
         SynapseSection newSection;
         newSection.sourceId = sourceId;
-        const DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
+        DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
+        assert(data->inUse != 0);
         getSynapseSectionBlock(data)[position] = newSection;
     }
 
@@ -175,6 +179,10 @@ addEmptyEdgeSection(Brick &brick,
                     const uint8_t sourceSide,
                     const uint32_t sourceId)
 {
+    assert(sourceSide != 0);
+    assert(sourceSide != UNINIT_STATE_8);
+    assert(sourceId != UNINIT_STATE_32);
+
     const uint32_t position = reserveDynamicItem(brick, EDGE_DATA);
 
     // create new edge-section
@@ -183,12 +191,12 @@ addEmptyEdgeSection(Brick &brick,
     newSection.sourceSide = sourceSide;
 
     // connect all available sides
-    for(uint8_t side = 0; side < 21; side++)
+    for(uint8_t side = 2; side < 21; side++)
     {
         if(side != sourceSide
                 && brick.neighbors[side].inUse != 0)
         {
-            addEmptyEdge(newSection, side);
+            newSection.edges[side].available = 1;
         }
     }
 
@@ -196,13 +204,15 @@ addEmptyEdgeSection(Brick &brick,
     if(brick.dataConnections[NODE_DATA].inUse != 0
             && brick.isInputBrick == 0)
     {
-        addEmptyEdge(newSection, 22);
+        newSection.edges[22].available = 1;
     }
 
     // add edge-section to the databuffer
-    const DataConnection* connection = &brick.dataConnections[EDGE_DATA];
+    DataConnection* connection = &brick.dataConnections[EDGE_DATA];
     EdgeSection* array = getEdgeBlock(connection);
     array[position] = newSection;
+    assert(newSection.sourceSide != 0);
+    assert(array[position].sourceSide != 0);
 
     return position;
 }

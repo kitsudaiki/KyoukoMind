@@ -78,8 +78,8 @@ ProcessingUnit::run()
             }
 
             // post-processing
-            postLearning(*brick);
-            memorizeSynapses(*brick);
+            //postLearning(*brick);
+            //memorizeSynapses(*brick);
 
             // write output
             if(brick->isOutputBrick == 1) {
@@ -185,6 +185,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const LearingEdgeContainer edge = *static_cast<LearingEdgeContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
+                assert(side != 0);
                 processLerningEdge(brick, edge, side);
                 data += sizeof(LearingEdgeContainer);
                 break;
