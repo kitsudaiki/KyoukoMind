@@ -332,12 +332,12 @@ memorizeSynapses(Brick &brick)
 
             const float newWeight = synapse->weight * (1.0f - synapse->memorize);
             synapse->weight -= newWeight;
+            synapseSection->totalWeight -= newWeight;
         }
 
         // delete dynamic item if value is too low
         const DataConnection* edgeConnection = &brick.dataConnections[EDGE_DATA];
         assert(edgeConnection->inUse != 0);
-        std::cout<<"get id: "<<synapseSection->sourceId<<std::endl;
         EdgeSection* edgeSection = &getEdgeBlock(edgeConnection)[synapseSection->sourceId];
         assert(edgeSection->status == ACTIVE_SECTION);
 
@@ -349,10 +349,9 @@ memorizeSynapses(Brick &brick)
         else
         {
             const float updateValue = synapseSection->totalWeight;
-            if(updateValue > 0.0f) {
-                processUpdateSetEdge(brick, *edgeSection, updateValue, 22);
-            }
+            processUpdateSetEdge(brick, *edgeSection, updateValue, 22);
         }
+
         sectionPos++;
     }
 }
@@ -372,27 +371,14 @@ getSummedValue(Brick &brick)
     assert(brick.isOutputBrick != 0);
 
     // get and check connection-item
-    DataConnection* data = &brick.dataConnections[NODE_DATA];
-    if(data->buffer.data == nullptr) {
-        return 0.0f;
-    }
-
-    // iterate over all nodes in the brick and
-    // summarize the states of all nodes
-    Node* start = static_cast<Node*>(data->buffer.data);
-    Node* end = start + data->numberOfItems;
-    float sum = 0.0f;
-    for(Node* node = start;
-        node < end;
-        node++)
-    {
-        sum += node->currentState;
-        node->currentState /= NODE_COOLDOWN;
-    }
+    DataConnection* dataConnection = &brick.dataConnections[NODE_DATA];
+    assert(dataConnection->inUse != 0);
 
     // write value to the internal ring-buffer
-    brick.outBuffer[brick.outBufferPos] = sum;
+    Node* node = getNodeBlock(dataConnection);
+    brick.outBuffer[brick.outBufferPos] += node->currentState;
     brick.outBufferPos = (brick.outBufferPos + 1) % 10;
+    node->currentState /= NODE_COOLDOWN;
 
     // summarize the ring-buffer and get the average value
     float result = 0.0f;
@@ -412,7 +398,7 @@ getSummedValue(Brick &brick)
  */
 void
 writeMonitoringOutput(Brick &brick,
-            DataBuffer &buffer)
+                      DataBuffer &buffer)
 {
     GlobalValues globalValue = RootObject::m_globalValuesHandler->getGlobalValues();
 

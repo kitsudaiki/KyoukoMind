@@ -296,14 +296,9 @@ addClientOutputConnection(Brick &brick)
 
     // set the border-value of all nodes within the brick
     // to a high-value, so the node can never become active
-    Node* start = static_cast<Node*>(data->buffer.data);
-    Node* end = start + data->numberOfItems;
-    for(Node* node = start;
-        node < end;
-        node++)
-    {
-        node->border = 100000.0f;
-    }
+    Node* node = getNodeBlock(data);
+    data->numberOfItems = 1;
+    node->border = 100000.0f;
 
     return true;
 }
