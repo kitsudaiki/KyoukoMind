@@ -432,7 +432,7 @@ writeMonitoringOutput(Brick &brick,
     monitoringMessage.globalLearning = globalValue.globalLearningOffset;
     monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
 
-    Kitsunemimi::addObjectToBuffer(buffer, &monitoringMessage);
+    Kitsunemimi::addObject_DataBuffer(buffer, &monitoringMessage);
 }
 
 //==================================================================================================
@@ -450,7 +450,7 @@ writeClientOutput(Brick &brick,
     outputMessage.value = getSummedValue(brick);
     outputMessage.brickId = brick.brickId;
 
-    Kitsunemimi::addObjectToBuffer(buffer, &outputMessage);
+    Kitsunemimi::addObject_DataBuffer(buffer, &outputMessage);
 }
 
 //==================================================================================================

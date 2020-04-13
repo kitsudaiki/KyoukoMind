@@ -147,7 +147,7 @@ initDataBlocks(Brick &brick,
                                              / data->buffer.blockSize) + 1;
 
     // allocate blocks in buffer
-    allocateBlocks(data->buffer, requiredNumberOfBlocks);
+    Kitsunemimi::allocateBlocks_DataBuffer(data->buffer, requiredNumberOfBlocks);
 
     return true;
 }

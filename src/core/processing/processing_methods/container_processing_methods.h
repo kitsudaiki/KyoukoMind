@@ -63,8 +63,9 @@ checkAndDelete(Brick &brick,
             UpdateEdgeContainer newContainer;
             newContainer.updateType = UpdateEdgeContainer::DELETE_TYPE;
             newContainer.targetId = edgeSection.sourceId;
-            addObjectToStackBuffer(*brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
-                                   &newContainer);
+            Kitsunemimi::addObject_StackBuffer(
+                        *brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
+                        &newContainer);
         }
 
         deleteDynamicItem(brick, EDGE_DATA, edgeSectionId);
@@ -218,8 +219,9 @@ processUpdateSetEdge(Brick &brick,
         newContainer.type = UpdateEdgeContainer::SUB_TYPE;
         newContainer.updateValue = diff;
         newContainer.targetId = edgeSection.sourceId;
-        addObjectToStackBuffer(*brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
-                               &newContainer);
+        Kitsunemimi::addObject_StackBuffer(
+                    *brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
+                    &newContainer);
     }
 }
 
@@ -248,8 +250,9 @@ processUpdateSubEdge(Brick &brick,
         newContainer.updateType = UpdateEdgeContainer::SUB_TYPE;
         newContainer.targetId = edgeSection.sourceId;
         newContainer.updateValue = updateValue;
-        addObjectToStackBuffer(*brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
-                               &newContainer);
+        Kitsunemimi::addObject_StackBuffer(
+                    *brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
+                    &newContainer);
     }
 }
 
@@ -280,8 +283,9 @@ processUpdateDeleteEdge(Brick &brick,
         newContainer.updateType = UpdateEdgeContainer::SUB_TYPE;
         newContainer.updateValue = temp;
         newContainer.targetId = edgeSection.sourceId;
-        addObjectToStackBuffer(*brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
-                               &newContainer);
+        Kitsunemimi::addObject_StackBuffer(
+                    *brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
+                    &newContainer);
     }
 }
 
@@ -387,8 +391,9 @@ learningEdgeSection(Brick &brick,
                 LearingEdgeContainer newContainer;
                 newContainer.sourceEdgeSectionId = edgeSectionId;
                 newContainer.weight = currentSideWeight;
-                addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
-                                       &newContainer);
+                Kitsunemimi::addObject_StackBuffer(
+                            *brick.neighbors[side].outgoingBuffer,
+                            &newContainer);
             }
         }
     }
@@ -449,8 +454,9 @@ processEdgeForwardSection(Brick &brick,
                 newContainer.targetEdgeSectionId = tempEdge.targetId;
                 newContainer.weight = tempEdge.weight * ratio;
                 assert(newContainer.weight >= 0.0f);
-                addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
-                                       &newContainer);
+                Kitsunemimi::addObject_StackBuffer(
+                            *brick.neighbors[side].outgoingBuffer,
+                            &newContainer);
             }
             else
             {
@@ -460,8 +466,9 @@ processEdgeForwardSection(Brick &brick,
                 assert(newContainer.weight >= 0);
                 newContainer.sourceEdgeSectionId = container.targetEdgeSectionId;
                 newContainer.sourceSide = 23 - side;
-                addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
-                                       &newContainer);
+                Kitsunemimi::addObject_StackBuffer(
+                            *brick.neighbors[side].outgoingBuffer,
+                            &newContainer);
             }
         }
     }
@@ -488,8 +495,9 @@ processAxon(Brick &brick,
         newContainer.weight = container.weight * brick.globalValues.globalGlia;
         newContainer.targetAxonId = container.targetAxonId;
         const uint8_t side = container.targetBrickPath & 0x1F;
-        addObjectToStackBuffer(*brick.neighbors[side].outgoingBuffer,
-                               &newContainer);
+        Kitsunemimi::addObject_StackBuffer(
+                    *brick.neighbors[side].outgoingBuffer,
+                    &newContainer);
     }
     else
     {
@@ -531,8 +539,9 @@ processLerningEdge(Brick &brick,
     LearningEdgeReplyContainer reply;
     reply.sourceEdgeSectionId = container.sourceEdgeSectionId;
     reply.targetEdgeSectionId = targetEdgeId;
-    addObjectToStackBuffer(*brick.neighbors[initSide].outgoingBuffer,
-                           &reply);
+    Kitsunemimi::addObject_StackBuffer(
+                *brick.neighbors[initSide].outgoingBuffer,
+                &reply);
 
     EdgeContainer newContainer;
     newContainer.targetEdgeSectionId = targetEdgeId;

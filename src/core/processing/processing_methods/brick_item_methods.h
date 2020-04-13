@@ -125,7 +125,9 @@ reserveDynamicItem(Brick &brick,
     // allocate a new block, if necessary
     if(numberOfBlocks < newNumberOfBlocks)
     {
-        if(allocateBlocks(data->buffer, newNumberOfBlocks - numberOfBlocks) == false)
+        bool success = Kitsunemimi::allocateBlocks_DataBuffer(data->buffer,
+                                                              newNumberOfBlocks - numberOfBlocks);
+        if(success == false)
         {
             // TODO: handle this case
             assert(false);

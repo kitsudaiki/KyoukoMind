@@ -134,7 +134,7 @@ clientCallback(void* target,
                         newEdge.weight = content.value;
                         newEdge.targetNodeId = i;
                         assert(neighbor->outgoingBuffer != nullptr);
-                        addObjectToStackBuffer(*neighbor->outgoingBuffer, &newEdge);
+                        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
                     }
                 }
 

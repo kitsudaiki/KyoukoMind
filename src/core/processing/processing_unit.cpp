@@ -109,13 +109,13 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
         if(brick.neighbors[side].inUse == 1)
         {
             StackBuffer* currentBuffer = brick.neighbors[side].currentBuffer;
-            DataBuffer* currentBlock = getFirstElementFromStackBuffer(*currentBuffer);
+            DataBuffer* currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
 
             while(currentBlock != nullptr)
             {
                 processIncomingMessage(brick, side, currentBlock);
-                removeFirstFromStackBuffer(*currentBuffer);
-                currentBlock = getFirstElementFromStackBuffer(*currentBuffer);
+                Kitsunemimi::removeFirst_StackBuffer(*currentBuffer);
+                currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
             }
         }
     }
