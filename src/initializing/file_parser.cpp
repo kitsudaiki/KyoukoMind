@@ -9,6 +9,9 @@
 
 #include "file_parser.h"
 
+#include <libKitsunemimiCommon/common_methods/string_methods.h>
+#include <libKitsunemimiCommon/common_methods/vector_methods.h>
+
 namespace KyoukoMind
 {
 
@@ -37,7 +40,8 @@ parse2dTestfile(const std::string fileContent,
     uint32_t firstLineLenght = 0;
 
     // split string
-    std::vector<std::string> allLines = splitString(fileContent, '\n');
+    std::vector<std::string> allLines;
+    Kitsunemimi::splitStringByDelimiter(allLines, fileContent, '\n');
 
     // read the single lines
     for(uint32_t lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
@@ -49,10 +53,11 @@ parse2dTestfile(const std::string fileContent,
                                    allLines[lineNumber].end());
 
         // split line
-        std::vector<std::string> splittedLine = splitString(allLines[lineNumber], '|');
+        std::vector<std::string> splittedLine;
+        Kitsunemimi::splitStringByDelimiter(splittedLine, allLines[lineNumber], '|');
 
         // remove empty entries from the list
-        removeEmptyStrings(splittedLine);
+        Kitsunemimi::removeEmptyStrings(&splittedLine);
 
         // add new line to meat-structure-vector
         std::vector<InitMetaDataEntry> newLine;
