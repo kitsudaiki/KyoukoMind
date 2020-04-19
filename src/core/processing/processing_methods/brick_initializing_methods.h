@@ -43,6 +43,8 @@ bool addClientInputConnection(Brick &brick,
 
 bool addClientOutputConnection(Brick &brick);
 
+void initRandValues(Brick &brick);
+
 }
 
 #endif // BRICK_INITIALIZING_METHODS_H

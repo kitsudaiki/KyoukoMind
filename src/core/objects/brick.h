@@ -40,6 +40,11 @@ struct Brick
     uint8_t isOutputBrick = 0;
     uint8_t isInputBrick = 0;
 
+    float* randWeight = nullptr;
+    uint32_t randWeightPos = 0;
+    uint32_t* randValue = nullptr;
+    uint32_t randValuePos = 0;
+
     DataBuffer headerBuffer;
 
     uint32_t counter = 0;

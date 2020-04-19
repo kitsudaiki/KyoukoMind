@@ -25,14 +25,14 @@ struct NewAxon {
 };
 
 
-bool createAxons(std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure);
+bool createAxons(std::vector<std::vector<InitMetaDataEntry> > &networkMetaStructure);
 
 NewAxon getNextAxonPathStep(const uint32_t x,
                             const uint32_t y,
                             const uint8_t inputSide,
                             const uint64_t currentPath,
                             const uint32_t currentStep,
-                            std::vector<std::vector<InitMetaDataEntry> > *networkMetaStructure);
+                            std::vector<std::vector<InitMetaDataEntry> > &networkMetaStructure);
 
 uint8_t chooseNextSide(const uint8_t initialSide, Neighbor* neighbors);
 

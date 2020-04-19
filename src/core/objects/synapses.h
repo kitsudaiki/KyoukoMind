@@ -30,11 +30,11 @@ struct SynapseSection
     float totalWeight = 0.0000001f;
 
     uint32_t sourceId = UNINIT_STATE_32;
-    Synapse synapses[EDGES_PER_SYNAPSESECTION];
+    Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
     SynapseSection()
     {
-        for(uint32_t i = 0; i < EDGES_PER_SYNAPSESECTION; i++)
+        for(uint32_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++)
         {
             Synapse newSynapse;
             synapses[i] = newSynapse;

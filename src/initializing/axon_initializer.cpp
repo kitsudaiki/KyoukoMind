@@ -22,19 +22,19 @@ namespace KyoukoMind
  * @return
  */
 bool
-createAxons(InitStructure* networkMetaStructure)
+createAxons(InitStructure &networkMetaStructure)
 {
     // calculate number of axons per brick
-    for(uint32_t x = 0; x < (*networkMetaStructure).size(); x++)
+    for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
     {
-        for(uint32_t y = 0; y < (*networkMetaStructure)[x].size(); y++)
+        for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
         {
             // check brick-type
-            Brick* brick = (*networkMetaStructure)[x][y].brick;
+            Brick* brick = networkMetaStructure[x][y].brick;
             if(brick == nullptr) {
                 continue;
             }
-            if((*networkMetaStructure)[x][y].type == NODE_BRICK)
+            if(networkMetaStructure[x][y].type == NODE_BRICK)
             {
                 DataConnection* data = &brick->dataConnections[NODE_DATA];
 
@@ -46,12 +46,13 @@ createAxons(InitStructure* networkMetaStructure)
                 for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)
                 {
                     // create new axon
-                    uint32_t axonId = (*networkMetaStructure)[x][y].numberOfAxons;
-                    NewAxon newAxon = getNextAxonPathStep(x, y, 0, 8, 1, networkMetaStructure);
+                    const NewAxon axon = getNextAxonPathStep(x, y, 0, 8, 1, networkMetaStructure);
+                    InitMetaDataEntry entry = networkMetaStructure[axon.targetX][axon.targetY];
+                    const uint32_t axonId = entry.numberOfAxons;
 
                     // update values of the brick and the node
-                    (*networkMetaStructure)[newAxon.targetX][newAxon.targetY].numberOfAxons++;
-                    nodes[nodeNumber].targetBrickPath = newAxon.targetPath;
+                    networkMetaStructure[axon.targetX][axon.targetY].numberOfAxons++;
+                    nodes[nodeNumber].targetBrickPath = axon.targetPath;
                     nodes[nodeNumber].targetAxonId = axonId;
                 }
             }
@@ -59,21 +60,21 @@ createAxons(InitStructure* networkMetaStructure)
     }
 
     // add the calculated number of axons to all bricks
-    for(uint32_t x = 0; x < (*networkMetaStructure).size(); x++)
+    for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
     {
-        for(uint32_t y = 0; y < (*networkMetaStructure)[x].size(); y++)
+        for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
         {
 
-            Brick* brick = (*networkMetaStructure)[x][y].brick;
+            Brick* brick = networkMetaStructure[x][y].brick;
             if(brick == nullptr) {
                 continue;
             }
 
             // add the axon-number to the specific brick
-            if((*networkMetaStructure)[x][y].numberOfAxons == 0) {
-                (*networkMetaStructure)[x][y].numberOfAxons = 1;
+            if(networkMetaStructure[x][y].numberOfAxons == 0) {
+                networkMetaStructure[x][y].numberOfAxons = 1;
             }
-            initEdgeSectionBlocks(*brick, (*networkMetaStructure)[x][y].numberOfAxons);
+            initEdgeSectionBlocks(*brick, networkMetaStructure[x][y].numberOfAxons);
         }
     }
     return true;
@@ -95,7 +96,7 @@ getNextAxonPathStep(const uint32_t x,
                     const uint8_t inputSide,
                     const uint64_t currentPath,
                     const uint32_t currentStep,
-                    InitStructure* networkMetaStructure)
+                    InitStructure &networkMetaStructure)
 {
     // check if go to next
     bool goToNext = false;
@@ -109,7 +110,8 @@ getNextAxonPathStep(const uint32_t x,
     }
 
     // return the current values if no next or path long enough
-    if(goToNext == false || currentStep == 8)
+    if(goToNext == false
+            || currentStep == 8)
     {
         NewAxon result;
         result.targetX = x;
@@ -117,10 +119,11 @@ getNextAxonPathStep(const uint32_t x,
         result.targetPath = currentPath;
         return result;
     }
+
     // choose the next brick
     uint8_t nextSite = 0xFF;
-    if((*networkMetaStructure)[x][y].type != EMPTY_BRICK) {
-        nextSite = chooseNextSide(inputSide, (*networkMetaStructure)[x][y].brick->neighbors);
+    if(networkMetaStructure[x][y].type != EMPTY_BRICK) {
+        nextSite = chooseNextSide(inputSide, networkMetaStructure[x][y].brick->neighbors);
     }
 
     if(nextSite == 0xFF)
@@ -133,7 +136,7 @@ getNextAxonPathStep(const uint32_t x,
     }
 
     // get the neighbor of the choosen side
-    Neighbor* choosenOne = &(*networkMetaStructure)[x][y].brick->neighbors[nextSite];
+    Neighbor* choosenOne = &networkMetaStructure[x][y].brick->neighbors[nextSite];
 
     // update path
     uint64_t newPath = currentPath + ((uint64_t)nextSite << ((uint64_t)currentStep * (uint64_t)5));
@@ -143,7 +146,7 @@ getNextAxonPathStep(const uint32_t x,
                                choosenOne->targetBrickPos.y,
                                23 - nextSite,
                                newPath,
-                               currentStep+1,
+                               currentStep + 1,
                                networkMetaStructure);
 }
 
@@ -155,7 +158,7 @@ getNextAxonPathStep(const uint32_t x,
 uint8_t
 chooseNextSide(const uint8_t initialSide, Neighbor* neighbors)
 {
-    std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
+    const std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
     std::vector<uint8_t> availableSides;
 
     for(uint8_t i = 0; i < sideOrder.size(); i++)

@@ -18,12 +18,12 @@ namespace KyoukoMind
 
 class BrickHandler;
 
-bool createNewNetwork(const std::string fileContent);
+bool createNewNetwork(const std::string &fileContent);
 
-void connectAllBricks(InitStructure* networkMetaStructure);
+void connectAllBricks(InitStructure &networkMetaStructure);
 
 void addBricks(const uint32_t nodeNumberPerBrick,
-               InitStructure* networkMetaStructure);
+               InitStructure &networkMetaStructure);
 
 std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
                                       const uint32_t y,

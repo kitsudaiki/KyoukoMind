@@ -21,6 +21,7 @@ struct Edge
 {
     float weight = 0.0;
     uint32_t targetId = UNINIT_STATE_32;
+    uint8_t available = 0;
 
 } __attribute__((packed));
 
@@ -29,23 +30,25 @@ struct Edge
 struct EdgeSection
 {
     uint8_t status = ACTIVE_SECTION;
-    Edge edges[25];
 
+    Edge edges[23];
     float totalWeight = 0.0000001f;
-    uint32_t activeEdges = 0;
 
-    uint8_t sourceSide = 0;
+    uint8_t sourceSide = UNINIT_STATE_8;
     uint32_t sourceId = UNINIT_STATE_32;
 
     EdgeSection()
     {
-        for(uint32_t i = 0; i < 25; i++)
+        for(uint8_t side = 0; side < 23; side++)
         {
             Edge newEdge;
-            edges[i] = newEdge;
+            edges[side] = newEdge;
         }
     }
+
 } __attribute__((packed));
+
+//==================================================================================================
 
 } // namespace KyoukoMind
 

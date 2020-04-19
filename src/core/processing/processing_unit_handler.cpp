@@ -45,12 +45,14 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
     if(m_allProcessingUnits.size() != 0) {
         return false;
     }
+
     for(uint16_t i = 0; i < numberOfThreads; i++)
     {
         ProcessingUnit* newUnit = new ProcessingUnit();
         m_allProcessingUnits.push_back(newUnit);
         newUnit->startThread();
     }
+
     return true;
 }
 
@@ -84,7 +86,8 @@ ProcessingUnitHandler::closeAllProcessingUnits()
         delete unit;
     }
 
-    m_allProcessingUnits.clear();;
+    m_allProcessingUnits.clear();
+
     return true;
 }
 

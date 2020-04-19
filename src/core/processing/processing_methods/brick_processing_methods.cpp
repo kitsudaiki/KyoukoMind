@@ -165,7 +165,7 @@ isReady(Brick* brick)
  * @return number of active nodes in this brick
  */
 uint16_t
-processNodes(Brick &brick, float* weightMap)
+processNodes(Brick &brick)
 {
     DataConnection* data = &brick.dataConnections[NODE_DATA];
 
@@ -185,8 +185,9 @@ processNodes(Brick &brick, float* weightMap)
         node++)
     {
         // set to 255.0f, if value is too high
-        const uint8_t tooBig = node->currentState > 255.0f;
-        node->currentState -= tooBig * (255.0f + node->currentState);
+        if(node->currentState > 255.0f) {
+            node->currentState = 255.0f;
+        }
 
         // init
         const Node tempNode = *node;
@@ -215,14 +216,15 @@ processNodes(Brick &brick, float* weightMap)
             newEdge.targetBrickPath = path;
             newEdge.weight = weight;
 
-            processAxon(brick, newEdge, weightMap);
+            processAxon(brick, newEdge);
         }
         // post-steps
         node->refractionTime = node->refractionTime >> 1;
 
         // set to 0.0f, if value is negative
-        const uint8_t tooSmall = node->currentState < 0.0f;
-        node->currentState -= tooSmall * node->currentState;
+        if(node->currentState < 0.0f) {
+            node->currentState = 0.0f;
+        }
 
         // check if node-state is too high compared to the border
         node->tooHigh = node->currentState > 1.2f * node->border;
@@ -307,20 +309,20 @@ memorizeSynapses(Brick &brick)
 
     // iterate over all synapse-sections
     uint32_t sectionPos = 0;
-    for(SynapseSection* section = sectionStart;
-        section < sectionEnd;
-        section++)
+    for(SynapseSection* synapseSection = sectionStart;
+        synapseSection < sectionEnd;
+        synapseSection++)
     {
         // skip if section is deleted
-        if(section->status != ACTIVE_SECTION)
+        if(synapseSection->status != ACTIVE_SECTION)
         {
             sectionPos++;
             continue;
         }
 
         // update values based on the memorizing-value
-        Synapse* end = section->synapses + section->numberOfSynapses;
-        for(Synapse* synapse = section->synapses;
+        Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
+        for(Synapse* synapse = synapseSection->synapses;
             synapse < end;
             synapse++)
         {
@@ -330,24 +332,26 @@ memorizeSynapses(Brick &brick)
 
             const float newWeight = synapse->weight * (1.0f - synapse->memorize);
             synapse->weight -= newWeight;
+            synapseSection->totalWeight -= newWeight;
         }
 
         // delete dynamic item if value is too low
-        const DataConnection* connection = &brick.dataConnections[EDGE_DATA];
-        if(section->totalWeight < DELETE_SYNAPSE_BORDER)
+        const DataConnection* edgeConnection = &brick.dataConnections[EDGE_DATA];
+        assert(edgeConnection->inUse != 0);
+        EdgeSection* edgeSection = &getEdgeBlock(edgeConnection)[synapseSection->sourceId];
+        assert(edgeSection->status == ACTIVE_SECTION);
+
+        if(synapseSection->totalWeight < DELETE_SYNAPSE_BORDER)
         {
-            EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
-            processUpdateDeleteEdge(brick, *currentSection, section->sourceId, 22);
             deleteDynamicItem(brick, SYNAPSE_DATA, sectionPos);
+            processUpdateDeleteEdge(brick, *edgeSection, synapseSection->sourceId, 22);
         }
         else
         {
-            EdgeSection* currentSection = &getEdgeBlock(connection)[section->sourceId];
-            const float updateValue = section->totalWeight;
-            if(updateValue > 0.0f) {
-                processUpdateSetEdge(brick, *currentSection, updateValue, 22);
-            }
+            const float updateValue = synapseSection->totalWeight;
+            processUpdateSetEdge(brick, *edgeSection, updateValue, 22);
         }
+
         sectionPos++;
     }
 }
@@ -367,27 +371,14 @@ getSummedValue(Brick &brick)
     assert(brick.isOutputBrick != 0);
 
     // get and check connection-item
-    DataConnection* data = &brick.dataConnections[NODE_DATA];
-    if(data->buffer.data == nullptr) {
-        return 0.0f;
-    }
-
-    // iterate over all nodes in the brick and
-    // summarize the states of all nodes
-    Node* start = static_cast<Node*>(data->buffer.data);
-    Node* end = start + data->numberOfItems;
-    float sum = 0.0f;
-    for(Node* node = start;
-        node < end;
-        node++)
-    {
-        sum += node->currentState;
-        node->currentState /= NODE_COOLDOWN;
-    }
+    DataConnection* dataConnection = &brick.dataConnections[NODE_DATA];
+    assert(dataConnection->inUse != 0);
 
     // write value to the internal ring-buffer
-    brick.outBuffer[brick.outBufferPos] = sum;
+    Node* node = getNodeBlock(dataConnection);
+    brick.outBuffer[brick.outBufferPos] += node->currentState;
     brick.outBufferPos = (brick.outBufferPos + 1) % 10;
+    node->currentState /= NODE_COOLDOWN;
 
     // summarize the ring-buffer and get the average value
     float result = 0.0f;
@@ -407,7 +398,7 @@ getSummedValue(Brick &brick)
  */
 void
 writeMonitoringOutput(Brick &brick,
-            DataBuffer &buffer)
+                      DataBuffer &buffer)
 {
     GlobalValues globalValue = RootObject::m_globalValuesHandler->getGlobalValues();
 
@@ -441,7 +432,7 @@ writeMonitoringOutput(Brick &brick,
     monitoringMessage.globalLearning = globalValue.globalLearningOffset;
     monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
 
-    Kitsunemimi::addObjectToBuffer(buffer, &monitoringMessage);
+    Kitsunemimi::addObject_DataBuffer(buffer, &monitoringMessage);
 }
 
 //==================================================================================================
@@ -459,7 +450,7 @@ writeClientOutput(Brick &brick,
     outputMessage.value = getSummedValue(brick);
     outputMessage.brickId = brick.brickId;
 
-    Kitsunemimi::addObjectToBuffer(buffer, &outputMessage);
+    Kitsunemimi::addObject_DataBuffer(buffer, &outputMessage);
 }
 
 //==================================================================================================

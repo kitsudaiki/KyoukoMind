@@ -4,6 +4,7 @@
 #include <common.h>
 
 #include <core/objects/brick.h>
+#include <core/processing/processing_methods/edge_methods.h>
 
 namespace KyoukoMind
 {
@@ -21,13 +22,8 @@ deleteDynamicItem(Brick &brick,
                   const uint32_t itemPos)
 {
     DataConnection *data = &brick.dataConnections[connectionId];
-
-    // precheck
-    if(itemPos >= data->numberOfItems
-            || data->inUse == 0)
-    {
-        return false;
-    }
+    assert(data->inUse != 0);
+    assert(itemPos < data->numberOfItems);
 
     // get buffer
     uint8_t* blockBegin = static_cast<uint8_t*>(data->buffer.data);
@@ -112,13 +108,7 @@ reserveDynamicItem(Brick &brick,
                    const uint8_t connectionId)
 {
     DataConnection* data = &brick.dataConnections[connectionId];
-
-    // precheck
-    if(data->itemSize == 0
-            || data->inUse == 0)
-    {
-        return UNINIT_STATE_32;
-    }
+    assert(data->inUse != 0);
 
     // try to reuse item
     const uint32_t reusePos = reuseItemPosition(brick, connectionId);
@@ -128,16 +118,21 @@ reserveDynamicItem(Brick &brick,
 
     // calculate size information
     const uint32_t blockSize = data->buffer.blockSize;
-    const uint32_t currentNumberOfBlocks = (data->numberOfItems * data->itemSize)/ blockSize;
-    const uint32_t newNumberOfBlocks = ((data->numberOfItems + 1) * data->itemSize) / blockSize;
+    const uint64_t numberOfBlocks = data->buffer.numberOfBlocks;
+    const uint64_t newNumberOfBlocks = (((data->numberOfItems + 1) * data->itemSize)
+                                        / blockSize) + 1;
 
     // allocate a new block, if necessary
-    if(currentNumberOfBlocks < newNumberOfBlocks)
+    if(numberOfBlocks < newNumberOfBlocks)
     {
-        if(allocateBlocks(data->buffer, 1) == false) {
+        bool success = Kitsunemimi::allocateBlocks_DataBuffer(data->buffer,
+                                                              newNumberOfBlocks - numberOfBlocks);
+        if(success == false)
+        {
+            // TODO: handle this case
+            assert(false);
             return UNINIT_STATE_32;
         }
-        data->numberOfItemBlocks++;
     }
 
     data->numberOfItems++;
@@ -156,16 +151,18 @@ inline uint32_t
 addEmptySynapseSection(Brick &brick,
                        const uint32_t sourceId)
 {
-    const uint32_t position = reserveDynamicItem(brick, SYNAPSE_DATA);
+    assert(sourceId != UNINIT_STATE_32);
 
-    if(position != UNINIT_STATE_32)
-    {
-        // add new edge-forward-section
-        SynapseSection newSection;
-        newSection.sourceId = sourceId;
-        const DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
-        getSynapseSectionBlock(data)[position] = newSection;
-    }
+    const uint32_t position = reserveDynamicItem(brick, SYNAPSE_DATA);
+    assert(position != UNINIT_STATE_32);
+
+    // add new edge-forward-section
+    SynapseSection newSection;
+    newSection.sourceId = sourceId;
+
+    DataConnection* data = &brick.dataConnections[SYNAPSE_DATA];
+    assert(data->inUse != 0);
+    getSynapseSectionBlock(data)[position] = newSection;
 
     return position;
 }
@@ -182,17 +179,40 @@ addEmptyEdgeSection(Brick &brick,
                     const uint8_t sourceSide,
                     const uint32_t sourceId)
 {
+    assert(sourceSide != 0);
+    assert(sourceSide != UNINIT_STATE_8);
+    assert(sourceId != UNINIT_STATE_32);
+
     const uint32_t position = reserveDynamicItem(brick, EDGE_DATA);
+    assert(position != UNINIT_STATE_32);
 
     // create new edge-section
     EdgeSection newSection;
     newSection.sourceId = sourceId;
     newSection.sourceSide = sourceSide;
 
+    // connect all available sides
+    for(uint8_t side = 2; side < 21; side++)
+    {
+        if(side != sourceSide
+                && brick.neighbors[side].inUse != 0)
+        {
+            newSection.edges[side].available = 1;
+        }
+    }
+
+    // if node-brick, then connect side 22
+    if(brick.dataConnections[NODE_DATA].inUse != 0
+            && brick.isInputBrick == 0)
+    {
+        newSection.edges[22].available = 1;
+    }
+
     // add edge-section to the databuffer
-    const DataConnection* connection = &brick.dataConnections[EDGE_DATA];
-    EdgeSection* array = getEdgeBlock(connection);
-    array[position] = newSection;
+    DataConnection* connection = &brick.dataConnections[EDGE_DATA];
+    getEdgeBlock(connection)[position] = newSection;
+    assert(newSection.sourceSide != 0);
+    assert(getEdgeBlock(connection)[position].sourceSide != 0);
 
     return position;
 }

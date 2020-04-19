@@ -38,7 +38,7 @@ clientCallback(void* target,
     RootObject* rootObject = static_cast<RootObject*>(target);
     const uint8_t* dataObj = static_cast<const uint8_t*>(data);
 
-    LOG_DEBUG("process incoming client message with size: " + std::to_string(dataSize));
+    //LOG_DEBUG("process incoming client message with size: " + std::to_string(dataSize));
 
     uint64_t dataPos = 0;
 
@@ -50,7 +50,7 @@ clientCallback(void* target,
         {
             case CLIENT_CONTROL_LEARNING:
             {
-                LOG_DEBUG("CLIENT_CONTROL_LEARNING");
+                //LOG_DEBUG("CLIENT_CONTROL_LEARNING");
                 const ClientControlLearning content = *((ClientControlLearning*)&dataObj[dataPos]);
 
                 GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
@@ -67,7 +67,7 @@ clientCallback(void* target,
 
             case CLIENT_CONTROL_MEMORIZING:
             {
-                LOG_DEBUG("CLIENT_CONTROL_MEMORIZING");
+                //LOG_DEBUG("CLIENT_CONTROL_MEMORIZING");
                 ClientControlMemorizing content = *((ClientControlMemorizing*)&dataObj[dataPos]);
 
                 GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
@@ -84,7 +84,7 @@ clientCallback(void* target,
 
             case CLIENT_CONTROL_GLIA:
             {
-                LOG_DEBUG("CLIENT_CONTROL_GLIA");
+                //LOG_DEBUG("CLIENT_CONTROL_GLIA");
                 const ClientControlGlia content = *((ClientControlGlia*)&dataObj[dataPos]);
 
                 GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
@@ -100,7 +100,7 @@ clientCallback(void* target,
 
             case CLIENT_CONTROL_OUTPUT_LEARNING:
             {
-                LOG_DEBUG("CLIENT_CONTROL_OUTPUT_LEARNING");
+                //LOG_DEBUG("CLIENT_CONTROL_OUTPUT_LEARNING");
                 const ClientControlOutputLearning content
                         = *((ClientControlOutputLearning*)&dataObj[dataPos]);
                 Brick* brick = rootObject->m_brickHandler->getBrick(content.brickId);
@@ -114,7 +114,7 @@ clientCallback(void* target,
 
             case CLIENT_LEARN_INPUT:
             {
-                LOG_DEBUG("CLIENT_LEARN_INPUT");
+                //LOG_DEBUG("CLIENT_LEARN_INPUT");
 
                 const ClientLearnInputData content = *((ClientLearnInputData*)&dataObj[dataPos]);
 
@@ -134,7 +134,7 @@ clientCallback(void* target,
                         newEdge.weight = content.value;
                         newEdge.targetNodeId = i;
                         assert(neighbor->outgoingBuffer != nullptr);
-                        addObjectToStackBuffer(*neighbor->outgoingBuffer, &newEdge);
+                        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
                     }
                 }
 
@@ -144,7 +144,7 @@ clientCallback(void* target,
 
             case CLIENT_LEARN_FINISH_CYCLE:
             {
-                LOG_DEBUG("CLIENT_LEARN_FINISH_CYCLE");
+                //LOG_DEBUG("CLIENT_LEARN_FINISH_CYCLE");
                 const ClientLearnFinishCycleData content =
                         *((ClientLearnFinishCycleData*)&dataObj[dataPos]);
 

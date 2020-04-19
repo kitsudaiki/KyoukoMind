@@ -44,14 +44,14 @@ BufferControlMethodsTest::initDataBlocks_test()
 
     // precheck
     TEST_EQUAL(testObject.dataConnections[EDGE_DATA].itemSize, 0);
-    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 0);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 0);
 
     // run test
     TEST_EQUAL(initDataBlocks(testObject, EDGE_DATA, 420, 10), true);
 
     // postcheck
     TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItems, 420);
-    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItemBlocks, 2);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 2);
 }
 
 /**

@@ -74,7 +74,7 @@ ProcessingUnit::run()
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*brick);
             if(brick->dataConnections[NODE_DATA].inUse == 1) {
-                processNodes(*brick, m_weightMap);
+                processNodes(*brick);
             }
 
             // post-processing
@@ -96,53 +96,6 @@ ProcessingUnit::run()
 }
 
 /**
- * refillWeightMap fill the weight-map which is required for learing-process
- */
-void
-ProcessingUnit::refillWeightMap(Brick &brick,
-                                const uint8_t initialSide,
-                                Neighbor* neighbors)
-{
-    m_totalWeightMap = 0.0f;
-
-    // set all weights
-    for(uint8_t side = 0; side < 22; side++)
-    {
-        if(neighbors[side].targetBrick != nullptr
-                && side != initialSide)
-        {
-            const float randVal = static_cast<float>(rand() % UNINIT_STATE_16);
-            m_totalWeightMap += randVal;
-            m_weightMap[side] += randVal;
-        }
-        else
-        {
-            m_weightMap[side] = 0.0f;
-        }
-    }
-
-    // if brick contains nodes, the have to get a big part of the incoming weight
-    if(brick.dataConnections[NODE_DATA].inUse == 1)
-    {
-        // TODO: replace the const-value of 0.2f by define
-        const float val = m_totalWeightMap * 0.2f;
-        m_weightMap[22] = val;
-        m_totalWeightMap += val;
-    }
-    else
-    {
-        m_weightMap[22] = 0.0f;
-    }
-
-    // recalc values
-    m_totalWeightMap = 1.0f / m_totalWeightMap;
-    for(uint8_t side = 0; side < 23; side++)
-    {
-        m_weightMap[side] *= m_totalWeightMap;
-    }
-}
-
-/**
  * @brief ProcessingUnit::processIncomingMessages
  * @param brick
  * @return
@@ -155,16 +108,14 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
     {
         if(brick.neighbors[side].inUse == 1)
         {
-            refillWeightMap(brick, side, brick.neighbors);
-
             StackBuffer* currentBuffer = brick.neighbors[side].currentBuffer;
-            DataBuffer* currentBlock = getFirstElementFromStackBuffer(*currentBuffer);
+            DataBuffer* currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
 
             while(currentBlock != nullptr)
             {
                 processIncomingMessage(brick, side, currentBlock);
-                removeFirstFromStackBuffer(*currentBuffer);
-                currentBlock = getFirstElementFromStackBuffer(*currentBuffer);
+                Kitsunemimi::removeFirst_StackBuffer(*currentBuffer);
+                currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
             }
         }
     }
@@ -207,7 +158,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const PendingEdgeContainer edge = *static_cast<PendingEdgeContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                processPendingEdge(brick, edge, m_weightMap);
+                processPendingEdge(brick, edge);
                 data += sizeof(PendingEdgeContainer);
                 break;
             }
@@ -216,7 +167,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const EdgeContainer edge = *static_cast<EdgeContainer*>(obj);
                 assert(edge.targetEdgeSectionId != UNINIT_STATE_32);
-                processEdgeForwardSection(brick, edge, m_weightMap);
+                processEdgeForwardSection(brick, edge);
                 data += sizeof(EdgeContainer);
                 break;
             }
@@ -225,7 +176,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const AxonEdgeContainer edge = *static_cast<AxonEdgeContainer*>(obj);
                 assert(edge.targetAxonId != UNINIT_STATE_32);
-                processAxon(brick, edge, m_weightMap);
+                processAxon(brick, edge);
                 data += sizeof(AxonEdgeContainer);
                 break;
             }
@@ -234,14 +185,16 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const LearingEdgeContainer edge = *static_cast<LearingEdgeContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                processLerningEdge(brick, edge, side, m_weightMap);
+                assert(side != 0);
+                processLerningEdge(brick, edge, side);
                 data += sizeof(LearingEdgeContainer);
                 break;
             }
             // -------------------------------------------------------------------------------------
             case LEARNING_REPLY_EDGE_CONTAINER:
             {
-                const LearningEdgeReplyContainer edge = *static_cast<LearningEdgeReplyContainer*>(obj);
+                const LearningEdgeReplyContainer edge =
+                        *static_cast<LearningEdgeReplyContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
                 processLearningEdgeReply(brick, edge, side);
                 data += sizeof(LearningEdgeReplyContainer);

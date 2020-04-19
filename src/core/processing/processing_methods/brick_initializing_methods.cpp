@@ -2,6 +2,7 @@
 
 #include <core/processing/processing_methods/neighbor_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
+#include <core/processing/processing_methods/brick_item_methods.h>
 
 namespace KyoukoMind
 {
@@ -106,7 +107,7 @@ disconnectBricks(Brick &sourceBrick,
 
     // get neighbor-pointers
     Neighbor* sourceNeighbor = &sourceBrick.neighbors[sourceSide];
-    Neighbor* targetNeighbor = &targetBrick.neighbors[23-sourceSide];
+    Neighbor* targetNeighbor = &targetBrick.neighbors[23 - sourceSide];
 
     // check neighbors
     if(sourceNeighbor->inUse == 0
@@ -117,7 +118,7 @@ disconnectBricks(Brick &sourceBrick,
 
     // add the new neighbor
     uninitBrickNeighbor(sourceBrick, sourceSide);
-    uninitBrickNeighbor(targetBrick, 23-sourceSide);
+    uninitBrickNeighbor(targetBrick, 23 - sourceSide);
 
     return true;
 }
@@ -142,10 +143,11 @@ initDataBlocks(Brick &brick,
     // update meta-data of the brick
     data->itemSize = itemSize;
     data->numberOfItems = numberOfItems;
-    data->numberOfItemBlocks = (numberOfItems * data->itemSize) / data->buffer.blockSize + 1;
+    const uint32_t requiredNumberOfBlocks = ((numberOfItems * itemSize)
+                                             / data->buffer.blockSize) + 1;
 
     // allocate blocks in buffer
-    allocateBlocks(data->buffer, data->numberOfItemBlocks);
+    Kitsunemimi::allocateBlocks_DataBuffer(data->buffer, requiredNumberOfBlocks);
 
     return true;
 }
@@ -163,6 +165,7 @@ initNodeBlocks(Brick &brick,
 {
     DataConnection* data = &brick.dataConnections[NODE_DATA];
     assert(data->numberOfItems == 0);
+    assert(data->inUse == 0);
 
     // if not set by user, use default-value
     if(numberOfNodes == 0) {
@@ -170,7 +173,11 @@ initNodeBlocks(Brick &brick,
     }
 
     // init
-    if(initDataBlocks(brick, NODE_DATA, numberOfNodes, sizeof(Node)) == false) {
+    if(initDataBlocks(brick,
+                      NODE_DATA,
+                      numberOfNodes,
+                      sizeof(Node)) == false)
+    {
         return false;
     }
 
@@ -250,7 +257,17 @@ initEdgeSectionBlocks(Brick &brick,
     EdgeSection* array = getEdgeBlock(data);
     for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
+        // create new edge-section
         EdgeSection newSection;
+
+        // connect all available sides
+        for(uint8_t side = 0; side < 21; side++)
+        {
+            if(brick.neighbors[side].inUse != 0) {
+                newSection.edges[side].available = 1;
+            }
+        }
+
         array[i] = newSection;
     }
 
@@ -279,16 +296,46 @@ addClientOutputConnection(Brick &brick)
 
     // set the border-value of all nodes within the brick
     // to a high-value, so the node can never become active
-    Node* start = static_cast<Node*>(data->buffer.data);
-    Node* end = start + data->numberOfItems;
-    for(Node* node = start;
-        node < end;
-        node++)
-    {
-        node->border = 100000.0f;
-    }
+    Node* node = getNodeBlock(data);
+    data->numberOfItems = 1;
+    node->border = 100000.0f;
 
     return true;
 }
+
+//==================================================================================================
+
+/**
+ * @brief initRandValues
+ * @param brick
+ */
+void
+initRandValues(Brick &brick)
+{
+    brick.randWeight = new float[999];
+    float compare = 0.0f;
+    for(uint32_t i = 0; i < 999; i++)
+    {
+        if(i % 3 == 0) {
+            compare = 0.0f;
+        }
+
+        float tempValue = static_cast<float>(rand()) / 0x7FFFFFFF;
+        assert(tempValue <= 1.0f);
+        if(tempValue + compare > 1.0f) {
+            tempValue = 1.0f - compare;
+        }
+        compare += tempValue;
+        brick.randWeight[i] = tempValue;
+    }
+
+    brick.randValue = new uint32_t[1024];
+    for(uint32_t i = 0; i < 1024; i++)
+    {
+        brick.randValue[i] = static_cast<uint32_t>(rand());
+    }
+}
+
+//==================================================================================================
 
 }
