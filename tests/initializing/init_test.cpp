@@ -84,7 +84,7 @@ void InitTest::checkInit()
     }
 
     TEST_EQUAL((int)totalData.dataConnections[EDGE_DATA].numberOfItems, (nodeNumberPerBrick*6));
-    TEST_EQUAL((int)totalData.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 7);
+    TEST_EQUAL((int)totalData.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 15);
 }
 
 /**

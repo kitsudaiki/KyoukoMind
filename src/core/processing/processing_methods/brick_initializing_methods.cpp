@@ -164,8 +164,12 @@ initNodeBlocks(Brick &brick,
                uint32_t numberOfNodes)
 {
     DataConnection* data = &brick.dataConnections[NODE_DATA];
-    assert(data->numberOfItems == 0);
-    assert(data->inUse == 0);
+    if(data->numberOfItems != 0
+            || data->inUse != 0)
+    {
+        // TODO: log-output
+        return false;
+    }
 
     // if not set by user, use default-value
     if(numberOfNodes == 0) {
@@ -242,7 +246,11 @@ initEdgeSectionBlocks(Brick &brick,
                       const uint32_t numberOfEdgeSections)
 {
     DataConnection* data = &brick.dataConnections[EDGE_DATA];
-    assert(data->inUse == 0);
+    if(data->inUse != 0)
+    {
+        // TODO: log-output
+        return false;
+    }
 
     // init
     if(initDataBlocks(brick,
@@ -289,7 +297,11 @@ addClientOutputConnection(Brick &brick)
 {
     // get and check connection-item
     DataConnection* data = &brick.dataConnections[NODE_DATA];
-    assert(data->inUse != 0);
+    if(data->inUse != 0)
+    {
+        // TODO: log-output
+        return false;
+    }
 
     // set brick as output-brick
     brick.isOutputBrick = 1;

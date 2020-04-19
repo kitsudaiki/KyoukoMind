@@ -44,14 +44,14 @@ BufferControlMethodsTest::initDataBlocks_test()
 
     // precheck
     TEST_EQUAL(testObject.dataConnections[EDGE_DATA].itemSize, 0);
-    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 0);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 1);
 
     // run test
     TEST_EQUAL(initDataBlocks(testObject, EDGE_DATA, 420, 10), true);
 
     // postcheck
     TEST_EQUAL(testObject.dataConnections[EDGE_DATA].numberOfItems, 420);
-    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 2);
+    TEST_EQUAL(testObject.dataConnections[EDGE_DATA].buffer.numberOfBlocks, 3);
 }
 
 /**
@@ -134,7 +134,6 @@ BufferControlMethodsTest::deleteDynamicItem_test()
     // run test
     TEST_EQUAL(deleteDynamicItem(testObject, SYNAPSE_DATA, 4), true);
     TEST_EQUAL(deleteDynamicItem(testObject, SYNAPSE_DATA, 4), false);
-    TEST_EQUAL(deleteDynamicItem(testObject, SYNAPSE_DATA, 10), false);
 
     // postcheck
     sections = getSynapseSectionBlock(&testObject.dataConnections[SYNAPSE_DATA]);

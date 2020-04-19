@@ -13,8 +13,6 @@
 #include <args.h>
 #include <config.h>
 
-#include <tests/run_unit_tests.h>
-
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
