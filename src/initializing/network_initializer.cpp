@@ -27,7 +27,7 @@ namespace KyoukoMind
  * @return
  */
 bool
-createNewNetwork(const std::string fileContent)
+createNewNetwork(const std::string &fileContent)
 {
     // init randomizer
     srand(time(NULL));
@@ -38,13 +38,13 @@ createNewNetwork(const std::string fileContent)
     }
 
     InitStructure networkMetaStructure;
-    if(parse2dTestfile(fileContent, &networkMetaStructure) == false) {
+    if(parse2dTestfile(fileContent, networkMetaStructure) == false) {
         return false;
     }
 
-    addBricks(NUMBER_OF_NODES_PER_BRICK, &networkMetaStructure);
-    connectAllBricks(&networkMetaStructure);
-    createAxons(&networkMetaStructure);
+    addBricks(NUMBER_OF_NODES_PER_BRICK, networkMetaStructure);
+    connectAllBricks(networkMetaStructure);
+    createAxons(networkMetaStructure);
 
     return true;
 }
@@ -58,21 +58,21 @@ createNewNetwork(const std::string fileContent)
  */
 void
 addBricks(const uint32_t nodeNumberPerBrick,
-          InitStructure* networkMetaStructure)
+          InitStructure &networkMetaStructure)
 {
-    for(uint32_t x = 0; x < (*networkMetaStructure).size(); x++)
+    for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
     {
-        for(uint32_t y = 0; y < (*networkMetaStructure)[x].size(); y++)
+        for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
         {
-            const BrickID brickId = (*networkMetaStructure)[x][y].brickId;
-            switch((*networkMetaStructure)[x][y].type)
+            const BrickID brickId = networkMetaStructure[x][y].brickId;
+            switch(networkMetaStructure[x][y].type)
             {
                 case 1:
                     break;
                 case 2:
                 {
                     Brick* brick = new Brick(brickId, x, y);
-                    (*networkMetaStructure)[x][y].brick = brick;
+                    networkMetaStructure[x][y].brick = brick;
                     initRandValues(*brick);
                     RootObject::m_brickHandler->addBrick(brickId, brick);
                     break;
@@ -83,7 +83,7 @@ addBricks(const uint32_t nodeNumberPerBrick,
                     initRandValues(*brick);
                     initNodeBlocks(*brick, nodeNumberPerBrick);
                     initSynapseSectionBlocks(*brick, 0);
-                    (*networkMetaStructure)[x][y].brick = brick;
+                    networkMetaStructure[x][y].brick = brick;
                     RootObject::m_brickHandler->addBrick(brickId, brick);
                     break;
                 }
@@ -100,11 +100,11 @@ addBricks(const uint32_t nodeNumberPerBrick,
  * connect all brickts of the initializing data with each other
  */
 void
-connectAllBricks(InitStructure *metaStructure)
+connectAllBricks(InitStructure &metaStructure)
 {
-    for(uint32_t x = 0; x < (*metaStructure).size(); x++)
+    for(uint32_t x = 0; x < metaStructure.size(); x++)
     {
-        for(uint32_t y = 0; y < (*metaStructure)[x].size(); y++)
+        for(uint32_t y = 0; y < metaStructure[x].size(); y++)
         {
             std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
             for(uint8_t i = 0; i < sideOrder.size(); i++)
@@ -114,17 +114,18 @@ connectAllBricks(InitStructure *metaStructure)
                 std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
                 // set the values in the neighbor-struct
-                if(next.first != UNINIT_STATE_32 && next.second != UNINIT_STATE_32
-                         && (*metaStructure)[x][y].type != EMPTY_BRICK
-                         && (*metaStructure)[next.first][next.second].type != EMPTY_BRICK)
+                if(next.first != UNINIT_STATE_32
+                        && next.second != UNINIT_STATE_32
+                        && metaStructure[x][y].type != EMPTY_BRICK
+                        && metaStructure[next.first][next.second].type != EMPTY_BRICK)
                 {
-                    const BrickID sourceId = (*metaStructure)[x][y].brick->brickId;
-                    const BrickID targetId = (*metaStructure)[next.first][next.second].brickId;
+                    const BrickID sourceId = metaStructure[x][y].brick->brickId;
+                    const BrickID targetId = metaStructure[next.first][next.second].brickId;
                     RootObject::m_brickHandler->connect(sourceId,
                                                         side,
                                                         targetId);
 
-                    Neighbor* neighbor = &(*metaStructure)[x][y].brick->neighbors[side];
+                    Neighbor* neighbor = &metaStructure[x][y].brick->neighbors[side];
                     neighbor->targetBrickPos.x = next.first;
                     neighbor->targetBrickPos.y = next.second;
                 }
@@ -144,22 +145,23 @@ uint32_t
 getDistantToNextNodeBrick(const uint32_t x,
                           const uint32_t y,
                           const uint8_t side,
-                          InitStructure* metaStructure)
+                          InitStructure &metaStructure)
 {
     std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
-    uint32_t maxDistance = (*metaStructure).size();
+    uint64_t maxDistance = metaStructure.size();
 
     if(maxDistance > MAX_DISTANCE-1) {
         maxDistance = MAX_DISTANCE-1;
     }
 
-    for(uint32_t distance = 1; distance < (*metaStructure).size(); distance++)
+    for(uint32_t distance = 1; distance < metaStructure.size(); distance++)
     {
-        if((*metaStructure)[next.first][next.second].type == (uint8_t)EMPTY_BRICK) {
+        if(metaStructure[next.first][next.second].type == (uint8_t)EMPTY_BRICK) {
             return MAX_DISTANCE;
         }
-        if((*metaStructure)[next.first][next.second].type == (uint8_t)NODE_BRICK) {
+
+        if(metaStructure[next.first][next.second].type == (uint8_t)NODE_BRICK) {
             return distance;
         }
 

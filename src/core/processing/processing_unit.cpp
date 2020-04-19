@@ -193,7 +193,8 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             // -------------------------------------------------------------------------------------
             case LEARNING_REPLY_EDGE_CONTAINER:
             {
-                const LearningEdgeReplyContainer edge = *static_cast<LearningEdgeReplyContainer*>(obj);
+                const LearningEdgeReplyContainer edge =
+                        *static_cast<LearningEdgeReplyContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
                 processLearningEdgeReply(brick, edge, side);
                 data += sizeof(LearningEdgeReplyContainer);

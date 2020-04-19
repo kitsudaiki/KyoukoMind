@@ -20,8 +20,8 @@ std::string
 readFile(const std::string filePath);
 
 bool
-parse2dTestfile(const std::string fileContent,
-                InitStructure* result);
+parse2dTestfile(const std::string &fileContent,
+                InitStructure &result);
 
 }
 

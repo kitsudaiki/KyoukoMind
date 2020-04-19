@@ -32,8 +32,8 @@ readFile(const std::string filePath)
  * @return
  */
 bool
-parse2dTestfile(const std::string fileContent,
-                InitStructure* result)
+parse2dTestfile(const std::string &fileContent,
+                InitStructure &result)
 {
     BrickID idCounter = 0;
     //InitStructure m_networkMetaStructure;
@@ -61,23 +61,28 @@ parse2dTestfile(const std::string fileContent,
 
         // add new line to meat-structure-vector
         std::vector<InitMetaDataEntry> newLine;
-        result->push_back(newLine);
+        result.push_back(newLine);
 
         // process the splitted line
         for(uint32_t linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
-            if(linePartNumber == 0) {
+            if(linePartNumber == 0)
+            {
                 firstLineLenght = splittedLine.size();
-            } else {
-                if(firstLineLenght != splittedLine.size()) {
+            }
+            else
+            {
+                if(firstLineLenght != splittedLine.size())
+                {
                     // TODO: exception-message
                     return false;
                 }
             }
+
             InitMetaDataEntry tempEntry;
             tempEntry.type = std::stoi(splittedLine[linePartNumber]) + 1;
             tempEntry.brickId = idCounter;
-            (*result)[lineNumber].push_back(tempEntry);
+            result[lineNumber].push_back(tempEntry);
 
             idCounter++;
         }
