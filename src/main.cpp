@@ -24,7 +24,7 @@ main(int argc, char *argv[])
 
     // create and init argument-parser
     Kitsunemimi::Args::ArgParser argParser;
-    ToriiGateway::registerArguments(argParser);
+    KyoukoMind::registerArguments(argParser);
 
     // parse cli-input
     if(argParser.parse(argc, argv) == false) {
@@ -40,7 +40,7 @@ main(int argc, char *argv[])
     if(Kitsunemimi::Config::initConfig(configFilePath) == false) {
         return 1;
     }
-    ToriiGateway::registerConfigs();
+    KyoukoMind::registerConfigs();
 
     // log-file
     std::string logDirPath = "/var/log/";
