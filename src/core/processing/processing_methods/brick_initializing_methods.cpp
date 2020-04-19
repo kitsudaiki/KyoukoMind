@@ -297,7 +297,7 @@ addClientOutputConnection(Brick &brick)
 {
     // get and check connection-item
     DataConnection* data = &brick.dataConnections[NODE_DATA];
-    if(data->inUse != 0)
+    if(data->inUse == 0)
     {
         // TODO: log-output
         return false;
