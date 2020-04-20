@@ -19,7 +19,7 @@ struct GlobalValues
     float globalMemorizingOffset = 0.0f;
     float globalMemorizingTemp = 0.0f;
 
-    float globalLearningOffset = 0.0f;
+    float globalLearningOffset = 0.50f;
     float globalLearningTemp = 0.0f;
 
     float globalOutLearningOffset = 0.0f;

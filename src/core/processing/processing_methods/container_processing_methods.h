@@ -118,25 +118,24 @@ learningSynapseSection(Brick &brick,
         }
 
         // get node of the synapse
-        Synapse* synapse = &currentSection.synapses[choosePosition];
-        Node* nodeBuffer = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
-        Node* node = &nodeBuffer[synapse->targetNodeId];
+        //Synapse* synapse = &currentSection.synapses[choosePosition];
+        //Node* nodeBuffer = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
+        //assert(brick.dataConnections[NODE_DATA].inUse != 0);
+        //Node* node = &nodeBuffer[synapse->targetNodeId];
 
         // check, if therer is already too much input on the node
-        const uint8_t tooHeight = nodeBuffer[synapse->targetNodeId].tooHigh;
+        //const uint8_t tooHeight = nodeBuffer[synapse->targetNodeId].tooHigh;
 
         // calculate new value
-        float newVal = 0.0f;
-        newVal = brick.globalValues.globalLearningOffset
-                * currentSideWeight
-                * ((tooHeight * -2) + 1);
+        const float newVal = brick.globalValues.globalLearningOffset * currentSideWeight;
+                //* ((tooHeight * -2) + 1);
 
         // make sure it is not too height
-        if(node->currentState + newVal > 1.1f * node->border)
+        /*if(node->currentState + newVal > 1.1f * node->border)
         {
             const float diff = (node->currentState + newVal) - (1.1f * node->border);
             newVal -= diff;
-        }
+        }*/
 
         currentSection.synapses[choosePosition].weight += newVal;
         currentSection.totalWeight += abs(newVal);
@@ -156,30 +155,25 @@ processSynapseSection(Brick &brick,
                       const uint32_t synapseSectionId,
                       const float inputWeight)
 {
-    DataConnection* connection = &brick.dataConnections[SYNAPSE_DATA];
-    assert(connection->inUse != 0);
-    SynapseSection* currentSection = &getSynapseSectionBlock(connection)[synapseSectionId];
-    std::vector<SynapseSection*> debugList;
-    for(uint32_t i = 0; i < connection->numberOfItems; i++)
-    {
-        debugList.push_back(&getSynapseSectionBlock(connection)[i]);
-    }
-    assert(currentSection->status == ACTIVE_SECTION);
+    DataConnection* synapseConnection = &brick.dataConnections[SYNAPSE_DATA];
+    assert(synapseConnection->inUse != 0);
+    SynapseSection* synapseSection = &getSynapseSectionBlock(synapseConnection)[synapseSectionId];
+    assert(synapseSection->status == ACTIVE_SECTION);
 
     learningSynapseSection(brick,
-                           *currentSection,
-                           inputWeight - currentSection->totalWeight);
+                           *synapseSection,
+                           inputWeight - synapseSection->totalWeight);
 
     // limit ration to 1.0f
-    float ratio = inputWeight / currentSection->totalWeight;
+    float ratio = inputWeight / synapseSection->totalWeight;
     if(ratio > 1.0f) {
         ratio = 1.0f;
     }
 
     Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
-    Synapse* end = currentSection->synapses + currentSection->numberOfSynapses;
+    Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
 
-    for(Synapse* synapse = currentSection->synapses;
+    for(Synapse* synapse = synapseSection->synapses;
         synapse < end;
         synapse++)
     {
@@ -216,7 +210,7 @@ processUpdateSetEdge(Brick &brick,
         assert(edgeSection.sourceSide != 0);
 
         UpdateEdgeContainer newContainer;
-        newContainer.type = UpdateEdgeContainer::SUB_TYPE;
+        newContainer.updateType = UpdateEdgeContainer::SUB_TYPE;
         newContainer.updateValue = diff;
         newContainer.targetId = edgeSection.sourceId;
         Kitsunemimi::addObject_StackBuffer(
@@ -278,7 +272,6 @@ processUpdateDeleteEdge(Brick &brick,
             && edgeSection.sourceId != UNINIT_STATE_32)
     {
         assert(edgeSection.sourceSide != 0);
-
         UpdateEdgeContainer newContainer;
         newContainer.updateType = UpdateEdgeContainer::SUB_TYPE;
         newContainer.updateValue = temp;
@@ -323,6 +316,7 @@ processUpdateEdge(Brick &brick,
         }
         case UpdateEdgeContainer::DELETE_TYPE:
         {
+
             processUpdateDeleteEdge(brick, *edgeSection, container.targetId, inititalSide);
             break;
         }
@@ -433,16 +427,15 @@ processEdgeForwardSection(Brick &brick,
     for(uint8_t side = 2; side < 23; side++)
     {
         const Edge tempEdge = edgeSection->edges[side];
-        if(tempEdge.available == 0
-                || tempEdge.weight <= 0.0001f) {
+        if(tempEdge.available == 0) {
             continue;
         }
 
-        assert(tempEdge.weight >= 0.0f);
-
         if(side == 22)
         {
-            assert(tempEdge.targetId != UNINIT_STATE_32);
+            if(tempEdge.targetId == UNINIT_STATE_32){
+                continue;
+            }
             processSynapseSection(brick, tempEdge.targetId, tempEdge.weight * ratio);
         }
         else
