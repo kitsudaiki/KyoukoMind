@@ -80,9 +80,6 @@ HEADERS += \
     src/initializing/network_initializer.h \
     src/common.h \
     src/root_object.h \
-    tests/core/bricks/brick_methods/buffer_control_methods_test.h \
-    tests/initializing/init_test.h \
-    tests/run_unit_tests.h \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
@@ -104,10 +101,25 @@ SOURCES += \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
-    src/main.cpp \
-    src/root_object.cpp \
+    src/root_object.cpp
+
+
+CONFIG(run_tests) {
+TARGET = KyoukoMind_Test
+
+HEADERS += \
+    tests/core/bricks/brick_methods/buffer_control_methods_test.h \
+    tests/initializing/init_test.h
+
+SOURCES += \
     tests/core/bricks/brick_methods/buffer_control_methods_test.cpp \
     tests/initializing/init_test.cpp \
-    tests/run_unit_tests.cpp
+    tests/main_tests.cpp
+} else {
+SOURCES += \
+    src/main.cpp
+}
+
+
 
 

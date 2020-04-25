@@ -37,6 +37,7 @@ createAxons(InitStructure &networkMetaStructure)
             if(networkMetaStructure[x][y].type == NODE_BRICK)
             {
                 DataConnection* data = &brick->dataConnections[NODE_DATA];
+                assert(data->inUse != 0);
 
                 // get node-brick
                 uint32_t nodeNumberPerBrick = data->numberOfItems;
@@ -139,7 +140,7 @@ getNextAxonPathStep(const uint32_t x,
     Neighbor* choosenOne = &networkMetaStructure[x][y].brick->neighbors[nextSite];
 
     // update path
-    uint64_t newPath = currentPath + ((uint64_t)nextSite << ((uint64_t)currentStep * (uint64_t)5));
+    const uint64_t newPath = currentPath + ((uint64_t)nextSite << (currentStep * 5));
 
     // make next iteration
     return getNextAxonPathStep(choosenOne->targetBrickPos.x,

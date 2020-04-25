@@ -3,7 +3,7 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 
-namespace ToriiGateway
+namespace KyoukoMind
 {
 
 void

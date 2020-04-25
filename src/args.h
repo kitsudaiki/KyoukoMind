@@ -3,7 +3,7 @@
 
 #include <libKitsunemimiArgs/arg_parser.h>
 
-namespace ToriiGateway
+namespace KyoukoMind
 {
 
 bool

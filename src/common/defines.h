@@ -10,7 +10,6 @@
 #include <common/includes.h>
 
 #define OUTPUT(OUT) std::cout<<(OUT)<<std::endl;
-#define RUN_UNIT_TEST
 
 // const predefined values
 #define UNINIT_STATE_64 0xFFFFFFFFFFFFFFFF

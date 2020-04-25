@@ -10,9 +10,8 @@ build:
     - apt-get install -y libboost-filesystem-dev openssl libssl-dev  libboost-filesystem-dev libsqlite3-dev
 
     - cd /builds/tobiasanker/KyoukoMind
-    - ./build.sh
-
-    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'/builds/tobiasanker/result'
+    - ./build.sh test
+    - /builds/tobiasanker/result/KyoukoMind_Test
 
   tags:
     - docker

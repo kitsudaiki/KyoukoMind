@@ -13,8 +13,6 @@
 #include <args.h>
 #include <config.h>
 
-#include <tests/run_unit_tests.h>
-
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
@@ -26,7 +24,7 @@ main(int argc, char *argv[])
 
     // create and init argument-parser
     Kitsunemimi::Args::ArgParser argParser;
-    ToriiGateway::registerArguments(argParser);
+    KyoukoMind::registerArguments(argParser);
 
     // parse cli-input
     if(argParser.parse(argc, argv) == false) {
@@ -42,7 +40,7 @@ main(int argc, char *argv[])
     if(Kitsunemimi::Config::initConfig(configFilePath) == false) {
         return 1;
     }
-    ToriiGateway::registerConfigs();
+    KyoukoMind::registerConfigs();
 
     // log-file
     std::string logDirPath = "/var/log/";
