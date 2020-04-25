@@ -16,12 +16,10 @@
 namespace KyoukoMind
 {
 
-std::string
-readFile(const std::string filePath);
+const std::string readFile(const std::string filePath);
 
-bool
-parse2dTestfile(const std::string &fileContent,
-                InitStructure &result);
+bool parse2dTestfile(const std::string &fileContent,
+                     InitStructure &result);
 
 }
 
