@@ -117,25 +117,8 @@ learningSynapseSection(Brick &brick,
             continue;
         }
 
-        // get node of the synapse
-        //Synapse* synapse = &currentSection.synapses[choosePosition];
-        //Node* nodeBuffer = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
-        //assert(brick.dataConnections[NODE_DATA].inUse != 0);
-        //Node* node = &nodeBuffer[synapse->targetNodeId];
-
-        // check, if therer is already too much input on the node
-        //const uint8_t tooHeight = nodeBuffer[synapse->targetNodeId].tooHigh;
-
         // calculate new value
         const float newVal = brick.globalValues.globalLearningOffset * currentSideWeight;
-                //* ((tooHeight * -2) + 1);
-
-        // make sure it is not too height
-        /*if(node->currentState + newVal > 1.1f * node->border)
-        {
-            const float diff = (node->currentState + newVal) - (1.1f * node->border);
-            newVal -= diff;
-        }*/
 
         currentSection.synapses[choosePosition].weight += newVal;
         currentSection.totalWeight += abs(newVal);
@@ -158,7 +141,9 @@ processSynapseSection(Brick &brick,
     DataConnection* synapseConnection = &brick.dataConnections[SYNAPSE_DATA];
     assert(synapseConnection->inUse != 0);
     SynapseSection* synapseSection = &getSynapseSectionBlock(synapseConnection)[synapseSectionId];
-    assert(synapseSection->status == ACTIVE_SECTION);
+    if(synapseSection->status != ACTIVE_SECTION) {
+        return;
+    }
 
     learningSynapseSection(brick,
                            *synapseSection,
