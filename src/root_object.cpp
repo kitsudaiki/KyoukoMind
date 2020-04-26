@@ -66,6 +66,10 @@ RootObject::start()
     return initServer();
 }
 
+/**
+ * @brief RootObject::initServer
+ * @return
+ */
 bool
 RootObject::initServer()
 {
@@ -75,6 +79,23 @@ RootObject::initServer()
     LOG_INFO("create server on port " + std::to_string(port));
     m_serverId = m_sessionController->addTcpServer(port);
     return m_serverId != 0;
+}
+
+/**
+ * @brief RootObject::convertToObj
+ * @param brickId
+ * @param nodeId
+ * @return
+ */
+const std::string
+RootObject::convertToObj(const int32_t brickId,
+                         const int32_t nodeId)
+{
+    m_networkManager->initBlockThread();
+    // wait the double time of one cycle to ensure, that it is paused
+    usleep(20000);
+
+    m_networkManager->continueThread();
 }
 
 } // namespace KyoukoMind

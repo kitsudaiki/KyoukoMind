@@ -46,6 +46,9 @@ public:
     bool start();
     bool initServer();
 
+    const std::string convertToObj(const int32_t brickId = -1,
+                                   const int32_t nodeId = -1);
+
 private:
     Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
     NetworkManager* m_networkManager = nullptr;

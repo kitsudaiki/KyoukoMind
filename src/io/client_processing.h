@@ -115,7 +115,6 @@ clientCallback(void* target,
             case CLIENT_LEARN_INPUT:
             {
                 //LOG_DEBUG("CLIENT_LEARN_INPUT");
-
                 const ClientLearnInputData content = *((ClientLearnInputData*)&dataObj[dataPos]);
 
                 std::map<uint32_t, Brick*>::const_iterator it;
