@@ -75,6 +75,10 @@ get_required_kitsune_lib_repo "libKitsunemimiPersistence" "v0.8.2" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
+get_required_kitsune_lib_repo "libKitsunemimiObj" "master" 4
+echo ""
+echo "###########################################################################################################"
+echo ""
 get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.10.2" 1
 echo ""
 echo "###########################################################################################################"
