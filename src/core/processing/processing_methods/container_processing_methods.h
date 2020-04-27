@@ -393,7 +393,9 @@ processEdgeForwardSection(Brick &brick,
     DataConnection* connection = &brick.dataConnections[EDGE_DATA];
     assert(connection->inUse != 0);
     EdgeSection* edgeSection = &getEdgeBlock(connection)[container.targetEdgeSectionId];
-    assert(edgeSection->status == ACTIVE_SECTION);
+    if(edgeSection->status != ACTIVE_SECTION) {
+        return;
+    }
 
     // process learning, if the incoming weight is too big
     const float totalWeight = edgeSection->totalWeight;
@@ -473,9 +475,8 @@ processAxon(Brick &brick,
         newContainer.weight = container.weight * brick.globalValues.globalGlia;
         newContainer.targetAxonId = container.targetAxonId;
         const uint8_t side = container.targetBrickPath & 0x1F;
-        Kitsunemimi::addObject_StackBuffer(
-                    *brick.neighbors[side].outgoingBuffer,
-                    &newContainer);
+        Kitsunemimi::addObject_StackBuffer(*brick.neighbors[side].outgoingBuffer,
+                                           &newContainer);
     }
     else
     {

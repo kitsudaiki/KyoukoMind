@@ -17,6 +17,7 @@ using Kitsunemimi::Kyouko::ControlRegisterInput;
 using Kitsunemimi::Kyouko::ControlRegisterOutput;
 using Kitsunemimi::Kyouko::ControlDoesBrickExist;
 using Kitsunemimi::Kyouko::ControlGetMetadata;
+using Kitsunemimi::Kyouko::ControlGetSnapshot;
 
 namespace KyoukoMind
 {
@@ -234,6 +235,22 @@ process_getMetadata(RootObject* rootObject,
 }
 
 /**
+ * @brief process_getSnapshot
+ * @param rootObject
+ * @param session
+ * @param blockerId
+ */
+void
+process_getSnapshot(RootObject* rootObject,
+                    Kitsunemimi::Project::Session* session,
+                    const uint64_t blockerId)
+{
+    rootObject->convertToObj();
+    // TODO: send snapshot back
+    session->sendResponse("resp", 4, blockerId);
+}
+
+/**
  * @brief controlCallback
  * @param target
  * @param session
@@ -290,6 +307,14 @@ controlCallback(void* target,
             LOG_DEBUG("CONTROL_GET_METADATA");
             assert(sizeof(ControlGetMetadata) == data->bufferPosition);
             process_getMetadata(rootObject, session, blockerId);
+            break;
+        }
+
+        case CONTROL_GET_SNAPSHOT:
+        {
+            LOG_DEBUG("CONTROL_GET_SNAPSHOT");
+            assert(sizeof(ControlGetSnapshot) == data->bufferPosition);
+            process_getSnapshot(rootObject, session, blockerId);
             break;
         }
 

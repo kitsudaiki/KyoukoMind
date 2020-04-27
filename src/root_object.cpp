@@ -11,12 +11,14 @@
 #include <core/network_manager.h>
 #include <core/global_values_handler.h>
 #include <core/objects/brick.h>
+#include <core/obj_converter.h>
 
 #include <io/network_callbacks.h>
 #include <io/client_processing.h>
 #include <io/control_processing.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiPersistence/files/text_file.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
@@ -88,14 +90,24 @@ RootObject::initServer()
  * @return
  */
 const std::string
-RootObject::convertToObj(const int32_t brickId,
-                         const int32_t nodeId)
+RootObject::convertToObj()
 {
     m_networkManager->initBlockThread();
     // wait the double time of one cycle to ensure, that it is paused
     usleep(20000);
 
+    std::string convertedString = "";
+    convertNetworkToString(convertedString);
+
+    std::string errorMessage = "";
+    Kitsunemimi::Persistence::writeFile("/tmp/test_output.obj",
+                                        convertedString,
+                                        errorMessage,
+                                        true);
+
     m_networkManager->continueThread();
+
+    return convertedString;
 }
 
 } // namespace KyoukoMind

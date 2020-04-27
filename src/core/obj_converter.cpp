@@ -149,21 +149,24 @@ void convertNodeToObj(ObjItem &result,
     const Vec4 vec = convertPos(brick->brickPos);
     result.vertizes.push_back(vec);
 
-    uint64_t targetBrickPath = node->targetBrickPath;
+    Brick* currentBrick = brick;
+    uint64_t targetBrickPath = node->targetBrickPath / 32;
     while(targetBrickPath != 0)
     {
-        const uint8_t side = targetBrickPath % 32;
-        Brick* nextBrick = brick->neighbors[side].targetBrick;
+        const uint8_t side = targetBrickPath & 0x1F;
+        Brick* nextBrick = currentBrick->neighbors[side].targetBrick;
+        assert(nextBrick != nullptr);
 
         const Vec4 nextVec = convertPos(nextBrick->brickPos);
         result.vertizes.push_back(nextVec);
 
         std::vector<uint32_t> linePart;
         const uint32_t numberOfVertizes = static_cast<uint32_t>(result.vertizes.size());
-        linePart.push_back(numberOfVertizes - 2);
         linePart.push_back(numberOfVertizes - 1);
+        linePart.push_back(numberOfVertizes);
         result.lines.push_back(linePart);
 
+        currentBrick = nextBrick;
         targetBrickPath = targetBrickPath >> 5;
     }
 }
@@ -178,9 +181,11 @@ convertPos(const BrickPos pos)
 {
     Kitsunemimi::Obj::Vec4 vec;
 
-    vec.x = static_cast<float>(pos.x) + (1.0f / static_cast<float>(rand()));
-    vec.y = static_cast<float>(pos.y) + (1.0f / static_cast<float>(rand()));
-    vec.z = 1.0f / static_cast<float>(rand());
+    vec.x = static_cast<float>(pos.x)
+            + static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
+    vec.y = static_cast<float>(pos.y)
+            + static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
+    vec.z = static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
 
     return vec;
 }

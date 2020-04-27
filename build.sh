@@ -103,7 +103,7 @@ get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.2" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo "libKitsunemimiKyoukoCommon" "master" 4
+get_required_private_repo "libKitsunemimiKyoukoCommon" "add-obj-output" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
