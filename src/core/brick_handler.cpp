@@ -69,7 +69,7 @@ BrickHandler::getBrick(const BrickID brickId)
  * @return null-pointer, if index is too big, else pointer to the brick-object
  */
 Brick*
-BrickHandler::getBrickByIndex(const uint32_t index)
+BrickHandler::getBrickByIndex(const uint64_t index)
 {
     // check index
     if(index >= m_allBricks.size()) {
@@ -77,7 +77,7 @@ BrickHandler::getBrickByIndex(const uint32_t index)
     }
 
     // iterate over all bricks until index is reached
-    uint32_t counter = 0;
+    uint64_t counter = 0;
     std::map<BrickID, Brick*>::iterator it;
     for(it = m_allBricks.begin(); it != m_allBricks.end(); ++it)
     {

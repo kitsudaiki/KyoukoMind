@@ -29,7 +29,7 @@ public:
                   Brick* brick);
     // getter
     Brick* getBrick(const BrickID brickId);
-    Brick* getBrickByIndex(const uint32_t index);
+    Brick* getBrickByIndex(const uint64_t index);
     uint64_t getNumberOfBrick() const;
     DataItem* getMetadata();
 

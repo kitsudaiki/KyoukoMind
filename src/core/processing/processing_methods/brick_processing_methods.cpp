@@ -176,7 +176,7 @@ processNodes(Brick &brick)
     uint16_t numberOfActiveNodes = 0;
 
     // process nodes
-    Node* start = (Node*)data->buffer.data;
+    Node* start = static_cast<Node*>(data->buffer.data);
     Node* end = start + data->numberOfItems;
 
     // iterate over all nodes in the brick
