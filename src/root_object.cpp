@@ -97,13 +97,16 @@ RootObject::convertToObj()
     usleep(20000);
 
     std::string convertedString = "";
-    convertNetworkToString(convertedString);
+    convertNodeToString(convertedString, 18, 0);
+    //convertNetworkToString(convertedString);
 
     std::string errorMessage = "";
     Kitsunemimi::Persistence::writeFile("/tmp/test_output.obj",
                                         convertedString,
                                         errorMessage,
                                         true);
+
+    usleep(20000);
 
     m_networkManager->continueThread();
 

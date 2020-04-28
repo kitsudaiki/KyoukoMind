@@ -36,6 +36,15 @@ void convertNodeToObj(ObjItem &result,
                       Brick* brick,
                       Node* node);
 
+Brick* convertAxonToObj(ObjItem &result,
+                        Brick* brick,
+                        uint64_t path);
+
+void convertEdgesToObj(ObjItem &result,
+                       Brick* brick,
+                       const uint32_t id,
+                       const uint32_t vecPos);
+
 Kitsunemimi::Obj::Vec4 convertPos(const BrickPos pos);
 
 }

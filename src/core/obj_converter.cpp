@@ -5,6 +5,7 @@
 
 #include <core/objects/brick.h>
 #include <core/objects/brick_pos.h>
+#include <core/objects/edges.h>
 #include <core/objects/data_connection.h>
 
 namespace KyoukoMind
@@ -149,11 +150,33 @@ void convertNodeToObj(ObjItem &result,
     const Vec4 vec = convertPos(brick->brickPos);
     result.vertizes.push_back(vec);
 
-    Brick* currentBrick = brick;
     uint64_t targetBrickPath = node->targetBrickPath / 32;
-    while(targetBrickPath != 0)
+    Brick* axonEnd = convertAxonToObj(result, brick, targetBrickPath);
+
+    result.vertizes.push_back(convertPos(axonEnd->brickPos));
+    const uint32_t vecPos = static_cast<uint32_t>(result.vertizes.size());
+
+    convertEdgesToObj(result,
+                      axonEnd,
+                      node->targetAxonId,
+                      vecPos);
+}
+
+/**
+ * @brief convertAxonToObj
+ * @param result
+ * @param brick
+ * @param path
+ */
+Brick*
+convertAxonToObj(ObjItem &result,
+                 Brick* brick,
+                 uint64_t path)
+{
+    Brick* currentBrick = brick;
+    while(path != 0)
     {
-        const uint8_t side = targetBrickPath & 0x1F;
+        const uint8_t side = path & 0x1F;
         Brick* nextBrick = currentBrick->neighbors[side].targetBrick;
         assert(nextBrick != nullptr);
 
@@ -167,7 +190,75 @@ void convertNodeToObj(ObjItem &result,
         result.lines.push_back(linePart);
 
         currentBrick = nextBrick;
-        targetBrickPath = targetBrickPath >> 5;
+        path = path >> 5;
+    }
+
+    return currentBrick;
+}
+
+/**
+ * @brief convertEdgesToObj
+ * @param result
+ * @param brick
+ * @param node
+ */
+void
+convertEdgesToObj(ObjItem &result,
+                  Brick *brick,
+                  const uint32_t id,
+                  const uint32_t vecPos)
+{
+    DataConnection* data = &brick->dataConnections[EDGE_DATA];
+    if(data->inUse == 0) {
+        return;
+    }
+
+    EdgeSection* section = &getEdgeBlock(data)[id];
+
+
+    for(uint8_t side = 2; side < 23; side++)
+    {
+        const Edge tempEdge = section->edges[side];
+        if(tempEdge.available == 0) {
+            continue;
+        }
+
+        if(side == 22)
+        {
+            if(tempEdge.targetId == UNINIT_STATE_32){
+                continue;
+            }
+
+            const Vec4 sameVec = convertPos(brick->brickPos);
+            result.vertizes.push_back(sameVec);
+
+            std::vector<uint32_t> linePart;
+            const uint32_t numberOfVertizes = static_cast<uint32_t>(result.vertizes.size());
+            linePart.push_back(vecPos);
+            linePart.push_back(numberOfVertizes);
+            result.lines.push_back(linePart);
+
+        }
+        else
+        {
+            if(tempEdge.targetId != UNINIT_STATE_32)
+            {
+                Brick* nextBrick = brick->neighbors[side].targetBrick;
+
+                result.vertizes.push_back(convertPos(nextBrick->brickPos));
+                const uint32_t nextVecPos = static_cast<uint32_t>(result.vertizes.size());
+
+                convertEdgesToObj(result,
+                                  nextBrick,
+                                  tempEdge.targetId,
+                                  nextVecPos);
+
+                std::vector<uint32_t> linePart;
+                linePart.push_back(vecPos);
+                linePart.push_back(nextVecPos);
+                result.lines.push_back(linePart);
+            }
+        }
     }
 }
 
