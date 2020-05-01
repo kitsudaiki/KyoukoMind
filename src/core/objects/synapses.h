@@ -42,6 +42,8 @@ struct SynapseSection
     }
 } __attribute__((packed));
 
+//==================================================================================================
+
 } // namespace KyoukoMind
 
 #endif // SYNAPSES_H

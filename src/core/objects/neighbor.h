@@ -8,6 +8,8 @@ namespace KyoukoMind
 {
 struct Brick;
 
+//==================================================================================================
+
 struct Neighbor
 {
     uint8_t inUse = 0;
@@ -21,6 +23,8 @@ struct Neighbor
     StackBuffer* currentBuffer = nullptr;
 
 } __attribute__((packed));
+
+//==================================================================================================
 
 }
 

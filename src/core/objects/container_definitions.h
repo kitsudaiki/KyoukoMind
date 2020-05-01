@@ -15,6 +15,8 @@
 namespace KyoukoMind
 {
 
+//==================================================================================================
+
 enum ContainerType
 {
     UNDEFINED_CONTAINER = 0,
@@ -28,6 +30,8 @@ enum ContainerType
     DELETE_CONTAINER = 8,
     DEBUG_CONTAINER = 9,
 };
+
+//==================================================================================================
 
 /**
  * @brief The StatusEdgeContainer struct
@@ -50,6 +54,8 @@ struct UpdateEdgeContainer
 
 } __attribute__((packed));
 
+//==================================================================================================
+
 /**
  * @brief The PendingEdgeContainer struct
  */
@@ -63,6 +69,8 @@ struct PendingEdgeContainer
 
 } __attribute__((packed));
 
+//==================================================================================================
+
 /**
  * @brief The EdgeForewardContainer struct
  */
@@ -75,6 +83,8 @@ struct DirectEdgeContainer
 
 } __attribute__((packed));
 
+//==================================================================================================
+
 /**
  * @brief The EdgeForewardContainer struct
  */
@@ -86,6 +96,8 @@ struct EdgeContainer
     uint32_t targetEdgeSectionId = 0;
 
 } __attribute__((packed));
+
+//==================================================================================================
 
 /**
  * @brief The AxonEdgeContainer struct
@@ -100,6 +112,8 @@ struct AxonEdgeContainer
 
 } __attribute__((packed));
 
+//==================================================================================================
+
 /**
  * @brief The LearingEdgeContainer struct
  */
@@ -111,6 +125,8 @@ struct LearingEdgeContainer
     float weight = 0.0;
 
 } __attribute__((packed));
+
+//==================================================================================================
 
 /**
  * @brief The LearningEdgeReplyContainer struct
@@ -124,6 +140,8 @@ struct LearningEdgeReplyContainer
 
 } __attribute__((packed));
 
+//==================================================================================================
+
 /**
  * @brief The DeleteContainer struct
  */
@@ -134,6 +152,8 @@ struct DeleteContainer
     uint32_t targetEdgeSectionId = 0;
 
 } __attribute__((packed));
+
+//==================================================================================================
 
 /**
  * @brief The DebugContainer struct
@@ -146,6 +166,8 @@ struct DebugContainer
     float weight = 0.0;
 
 } __attribute__((packed));
+
+//==================================================================================================
 
 } // namespace KyoukoMind
 

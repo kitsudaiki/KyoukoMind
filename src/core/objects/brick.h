@@ -40,6 +40,7 @@ struct Brick
     uint8_t isOutputBrick = 0;
     uint8_t isInputBrick = 0;
 
+    // random values
     float* randWeight = nullptr;
     uint32_t randWeightPos = 0;
     uint32_t* randValue = nullptr;
@@ -76,6 +77,8 @@ struct Brick
     }
 
 } __attribute__((packed));
+
+//==================================================================================================
 
 } // namespace KyoukoMind
 
