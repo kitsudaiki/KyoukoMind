@@ -4,6 +4,7 @@
 #include <core/processing/processing_methods/brick_processing_methods.h>
 #include <core/processing/processing_methods/brick_item_methods.h>
 #include <core/processing/processing_methods/data_connection_methods.h>
+#include <core/processing/processing_methods/network_segment_methods.h>
 
 namespace KyoukoMind
 {
@@ -116,6 +117,40 @@ addClientOutputConnection(NetworkSegment &segment,
     nodeArray->border = 100000.0f;
 
     return true;
+}
+
+//==================================================================================================
+
+/**
+ * @brief BrickHandler::getMetadata
+ * @return
+ */
+Kitsunemimi::DataItem*
+getMetadata(NetworkSegment &segment)
+{
+    DataArray* edges = new DataArray();
+    DataArray* nodes = new DataArray();
+
+    // collect data
+    Brick* bricks = getBrickBlock(segment);
+    for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
+    {
+        if(bricks[i].nodePos >= 0)
+        {
+            nodes->append(new DataValue(static_cast<long>(bricks[i].brickId)));
+        }
+        if(bricks[i].edges.inUse != 0)
+        {
+            edges->append(new DataValue(static_cast<long>(bricks[i].brickId)));
+        }
+    }
+
+    // build result
+    DataMap* result = new DataMap();
+    result->insert("edges", edges);
+    result->insert("nodes", nodes);
+
+    return result;
 }
 
 //==================================================================================================

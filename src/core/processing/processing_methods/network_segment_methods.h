@@ -51,6 +51,9 @@ bool initSynapseSectionBlocks(NetworkSegment &segment,
 
 bool addClientOutputConnection(NetworkSegment &segment,
                                uint32_t brickPos);
+
+Kitsunemimi::DataItem* getMetadata(NetworkSegment &segment);
+
 }
 
 #endif // NETWORK_SEGMENT_METHODS_H

@@ -101,39 +101,7 @@ BrickHandler::getNumberOfBrick() const
     return m_allBricks.size();
 }
 
-/**
- * @brief BrickHandler::getMetadata
- * @return
- */
-Kitsunemimi::DataItem*
-BrickHandler::getMetadata()
-{
-    DataArray* edges = new DataArray();
-    DataArray* nodes = new DataArray();
 
-    // collect data
-    std::map<BrickID, Brick*>::iterator it;
-    for(it = m_allBricks.begin();
-        it != m_allBricks.end();
-        ++it)
-    {
-        if(it->second->nodePos >= 0)
-        {
-            nodes->append(new DataValue(static_cast<long>(it->second->brickId)));
-        }
-        if(it->second->edges.inUse != 0)
-        {
-            edges->append(new DataValue(static_cast<long>(it->second->brickId)));
-        }
-    }
-
-    // build result
-    DataMap* result = new DataMap();
-    result->insert("edges", edges);
-    result->insert("nodes", nodes);
-
-    return result;
-}
 
 /**
  * delete a specific brick by its id

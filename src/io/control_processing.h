@@ -232,7 +232,7 @@ process_getMetadata(RootObject* rootObject,
                     Kitsunemimi::Project::Session* session,
                     const uint64_t blockerId)
 {
-    DataItem* response = rootObject->m_brickHandler->getMetadata();
+    DataItem* response = getMetadata(*rootObject->m_segment);
     send_metadata_response(response, session, blockerId);
 }
 
