@@ -118,13 +118,9 @@ SOURCES += \
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
 
-HEADERS += \
-    tests/core/bricks/brick_methods/buffer_control_methods_test.h \
-    tests/initializing/init_test.h
+HEADERS +=
 
 SOURCES += \
-    tests/core/bricks/brick_methods/buffer_control_methods_test.cpp \
-    tests/initializing/init_test.cpp \
     tests/main_tests.cpp
 } else {
 SOURCES += \

@@ -11,7 +11,6 @@ build:
 
     - cd /builds/tobiasanker/KyoukoMind
     - ./build.sh test
-    - /builds/tobiasanker/result/KyoukoMind_Test
 
   tags:
     - docker
