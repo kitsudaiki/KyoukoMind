@@ -142,8 +142,6 @@ processSynapseSection(NetworkSegment &segment,
                       const uint32_t synapseSectionId,
                       const float inputWeight)
 {
-
-    assert(brick.synapses != nullptr);
     SynapseSection* synapseSection = &getSynapseSectionBlock(segment.synapses)[synapseSectionId];
     if(synapseSection->status != ACTIVE_SECTION) {
         return;
