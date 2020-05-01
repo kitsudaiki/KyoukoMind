@@ -43,6 +43,10 @@ NetworkManager::run()
 {
     while(!m_abort)
     {
+        if(m_block) {
+            blockThread();
+        }
+
         usleep(PROCESS_INTERVAL);
         m_processingUnitHandler->initNextCycle();
     }

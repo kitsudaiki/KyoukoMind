@@ -41,7 +41,7 @@ createAxons(InitStructure &networkMetaStructure)
 
                 // get node-brick
                 uint32_t nodeNumberPerBrick = data->numberOfItems;
-                Node* nodes = (Node*)data->buffer.data;
+                Node* nodes = static_cast<Node*>(data->buffer.data);
 
                 // iterate over all nodes of the brick and create an axon for each node
                 for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)

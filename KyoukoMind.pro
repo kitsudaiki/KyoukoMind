@@ -26,6 +26,11 @@ LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
 INCLUDEPATH += ../libKitsunemimiNetwork/include
 
+LIBS += -L../libKitsunemimiObj/src -lKitsunemimiObj
+LIBS += -L../libKitsunemimiObj/src/debug -lKitsunemimiObj
+LIBS += -L../libKitsunemimiObj/src/release -lKitsunemimiObj
+INCLUDEPATH += ../libKitsunemimiObj/include
+
 LIBS += -L../libKitsunemimiCommon/src -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/debug -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/release -lKitsunemimiCommon
@@ -88,7 +93,8 @@ HEADERS += \
     src/core/processing/processing_methods/neighbor_methods.h \
     src/core/processing/processing_methods/synapse_methods.h \
     src/io/client_processing.h \
-    src/io/control_processing.h
+    src/io/control_processing.h \
+    src/core/obj_converter.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -101,7 +107,8 @@ SOURCES += \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
-    src/root_object.cpp
+    src/root_object.cpp \
+    src/core/obj_converter.cpp
 
 
 CONFIG(run_tests) {
