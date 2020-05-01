@@ -51,7 +51,7 @@ createNewNetwork(const std::string &fileContent)
     // init bricks
     addBricks(*segment, networkMetaStructure);
     connectAllBricks(networkMetaStructure);
-    createAxons(networkMetaStructure);
+    createAxons(*segment, networkMetaStructure);
 
     return true;
 }
@@ -117,7 +117,8 @@ addBricks(NetworkSegment &segment,
                     Brick* brick = new Brick(brickId, x, y);
 
                     const uint32_t pos = numberOfNodeBlocks * NUMBER_OF_NODES_PER_BRICK;
-                    brick->nodes = &getNodeBlock(segment.nodes)[pos];
+                    assert(pos < 0x7FFFFFFF);
+                    brick->nodePos = static_cast<int32_t>(pos);
                     initRandValues(*brick);
 
                     networkMetaStructure[x][y].brick = brick;

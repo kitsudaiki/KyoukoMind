@@ -31,7 +31,7 @@ void postLearning(NetworkSegment &segment, Brick &brick);
 void memorizeSynapses(NetworkSegment &segment, Brick &brick);
 
 void writeMonitoringOutput(Brick &brick, DataBuffer &buffer);
-void writeClientOutput(Brick &brick, DataBuffer &buffer);
+void writeClientOutput(NetworkSegment &segment, Brick &brick, DataBuffer &buffer);
 
 } // namespace KyoukoMind
 

@@ -175,7 +175,7 @@ processNodes(NetworkSegment &segment,
     uint16_t numberOfActiveNodes = 0;
 
     // process nodes
-    Node* start = brick.nodes;
+    Node* start = &getNodeBlock(segment.nodes)[brick.nodePos];
     Node* end = start + NUMBER_OF_NODES_PER_BRICK;
 
     // iterate over all nodes in the brick
@@ -355,13 +355,14 @@ memorizeSynapses(NetworkSegment &segment,
  * @return summend value of all nodes of the brick
  */
 inline float
-getSummedValue(Brick &brick)
+getSummedValue(NetworkSegment &segment,
+               Brick &brick)
 {
     assert(brick.isOutputBrick != 0);
-    assert(brick.nodes != nullptr);
+    assert(brick.nodePos >= 0);
 
     // write value to the internal ring-buffer
-    Node* node = brick.nodes;
+    Node* node = &getNodeBlock(segment.nodes)[brick.nodePos];
     brick.outBuffer[brick.outBufferPos] += node->currentState;
     brick.outBufferPos = (brick.outBufferPos + 1) % 10;
     node->currentState /= NODE_COOLDOWN;
@@ -414,11 +415,12 @@ writeMonitoringOutput(Brick &brick,
  * @param buffer
  */
 void
-writeClientOutput(Brick &brick,
+writeClientOutput(NetworkSegment &segment,
+                  Brick &brick,
                   DataBuffer &buffer)
 {
     Kitsunemimi::Kyouko::MindOutputData outputMessage;
-    outputMessage.value = getSummedValue(brick);
+    outputMessage.value = getSummedValue(segment, brick);
     outputMessage.brickId = brick.brickId;
 
     Kitsunemimi::addObject_DataBuffer(buffer, &outputMessage);

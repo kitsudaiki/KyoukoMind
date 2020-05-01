@@ -17,6 +17,7 @@ namespace KyoukoMind
 {
 class NextChooser;
 struct Neighbor;
+struct NetworkSegment;
 
 struct NewAxon {
     uint32_t targetX = 0;
@@ -25,7 +26,8 @@ struct NewAxon {
 };
 
 
-bool createAxons(std::vector<std::vector<InitMetaDataEntry> > &networkMetaStructure);
+bool createAxons(NetworkSegment &segment,
+                 std::vector<std::vector<InitMetaDataEntry> > &networkMetaStructure);
 
 NewAxon getNextAxonPathStep(const uint32_t x,
                             const uint32_t y,

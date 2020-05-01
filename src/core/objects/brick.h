@@ -53,7 +53,7 @@ struct Brick
 
     // data
     DataConnection edges;
-    Node* nodes = nullptr;
+    int32_t nodePos = -1;
 
     // learning metadata
     float learningOverride = 0.5;

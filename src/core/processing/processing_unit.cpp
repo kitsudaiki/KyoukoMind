@@ -75,7 +75,7 @@ ProcessingUnit::run()
             // main-processing
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*segment, *brick);
-            if(brick->nodes) {
+            if(brick->nodePos >= 0) {
                 processNodes(*segment, *brick);
             }
 
@@ -85,7 +85,7 @@ ProcessingUnit::run()
 
             // write output
             if(brick->isOutputBrick == 1) {
-                writeClientOutput(*brick, m_clientBuffer);
+                writeClientOutput(*segment, *brick, m_clientBuffer);
             }
             writeMonitoringOutput(*brick, m_monitoringBuffer);
 
@@ -208,7 +208,7 @@ ProcessingUnit::processIncomingMessage(NetworkSegment &segment,
             case DIRECT_EDGE_CONTAINER:
             {
                 const DirectEdgeContainer edge = *static_cast<DirectEdgeContainer*>(obj);
-                processDirectEdge(brick, edge);
+                processDirectEdge(segment, brick, edge);
                 data += sizeof(DirectEdgeContainer);
                 break;
             }

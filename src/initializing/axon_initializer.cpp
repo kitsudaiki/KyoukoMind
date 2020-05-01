@@ -22,7 +22,8 @@ namespace KyoukoMind
  * @return
  */
 bool
-createAxons(InitStructure &networkMetaStructure)
+createAxons(NetworkSegment &segment,
+            InitStructure &networkMetaStructure)
 {
     // calculate number of axons per brick
     for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
@@ -38,7 +39,7 @@ createAxons(InitStructure &networkMetaStructure)
             {
                 // get node-brick
                 uint32_t nodeNumberPerBrick = NUMBER_OF_NODES_PER_BRICK;
-                Node* nodes = static_cast<Node*>(brick->nodes);
+                Node* nodes = &getNodeBlock(segment.nodes)[brick->nodePos];
 
                 // iterate over all nodes of the brick and create an axon for each node
                 for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)

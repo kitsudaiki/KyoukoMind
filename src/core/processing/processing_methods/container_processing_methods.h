@@ -158,7 +158,7 @@ processSynapseSection(NetworkSegment &segment,
     }
 
     Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
-    Node* nodes = brick.nodes;
+    Node* nodes = &getNodeBlock(segment.nodes)[brick.nodePos];
 
     for(Synapse* synapse = synapseSection->synapses;
         synapse < end;
@@ -597,10 +597,11 @@ processPendingEdge(NetworkSegment &segment,
  * @param edge
  */
 inline void
-processDirectEdge(Brick &brick,
+processDirectEdge(NetworkSegment &segment,
+                  Brick &brick,
                   const DirectEdgeContainer &container)
 {
-    Node* node = &brick.nodes[container.targetNodeId];
+    Node* node = &getNodeBlock(segment.nodes)[container.targetNodeId];
     node->currentState = container.weight;
 }
 
