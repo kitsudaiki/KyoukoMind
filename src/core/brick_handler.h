@@ -18,43 +18,21 @@ class GlobalValuesHandler;
 
 struct Brick;
 
-class BrickHandler
+class BrickQueue
 {
 public:
-    BrickHandler();
-    ~BrickHandler();
-
-    // add
-    bool addBrick(const BrickID brickId,
-                  Brick* brick);
-    // getter
-    Brick* getBrick(const BrickID brickId);
-    Brick* getBrickByIndex(const uint64_t index);
-    uint64_t getNumberOfBrick() const;
-    DataItem* getMetadata();
-
-    // delete
-    bool deleteBrick(const BrickID brickId);
-    void clearAllBrick();
-
-    bool connect(const BrickID sourceBrickId,
-                 const uint8_t sourceSide,
-                 const BrickID targetBrickId);
-
-    bool disconnect(const BrickID sourceBrickId,
-                    const uint8_t sourceSide,
-                    const BrickID targetBrickId);
+    BrickQueue();
+    ~BrickQueue();
 
     // processing-queue
     bool addToQueue(Brick* brick);
     Brick* getFromQueue();
 
 private:
-    std::map<BrickID, Brick*> m_allBricks;
-
     std::queue<Brick*> m_readyBricks;
     std::atomic_flag m_queueLock = ATOMIC_FLAG_INIT;
     uint32_t m_activeCounter = 0;
+    uint32_t m_numberOfItemsInQueue = 0;
 };
 
 } // namespace KyoukoMind

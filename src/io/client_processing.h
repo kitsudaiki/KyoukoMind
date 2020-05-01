@@ -6,6 +6,7 @@
 #include <core/processing/processing_methods/brick_initializing_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
 #include <core/processing/processing_methods/neighbor_methods.h>
+#include <core/processing/processing_methods/network_segment_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -103,7 +104,9 @@ clientCallback(void* target,
                 //LOG_DEBUG("CLIENT_CONTROL_OUTPUT_LEARNING");
                 const ClientControlOutputLearning content
                         = *((ClientControlOutputLearning*)&dataObj[dataPos]);
-                Brick* brick = rootObject->m_brickHandler->getBrick(content.brickId);
+
+                Brick* bricks = getBrickBlock(*RootObject::m_segment);
+                Brick* brick = &bricks[content.brickId];
                 assert(brick != nullptr);
 
                 brick->learningOverride = content.outputLearning;

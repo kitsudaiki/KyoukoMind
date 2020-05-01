@@ -12,8 +12,8 @@
 
 #include <common.h>
 
-#include <core/brick_handler.h>
 #include <core/global_values_handler.h>
+#include <core/brick_handler.h>
 
 namespace Kitsunemimi {
 namespace Project {
@@ -25,7 +25,7 @@ class SessionController;
 namespace KyoukoMind
 {
 class NetworkManager;
-class BrickHandler;
+class BrickQueue;
 struct NetworkSegment;
 
 class RootObject
@@ -35,8 +35,8 @@ public:
     RootObject();
     ~RootObject();
 
-    static KyoukoMind::BrickHandler* m_brickHandler;
     static KyoukoMind::NetworkSegment* m_segment;
+    static KyoukoMind::BrickQueue* m_queue;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
 
     static Kitsunemimi::Project::Session* m_clientSession;

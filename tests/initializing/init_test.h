@@ -16,7 +16,7 @@
 
 namespace KyoukoMind
 {
-class BrickHandler;
+class BrickQueue;
 class MessageController;
 class NetworkInitializer;
 

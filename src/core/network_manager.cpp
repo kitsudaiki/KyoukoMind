@@ -14,7 +14,6 @@
 #include <libKitsunemimiPersistence/files/file_methods.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
 
-#include <core/brick_handler.h>
 #include <core/processing/processing_unit_handler.h>
 
 #include <core/objects/brick.h>

@@ -8,7 +8,6 @@
  */
 
 #include <core/processing/processing_unit.h>
-#include <core/brick_handler.h>
 #include <root_object.h>
 
 #include <core/global_values_handler.h>
@@ -51,7 +50,7 @@ ProcessingUnit::run()
             blockThread();
         }
 
-        Brick* brick = RootObject::m_brickHandler->getFromQueue();
+        Brick* brick = RootObject::m_queue->getFromQueue();
         if(brick == nullptr)
         {
             GlobalValues globalValues = RootObject::m_globalValuesHandler->getGlobalValues();

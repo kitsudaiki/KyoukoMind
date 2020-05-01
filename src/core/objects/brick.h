@@ -72,10 +72,19 @@ struct Brick
         this->brickPos.y = y;
     }
 
-    ~Brick()
+    Brick(const Brick &other)
     {
-        delete randWeight;
-        delete randValue;
+        memcpy(this, &other, sizeof(Brick));
+    }
+
+    Brick &operator=(const Brick &other)
+    {
+        if(this != &other)
+        {
+            memcpy(this, &other, sizeof(Brick));
+        }
+
+        return *this;
     }
 
 } __attribute__((packed));

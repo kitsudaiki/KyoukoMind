@@ -75,7 +75,6 @@ HEADERS += \
     src/core/processing/processing_methods/brick_initializing_methods.h \
     src/core/processing/processing_methods/brick_item_methods.h \
     src/core/processing/processing_methods/brick_processing_methods.h \
-    src/core/brick_handler.h \
     src/core/global_values_handler.h \
     src/core/network_manager.h \
     src/initializing/axon_initializer.h \
@@ -96,14 +95,14 @@ HEADERS += \
     src/core/obj_converter.h \
     src/core/objects/network_segment.h \
     src/core/processing/processing_methods/network_segment_methods.h \
-    src/core/processing/processing_methods/data_connection_methods.h
+    src/core/processing/processing_methods/data_connection_methods.h \
+    src/core/brick_handler.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/processing/processing_methods/brick_initializing_methods.cpp \
     src/core/processing/processing_methods/brick_processing_methods.cpp \
-    src/core/brick_handler.cpp \
     src/core/global_values_handler.cpp \
     src/core/network_manager.cpp \
     src/initializing/axon_initializer.cpp \
@@ -112,7 +111,8 @@ SOURCES += \
     src/root_object.cpp \
     src/core/obj_converter.cpp \
     src/core/processing/processing_methods/network_segment_methods.cpp \
-    src/core/processing/processing_methods/data_connection_methods.cpp
+    src/core/processing/processing_methods/data_connection_methods.cpp \
+    src/core/brick_handler.cpp
 
 
 CONFIG(run_tests) {

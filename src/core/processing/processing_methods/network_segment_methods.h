@@ -43,6 +43,9 @@ addEmptySynapseSection(NetworkSegment &segment,
 
 //==================================================================================================
 
+bool initBrickBlocks(NetworkSegment &segment,
+                     uint32_t numberOfBricks);
+
 bool initNodeBlocks(NetworkSegment &segment,
                     uint32_t numberOfNodes);
 
@@ -53,6 +56,16 @@ bool addClientOutputConnection(NetworkSegment &segment,
                                uint32_t brickPos);
 
 Kitsunemimi::DataItem* getMetadata(NetworkSegment &segment);
+
+bool connectBricks(NetworkSegment &segment,
+                   const BrickID sourceBrickId,
+                   const uint8_t sourceSide,
+                   const BrickID targetBrickId);
+
+bool disconnectBricks(NetworkSegment &segment,
+                      const BrickID sourceBrickId,
+                      const uint8_t sourceSide,
+                      const BrickID targetBrickId);
 
 }
 

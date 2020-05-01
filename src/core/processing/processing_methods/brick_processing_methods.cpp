@@ -127,7 +127,7 @@ processReady(Brick* brick)
     if(isReady(brick)
             && brick->inQueue == 0)
     {
-        RootObject::m_brickHandler->addToQueue(brick);
+        RootObject::m_queue->addToQueue(brick);
         brick->lock.clear(std::memory_order_release);
         return true;
     }

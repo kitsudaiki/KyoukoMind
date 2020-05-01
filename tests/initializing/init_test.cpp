@@ -10,7 +10,6 @@
 #include "init_test.h"
 #include <root_object.h>
 
-#include <core/brick_handler.h>
 #include <core/objects/brick.h>
 
 #include <initializing/axon_initializer.h>
@@ -33,7 +32,7 @@ InitTest::InitTest()
 void InitTest::initTestCase()
 {
     m_network = new KyoukoMind::RootObject();
-    RootObject::m_brickHandler = new BrickHandler();
+    RootObject::m_brickHandler = new BrickQueue();
     createNewNetwork(m_testBrickContent);
 }
 

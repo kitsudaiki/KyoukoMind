@@ -17,7 +17,7 @@ namespace KyoukoMind
 {
 
 class Config;
-class BrickHandler;
+class BrickQueue;
 class ProcessingUnitHandler;
 class MessageController;
 class ConnectionTrigger;

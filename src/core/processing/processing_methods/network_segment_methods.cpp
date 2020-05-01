@@ -3,11 +3,48 @@
 #include <core/processing/processing_methods/neighbor_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
 #include <core/processing/processing_methods/brick_item_methods.h>
+#include <core/processing/processing_methods/brick_initializing_methods.h>
 #include <core/processing/processing_methods/data_connection_methods.h>
 #include <core/processing/processing_methods/network_segment_methods.h>
 
 namespace KyoukoMind
 {
+
+//==================================================================================================
+
+/**
+ * initialize the brick-list of the segment
+ *
+ * @return false if bricks are already initialized, esle true
+ */
+bool
+initBrickBlocks(NetworkSegment &segment,
+                uint32_t numberOfBricks)
+{
+    if(segment.bricks.numberOfItems != 0
+            || segment.bricks.inUse != 0)
+    {
+        // TODO: log-output
+        return false;
+    }
+
+    // if not set by user, use default-value
+    if(numberOfBricks == 0) {
+        numberOfBricks = 1;
+    }
+
+    // init
+    if(initDataBlocks(segment.bricks,
+                      numberOfBricks,
+                      sizeof(Brick)) == false)
+    {
+        return false;
+    }
+
+    segment.bricks.inUse = 1;
+
+    return true;
+}
 
 //==================================================================================================
 
@@ -151,6 +188,38 @@ getMetadata(NetworkSegment &segment)
     result->insert("nodes", nodes);
 
     return result;
+}
+
+/**
+ * @brief BrickHandler::connect
+ * @param sourceBrickId
+ * @param sourceSide
+ * @param targetBrickId
+ * @return
+ */
+bool
+connectBricks(NetworkSegment &segment,
+              const BrickID sourceBrickId,
+              const uint8_t sourceSide,
+              const BrickID targetBrickId)
+{
+    Brick* bricks = getBrickBlock(segment);
+    return connectBricks(bricks[sourceBrickId], sourceSide, bricks[targetBrickId]);
+}
+
+/**
+ * disconnect two bricks from the handler from each other
+ *
+ * @return result of the sub-call
+ */
+bool
+disconnectBricks(NetworkSegment &segment,
+                 const BrickID sourceBrickId,
+                 const uint8_t sourceSide,
+                 const BrickID targetBrickId)
+{
+    Brick* bricks = getBrickBlock(segment);
+    return disconnectBricks(bricks[sourceBrickId], sourceSide, bricks[targetBrickId]);
 }
 
 //==================================================================================================

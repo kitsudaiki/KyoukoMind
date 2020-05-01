@@ -15,7 +15,7 @@
 namespace KyoukoMind
 {
 class ProcessingUnit;
-class BrickHandler;
+class BrickQueue;
 
 class ProcessingUnitHandler
 {
