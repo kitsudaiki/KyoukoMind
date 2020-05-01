@@ -43,6 +43,8 @@ ProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
+    NetworkSegment* segment = RootObject::m_segment;
+
     while(!m_abort)
     {
         if(m_block) {
@@ -72,14 +74,14 @@ ProcessingUnit::run()
 
             // main-processing
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
-            processIncomingMessages(*brick);
-            if(brick->dataConnections[NODE_DATA].inUse == 1) {
-                processNodes(*brick);
+            processIncomingMessages(*segment, *brick);
+            if(brick->nodeStart) {
+                processNodes(*segment, *brick);
             }
 
             // post-processing
-            postLearning(*brick);
-            memorizeSynapses(*brick);
+            postLearning(*segment, *brick);
+            memorizeSynapses(*segment, *brick);
 
             // write output
             if(brick->isOutputBrick == 1) {
@@ -101,7 +103,8 @@ ProcessingUnit::run()
  * @return
  */
 void
-ProcessingUnit::processIncomingMessages(Brick &brick)
+ProcessingUnit::processIncomingMessages(NetworkSegment &segment,
+                                        Brick &brick)
 {
     // process normal communication
     for(uint8_t side = 0; side < 23; side++)
@@ -113,7 +116,7 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
 
             while(currentBlock != nullptr)
             {
-                processIncomingMessage(brick, side, currentBlock);
+                processIncomingMessage(segment, brick, side, currentBlock);
                 Kitsunemimi::removeFirst_StackBuffer(*currentBuffer);
                 currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
             }
@@ -127,7 +130,8 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
  * @return false if a message-type does not exist, else true
  */
 bool
-ProcessingUnit::processIncomingMessage(Brick &brick,
+ProcessingUnit::processIncomingMessage(NetworkSegment &segment,
+                                       Brick &brick,
                                        const uint8_t side,
                                        DataBuffer* message)
 {
@@ -158,7 +162,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const PendingEdgeContainer edge = *static_cast<PendingEdgeContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                processPendingEdge(brick, edge);
+                processPendingEdge(segment, brick, edge);
                 data += sizeof(PendingEdgeContainer);
                 break;
             }
@@ -167,7 +171,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const EdgeContainer edge = *static_cast<EdgeContainer*>(obj);
                 assert(edge.targetEdgeSectionId != UNINIT_STATE_32);
-                processEdgeForwardSection(brick, edge);
+                processEdgeForwardSection(segment, brick, edge);
                 data += sizeof(EdgeContainer);
                 break;
             }
@@ -176,7 +180,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const AxonEdgeContainer edge = *static_cast<AxonEdgeContainer*>(obj);
                 assert(edge.targetAxonId != UNINIT_STATE_32);
-                processAxon(brick, edge);
+                processAxon(segment, brick, edge);
                 data += sizeof(AxonEdgeContainer);
                 break;
             }
@@ -186,7 +190,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 const LearingEdgeContainer edge = *static_cast<LearingEdgeContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
                 assert(side != 0);
-                processLerningEdge(brick, edge, side);
+                processLerningEdge(segment, brick, edge, side);
                 data += sizeof(LearingEdgeContainer);
                 break;
             }

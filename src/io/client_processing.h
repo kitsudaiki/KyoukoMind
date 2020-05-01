@@ -123,7 +123,7 @@ clientCallback(void* target,
                 {
                     Brick* brick = it->second;
                     Neighbor* neighbor = &brick->neighbors[22];
-                    const uint16_t ok = neighbor->targetBrick->dataConnections[NODE_DATA].inUse > 0;
+                    const uint16_t ok = neighbor->targetBrick->nodeStart != nullptr;
 
                     for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
                     {
@@ -152,7 +152,6 @@ clientCallback(void* target,
                 if(it != rootObject->m_inputBricks->end())
                 {
                     Brick* brick = it->second;
-                    brick->counter++;
                     assert(brick->neighbors[22].outgoingBuffer != nullptr);
                     finishSide(brick, 22);
                     while(isReady(brick) == false) {

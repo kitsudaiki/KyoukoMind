@@ -60,6 +60,7 @@ void
 addBricks(const uint32_t nodeNumberPerBrick,
           InitStructure &networkMetaStructure)
 {
+    NetworkSegment* segment = RootObject::m_segment;
     for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
     {
         for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
@@ -81,8 +82,8 @@ addBricks(const uint32_t nodeNumberPerBrick,
                 {
                     Brick* brick = new Brick(brickId, x, y);
                     initRandValues(*brick);
-                    initNodeBlocks(*brick, nodeNumberPerBrick);
-                    initSynapseSectionBlocks(*brick, 0);
+                    initNodeBlocks(*segment, nodeNumberPerBrick);
+                    initSynapseSectionBlocks(*segment, 0);
                     networkMetaStructure[x][y].brick = brick;
                     RootObject::m_brickHandler->addBrick(brickId, brick);
                     break;

@@ -12,15 +12,6 @@ namespace KyoukoMind
 
 //==================================================================================================
 
-enum DataConnectionTypes
-{
-    EDGE_DATA = 0,
-    NODE_DATA = 1,
-    SYNAPSE_DATA = 2
-};
-
-//==================================================================================================
-
 struct DataConnection
 {
     uint8_t inUse = 0;
@@ -36,23 +27,22 @@ struct DataConnection
 
 //==================================================================================================
 
-// getter
 inline Node*
-getNodeBlock(DataConnection* data)
+getNodeBlock(DataConnection &data)
 {
-    return static_cast<Node*>(data->buffer.data);
+    return static_cast<Node*>(data.buffer.data);
 }
 
 inline SynapseSection*
-getSynapseSectionBlock(const DataConnection* data)
+getSynapseSectionBlock(const DataConnection &data)
 {
-    return static_cast<SynapseSection*>(data->buffer.data);
+    return static_cast<SynapseSection*>(data.buffer.data);
 }
 
 inline EdgeSection*
-getEdgeBlock(const DataConnection* data)
+getEdgeBlock(const DataConnection &data)
 {
-    return static_cast<EdgeSection*>(data->buffer.data);
+    return static_cast<EdgeSection*>(data.buffer.data);
 }
 
 }

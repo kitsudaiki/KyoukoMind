@@ -6,6 +6,7 @@
 #include <core/processing/processing_methods/brick_initializing_methods.h>
 #include <core/processing/processing_methods/brick_processing_methods.h>
 #include <core/processing/processing_methods/neighbor_methods.h>
+#include <core/processing/processing_methods/network_segment_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -107,7 +108,7 @@ process_registerInput(const ControlRegisterInput &content,
     }
 
     // check if brick is node-brick
-    const uint8_t isNodeBrick = targetBrick->dataConnections[NODE_DATA].inUse;
+    const uint8_t isNodeBrick = targetBrick->nodeStart != nullptr;
     if(isNodeBrick == 0)
     {
         errorMessage = "register input failed: brick with id "
@@ -183,7 +184,7 @@ process_registerOutput(const ControlRegisterOutput &content,
     }
 
     // check if brick is node-brick
-    const uint8_t isNodeBrick = outgoingBrick->dataConnections[NODE_DATA].inUse;
+    const uint8_t isNodeBrick = outgoingBrick->nodeStart != nullptr;
     if(isNodeBrick == 0)
     {
         errorMessage = "register output failed: brick with id "
@@ -194,7 +195,8 @@ process_registerOutput(const ControlRegisterOutput &content,
         return false;
     }
 
-    addClientOutputConnection(*outgoingBrick);
+    NetworkSegment* segment = RootObject::m_segment;
+    addClientOutputConnection(*segment, content.brickId);
     send_generic_response(true, "", session, blockerId);
 
     return true;

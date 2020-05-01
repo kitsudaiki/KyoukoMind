@@ -117,13 +117,13 @@ BrickHandler::getMetadata()
         it != m_allBricks.end();
         ++it)
     {
-        if(it->second->dataConnections[NODE_DATA].inUse != 0)
-        {
-            edges->append(new DataValue(static_cast<long>(it->second->brickId)));
-        }
-        if(it->second->dataConnections[EDGE_DATA].inUse != 0)
+        if(it->second->nodeStart != nullptr)
         {
             nodes->append(new DataValue(static_cast<long>(it->second->brickId)));
+        }
+        if(it->second->edges.inUse != 0)
+        {
+            edges->append(new DataValue(static_cast<long>(it->second->brickId)));
         }
     }
 

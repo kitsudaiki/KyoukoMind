@@ -46,20 +46,21 @@ struct Brick
     uint32_t* randValue = nullptr;
     uint32_t randValuePos = 0;
 
-    DataBuffer headerBuffer;
-
-    uint32_t counter = 0;
-
     // 0 - 21: neighbor-bricks
     // 22: the current brick
     Neighbor neighbors[23];
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
     // data
-    DataConnection dataConnections[3];
+    DataConnection edges;
+    Node* nodeStart = nullptr;
+    SynapseSection* synapseStart = nullptr;
+
+    // learning metadata
     float learningOverride = 0.5;
     GlobalValues globalValues;
 
+    // output
     float outBuffer[10];
     uint8_t outBufferPos = 0;
 
@@ -74,6 +75,8 @@ struct Brick
 
     ~Brick()
     {
+        delete randWeight;
+        delete randValue;
     }
 
 } __attribute__((packed));

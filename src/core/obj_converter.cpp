@@ -74,24 +74,19 @@ void
 convertBrickToObj(ObjItem &result,
                   Brick* brick)
 {
-    if(brick->dataConnections[NODE_DATA].inUse == 0) {
+    if(brick->nodeStart == nullptr) {
         return;
     }
 
-    for(uint16_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
+    Node* start = brick->nodeStart;
+    Node* end = start + NUMBER_OF_NODES_PER_BRICK;
+
+    // iterate over all nodes in the brick
+    for(Node* node = start;
+        node < end;
+        node++)
     {
-        DataConnection* data = &brick->dataConnections[NODE_DATA];
-
-        Node* start = static_cast<Node*>(data->buffer.data);
-        Node* end = start + data->numberOfItems;
-
-        // iterate over all nodes in the brick
-        for(Node* node = start;
-            node < end;
-            node++)
-        {
-            convertNodeToObj(result, brick, node);
-        }
+        convertNodeToObj(result, brick, node);
     }
 }
 
@@ -124,14 +119,13 @@ convertNodeToObj(ObjItem &result,
 {
     Brick* brick = RootObject::m_brickHandler->getBrick(brickId);
 
-    if(brick->dataConnections[NODE_DATA].inUse == 0
+    if(brick->nodeStart == nullptr
             || nodeId > NUMBER_OF_NODES_PER_BRICK)
     {
         return;
     }
 
-    DataConnection* data = &brick->dataConnections[NODE_DATA];
-    Node* nodeArray = static_cast<Node*>(data->buffer.data);
+    Node* nodeArray = brick->nodeStart;
     Node* node = &nodeArray[nodeId];
 
     convertNodeToObj(result, brick, node);
@@ -208,13 +202,7 @@ convertEdgesToObj(ObjItem &result,
                   const uint32_t id,
                   const uint32_t vecPos)
 {
-    DataConnection* data = &brick->dataConnections[EDGE_DATA];
-    if(data->inUse == 0) {
-        return;
-    }
-
-    EdgeSection* section = &getEdgeBlock(data)[id];
-
+    EdgeSection* section = &getEdgeBlock(brick->edges)[id];
 
     for(uint8_t side = 2; side < 23; side++)
     {

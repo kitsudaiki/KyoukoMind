@@ -26,6 +26,7 @@ namespace KyoukoMind
 {
 class NetworkManager;
 class BrickHandler;
+struct NetworkSegment;
 
 class RootObject
 {
@@ -35,6 +36,7 @@ public:
     ~RootObject();
 
     static KyoukoMind::BrickHandler* m_brickHandler;
+    static KyoukoMind::NetworkSegment* m_segment;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
 
     static Kitsunemimi::Project::Session* m_clientSession;
@@ -52,7 +54,6 @@ private:
     Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
     NetworkManager* m_networkManager = nullptr;
     uint32_t m_serverId = 0;
-
 };
 
 } // namespace KyoukoMind

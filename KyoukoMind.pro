@@ -93,7 +93,10 @@ HEADERS += \
     src/core/processing/processing_methods/synapse_methods.h \
     src/io/client_processing.h \
     src/io/control_processing.h \
-    src/core/obj_converter.h
+    src/core/obj_converter.h \
+    src/core/objects/network_segment.h \
+    src/core/processing/processing_methods/network_segment_methods.h \
+    src/core/processing/processing_methods/data_connection_methods.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -107,7 +110,9 @@ SOURCES += \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/root_object.cpp \
-    src/core/obj_converter.cpp
+    src/core/obj_converter.cpp \
+    src/core/processing/processing_methods/network_segment_methods.cpp \
+    src/core/processing/processing_methods/data_connection_methods.cpp
 
 
 CONFIG(run_tests) {

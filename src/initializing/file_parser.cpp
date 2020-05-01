@@ -53,15 +53,12 @@ parse2dTestfile(const std::string &fileContent,
     // read the single lines
     for(uint32_t lineNumber = 0; lineNumber < allLines.size(); lineNumber++)
     {
-
         // erase whitespaces
         Kitsunemimi::removeWhitespaces(allLines[lineNumber]);
 
         // split line
         std::vector<std::string> splittedLine;
         Kitsunemimi::splitStringByDelimiter(splittedLine, allLines[lineNumber], '|');
-
-        // remove empty entries from the list
         Kitsunemimi::removeEmptyStrings(splittedLine);
 
         // process the splitted line
@@ -78,15 +75,19 @@ parse2dTestfile(const std::string &fileContent,
             }
 
             if(firstLineLenght != splittedLine.size()) {
-                assert(false);
+                return false;
             }
 
             InitMetaDataEntry tempEntry;
-            tempEntry.type = std::stoi(splittedLine[linePartNumber]) + 1;
-            tempEntry.brickId = idCounter;
+            tempEntry.type = static_cast<uint8_t>(std::stoi(splittedLine[linePartNumber]) + 1);
+            tempEntry.brickId = 0;
             result[linePartNumber].push_back(tempEntry);
 
-            idCounter++;
+            if(tempEntry.type != EMPTY_BRICK)
+            {
+                tempEntry.brickId = idCounter;
+                idCounter++;
+            }
         }
     }
 
