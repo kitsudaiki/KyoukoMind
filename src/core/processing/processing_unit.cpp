@@ -75,7 +75,7 @@ ProcessingUnit::run()
             // main-processing
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*segment, *brick);
-            if(brick->nodeStart) {
+            if(brick->nodes) {
                 processNodes(*segment, *brick);
             }
 

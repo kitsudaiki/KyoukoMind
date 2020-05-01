@@ -8,6 +8,7 @@
 namespace KyoukoMind
 {
 
+//==================================================================================================
 
 /**
  * initialize the node-list of the brick
@@ -111,9 +112,11 @@ addClientOutputConnection(NetworkSegment &segment,
 
     // set the border-value of all nodes within the brick
     // to a high-value, so the node can never become active
-    bricks[brickPos].nodeStart->border = 100000.0f;
+    bricks[brickPos].nodes->border = 100000.0f;
 
     return true;
 }
+
+//==================================================================================================
 
 }

@@ -74,11 +74,11 @@ void
 convertBrickToObj(ObjItem &result,
                   Brick* brick)
 {
-    if(brick->nodeStart == nullptr) {
+    if(brick->nodes == nullptr) {
         return;
     }
 
-    Node* start = brick->nodeStart;
+    Node* start = brick->nodes;
     Node* end = start + NUMBER_OF_NODES_PER_BRICK;
 
     // iterate over all nodes in the brick
@@ -119,13 +119,13 @@ convertNodeToObj(ObjItem &result,
 {
     Brick* brick = RootObject::m_brickHandler->getBrick(brickId);
 
-    if(brick->nodeStart == nullptr
+    if(brick->nodes == nullptr
             || nodeId > NUMBER_OF_NODES_PER_BRICK)
     {
         return;
     }
 
-    Node* nodeArray = brick->nodeStart;
+    Node* nodeArray = brick->nodes;
     Node* node = &nodeArray[nodeId];
 
     convertNodeToObj(result, brick, node);

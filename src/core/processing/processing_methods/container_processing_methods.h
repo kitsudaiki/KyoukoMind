@@ -137,12 +137,14 @@ learningSynapseSection(Brick &brick,
 * @param weight incoming weight-value
 */
 inline void
-processSynapseSection(Brick &brick,
+processSynapseSection(NetworkSegment &segment,
+                      Brick &brick,
                       const uint32_t synapseSectionId,
                       const float inputWeight)
 {
-    assert(brick.synapseStart != nullptr);
-    SynapseSection* synapseSection = &brick.synapseStart[synapseSectionId];
+
+    assert(brick.synapses != nullptr);
+    SynapseSection* synapseSection = &getSynapseSectionBlock(segment.synapses)[synapseSectionId];
     if(synapseSection->status != ACTIVE_SECTION) {
         return;
     }
@@ -158,7 +160,7 @@ processSynapseSection(Brick &brick,
     }
 
     Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
-    Node* nodes = brick.nodeStart;
+    Node* nodes = brick.nodes;
 
     for(Synapse* synapse = synapseSection->synapses;
         synapse < end;
@@ -423,7 +425,10 @@ processEdgeForwardSection(NetworkSegment &segment,
             if(tempEdge.targetId == UNINIT_STATE_32){
                 continue;
             }
-            processSynapseSection(brick, tempEdge.targetId, tempEdge.weight * ratio);
+            processSynapseSection(segment,
+                                  brick,
+                                  tempEdge.targetId,
+                                  tempEdge.weight * ratio);
         }
         else
         {
@@ -434,9 +439,8 @@ processEdgeForwardSection(NetworkSegment &segment,
                 newContainer.targetEdgeSectionId = tempEdge.targetId;
                 newContainer.weight = tempEdge.weight * ratio;
                 assert(newContainer.weight >= 0.0f);
-                Kitsunemimi::addObject_StackBuffer(
-                            *brick.neighbors[side].outgoingBuffer,
-                            &newContainer);
+                Kitsunemimi::addObject_StackBuffer(*brick.neighbors[side].outgoingBuffer,
+                                                   &newContainer);
             }
             else
             {
@@ -446,9 +450,8 @@ processEdgeForwardSection(NetworkSegment &segment,
                 assert(newContainer.weight >= 0);
                 newContainer.sourceEdgeSectionId = container.targetEdgeSectionId;
                 newContainer.sourceSide = 23 - side;
-                Kitsunemimi::addObject_StackBuffer(
-                            *brick.neighbors[side].outgoingBuffer,
-                            &newContainer);
+                Kitsunemimi::addObject_StackBuffer(*brick.neighbors[side].outgoingBuffer,
+                                                   &newContainer);
             }
         }
     }
@@ -521,9 +524,8 @@ processLerningEdge(NetworkSegment &segment,
     LearningEdgeReplyContainer reply;
     reply.sourceEdgeSectionId = container.sourceEdgeSectionId;
     reply.targetEdgeSectionId = targetEdgeId;
-    Kitsunemimi::addObject_StackBuffer(
-                *brick.neighbors[initSide].outgoingBuffer,
-                &reply);
+    Kitsunemimi::addObject_StackBuffer(*brick.neighbors[initSide].outgoingBuffer,
+                                       &reply);
 
     EdgeContainer newContainer;
     newContainer.targetEdgeSectionId = targetEdgeId;
@@ -600,7 +602,7 @@ inline void
 processDirectEdge(Brick &brick,
                   const DirectEdgeContainer &container)
 {
-    Node* node = &brick.nodeStart[container.targetNodeId];
+    Node* node = &brick.nodes[container.targetNodeId];
     node->currentState = container.weight;
 }
 

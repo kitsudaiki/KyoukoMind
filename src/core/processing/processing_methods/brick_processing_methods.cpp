@@ -175,7 +175,7 @@ processNodes(NetworkSegment &segment,
     uint16_t numberOfActiveNodes = 0;
 
     // process nodes
-    Node* start = brick.nodeStart;
+    Node* start = brick.nodes;
     Node* end = start + NUMBER_OF_NODES_PER_BRICK;
 
     // iterate over all nodes in the brick
@@ -358,10 +358,10 @@ inline float
 getSummedValue(Brick &brick)
 {
     assert(brick.isOutputBrick != 0);
-    assert(brick.nodeStart != nullptr);
+    assert(brick.nodes != nullptr);
 
     // write value to the internal ring-buffer
-    Node* node = brick.nodeStart;
+    Node* node = brick.nodes;
     brick.outBuffer[brick.outBufferPos] += node->currentState;
     brick.outBufferPos = (brick.outBufferPos + 1) % 10;
     node->currentState /= NODE_COOLDOWN;

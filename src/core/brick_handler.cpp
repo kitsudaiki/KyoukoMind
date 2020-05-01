@@ -117,7 +117,7 @@ BrickHandler::getMetadata()
         it != m_allBricks.end();
         ++it)
     {
-        if(it->second->nodeStart != nullptr)
+        if(it->second->nodes != nullptr)
         {
             nodes->append(new DataValue(static_cast<long>(it->second->brickId)));
         }

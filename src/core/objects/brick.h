@@ -53,8 +53,8 @@ struct Brick
 
     // data
     DataConnection edges;
-    Node* nodeStart = nullptr;
-    SynapseSection* synapseStart = nullptr;
+    Node* nodes = nullptr;
+    SynapseSection* synapses = nullptr;
 
     // learning metadata
     float learningOverride = 0.5;

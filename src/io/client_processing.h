@@ -123,7 +123,7 @@ clientCallback(void* target,
                 {
                     Brick* brick = it->second;
                     Neighbor* neighbor = &brick->neighbors[22];
-                    const uint16_t ok = neighbor->targetBrick->nodeStart != nullptr;
+                    const uint16_t ok = neighbor->targetBrick->nodes != nullptr;
 
                     for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
                     {

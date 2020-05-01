@@ -11,23 +11,9 @@
 
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
 #include <libKitsunemimiCommon/common_methods/vector_methods.h>
-#include <libKitsunemimiPersistence/files/text_file.h>
 
 namespace KyoukoMind
 {
-
-/**
- * @brief readFile
- * @param filePath
- * @return
- */
-const std::string
-readFile(const std::string filePath)
-{
-    std::string err = "";
-    const std::pair<bool, std::string> content = Kitsunemimi::Persistence::readFile(filePath, err);
-    return content.second;
-}
 
 /**
  * @brief parse2dTestfile
@@ -62,10 +48,11 @@ parse2dTestfile(const std::string &fileContent,
         for(uint32_t linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
             // add new line to meat-structure-vector
-            if(lineNumber == 0)
+            if(lineNumber == 0
+                    && linePartNumber == 0)
             {
                 firstLineLenght = static_cast<uint32_t>(splittedLine.size());
-                for(uint32_t i = 0; i < splittedLine.size(); i++)
+                for(uint32_t i = 0; i < firstLineLenght; i++)
                 {
                     result.push_back(std::vector<InitMetaDataEntry>());
                 }

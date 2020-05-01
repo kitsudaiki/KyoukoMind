@@ -45,7 +45,7 @@ addEmptyEdgeSection(Brick &brick,
     }
 
     // if node-brick, then connect side 22
-    if(brick.nodeStart != nullptr
+    if(brick.nodes != nullptr
             && brick.isInputBrick == 0)
     {
         newSection.edges[22].available = 1;

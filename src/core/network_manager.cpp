@@ -12,6 +12,7 @@
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/file_methods.h>
+#include <libKitsunemimiPersistence/files/text_file.h>
 
 #include <core/brick_handler.h>
 #include <core/processing/processing_unit_handler.h>
@@ -70,6 +71,7 @@ NetworkManager::initNetwork()
             || Kitsunemimi::Persistence::doesPathExist(directoryPath) == false)
     {
         LOG_INFO("no files found. Try to create a new cluster");
+
         const std::string initialFile = GET_STRING_CONFIG("Init", "file", success);
         if(success == false)
         {
@@ -78,7 +80,12 @@ NetworkManager::initNetwork()
         }
         LOG_INFO("use init-file: " + initialFile);
 
-        const std::string fileContent = readFile(initialFile);
+        std::string fileContent = "";
+        std::string error = "";
+        if(Kitsunemimi::Persistence::readFile(fileContent, initialFile, error) == false) {
+            return false;
+        }
+
         return createNewNetwork(fileContent);
     }
     else {

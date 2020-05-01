@@ -22,12 +22,6 @@ struct NetworkSegment
 
 //==================================================================================================
 
-inline Brick*
-getBrickBlock(NetworkSegment &segment)
-{
-    return static_cast<Brick*>(segment.bricks.buffer.data);
-}
-
 }
 
 #endif // NETWORK_SEGMENT_H
