@@ -23,6 +23,7 @@ initDataBlocks(DataConnection &data,
                                              / data.buffer.blockSize) + 1;
 
     // allocate blocks in buffer
+    //data.buffer = DataBuffer(requiredNumberOfBlocks);
     Kitsunemimi::allocateBlocks_DataBuffer(data.buffer, requiredNumberOfBlocks);
 
     return true;

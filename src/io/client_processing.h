@@ -105,8 +105,7 @@ clientCallback(void* target,
                 const ClientControlOutputLearning content
                         = *((ClientControlOutputLearning*)&dataObj[dataPos]);
 
-                Brick* bricks = getBrickBlock(*RootObject::m_segment);
-                Brick* brick = &bricks[content.brickId];
+                Brick* brick = RootObject::m_segment->bricks.at(content.brickId);
                 assert(brick != nullptr);
 
                 brick->learningOverride = content.outputLearning;

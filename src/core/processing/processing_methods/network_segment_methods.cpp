@@ -13,42 +13,6 @@ namespace KyoukoMind
 //==================================================================================================
 
 /**
- * initialize the brick-list of the segment
- *
- * @return false if bricks are already initialized, esle true
- */
-bool
-initBrickBlocks(NetworkSegment &segment,
-                uint32_t numberOfBricks)
-{
-    if(segment.bricks.numberOfItems != 0
-            || segment.bricks.inUse != 0)
-    {
-        // TODO: log-output
-        return false;
-    }
-
-    // if not set by user, use default-value
-    if(numberOfBricks == 0) {
-        numberOfBricks = 1;
-    }
-
-    // init
-    if(initDataBlocks(segment.bricks,
-                      numberOfBricks,
-                      sizeof(Brick)) == false)
-    {
-        return false;
-    }
-
-    segment.bricks.inUse = 1;
-
-    return true;
-}
-
-//==================================================================================================
-
-/**
  * initialize the node-list of the brick
  *
  * @return false if nodes are already initialized, esle true
@@ -143,14 +107,14 @@ addClientOutputConnection(NetworkSegment &segment,
         return false;
     }
 
-    Brick* bricks = getBrickBlock(segment);
+    Brick* brick = segment.bricks[brickPos];
 
     // set brick as output-brick
-    bricks[brickPos].isOutputBrick = 1;
+    brick->isOutputBrick = 1;
 
     // set the border-value of all nodes within the brick
     // to a high-value, so the node can never become active
-    Node* nodeArray = &getNodeBlock(segment.nodes)[bricks[brickPos].nodePos];
+    Node* nodeArray = &getNodeBlock(segment.nodes)[brick->nodePos];
     nodeArray->border = 100000.0f;
 
     return true;
@@ -169,16 +133,16 @@ getMetadata(NetworkSegment &segment)
     DataArray* nodes = new DataArray();
 
     // collect data
-    Brick* bricks = getBrickBlock(segment);
-    for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
+    for(uint32_t i = 0; i < segment.bricks.size(); i++)
     {
-        if(bricks[i].nodePos >= 0)
-        {
-            nodes->append(new DataValue(static_cast<long>(bricks[i].brickId)));
+        Brick* brick = segment.bricks[i];
+
+        if(brick->nodePos >= 0) {
+            nodes->append(new DataValue(static_cast<long>(brick->brickId)));
         }
-        if(bricks[i].edges.inUse != 0)
-        {
-            edges->append(new DataValue(static_cast<long>(bricks[i].brickId)));
+
+        if(brick->edges.inUse != 0) {
+            edges->append(new DataValue(static_cast<long>(brick->brickId)));
         }
     }
 
@@ -203,8 +167,9 @@ connectBricks(NetworkSegment &segment,
               const uint8_t sourceSide,
               const BrickID targetBrickId)
 {
-    Brick* bricks = getBrickBlock(segment);
-    return connectBricks(bricks[sourceBrickId], sourceSide, bricks[targetBrickId]);
+    Brick* sourceBrick = segment.bricks[sourceBrickId];
+    Brick* targetBrick = segment.bricks[targetBrickId];
+    return connectBricks(*sourceBrick, sourceSide, *targetBrick);
 }
 
 /**
@@ -218,8 +183,9 @@ disconnectBricks(NetworkSegment &segment,
                  const uint8_t sourceSide,
                  const BrickID targetBrickId)
 {
-    Brick* bricks = getBrickBlock(segment);
-    return disconnectBricks(bricks[sourceBrickId], sourceSide, bricks[targetBrickId]);
+    Brick* sourceBrick = segment.bricks[sourceBrickId];
+    Brick* targetBrick = segment.bricks[targetBrickId];
+    return disconnectBricks(*sourceBrick, sourceSide, *targetBrick);
 }
 
 //==================================================================================================

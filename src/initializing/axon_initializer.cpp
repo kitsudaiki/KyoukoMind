@@ -23,7 +23,7 @@ namespace KyoukoMind
  */
 bool
 createAxons(NetworkSegment &segment,
-            InitStructure &networkMetaStructure)
+            std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
     // calculate number of axons per brick
     for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
@@ -35,6 +35,7 @@ createAxons(NetworkSegment &segment,
             if(brick == nullptr) {
                 continue;
             }
+
             if(networkMetaStructure[x][y].type == NODE_BRICK)
             {
                 // get node-brick
@@ -63,7 +64,6 @@ createAxons(NetworkSegment &segment,
     {
         for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
         {
-
             Brick* brick = networkMetaStructure[x][y].brick;
             if(brick == nullptr) {
                 continue;
@@ -73,9 +73,11 @@ createAxons(NetworkSegment &segment,
             if(networkMetaStructure[x][y].numberOfAxons == 0) {
                 networkMetaStructure[x][y].numberOfAxons = 1;
             }
+
             initEdgeSectionBlocks(*brick, networkMetaStructure[x][y].numberOfAxons);
         }
     }
+
     return true;
 }
 
@@ -95,7 +97,7 @@ getNextAxonPathStep(const uint32_t x,
                     const uint8_t inputSide,
                     const uint64_t currentPath,
                     const uint32_t currentStep,
-                    InitStructure &networkMetaStructure)
+                    std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
     // check if go to next
     bool goToNext = false;

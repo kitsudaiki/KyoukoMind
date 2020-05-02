@@ -13,12 +13,9 @@ namespace KyoukoMind
 
 struct NetworkSegment
 {
-    DataConnection bricks;
+    std::vector<Brick*> bricks;
     DataConnection nodes;
     DataConnection synapses;
-
-    std::mutex lock;
-    uint32_t currentPosition = 0;
 
     NetworkSegment() {}
 };

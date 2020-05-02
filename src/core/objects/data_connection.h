@@ -18,32 +18,15 @@ struct DataConnection
     uint32_t itemSize = 0;
     uint32_t numberOfItems = 0;
     uint32_t numberOfDeletedDynamicItems = 0;
-    DataBuffer buffer;
+    DataBuffer buffer = DataBuffer(1);
 
     uint32_t bytePositionOfFirstEmptyBlock = UNINIT_STATE_32;
     uint32_t bytePositionOfLastEmptyBlock = UNINIT_STATE_32;
     uint32_t numberOfEmptyBlocks = 0;
+
 } __attribute__((packed));
 
 //==================================================================================================
-
-inline Node*
-getNodeBlock(DataConnection &data)
-{
-    return static_cast<Node*>(data.buffer.data);
-}
-
-inline SynapseSection*
-getSynapseSectionBlock(const DataConnection &data)
-{
-    return static_cast<SynapseSection*>(data.buffer.data);
-}
-
-inline EdgeSection*
-getEdgeBlock(const DataConnection &data)
-{
-    return static_cast<EdgeSection*>(data.buffer.data);
-}
 
 }
 

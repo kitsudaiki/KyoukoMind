@@ -96,8 +96,7 @@ process_registerInput(const ControlRegisterInput &content,
     const uint8_t sourceSide = 22;
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* bricks = getBrickBlock(*RootObject::m_segment);
-    Brick* targetBrick = &bricks[content.brickId];
+    Brick* targetBrick = RootObject::m_segment->bricks.at(content.brickId);
 
     if(targetBrick == nullptr)
     {
@@ -174,8 +173,7 @@ process_registerOutput(const ControlRegisterOutput &content,
     std::string errorMessage = "";
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* bricks = getBrickBlock(*RootObject::m_segment);
-    Brick* outgoingBrick = &bricks[content.brickId];
+    Brick* outgoingBrick = RootObject::m_segment->bricks.at(content.brickId);
     if(outgoingBrick == nullptr)
     {
         errorMessage = "register output failed: brick with id "
@@ -217,8 +215,7 @@ process_doesBrickExist(const ControlDoesBrickExist &content,
                        Kitsunemimi::Project::Session* session,
                        const uint64_t blockerId)
 {
-    Brick* bricks = getBrickBlock(*RootObject::m_segment);
-    Brick* outgoingBrick = &bricks[content.brickId];
+    Brick* outgoingBrick = RootObject::m_segment->bricks.at(content.brickId);
     const bool exist = outgoingBrick != nullptr;
     send_doesBrickExist_response(exist, session, blockerId);
     return exist;

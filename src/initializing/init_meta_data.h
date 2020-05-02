@@ -37,8 +37,6 @@ struct InitMetaDataEntry
     uint32_t numberOfAxons = 0;
 };
 
-typedef std::vector<std::vector<InitMetaDataEntry>> InitStructure;
-
 } // namespace KyoukoMind
 
 #endif // INIT_META_DATA_H

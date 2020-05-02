@@ -9,14 +9,6 @@ namespace KyoukoMind
 
 //==================================================================================================
 
-inline Brick*
-getBrickBlock(NetworkSegment &segment)
-{
-    return static_cast<Brick*>(segment.bricks.buffer.data);
-}
-
-//==================================================================================================
-
 /**
  * add a new empfy edge-section
  *

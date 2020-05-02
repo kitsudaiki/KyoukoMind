@@ -36,7 +36,7 @@ createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    InitStructure networkMetaStructure;
+    std::vector<std::vector<InitMetaDataEntry>> networkMetaStructure;
     if(parse2dTestfile(fileContent, networkMetaStructure) == false) {
         return false;
     }
@@ -44,9 +44,10 @@ createNewNetwork(const std::string &fileContent)
     NetworkSegment* segment = RootObject::m_segment;
 
     // init segment
-    initSynapseSectionBlocks(*segment, 0);
-    initBrickBlocks(*segment, getNumberOfBricks(networkMetaStructure));
-    initNodeBlocks(*segment, getNumberOfNodeBricks(networkMetaStructure));
+    assert(initSynapseSectionBlocks(*segment, 1));
+    const uint32_t totalNumberOfNodes = getNumberOfNodeBricks(networkMetaStructure)
+                                        * NUMBER_OF_NODES_PER_BRICK;
+    assert(initNodeBlocks(*segment, totalNumberOfNodes));
 
     // init bricks
     addBricks(*segment, networkMetaStructure);
@@ -62,7 +63,7 @@ createNewNetwork(const std::string &fileContent)
  * @return
  */
 uint32_t
-getNumberOfBricks(InitStructure &networkMetaStructure)
+getNumberOfBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
     uint32_t numberOfBricks = 0;
 
@@ -71,7 +72,7 @@ getNumberOfBricks(InitStructure &networkMetaStructure)
         for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
         {
             if(networkMetaStructure[x][y].type == 3
-                    || networkMetaStructure[x][y].type == 1)
+                    || networkMetaStructure[x][y].type == 2)
             {
                 numberOfBricks++;
             }
@@ -87,7 +88,7 @@ getNumberOfBricks(InitStructure &networkMetaStructure)
  * @return
  */
 uint32_t
-getNumberOfNodeBricks(InitStructure &networkMetaStructure)
+getNumberOfNodeBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
     uint32_t numberOfNodeBricks = 0;
 
@@ -113,44 +114,53 @@ getNumberOfNodeBricks(InitStructure &networkMetaStructure)
  */
 void
 addBricks(NetworkSegment &segment,
-          InitStructure &networkMetaStructure)
+          std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
-    uint32_t numberOfNodeBlocks = 0;
-    Brick* bricks = getBrickBlock(segment);
+    uint32_t numberOfNodeBricks = 0;
+    uint32_t numberOfBricks = 0;
+
     BrickQueue* queue = RootObject::m_queue;
 
     for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
     {
         for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
         {
-            const BrickID brickId = networkMetaStructure[x][y].brickId;
+            const BrickID brickId = numberOfBricks;
             switch(networkMetaStructure[x][y].type)
             {
                 case 1:
                     break;
                 case 2:
                 {
-                    bricks[brickId] = Brick(brickId, x, y);
-                    initRandValues(bricks[brickId]);
+                    Brick* newBrick = new Brick(brickId, x, y);
+                    initRandValues(*newBrick);
 
-                    networkMetaStructure[x][y].brick = &bricks[brickId];
-                    queue->addToQueue(&bricks[brickId]);
+                    networkMetaStructure[x][y].brick = newBrick;
+                    networkMetaStructure[x][y].brickId = brickId;
+                    queue->addToQueue(newBrick);
+
+                    segment.bricks.push_back(newBrick);
+                    numberOfBricks++;
 
                     break;
                 }
                 case 3:
                 {
                     //Brick* brick = new Brick(brickId, x, y);
-                    bricks[brickId] = Brick(brickId, x, y);
-                    initRandValues(bricks[brickId]);
+                    Brick* newBrick = new Brick(brickId, x, y);
+                    initRandValues(*newBrick);
 
-                    const uint32_t nodePos = numberOfNodeBlocks * NUMBER_OF_NODES_PER_BRICK;
+                    const uint32_t nodePos = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
                     assert(nodePos < 0x7FFFFFFF);
-                    bricks[brickId].nodePos = static_cast<int32_t>(nodePos);
+                    newBrick->nodePos = static_cast<int32_t>(nodePos);
 
-                    networkMetaStructure[x][y].brick = &bricks[brickId];
-                    queue->addToQueue(&bricks[brickId]);
-                    numberOfNodeBlocks++;
+                    networkMetaStructure[x][y].brick = newBrick;
+                    networkMetaStructure[x][y].brickId = brickId;
+                    queue->addToQueue(newBrick);
+
+                    segment.bricks.push_back(newBrick);
+                    numberOfBricks++;
+                    numberOfNodeBricks++;
 
                     break;
                 }
@@ -168,7 +178,7 @@ addBricks(NetworkSegment &segment,
  */
 void
 connectAllBricks(NetworkSegment &segment,
-                 InitStructure &metaStructure)
+                 std::vector<std::vector<InitMetaDataEntry>> &metaStructure)
 {
     for(uint32_t x = 0; x < metaStructure.size(); x++)
     {
@@ -188,15 +198,11 @@ connectAllBricks(NetworkSegment &segment,
                         && metaStructure[next.first][next.second].type != EMPTY_BRICK)
                 {
                     const BrickID sourceId = metaStructure[x][y].brick->brickId;
-                    const BrickID targetId = metaStructure[next.first][next.second].brickId;
+                    const BrickID targetId = metaStructure[next.first][next.second].brick->brickId;
                     connectBricks(segment,
                                   sourceId,
                                   side,
                                   targetId);
-
-                    Neighbor* neighbor = &metaStructure[x][y].brick->neighbors[side];
-                    neighbor->targetBrickPos.x = next.first;
-                    neighbor->targetBrickPos.y = next.second;
                 }
             }
         }
@@ -214,7 +220,7 @@ uint32_t
 getDistantToNextNodeBrick(const uint32_t x,
                           const uint32_t y,
                           const uint8_t side,
-                          InitStructure &metaStructure)
+                          std::vector<std::vector<InitMetaDataEntry>> &metaStructure)
 {
     std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
@@ -226,11 +232,11 @@ getDistantToNextNodeBrick(const uint32_t x,
 
     for(uint32_t distance = 1; distance < metaStructure.size(); distance++)
     {
-        if(metaStructure[next.first][next.second].type == (uint8_t)EMPTY_BRICK) {
+        if(metaStructure[next.first][next.second].type == static_cast<uint8_t>(EMPTY_BRICK)) {
             return MAX_DISTANCE;
         }
 
-        if(metaStructure[next.first][next.second].type == (uint8_t)NODE_BRICK) {
+        if(metaStructure[next.first][next.second].type == static_cast<uint8_t>(EMPTY_BRICK)) {
             return distance;
         }
 

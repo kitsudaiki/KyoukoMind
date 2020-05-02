@@ -22,13 +22,13 @@ struct NetworkSegment;
 bool createNewNetwork(const std::string &fileContent);
 
 void connectAllBricks(NetworkSegment &segment,
-                      InitStructure &networkMetaStructure);
+                      std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
 
 void addBricks(NetworkSegment &segment,
-               InitStructure &networkMetaStructure);
+               std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
 
-uint32_t getNumberOfBricks(InitStructure &networkMetaStructure);
-uint32_t getNumberOfNodeBricks(InitStructure &networkMetaStructure);
+uint32_t getNumberOfBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
+uint32_t getNumberOfNodeBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
 
 std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
                                       const uint32_t y,

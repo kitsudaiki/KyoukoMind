@@ -23,6 +23,7 @@
 #include <core/processing/processing_methods/brick_processing_methods.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
 
 namespace KyoukoMind
 {
@@ -72,19 +73,10 @@ struct Brick
         this->brickPos.y = y;
     }
 
-    Brick(const Brick &other)
+    ~Brick()
     {
-        memcpy(this, &other, sizeof(Brick));
-    }
-
-    Brick &operator=(const Brick &other)
-    {
-        if(this != &other)
-        {
-            memcpy(this, &other, sizeof(Brick));
-        }
-
-        return *this;
+        delete randValue;
+        delete randWeight;
     }
 
 } __attribute__((packed));

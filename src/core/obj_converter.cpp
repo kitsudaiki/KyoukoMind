@@ -31,11 +31,10 @@ convertNetworkToString(std::string &result)
 void
 convertNetworkToObj(ObjItem &result)
 {
-    Brick* bricks = getBrickBlock(*RootObject::m_segment);
-    const uint64_t numberOfBricks = RootObject::m_segment->bricks.numberOfItems;
+    const uint64_t numberOfBricks = RootObject::m_segment->bricks.size();
     for(uint64_t i = 0; i < numberOfBricks; i++)
     {
-        Brick* brick = &bricks[i];
+        Brick* brick = RootObject::m_segment->bricks.at(i);
         convertBrickToObj(result, brick);
     }
 }
@@ -63,8 +62,7 @@ void
 convertBrickToObj(ObjItem &result,
                   const BrickID brickId)
 {
-    Brick* bricks = getBrickBlock(*RootObject::m_segment);
-    Brick* brick = &bricks[brickId];
+    Brick* brick = RootObject::m_segment->bricks.at(brickId);
     convertBrickToObj(result, brick);
 }
 
@@ -121,8 +119,7 @@ convertNodeToObj(ObjItem &result,
                  const BrickID brickId,
                  const uint16_t nodeId)
 {
-    Brick* bricks = getBrickBlock(*RootObject::m_segment);
-    Brick* brick = &bricks[brickId];
+    Brick* brick = RootObject::m_segment->bricks.at(brickId);
 
     if(brick->nodePos == -1
             || nodeId > NUMBER_OF_NODES_PER_BRICK)
