@@ -96,7 +96,7 @@ HEADERS += \
     src/core/objects/network_segment.h \
     src/core/processing/processing_methods/network_segment_methods.h \
     src/core/processing/processing_methods/data_connection_methods.h \
-    src/core/brick_handler.h
+    src/core/brick_queue.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -112,7 +112,7 @@ SOURCES += \
     src/core/obj_converter.cpp \
     src/core/processing/processing_methods/network_segment_methods.cpp \
     src/core/processing/processing_methods/data_connection_methods.cpp \
-    src/core/brick_handler.cpp
+    src/core/brick_queue.cpp
 
 
 CONFIG(run_tests) {

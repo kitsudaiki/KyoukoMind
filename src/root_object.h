@@ -13,7 +13,7 @@
 #include <common.h>
 
 #include <core/global_values_handler.h>
-#include <core/brick_handler.h>
+#include <core/brick_queue.h>
 
 namespace Kitsunemimi {
 namespace Project {

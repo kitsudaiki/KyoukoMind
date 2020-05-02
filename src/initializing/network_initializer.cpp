@@ -48,6 +48,7 @@ createNewNetwork(const std::string &fileContent)
     const uint32_t totalNumberOfNodes = getNumberOfNodeBricks(networkMetaStructure)
                                         * NUMBER_OF_NODES_PER_BRICK;
     assert(initNodeBlocks(*segment, totalNumberOfNodes));
+    RootObject::m_queue->setBorder(getNumberOfBricks(networkMetaStructure));
 
     // init bricks
     addBricks(*segment, networkMetaStructure);

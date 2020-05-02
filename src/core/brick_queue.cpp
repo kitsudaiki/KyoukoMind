@@ -1,5 +1,5 @@
 /**
- *  @file    brickHandler.cpp
+ *  @file    brick_queue.cpp
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -7,7 +7,7 @@
  *  Apache License Version 2.0
  */
 
-#include <core/brick_handler.h>
+#include <core/brick_queue.h>
 #include <core/global_values_handler.h>
 
 #include <core/objects/brick.h>
@@ -16,12 +16,18 @@
 namespace KyoukoMind
 {
 
-BrickQueue::BrickQueue()
-{
-}
+BrickQueue::BrickQueue() {}
 
-BrickQueue::~BrickQueue()
+BrickQueue::~BrickQueue() {}
+
+/**
+ * @brief BrickQueue::setBorder
+ * @param border
+ */
+void
+BrickQueue::setBorder(const uint32_t border)
 {
+    m_border = border;
 }
 
 /**
@@ -45,7 +51,6 @@ BrickQueue::addToQueue(Brick *brick)
 
     // add to queue
     brick->inQueue = 1;
-    m_numberOfItemsInQueue++;
     m_readyBricks.push(brick);
 
     m_queueLock.clear(std::memory_order_release);
@@ -68,7 +73,7 @@ BrickQueue::getFromQueue()
 
     // force the processing-unit into wait state for one cycle
     m_activeCounter++;
-    if(m_activeCounter == m_numberOfItemsInQueue)
+    if(m_activeCounter == m_border)
     {
         m_activeCounter = 0;
         m_queueLock.clear(std::memory_order_release);

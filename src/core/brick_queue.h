@@ -1,5 +1,5 @@
 /**
- *  @file    brick_handler.h
+ *  @file    brick_queue.h
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -24,6 +24,8 @@ public:
     BrickQueue();
     ~BrickQueue();
 
+    void setBorder(const uint32_t border);
+
     // processing-queue
     bool addToQueue(Brick* brick);
     Brick* getFromQueue();
@@ -32,7 +34,7 @@ private:
     std::queue<Brick*> m_readyBricks;
     std::atomic_flag m_queueLock = ATOMIC_FLAG_INIT;
     uint32_t m_activeCounter = 0;
-    uint32_t m_numberOfItemsInQueue = 0;
+    uint32_t m_border = 0;
 };
 
 } // namespace KyoukoMind
