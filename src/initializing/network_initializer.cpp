@@ -204,6 +204,9 @@ connectAllBricks(NetworkSegment &segment,
                                   sourceId,
                                   side,
                                   targetId);
+                    Neighbor* neighbor = &metaStructure[x][y].brick->neighbors[side];
+                    neighbor->targetBrickPos.x = next.first;
+                    neighbor->targetBrickPos.y = next.second;
                 }
             }
         }
