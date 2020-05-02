@@ -4,7 +4,7 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #include <core/processing/processing_unit.h>
