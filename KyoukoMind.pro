@@ -86,7 +86,8 @@ HEADERS += \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
-    src/core/processing/container_processing_methods.h \
+    src/core/processing/edge_container_processing.h \
+    src/core/processing/synapse_container_processing.h \
     src/core/methods/edge_methods.h \
     src/core/methods/neighbor_methods.h \
     src/core/methods/synapse_methods.h \

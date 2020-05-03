@@ -1,0 +1,64 @@
+#ifndef NETWORK_SEGMENT_METHODS_H
+#define NETWORK_SEGMENT_METHODS_H
+
+#include <core/objects/network_segment.h>
+#include <core/methods/data_connection_methods.h>
+
+namespace KyoukoMind
+{
+
+//==================================================================================================
+
+/**
+ * add a new empfy edge-section
+ *
+ * @return id of the new section, else SPECIAL_STATE if allocation failed
+ */
+inline uint32_t
+addEmptySynapseSection(NetworkSegment &segment,
+                       const uint32_t sourceId)
+{
+    assert(sourceId != UNINIT_STATE_32);
+
+    const uint32_t position = reserveDynamicItem(segment.synapses);
+    assert(position != UNINIT_STATE_32);
+
+    // add new edge-forward-section
+    SynapseSection newSection;
+    newSection.sourceId = sourceId;
+
+    assert(segment.synapses.inUse != 0);
+    getSynapseSectionBlock(segment.synapses)[position] = newSection;
+
+    return position;
+}
+
+//==================================================================================================
+
+bool initBrickBlocks(NetworkSegment &segment,
+                     uint32_t numberOfBricks);
+
+bool initNodeBlocks(NetworkSegment &segment,
+                    uint32_t numberOfNodes);
+
+bool initSynapseSectionBlocks(NetworkSegment &segment,
+                              const uint32_t numberOfSynapseSections);
+
+bool addClientOutputConnection(NetworkSegment &segment,
+                               uint32_t brickPos);
+
+Kitsunemimi::DataItem* getMetadata(NetworkSegment &segment);
+
+bool connectBricks(NetworkSegment &segment,
+                   const BrickID sourceBrickId,
+                   const uint8_t sourceSide,
+                   const BrickID targetBrickId);
+
+bool disconnectBricks(NetworkSegment &segment,
+                      const BrickID sourceBrickId,
+                      const uint8_t sourceSide,
+                      const BrickID targetBrickId);
+
+}
+
+#endif // NETWORK_SEGMENT_METHODS_H
