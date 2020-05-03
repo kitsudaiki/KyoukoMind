@@ -15,8 +15,9 @@
 #include <core/objects/brick.h>
 #include <core/objects/container_definitions.h>
 
-#include <core/processing/edge_container_processing.h>
-#include <core/methods/brick_processing_methods.h>
+#include <core/processing/methods/edge_container_processing.h>
+#include <core/processing/methods/brick_processing.h>
+#include <core/processing/methods/node_processing.h>
 #include <core/methods/neighbor_methods.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>

@@ -4,7 +4,7 @@
 #include <root_object.h>
 #include <core/objects/container_definitions.h>
 #include <core/methods/brick_initializing_methods.h>
-#include <core/methods/brick_processing_methods.h>
+#include <core/processing/methods/brick_processing.h>
 #include <core/methods/neighbor_methods.h>
 #include <core/methods/network_segment_methods.h>
 

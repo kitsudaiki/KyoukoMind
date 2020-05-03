@@ -1,7 +1,7 @@
 #include "network_segment_methods.h"
 
 #include <core/methods/neighbor_methods.h>
-#include <core/methods/brick_processing_methods.h>
+#include <core/processing/methods/brick_processing.h>
 #include <core/methods/brick_item_methods.h>
 #include <core/methods/brick_initializing_methods.h>
 #include <core/methods/data_connection_methods.h>
@@ -154,6 +154,8 @@ getMetadata(NetworkSegment &segment)
     return result;
 }
 
+//==================================================================================================
+
 /**
  * @brief BrickHandler::connect
  * @param sourceBrickId
@@ -171,6 +173,8 @@ connectBricks(NetworkSegment &segment,
     Brick* targetBrick = segment.bricks[targetBrickId];
     return connectBricks(*sourceBrick, sourceSide, *targetBrick);
 }
+
+//==================================================================================================
 
 /**
  * disconnect two bricks from the handler from each other

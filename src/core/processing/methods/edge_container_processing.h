@@ -22,7 +22,7 @@
 #include <core/objects/brick.h>
 #include <core/objects/network_segment.h>
 
-#include <core/processing/synapse_container_processing.h>
+#include <core/processing/methods/synapse_container_processing.h>
 
 namespace KyoukoMind
 {

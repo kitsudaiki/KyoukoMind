@@ -74,7 +74,7 @@ HEADERS += \
     src/core/processing/processing_unit_handler.h \
     src/core/methods/brick_initializing_methods.h \
     src/core/methods/brick_item_methods.h \
-    src/core/methods/brick_processing_methods.h \
+    src/core/processing/methods/brick_processing.h \
     src/core/global_values_handler.h \
     src/core/network_manager.h \
     src/initializing/axon_initializer.h \
@@ -86,8 +86,8 @@ HEADERS += \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
-    src/core/processing/edge_container_processing.h \
-    src/core/processing/synapse_container_processing.h \
+    src/core/processing/methods/edge_container_processing.h \
+    src/core/processing/methods/synapse_container_processing.h \
     src/core/methods/edge_methods.h \
     src/core/methods/neighbor_methods.h \
     src/core/methods/synapse_methods.h \
@@ -97,13 +97,14 @@ HEADERS += \
     src/core/objects/network_segment.h \
     src/core/methods/network_segment_methods.h \
     src/core/methods/data_connection_methods.h \
-    src/core/brick_queue.h
+    src/core/brick_queue.h \
+    src/core/processing/methods/node_processing.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/methods/brick_initializing_methods.cpp \
-    src/core/methods/brick_processing_methods.cpp \
+    src/core/processing/methods/brick_processing.cpp \
     src/core/global_values_handler.cpp \
     src/core/network_manager.cpp \
     src/initializing/axon_initializer.cpp \

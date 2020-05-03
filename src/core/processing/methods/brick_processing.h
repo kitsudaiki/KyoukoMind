@@ -25,13 +25,11 @@ void finishSide(Brick* brick, const uint8_t side);
 bool processReady(Brick* brick);
 bool isReady(Brick* brick);
 
-uint16_t processNodes(NetworkSegment &segment, Brick &brick);
-
-void postLearning(NetworkSegment &segment, Brick &brick);
-void memorizeSynapses(NetworkSegment &segment, Brick &brick);
-
-void writeMonitoringOutput(Brick &brick, DataBuffer &buffer);
-void writeClientOutput(NetworkSegment &segment, Brick &brick, DataBuffer &buffer);
+void writeMonitoringOutput(Brick &brick,
+                           DataBuffer &buffer);
+void writeClientOutput(NetworkSegment &segment,
+                       Brick &brick,
+                       DataBuffer &buffer);
 
 } // namespace KyoukoMind
 

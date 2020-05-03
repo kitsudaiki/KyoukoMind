@@ -20,7 +20,6 @@
 #include <core/objects/data_connection.h>
 #include <core/objects/neighbor.h>
 #include <core/objects/empty_placeholder.h>
-#include <core/methods/brick_processing_methods.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
