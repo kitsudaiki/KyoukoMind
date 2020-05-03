@@ -14,10 +14,10 @@
 #include <root_object.h>
 
 #include <core/objects/container_definitions.h>
-#include <core/processing/processing_methods/brick_item_methods.h>
-#include <core/processing/processing_methods/synapse_methods.h>
-#include <core/processing/processing_methods/data_connection_methods.h>
-#include <core/processing/processing_methods/network_segment_methods.h>
+#include <core/methods/brick_item_methods.h>
+#include <core/methods/synapse_methods.h>
+#include <core/methods/data_connection_methods.h>
+#include <core/methods/network_segment_methods.h>
 
 #include <core/objects/brick.h>
 #include <core/objects/network_segment.h>

@@ -7,7 +7,7 @@
 #include <core/objects/edges.h>
 #include <core/objects/data_connection.h>
 #include <core/objects/network_segment.h>
-#include <core/processing/processing_methods/network_segment_methods.h>
+#include <core/methods/network_segment_methods.h>
 
 namespace KyoukoMind
 {
