@@ -9,6 +9,22 @@ namespace KyoukoMind
 
 //==================================================================================================
 
+inline Node*
+getNodeBlock(NetworkSegment &segment)
+{
+    return static_cast<Node*>(segment.nodes.buffer.data);
+}
+
+//==================================================================================================
+
+inline SynapseSection*
+getSynapseSectionBlock(NetworkSegment &segment)
+{
+    return static_cast<SynapseSection*>(segment.synapses.buffer.data);
+}
+
+//==================================================================================================
+
 /**
  * add a new empfy edge-section
  *
@@ -28,7 +44,7 @@ addEmptySynapseSection(NetworkSegment &segment,
     newSection.sourceId = sourceId;
 
     assert(segment.synapses.inUse != 0);
-    getSynapseSectionBlock(segment.synapses)[position] = newSection;
+    getSynapseSectionBlock(segment)[position] = newSection;
 
     return position;
 }

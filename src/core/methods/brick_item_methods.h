@@ -12,6 +12,14 @@ namespace KyoukoMind
 
 //==================================================================================================
 
+inline EdgeSection*
+getEdgeBlock(Brick &brick)
+{
+    return static_cast<EdgeSection*>(brick.edges.buffer.data);
+}
+
+//==================================================================================================
+
 /**
  * add a new edge-section to a specific brick with information about the source of the edge
  *
@@ -52,9 +60,9 @@ addEmptyEdgeSection(Brick &brick,
     }
 
     // add edge-section to the databuffer
-    getEdgeBlock(brick.edges)[position] = newSection;
+    getEdgeBlock(brick)[position] = newSection;
     assert(newSection.sourceSide != 0);
-    assert(getEdgeBlock(brick.edges)[position].sourceSide != 0);
+    assert(getEdgeBlock(brick)[position].sourceSide != 0);
 
     return position;
 }

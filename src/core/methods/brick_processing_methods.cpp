@@ -12,9 +12,10 @@
 #include <core/objects/brick.h>
 #include <core/objects/container_definitions.h>
 
-#include <core/processing/container_processing_methods.h>
+#include <core/processing/edge_container_processing.h>
 #include <core/methods/brick_item_methods.h>
 #include <core/methods/neighbor_methods.h>
+#include <core/methods/network_segment_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -175,7 +176,7 @@ processNodes(NetworkSegment &segment,
     uint16_t numberOfActiveNodes = 0;
 
     // process nodes
-    Node* start = &getNodeBlock(segment.nodes)[brick.nodePos];
+    Node* start = &getNodeBlock(segment)[brick.nodePos];
     Node* end = start + NUMBER_OF_NODES_PER_BRICK;
 
     // iterate over all nodes in the brick
@@ -245,7 +246,7 @@ void
 postLearning(NetworkSegment &segment,
              Brick &brick)
 {
-    SynapseSection* sectionStart = getSynapseSectionBlock(segment.synapses);
+    SynapseSection* sectionStart = getSynapseSectionBlock(segment);
     SynapseSection* sectionEnd = sectionStart + segment.synapses.numberOfItems;
 
     // iterate over all edge-sections
@@ -295,7 +296,7 @@ void
 memorizeSynapses(NetworkSegment &segment,
                  Brick &brick)
 {
-    SynapseSection* sectionStart = getSynapseSectionBlock(segment.synapses);
+    SynapseSection* sectionStart = getSynapseSectionBlock(segment);
     SynapseSection* sectionEnd = sectionStart + segment.synapses.numberOfItems;
 
     // iterate over all synapse-sections
@@ -327,7 +328,7 @@ memorizeSynapses(NetworkSegment &segment,
         }
 
         // delete dynamic item if value is too low
-        EdgeSection* edgeSection = &getEdgeBlock(brick.edges)[synapseSection->sourceId];
+        EdgeSection* edgeSection = &getEdgeBlock(brick)[synapseSection->sourceId];
         assert(edgeSection->status == ACTIVE_SECTION);
 
         if(synapseSection->totalWeight < DELETE_SYNAPSE_BORDER)
@@ -362,7 +363,7 @@ getSummedValue(NetworkSegment &segment,
     assert(brick.nodePos >= 0);
 
     // write value to the internal ring-buffer
-    Node* node = &getNodeBlock(segment.nodes)[brick.nodePos];
+    Node* node = &getNodeBlock(segment)[brick.nodePos];
     brick.outBuffer[brick.outBufferPos] += node->currentState;
     brick.outBufferPos = (brick.outBufferPos + 1) % 10;
     node->currentState /= NODE_COOLDOWN;

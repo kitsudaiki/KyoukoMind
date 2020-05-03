@@ -76,7 +76,7 @@ initSynapseSectionBlocks(NetworkSegment &segment,
     }
 
     // fill array with empty synapsesections
-    SynapseSection* array = getSynapseSectionBlock(segment.synapses);
+    SynapseSection* array = getSynapseSectionBlock(segment);
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         SynapseSection newSection;
@@ -114,7 +114,7 @@ addClientOutputConnection(NetworkSegment &segment,
 
     // set the border-value of all nodes within the brick
     // to a high-value, so the node can never become active
-    Node* nodeArray = &getNodeBlock(segment.nodes)[brick->nodePos];
+    Node* nodeArray = &getNodeBlock(segment)[brick->nodePos];
     nodeArray->border = 100000.0f;
 
     return true;

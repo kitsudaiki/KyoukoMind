@@ -15,7 +15,7 @@
 #include <initializing/file_parser.h>
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/processing/container_processing_methods.h>
+#include <core/processing/edge_container_processing.h>
 #include <core/methods/brick_initializing_methods.h>
 
 namespace KyoukoMind

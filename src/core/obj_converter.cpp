@@ -7,7 +7,9 @@
 #include <core/objects/edges.h>
 #include <core/objects/data_connection.h>
 #include <core/objects/network_segment.h>
+
 #include <core/methods/network_segment_methods.h>
+#include <core/methods/brick_item_methods.h>
 
 namespace KyoukoMind
 {
@@ -80,7 +82,7 @@ convertBrickToObj(ObjItem &result,
     }
 
     NetworkSegment* segment = RootObject::m_segment;
-    Node* start = &getNodeBlock(segment->nodes)[brick->nodePos];
+    Node* start = &getNodeBlock(*segment)[brick->nodePos];
     Node* end = start + NUMBER_OF_NODES_PER_BRICK;
 
     // iterate over all nodes in the brick
@@ -128,7 +130,7 @@ convertNodeToObj(ObjItem &result,
     }
 
     NetworkSegment* segment = RootObject::m_segment;
-    Node* nodeArray = &getNodeBlock(segment->nodes)[brick->nodePos];
+    Node* nodeArray = &getNodeBlock(*segment)[brick->nodePos];
     Node* node = &nodeArray[nodeId];
 
     convertNodeToObj(result, brick, node);
@@ -205,7 +207,7 @@ convertEdgesToObj(ObjItem &result,
                   const uint32_t id,
                   const uint32_t vecPos)
 {
-    EdgeSection* section = &getEdgeBlock(brick->edges)[id];
+    EdgeSection* section = &getEdgeBlock(*brick)[id];
 
     for(uint8_t side = 2; side < 23; side++)
     {

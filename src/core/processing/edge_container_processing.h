@@ -171,7 +171,7 @@ processUpdateEdge(Brick &brick,
                   const uint8_t inititalSide)
 {
     assert(brick.edges.inUse != 0);
-    EdgeSection* edgeSection = &getEdgeBlock(brick.edges)[container.targetId];
+    EdgeSection* edgeSection = &getEdgeBlock(brick)[container.targetId];
 
     // here no assert, because based on the async processing it is possible to get a
     // update-message, after the section was deleted
@@ -246,8 +246,9 @@ learningEdgeSection(NetworkSegment &segment,
             {
                 targetId = addEmptySynapseSection(segment, edgeSectionId);
                 assert(targetId != UNINIT_STATE_32);
-                SynapseSection* synapseSection = &getSynapseSectionBlock(segment.synapses)[targetId];
+                SynapseSection* synapseSection = &getSynapseSectionBlock(segment)[targetId];
                 assert(synapseSection->status == ACTIVE_SECTION);
+                // TODO: push to GPU
                 edgeSection->edges[22].targetId = targetId;
             }
             else
@@ -277,7 +278,7 @@ processEdgeForwardSection(NetworkSegment &segment,
                           const EdgeContainer &container)
 {
     assert(brick.edges.inUse != 0);
-    EdgeSection* edgeSection = &getEdgeBlock(brick.edges)[container.targetEdgeSectionId];
+    EdgeSection* edgeSection = &getEdgeBlock(brick)[container.targetEdgeSectionId];
     if(edgeSection->status != ACTIVE_SECTION) {
         return;
     }
@@ -400,7 +401,7 @@ processLerningEdge(NetworkSegment &segment,
     assert(targetEdgeId != UNINIT_STATE_32);
 
     assert(brick.edges.inUse != 0);
-    EdgeSection* edgeSection = &getEdgeBlock(brick.edges)[targetEdgeId];
+    EdgeSection* edgeSection = &getEdgeBlock(brick)[targetEdgeId];
     assert(edgeSection->status == ACTIVE_SECTION);
     assert(edgeSection->sourceSide != 0);
 
@@ -438,7 +439,7 @@ processPendingEdge(NetworkSegment &segment,
     assert(brick.edges.inUse != 0);
 
     const uint32_t numberOfEdgeSections = brick.edges.numberOfItems;
-    EdgeSection* forwardEnd = getEdgeBlock(brick.edges);
+    EdgeSection* forwardEnd = getEdgeBlock(brick);
     EdgeSection* forwardStart = &forwardEnd[numberOfEdgeSections - 1];
 
     // beginn wigh the last forward-edge-section
@@ -452,7 +453,9 @@ processPendingEdge(NetworkSegment &segment,
     {
         if(edgeSection->status == ACTIVE_SECTION)
         {
-            if(edgeSection->sourceId != UNINIT_STATE_32 && edgeSection->sourceId != 0) {
+            if(edgeSection->sourceId != UNINIT_STATE_32
+                    && edgeSection->sourceId != 0)
+            {
                 assert(edgeSection->sourceSide != 0);
             }
             assert(container.sourceSide != 0);
@@ -487,7 +490,7 @@ processDirectEdge(NetworkSegment &segment,
                   Brick &brick,
                   const DirectEdgeContainer &container)
 {
-    Node* node = &getNodeBlock(segment.nodes)[container.targetNodeId];
+    Node* node = &getNodeBlock(segment)[container.targetNodeId];
     node->currentState = container.weight;
 }
 
@@ -505,7 +508,7 @@ processLearningEdgeReply(Brick &brick,
 {
     assert(brick.edges.inUse != 0);
 
-    EdgeSection* edgeSections = getEdgeBlock(brick.edges);
+    EdgeSection* edgeSections = getEdgeBlock(brick);
     edgeSections[container.sourceEdgeSectionId].edges[side].targetId =
             container.targetEdgeSectionId;
 }

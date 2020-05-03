@@ -110,7 +110,7 @@ processSynapseSection(NetworkSegment &segment,
                       const uint32_t synapseSectionId,
                       const float inputWeight)
 {
-    SynapseSection* synapseSection = &getSynapseSectionBlock(segment.synapses)[synapseSectionId];
+    SynapseSection* synapseSection = &getSynapseSectionBlock(segment)[synapseSectionId];
     if(synapseSection->status != ACTIVE_SECTION) {
         return;
     }
@@ -126,7 +126,7 @@ processSynapseSection(NetworkSegment &segment,
     }
 
     Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
-    Node* nodes = &getNodeBlock(segment.nodes)[brick.nodePos];
+    Node* nodes = &getNodeBlock(segment)[brick.nodePos];
 
     for(Synapse* synapse = synapseSection->synapses;
         synapse < end;

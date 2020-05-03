@@ -13,6 +13,7 @@
 #include <core/objects/brick.h>
 #include <core/methods/brick_item_methods.h>
 #include <core/methods/brick_initializing_methods.h>
+#include <core/methods/network_segment_methods.h>
 
 namespace KyoukoMind
 {
@@ -40,7 +41,7 @@ createAxons(NetworkSegment &segment,
             {
                 // get node-brick
                 uint32_t nodeNumberPerBrick = NUMBER_OF_NODES_PER_BRICK;
-                Node* nodes = &getNodeBlock(segment.nodes)[brick->nodePos];
+                Node* nodes = &getNodeBlock(segment)[brick->nodePos];
 
                 // iterate over all nodes of the brick and create an axon for each node
                 for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)

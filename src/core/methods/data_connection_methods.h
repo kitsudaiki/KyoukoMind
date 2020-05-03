@@ -17,30 +17,6 @@ bool initDataBlocks(DataConnection &data,
 
 //==================================================================================================
 
-inline Node*
-getNodeBlock(DataConnection &data)
-{
-    return static_cast<Node*>(data.buffer.data);
-}
-
-//==================================================================================================
-
-inline SynapseSection*
-getSynapseSectionBlock(const DataConnection &data)
-{
-    return static_cast<SynapseSection*>(data.buffer.data);
-}
-
-//==================================================================================================
-
-inline EdgeSection*
-getEdgeBlock(const DataConnection &data)
-{
-    return static_cast<EdgeSection*>(data.buffer.data);
-}
-
-//==================================================================================================
-
 /**
 * delete a specific item from the buffer by replacing it with a placeholder-item
 *

@@ -150,7 +150,7 @@ initEdgeSectionBlocks(Brick &brick,
     }
 
     // fill array with empty forward-edge-sections
-    EdgeSection* array = getEdgeBlock(brick.edges);
+    EdgeSection* array = getEdgeBlock(brick);
     for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
         // create new edge-section
