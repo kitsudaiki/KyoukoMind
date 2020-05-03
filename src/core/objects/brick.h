@@ -4,7 +4,7 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #ifndef BRICKMETA_H
@@ -20,9 +20,9 @@
 #include <core/objects/data_connection.h>
 #include <core/objects/neighbor.h>
 #include <core/objects/empty_placeholder.h>
-#include <core/processing/processing_methods/brick_processing_methods.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
 
 namespace KyoukoMind
 {
@@ -46,20 +46,20 @@ struct Brick
     uint32_t* randValue = nullptr;
     uint32_t randValuePos = 0;
 
-    DataBuffer headerBuffer;
-
-    uint32_t counter = 0;
-
     // 0 - 21: neighbor-bricks
     // 22: the current brick
     Neighbor neighbors[23];
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
     // data
-    DataConnection dataConnections[3];
+    DataConnection edges;
+    int32_t nodePos = -1;
+
+    // learning metadata
     float learningOverride = 0.5;
     GlobalValues globalValues;
 
+    // output
     float outBuffer[10];
     uint8_t outBufferPos = 0;
 
@@ -74,6 +74,8 @@ struct Brick
 
     ~Brick()
     {
+        delete randValue;
+        delete randWeight;
     }
 
 } __attribute__((packed));

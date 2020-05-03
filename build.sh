@@ -71,7 +71,7 @@ get_required_kitsune_lib_repo "libKitsunemimiCommon" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiPersistence" "v0.8.2" 4
+get_required_kitsune_lib_repo "libKitsunemimiPersistence" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -99,7 +99,7 @@ get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.1.3" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.2" 4
+get_required_kitsune_lib_repo "libKitsunemimiConfig" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -116,15 +116,15 @@ cd $LIB_KITSUNE_SAKURA_TREE_DIR
 
 # build KyoukoMind library with qmake
 if [ $1 = "test" ]; then
-    /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full" "CONFIG+=run_tests"
-else
+#     /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full" "CONFIG+=run_tests"
+# else
     /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full"
 fi
 /usr/bin/make -j4
 
 # copy build-result and include-files into the result-directory
 cp "$LIB_KITSUNE_SAKURA_TREE_DIR/KyoukoMind" "$RESULT_DIR/"
-cp "$LIB_KITSUNE_SAKURA_TREE_DIR/KyoukoMind_Test" "$RESULT_DIR/"
+# cp "$LIB_KITSUNE_SAKURA_TREE_DIR/KyoukoMind_Test" "$RESULT_DIR/"
 
 #-----------------------------------------------------------------------------------------------------------------
 

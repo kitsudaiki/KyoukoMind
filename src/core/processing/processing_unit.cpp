@@ -4,11 +4,10 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #include <core/processing/processing_unit.h>
-#include <core/brick_handler.h>
 #include <root_object.h>
 
 #include <core/global_values_handler.h>
@@ -16,9 +15,10 @@
 #include <core/objects/brick.h>
 #include <core/objects/container_definitions.h>
 
-#include <core/processing/processing_methods/container_processing_methods.h>
-#include <core/processing/processing_methods/brick_processing_methods.h>
-#include <core/processing/processing_methods/neighbor_methods.h>
+#include <core/processing/methods/edge_container_processing.h>
+#include <core/processing/methods/brick_processing.h>
+#include <core/processing/methods/node_processing.h>
+#include <core/methods/neighbor_methods.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -43,13 +43,15 @@ ProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
+    NetworkSegment* segment = RootObject::m_segment;
+
     while(!m_abort)
     {
         if(m_block) {
             blockThread();
         }
 
-        Brick* brick = RootObject::m_brickHandler->getFromQueue();
+        Brick* brick = RootObject::m_queue->getFromQueue();
         if(brick == nullptr)
         {
             GlobalValues globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
@@ -72,18 +74,18 @@ ProcessingUnit::run()
 
             // main-processing
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
-            processIncomingMessages(*brick);
-            if(brick->dataConnections[NODE_DATA].inUse == 1) {
-                processNodes(*brick);
+            processIncomingMessages(*segment, *brick);
+            if(brick->nodePos >= 0) {
+                processNodes(*segment, *brick);
             }
 
             // post-processing
-            postLearning(*brick);
-            memorizeSynapses(*brick);
+            postLearning(*segment, *brick);
+            memorizeSynapses(*segment, *brick);
 
             // write output
             if(brick->isOutputBrick == 1) {
-                writeClientOutput(*brick, m_clientBuffer);
+                writeClientOutput(*segment, *brick, m_clientBuffer);
             }
             writeMonitoringOutput(*brick, m_monitoringBuffer);
 
@@ -101,7 +103,8 @@ ProcessingUnit::run()
  * @return
  */
 void
-ProcessingUnit::processIncomingMessages(Brick &brick)
+ProcessingUnit::processIncomingMessages(NetworkSegment &segment,
+                                        Brick &brick)
 {
     // process normal communication
     for(uint8_t side = 0; side < 23; side++)
@@ -113,7 +116,7 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
 
             while(currentBlock != nullptr)
             {
-                processIncomingMessage(brick, side, currentBlock);
+                processIncomingMessage(segment, brick, side, currentBlock);
                 Kitsunemimi::removeFirst_StackBuffer(*currentBuffer);
                 currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
             }
@@ -127,7 +130,8 @@ ProcessingUnit::processIncomingMessages(Brick &brick)
  * @return false if a message-type does not exist, else true
  */
 bool
-ProcessingUnit::processIncomingMessage(Brick &brick,
+ProcessingUnit::processIncomingMessage(NetworkSegment &segment,
+                                       Brick &brick,
                                        const uint8_t side,
                                        DataBuffer* message)
 {
@@ -158,7 +162,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const PendingEdgeContainer edge = *static_cast<PendingEdgeContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                processPendingEdge(brick, edge);
+                processPendingEdge(segment, brick, edge);
                 data += sizeof(PendingEdgeContainer);
                 break;
             }
@@ -167,7 +171,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const EdgeContainer edge = *static_cast<EdgeContainer*>(obj);
                 assert(edge.targetEdgeSectionId != UNINIT_STATE_32);
-                processEdgeForwardSection(brick, edge);
+                processEdgeForwardSection(segment, brick, edge);
                 data += sizeof(EdgeContainer);
                 break;
             }
@@ -176,7 +180,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             {
                 const AxonEdgeContainer edge = *static_cast<AxonEdgeContainer*>(obj);
                 assert(edge.targetAxonId != UNINIT_STATE_32);
-                processAxon(brick, edge);
+                processAxon(segment, brick, edge);
                 data += sizeof(AxonEdgeContainer);
                 break;
             }
@@ -186,7 +190,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
                 const LearingEdgeContainer edge = *static_cast<LearingEdgeContainer*>(obj);
                 assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
                 assert(side != 0);
-                processLerningEdge(brick, edge, side);
+                processLerningEdge(segment, brick, edge, side);
                 data += sizeof(LearingEdgeContainer);
                 break;
             }
@@ -204,7 +208,7 @@ ProcessingUnit::processIncomingMessage(Brick &brick,
             case DIRECT_EDGE_CONTAINER:
             {
                 const DirectEdgeContainer edge = *static_cast<DirectEdgeContainer*>(obj);
-                processDirectEdge(brick, edge);
+                processDirectEdge(segment, brick, edge);
                 data += sizeof(DirectEdgeContainer);
                 break;
             }

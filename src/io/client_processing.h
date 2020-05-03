@@ -3,9 +3,10 @@
 
 #include <root_object.h>
 #include <core/objects/container_definitions.h>
-#include <core/processing/processing_methods/brick_initializing_methods.h>
-#include <core/processing/processing_methods/brick_processing_methods.h>
-#include <core/processing/processing_methods/neighbor_methods.h>
+#include <core/methods/brick_initializing_methods.h>
+#include <core/processing/methods/brick_processing.h>
+#include <core/methods/neighbor_methods.h>
+#include <core/methods/network_segment_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -103,7 +104,8 @@ clientCallback(void* target,
                 //LOG_DEBUG("CLIENT_CONTROL_OUTPUT_LEARNING");
                 const ClientControlOutputLearning content
                         = *((ClientControlOutputLearning*)&dataObj[dataPos]);
-                Brick* brick = rootObject->m_brickHandler->getBrick(content.brickId);
+
+                Brick* brick = RootObject::m_segment->bricks.at(content.brickId);
                 assert(brick != nullptr);
 
                 brick->learningOverride = content.outputLearning;
@@ -123,7 +125,7 @@ clientCallback(void* target,
                 {
                     Brick* brick = it->second;
                     Neighbor* neighbor = &brick->neighbors[22];
-                    const uint16_t ok = neighbor->targetBrick->dataConnections[NODE_DATA].inUse > 0;
+                    const uint16_t ok = neighbor->targetBrick->nodePos >= 0;
 
                     for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
                     {
@@ -152,7 +154,6 @@ clientCallback(void* target,
                 if(it != rootObject->m_inputBricks->end())
                 {
                     Brick* brick = it->second;
-                    brick->counter++;
                     assert(brick->neighbors[22].outgoingBuffer != nullptr);
                     finishSide(brick, 22);
                     while(isReady(brick) == false) {

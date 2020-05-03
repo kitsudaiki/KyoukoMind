@@ -4,7 +4,7 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #ifndef PROCESSING_UNIT_H
@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
-#include <core/objects/brick.h>
+#include <core/objects/network_segment.h>
 
 namespace KyoukoMind
 {
@@ -31,8 +31,10 @@ private:
     std::vector<Brick*> m_finishBrickBuffer;
 
     // cycle
-    void processIncomingMessages(Brick &brick);
-    bool processIncomingMessage(Brick &brick,
+    void processIncomingMessages(NetworkSegment &segment,
+                                 Brick &brick);
+    bool processIncomingMessage(NetworkSegment &segment,
+                                Brick &brick,
                                 const uint8_t side,
                                 DataBuffer* message);
 

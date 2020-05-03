@@ -3,9 +3,10 @@
 
 #include <root_object.h>
 #include <core/objects/container_definitions.h>
-#include <core/processing/processing_methods/brick_initializing_methods.h>
-#include <core/processing/processing_methods/brick_processing_methods.h>
-#include <core/processing/processing_methods/neighbor_methods.h>
+#include <core/methods/brick_initializing_methods.h>
+#include <core/processing/methods/brick_processing.h>
+#include <core/methods/neighbor_methods.h>
+#include <core/methods/network_segment_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -95,7 +96,8 @@ process_registerInput(const ControlRegisterInput &content,
     const uint8_t sourceSide = 22;
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* targetBrick = rootObject->m_brickHandler->getBrick(content.brickId);
+    Brick* targetBrick = RootObject::m_segment->bricks.at(content.brickId);
+
     if(targetBrick == nullptr)
     {
         errorMessage = "register input failed: brick with id "
@@ -107,7 +109,7 @@ process_registerInput(const ControlRegisterInput &content,
     }
 
     // check if brick is node-brick
-    const uint8_t isNodeBrick = targetBrick->dataConnections[NODE_DATA].inUse;
+    const uint8_t isNodeBrick = targetBrick->nodePos >= 0;
     if(isNodeBrick == 0)
     {
         errorMessage = "register input failed: brick with id "
@@ -171,7 +173,7 @@ process_registerOutput(const ControlRegisterOutput &content,
     std::string errorMessage = "";
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* outgoingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
+    Brick* outgoingBrick = RootObject::m_segment->bricks.at(content.brickId);
     if(outgoingBrick == nullptr)
     {
         errorMessage = "register output failed: brick with id "
@@ -183,7 +185,7 @@ process_registerOutput(const ControlRegisterOutput &content,
     }
 
     // check if brick is node-brick
-    const uint8_t isNodeBrick = outgoingBrick->dataConnections[NODE_DATA].inUse;
+    const uint8_t isNodeBrick = outgoingBrick->nodePos >= 0;
     if(isNodeBrick == 0)
     {
         errorMessage = "register output failed: brick with id "
@@ -194,7 +196,8 @@ process_registerOutput(const ControlRegisterOutput &content,
         return false;
     }
 
-    addClientOutputConnection(*outgoingBrick);
+    NetworkSegment* segment = RootObject::m_segment;
+    addClientOutputConnection(*segment, content.brickId);
     send_generic_response(true, "", session, blockerId);
 
     return true;
@@ -212,7 +215,7 @@ process_doesBrickExist(const ControlDoesBrickExist &content,
                        Kitsunemimi::Project::Session* session,
                        const uint64_t blockerId)
 {
-    Brick* outgoingBrick = rootObject->m_brickHandler->getBrick(content.brickId);
+    Brick* outgoingBrick = RootObject::m_segment->bricks.at(content.brickId);
     const bool exist = outgoingBrick != nullptr;
     send_doesBrickExist_response(exist, session, blockerId);
     return exist;
@@ -230,7 +233,7 @@ process_getMetadata(RootObject* rootObject,
                     Kitsunemimi::Project::Session* session,
                     const uint64_t blockerId)
 {
-    DataItem* response = rootObject->m_brickHandler->getMetadata();
+    DataItem* response = getMetadata(*rootObject->m_segment);
     send_metadata_response(response, session, blockerId);
 }
 

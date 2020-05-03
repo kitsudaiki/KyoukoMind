@@ -4,7 +4,7 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #ifndef NETWORK_INITIALIZER_H
@@ -16,14 +16,19 @@
 namespace KyoukoMind
 {
 
-class BrickHandler;
+class BrickQueue;
+struct NetworkSegment;
 
 bool createNewNetwork(const std::string &fileContent);
 
-void connectAllBricks(InitStructure &networkMetaStructure);
+void connectAllBricks(NetworkSegment &segment,
+                      std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
 
-void addBricks(const uint32_t nodeNumberPerBrick,
-               InitStructure &networkMetaStructure);
+void addBricks(NetworkSegment &segment,
+               std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
+
+uint32_t getNumberOfBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
+uint32_t getNumberOfNodeBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
 
 std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
                                       const uint32_t y,

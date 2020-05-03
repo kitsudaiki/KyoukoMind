@@ -4,7 +4,7 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #ifndef NETWORK_MANAGER_H
@@ -17,7 +17,7 @@ namespace KyoukoMind
 {
 
 class Config;
-class BrickHandler;
+class BrickQueue;
 class ProcessingUnitHandler;
 class MessageController;
 class ConnectionTrigger;

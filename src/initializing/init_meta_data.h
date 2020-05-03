@@ -4,7 +4,7 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #ifndef INIT_META_DATA_H
@@ -36,8 +36,6 @@ struct InitMetaDataEntry
     Brick* brick = nullptr;
     uint32_t numberOfAxons = 0;
 };
-
-typedef std::vector<std::vector<InitMetaDataEntry>> InitStructure;
 
 } // namespace KyoukoMind
 

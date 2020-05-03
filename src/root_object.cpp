@@ -4,7 +4,7 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #include <root_object.h>
@@ -28,7 +28,8 @@ namespace KyoukoMind
 {
 
 // init static variables
-KyoukoMind::BrickHandler* RootObject::m_brickHandler = nullptr;
+KyoukoMind::NetworkSegment* RootObject::m_segment = nullptr;
+KyoukoMind::BrickQueue* RootObject::m_queue = nullptr;
 KyoukoMind::GlobalValuesHandler* RootObject::m_globalValuesHandler = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_clientSession = nullptr;
 Kitsunemimi::Project::Session* RootObject::m_controlSession = nullptr;
@@ -40,7 +41,8 @@ std::map<uint32_t, Brick*>* RootObject::m_inputBricks = nullptr;
  */
 RootObject::RootObject()
 {
-    m_brickHandler = new BrickHandler();
+    m_segment = new NetworkSegment();
+    m_queue = new BrickQueue();
     m_globalValuesHandler = new GlobalValuesHandler();
     m_inputBricks = new std::map<uint32_t, Brick*>();
 

@@ -4,7 +4,7 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #ifndef PROCESSING_UNIT_HANDLER_H
@@ -15,7 +15,7 @@
 namespace KyoukoMind
 {
 class ProcessingUnit;
-class BrickHandler;
+class BrickQueue;
 
 class ProcessingUnitHandler
 {

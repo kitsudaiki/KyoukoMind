@@ -1,12 +1,15 @@
 ﻿#include "obj_converter.h"
 
 #include <root_object.h>
-#include <core/brick_handler.h>
 
 #include <core/objects/brick.h>
 #include <core/objects/brick_pos.h>
 #include <core/objects/edges.h>
 #include <core/objects/data_connection.h>
+#include <core/objects/network_segment.h>
+
+#include <core/methods/network_segment_methods.h>
+#include <core/methods/brick_item_methods.h>
 
 namespace KyoukoMind
 {
@@ -30,11 +33,10 @@ convertNetworkToString(std::string &result)
 void
 convertNetworkToObj(ObjItem &result)
 {
-    BrickHandler* handler = RootObject::m_brickHandler;
-    const uint64_t numberOfBricks = handler->getNumberOfBrick();
+    const uint64_t numberOfBricks = RootObject::m_segment->bricks.size();
     for(uint64_t i = 0; i < numberOfBricks; i++)
     {
-        Brick* brick = handler->getBrickByIndex(i);
+        Brick* brick = RootObject::m_segment->bricks.at(i);
         convertBrickToObj(result, brick);
     }
 }
@@ -62,7 +64,8 @@ void
 convertBrickToObj(ObjItem &result,
                   const BrickID brickId)
 {
-    convertBrickToObj(result, RootObject::m_brickHandler->getBrick(brickId));
+    Brick* brick = RootObject::m_segment->bricks.at(brickId);
+    convertBrickToObj(result, brick);
 }
 
 /**
@@ -74,24 +77,20 @@ void
 convertBrickToObj(ObjItem &result,
                   Brick* brick)
 {
-    if(brick->dataConnections[NODE_DATA].inUse == 0) {
+    if(brick->nodePos == -1) {
         return;
     }
 
-    for(uint16_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
+    NetworkSegment* segment = RootObject::m_segment;
+    Node* start = &getNodeBlock(*segment)[brick->nodePos];
+    Node* end = start + NUMBER_OF_NODES_PER_BRICK;
+
+    // iterate over all nodes in the brick
+    for(Node* node = start;
+        node < end;
+        node++)
     {
-        DataConnection* data = &brick->dataConnections[NODE_DATA];
-
-        Node* start = static_cast<Node*>(data->buffer.data);
-        Node* end = start + data->numberOfItems;
-
-        // iterate over all nodes in the brick
-        for(Node* node = start;
-            node < end;
-            node++)
-        {
-            convertNodeToObj(result, brick, node);
-        }
+        convertNodeToObj(result, brick, node);
     }
 }
 
@@ -122,16 +121,16 @@ convertNodeToObj(ObjItem &result,
                  const BrickID brickId,
                  const uint16_t nodeId)
 {
-    Brick* brick = RootObject::m_brickHandler->getBrick(brickId);
+    Brick* brick = RootObject::m_segment->bricks.at(brickId);
 
-    if(brick->dataConnections[NODE_DATA].inUse == 0
+    if(brick->nodePos == -1
             || nodeId > NUMBER_OF_NODES_PER_BRICK)
     {
         return;
     }
 
-    DataConnection* data = &brick->dataConnections[NODE_DATA];
-    Node* nodeArray = static_cast<Node*>(data->buffer.data);
+    NetworkSegment* segment = RootObject::m_segment;
+    Node* nodeArray = &getNodeBlock(*segment)[brick->nodePos];
     Node* node = &nodeArray[nodeId];
 
     convertNodeToObj(result, brick, node);
@@ -208,13 +207,7 @@ convertEdgesToObj(ObjItem &result,
                   const uint32_t id,
                   const uint32_t vecPos)
 {
-    DataConnection* data = &brick->dataConnections[EDGE_DATA];
-    if(data->inUse == 0) {
-        return;
-    }
-
-    EdgeSection* section = &getEdgeBlock(data)[id];
-
+    EdgeSection* section = &getEdgeBlock(*brick)[id];
 
     for(uint8_t side = 2; side < 23; side++)
     {

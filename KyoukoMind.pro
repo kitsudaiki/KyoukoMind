@@ -72,10 +72,9 @@ HEADERS += \
     src/core/objects/synapses.h \
     src/core/processing/processing_unit.h \
     src/core/processing/processing_unit_handler.h \
-    src/core/processing/processing_methods/brick_initializing_methods.h \
-    src/core/processing/processing_methods/brick_item_methods.h \
-    src/core/processing/processing_methods/brick_processing_methods.h \
-    src/core/brick_handler.h \
+    src/core/methods/brick_initializing_methods.h \
+    src/core/methods/brick_item_methods.h \
+    src/core/processing/methods/brick_processing.h \
     src/core/global_values_handler.h \
     src/core/network_manager.h \
     src/initializing/axon_initializer.h \
@@ -87,39 +86,43 @@ HEADERS += \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
-    src/core/processing/processing_methods/container_processing_methods.h \
-    src/core/processing/processing_methods/edge_methods.h \
-    src/core/processing/processing_methods/neighbor_methods.h \
-    src/core/processing/processing_methods/synapse_methods.h \
+    src/core/processing/methods/edge_container_processing.h \
+    src/core/processing/methods/synapse_container_processing.h \
+    src/core/methods/edge_methods.h \
+    src/core/methods/neighbor_methods.h \
+    src/core/methods/synapse_methods.h \
     src/io/client_processing.h \
     src/io/control_processing.h \
-    src/core/obj_converter.h
+    src/core/obj_converter.h \
+    src/core/objects/network_segment.h \
+    src/core/methods/network_segment_methods.h \
+    src/core/methods/data_connection_methods.h \
+    src/core/brick_queue.h \
+    src/core/processing/methods/node_processing.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
-    src/core/processing/processing_methods/brick_initializing_methods.cpp \
-    src/core/processing/processing_methods/brick_processing_methods.cpp \
-    src/core/brick_handler.cpp \
+    src/core/methods/brick_initializing_methods.cpp \
+    src/core/processing/methods/brick_processing.cpp \
     src/core/global_values_handler.cpp \
     src/core/network_manager.cpp \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/root_object.cpp \
-    src/core/obj_converter.cpp
+    src/core/obj_converter.cpp \
+    src/core/methods/network_segment_methods.cpp \
+    src/core/methods/data_connection_methods.cpp \
+    src/core/brick_queue.cpp
 
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
 
-HEADERS += \
-    tests/core/bricks/brick_methods/buffer_control_methods_test.h \
-    tests/initializing/init_test.h
+HEADERS +=
 
 SOURCES += \
-    tests/core/bricks/brick_methods/buffer_control_methods_test.cpp \
-    tests/initializing/init_test.cpp \
     tests/main_tests.cpp
 } else {
 SOURCES += \

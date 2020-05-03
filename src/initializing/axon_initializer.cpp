@@ -4,15 +4,16 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
 #include "axon_initializer.h"
 #include <root_object.h>
 
 #include <core/objects/brick.h>
-#include <core/processing/processing_methods/brick_item_methods.h>
-#include <core/processing/processing_methods/brick_initializing_methods.h>
+#include <core/methods/brick_item_methods.h>
+#include <core/methods/brick_initializing_methods.h>
+#include <core/methods/network_segment_methods.h>
 
 namespace KyoukoMind
 {
@@ -22,7 +23,8 @@ namespace KyoukoMind
  * @return
  */
 bool
-createAxons(InitStructure &networkMetaStructure)
+createAxons(NetworkSegment &segment,
+            std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
     // calculate number of axons per brick
     for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
@@ -34,14 +36,12 @@ createAxons(InitStructure &networkMetaStructure)
             if(brick == nullptr) {
                 continue;
             }
+
             if(networkMetaStructure[x][y].type == NODE_BRICK)
             {
-                DataConnection* data = &brick->dataConnections[NODE_DATA];
-                assert(data->inUse != 0);
-
                 // get node-brick
-                uint32_t nodeNumberPerBrick = data->numberOfItems;
-                Node* nodes = static_cast<Node*>(data->buffer.data);
+                uint32_t nodeNumberPerBrick = NUMBER_OF_NODES_PER_BRICK;
+                Node* nodes = &getNodeBlock(segment)[brick->nodePos];
 
                 // iterate over all nodes of the brick and create an axon for each node
                 for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)
@@ -65,7 +65,6 @@ createAxons(InitStructure &networkMetaStructure)
     {
         for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
         {
-
             Brick* brick = networkMetaStructure[x][y].brick;
             if(brick == nullptr) {
                 continue;
@@ -75,9 +74,11 @@ createAxons(InitStructure &networkMetaStructure)
             if(networkMetaStructure[x][y].numberOfAxons == 0) {
                 networkMetaStructure[x][y].numberOfAxons = 1;
             }
+
             initEdgeSectionBlocks(*brick, networkMetaStructure[x][y].numberOfAxons);
         }
     }
+
     return true;
 }
 
@@ -97,7 +98,7 @@ getNextAxonPathStep(const uint32_t x,
                     const uint8_t inputSide,
                     const uint64_t currentPath,
                     const uint32_t currentStep,
-                    InitStructure &networkMetaStructure)
+                    std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
     // check if go to next
     bool goToNext = false;

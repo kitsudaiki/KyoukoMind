@@ -4,6 +4,7 @@
 #include <common.h>
 
 #include <core/objects/brick.h>
+#include <core/objects/network_segment.h>
 
 namespace KyoukoMind
 {
@@ -24,24 +25,8 @@ bool disconnectBricks(Brick &sourceBrick,
                       const uint8_t sourceSide,
                        Brick &targetBrick);
 
-bool initDataBlocks(Brick &brick,
-                    const uint8_t connectionId,
-                    const uint32_t numberOfItems,
-                    const uint32_t itemSize);
-
-bool initNodeBlocks(Brick &brick,
-                    uint32_t numberOfNodes);
-
-bool initSynapseSectionBlocks(Brick &brick,
-                              const uint32_t numberOfSynapseSections);
-
 bool initEdgeSectionBlocks(Brick &brick,
                            const uint32_t numberOfEdgeSections);
-
-bool addClientInputConnection(Brick &brick,
-                              const uint32_t targetBrickId);
-
-bool addClientOutputConnection(Brick &brick);
 
 void initRandValues(Brick &brick);
 

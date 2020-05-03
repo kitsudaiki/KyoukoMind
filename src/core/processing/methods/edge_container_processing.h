@@ -4,45 +4,28 @@
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  *
- *  Apache License Version 2.0
+ *
  */
 
-#ifndef MESSAGE_PROCESSING_METHODS_H
-#define MESSAGE_PROCESSING_METHODS_H
+#ifndef EDGE_CONTAINER_PROCESSING_H
+#define EDGE_CONTAINER_PROCESSING_H
 
 #include <common.h>
 #include <root_object.h>
 
 #include <core/objects/container_definitions.h>
-#include <core/processing/processing_methods/brick_item_methods.h>
-#include <core/processing/processing_methods/synapse_methods.h>
+#include <core/methods/brick_item_methods.h>
+#include <core/methods/synapse_methods.h>
+#include <core/methods/data_connection_methods.h>
+#include <core/methods/network_segment_methods.h>
 
 #include <core/objects/brick.h>
+#include <core/objects/network_segment.h>
+
+#include <core/processing/methods/synapse_container_processing.h>
 
 namespace KyoukoMind
 {
-
-//==================================================================================================
-
-/**
- * @brief NodeBrick::createNewEdge
- * @param currentSection
- * @param edgeSectionId
- */
-inline void
-createNewSynapse(Brick &brick,
-                 SynapseSection &currentSection)
-{
-    const uint32_t targetNodeId = brick.randValue[brick.randValuePos];
-    brick.randValuePos = (brick.randValuePos + 1) % 1024;
-    const uint32_t somaDistance = brick.randValue[brick.randValuePos];
-    brick.randValuePos = (brick.randValuePos + 1) % 1024;
-
-    addSynapse(currentSection,
-               brick.globalValues.globalMemorizingOffset,
-               targetNodeId,
-               somaDistance);
-}
 
 //==================================================================================================
 
@@ -68,107 +51,12 @@ checkAndDelete(Brick &brick,
                         &newContainer);
         }
 
-        deleteDynamicItem(brick, EDGE_DATA, edgeSectionId);
+        deleteDynamicItem(brick.edges, edgeSectionId);
 
         return true;
     }
 
     return false;
-}
-
-//==================================================================================================
-
-/**
- * learing-process of the specific synapse-section
- *
- * @param currentSection synapse-section with should learn the new value
- * @param weight weight-difference to learn
- */
-inline void
-learningSynapseSection(Brick &brick,
-                       SynapseSection &currentSection,
-                       float weight)
-{
-    if(weight < NEW_SYNAPSE_BORDER) {
-        return;
-    }
-
-    for(uint8_t i = 0; i < 3; i++)
-    {
-        const uint32_t choosePosition = brick.randValue[brick.randValuePos]
-                                        % (currentSection.numberOfSynapses + 1);
-        brick.randValuePos = (brick.randValuePos + 1) % 1024;
-
-        const float currentSideWeight = brick.randWeight[brick.randWeightPos] * weight;
-        brick.randWeightPos = (brick.randWeightPos + 1) % 999;
-        assert(currentSideWeight >= 0.0f);
-
-        if(brick.globalValues.globalLearningOffset < 0.01f) {
-            return;
-        }
-
-        // create new synapse if necessary
-        if(choosePosition == currentSection.numberOfSynapses) {
-            createNewSynapse(brick, currentSection);
-        }
-
-        // synapses, which are fully memorized, are not allowed to be overwritten!!!
-        if(currentSection.synapses[choosePosition].memorize >= 0.99f) {
-            continue;
-        }
-
-        // calculate new value
-        const float newVal = brick.globalValues.globalLearningOffset * currentSideWeight;
-
-        currentSection.synapses[choosePosition].weight += newVal;
-        currentSection.totalWeight += abs(newVal);
-    }
-}
-
-//==================================================================================================
-
-/**
-* process of a specific edge-section of a brick
-*
-* @param edgeSectionId id of the edge-section within the current brick
-* @param weight incoming weight-value
-*/
-inline void
-processSynapseSection(Brick &brick,
-                      const uint32_t synapseSectionId,
-                      const float inputWeight)
-{
-    DataConnection* synapseConnection = &brick.dataConnections[SYNAPSE_DATA];
-    assert(synapseConnection->inUse != 0);
-    SynapseSection* synapseSection = &getSynapseSectionBlock(synapseConnection)[synapseSectionId];
-    if(synapseSection->status != ACTIVE_SECTION) {
-        return;
-    }
-
-    learningSynapseSection(brick,
-                           *synapseSection,
-                           inputWeight - synapseSection->totalWeight);
-
-    // limit ration to 1.0f
-    float ratio = inputWeight / synapseSection->totalWeight;
-    if(ratio > 1.0f) {
-        ratio = 1.0f;
-    }
-
-    Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
-    Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
-
-    for(Synapse* synapse = synapseSection->synapses;
-        synapse < end;
-        synapse++)
-    {
-        const Synapse tempSynapse = *synapse;
-        nodes[tempSynapse.targetNodeId].currentState +=
-                tempSynapse.weight
-                * ratio
-                * ((float)tempSynapse.somaDistance / (float)MAX_SOMA_DISTANCE);
-        synapse->inProcess = nodes[tempSynapse.targetNodeId].active;
-    }
 }
 
 //==================================================================================================
@@ -282,9 +170,8 @@ processUpdateEdge(Brick &brick,
                   const UpdateEdgeContainer &container,
                   const uint8_t inititalSide)
 {
-    DataConnection* connection = &brick.dataConnections[EDGE_DATA];
-    assert(connection->inUse != 0);
-    EdgeSection* edgeSection = &getEdgeBlock(connection)[container.targetId];
+    assert(brick.edges.inUse != 0);
+    EdgeSection* edgeSection = &getEdgeBlock(brick)[container.targetId];
 
     // here no assert, because based on the async processing it is possible to get a
     // update-message, after the section was deleted
@@ -320,7 +207,8 @@ processUpdateEdge(Brick &brick,
  * @param weight weight with have to be consumed from the updated edges
  */
 inline void
-learningEdgeSection(Brick &brick,
+learningEdgeSection(NetworkSegment &segment,
+                    Brick &brick,
                     EdgeSection* edgeSection,
                     const uint32_t edgeSectionId,
                     const float weight)
@@ -356,12 +244,11 @@ learningEdgeSection(Brick &brick,
         {
             if(side == 22)
             {
-                targetId = addEmptySynapseSection(brick, edgeSectionId);
+                targetId = addEmptySynapseSection(segment, edgeSectionId);
                 assert(targetId != UNINIT_STATE_32);
-                DataConnection* connection = &brick.dataConnections[SYNAPSE_DATA];
-                assert(connection->inUse != 0);
-                SynapseSection* synapseSection = &getSynapseSectionBlock(connection)[targetId];
+                SynapseSection* synapseSection = &getSynapseSectionBlock(segment)[targetId];
                 assert(synapseSection->status == ACTIVE_SECTION);
+                // TODO: push to GPU
                 edgeSection->edges[22].targetId = targetId;
             }
             else
@@ -370,9 +257,8 @@ learningEdgeSection(Brick &brick,
                 LearingEdgeContainer newContainer;
                 newContainer.sourceEdgeSectionId = edgeSectionId;
                 newContainer.weight = currentSideWeight;
-                Kitsunemimi::addObject_StackBuffer(
-                            *brick.neighbors[side].outgoingBuffer,
-                            &newContainer);
+                Kitsunemimi::addObject_StackBuffer(*brick.neighbors[side].outgoingBuffer,
+                                                   &newContainer);
             }
         }
     }
@@ -387,19 +273,20 @@ learningEdgeSection(Brick &brick,
  * @param weight incoming edge-weight
  */
 inline void
-processEdgeForwardSection(Brick &brick,
+processEdgeForwardSection(NetworkSegment &segment,
+                          Brick &brick,
                           const EdgeContainer &container)
 {
-    DataConnection* connection = &brick.dataConnections[EDGE_DATA];
-    assert(connection->inUse != 0);
-    EdgeSection* edgeSection = &getEdgeBlock(connection)[container.targetEdgeSectionId];
+    assert(brick.edges.inUse != 0);
+    EdgeSection* edgeSection = &getEdgeBlock(brick)[container.targetEdgeSectionId];
     if(edgeSection->status != ACTIVE_SECTION) {
         return;
     }
 
     // process learning, if the incoming weight is too big
     const float totalWeight = edgeSection->totalWeight;
-    learningEdgeSection(brick,
+    learningEdgeSection(segment,
+                        brick,
                         edgeSection,
                         container.targetEdgeSectionId,
                         container.weight - totalWeight);
@@ -423,7 +310,10 @@ processEdgeForwardSection(Brick &brick,
             if(tempEdge.targetId == UNINIT_STATE_32){
                 continue;
             }
-            processSynapseSection(brick, tempEdge.targetId, tempEdge.weight * ratio);
+            processSynapseSection(segment,
+                                  brick,
+                                  tempEdge.targetId,
+                                  tempEdge.weight * ratio);
         }
         else
         {
@@ -434,9 +324,8 @@ processEdgeForwardSection(Brick &brick,
                 newContainer.targetEdgeSectionId = tempEdge.targetId;
                 newContainer.weight = tempEdge.weight * ratio;
                 assert(newContainer.weight >= 0.0f);
-                Kitsunemimi::addObject_StackBuffer(
-                            *brick.neighbors[side].outgoingBuffer,
-                            &newContainer);
+                Kitsunemimi::addObject_StackBuffer(*brick.neighbors[side].outgoingBuffer,
+                                                   &newContainer);
             }
             else
             {
@@ -446,9 +335,8 @@ processEdgeForwardSection(Brick &brick,
                 assert(newContainer.weight >= 0);
                 newContainer.sourceEdgeSectionId = container.targetEdgeSectionId;
                 newContainer.sourceSide = 23 - side;
-                Kitsunemimi::addObject_StackBuffer(
-                            *brick.neighbors[side].outgoingBuffer,
-                            &newContainer);
+                Kitsunemimi::addObject_StackBuffer(*brick.neighbors[side].outgoingBuffer,
+                                                   &newContainer);
             }
         }
     }
@@ -464,7 +352,8 @@ processEdgeForwardSection(Brick &brick,
  * @param weight weight of the axon
  */
 inline void
-processAxon(Brick &brick,
+processAxon(NetworkSegment &segment,
+            Brick &brick,
             const AxonEdgeContainer &container)
 {
     if(container.targetBrickPath != 0)
@@ -484,7 +373,9 @@ processAxon(Brick &brick,
         EdgeContainer newContainier;
         newContainier.targetEdgeSectionId = container.targetAxonId;
         newContainier.weight = container.weight;
-        processEdgeForwardSection(brick, newContainier);
+        processEdgeForwardSection(segment,
+                                  brick,
+                                  newContainier);
     }
 }
 
@@ -498,7 +389,8 @@ processAxon(Brick &brick,
  * @param initSide side of the incoming message
  */
 inline void
-processLerningEdge(Brick &brick,
+processLerningEdge(NetworkSegment &segment,
+                   Brick &brick,
                    const LearingEdgeContainer &container,
                    const uint8_t initSide)
 {
@@ -508,9 +400,8 @@ processLerningEdge(Brick &brick,
                                                       container.sourceEdgeSectionId);
     assert(targetEdgeId != UNINIT_STATE_32);
 
-    DataConnection* connection = &brick.dataConnections[EDGE_DATA];
-    assert(connection->inUse != 0);
-    EdgeSection* edgeSection = &getEdgeBlock(connection)[targetEdgeId];
+    assert(brick.edges.inUse != 0);
+    EdgeSection* edgeSection = &getEdgeBlock(brick)[targetEdgeId];
     assert(edgeSection->status == ACTIVE_SECTION);
     assert(edgeSection->sourceSide != 0);
 
@@ -518,15 +409,16 @@ processLerningEdge(Brick &brick,
     LearningEdgeReplyContainer reply;
     reply.sourceEdgeSectionId = container.sourceEdgeSectionId;
     reply.targetEdgeSectionId = targetEdgeId;
-    Kitsunemimi::addObject_StackBuffer(
-                *brick.neighbors[initSide].outgoingBuffer,
-                &reply);
+    Kitsunemimi::addObject_StackBuffer(*brick.neighbors[initSide].outgoingBuffer,
+                                       &reply);
 
     EdgeContainer newContainer;
     newContainer.targetEdgeSectionId = targetEdgeId;
     newContainer.weight = container.weight;
     assert(newContainer.weight >= 0.0f);
-    processEdgeForwardSection(brick, newContainer);
+    processEdgeForwardSection(segment,
+                              brick,
+                              newContainer);
 }
 
 //==================================================================================================
@@ -539,15 +431,15 @@ processLerningEdge(Brick &brick,
  * @param weight weight of the pending-edge
  */
 inline void
-processPendingEdge(Brick &brick,
+processPendingEdge(NetworkSegment &segment,
+                   Brick &brick,
                    const PendingEdgeContainer &container)
 {
     assert(container.sourceSide != 0);
-    DataConnection* connection = &brick.dataConnections[EDGE_DATA];
-    assert(connection->inUse != 0);
+    assert(brick.edges.inUse != 0);
 
-    const uint32_t numberOfEdgeSections = connection->numberOfItems;
-    EdgeSection* forwardEnd = getEdgeBlock(connection);
+    const uint32_t numberOfEdgeSections = brick.edges.numberOfItems;
+    EdgeSection* forwardEnd = getEdgeBlock(brick);
     EdgeSection* forwardStart = &forwardEnd[numberOfEdgeSections - 1];
 
     // beginn wigh the last forward-edge-section
@@ -561,7 +453,9 @@ processPendingEdge(Brick &brick,
     {
         if(edgeSection->status == ACTIVE_SECTION)
         {
-            if(edgeSection->sourceId != UNINIT_STATE_32 && edgeSection->sourceId != 0) {
+            if(edgeSection->sourceId != UNINIT_STATE_32
+                    && edgeSection->sourceId != 0)
+            {
                 assert(edgeSection->sourceSide != 0);
             }
             assert(container.sourceSide != 0);
@@ -576,7 +470,9 @@ processPendingEdge(Brick &brick,
             newContainer.targetEdgeSectionId = forwardEdgeSectionId;
             newContainer.weight = container.weight;
             assert(newContainer.weight >= 0.0f);
-            processEdgeForwardSection(brick, newContainer);
+            processEdgeForwardSection(segment,
+                                      brick,
+                                      newContainer);
         }
         forwardEdgeSectionId--;
     }
@@ -590,11 +486,11 @@ processPendingEdge(Brick &brick,
  * @param edge
  */
 inline void
-processDirectEdge(Brick &brick,
+processDirectEdge(NetworkSegment &segment,
+                  Brick &brick,
                   const DirectEdgeContainer &container)
 {
-    Node* nodes = static_cast<Node*>(brick.dataConnections[NODE_DATA].buffer.data);
-    Node* node = &nodes[container.targetNodeId];
+    Node* node = &getNodeBlock(segment)[container.targetNodeId];
     node->currentState = container.weight;
 }
 
@@ -610,7 +506,9 @@ processLearningEdgeReply(Brick &brick,
                          const LearningEdgeReplyContainer &container,
                          const uint8_t side)
 {
-    EdgeSection* edgeSections = getEdgeBlock(&brick.dataConnections[EDGE_DATA]);
+    assert(brick.edges.inUse != 0);
+
+    EdgeSection* edgeSections = getEdgeBlock(brick);
     edgeSections[container.sourceEdgeSectionId].edges[side].targetId =
             container.targetEdgeSectionId;
 }
@@ -619,4 +517,4 @@ processLearningEdgeReply(Brick &brick,
 
 } // namespace KyoukoMind
 
-#endif // MESSAGE_PROCESSING_METHODS_H
+#endif // EDGE_CONTAINER_PROCESSING_H
