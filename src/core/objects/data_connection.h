@@ -16,13 +16,13 @@ struct DataConnection
 {
     uint8_t inUse = 0;
     uint32_t itemSize = 0;
-    uint32_t numberOfItems = 0;
-    uint32_t numberOfDeletedDynamicItems = 0;
+    uint64_t numberOfItems = 0;
+    uint64_t numberOfDeletedDynamicItems = 0;
     DataBuffer buffer = DataBuffer(1);
 
-    uint32_t bytePositionOfFirstEmptyBlock = UNINIT_STATE_32;
-    uint32_t bytePositionOfLastEmptyBlock = UNINIT_STATE_32;
-    uint32_t numberOfEmptyBlocks = 0;
+    uint64_t bytePositionOfFirstEmptyBlock = UNINIT_STATE_32;
+    uint64_t bytePositionOfLastEmptyBlock = UNINIT_STATE_32;
+    uint64_t numberOfEmptyBlocks = 0;
 
 } __attribute__((packed));
 

@@ -12,7 +12,7 @@ namespace KyoukoMind
 */
 bool
 initDataBlocks(DataConnection &data,
-               const uint32_t numberOfItems,
+               const uint64_t numberOfItems,
                const uint32_t itemSize)
 {
     assert(itemSize != 0);
@@ -21,7 +21,7 @@ initDataBlocks(DataConnection &data,
     // update meta-data of the brick
     data.itemSize = itemSize;
     data.numberOfItems = numberOfItems;
-    const uint32_t requiredNumberOfBlocks = ((numberOfItems * itemSize)
+    const uint64_t requiredNumberOfBlocks = ((numberOfItems * itemSize)
                                              / data.buffer.blockSize) + 1;
 
     // allocate blocks in buffer

@@ -25,18 +25,34 @@ getSynapseSectionBlock(NetworkSegment &segment)
 
 //==================================================================================================
 
+inline float*
+getDeviceToHostTransferBlock(NetworkSegment &segment)
+{
+    return static_cast<float*>(segment.hostToDevice_transfer.buffer.data);
+}
+
+//==================================================================================================
+
+inline SynapseTransfer*
+getHostToDeviceTransferBlock(NetworkSegment &segment)
+{
+    return static_cast<SynapseTransfer*>(segment.deviceToHost_transfer.buffer.data);
+}
+
+//==================================================================================================
+
 /**
  * add a new empfy edge-section
  *
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
-inline uint32_t
+inline uint64_t
 addEmptySynapseSection(NetworkSegment &segment,
                        const uint32_t sourceId)
 {
     assert(sourceId != UNINIT_STATE_32);
 
-    const uint32_t position = reserveDynamicItem(segment.synapses);
+    const uint64_t position = reserveDynamicItem(segment.synapses);
     assert(position != UNINIT_STATE_32);
 
     // add new edge-forward-section
@@ -52,16 +68,20 @@ addEmptySynapseSection(NetworkSegment &segment,
 //==================================================================================================
 
 bool initBrickBlocks(NetworkSegment &segment,
-                     uint32_t numberOfBricks);
+                     const uint32_t numberOfBricks);
 
 bool initNodeBlocks(NetworkSegment &segment,
-                    uint32_t numberOfNodes);
+                    const uint32_t numberOfNodes);
+
+bool initTransferBlocks(NetworkSegment &segment,
+                        const uint32_t totalNumberOfAxons,
+                        const uint64_t maxNumberOySynapseSections);
 
 bool initSynapseSectionBlocks(NetworkSegment &segment,
                               const uint32_t numberOfSynapseSections);
 
 bool addClientOutputConnection(NetworkSegment &segment,
-                               uint32_t brickPos);
+                               const uint32_t brickPos);
 
 Kitsunemimi::DataItem* getMetadata(NetworkSegment &segment);
 

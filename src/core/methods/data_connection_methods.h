@@ -12,7 +12,7 @@ namespace KyoukoMind
 //==================================================================================================
 
 bool initDataBlocks(DataConnection &data,
-                    const uint32_t numberOfItems,
+                    const uint64_t numberOfItems,
                     const uint32_t itemSize);
 
 //==================================================================================================
@@ -24,7 +24,7 @@ bool initDataBlocks(DataConnection &data,
 */
 inline bool
 deleteDynamicItem(DataConnection &data,
-                  const uint32_t itemPos)
+                  const uint64_t itemPos)
 {
     assert(data.inUse != 0);
     assert(itemPos < data.numberOfItems);
@@ -33,7 +33,7 @@ deleteDynamicItem(DataConnection &data,
     uint8_t* blockBegin = static_cast<uint8_t*>(data.buffer.data);
 
     // data of the position
-    const uint32_t currentBytePos = itemPos * data.itemSize;
+    const uint64_t currentBytePos = itemPos * data.itemSize;
     EmptyPlaceHolder* placeHolder = (EmptyPlaceHolder*)&blockBegin[currentBytePos];
 
     // check that the position is active and not already deleted
@@ -46,7 +46,7 @@ deleteDynamicItem(DataConnection &data,
     placeHolder->status = DELETED_SECTION;
 
     // modify last place-holder
-    const uint32_t blockPosition = data.bytePositionOfLastEmptyBlock;
+    const uint64_t blockPosition = data.bytePositionOfLastEmptyBlock;
     if(blockPosition != UNINIT_STATE_32)
     {
         EmptyPlaceHolder* lastPlaceHolder = (EmptyPlaceHolder*)&blockBegin[blockPosition];
@@ -71,11 +71,11 @@ deleteDynamicItem(DataConnection &data,
  *
  * @return item-position in the buffer, else UNINIT_STATE_32 if no empty space in buffer exist
  */
-inline uint32_t
+inline uint64_t
 reuseItemPosition(DataConnection &data)
 {
     // get byte-position of free space, if exist
-    const uint32_t selectedPosition = data.bytePositionOfFirstEmptyBlock;
+    const uint64_t selectedPosition = data.bytePositionOfFirstEmptyBlock;
     if(selectedPosition == UNINIT_STATE_32) {
         return UNINIT_STATE_32;
     }
@@ -104,13 +104,13 @@ reuseItemPosition(DataConnection &data)
 *
 * @return id of the new section, else UNINIT_STATE_32 if allocation failed
 */
-inline uint32_t
+inline uint64_t
 reserveDynamicItem(DataConnection &data)
 {
     assert(data.inUse != 0);
 
     // try to reuse item
-    const uint32_t reusePos = reuseItemPosition(data);
+    const uint64_t reusePos = reuseItemPosition(data);
     if(reusePos != UNINIT_STATE_32) {
         return reusePos;
     }

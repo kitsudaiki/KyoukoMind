@@ -25,7 +25,7 @@ getEdgeBlock(Brick &brick)
  *
  * @return id of the new section, else SPECIAL_STATE if allocation failed
  */
-inline uint32_t
+inline uint64_t
 addEmptyEdgeSection(Brick &brick,
                     const uint8_t sourceSide,
                     const uint32_t sourceId)
@@ -34,7 +34,7 @@ addEmptyEdgeSection(Brick &brick,
     assert(sourceSide != UNINIT_STATE_8);
     assert(sourceId != UNINIT_STATE_32);
 
-    const uint32_t position = reserveDynamicItem(brick.edges);
+    const uint64_t position = reserveDynamicItem(brick.edges);
     assert(position != UNINIT_STATE_32);
 
     // create new edge-section

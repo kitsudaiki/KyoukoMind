@@ -21,6 +21,8 @@ bool
 initNodeBlocks(NetworkSegment &segment,
                uint32_t numberOfNodes)
 {
+    assert(numberOfNodes > 0);
+
     if(segment.nodes.numberOfItems != 0
             || segment.nodes.inUse != 0)
     {
@@ -66,6 +68,7 @@ initSynapseSectionBlocks(NetworkSegment &segment,
                          const uint32_t numberOfSynapseSections)
 {
     assert(segment.synapses.inUse == 0);
+    assert(numberOfSynapseSections > 0);
 
     // init
     if(initDataBlocks(segment.synapses,
@@ -91,6 +94,59 @@ initSynapseSectionBlocks(NetworkSegment &segment,
 //==================================================================================================
 
 /**
+ * @brief initTransferBlocks
+ * @param segment
+ * @param totalNumberOfAxons
+ * @param maxNumberOySynapseSections
+ * @return
+ */
+bool
+initTransferBlocks(NetworkSegment &segment,
+                   const uint32_t totalNumberOfAxons,
+                   const uint64_t maxNumberOySynapseSections)
+{
+    assert(totalNumberOfAxons > 0);
+    assert(maxNumberOySynapseSections > 0);
+
+    // init device-to-host-buffer
+    if(initDataBlocks(segment.deviceToHost_transfer,
+                      totalNumberOfAxons,
+                      sizeof(float)) == false)
+    {
+        return false;
+    }
+
+    // fill array with empty values
+    float* axonArray = getDeviceToHostTransferBlock(segment);
+    for(uint32_t i = 0; i < totalNumberOfAxons; i++)
+    {
+        axonArray[i] = 0.0f;
+    }
+    segment.deviceToHost_transfer.inUse = 1;
+
+    // init host-to-device-buffer
+    if(initDataBlocks(segment.hostToDevice_transfer,
+                      maxNumberOySynapseSections,
+                      sizeof(SynapseTransfer)) == false)
+    {
+        return false;
+    }
+
+    // fill array with empty values
+    SynapseTransfer* synapseArray = getHostToDeviceTransferBlock(segment);
+    for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
+    {
+        SynapseTransfer newSynapseTransfer;
+        synapseArray[i] = newSynapseTransfer;
+    }
+    segment.hostToDevice_transfer.inUse = 1;
+
+    return true;
+}
+
+//==================================================================================================
+
+/**
  * add a new client-connection to a brick,
  * for data input and output
  *
@@ -98,7 +154,7 @@ initSynapseSectionBlocks(NetworkSegment &segment,
  */
 bool
 addClientOutputConnection(NetworkSegment &segment,
-                          uint32_t brickPos)
+                          const uint32_t brickPos)
 {
     // get and check connection-item
     if(segment.nodes.inUse == 0)
