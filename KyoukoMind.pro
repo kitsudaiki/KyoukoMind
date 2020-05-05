@@ -21,6 +21,11 @@ LIBS += -L../libKitsunemimiProjectNetwork/src/debug -lKitsunemimiProjectNetwork
 LIBS += -L../libKitsunemimiProjectNetwork/src/release -lKitsunemimiProjectNetwork
 INCLUDEPATH += ../libKitsunemimiProjectNetwork/include
 
+LIBS += -L../libKitsunemimiOpencl/src -lKitsunemimiOpencl
+LIBS += -L../libKitsunemimiOpencl/src/debug -lKitsunemimiOpencl
+LIBS += -L../libKitsunemimiOpencl/src/release -lKitsunemimiOpencl
+INCLUDEPATH += ../libKitsunemimiOpencl/include
+
 LIBS += -L../libKitsunemimiNetwork/src -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
@@ -98,7 +103,9 @@ HEADERS += \
     src/core/methods/network_segment_methods.h \
     src/core/methods/data_connection_methods.h \
     src/core/brick_queue.h \
-    src/core/processing/methods/node_processing.h
+    src/core/processing/methods/node_processing.h \
+    src/core/processing/gpu_processing.cl \
+    src/core/processing/gpu_interface.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -128,6 +135,20 @@ SOURCES += \
 SOURCES += \
     src/main.cpp
 }
+
+GPU_KERNEL = src/core/processing/gpu_processing.cl
+
+OTHER_FILES +=  \
+    $$GPU_KERNEL
+
+gpu_processing.input = GPU_KERNEL
+gpu_processing.output = ${QMAKE_FILE_BASE}.h
+gpu_processing.commands = xxd -i ${QMAKE_FILE_IN} | sed 's/______KyoukoMind_src_core_processing_//g' > ${QMAKE_FILE_BASE}.h
+gpu_processing.variable_out = HEADERS
+gpu_processing.CONFIG += target_predeps no_link
+
+QMAKE_EXTRA_COMPILERS += gpu_processing
+
 
 
 

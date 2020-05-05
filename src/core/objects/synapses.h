@@ -8,8 +8,9 @@ namespace KyoukoMind
 
 //==================================================================================================
 
-struct SynapseTransfer
+struct SynapseEdge
 {
+    uint32_t brickId = 0;
     uint32_t targetId = 0;
     float weight = 0.0f;
 };

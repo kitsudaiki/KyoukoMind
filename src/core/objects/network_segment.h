@@ -17,8 +17,8 @@ struct NetworkSegment
     DataConnection nodes;
     DataConnection synapses;
 
-    DataConnection deviceToHost_transfer;
-    DataConnection hostToDevice_transfer;
+    DataConnection axonEdges;
+    DataConnection synapseEdges;
 
     NetworkSegment() {}
 };

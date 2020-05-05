@@ -109,7 +109,7 @@ initTransferBlocks(NetworkSegment &segment,
     assert(maxNumberOySynapseSections > 0);
 
     // init device-to-host-buffer
-    if(initDataBlocks(segment.deviceToHost_transfer,
+    if(initDataBlocks(segment.axonEdges,
                       totalNumberOfAxons,
                       sizeof(float)) == false)
     {
@@ -117,29 +117,30 @@ initTransferBlocks(NetworkSegment &segment,
     }
 
     // fill array with empty values
-    float* axonArray = getDeviceToHostTransferBlock(segment);
+    AxonEdgeContainer* axonArray = getDeviceToHostTransferBlock(segment);
     for(uint32_t i = 0; i < totalNumberOfAxons; i++)
     {
-        axonArray[i] = 0.0f;
+        AxonEdgeContainer newEdge;
+        axonArray[i] = newEdge;
     }
-    segment.deviceToHost_transfer.inUse = 1;
+    segment.axonEdges.inUse = 1;
 
     // init host-to-device-buffer
-    if(initDataBlocks(segment.hostToDevice_transfer,
+    if(initDataBlocks(segment.synapseEdges,
                       maxNumberOySynapseSections,
-                      sizeof(SynapseTransfer)) == false)
+                      sizeof(SynapseEdge)) == false)
     {
         return false;
     }
 
     // fill array with empty values
-    SynapseTransfer* synapseArray = getHostToDeviceTransferBlock(segment);
+    SynapseEdge* synapseArray = getHostToDeviceTransferBlock(segment);
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
-        SynapseTransfer newSynapseTransfer;
+        SynapseEdge newSynapseTransfer;
         synapseArray[i] = newSynapseTransfer;
     }
-    segment.hostToDevice_transfer.inUse = 1;
+    segment.synapseEdges.inUse = 1;
 
     return true;
 }

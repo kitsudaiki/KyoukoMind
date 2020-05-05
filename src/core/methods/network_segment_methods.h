@@ -2,6 +2,8 @@
 #define NETWORK_SEGMENT_METHODS_H
 
 #include <core/objects/network_segment.h>
+#include <core/objects/container_definitions.h>
+
 #include <core/methods/data_connection_methods.h>
 
 namespace KyoukoMind
@@ -25,18 +27,18 @@ getSynapseSectionBlock(NetworkSegment &segment)
 
 //==================================================================================================
 
-inline float*
+inline AxonEdgeContainer*
 getDeviceToHostTransferBlock(NetworkSegment &segment)
 {
-    return static_cast<float*>(segment.hostToDevice_transfer.buffer.data);
+    return static_cast<AxonEdgeContainer*>(segment.synapseEdges.buffer.data);
 }
 
 //==================================================================================================
 
-inline SynapseTransfer*
+inline SynapseEdge*
 getHostToDeviceTransferBlock(NetworkSegment &segment)
 {
-    return static_cast<SynapseTransfer*>(segment.deviceToHost_transfer.buffer.data);
+    return static_cast<SynapseEdge*>(segment.axonEdges.buffer.data);
 }
 
 //==================================================================================================
