@@ -65,16 +65,18 @@ typedef struct SynapseSection_struct
 //==================================================================================================
 
 __kernel void processing(
-       __global const float* synapseTransfers,
+       __global const SynapseTransfer* synapseTransfers,
        ulong numberOfSynapseTransfers,
-       __global float* axonTransfers,
+       __global AxonTransfer* axonTransfers,
        ulong numberOfAxonTransfers,
-       __global const float* nodes,
+       __global const Node* nodes,
        ulong numberOfNodes,
-       __global const float* synapseSections,
+       __global const SynapseSection* synapseSections,
        ulong numberOfSynapseSections
     )
 {
+    __local nodeStates[16384];
+
     size_t i = get_global_id(0);
     if (i < numberOfSynapseTransfers) {
        axonTransfers[i] = axonTransfers[i];
