@@ -75,6 +75,10 @@ get_required_kitsune_lib_repo "libKitsunemimiPersistence" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
+get_required_kitsune_lib_repo "libKitsunemimiOpencl" "master" 4
+echo ""
+echo "###########################################################################################################"
+echo ""
 get_required_kitsune_lib_repo "libKitsunemimiObj" "master" 4
 echo ""
 echo "###########################################################################################################"

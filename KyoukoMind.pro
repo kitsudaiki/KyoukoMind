@@ -56,7 +56,7 @@ LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
 
-LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt
+LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL
 
 INCLUDEPATH += $$PWD \
                src

@@ -16,6 +16,7 @@
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/methods/edge_container_processing.h>
+#include <core/processing/gpu_interface.h>
 #include <core/methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
@@ -45,8 +46,9 @@ createNewNetwork(const std::string &fileContent)
 
     // init segment
     assert(initSynapseSectionBlocks(*segment, 1));
-    const uint32_t totalNumberOfNodes = getNumberOfNodeBricks(networkMetaStructure)
-                                        * NUMBER_OF_NODES_PER_BRICK;
+    const uint32_t numberOfNodeBricks = getNumberOfNodeBricks(networkMetaStructure);
+    const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
+
     assert(initNodeBlocks(*segment, totalNumberOfNodes));
     RootObject::m_queue->setBorder(getNumberOfBricks(networkMetaStructure));
 
@@ -54,6 +56,12 @@ createNewNetwork(const std::string &fileContent)
     addBricks(*segment, networkMetaStructure);
     connectAllBricks(*segment, networkMetaStructure);
     createAxons(*segment, networkMetaStructure);
+
+    // init gpu
+    const bool ret = initializeGpu(*segment, numberOfNodeBricks);
+    if(ret == false) {
+        return false;
+    }
 
     return true;
 }

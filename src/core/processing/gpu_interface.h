@@ -22,8 +22,6 @@ namespace KyoukoMind
  */
 bool
 initializeGpu(NetworkSegment &segment,
-              Kitsunemimi::Opencl::Opencl &ocl,
-              Kitsunemimi::Opencl::OpenClData &oclData,
               const uint32_t numberOfBricks)
 {
     const std::string kernelCode(reinterpret_cast<char*>(gpu_processing_cl),
@@ -35,43 +33,43 @@ initializeGpu(NetworkSegment &segment,
     oclConfig.kernelName = "processing";
 
     // init gpu-connection
-    if(ocl.initDevice(oclConfig) == false) {
+    if(segment.ocl.initDevice(oclConfig) == false) {
         return false;
     }
 
     // init worker-sizes
-    oclData.numberOfWg.x = numberOfBricks;
-    oclData.threadsPerWg.x = ocl.getMaxWorkItemSize().x;
+    segment.oclData.numberOfWg.x = numberOfBricks;
+    segment.oclData.threadsPerWg.x = segment.ocl.getMaxWorkItemSize().x;
 
     // add empty buffer
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
+    segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
+    segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
+    segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
+    segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
 
     // fill buffer for edges from host to gpu
-    oclData.buffer[0].data = segment.synapseEdges.buffer.data;
-    oclData.buffer[0].numberOfBytes = segment.synapseEdges.buffer.bufferPosition;
-    oclData.buffer[0].numberOfObjects = segment.synapseEdges.numberOfItems;
-    oclData.buffer[0].useHostPtr = true;
+    segment.oclData.buffer[0].data = segment.synapseEdges.buffer.data;
+    segment.oclData.buffer[0].numberOfBytes = segment.synapseEdges.buffer.bufferPosition;
+    segment.oclData.buffer[0].numberOfObjects = segment.synapseEdges.numberOfItems;
+    segment.oclData.buffer[0].useHostPtr = true;
 
     // fill buffer for axons from gpu to host
-    oclData.buffer[1].data = segment.axonEdges.buffer.data;
-    oclData.buffer[1].numberOfBytes = segment.axonEdges.buffer.bufferPosition;
-    oclData.buffer[1].numberOfObjects = segment.axonEdges.numberOfItems;
-    oclData.buffer[1].isOutput = true;
+    segment.oclData.buffer[1].data = segment.axonEdges.buffer.data;
+    segment.oclData.buffer[1].numberOfBytes = segment.axonEdges.buffer.bufferPosition;
+    segment.oclData.buffer[1].numberOfObjects = segment.axonEdges.numberOfItems;
+    segment.oclData.buffer[1].isOutput = true;
 
     // fill buffer for nodes to map on gpu
-    oclData.buffer[2].data = segment.nodes.buffer.data;
-    oclData.buffer[2].numberOfBytes = segment.synapses.buffer.bufferPosition;
-    oclData.buffer[2].numberOfObjects = segment.synapses.numberOfItems;
+    segment.oclData.buffer[2].data = segment.nodes.buffer.data;
+    segment.oclData.buffer[2].numberOfBytes = segment.synapses.buffer.bufferPosition;
+    segment.oclData.buffer[2].numberOfObjects = segment.synapses.numberOfItems;
 
     // fill buffer for synapse-sections to map on gpu
-    oclData.buffer[3].data = segment.synapses.buffer.data;
-    oclData.buffer[3].numberOfBytes = segment.synapses.buffer.bufferPosition;
-    oclData.buffer[3].numberOfObjects = segment.synapses.numberOfItems;
+    segment.oclData.buffer[3].data = segment.synapses.buffer.data;
+    segment.oclData.buffer[3].numberOfBytes = segment.synapses.buffer.bufferPosition;
+    segment.oclData.buffer[3].numberOfObjects = segment.synapses.numberOfItems;
 
-    if(ocl.initCopyToDevice(oclData) == false) {
+    if(segment.ocl.initCopyToDevice(segment.oclData) == false) {
         return false;
     }
 
@@ -86,10 +84,9 @@ initializeGpu(NetworkSegment &segment,
  * @return
  */
 bool
-copyEdgesToGpu(Kitsunemimi::Opencl::Opencl &ocl,
-               Kitsunemimi::Opencl::OpenClData &data)
+copyEdgesToGpu(NetworkSegment &segment)
 {
-    return ocl.updateBufferOnDevice(data.buffer[0]);
+    return segment.ocl.updateBufferOnDevice(segment.oclData.buffer[0]);
 }
 
 /**
@@ -99,10 +96,9 @@ copyEdgesToGpu(Kitsunemimi::Opencl::Opencl &ocl,
  * @return
  */
 bool
-runOnGpu(Kitsunemimi::Opencl::Opencl &ocl,
-         Kitsunemimi::Opencl::OpenClData &data)
+runOnGpu(NetworkSegment &segment)
 {
-    return ocl.run(data);
+    return segment.ocl.run(segment.oclData);
 }
 
 /**
@@ -113,10 +109,9 @@ runOnGpu(Kitsunemimi::Opencl::Opencl &ocl,
  * @return
  */
 bool
-copyAxonsFromGpu(Kitsunemimi::Opencl::Opencl &ocl,
-                 Kitsunemimi::Opencl::OpenClData &data)
+copyAxonsFromGpu(NetworkSegment &segment)
 {
-    return ocl.copyFromDevice(data);
+    return segment.ocl.copyFromDevice(segment.oclData);
 }
 
 /**
@@ -126,17 +121,16 @@ copyAxonsFromGpu(Kitsunemimi::Opencl::Opencl &ocl,
  * @return
  */
 bool
-closeDevice(Kitsunemimi::Opencl::Opencl &ocl,
-            Kitsunemimi::Opencl::OpenClData &data)
+closeDevice(NetworkSegment &segment)
 {
     // because the memory was allocated at another point, it should not be free by the close-process
     // of the device
-    data.buffer[0].data = nullptr;
-    data.buffer[1].data = nullptr;
-    data.buffer[2].data = nullptr;
-    data.buffer[3].data = nullptr;
+    segment.oclData.buffer[0].data = nullptr;
+    segment.oclData.buffer[1].data = nullptr;
+    segment.oclData.buffer[2].data = nullptr;
+    segment.oclData.buffer[3].data = nullptr;
 
-    return ocl.closeDevice(data);
+    return segment.ocl.closeDevice(segment.oclData);
 }
 
 }

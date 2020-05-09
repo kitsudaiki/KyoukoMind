@@ -5,6 +5,7 @@
 #include <root_object.h>
 #include <core/objects/data_connection.h>
 #include <core/objects/brick.h>
+#include <libKitsunemimiOpencl/opencl.h>
 
 namespace KyoukoMind
 {
@@ -19,6 +20,9 @@ struct NetworkSegment
 
     DataConnection axonEdges;
     DataConnection synapseEdges;
+
+    Kitsunemimi::Opencl::Opencl ocl;
+    Kitsunemimi::Opencl::OpenClData oclData;
 
     NetworkSegment() {}
 };
