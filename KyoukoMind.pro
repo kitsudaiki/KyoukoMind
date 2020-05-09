@@ -105,7 +105,8 @@ HEADERS += \
     src/core/brick_queue.h \
     src/core/processing/methods/node_processing.h \
     src/core/processing/gpu_processing.cl \
-    src/core/processing/gpu_interface.h
+    src/core/processing/gpu_interface.h \
+    src/core/objects/transfer_objects.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \

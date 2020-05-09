@@ -85,7 +85,8 @@ NetworkManager::initNetwork()
             return false;
         }
 
-        return createNewNetwork(fileContent);
+        NetworkInitializer initializer;
+        return initializer.createNewNetwork(fileContent);
     }
     else {
         for(uint32_t i = 0; i < brickFiles.size(); i++) {

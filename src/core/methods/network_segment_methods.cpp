@@ -1,11 +1,14 @@
 #include "network_segment_methods.h"
 
-#include <core/methods/neighbor_methods.h>
 #include <core/processing/methods/brick_processing.h>
+
+#include <core/methods/neighbor_methods.h>
 #include <core/methods/brick_item_methods.h>
 #include <core/methods/brick_initializing_methods.h>
 #include <core/methods/data_connection_methods.h>
 #include <core/methods/network_segment_methods.h>
+
+#include <core/objects/transfer_objects.h>
 
 namespace KyoukoMind
 {
@@ -111,16 +114,16 @@ initTransferBlocks(NetworkSegment &segment,
     // init device-to-host-buffer
     if(initDataBlocks(segment.axonEdges,
                       totalNumberOfAxons,
-                      sizeof(float)) == false)
+                      sizeof(AxonTransfer)) == false)
     {
         return false;
     }
 
     // fill array with empty values
-    AxonEdgeContainer* axonArray = getDeviceToHostTransferBlock(segment);
+    AxonTransfer* axonArray = getAxonTransferBlock(segment);
     for(uint32_t i = 0; i < totalNumberOfAxons; i++)
     {
-        AxonEdgeContainer newEdge;
+        AxonTransfer newEdge;
         axonArray[i] = newEdge;
     }
     segment.axonEdges.inUse = 1;
@@ -128,16 +131,16 @@ initTransferBlocks(NetworkSegment &segment,
     // init host-to-device-buffer
     if(initDataBlocks(segment.synapseEdges,
                       maxNumberOySynapseSections,
-                      sizeof(SynapseEdge)) == false)
+                      sizeof(SynapseTransfer)) == false)
     {
         return false;
     }
 
     // fill array with empty values
-    SynapseEdge* synapseArray = getHostToDeviceTransferBlock(segment);
+    SynapseTransfer* synapseArray = getSynapseTransferBlock(segment);
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
-        SynapseEdge newSynapseTransfer;
+        SynapseTransfer newSynapseTransfer;
         synapseArray[i] = newSynapseTransfer;
     }
     segment.synapseEdges.inUse = 1;

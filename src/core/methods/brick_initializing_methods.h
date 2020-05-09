@@ -23,7 +23,7 @@ bool connectBricks(Brick &sourceBrick,
 
 bool disconnectBricks(Brick &sourceBrick,
                       const uint8_t sourceSide,
-                       Brick &targetBrick);
+                      Brick &targetBrick);
 
 bool initEdgeSectionBlocks(Brick &brick,
                            const uint32_t numberOfEdgeSections);

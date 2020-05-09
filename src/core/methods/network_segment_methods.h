@@ -3,6 +3,7 @@
 
 #include <core/objects/network_segment.h>
 #include <core/objects/container_definitions.h>
+#include <core/objects/transfer_objects.h>
 
 #include <core/methods/data_connection_methods.h>
 
@@ -27,18 +28,18 @@ getSynapseSectionBlock(NetworkSegment &segment)
 
 //==================================================================================================
 
-inline AxonEdgeContainer*
-getDeviceToHostTransferBlock(NetworkSegment &segment)
+inline AxonTransfer*
+getAxonTransferBlock(NetworkSegment &segment)
 {
-    return static_cast<AxonEdgeContainer*>(segment.synapseEdges.buffer.data);
+    return static_cast<AxonTransfer*>(segment.axonEdges.buffer.data);
 }
 
 //==================================================================================================
 
-inline SynapseEdge*
-getHostToDeviceTransferBlock(NetworkSegment &segment)
+inline SynapseTransfer*
+getSynapseTransferBlock(NetworkSegment &segment)
 {
-    return static_cast<SynapseEdge*>(segment.axonEdges.buffer.data);
+    return static_cast<SynapseTransfer*>(segment.synapseEdges.buffer.data);
 }
 
 //==================================================================================================

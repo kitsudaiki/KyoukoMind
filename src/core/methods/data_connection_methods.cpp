@@ -27,6 +27,7 @@ initDataBlocks(DataConnection &data,
     // allocate blocks in buffer
     //data.buffer = DataBuffer(requiredNumberOfBlocks);
     Kitsunemimi::allocateBlocks_DataBuffer(data.buffer, requiredNumberOfBlocks);
+    data.buffer.bufferPosition = numberOfItems * itemSize;
 
     return true;
 }
