@@ -244,7 +244,8 @@ learningEdgeSection(NetworkSegment &segment,
         {
             if(side == 22)
             {
-                targetId = addEmptySynapseSection(segment, edgeSectionId);
+                const uint64_t id = addEmptySynapseSection(segment, edgeSectionId, brick.brickId);
+                targetId = static_cast<uint32_t>(id);
                 assert(targetId != UNINIT_STATE_32);
                 SynapseSection* synapseSection = &getSynapseSectionBlock(segment)[targetId];
                 assert(synapseSection->status == ACTIVE_SECTION);

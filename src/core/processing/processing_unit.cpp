@@ -15,10 +15,12 @@
 #include <core/objects/brick.h>
 #include <core/objects/container_definitions.h>
 
+#include <core/methods/neighbor_methods.h>
+
 #include <core/processing/methods/edge_container_processing.h>
 #include <core/processing/methods/brick_processing.h>
 #include <core/processing/methods/node_processing.h>
-#include <core/methods/neighbor_methods.h>
+#include <core/processing/gpu_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -63,6 +65,21 @@ ProcessingUnit::run()
             const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
             LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
 
+            if(USE_GPU)
+            {
+                start = std::chrono::system_clock::now();
+                runOnGpu(*segment);
+                end = std::chrono::system_clock::now();
+                const float gpu1 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+                LOG_DEBUG("gpu run-time: " + std::to_string(gpu1 / 1000.0f) + '\n');
+
+                start = std::chrono::system_clock::now();
+                copyAxonsFromGpu(*segment);
+                end = std::chrono::system_clock::now();
+                const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+                LOG_DEBUG("gpu copy-time: " + std::to_string(gpu2 / 1000.0f) + '\n');
+            }
+
             // block thread until next cycle if queue is empty
             blockThread();
 
@@ -75,13 +92,15 @@ ProcessingUnit::run()
             // main-processing
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*segment, *brick);
-            if(brick->nodePos >= 0) {
+
+            if(brick->nodePos >= 0)
+            {
                 processNodes(*segment, *brick);
+                memorizeSynapses(*segment, *brick);
             }
 
             // post-processing
             postLearning(*segment, *brick);
-            memorizeSynapses(*segment, *brick);
 
             // write output
             if(brick->isOutputBrick == 1) {

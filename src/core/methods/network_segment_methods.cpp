@@ -48,7 +48,7 @@ initNodeBlocks(NetworkSegment &segment,
 
     // fill array with empty nodes
     Node* array = static_cast<Node*>(segment.nodes.buffer.data);
-    for(uint16_t i = 0; i < numberOfNodes; i++)
+    for(uint32_t i = 0; i < numberOfNodes; i++)
     {
         Node tempNode;
         tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
@@ -86,7 +86,6 @@ initSynapseSectionBlocks(NetworkSegment &segment,
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         SynapseSection newSection;
-        newSection.sourceId = i;
         array[i] = newSection;
     }
     segment.synapses.inUse = 1;

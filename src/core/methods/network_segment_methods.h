@@ -51,16 +51,19 @@ getSynapseTransferBlock(NetworkSegment &segment)
  */
 inline uint64_t
 addEmptySynapseSection(NetworkSegment &segment,
-                       const uint32_t sourceId)
+                       const uint32_t sourceEdgeId,
+                       const uint32_t sourceBrickId)
 {
-    assert(sourceId != UNINIT_STATE_32);
+    assert(sourceEdgeId != UNINIT_STATE_32);
+    assert(sourceBrickId != UNINIT_STATE_32);
 
     const uint64_t position = reserveDynamicItem(segment.synapses);
     assert(position != UNINIT_STATE_32);
 
     // add new edge-forward-section
     SynapseSection newSection;
-    newSection.sourceId = sourceId;
+    newSection.sourceEdgeId = sourceEdgeId;
+    newSection.sourceBrickId = sourceBrickId;
 
     assert(segment.synapses.inUse != 0);
     getSynapseSectionBlock(segment)[position] = newSection;

@@ -29,7 +29,9 @@ struct SynapseSection
     // has to be at least a very small value to avoid division by zero
     float totalWeight = 0.0000001f;
 
-    uint32_t sourceId = UNINIT_STATE_32;
+    uint32_t sourceEdgeId = UNINIT_STATE_32;
+    uint32_t sourceBrickId = UNINIT_STATE_32;
+
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
     SynapseSection()

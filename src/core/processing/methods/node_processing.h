@@ -161,6 +161,10 @@ memorizeSynapses(NetworkSegment &segment,
         synapseSection < sectionEnd;
         synapseSection++)
     {
+        if(synapseSection->sourceBrickId != brick.brickId){
+            continue;
+        }
+
         // skip if section is deleted
         if(synapseSection->status != ACTIVE_SECTION)
         {
@@ -184,13 +188,13 @@ memorizeSynapses(NetworkSegment &segment,
         }
 
         // delete dynamic item if value is too low
-        EdgeSection* edgeSection = &getEdgeBlock(brick)[synapseSection->sourceId];
+        EdgeSection* edgeSection = &getEdgeBlock(brick)[synapseSection->sourceEdgeId];
         assert(edgeSection->status == ACTIVE_SECTION);
 
         if(synapseSection->totalWeight < DELETE_SYNAPSE_BORDER)
         {
             deleteDynamicItem(segment.synapses, sectionPos);
-            processUpdateDeleteEdge(brick, *edgeSection, synapseSection->sourceId, 22);
+            processUpdateDeleteEdge(brick, *edgeSection, synapseSection->sourceEdgeId, 22);
         }
         else
         {

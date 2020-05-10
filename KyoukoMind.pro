@@ -122,7 +122,8 @@ SOURCES += \
     src/core/obj_converter.cpp \
     src/core/methods/network_segment_methods.cpp \
     src/core/methods/data_connection_methods.cpp \
-    src/core/brick_queue.cpp
+    src/core/brick_queue.cpp \
+    src/core/processing/gpu_interface.cpp
 
 
 CONFIG(run_tests) {
