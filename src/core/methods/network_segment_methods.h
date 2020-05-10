@@ -44,6 +44,14 @@ getSynapseTransferBlock(NetworkSegment &segment)
 
 //==================================================================================================
 
+inline UpdateTransfer*
+getUpdateTransferBlock(NetworkSegment &segment)
+{
+    return static_cast<UpdateTransfer*>(segment.updateEdges.buffer.data);
+}
+
+//==================================================================================================
+
 /**
  * add a new empfy edge-section
  *

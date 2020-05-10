@@ -47,6 +47,24 @@ typedef struct AxonTransfer_struct
 
 //==================================================================================================
 
+typedef struct UpdateTransfer_struct
+{
+    uint brickId ;
+    uint targetId ;
+    uchar deleted ;
+    float weightDiff;
+} UpdateTransfer __attribute__((packed));
+
+//==================================================================================================
+
+typedef struct RandTransfer_struct
+{
+    float randWeight[999];
+    uint randPos[1024];
+} RandTransfer __attribute__((packed));
+
+//==================================================================================================
+
 typedef struct Node_struct
 {
     float currentState;
@@ -88,6 +106,185 @@ typedef struct SynapseSection_struct
     uint sourceId;
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 } SynapseSection __attribute__((packed));
+
+//==================================================================================================
+
+float
+roundValue(const float input)
+{
+    float floatRep = input;
+    uint* convertedValue = (uint*)(&floatRep);
+    // delete sign-bit
+    *convertedValue = 0x7FFFFFFF & *convertedValue;
+    return *(float*)(convertedValue);
+}
+
+//==================================================================================================
+
+/**
+ * check if all slots of the section are filled
+ *
+ * @return true, if full, else false
+ */
+bool
+isFull(__global SynapseSection* synapseSection)
+{
+    return synapseSection->numberOfSynapses >= SYNAPSES_PER_SYNAPSESECTION;
+}
+
+//==================================================================================================
+
+/**
+ * add a new synapse to the current section
+ *
+ * @return false, if the section is already full, else true
+ */
+void
+addSynapse(__global SynapseSection* synapseSection,
+           const float globalMemorizingOffset,
+           const uint targetNodeId,
+           const uint somaDistance)
+{
+    if(synapseSection->numberOfSynapses < SYNAPSES_PER_SYNAPSESECTION)
+    {
+        Synapse newSynapse;
+
+        newSynapse.targetNodeId = (ushort)(targetNodeId % NUMBER_OF_NODES_PER_BRICK);
+        newSynapse.memorize = globalMemorizingOffset;
+        newSynapse.somaDistance = (uchar)((somaDistance % (MAX_SOMA_DISTANCE - 1)) + 1);
+
+        const uint pos = synapseSection->numberOfSynapses;
+        synapseSection->synapses[pos] = newSynapse;
+        synapseSection->numberOfSynapses++;
+    }
+}
+
+//==================================================================================================
+
+/**
+ * @brief updateSynapseWeight
+ * @param section
+ * @param position
+ * @return
+ */
+void
+updateSynapseWeight(__global SynapseSection* synapseSection,
+                    const uint position,
+                    const float weightUpdate)
+{
+    if(position < synapseSection->numberOfSynapses)
+    {
+        float diff = roundValue(synapseSection->synapses[position].weight);
+        synapseSection->synapses[position].weight += weightUpdate;
+        diff -= roundValue(synapseSection->synapses[position].weight);
+        synapseSection->totalWeight -= diff;
+    }
+}
+
+//==================================================================================================
+
+/**
+ * @brief NodeBrick::createNewEdge
+ * @param currentSection
+ * @param edgeSectionId
+ */
+void
+createNewSynapse(__global SynapseSection* synapseSection,
+                 __global RandTransfer* randTransfers)
+{
+    const ulong index = get_global_id(0) * get_local_id(0);
+
+    const uint targetNodeId = randTransfers->randPos[(index) % 1024];
+    const uint somaDistance = randTransfers->randPos[(index + 1) % 1024];
+
+    addSynapse(synapseSection,
+               0.5f,
+               targetNodeId,
+               somaDistance);
+}
+
+//==================================================================================================
+
+/**
+ * learing-process of the specific synapse-section
+ *
+ * @param currentSection synapse-section with should learn the new value
+ * @param weight weight-difference to learn
+ */
+void
+learningSynapseSection(__global SynapseSection* synapseSection,
+                       float weight,
+                       __global RandTransfer* randTransfers)
+{
+    if(weight < NEW_SYNAPSE_BORDER) {
+        return;
+    }
+
+    ulong index = get_global_id(0) * get_local_id(0);
+    index = index - (index % 3);
+
+    for(uchar i = 0; i < 3; i++)
+    {
+        const uint choosePosition = randTransfers->randPos[index] 
+                                    % (synapseSection->numberOfSynapses + 1);
+        const float currentSideWeight = randTransfers->randWeight[index + i] * weight;
+
+        // create new synapse if necessary
+        if(choosePosition == synapseSection->numberOfSynapses) {
+            createNewSynapse(synapseSection, randTransfers);
+        }
+
+        // synapses, which are fully memorized, are not allowed to be overwritten!!!
+        if(synapseSection->synapses[choosePosition].memorize >= 0.99f) {
+            continue;
+        }
+
+        // calculate new value
+        const float newVal = 0.5 * currentSideWeight;
+
+        synapseSection->synapses[choosePosition].weight += newVal;
+        synapseSection->totalWeight += roundValue(newVal);
+    }
+}
+
+//==================================================================================================
+
+/**
+* process of a specific edge-section of a brick
+*
+* @param edgeSectionId id of the edge-section within the current brick
+* @param weight incoming weight-value
+*/
+void
+processSynapseSection(__global SynapseSection* synapseSection,
+                      __global Node* nodes,
+                      const float inputWeight,
+                      __global RandTransfer* randTransfers)
+{
+    learningSynapseSection(synapseSection,
+                           inputWeight - synapseSection->totalWeight,
+                           randTransfers);
+
+    // limit ration to 1.0f
+    float ratio = inputWeight / synapseSection->totalWeight;
+    if(ratio > 1.0f) {
+        ratio = 1.0f;
+    }
+
+    __global Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
+
+    for(__global Synapse* synapse = synapseSection->synapses;
+        synapse < end;
+        synapse++)
+    {
+        const Synapse tempSynapse = *synapse;
+        nodes[tempSynapse.targetNodeId].currentState +=
+                tempSynapse.weight
+                * ratio
+                * ((float)tempSynapse.somaDistance / (float)MAX_SOMA_DISTANCE);
+        synapse->inProcess = nodes[tempSynapse.targetNodeId].active;
+    }
+}
 
 //==================================================================================================
 
@@ -168,7 +365,7 @@ processNodes(__global Node* node,
  * @param brick
  */
 bool
-memorizeSynapses(SynapseSection* synapseSection,
+memorizeSynapses(__global SynapseSection* synapseSection,
                  ulong sectionPosition)
 {
     // skip if section is deleted
@@ -177,8 +374,8 @@ memorizeSynapses(SynapseSection* synapseSection,
     }
 
     // update values based on the memorizing-value
-    Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
-    for(Synapse* synapse = synapseSection->synapses;
+    __global Synapse* end = &synapseSection->synapses[synapseSection->numberOfSynapses];
+    for(__global Synapse* synapse = synapseSection->synapses;
         synapse < end;
         synapse++)
     {
@@ -200,23 +397,25 @@ memorizeSynapses(SynapseSection* synapseSection,
 
 //==================================================================================================
 
-__kernel void processing(
-       __global const SynapseTransfer* synapseTransfers,
-       ulong numberOfSynapseTransfers,
-       __global AxonTransfer* axonTransfers,
-       ulong numberOfAxonTransfers,
-       __global Node* nodes,
-       ulong numberOfNodes,
-       __global SynapseSection* synapseSections,
-       ulong numberOfSynapseSections
-    )
+__kernel void processing(__global const SynapseTransfer* synapseTransfers,
+                         ulong numberOfSynapseTransfers,
+                         __global AxonTransfer* axonTransfers,
+                         ulong numberOfAxonTransfers,
+                         __global UpdateTransfer* updateTransfers,
+                         ulong numberOfUpdateTransfers,
+                         __global Node* nodes,
+                         ulong numberOfNodes,
+                         __global SynapseSection* synapseSections,
+                         ulong numberOfSynapseSections,
+                         __global RandTransfer* randTransfers,
+                         ulong numberOfRandTransfers)
 {
     __local Node tempNodes[256];
 
     size_t globalId_x = get_global_id(0);
     int localId_x = get_local_id(0);
 
-    for(uint i = 0; i < NUMBER_OF_NODES_PER_BRICK; i=i+256)
+    for(uint i = 0; i < NUMBER_OF_NODES_PER_BRICK; i = i + 256)
     {
         processNodes(&nodes[i], i, axonTransfers, &tempNodes[localId_x]);
     }

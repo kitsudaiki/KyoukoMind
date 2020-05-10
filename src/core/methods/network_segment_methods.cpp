@@ -110,6 +110,8 @@ initTransferBlocks(NetworkSegment &segment,
     assert(totalNumberOfAxons > 0);
     assert(maxNumberOySynapseSections > 0);
 
+    //----------------------------------------------------------------------------------------------
+
     // init device-to-host-buffer
     if(initDataBlocks(segment.axonEdges,
                       totalNumberOfAxons,
@@ -127,6 +129,8 @@ initTransferBlocks(NetworkSegment &segment,
     }
     segment.axonEdges.inUse = 1;
 
+    //----------------------------------------------------------------------------------------------
+
     // init host-to-device-buffer
     if(initDataBlocks(segment.synapseEdges,
                       maxNumberOySynapseSections,
@@ -143,6 +147,27 @@ initTransferBlocks(NetworkSegment &segment,
         synapseArray[i] = newSynapseTransfer;
     }
     segment.synapseEdges.inUse = 1;
+
+    //----------------------------------------------------------------------------------------------
+
+    // init host-to-device-buffer
+    if(initDataBlocks(segment.updateEdges,
+                      maxNumberOySynapseSections,
+                      sizeof(UpdateTransfer)) == false)
+    {
+        return false;
+    }
+
+    // fill array with empty values
+    UpdateTransfer* updateArray = getUpdateTransferBlock(segment);
+    for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
+    {
+        UpdateTransfer newUpdateTransfer;
+        updateArray[i] = newUpdateTransfer;
+    }
+    segment.updateEdges.inUse = 1;
+
+    //----------------------------------------------------------------------------------------------
 
     return true;
 }

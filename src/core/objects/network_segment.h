@@ -20,6 +20,7 @@ struct NetworkSegment
 
     DataConnection axonEdges;
     DataConnection synapseEdges;
+    DataConnection updateEdges;
 
     Kitsunemimi::Opencl::Opencl ocl;
     Kitsunemimi::Opencl::OpenClData oclData;

@@ -12,6 +12,7 @@ namespace KyoukoMind
 
 bool initializeGpu(NetworkSegment &segment,
                    const uint32_t numberOfBricks);
+void initRandValues(NetworkSegment &segment);
 bool copyEdgesToGpu(NetworkSegment &segment);
 bool runOnGpu(NetworkSegment &segment);
 bool copyAxonsFromGpu(NetworkSegment &segment);

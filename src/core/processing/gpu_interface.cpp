@@ -2,6 +2,7 @@
 
 #include <libKitsunemimiOpencl/opencl.h>
 #include <gpu_processing.h>
+#include <core/objects/transfer_objects.h>
 
 namespace KyoukoMind
 {
@@ -39,6 +40,7 @@ initializeGpu(NetworkSegment &segment,
     segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
+    segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
 
     // fill buffer for edges from host to gpu
     segment.oclData.buffer[0].data = segment.synapseEdges.buffer.data;
@@ -52,21 +54,63 @@ initializeGpu(NetworkSegment &segment,
     segment.oclData.buffer[1].numberOfObjects = segment.axonEdges.numberOfItems;
     segment.oclData.buffer[1].isOutput = true;
 
-    // fill buffer for nodes to map on gpu
-    segment.oclData.buffer[2].data = segment.nodes.buffer.data;
-    segment.oclData.buffer[2].numberOfBytes = segment.synapses.buffer.bufferPosition;
-    segment.oclData.buffer[2].numberOfObjects = segment.synapses.numberOfItems;
+    // fill buffer for update-edges from gpu to host
+    segment.oclData.buffer[2].data = segment.updateEdges.buffer.data;
+    segment.oclData.buffer[2].numberOfBytes = segment.updateEdges.buffer.bufferPosition;
+    segment.oclData.buffer[2].numberOfObjects = segment.updateEdges.numberOfItems;
+    segment.oclData.buffer[2].isOutput = true;
 
-    // fill buffer for synapse-sections to map on gpu
-    segment.oclData.buffer[3].data = segment.synapses.buffer.data;
+    // fill buffer for nodes to map on gpu
+    segment.oclData.buffer[3].data = segment.nodes.buffer.data;
     segment.oclData.buffer[3].numberOfBytes = segment.synapses.buffer.bufferPosition;
     segment.oclData.buffer[3].numberOfObjects = segment.synapses.numberOfItems;
+
+    // fill buffer for synapse-sections to map on gpu
+    segment.oclData.buffer[4].data = segment.synapses.buffer.data;
+    segment.oclData.buffer[4].numberOfBytes = segment.synapses.buffer.bufferPosition;
+    segment.oclData.buffer[4].numberOfObjects = segment.synapses.numberOfItems;
+
+    initRandValues(segment);
 
     if(segment.ocl.initCopyToDevice(segment.oclData) == false) {
         return false;
     }
 
     return true;
+}
+
+/**
+ * @brief initRandValues
+ * @param segment
+ * @return
+ */
+void
+initRandValues(NetworkSegment &segment)
+{
+    segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer(1, sizeof(RandTransfer)));
+
+    RandTransfer* randValues = static_cast<RandTransfer*>(segment.oclData.buffer[5].data);
+
+    float compare = 0.0f;
+    for(uint32_t i = 0; i < 999; i++)
+    {
+        if(i % 3 == 0) {
+            compare = 0.0f;
+        }
+
+        float tempValue = static_cast<float>(rand()) / 0x7FFFFFFF;
+        assert(tempValue <= 1.0f);
+        if(tempValue + compare > 1.0f) {
+            tempValue = 1.0f - compare;
+        }
+        compare += tempValue;
+        randValues->randWeight[i] = tempValue;
+    }
+
+    for(uint32_t i = 0; i < 1024; i++)
+    {
+        randValues->randPos[i] = static_cast<uint32_t>(rand());
+    }
 }
 
 /**
