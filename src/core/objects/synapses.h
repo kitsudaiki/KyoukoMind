@@ -33,6 +33,7 @@ struct SynapseSection
     uint32_t sourceBrickId = UNINIT_STATE_32;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
+    uint8_t padding[6];
 
     SynapseSection()
     {

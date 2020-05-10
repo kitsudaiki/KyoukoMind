@@ -1,4 +1,4 @@
-#define SYNAPSES_PER_SYNAPSESECTION 64
+#define SYNAPSES_PER_SYNAPSESECTION 19
 #define MAX_NUMBER_OF_NODES_PER_BRICK 16384
 #define NUMBER_OF_NODES_PER_BRICK 1000
 
@@ -103,8 +103,11 @@ typedef struct SynapseSection_struct
     ulong activeMapping;
     float totalWeight;
 
-    uint sourceId;
+    uint sourceEdgeId;
+    uint sourceBrickId;
+
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
+    uchar padding[6];
 } SynapseSection __attribute__((packed));
 
 //==================================================================================================
@@ -127,7 +130,7 @@ roundValue(const float input)
  * @return true, if full, else false
  */
 bool
-isFull(__global SynapseSection* synapseSection)
+isFull(__local SynapseSection* synapseSection)
 {
     return synapseSection->numberOfSynapses >= SYNAPSES_PER_SYNAPSESECTION;
 }
@@ -140,7 +143,7 @@ isFull(__global SynapseSection* synapseSection)
  * @return false, if the section is already full, else true
  */
 void
-addSynapse(__global SynapseSection* synapseSection,
+addSynapse(__local SynapseSection* synapseSection,
            const float globalMemorizingOffset,
            const uint targetNodeId,
            const uint somaDistance)
@@ -168,7 +171,7 @@ addSynapse(__global SynapseSection* synapseSection,
  * @return
  */
 void
-updateSynapseWeight(__global SynapseSection* synapseSection,
+updateSynapseWeight(__local SynapseSection* synapseSection,
                     const uint position,
                     const float weightUpdate)
 {
@@ -189,7 +192,7 @@ updateSynapseWeight(__global SynapseSection* synapseSection,
  * @param edgeSectionId
  */
 void
-createNewSynapse(__global SynapseSection* synapseSection,
+createNewSynapse(__local SynapseSection* synapseSection,
                  __global RandTransfer* randTransfers)
 {
     const ulong index = get_global_id(0) * get_local_id(0);
@@ -212,7 +215,7 @@ createNewSynapse(__global SynapseSection* synapseSection,
  * @param weight weight-difference to learn
  */
 void
-learningSynapseSection(__global SynapseSection* synapseSection,
+learningSynapseSection(__local SynapseSection* synapseSection,
                        float weight,
                        __global RandTransfer* randTransfers)
 {
@@ -256,7 +259,7 @@ learningSynapseSection(__global SynapseSection* synapseSection,
 * @param weight incoming weight-value
 */
 void
-processSynapseSection(__global SynapseSection* synapseSection,
+processSynapseSection(__local SynapseSection* synapseSection,
                       __global Node* nodes,
                       const float inputWeight,
                       __global RandTransfer* randTransfers)
@@ -271,9 +274,9 @@ processSynapseSection(__global SynapseSection* synapseSection,
         ratio = 1.0f;
     }
 
-    __global Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
+    __local Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
 
-    for(__global Synapse* synapse = synapseSection->synapses;
+    for(__local Synapse* synapse = synapseSection->synapses;
         synapse < end;
         synapse++)
     {
@@ -294,28 +297,24 @@ processSynapseSection(__global SynapseSection* synapseSection,
  * @return number of active nodes in this brick
  */
 void
-processNodes(__global Node* node,
-             ulong numberOfNode,
-             __global AxonTransfer* axonTransfers,
-             __local Node* tempNode)
+processNodes(__local Node* node,
+             ulong nodeIdInBrick,
+             __global AxonTransfer* axonTransfers)
 {
     // set to 255.0f, if value is too high
     if(node->currentState > 255.0f) {
         node->currentState = 255.0f;
     }
 
-    // init
-    *tempNode = *node;
-
     // check if active
-    if(tempNode->border <= tempNode->currentState
-            && tempNode->refractionTime == 0)
+    if(node->border <= node->currentState
+            && node->refractionTime == 0)
     {
         node->potential = ACTION_POTENTIAL;
         node->active = 1;
         node->refractionTime = REFRACTION_TIME;
     }
-    else if(tempNode->refractionTime == 0) {
+    else if(node->refractionTime == 0) {
         node->active = 0;
     }
 
@@ -323,14 +322,14 @@ processNodes(__global Node* node,
     if(node->active == 1)
     {
         const float weight = node->potential * PROCESSING_MULTIPLICATOR;
-        const ulong path = tempNode->targetBrickPath/32;
+        const ulong path = node->targetBrickPath/32;
 
         AxonTransfer newEdge;
-        newEdge.targetId = tempNode->targetAxonId;
+        newEdge.targetId = node->targetAxonId;
         newEdge.path = path;
         newEdge.weight = weight;
 
-        axonTransfers[numberOfNode] = newEdge;
+        axonTransfers[nodeIdInBrick] = newEdge;
     }
     else
     {
@@ -339,7 +338,7 @@ processNodes(__global Node* node,
         newEdge.path = 0;
         newEdge.weight = 0.0f;
 
-        axonTransfers[numberOfNode] = newEdge;
+        axonTransfers[nodeIdInBrick] = newEdge;
     }
 
     // post-steps
@@ -365,7 +364,7 @@ processNodes(__global Node* node,
  * @param brick
  */
 bool
-memorizeSynapses(__global SynapseSection* synapseSection,
+memorizeSynapses(__local SynapseSection* synapseSection,
                  ulong sectionPosition)
 {
     // skip if section is deleted
@@ -374,8 +373,8 @@ memorizeSynapses(__global SynapseSection* synapseSection,
     }
 
     // update values based on the memorizing-value
-    __global Synapse* end = &synapseSection->synapses[synapseSection->numberOfSynapses];
-    for(__global Synapse* synapse = synapseSection->synapses;
+    __local Synapse* end = &synapseSection->synapses[synapseSection->numberOfSynapses];
+    for(__local Synapse* synapse = synapseSection->synapses;
         synapse < end;
         synapse++)
     {
@@ -410,13 +409,63 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
                          __global RandTransfer* randTransfers,
                          ulong numberOfRandTransfers)
 {
-    __local Node tempNodes[256];
-
     size_t globalId_x = get_global_id(0);
     int localId_x = get_local_id(0);
+    uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
+    uint brickId = globalId_x / 256; 
 
-    for(uint i = 0; i < NUMBER_OF_NODES_PER_BRICK; i = i + 256)
+    __local uchar localMemory[65536];
+
+    if(brickId < numberOfBricks) {
+        return;
+    }
+
+    // process input synapses
+    __local SynapseSection* tempSections = (__local SynapseSection*)&localMemory[0];
+
+    for(uint i = localId_x; i < numberOfSynapseTransfers; i = i + 256)
     {
-        processNodes(&nodes[i], i, axonTransfers, &tempNodes[localId_x]);
+        if(synapseTransfers[i].brickId != brickId) {
+            continue;
+        }
+
+        tempSections[localId_x] = synapseSections[synapseTransfers[i].targetId];
+
+        processSynapseSection(&tempSections[localId_x],
+                              nodes,
+                              synapseTransfers[i].weight,
+                              randTransfers);
+
+        synapseSections[i] = tempSections[localId_x];
+    }
+
+    work_group_barrier(CLK_LOCAL_MEM_FENCE);
+
+    // process nodes
+    __local Node* tempNodes = (__local Node*)&localMemory[0];
+
+    for(uint i = localId_x; i < NUMBER_OF_NODES_PER_BRICK; i = i + 256)
+    {
+        tempNodes[localId_x] = nodes[i];
+        processNodes(&tempNodes[localId_x], i, axonTransfers);
+        nodes[i] = tempNodes[localId_x];
+    }
+
+    work_group_barrier(CLK_LOCAL_MEM_FENCE);
+
+    // process memorizing
+    __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[0];
+
+    for(uint i = localId_x; i < numberOfSynapseSections; i = i + 256)
+    {
+        tempSectionMem[localId_x] = synapseSections[i];
+
+        if(tempSectionMem[localId_x].sourceBrickId != brickId) {
+            continue;
+        }
+
+        // TODO: memorizing
+
+        synapseSections[i] = tempSectionMem[localId_x];
     }
 }
