@@ -8,6 +8,7 @@
 struct SynapseTransfer
 {
     uint32_t brickId = UNINIT_STATE_32;
+    uint32_t sourceEdgeId = UNINIT_STATE_32;
     float weight = 0.0f;
 };
 

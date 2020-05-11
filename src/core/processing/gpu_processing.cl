@@ -40,6 +40,7 @@ enum SectionStatus
 typedef struct SynapseTransfer_struct
 {
     uint brickId;
+    uint sourceEdgeId;
     float weight;
 } SynapseTransfer __attribute__((packed));
 
@@ -171,6 +172,26 @@ addSynapse(__local SynapseSection* synapseSection,
 
 //==================================================================================================
 
+/**
+ *
+ * @return false, if the section is already full, else true
+ */
+void
+resetSynapseSection(__local SynapseSection* synapseSection,
+                    const uint sourceEdgeId,
+                    const uint sourceBrickId)
+{
+    synapseSection->status = ACTIVE_SECTION;
+
+    synapseSection->numberOfSynapses = 0;
+    synapseSection->activeMapping = 0;
+    synapseSection->totalWeight = 0.0000001f;
+
+    synapseSection->sourceEdgeId = sourceEdgeId;
+    synapseSection->sourceBrickId = sourceBrickId;
+}
+
+//==================================================================================================
 /**
  * @brief updateSynapseWeight
  * @param section
@@ -427,6 +448,7 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
         return;
     }
 
+    //----------------------------------------------------------------------------------------------
     // process input synapses
     __local SynapseSection* tempSections = (__local SynapseSection*)&localMemory[0];
 
@@ -438,7 +460,15 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
             continue;
         }
 
-        tempSections[localId_x] = synapseSections[synapseTransfers[i].targetId];
+
+        tempSections[localId_x] = synapseSections[i];
+
+        if(tempSections[localId_x].status == DELETED_SECTION) 
+        {
+            resetSynapseSection(&tempSections[localId_x],
+                                synapseTransfers[i].brickId,
+                                synapseTransfers[i].sourceEdgeId);
+        }
 
         processSynapseSection(&tempSections[localId_x],
                               nodes,
@@ -450,6 +480,7 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
+    //----------------------------------------------------------------------------------------------
     // process nodes
     __local Node* tempNodes = (__local Node*)&localMemory[0];
 
@@ -462,6 +493,7 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
+    //----------------------------------------------------------------------------------------------
     // process memorizing
     __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[0];
 
@@ -477,4 +509,5 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
         synapseSections[i] = tempSectionMem[localId_x];
     }
+    //----------------------------------------------------------------------------------------------
 }

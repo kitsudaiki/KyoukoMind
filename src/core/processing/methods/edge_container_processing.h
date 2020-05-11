@@ -313,6 +313,7 @@ processEdgeForwardSection(NetworkSegment &segment,
             void* transferData = segment.synapseEdges.buffer.data;
             SynapseTransfer* synapseTransfer = static_cast<SynapseTransfer*>(transferData);
             synapseTransfer[tempEdge.targetId].weight = tempEdge.weight * ratio;
+            synapseTransfer[tempEdge.targetId].sourceEdgeId = container.targetEdgeSectionId;
             synapseTransfer[tempEdge.targetId].brickId = brick.brickId;
         }
         else
