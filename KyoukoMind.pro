@@ -92,7 +92,6 @@ HEADERS += \
     src/config.h \
     src/io/network_callbacks.h \
     src/core/processing/methods/edge_container_processing.h \
-    src/core/processing/methods/synapse_container_processing.h \
     src/core/methods/edge_methods.h \
     src/core/methods/neighbor_methods.h \
     src/core/methods/synapse_methods.h \
@@ -103,7 +102,6 @@ HEADERS += \
     src/core/methods/network_segment_methods.h \
     src/core/methods/data_connection_methods.h \
     src/core/brick_queue.h \
-    src/core/processing/methods/node_processing.h \
     src/core/processing/gpu_processing.cl \
     src/core/processing/gpu_interface.h \
     src/core/objects/transfer_objects.h

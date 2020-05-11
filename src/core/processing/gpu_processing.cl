@@ -1,3 +1,11 @@
+// const predefined values
+#define UNINIT_STATE_64 0xFFFFFFFFFFFFFFFF
+#define UNINIT_STATE_32 0xFFFFFFFF
+#define UNINIT_STATE_24 0xFFFFFF
+#define UNINIT_STATE_16 0xFFFF
+#define UNINIT_STATE_8 0xFF
+
+// common information
 #define SYNAPSES_PER_SYNAPSESECTION 19
 #define MAX_NUMBER_OF_NODES_PER_BRICK 16384
 #define NUMBER_OF_NODES_PER_BRICK 1000
@@ -32,7 +40,6 @@ enum SectionStatus
 typedef struct SynapseTransfer_struct
 {
     uint brickId;
-    uint targetId;
     float weight;
 } SynapseTransfer __attribute__((packed));
 
@@ -425,7 +432,9 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
     for(uint i = localId_x; i < numberOfSynapseTransfers; i = i + 256)
     {
-        if(synapseTransfers[i].brickId != brickId) {
+        if(synapseTransfers[i].brickId == UNINIT_STATE_32
+            || synapseTransfers[i].brickId != brickId) 
+        {
             continue;
         }
 

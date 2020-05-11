@@ -22,8 +22,6 @@
 #include <core/objects/brick.h>
 #include <core/objects/network_segment.h>
 
-#include <core/processing/methods/synapse_container_processing.h>
-
 namespace KyoukoMind
 {
 
@@ -311,10 +309,11 @@ processEdgeForwardSection(NetworkSegment &segment,
             if(tempEdge.targetId == UNINIT_STATE_32){
                 continue;
             }
-            processSynapseSection(segment,
-                                  brick,
-                                  tempEdge.targetId,
-                                  tempEdge.weight * ratio);
+
+            void* transferData = segment.synapseEdges.buffer.data;
+            SynapseTransfer* synapseTransfer = static_cast<SynapseTransfer*>(transferData);
+            synapseTransfer[tempEdge.targetId].weight = tempEdge.weight * ratio;
+            synapseTransfer[tempEdge.targetId].brickId = brick.brickId;
         }
         else
         {

@@ -19,7 +19,6 @@
 
 #include <core/processing/methods/edge_container_processing.h>
 #include <core/processing/methods/brick_processing.h>
-#include <core/processing/methods/node_processing.h>
 #include <core/processing/gpu_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -92,15 +91,6 @@ ProcessingUnit::run()
             // main-processing
             brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*segment, *brick);
-
-            if(brick->nodePos >= 0)
-            {
-                processNodes(*segment, *brick);
-                memorizeSynapses(*segment, *brick);
-            }
-
-            // post-processing
-            postLearning(*segment, *brick);
 
             // write output
             if(brick->isOutputBrick == 1) {
