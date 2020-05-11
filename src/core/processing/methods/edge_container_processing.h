@@ -396,7 +396,7 @@ processLerningEdge(NetworkSegment &segment,
                    const uint8_t initSide)
 {
     assert(initSide != 0);
-    const uint32_t targetEdgeId = addEmptyEdgeSection(brick,
+    const uint64_t targetEdgeId = addEmptyEdgeSection(brick,
                                                       initSide,
                                                       container.sourceEdgeSectionId);
     assert(targetEdgeId != UNINIT_STATE_32);
@@ -409,12 +409,12 @@ processLerningEdge(NetworkSegment &segment,
     // create reply-message
     LearningEdgeReplyContainer reply;
     reply.sourceEdgeSectionId = container.sourceEdgeSectionId;
-    reply.targetEdgeSectionId = targetEdgeId;
+    reply.targetEdgeSectionId = static_cast<uint32_t>(targetEdgeId);
     Kitsunemimi::addObject_StackBuffer(*brick.neighbors[initSide].outgoingBuffer,
                                        &reply);
 
     EdgeContainer newContainer;
-    newContainer.targetEdgeSectionId = targetEdgeId;
+    newContainer.targetEdgeSectionId = static_cast<uint32_t>(targetEdgeId);
     newContainer.weight = container.weight;
     assert(newContainer.weight >= 0.0f);
     processEdgeForwardSection(segment,
@@ -439,7 +439,7 @@ processPendingEdge(NetworkSegment &segment,
     assert(container.sourceSide != 0);
     assert(brick.edges.inUse != 0);
 
-    const uint32_t numberOfEdgeSections = brick.edges.numberOfItems;
+    const uint32_t numberOfEdgeSections = static_cast<uint32_t>(brick.edges.numberOfItems);
     EdgeSection* forwardEnd = getEdgeBlock(brick);
     EdgeSection* forwardStart = &forwardEnd[numberOfEdgeSections - 1];
 
@@ -488,7 +488,6 @@ processPendingEdge(NetworkSegment &segment,
  */
 inline void
 processDirectEdge(NetworkSegment &segment,
-                  Brick &brick,
                   const DirectEdgeContainer &container)
 {
     Node* node = &getNodeBlock(segment)[container.targetNodeId];
@@ -511,7 +510,7 @@ processLearningEdgeReply(Brick &brick,
 
     EdgeSection* edgeSections = getEdgeBlock(brick);
     edgeSections[container.sourceEdgeSectionId].edges[side].targetId =
-            container.targetEdgeSectionId;
+            static_cast<uint32_t>(container.targetEdgeSectionId);
 }
 
 //==================================================================================================

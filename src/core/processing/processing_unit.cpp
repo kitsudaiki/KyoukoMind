@@ -217,7 +217,7 @@ ProcessingUnit::processIncomingMessage(NetworkSegment &segment,
             case DIRECT_EDGE_CONTAINER:
             {
                 const DirectEdgeContainer edge = *static_cast<DirectEdgeContainer*>(obj);
-                processDirectEdge(segment, brick, edge);
+                processDirectEdge(segment, edge);
                 data += sizeof(DirectEdgeContainer);
                 break;
             }
