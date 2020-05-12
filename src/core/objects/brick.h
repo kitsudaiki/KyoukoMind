@@ -35,6 +35,8 @@ struct Brick
 {
     // common
     BrickID brickId = UNINIT_STATE_32;
+    BrickID nodeBrickId = UNINIT_STATE_32;
+
     BrickPos brickPos;
     uint8_t inQueue = 0;
     uint8_t isOutputBrick = 0;

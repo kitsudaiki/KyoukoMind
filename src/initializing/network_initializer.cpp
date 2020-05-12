@@ -161,6 +161,8 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
                 {
                     //Brick* brick = new Brick(brickId, x, y);
                     Brick* newBrick = new Brick(brickId, x, y);
+                    newBrick->nodeBrickId = numberOfNodeBricks;
+
                     initRandValues(*newBrick);
 
                     const uint32_t nodePos = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
