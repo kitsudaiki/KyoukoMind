@@ -62,8 +62,8 @@ initializeGpu(NetworkSegment &segment,
 
     // fill buffer for nodes to map on gpu
     segment.oclData.buffer[3].data = segment.nodes.buffer.data;
-    segment.oclData.buffer[3].numberOfBytes = segment.synapses.buffer.bufferPosition;
-    segment.oclData.buffer[3].numberOfObjects = segment.synapses.numberOfItems;
+    segment.oclData.buffer[3].numberOfBytes = segment.nodes.buffer.bufferPosition;
+    segment.oclData.buffer[3].numberOfObjects = segment.nodes.numberOfItems;
 
     // fill buffer for synapse-sections to map on gpu
     segment.oclData.buffer[4].data = segment.synapses.buffer.data;
