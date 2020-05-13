@@ -3,10 +3,14 @@
 
 #include <root_object.h>
 #include <core/objects/container_definitions.h>
+
 #include <core/methods/brick_initializing_methods.h>
-#include <core/processing/methods/brick_processing.h>
 #include <core/methods/neighbor_methods.h>
 #include <core/methods/network_segment_methods.h>
+
+#include <core/processing/methods/brick_processing.h>
+#include <core/processing/methods/edge_container_processing.h>
+#include <core/processing/processing_unit.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -109,11 +113,11 @@ clientLearnInput_processing(const ClientLearnInputData &content,
         {
             assert(neighbor->outgoingBuffer != nullptr);
 
-            DirectEdgeContainer newEdge;
+            EdgeContainer newEdge;
             newEdge.weight = content.value;
-            newEdge.targetNodeId = i;
-            assert(neighbor->outgoingBuffer != nullptr);
-            Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+            newEdge.targetEdgeSectionId = i;
+            assert(neighbor->currentBuffer != nullptr);
+            Kitsunemimi::addObject_StackBuffer(*neighbor->currentBuffer, &newEdge);
         }
     }
 }
@@ -131,7 +135,10 @@ clientLearnFinishCycleData_processing(const ClientLearnFinishCycleData &content,
     if(it != rootObject->m_inputBricks->end())
     {
         Brick* brick = it->second;
+
+        processIncomingMessages2(*rootObject->m_segment, *brick, 22);
         assert(brick->neighbors[22].outgoingBuffer != nullptr);
+
         finishSide(brick, 22);
         while(isReady(brick) == false) {
             usleep(1000);

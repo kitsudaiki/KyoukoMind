@@ -27,16 +27,9 @@ public:
 
     void run();
 
-private:
     std::vector<Brick*> m_finishBrickBuffer;
 
-    // cycle
-    void processIncomingMessages(NetworkSegment &segment,
-                                 Brick &brick);
-    bool processIncomingMessage(NetworkSegment &segment,
-                                Brick &brick,
-                                const uint8_t side,
-                                DataBuffer* message);
+private:
 
     DataBuffer m_clientBuffer;
     DataBuffer m_monitoringBuffer;

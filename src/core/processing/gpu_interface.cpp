@@ -33,7 +33,7 @@ initializeGpu(NetworkSegment &segment,
 
     // init worker-sizes
     segment.oclData.numberOfWg.x = numberOfBricks;
-    segment.oclData.threadsPerWg.x = segment.ocl.getMaxWorkItemSize().x;
+    segment.oclData.threadsPerWg.x = 256;
 
     // add empty buffer
     segment.oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
@@ -124,6 +124,31 @@ bool
 copyEdgesToGpu(NetworkSegment &segment)
 {
     return segment.ocl.updateBufferOnDevice(segment.oclData.buffer[0]);
+}
+
+/**
+ * @brief updateNodeOnDevice
+ * @param segment
+ * @return
+ */
+bool
+updateNodeOnDevice(NetworkSegment &segment,
+                   const uint32_t nodeId,
+                   const float value)
+{
+    uint64_t pos = nodeId * sizeof(Node);
+
+    cl::CommandQueue* queue = &segment.ocl.m_queue;
+    const cl_int ret = queue->enqueueWriteBuffer(segment.oclData.buffer[3].clBuffer,
+                                                 CL_TRUE,
+                                                 pos,
+                                                 sizeof(float),
+                                                 &value);
+    if(ret != CL_SUCCESS) {
+        return false;
+    }
+
+    return true;
 }
 
 /**

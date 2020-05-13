@@ -442,7 +442,7 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
     uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
     uint brickId = globalId_x / 256; 
 
-    __local uchar localMemory[65536];
+    __local uchar localMemory[256];
 
     if(brickId < numberOfBricks) {
         return;
@@ -461,21 +461,21 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
         }
 
 
-        tempSections[localId_x] = synapseSections[i];
+        tempSections[0] = synapseSections[i];
 
-        if(tempSections[localId_x].status == DELETED_SECTION) 
+        if(tempSections[0].status == DELETED_SECTION) 
         {
-            resetSynapseSection(&tempSections[localId_x],
+            resetSynapseSection(tempSections,
                                 synapseTransfers[i].brickId,
                                 synapseTransfers[i].sourceEdgeId);
         }
 
-        processSynapseSection(&tempSections[localId_x],
+        processSynapseSection(tempSections,
                               nodes,
                               synapseTransfers[i].weight,
                               randTransfers);
 
-        synapseSections[i] = tempSections[localId_x];
+        synapseSections[i] = tempSections[0];
     }
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
@@ -486,9 +486,9 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
     for(uint i = localId_x; i < NUMBER_OF_NODES_PER_BRICK; i = i + 256)
     {
-        tempNodes[localId_x] = nodes[i];
-        processNodes(&tempNodes[localId_x], i, axonTransfers);
-        nodes[i] = tempNodes[localId_x];
+        tempNodes[0] = nodes[i];
+        processNodes(tempNodes, i, axonTransfers);
+        nodes[i] = tempNodes[0];
     }
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
@@ -499,15 +499,15 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
     for(uint i = localId_x; i < numberOfSynapseSections; i = i + 256)
     {
-        tempSectionMem[localId_x] = synapseSections[i];
+        tempSectionMem[0] = synapseSections[i];
 
-        if(tempSectionMem[localId_x].sourceBrickId != brickId) {
+        if(tempSectionMem->sourceBrickId != brickId) {
             continue;
         }
 
         // TODO: memorizing
 
-        synapseSections[i] = tempSectionMem[localId_x];
+        synapseSections[i] = tempSectionMem[0];
     }
     //----------------------------------------------------------------------------------------------
 }

@@ -157,7 +157,7 @@ initEdgeSectionBlocks(Brick &brick,
         EdgeSection newSection;
 
         // connect all available sides
-        for(uint8_t side = 0; side < 21; side++)
+        for(uint8_t side = 0; side < 23; side++)
         {
             if(brick.neighbors[side].inUse != 0) {
                 newSection.edges[side].available = 1;

@@ -3,9 +3,12 @@
 
 #include <root_object.h>
 #include <core/objects/container_definitions.h>
-#include <core/methods/brick_initializing_methods.h>
+
 #include <core/processing/methods/brick_processing.h>
+
+#include <core/methods/brick_initializing_methods.h>
 #include <core/methods/neighbor_methods.h>
+#include <core/methods/brick_item_methods.h>
 #include <core/methods/network_segment_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
@@ -151,7 +154,11 @@ process_registerInput(const ControlRegisterInput &content,
     }
     rootObject->m_inputBricks->insert(std::pair<uint32_t, Brick*>(content.brickId,
                                                                   newBrick));
+
+    initEdgeSectionBlocks(*newBrick, NUMBER_OF_NODES_PER_BRICK);
+    initRandValues(*newBrick);
     initCycle(newBrick);
+
     send_generic_response(true, "", session, blockerId);
 
     return true;

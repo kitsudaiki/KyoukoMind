@@ -14,6 +14,9 @@ bool initializeGpu(NetworkSegment &segment,
                    const uint32_t numberOfBricks);
 void initRandValues(NetworkSegment &segment);
 bool copyEdgesToGpu(NetworkSegment &segment);
+bool updateNodeOnDevice(NetworkSegment &segment,
+                        const uint32_t nodeId,
+                        const float value);
 bool runOnGpu(NetworkSegment &segment);
 bool copyAxonsFromGpu(NetworkSegment &segment);
 bool closeDevice(NetworkSegment &segment);

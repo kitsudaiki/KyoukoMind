@@ -77,6 +77,17 @@ ProcessingUnit::run()
                 end = std::chrono::system_clock::now();
                 const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
                 LOG_DEBUG("gpu copy-time: " + std::to_string(gpu2 / 1000.0f) + '\n');
+
+                uint32_t count = 0;
+                AxonTransfer* axons = static_cast<AxonTransfer*>(segment->axonEdges.buffer.data);
+
+                for(uint32_t i = 0; i < segment->axonEdges.numberOfItems; i++)
+                {
+                    if(axons[i].weight != 0.0f) {
+                        count++;
+                    }
+                }
+                std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! count: "<<count<<std::endl;
             }
 
             // block thread until next cycle if queue is empty
@@ -104,135 +115,6 @@ ProcessingUnit::run()
                         m_monitoringBuffer);
         }
     }
-}
-
-/**
- * @brief ProcessingUnit::processIncomingMessages
- * @param brick
- * @return
- */
-void
-ProcessingUnit::processIncomingMessages(NetworkSegment &segment,
-                                        Brick &brick)
-{
-    // process normal communication
-    for(uint8_t side = 0; side < 23; side++)
-    {
-        if(brick.neighbors[side].inUse == 1)
-        {
-            StackBuffer* currentBuffer = brick.neighbors[side].currentBuffer;
-            DataBuffer* currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
-
-            while(currentBlock != nullptr)
-            {
-                processIncomingMessage(segment, brick, side, currentBlock);
-                Kitsunemimi::removeFirst_StackBuffer(*currentBuffer);
-                currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
-            }
-        }
-    }
-}
-
-/**
- * processing of all incoming messages in a brick
- *
- * @return false if a message-type does not exist, else true
- */
-bool
-ProcessingUnit::processIncomingMessage(NetworkSegment &segment,
-                                       Brick &brick,
-                                       const uint8_t side,
-                                       DataBuffer* message)
-{
-    bool result = true;
-
-    // get start and end of the message-payload
-    uint8_t* data = static_cast<uint8_t*>(message->data);
-    uint8_t* end = data + message->bufferPosition;
-
-    while(data < end)
-    {
-        const uint8_t type = data[0];
-        void* obj = static_cast<void*>(data);
-
-        switch(type)
-        {
-            // -------------------------------------------------------------------------------------
-            case STATUS_EDGE_CONTAINER:
-            {
-                const UpdateEdgeContainer edge = *static_cast<UpdateEdgeContainer*>(obj);
-                assert(edge.targetId != UNINIT_STATE_32);
-                processUpdateEdge(brick, edge, side);
-                data += sizeof(UpdateEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case PENDING_EDGE_CONTAINER:
-            {
-                const PendingEdgeContainer edge = *static_cast<PendingEdgeContainer*>(obj);
-                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                processPendingEdge(segment, brick, edge);
-                data += sizeof(PendingEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case FOREWARD_EDGE_CONTAINER:
-            {
-                const EdgeContainer edge = *static_cast<EdgeContainer*>(obj);
-                assert(edge.targetEdgeSectionId != UNINIT_STATE_32);
-                processEdgeForwardSection(segment, brick, edge);
-                data += sizeof(EdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case AXON_EDGE_CONTAINER:
-            {
-                const AxonEdgeContainer edge = *static_cast<AxonEdgeContainer*>(obj);
-                assert(edge.targetAxonId != UNINIT_STATE_32);
-                processAxon(segment, brick, edge);
-                data += sizeof(AxonEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case LEARNING_EDGE_CONTAINER:
-            {
-                const LearingEdgeContainer edge = *static_cast<LearingEdgeContainer*>(obj);
-                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                assert(side != 0);
-                processLerningEdge(segment, brick, edge, side);
-                data += sizeof(LearingEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case LEARNING_REPLY_EDGE_CONTAINER:
-            {
-                const LearningEdgeReplyContainer edge =
-                        *static_cast<LearningEdgeReplyContainer*>(obj);
-                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                processLearningEdgeReply(brick, edge, side);
-                data += sizeof(LearningEdgeReplyContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case DIRECT_EDGE_CONTAINER:
-            {
-                const DirectEdgeContainer edge = *static_cast<DirectEdgeContainer*>(obj);
-                processDirectEdge(segment, edge);
-                data += sizeof(DirectEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case UNDEFINED_CONTAINER:
-            {
-                return result;
-            }
-            // -------------------------------------------------------------------------------------
-            default:
-                result = false;
-        }
-    }
-
-    return result;
 }
 
 } // namespace KyoukoMind
