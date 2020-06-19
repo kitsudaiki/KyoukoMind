@@ -152,8 +152,7 @@ process_registerInput(const ControlRegisterInput &content,
         send_generic_response(false, errorMessage, session, blockerId);
         return false;
     }
-    rootObject->m_inputBricks->insert(std::pair<uint32_t, Brick*>(content.brickId,
-                                                                  newBrick));
+    rootObject->m_inputBricks->insert(std::make_pair(content.brickId, newBrick));
 
     initEdgeSectionBlocks(*newBrick, NUMBER_OF_NODES_PER_BRICK);
     initRandValues(*newBrick);

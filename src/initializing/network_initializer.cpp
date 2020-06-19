@@ -138,7 +138,7 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
     {
         for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
         {
-            const BrickID brickId = numberOfBricks;
+            const uint32_t brickId = numberOfBricks;
             switch(m_networkMetaStructure[x][y].type)
             {
                 case 1:
@@ -211,8 +211,8 @@ NetworkInitializer::connectAllBricks(NetworkSegment &segment)
                         && m_networkMetaStructure[x][y].type != EMPTY_BRICK
                         && m_networkMetaStructure[next.first][next.second].type != EMPTY_BRICK)
                 {
-                    const BrickID sourceId = m_networkMetaStructure[x][y].brick->brickId;
-                    const BrickID targetId = m_networkMetaStructure[next.first][next.second].brick->brickId;
+                    const uint32_t sourceId = m_networkMetaStructure[x][y].brick->brickId;
+                    const uint32_t targetId = m_networkMetaStructure[next.first][next.second].brick->brickId;
                     connectBricks(segment,
                                   sourceId,
                                   side,

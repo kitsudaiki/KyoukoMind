@@ -48,7 +48,7 @@ convertNetworkToObj(ObjItem &result)
  */
 void
 convertBrickToString(std::string &result,
-                     const BrickID brickId)
+                     const uint32_t brickId)
 {
     ObjItem item;
     convertBrickToObj(item, brickId);
@@ -62,7 +62,7 @@ convertBrickToString(std::string &result,
  */
 void
 convertBrickToObj(ObjItem &result,
-                  const BrickID brickId)
+                  const uint32_t brickId)
 {
     Brick* brick = RootObject::m_segment->bricks.at(brickId);
     convertBrickToObj(result, brick);
@@ -102,7 +102,7 @@ convertBrickToObj(ObjItem &result,
  */
 void
 convertNodeToString(std::string &result,
-                    const BrickID brickId,
+                    const uint32_t brickId,
                     const uint16_t nodeId)
 {
     ObjItem item;
@@ -118,7 +118,7 @@ convertNodeToString(std::string &result,
  */
 void
 convertNodeToObj(ObjItem &result,
-                 const BrickID brickId,
+                 const uint32_t brickId,
                  const uint16_t nodeId)
 {
     Brick* brick = RootObject::m_segment->bricks.at(brickId);

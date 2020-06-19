@@ -34,8 +34,8 @@ struct GlobalValues;
 struct Brick
 {
     // common
-    BrickID brickId = UNINIT_STATE_32;
-    BrickID nodeBrickId = UNINIT_STATE_32;
+    uint32_t brickId = UNINIT_STATE_32;
+    uint32_t nodeBrickId = UNINIT_STATE_32;
 
     BrickPos brickPos;
     uint8_t inQueue = 0;
@@ -65,7 +65,7 @@ struct Brick
     float outBuffer[10];
     uint8_t outBufferPos = 0;
 
-    Brick(const BrickID &brickId,
+    Brick(const uint32_t &brickId,
           const uint32_t x,
           const uint32_t y)
     {

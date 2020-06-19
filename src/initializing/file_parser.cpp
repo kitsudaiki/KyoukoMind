@@ -25,7 +25,7 @@ bool
 parse2dTestfile(const std::string &fileContent,
                 std::vector<std::vector<InitMetaDataEntry> > &result)
 {
-    BrickID idCounter = 0;
+    uint32_t idCounter = 0;
     //InitStructure m_networkMetaStructure;
     uint32_t firstLineLenght = 0;
 

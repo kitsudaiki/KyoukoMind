@@ -32,6 +32,8 @@ struct Node
     uint64_t targetBrickPath = 0;
     uint32_t targetAxonId = 0;
 
+    uint8_t padding[5];
+
 } __attribute__((packed));
 
 //==================================================================================================

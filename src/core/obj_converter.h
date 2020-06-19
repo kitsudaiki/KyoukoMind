@@ -19,18 +19,18 @@ void convertNetworkToObj(ObjItem &result);
 
 // convert one brick
 void convertBrickToString(std::string &result,
-                          const BrickID brickId);
+                          const uint32_t brickId);
 void convertBrickToObj(ObjItem &result,
-                       const BrickID brickId);
+                       const uint32_t brickId);
 void convertBrickToObj(ObjItem &result,
                        Brick* brick);
 
 // convert one node
 void convertNodeToString(std::string &result,
-                         const BrickID brickId,
+                         const uint32_t brickId,
                          const uint16_t nodeId);
 void convertNodeToObj(ObjItem &result,
-                      const BrickID brickId,
+                      const uint32_t brickId,
                       const uint16_t nodeId);
 void convertNodeToObj(ObjItem &result,
                       Brick* brick,

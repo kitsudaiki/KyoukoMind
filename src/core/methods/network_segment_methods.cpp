@@ -249,9 +249,9 @@ getMetadata(NetworkSegment &segment)
  */
 bool
 connectBricks(NetworkSegment &segment,
-              const BrickID sourceBrickId,
+              const uint32_t sourceBrickId,
               const uint8_t sourceSide,
-              const BrickID targetBrickId)
+              const uint32_t targetBrickId)
 {
     Brick* sourceBrick = segment.bricks[sourceBrickId];
     Brick* targetBrick = segment.bricks[targetBrickId];
@@ -267,9 +267,9 @@ connectBricks(NetworkSegment &segment,
  */
 bool
 disconnectBricks(NetworkSegment &segment,
-                 const BrickID sourceBrickId,
+                 const uint32_t sourceBrickId,
                  const uint8_t sourceSide,
-                 const BrickID targetBrickId)
+                 const uint32_t targetBrickId)
 {
     Brick* sourceBrick = segment.bricks[sourceBrickId];
     Brick* targetBrick = segment.bricks[targetBrickId];

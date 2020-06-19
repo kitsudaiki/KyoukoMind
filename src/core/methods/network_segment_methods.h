@@ -100,14 +100,14 @@ bool addClientOutputConnection(NetworkSegment &segment,
 Kitsunemimi::DataItem* getMetadata(NetworkSegment &segment);
 
 bool connectBricks(NetworkSegment &segment,
-                   const BrickID sourceBrickId,
+                   const uint32_t sourceBrickId,
                    const uint8_t sourceSide,
-                   const BrickID targetBrickId);
+                   const uint32_t targetBrickId);
 
 bool disconnectBricks(NetworkSegment &segment,
-                      const BrickID sourceBrickId,
+                      const uint32_t sourceBrickId,
                       const uint8_t sourceSide,
-                      const BrickID targetBrickId);
+                      const uint32_t targetBrickId);
 
 }
 

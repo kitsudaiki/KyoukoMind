@@ -32,7 +32,7 @@ enum BrickTypes
 struct InitMetaDataEntry
 {
     uint8_t type = EMPTY_BRICK;
-    BrickID brickId = 0;
+    uint32_t brickId = 0;
     Brick* brick = nullptr;
     uint32_t numberOfAxons = 0;
 };

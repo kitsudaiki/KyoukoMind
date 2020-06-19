@@ -76,6 +76,9 @@ initializeGpu(NetworkSegment &segment,
         return false;
     }
 
+    segment.ocl.updateBufferOnDevice(segment.oclData.buffer[3]);
+    //segment.ocl.updateBufferOnDevice(segment.oclData.buffer[4]);
+
     return true;
 }
 
