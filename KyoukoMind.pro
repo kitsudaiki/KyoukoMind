@@ -104,7 +104,8 @@ HEADERS += \
     src/core/brick_queue.h \
     src/core/processing/gpu_processing.cl \
     src/core/processing/gpu_interface.h \
-    src/core/objects/transfer_objects.h
+    src/core/objects/transfer_objects.h \
+    src/core/validation.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -121,7 +122,8 @@ SOURCES += \
     src/core/methods/network_segment_methods.cpp \
     src/core/methods/data_connection_methods.cpp \
     src/core/brick_queue.cpp \
-    src/core/processing/gpu_interface.cpp
+    src/core/processing/gpu_interface.cpp \
+    src/core/validation.cpp
 
 
 CONFIG(run_tests) {

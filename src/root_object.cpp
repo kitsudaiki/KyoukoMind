@@ -12,6 +12,7 @@
 #include <core/global_values_handler.h>
 #include <core/objects/brick.h>
 #include <core/obj_converter.h>
+#include <core/validation.h>
 
 #include <io/network_callbacks.h>
 #include <io/client_processing.h>
@@ -41,6 +42,8 @@ std::map<uint32_t, Brick*>* RootObject::m_inputBricks = nullptr;
  */
 RootObject::RootObject()
 {
+    validateStructSizes();
+
     m_segment = new NetworkSegment();
     m_queue = new BrickQueue();
     m_globalValuesHandler = new GlobalValuesHandler();

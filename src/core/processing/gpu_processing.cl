@@ -1,3 +1,5 @@
+#pragma OPENCL EXTENSION cl_khr_fp16 : enable
+
 // const predefined values
 #define UNINIT_STATE_64 0xFFFFFFFFFFFFFFFF
 #define UNINIT_STATE_32 0xFFFFFFFF
@@ -25,7 +27,6 @@
 #define REFRACTION_TIME 2
 #define PROCESSING_MULTIPLICATOR 1.0f
 
-
 //==================================================================================================
 
 enum SectionStatus
@@ -42,7 +43,7 @@ typedef struct SynapseTransfer_struct
     uint brickId;
     uint sourceEdgeId;
     float weight;
-} SynapseTransfer __attribute__((packed));
+} SynapseTransfer;
 
 //==================================================================================================
 
@@ -51,7 +52,7 @@ typedef struct AxonTransfer_struct
     uint targetId;
     ulong path;
     float weight;
-} AxonTransfer __attribute__((packed));
+} AxonTransfer;
 
 //==================================================================================================
 
@@ -61,7 +62,7 @@ typedef struct UpdateTransfer_struct
     uint targetId ;
     uchar deleted ;
     float weightDiff;
-} UpdateTransfer __attribute__((packed));
+} UpdateTransfer;
 
 //==================================================================================================
 
@@ -69,7 +70,7 @@ typedef struct RandTransfer_struct
 {
     float randWeight[999];
     uint randPos[1024];
-} RandTransfer __attribute__((packed));
+} RandTransfer;
 
 //==================================================================================================
 
@@ -80,6 +81,7 @@ typedef struct Node_struct
 
     float potential;
     uchar refractionTime;
+    uchar padding[5];
 
     uchar active;
     uchar tooHigh;
@@ -87,19 +89,20 @@ typedef struct Node_struct
     // Axon
     ulong targetBrickPath;
     uint targetAxonId;
-} Node __attribute__((packed));
+
+} Node;
 
 //==================================================================================================
 
 typedef struct Synapse_struct
 {
     float weight;
-    ushort targetNodeId;
     float memorize;
+    ushort targetNodeId;
     uchar inProcess;
     uchar somaDistance;
 
-} Synapse __attribute__((packed));
+} Synapse;
 
 //==================================================================================================
 
@@ -108,6 +111,8 @@ typedef struct SynapseSection_struct
     uchar status;
 
     uchar numberOfSynapses;
+    uchar padding[6];
+
     ulong activeMapping;
     float totalWeight;
 
@@ -115,13 +120,12 @@ typedef struct SynapseSection_struct
     uint sourceBrickId;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
-    uchar padding[6];
-} SynapseSection __attribute__((packed));
+} SynapseSection;
 
 //==================================================================================================
 
 float
-roundValue(const float input)
+makePositive(const float input)
 {
     float floatRep = input;
     uint* convertedValue = (uint*)(&floatRep);
@@ -205,9 +209,9 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
 {
     if(position < synapseSection->numberOfSynapses)
     {
-        float diff = roundValue(synapseSection->synapses[position].weight);
+        float diff = makePositive(synapseSection->synapses[position].weight);
         synapseSection->synapses[position].weight += weightUpdate;
-        diff -= roundValue(synapseSection->synapses[position].weight);
+        diff -= makePositive(synapseSection->synapses[position].weight);
         synapseSection->totalWeight -= diff;
     }
 }
@@ -274,7 +278,7 @@ learningSynapseSection(__local SynapseSection* synapseSection,
         const float newVal = 0.5 * currentSideWeight;
 
         synapseSection->synapses[choosePosition].weight += newVal;
-        synapseSection->totalWeight += roundValue(newVal);
+        synapseSection->totalWeight += makePositive(newVal);
     }
 }
 
@@ -335,6 +339,7 @@ processNodes(__local Node* node,
     }
 
     // check if active
+    //printf("border: %f    id-value: %f \n", node->border, node->currentState);
     if(node->border <= node->currentState
             && node->refractionTime == 0)
     {
@@ -443,23 +448,26 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
     uint brickId = globalId_x / 256; 
 
     __local uchar localMemory[256];
+    // printf("poix %d  %d  %d\n", numberOfNodes, numberOfBricks, brickId);
+    //printf("numberOfNodes: %d\n", numberOfNodes);
+    printf("sizeof(SynapseSection): %d\n", sizeof(SynapseSection));
+    printf("sizeof(Synapse): %d\n", sizeof(Synapse));
 
-    if(brickId < numberOfBricks) {
+    if(brickId >= numberOfBricks) {
         return;
     }
 
     //----------------------------------------------------------------------------------------------
     // process input synapses
-    __local SynapseSection* tempSections = (__local SynapseSection*)&localMemory[0];
+    __local SynapseSection* tempSections = (__local SynapseSection*)localMemory;
 
-    for(uint i = localId_x; i < numberOfSynapseTransfers; i = i + 256)
+    for(uint i = localId_x; i < numberOfSynapseSections; i = i + 256)
     {
         if(synapseTransfers[i].brickId == UNINIT_STATE_32
             || synapseTransfers[i].brickId != brickId) 
         {
             continue;
         }
-
 
         tempSections[0] = synapseSections[i];
 

@@ -67,7 +67,7 @@ NetworkManager::initNetwork()
     std::vector<std::string> brickFiles;
     Kitsunemimi::Persistence::listFiles(brickFiles, directoryPath, false);
     if(brickFiles.size() == 0
-            || Kitsunemimi::Persistence::doesPathExist(directoryPath) == false)
+            || bfs::exists(directoryPath) == false)
     {
         LOG_INFO("no files found. Try to create a new cluster");
 
@@ -80,8 +80,10 @@ NetworkManager::initNetwork()
         LOG_INFO("use init-file: " + initialFile);
 
         std::string fileContent = "";
-        std::string error = "";
-        if(Kitsunemimi::Persistence::readFile(fileContent, initialFile, error) == false) {
+        std::string errorMessage = "";
+        if(Kitsunemimi::Persistence::readFile(fileContent, initialFile, errorMessage) == false)
+        {
+            LOG_ERROR(errorMessage);
             return false;
         }
 
