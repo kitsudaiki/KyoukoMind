@@ -139,7 +139,7 @@ updateNodeOnDevice(NetworkSegment &segment,
                    const uint32_t nodeId,
                    const float value)
 {
-    uint64_t pos = nodeId * sizeof(Node);
+    const uint64_t pos = nodeId * sizeof(Node);
 
     cl::CommandQueue* queue = &segment.ocl.m_queue;
     const cl_int ret = queue->enqueueWriteBuffer(segment.oclData.buffer[3].clBuffer,

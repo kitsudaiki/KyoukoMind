@@ -5,7 +5,7 @@
 #define UNINIT_STATE_32 0xFFFFFFFF
 #define UNINIT_STATE_24 0xFFFFFF
 #define UNINIT_STATE_16 0xFFFF
-#define UNINIT_STATE_8 0xFF
+#define UNINIT_STATE_8  0xFF
 
 // common information
 #define SYNAPSES_PER_SYNAPSESECTION 19
@@ -177,7 +177,6 @@ addSynapse(__local SynapseSection* synapseSection,
 //==================================================================================================
 
 /**
- *
  * @return false, if the section is already full, else true
  */
 void
@@ -429,29 +428,38 @@ memorizeSynapses(__local SynapseSection* synapseSection,
 
 //==================================================================================================
 
-__kernel void processing(__global const SynapseTransfer* synapseTransfers,
-                         ulong numberOfSynapseTransfers,
-                         __global AxonTransfer* axonTransfers,
-                         ulong numberOfAxonTransfers,
-                         __global UpdateTransfer* updateTransfers,
-                         ulong numberOfUpdateTransfers,
-                         __global Node* nodes,
-                         ulong numberOfNodes,
-                         __global SynapseSection* synapseSections,
-                         ulong numberOfSynapseSections,
-                         __global RandTransfer* randTransfers,
-                         ulong numberOfRandTransfers)
+__kernel void 
+processing(__global const SynapseTransfer* synapseTransfers,
+           ulong numberOfSynapseTransfers,
+           __global AxonTransfer* axonTransfers,
+           ulong numberOfAxonTransfers,
+           __global UpdateTransfer* updateTransfers,
+           ulong numberOfUpdateTransfers,
+           __global Node* nodes,
+           ulong numberOfNodes,
+           __global SynapseSection* synapseSections,
+           ulong numberOfSynapseSections,
+           __global RandTransfer* randTransfers,
+           ulong numberOfRandTransfers)
 {
+    // calculate global ids
     size_t globalId_x = get_global_id(0);
     int localId_x = get_local_id(0);
     uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
     uint brickId = globalId_x / 256; 
 
+    // init shared memory
     __local uchar localMemory[256];
-    // printf("poix %d  %d  %d\n", numberOfNodes, numberOfBricks, brickId);
-    //printf("numberOfNodes: %d\n", numberOfNodes);
-    printf("sizeof(SynapseSection): %d\n", sizeof(SynapseSection));
-    printf("sizeof(Synapse): %d\n", sizeof(Synapse));
+
+    // debug-prints
+    if(globalId_x == 0)
+    {
+        printf("number of Nodes: %d\n", numberOfNodes);
+        printf("number of SynapseTransfers: %d\n", numberOfSynapseTransfers);
+        printf("number of AxonTransfers: %d\n", numberOfAxonTransfers);
+        printf("number of UpdateTransfers: %d\n", numberOfUpdateTransfers);
+        printf("number of SynapseSections: %d\n", numberOfSynapseSections);
+    }
 
     if(brickId >= numberOfBricks) {
         return;
@@ -459,6 +467,7 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
     //----------------------------------------------------------------------------------------------
     // process input synapses
+    //----------------------------------------------------------------------------------------------
     __local SynapseSection* tempSections = (__local SynapseSection*)localMemory;
 
     for(uint i = localId_x; i < numberOfSynapseSections; i = i + 256)
@@ -490,6 +499,7 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
     //----------------------------------------------------------------------------------------------
     // process nodes
+    //----------------------------------------------------------------------------------------------
     __local Node* tempNodes = (__local Node*)&localMemory[0];
 
     for(uint i = localId_x; i < NUMBER_OF_NODES_PER_BRICK; i = i + 256)
@@ -503,6 +513,7 @@ __kernel void processing(__global const SynapseTransfer* synapseTransfers,
 
     //----------------------------------------------------------------------------------------------
     // process memorizing
+    //----------------------------------------------------------------------------------------------
     __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[0];
 
     for(uint i = localId_x; i < numberOfSynapseSections; i = i + 256)

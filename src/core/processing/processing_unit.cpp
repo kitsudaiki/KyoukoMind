@@ -66,28 +66,30 @@ ProcessingUnit::run()
 
             if(USE_GPU)
             {
+                // run process on gpu
                 start = std::chrono::system_clock::now();
                 runOnGpu(*segment);
                 end = std::chrono::system_clock::now();
                 const float gpu1 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
                 LOG_DEBUG("gpu run-time: " + std::to_string(gpu1 / 1000.0f) + '\n');
 
+                // copy result from gpu to host
                 start = std::chrono::system_clock::now();
                 copyAxonsFromGpu(*segment);
                 end = std::chrono::system_clock::now();
                 const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
                 LOG_DEBUG("gpu copy-time: " + std::to_string(gpu2 / 1000.0f) + '\n');
 
+                // debug-output
                 uint32_t count = 0;
                 AxonTransfer* axons = static_cast<AxonTransfer*>(segment->axonEdges.buffer.data);
-
                 for(uint32_t i = 0; i < segment->axonEdges.numberOfItems; i++)
                 {
                     if(axons[i].weight != 0.0f) {
                         count++;
                     }
                 }
-                std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! count: "<<count<<std::endl;
+                std::cout<<"number of active Axons: "<<count<<std::endl;
             }
 
             // block thread until next cycle if queue is empty
