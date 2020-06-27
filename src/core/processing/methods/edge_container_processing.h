@@ -11,7 +11,7 @@
 #define EDGE_CONTAINER_PROCESSING_H
 
 #include <common.h>
-#include <root_object.h>
+#include <kyouko_root.h>
 
 #include <core/objects/container_definitions.h>
 #include <core/methods/brick_item_methods.h>

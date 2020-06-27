@@ -1,6 +1,6 @@
 ﻿#include "obj_converter.h"
 
-#include <root_object.h>
+#include <kyouko_root.h>
 
 #include <core/objects/brick.h>
 #include <core/objects/brick_pos.h>
@@ -33,10 +33,10 @@ convertNetworkToString(std::string &result)
 void
 convertNetworkToObj(ObjItem &result)
 {
-    const uint64_t numberOfBricks = RootObject::m_segment->bricks.size();
+    const uint64_t numberOfBricks = KyoukoRoot::m_segment->bricks.size();
     for(uint64_t i = 0; i < numberOfBricks; i++)
     {
-        Brick* brick = RootObject::m_segment->bricks.at(i);
+        Brick* brick = KyoukoRoot::m_segment->bricks.at(i);
         convertBrickToObj(result, brick);
     }
 }
@@ -64,7 +64,7 @@ void
 convertBrickToObj(ObjItem &result,
                   const uint32_t brickId)
 {
-    Brick* brick = RootObject::m_segment->bricks.at(brickId);
+    Brick* brick = KyoukoRoot::m_segment->bricks.at(brickId);
     convertBrickToObj(result, brick);
 }
 
@@ -81,7 +81,7 @@ convertBrickToObj(ObjItem &result,
         return;
     }
 
-    NetworkSegment* segment = RootObject::m_segment;
+    NetworkSegment* segment = KyoukoRoot::m_segment;
     Node* start = &getNodeBlock(*segment)[brick->nodePos];
     Node* end = start + NUMBER_OF_NODES_PER_BRICK;
 
@@ -121,7 +121,7 @@ convertNodeToObj(ObjItem &result,
                  const uint32_t brickId,
                  const uint16_t nodeId)
 {
-    Brick* brick = RootObject::m_segment->bricks.at(brickId);
+    Brick* brick = KyoukoRoot::m_segment->bricks.at(brickId);
 
     if(brick->nodePos == -1
             || nodeId > NUMBER_OF_NODES_PER_BRICK)
@@ -129,7 +129,7 @@ convertNodeToObj(ObjItem &result,
         return;
     }
 
-    NetworkSegment* segment = RootObject::m_segment;
+    NetworkSegment* segment = KyoukoRoot::m_segment;
     Node* nodeArray = &getNodeBlock(*segment)[brick->nodePos];
     Node* node = &nodeArray[nodeId];
 

@@ -7,7 +7,7 @@
  *
  */
 
-#include <root_object.h>
+#include <kyouko_root.h>
 #include <core/network_manager.h>
 #include <core/global_values_handler.h>
 #include <core/objects/brick.h>
@@ -29,18 +29,18 @@ namespace KyoukoMind
 {
 
 // init static variables
-KyoukoMind::NetworkSegment* RootObject::m_segment = nullptr;
-KyoukoMind::BrickQueue* RootObject::m_queue = nullptr;
-KyoukoMind::GlobalValuesHandler* RootObject::m_globalValuesHandler = nullptr;
-Kitsunemimi::Project::Session* RootObject::m_clientSession = nullptr;
-Kitsunemimi::Project::Session* RootObject::m_controlSession = nullptr;
-Kitsunemimi::Project::Session* RootObject::m_monitoringSession = nullptr;
-std::map<uint32_t, Brick*>* RootObject::m_inputBricks = nullptr;
+KyoukoMind::NetworkSegment* KyoukoRoot::m_segment = nullptr;
+KyoukoMind::BrickQueue* KyoukoRoot::m_queue = nullptr;
+KyoukoMind::GlobalValuesHandler* KyoukoRoot::m_globalValuesHandler = nullptr;
+Kitsunemimi::Project::Session* KyoukoRoot::m_clientSession = nullptr;
+Kitsunemimi::Project::Session* KyoukoRoot::m_controlSession = nullptr;
+Kitsunemimi::Project::Session* KyoukoRoot::m_monitoringSession = nullptr;
+std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
 
 /**
  * main-class
  */
-RootObject::RootObject()
+KyoukoRoot::KyoukoRoot()
 {
     validateStructSizes();
 
@@ -55,7 +55,7 @@ RootObject::RootObject()
                                                                       this, &errorCallback);
 }
 
-RootObject::~RootObject()
+KyoukoRoot::~KyoukoRoot()
 {
     m_sessionController->closeServer(m_serverId);
 }
@@ -64,7 +64,7 @@ RootObject::~RootObject()
  * init all components
  */
 bool
-RootObject::start()
+KyoukoRoot::start()
 {
     // network-manager
     m_networkManager = new NetworkManager();
@@ -78,7 +78,7 @@ RootObject::start()
  * @return
  */
 bool
-RootObject::initServer()
+KyoukoRoot::initServer()
 {
     bool success = false;
     uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("Network", "port", success));
@@ -95,7 +95,7 @@ RootObject::initServer()
  * @return
  */
 const std::string
-RootObject::convertToObj()
+KyoukoRoot::convertToObj()
 {
     m_networkManager->initBlockThread();
     // wait the double time of one cycle to ensure, that it is paused

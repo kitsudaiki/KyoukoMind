@@ -87,7 +87,6 @@ HEADERS += \
     src/initializing/init_meta_data.h \
     src/initializing/network_initializer.h \
     src/common.h \
-    src/root_object.h \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
@@ -105,7 +104,8 @@ HEADERS += \
     src/core/processing/gpu_processing.cl \
     src/core/processing/gpu_interface.h \
     src/core/objects/transfer_objects.h \
-    src/core/validation.h
+    src/core/validation.h \
+    src/kyouko_root.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -117,13 +117,13 @@ SOURCES += \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
-    src/root_object.cpp \
     src/core/obj_converter.cpp \
     src/core/methods/network_segment_methods.cpp \
     src/core/methods/data_connection_methods.cpp \
     src/core/brick_queue.cpp \
     src/core/processing/gpu_interface.cpp \
-    src/core/validation.cpp
+    src/core/validation.cpp \
+    src/kyouko_root.cpp
 
 
 CONFIG(run_tests) {

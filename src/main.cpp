@@ -9,7 +9,7 @@
 
 #include <common.h>
 
-#include <root_object.h>
+#include <kyouko_root.h>
 #include <args.h>
 #include <config.h>
 
@@ -54,7 +54,7 @@ main(int argc, char *argv[])
     Kitsunemimi::Persistence::initFileLogger(logDirPath, logBaseName, enableDebug);
 
     // create server
-    KyoukoMind::RootObject* rootObject = new KyoukoMind::RootObject();
+    KyoukoMind::KyoukoRoot* rootObject = new KyoukoMind::KyoukoRoot();
     rootObject->start();
 
     int a = 0;

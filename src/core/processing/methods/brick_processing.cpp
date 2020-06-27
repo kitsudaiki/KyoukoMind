@@ -69,15 +69,15 @@ finishCycle(Brick* brick,
 
     processReady(brick);
 
-    if(RootObject::m_clientSession != nullptr
+    if(KyoukoRoot::m_clientSession != nullptr
             && brick->isOutputBrick == 1)
     {
-        RootObject::m_clientSession->sendStreamData(clientMessage.data,
+        KyoukoRoot::m_clientSession->sendStreamData(clientMessage.data,
                                                     clientMessage.bufferPosition);
     }
 
-    if(RootObject::m_monitoringSession != nullptr) {
-        RootObject::m_monitoringSession->sendStreamData(monitoringMessage.data,
+    if(KyoukoRoot::m_monitoringSession != nullptr) {
+        KyoukoRoot::m_monitoringSession->sendStreamData(monitoringMessage.data,
                                                         monitoringMessage.bufferPosition);
     }
 
@@ -128,7 +128,7 @@ processReady(Brick* brick)
     if(isReady(brick)
             && brick->inQueue == 0)
     {
-        RootObject::m_queue->addToQueue(brick);
+        KyoukoRoot::m_queue->addToQueue(brick);
         brick->lock.clear(std::memory_order_release);
         return true;
     }
@@ -200,7 +200,7 @@ void
 writeMonitoringOutput(Brick &brick,
                       DataBuffer &buffer)
 {
-    GlobalValues globalValue = RootObject::m_globalValuesHandler->getGlobalValues();
+    GlobalValues globalValue = KyoukoRoot::m_globalValuesHandler->getGlobalValues();
 
     // fill message
     Kitsunemimi::Kyouko::MonitoringMessage monitoringMessage;

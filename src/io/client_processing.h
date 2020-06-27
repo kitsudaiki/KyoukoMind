@@ -1,7 +1,7 @@
 #ifndef CLIENT_PROCESSING_H
 #define CLIENT_PROCESSING_H
 
-#include <root_object.h>
+#include <kyouko_root.h>
 #include <core/objects/container_definitions.h>
 
 #include <core/methods/brick_initializing_methods.h>
@@ -34,7 +34,7 @@ namespace KyoukoMind
  */
 inline void
 clientControlLearning_processing(const ClientControlLearning &content,
-                                 RootObject* rootObject)
+                                 KyoukoRoot* rootObject)
 {
     GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
 
@@ -51,7 +51,7 @@ clientControlLearning_processing(const ClientControlLearning &content,
  */
 inline void
 clientControlMemorizing_processing(const ClientControlMemorizing &content,
-                                   RootObject* rootObject)
+                                   KyoukoRoot* rootObject)
 {
     GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
 
@@ -68,7 +68,7 @@ clientControlMemorizing_processing(const ClientControlMemorizing &content,
  */
 inline void
 clientControlGlia_processing(const ClientControlGlia &content,
-                             RootObject* rootObject)
+                             KyoukoRoot* rootObject)
 {
     GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
 
@@ -84,7 +84,7 @@ clientControlGlia_processing(const ClientControlGlia &content,
  */
 inline void
 clientControlOutputLearning_processing(const ClientControlOutputLearning &content,
-                                       RootObject* rootObject)
+                                       KyoukoRoot* rootObject)
 {
 
     Brick* brick = rootObject->m_segment->bricks.at(content.brickId);
@@ -99,7 +99,7 @@ clientControlOutputLearning_processing(const ClientControlOutputLearning &conten
  */
 inline void
 clientLearnInput_processing(const ClientLearnInputData &content,
-                            RootObject* rootObject)
+                            KyoukoRoot* rootObject)
 {
     std::map<uint32_t, Brick*>::const_iterator it;
     it = rootObject->m_inputBricks->find(content.brickId);
@@ -128,7 +128,7 @@ clientLearnInput_processing(const ClientLearnInputData &content,
  */
 inline void
 clientLearnFinishCycleData_processing(const ClientLearnFinishCycleData &content,
-                                      RootObject* rootObject)
+                                      KyoukoRoot* rootObject)
 {
     std::map<uint32_t, Brick*>::const_iterator it;
     it = rootObject->m_inputBricks->find(content.brickId);
@@ -159,7 +159,7 @@ clientCallback(void* target,
                const void* data,
                const uint64_t dataSize)
 {
-    RootObject* rootObject = static_cast<RootObject*>(target);
+    KyoukoRoot* rootObject = static_cast<KyoukoRoot*>(target);
     const uint8_t* dataObj = static_cast<const uint8_t*>(data);
 
     //LOG_DEBUG("process incoming client message with size: " + std::to_string(dataSize));

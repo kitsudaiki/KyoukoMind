@@ -12,7 +12,7 @@
 
 #include <libKitsunemimiCommon/threading/thread.h>
 
-#include <root_object.h>
+#include <kyouko_root.h>
 
 namespace KyoukoMind
 {

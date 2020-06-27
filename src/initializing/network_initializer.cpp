@@ -8,7 +8,7 @@
  */
 
 #include "network_initializer.h"
-#include <root_object.h>
+#include <kyouko_root.h>
 #include <core/objects/brick.h>
 
 #include <initializing/axon_initializer.h>
@@ -48,7 +48,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    NetworkSegment* segment = RootObject::m_segment;
+    NetworkSegment* segment = KyoukoRoot::m_segment;
 
     // init segment
     assert(initSynapseSectionBlocks(*segment, 1));
@@ -56,7 +56,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
 
     assert(initNodeBlocks(*segment, totalNumberOfNodes));
-    RootObject::m_queue->setBorder(getNumberOfBricks());
+    KyoukoRoot::m_queue->setBorder(getNumberOfBricks());
 
     // init bricks
     addBricks(*segment);
@@ -132,7 +132,7 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
     uint32_t numberOfNodeBricks = 0;
     uint32_t numberOfBricks = 0;
 
-    BrickQueue* queue = RootObject::m_queue;
+    BrickQueue* queue = KyoukoRoot::m_queue;
 
     for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
     {

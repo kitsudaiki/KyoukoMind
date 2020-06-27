@@ -8,7 +8,7 @@
  */
 
 #include "axon_initializer.h"
-#include <root_object.h>
+#include <kyouko_root.h>
 
 #include <core/objects/brick.h>
 #include <core/methods/brick_item_methods.h>

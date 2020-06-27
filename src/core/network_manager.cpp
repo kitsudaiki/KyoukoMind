@@ -8,7 +8,7 @@
  */
 
 #include <core/network_manager.h>
-#include <root_object.h>
+#include <kyouko_root.h>
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/file_methods.h>

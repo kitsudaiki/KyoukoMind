@@ -1,7 +1,7 @@
 #ifndef NETWORK_CALLBACKS_H
 #define NETWORK_CALLBACKS_H
 
-#include <root_object.h>
+#include <kyouko_root.h>
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -36,7 +36,7 @@ sessionCallback(void* target,
 {
     LOG_INFO("register incoming session with identifier: " + sessionIdentifier);
 
-    RootObject* rootObject = static_cast<RootObject*>(target);
+    KyoukoRoot* rootObject = static_cast<KyoukoRoot*>(target);
     if(isInit)
     {
         if(sessionIdentifier == "client") {

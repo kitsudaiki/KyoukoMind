@@ -44,7 +44,7 @@ ProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
-    NetworkSegment* segment = RootObject::m_segment;
+    NetworkSegment* segment = KyoukoRoot::m_segment;
 
     while(!m_abort)
     {
@@ -52,13 +52,13 @@ ProcessingUnit::run()
             blockThread();
         }
 
-        Brick* brick = RootObject::m_queue->getFromQueue();
+        Brick* brick = KyoukoRoot::m_queue->getFromQueue();
         if(brick == nullptr)
         {
-            GlobalValues globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
+            GlobalValues globalValues = KyoukoRoot::m_globalValuesHandler->getGlobalValues();
             globalValues.globalLearningTemp = 0.0f;
             globalValues.globalMemorizingTemp = 0.0f;
-            RootObject::m_globalValuesHandler->setGlobalValues(globalValues);
+            KyoukoRoot::m_globalValuesHandler->setGlobalValues(globalValues);
 
             end = std::chrono::system_clock::now();
             const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
@@ -102,7 +102,7 @@ ProcessingUnit::run()
             initCycle(brick);
 
             // main-processing
-            brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
+            brick->globalValues = KyoukoRoot::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*segment, *brick);
 
             // write output

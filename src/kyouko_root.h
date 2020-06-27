@@ -1,5 +1,5 @@
 /**
- *  @file    kyouko_network.h
+ *  @file    kyouko_root.h
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -28,12 +28,12 @@ class NetworkManager;
 class BrickQueue;
 struct NetworkSegment;
 
-class RootObject
+class KyoukoRoot
 {
 
 public:
-    RootObject();
-    ~RootObject();
+    KyoukoRoot();
+    ~KyoukoRoot();
 
     static KyoukoMind::NetworkSegment* m_segment;
     static KyoukoMind::BrickQueue* m_queue;
