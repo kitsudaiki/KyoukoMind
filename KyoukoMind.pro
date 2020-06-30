@@ -105,7 +105,8 @@ HEADERS += \
     src/core/processing/gpu_interface.h \
     src/core/objects/transfer_objects.h \
     src/core/validation.h \
-    src/kyouko_root.h
+    src/kyouko_root.h \
+    src/dummy_input.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -123,7 +124,8 @@ SOURCES += \
     src/core/brick_queue.cpp \
     src/core/processing/gpu_interface.cpp \
     src/core/validation.cpp \
-    src/kyouko_root.cpp
+    src/kyouko_root.cpp \
+    src/dummy_input.cpp
 
 
 CONFIG(run_tests) {

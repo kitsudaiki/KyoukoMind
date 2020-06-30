@@ -11,7 +11,7 @@
 #define BRICKMETA_H
 
 #include <common.h>
-#include <root_object.h>
+#include <kyouko_root.h>
 
 #include <core/objects/brick_pos.h>
 #include <core/objects/edges.h>

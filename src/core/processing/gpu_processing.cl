@@ -486,11 +486,13 @@ processing(__global const SynapseTransfer* synapseTransfers,
                                 synapseTransfers[i].brickId,
                                 synapseTransfers[i].sourceEdgeId);
         }
-
-        processSynapseSection(tempSections,
-                              nodes,
-                              synapseTransfers[i].weight,
-                              randTransfers);
+        else
+        {
+            processSynapseSection(tempSections,
+                                  nodes,
+                                  synapseTransfers[i].weight,
+                                  randTransfers);
+        }
 
         synapseSections[i] = tempSections[0];
     }

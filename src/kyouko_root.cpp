@@ -14,6 +14,8 @@
 #include <core/obj_converter.h>
 #include <core/validation.h>
 
+#include <dummy_input.h>
+
 #include <io/network_callbacks.h>
 #include <io/client_processing.h>
 #include <io/control_processing.h>
@@ -70,7 +72,10 @@ KyoukoRoot::start()
     m_networkManager = new NetworkManager();
     m_networkManager->startThread();
 
-    return initServer();
+    m_dummyInput = new DummyInput();
+    m_dummyInput->startThread();
+    return true;
+    //return initServer();
 }
 
 /**

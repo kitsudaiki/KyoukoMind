@@ -26,6 +26,7 @@ namespace KyoukoMind
 {
 class NetworkManager;
 class BrickQueue;
+class DummyInput;
 struct NetworkSegment;
 
 class KyoukoRoot
@@ -54,6 +55,7 @@ private:
     Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
     NetworkManager* m_networkManager = nullptr;
     uint32_t m_serverId = 0;
+    DummyInput* m_dummyInput = nullptr;
 };
 
 } // namespace KyoukoMind

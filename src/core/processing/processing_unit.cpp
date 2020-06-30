@@ -8,7 +8,7 @@
  */
 
 #include <core/processing/processing_unit.h>
-#include <root_object.h>
+#include <kyouko_root.h>
 
 #include <core/global_values_handler.h>
 
