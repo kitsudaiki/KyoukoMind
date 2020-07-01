@@ -118,20 +118,11 @@ reserveDynamicItem(DataConnection &data)
     // calculate size information
     const uint32_t blockSize = data.buffer.blockSize;
     const uint64_t numberOfBlocks = data.buffer.numberOfBlocks;
-    const uint64_t newNumberOfBlocks = (((data.numberOfItems + 1) * data.itemSize)
-                                        / blockSize) + 1;
+    const uint64_t newNumberOfBlocks = (((data.numberOfItems + 1) * data.itemSize) / blockSize) + 1;
 
     // allocate a new block, if necessary
-    if(numberOfBlocks < newNumberOfBlocks)
-    {
-        bool success = Kitsunemimi::allocateBlocks_DataBuffer(data.buffer,
-                                                              newNumberOfBlocks - numberOfBlocks);
-        if(success == false)
-        {
-            // TODO: handle this case
-            assert(false);
-            return UNINIT_STATE_32;
-        }
+    if(numberOfBlocks < newNumberOfBlocks) {
+        Kitsunemimi::allocateBlocks_DataBuffer(data.buffer, newNumberOfBlocks - numberOfBlocks);
     }
 
     data.numberOfItems++;

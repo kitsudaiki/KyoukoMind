@@ -430,17 +430,17 @@ memorizeSynapses(__local SynapseSection* synapseSection,
 
 __kernel void 
 processing(__global const SynapseTransfer* synapseTransfers,
-           ulong numberOfSynapseTransfers,
+           const ulong numberOfSynapseTransfers,
            __global AxonTransfer* axonTransfers,
-           ulong numberOfAxonTransfers,
+           const ulong numberOfAxonTransfers,
            __global UpdateTransfer* updateTransfers,
-           ulong numberOfUpdateTransfers,
+           const ulong numberOfUpdateTransfers,
            __global Node* nodes,
-           ulong numberOfNodes,
+           const ulong numberOfNodes,
            __global SynapseSection* synapseSections,
-           ulong numberOfSynapseSections,
+           const ulong numberOfSynapseSections,
            __global RandTransfer* randTransfers,
-           ulong numberOfRandTransfers)
+           const ulong numberOfRandTransfers)
 {
     // calculate global ids
     size_t globalId_x = get_global_id(0);
@@ -454,11 +454,21 @@ processing(__global const SynapseTransfer* synapseTransfers,
     // debug-prints
     if(globalId_x == 0)
     {
-        printf("number of Nodes: %d\n", numberOfNodes);
-        printf("number of SynapseTransfers: %d\n", numberOfSynapseTransfers);
-        printf("number of AxonTransfers: %d\n", numberOfAxonTransfers);
-        printf("number of UpdateTransfers: %d\n", numberOfUpdateTransfers);
-        printf("number of SynapseSections: %d\n", numberOfSynapseSections);
+        // debug-output
+        // printf seems to be a little bit broken and replace values sometimes with 0
+        // so all values are tried to printed two times to have one correct output
+        printf("numberOfSynapseTransfers: %d, %d\n"
+               "numberOfAxonTransfers: %d, %d\n"
+               "numberOfUpdateTransfers: %d, %d\n"
+               "numberOfNodes: %d, %d\n"
+               "numberOfSynapseSections: %d, %d\n"
+               "numberOfRandTransfers: %d, %d\n",
+               numberOfSynapseTransfers, numberOfSynapseTransfers,
+               numberOfAxonTransfers, numberOfAxonTransfers,
+               numberOfUpdateTransfers, numberOfUpdateTransfers,
+               numberOfNodes, numberOfNodes,
+               numberOfSynapseSections, numberOfSynapseSections,
+               numberOfRandTransfers, numberOfRandTransfers);
     }
 
     if(brickId >= numberOfBricks) {
@@ -482,12 +492,14 @@ processing(__global const SynapseTransfer* synapseTransfers,
 
         if(tempSections[0].status == DELETED_SECTION) 
         {
+            printf("poi1\n");
             resetSynapseSection(tempSections,
                                 synapseTransfers[i].brickId,
                                 synapseTransfers[i].sourceEdgeId);
         }
         else
         {
+            printf("poi12\n");
             processSynapseSection(tempSections,
                                   nodes,
                                   synapseTransfers[i].weight,

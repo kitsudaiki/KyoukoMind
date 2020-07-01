@@ -29,6 +29,10 @@ void
 DummyInput::run()
 {
     initialize();
+    initCycle(inputBrick);
+
+    const uint64_t targetEdgeId = addEmptyEdgeSection(*inputBrick->neighbors[22].targetBrick, 1, 0);
+
 
     while(!m_abort)
     {
@@ -44,30 +48,19 @@ DummyInput::run()
 
         // get neighbor
         Neighbor* neighbor = &inputBrick->neighbors[22];
-        const uint16_t ok = neighbor->targetBrick->nodePos >= 0;
 
         // set input-values
-        for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
-        {
-            assert(neighbor->outgoingBuffer != nullptr);
+        EdgeContainer newEdge;
+        newEdge.weight = m_inputValue;
+        newEdge.targetEdgeSectionId = targetEdgeId;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
 
-            EdgeContainer newEdge;
-            newEdge.weight = m_inputValue;
-            newEdge.targetEdgeSectionId = i;
-            assert(neighbor->currentBuffer != nullptr);
-            Kitsunemimi::addObject_StackBuffer(*neighbor->currentBuffer, &newEdge);
-        }
-
-        // finish and reint next cycle
-        processIncomingMessages2(*KyoukoRoot::m_segment, *inputBrick, 22);
-        assert(inputBrick->neighbors[22].outgoingBuffer != nullptr);
+        // finish and restart cycle
         finishSide(inputBrick, 22);
         while(isReady(inputBrick) == false) {
             usleep(1000);
         }
         initCycle(inputBrick);
-
-        // sleep until next cycle
         sleepThread(100000);
     }
 }
@@ -93,10 +86,6 @@ DummyInput::initialize()
     // init the new neighbors
     assert(connectBricks(*inputBrick, sourceSide, *targetBrick));
     KyoukoRoot::m_inputBricks->insert(std::make_pair(0, inputBrick));
-
-    initEdgeSectionBlocks(*inputBrick, NUMBER_OF_NODES_PER_BRICK);
-    initRandValues(*inputBrick);
-    initCycle(inputBrick);
 }
 
 }

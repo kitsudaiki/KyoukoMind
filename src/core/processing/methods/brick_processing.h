@@ -18,9 +18,7 @@ struct Brick;
 struct NetworkSegment;
 
 void initCycle(Brick* brick);
-void finishCycle(Brick* brick,
-                 DataBuffer &monitoringMessage,
-                 DataBuffer &clientMessage);
+void finishCycle(Brick* brick);
 void finishSide(Brick* brick, const uint8_t side);
 bool processReady(Brick* brick);
 bool isReady(Brick* brick);

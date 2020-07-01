@@ -73,7 +73,7 @@ switchNeighborBuffer(Neighbor &neighbor)
     assert(neighbor.bufferQueue.size() > 0);
 
     neighbor.outgoingBuffer = neighbor.currentBuffer;
-    Kitsunemimi::reset_StackBuffer(*neighbor.currentBuffer);
+    Kitsunemimi::reset_StackBuffer(*neighbor.outgoingBuffer);
     neighbor.currentBuffer = neighbor.bufferQueue.front();
     neighbor.bufferQueue.pop();
 }

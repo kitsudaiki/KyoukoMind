@@ -61,10 +61,6 @@ struct Brick
     float learningOverride = 0.5;
     GlobalValues globalValues;
 
-    // output
-    float outBuffer[10];
-    uint8_t outBufferPos = 0;
-
     Brick(const uint32_t &brickId,
           const uint32_t x,
           const uint32_t y)

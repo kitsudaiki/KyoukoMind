@@ -51,7 +51,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     NetworkSegment* segment = KyoukoRoot::m_segment;
 
     // init segment
-    assert(initSynapseSectionBlocks(*segment, 1));
     const uint32_t numberOfNodeBricks = getNumberOfNodeBricks();
     const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
 
@@ -63,10 +62,18 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     connectAllBricks(*segment);
     createAxons(*segment, m_networkMetaStructure);
 
-    initTransferBlocks(*segment, totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS);
+    if(initSynapseSectionBlocks(*segment, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+        return false;
+    }
+
+    if(initTransferBlocks(*segment, totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+        return false;
+    }
 
     // init gpu
-    assert(initializeGpu(*segment, numberOfNodeBricks));
+    if(initializeGpu(*segment, numberOfNodeBricks) == false) {
+        return false;
+    }
 
     return true;
 }

@@ -64,7 +64,7 @@ ProcessingUnit::run()
             const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
             LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
 
-            if(USE_GPU)
+            /*if(USE_GPU)
             {
                 // run process on gpu
                 start = std::chrono::system_clock::now();
@@ -90,7 +90,7 @@ ProcessingUnit::run()
                     }
                 }
                 std::cout<<"number of active Axons: "<<count<<std::endl;
-            }
+            }*/
 
             // block thread until next cycle if queue is empty
             blockThread();
@@ -112,9 +112,7 @@ ProcessingUnit::run()
             writeMonitoringOutput(*brick, m_monitoringBuffer);
 
             // finish current block
-            finishCycle(brick,
-                        m_clientBuffer,
-                        m_monitoringBuffer);
+            finishCycle(brick);
         }
     }
 }

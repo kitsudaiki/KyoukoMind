@@ -38,8 +38,7 @@ initCycle(Brick *brick)
 {
     while(brick->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    for(uint8_t side = 0; side < 23; side++)
-    {
+    for(uint8_t side = 0; side < 23; side++) {
         switchNeighborBuffer(brick->neighbors[side]);
     }
 
@@ -55,34 +54,16 @@ initCycle(Brick *brick)
  * @param clientMessage
  */
 void
-finishCycle(Brick* brick,
-            DataBuffer &clientMessage,
-            DataBuffer &monitoringMessage)
+finishCycle(Brick* brick)
 {
     while(brick->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
     // finish standard-neighbors
-    for(uint8_t side = 0; side < 23; side++)
-    {
+    for(uint8_t side = 0; side < 23; side++) {
         finishSide(brick, side);
     }
 
     processReady(brick);
-
-    if(KyoukoRoot::m_clientSession != nullptr
-            && brick->isOutputBrick == 1)
-    {
-        KyoukoRoot::m_clientSession->sendStreamData(clientMessage.data,
-                                                    clientMessage.bufferPosition);
-    }
-
-    if(KyoukoRoot::m_monitoringSession != nullptr) {
-        KyoukoRoot::m_monitoringSession->sendStreamData(monitoringMessage.data,
-                                                        monitoringMessage.bufferPosition);
-    }
-
-    clientMessage.bufferPosition = 0;
-    monitoringMessage.bufferPosition = 0;
 
     brick->lock.clear(std::memory_order_release);
 }
@@ -104,9 +85,8 @@ finishSide(Brick* brick,
     }
 
     Brick* targetBrick = sourceNeighbor->targetBrick;
-    while(targetBrick->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    assert(targetBrick != nullptr);
+    while(targetBrick->lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
     // finish side
     sendNeighborBuffer(*sourceNeighbor, *sourceNeighbor->targetNeighbor);
@@ -174,9 +154,11 @@ getSummedValue(NetworkSegment &segment,
     assert(brick.isOutputBrick != 0);
     assert(brick.nodePos >= 0);
 
-    // write value to the internal ring-buffer
     Node* node = &getNodeBlock(segment)[brick.nodePos];
-    brick.outBuffer[brick.outBufferPos] += node->currentState;
+    return node->currentState;
+
+    // write value to the internal ring-buffer
+    /*brick.outBuffer[brick.outBufferPos] += node->currentState;
     brick.outBufferPos = (brick.outBufferPos + 1) % 10;
     node->currentState /= NODE_COOLDOWN;
 
@@ -188,7 +170,7 @@ getSummedValue(NetworkSegment &segment,
     }
     result /= 10.0f;
 
-    return result;
+    return result;*/
 }
 
 //==================================================================================================

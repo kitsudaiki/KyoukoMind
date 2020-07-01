@@ -116,8 +116,7 @@ clientLearnInput_processing(const ClientLearnInputData &content,
             EdgeContainer newEdge;
             newEdge.weight = content.value;
             newEdge.targetEdgeSectionId = i;
-            assert(neighbor->currentBuffer != nullptr);
-            Kitsunemimi::addObject_StackBuffer(*neighbor->currentBuffer, &newEdge);
+            Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
         }
     }
 }
@@ -135,9 +134,6 @@ clientLearnFinishCycleData_processing(const ClientLearnFinishCycleData &content,
     if(it != rootObject->m_inputBricks->end())
     {
         Brick* brick = it->second;
-
-        processIncomingMessages2(*rootObject->m_segment, *brick, 22);
-        assert(brick->neighbors[22].outgoingBuffer != nullptr);
 
         finishSide(brick, 22);
         while(isReady(brick) == false) {

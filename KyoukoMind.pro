@@ -106,7 +106,10 @@ HEADERS += \
     src/core/objects/transfer_objects.h \
     src/core/validation.h \
     src/kyouko_root.h \
-    src/dummy_input.h
+    src/dummy_input.h \
+    src/core/processing/methods/process_learning.h \
+    src/core/processing/methods/process_update.h \
+    src/core/processing/methods/process_normal.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
