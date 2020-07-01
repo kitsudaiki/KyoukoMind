@@ -79,7 +79,6 @@ HEADERS += \
     src/core/processing/processing_unit_handler.h \
     src/core/methods/brick_initializing_methods.h \
     src/core/methods/brick_item_methods.h \
-    src/core/processing/methods/brick_processing.h \
     src/core/global_values_handler.h \
     src/core/network_manager.h \
     src/initializing/axon_initializer.h \
@@ -90,7 +89,6 @@ HEADERS += \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
-    src/core/processing/methods/edge_container_processing.h \
     src/core/methods/edge_methods.h \
     src/core/methods/neighbor_methods.h \
     src/core/methods/synapse_methods.h \
@@ -109,13 +107,14 @@ HEADERS += \
     src/dummy_input.h \
     src/core/processing/methods/process_learning.h \
     src/core/processing/methods/process_update.h \
-    src/core/processing/methods/process_normal.h
+    src/core/processing/methods/process_normal.h \
+    src/core/processing/methods/message_processing.h \
+    src/core/methods/brick_cycle_methods.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/methods/brick_initializing_methods.cpp \
-    src/core/processing/methods/brick_processing.cpp \
     src/core/global_values_handler.cpp \
     src/core/network_manager.cpp \
     src/initializing/axon_initializer.cpp \
@@ -128,7 +127,8 @@ SOURCES += \
     src/core/processing/gpu_interface.cpp \
     src/core/validation.cpp \
     src/kyouko_root.cpp \
-    src/dummy_input.cpp
+    src/dummy_input.cpp \
+    src/core/methods/brick_cycle_methods.cpp
 
 
 CONFIG(run_tests) {

@@ -8,8 +8,8 @@
 #include <core/methods/neighbor_methods.h>
 #include <core/methods/network_segment_methods.h>
 
-#include <core/processing/methods/brick_processing.h>
-#include <core/processing/methods/edge_container_processing.h>
+#include <core/methods/brick_cycle_methods.h>
+#include <core/processing/methods/message_processing.h>
 #include <core/processing/processing_unit.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>

@@ -15,7 +15,7 @@
 #include <initializing/file_parser.h>
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/processing/methods/edge_container_processing.h>
+#include <core/processing/methods/message_processing.h>
 #include <core/processing/gpu_interface.h>
 
 #include <core/methods/network_segment_methods.h>

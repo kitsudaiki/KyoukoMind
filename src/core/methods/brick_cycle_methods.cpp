@@ -1,5 +1,5 @@
 /**
- *  @file    brick_processing_methods.cpp
+ *  @file    brick_cycle_methods.cpp
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
@@ -7,12 +7,12 @@
  *
  */
 
-#include "brick_processing.h"
+#include "brick_cycle_methods.h"
 
 #include <core/objects/brick.h>
 #include <core/objects/container_definitions.h>
 
-#include <core/processing/methods/edge_container_processing.h>
+#include <core/processing/methods/message_processing.h>
 #include <core/methods/brick_item_methods.h>
 #include <core/methods/neighbor_methods.h>
 #include <core/methods/network_segment_methods.h>

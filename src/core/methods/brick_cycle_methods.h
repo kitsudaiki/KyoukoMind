@@ -1,5 +1,5 @@
 /**
- *  @file    brick_processing_methods.h
+ *  @file    brick_cycle_methods.h
  *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe

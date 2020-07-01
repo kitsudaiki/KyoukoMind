@@ -11,8 +11,8 @@
 #include <kyouko_root.h>
 
 #include <core/methods/brick_initializing_methods.h>
-#include <core/processing/methods/brick_processing.h>
-#include <core/processing/methods/edge_container_processing.h>
+#include <core/methods/brick_cycle_methods.h>
+#include <core/processing/methods/message_processing.h>
 #include <core/objects/container_definitions.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
