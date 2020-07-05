@@ -125,19 +125,6 @@ typedef struct SynapseSection_struct
 //==================================================================================================
 
 /**
- * check if all slots of the section are filled
- *
- * @return true, if full, else false
- */
-bool
-isFull(__local SynapseSection* synapseSection)
-{
-    return synapseSection->numberOfSynapses >= SYNAPSES_PER_SYNAPSESECTION;
-}
-
-//==================================================================================================
-
-/**
  * add a new synapse to the current section
  *
  * @return false, if the section is already full, else true
@@ -216,13 +203,45 @@ createNewSynapse(__local SynapseSection* synapseSection,
 {
     const ulong index = get_global_id(0) * get_local_id(0);
 
-    const uint targetNodeId = randTransfers->randPos[(index) % 1024];
-    const uint somaDistance = randTransfers->randPos[(index + 1) % 1024];
+    const uint targetNodeId = randTransfers->randPos[(index) % 1024] % MAX_NUMBER_OF_NODES_PER_BRICK;
+    const uint somaDistance = randTransfers->randPos[(index + 1) % 1024] % 256;
 
     addSynapse(synapseSection,
-               0.5f,
+               0.5f,  // memorizing
                targetNodeId,
                somaDistance);
+}
+
+//==================================================================================================
+
+void
+singleLearningStep(__local SynapseSection* synapseSection,
+                   const float weight,
+                   __global RandTransfer* randTransfers,
+                   const uint index)
+{
+    const uint posRandArry = (get_global_id(0) % 333) * 3 + index;
+    const uint maxPos = (synapseSection->numberOfSynapses + 1) % 19; // 19 = max number of synapses per section
+    const uint choosePosition = (randTransfers->randPos[posRandArry] 
+                                 % (synapseSection->numberOfSynapses + 1))
+                                    % maxPos;
+
+    const float currentSideWeight = randTransfers->randWeight[posRandArry] * weight;
+
+    // create new synapse if necessary
+    if(choosePosition == synapseSection->numberOfSynapses) {
+        createNewSynapse(synapseSection, randTransfers);
+    }
+
+    // synapses, which are fully memorized, are not allowed to be overwritten!!!
+    if(synapseSection->synapses[choosePosition].memorize >= 0.99f) {
+        return;
+    }
+
+    // calculate new value
+    // TODO: add lerning-value
+    synapseSection->synapses[choosePosition].weight += currentSideWeight;
+    synapseSection->totalWeight += fabs(currentSideWeight);
 }
 
 //==================================================================================================
@@ -242,31 +261,9 @@ learningSynapseSection(__local SynapseSection* synapseSection,
         return;
     }
 
-    ulong index = get_global_id(0) * get_local_id(0);
-    index = index - (index % 3);
-
-    for(uchar i = 0; i < 3; i++)
-    {
-        const uint choosePosition = randTransfers->randPos[index] 
-                                    % (synapseSection->numberOfSynapses + 1);
-        const float currentSideWeight = randTransfers->randWeight[index + i] * weight;
-
-        // create new synapse if necessary
-        if(choosePosition == synapseSection->numberOfSynapses) {
-            createNewSynapse(synapseSection, randTransfers);
-        }
-
-        // synapses, which are fully memorized, are not allowed to be overwritten!!!
-        if(synapseSection->synapses[choosePosition].memorize >= 0.99f) {
-            continue;
-        }
-
-        // calculate new value
-        const float newVal = 0.5 * currentSideWeight;
-
-        synapseSection->synapses[choosePosition].weight += newVal;
-        synapseSection->totalWeight += fabs(newVal);
-    }
+    singleLearningStep(synapseSection, weight, randTransfers, 0);
+    singleLearningStep(synapseSection, weight, randTransfers, 1);
+    singleLearningStep(synapseSection, weight, randTransfers, 2);
 }
 
 //==================================================================================================
@@ -283,15 +280,24 @@ processSynapseSection(__local SynapseSection* synapseSection,
                       const float inputWeight,
                       __global RandTransfer* randTransfers)
 {
-    learningSynapseSection(synapseSection,
-                           inputWeight - synapseSection->totalWeight,
-                           randTransfers);
+    if(inputWeight < 0.000001f) {
+        return;
+    }
+
+    // run lerning-process by creating and updating synapses
+    const float weightDiff = inputWeight - synapseSection->totalWeight;
+    learningSynapseSection(synapseSection, weightDiff, randTransfers);
+
+    if(synapseSection->totalWeight < 0.000001f) {
+        return;
+    }
 
     // limit ration to 1.0f
     float ratio = inputWeight / synapseSection->totalWeight;
     if(ratio > 1.0f) {
         ratio = 1.0f;
     }
+
 
     __local Synapse* end = synapseSection->synapses + synapseSection->numberOfSynapses;
 
@@ -434,27 +440,8 @@ processing(__global const SynapseTransfer* synapseTransfers,
     uint brickId = globalId_x / localSize_x; 
 
     // debug-prints
-    if(globalId_x == 0)
-    {
-        // debug-output
-        // printf seems to be a little bit broken and replace values sometimes with 0
-        // so all values are tried to printed two times to have one correct output
-        printf("globalSize_x: %d, %d\n"
-               "numberOfSynapseTransfers: %d, %d\n"
-               "numberOfAxonTransfers: %d, %d\n"
-               "numberOfUpdateTransfers: %d, %d\n"
-               "numberOfNodes: %d, %d\n"
-               "numberOfSynapseSections: %d, %d\n"
-               "numberOfRandTransfers: %d, %d\n"
-               "localMemorySize: %d, %d\n",
-               globalSize_x, globalSize_x,
-               numberOfSynapseTransfers, numberOfSynapseTransfers,
-               numberOfAxonTransfers, numberOfAxonTransfers,
-               numberOfUpdateTransfers, numberOfUpdateTransfers,
-               numberOfNodes, numberOfNodes,
-               numberOfSynapseSections, numberOfSynapseSections,
-               numberOfRandTransfers, numberOfRandTransfers,
-               localMemorySize, localMemorySize);
+    if(globalId_x == 0) {
+        printf("numberOfSynapseTransfers: %d\n", numberOfSynapseTransfers);
     }
 
     if(brickId >= numberOfBricks) {

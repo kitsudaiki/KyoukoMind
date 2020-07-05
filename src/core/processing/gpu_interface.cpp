@@ -112,6 +112,7 @@ initRandValues(NetworkSegment &segment)
         }
         compare += tempValue;
         randValues->randWeight[i] = tempValue;
+        //std::cout<<randValues->randWeight[i]<<std::endl;
     }
 
     for(uint32_t i = 0; i < 1024; i++)

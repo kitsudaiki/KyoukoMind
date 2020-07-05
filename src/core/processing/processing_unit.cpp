@@ -124,6 +124,7 @@ ProcessingUnit::run()
                         tempContainer.targetBrickPath = axons[offset + i].path;
                         tempContainer.targetAxonId = axons[offset + i].targetId;
                         processAxon(*segment, *brick, tempContainer);
+                        LOG_ERROR("poi: " + std::to_string(tempContainer.weight));
                     }
                 }
             }

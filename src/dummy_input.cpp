@@ -51,9 +51,27 @@ DummyInput::run()
 
         // set input-values
         EdgeContainer newEdge;
-        newEdge.weight = m_inputValue;
+        newEdge.weight = 300;
         newEdge.targetEdgeSectionId = targetEdgeId;
         Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        /*newEdge.targetEdgeSectionId = 2;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        newEdge.targetEdgeSectionId = 3;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        newEdge.targetEdgeSectionId = 4;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        newEdge.targetEdgeSectionId = 5;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        newEdge.targetEdgeSectionId = 6;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        newEdge.targetEdgeSectionId = 7;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        newEdge.targetEdgeSectionId = 8;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        newEdge.targetEdgeSectionId = 9;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
+        newEdge.targetEdgeSectionId = 10;
+        Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);*/
 
         // finish and restart cycle
         finishSide(inputBrick, 22);
