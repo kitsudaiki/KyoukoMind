@@ -124,18 +124,6 @@ typedef struct SynapseSection_struct
 
 //==================================================================================================
 
-float
-makePositive(const float input)
-{
-    float floatRep = input;
-    uint* convertedValue = (uint*)(&floatRep);
-    // delete sign-bit
-    *convertedValue = 0x7FFFFFFF & *convertedValue;
-    return *(float*)(convertedValue);
-}
-
-//==================================================================================================
-
 /**
  * check if all slots of the section are filled
  *
@@ -208,9 +196,9 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
 {
     if(position < synapseSection->numberOfSynapses)
     {
-        float diff = makePositive(synapseSection->synapses[position].weight);
+        float diff = fabs(synapseSection->synapses[position].weight);
         synapseSection->synapses[position].weight += weightUpdate;
-        diff -= makePositive(synapseSection->synapses[position].weight);
+        diff -= fabs(synapseSection->synapses[position].weight);
         synapseSection->totalWeight -= diff;
     }
 }
@@ -277,7 +265,7 @@ learningSynapseSection(__local SynapseSection* synapseSection,
         const float newVal = 0.5 * currentSideWeight;
 
         synapseSection->synapses[choosePosition].weight += newVal;
-        synapseSection->totalWeight += makePositive(newVal);
+        synapseSection->totalWeight += fabs(newVal);
     }
 }
 
@@ -336,6 +324,9 @@ processNodes(__local Node* node,
     if(node->currentState > 255.0f) {
         node->currentState = 255.0f;
     }
+    if(node->currentState < 0.000001f) {
+        node->currentState = 0.0f;
+    }
 
     // check if active
     if(node->currentState != 0) {
@@ -354,27 +345,16 @@ processNodes(__local Node* node,
     }
 
     // forward current potential
-    if(node->active == 1)
-    {
-        const float weight = node->potential * PROCESSING_MULTIPLICATOR;
-        const ulong path = node->targetBrickPath/32;
+    const float weight = node->potential * PROCESSING_MULTIPLICATOR;
+    const ulong path = node->targetBrickPath/32;
 
-        AxonTransfer newEdge;
-        newEdge.targetId = node->targetAxonId;
-        newEdge.path = path;
-        newEdge.weight = weight;
+    AxonTransfer newEdge;
+    newEdge.targetId = node->active * node->targetAxonId;
+    newEdge.path = node->active;
+    newEdge.weight = node->active * weight;
 
-        axonTransfers[globalNodeId] = newEdge;
-    }
-    else
-    {
-        AxonTransfer newEdge;
-        newEdge.targetId = 0;
-        newEdge.path = 0;
-        newEdge.weight = 0.0f;
+    axonTransfers[globalNodeId] = newEdge;
 
-        axonTransfers[globalNodeId] = newEdge;
-    }
 
     // post-steps
     node->refractionTime = node->refractionTime >> 1;
