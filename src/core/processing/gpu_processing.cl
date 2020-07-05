@@ -329,9 +329,6 @@ processNodes(__local Node* node,
     }
 
     // check if active
-    if(node->currentState != 0) {
-        printf("yeah %f\n",  node->currentState);
-    }
     if(node->border <= node->currentState
             && node->refractionTime == 0)
     {
@@ -479,14 +476,12 @@ processing(__global const SynapseTransfer* synapseTransfers,
 
         if(tempSections[localId_x].status == DELETED_SECTION) 
         {
-            printf("poi1\n");
             resetSynapseSection(&tempSections[localId_x],
                                 synapseTransfers[i].brickId,
                                 synapseTransfers[i].sourceEdgeId);
         }
         else
         {
-            printf("poi2\n");
             processSynapseSection(&tempSections[localId_x],
                                   nodes,
                                   synapseTransfers[i].weight,

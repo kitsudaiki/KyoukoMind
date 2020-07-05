@@ -27,7 +27,7 @@ public:
 private:
     Brick* inputBrick = nullptr;
 
-    float m_inputValue = 90.0f;
+    float m_inputValue = 150.0f;
 
     float m_gliaValue = 1.1f;
     float m_memTemp = 0.0f;

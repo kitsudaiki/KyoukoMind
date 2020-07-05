@@ -169,6 +169,7 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
                     //Brick* brick = new Brick(brickId, x, y);
                     Brick* newBrick = new Brick(brickId, x, y);
                     newBrick->nodeBrickId = numberOfNodeBricks;
+                    newBrick->isNodeBrick = 1;
 
                     initRandValues(*newBrick);
 

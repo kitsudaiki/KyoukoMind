@@ -41,6 +41,7 @@ struct Brick
     uint8_t inQueue = 0;
     uint8_t isOutputBrick = 0;
     uint8_t isInputBrick = 0;
+    uint8_t isNodeBrick = 0;
 
     // random values
     float* randWeight = nullptr;

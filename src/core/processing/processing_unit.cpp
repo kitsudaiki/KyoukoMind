@@ -110,6 +110,24 @@ ProcessingUnit::run()
         {
             initCycle(brick);
 
+            if(brick->isNodeBrick)
+            {
+                // process axons coming from the gpu
+                AxonTransfer* axons = static_cast<AxonTransfer*>(segment->axonEdges.buffer.data);
+                for(uint32_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
+                {
+                    const uint64_t offset = brick->nodeBrickId * NUMBER_OF_NODES_PER_BRICK;
+                    if(axons[offset + i].weight != 0.0f)
+                    {
+                        AxonEdgeContainer tempContainer;
+                        tempContainer.weight = axons[offset + i].weight;
+                        tempContainer.targetBrickPath = axons[offset + i].path;
+                        tempContainer.targetAxonId = axons[offset + i].targetId;
+                        processAxon(*segment, *brick, tempContainer);
+                    }
+                }
+            }
+
             // main-processing
             brick->globalValues = KyoukoRoot::m_globalValuesHandler->getGlobalValues();
             processIncomingMessages(*segment, *brick);
