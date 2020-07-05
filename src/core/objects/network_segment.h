@@ -19,13 +19,34 @@ struct NetworkSegment
     DataConnection synapses;
 
     DataConnection axonEdges;
-    DataConnection synapseEdges;
     DataConnection updateEdges;
+    DataConnection synapseEdges;
+    uint32_t synapseEdgesCounter = 0;
+    std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
     Kitsunemimi::Opencl::Opencl ocl;
     Kitsunemimi::Opencl::OpenClData oclData;
 
     NetworkSegment() {}
+
+    uint32_t getNextTransferPos()
+    {
+        uint32_t pos = 0;
+
+        while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+        pos = synapseEdgesCounter;
+        synapseEdgesCounter++;
+        lock.clear(std::memory_order_release);
+
+        return pos;
+    }
+
+    void resetTransferPos()
+    {
+        while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+        synapseEdgesCounter = 0;
+        lock.clear(std::memory_order_release);
+    }
 };
 
 //==================================================================================================

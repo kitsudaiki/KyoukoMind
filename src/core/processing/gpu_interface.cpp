@@ -72,6 +72,10 @@ initializeGpu(NetworkSegment &segment,
 
     initRandValues(segment);
 
+    // TODO: replace with a validation to make sure, that the local memory is big enough
+    assert(segment.ocl.getLocalMemorySize() == 256*256);
+    segment.oclData.localMemorySize = 256*256;
+
     if(segment.ocl.initCopyToDevice(segment.oclData) == false) {
         return false;
     }
@@ -126,7 +130,8 @@ initRandValues(NetworkSegment &segment)
 bool
 copyEdgesToGpu(NetworkSegment &segment)
 {
-    return segment.ocl.updateBufferOnDevice(segment.oclData.buffer[0]);
+    return segment.ocl.updateBufferOnDevice(segment.oclData.buffer[0],
+                                            segment.synapseEdgesCounter);
 }
 
 /**

@@ -46,16 +46,15 @@ initializeNewEdge(NetworkSegment &segment,
 {
     if(side == 22)
     {
-        LOG_ERROR("poi");
         const uint64_t id = addEmptySynapseSection(segment, edgeSectionId, brick.brickId);
         const uint32_t targetId = static_cast<uint32_t>(id);
         SynapseSection* synapseSection = &getSynapseSectionBlock(segment)[targetId];
-        // TODO: push to GPU
+        synapseSection->sourceEdgeId = edgeSectionId;
         edgeSection->edges[22].targetId = targetId;
+        edgeSection->edges[22].weight = weight;
     }
     else
     {
-        LOG_ERROR("send learn");
         // send new learning-edge
         LearingEdgeContainer newContainer;
         newContainer.sourceEdgeSectionId = edgeSectionId;
@@ -127,8 +126,6 @@ learningEdgeSection(NetworkSegment &segment,
         return;
     }
 
-    LOG_WARNING("learningEdgeSection");
-
     // try to create up to three new edges
     edgeSection->totalWeight += singleLearnStep(segment, brick, edgeSection, edgeSectionId, weight);
     edgeSection->totalWeight += singleLearnStep(segment, brick, edgeSection, edgeSectionId, weight);
@@ -147,8 +144,6 @@ processLearningEdgeReply(Brick &brick,
                          const LearningEdgeReplyContainer &container,
                          const uint8_t side)
 {
-    LOG_WARNING("++++ processLearningEdgeReply");
-
     EdgeSection* edgeSections = getEdgeBlock(brick);
     edgeSections[container.sourceEdgeSectionId].edges[side].targetId =
             static_cast<uint32_t>(container.targetEdgeSectionId);

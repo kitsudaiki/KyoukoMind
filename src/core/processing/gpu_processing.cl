@@ -329,7 +329,7 @@ processSynapseSection(__local SynapseSection* synapseSection,
  */
 void
 processNodes(__local Node* node,
-             ulong nodeIdInBrick,
+             ulong globalNodeId,
              __global AxonTransfer* axonTransfers)
 {
     // set to 255.0f, if value is too high
@@ -338,10 +338,13 @@ processNodes(__local Node* node,
     }
 
     // check if active
-    //printf("border: %f    id-value: %f \n", node->border, node->currentState);
+    if(node->currentState != 0) {
+        printf("yeah %f\n",  node->currentState);
+    }
     if(node->border <= node->currentState
             && node->refractionTime == 0)
     {
+        printf("ACTIVE\n");
         node->potential = ACTION_POTENTIAL;
         node->active = 1;
         node->refractionTime = REFRACTION_TIME;
@@ -361,7 +364,7 @@ processNodes(__local Node* node,
         newEdge.path = path;
         newEdge.weight = weight;
 
-        axonTransfers[nodeIdInBrick] = newEdge;
+        axonTransfers[globalNodeId] = newEdge;
     }
     else
     {
@@ -370,7 +373,7 @@ processNodes(__local Node* node,
         newEdge.path = 0;
         newEdge.weight = 0.0f;
 
-        axonTransfers[nodeIdInBrick] = newEdge;
+        axonTransfers[globalNodeId] = newEdge;
     }
 
     // post-steps
@@ -440,16 +443,18 @@ processing(__global const SynapseTransfer* synapseTransfers,
            __global SynapseSection* synapseSections,
            const ulong numberOfSynapseSections,
            __global RandTransfer* randTransfers,
-           const ulong numberOfRandTransfers)
+           const ulong numberOfRandTransfers,
+           __local uchar* localMemory,
+           const ulong localMemorySize)
 {
     // calculate global ids
     size_t globalId_x = get_global_id(0);
+    size_t globalSize_x = get_global_size(0);
     int localId_x = get_local_id(0);
-    uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
-    uint brickId = globalId_x / 256; 
+    int localSize_x = get_local_size(0);
 
-    // init shared memory
-    __local uchar localMemory[256];
+    uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
+    uint brickId = globalId_x / localSize_x; 
 
     // debug-prints
     if(globalId_x == 0)
@@ -457,18 +462,22 @@ processing(__global const SynapseTransfer* synapseTransfers,
         // debug-output
         // printf seems to be a little bit broken and replace values sometimes with 0
         // so all values are tried to printed two times to have one correct output
-        printf("numberOfSynapseTransfers: %d, %d\n"
+        printf("globalSize_x: %d, %d\n"
+               "numberOfSynapseTransfers: %d, %d\n"
                "numberOfAxonTransfers: %d, %d\n"
                "numberOfUpdateTransfers: %d, %d\n"
                "numberOfNodes: %d, %d\n"
                "numberOfSynapseSections: %d, %d\n"
-               "numberOfRandTransfers: %d, %d\n",
+               "numberOfRandTransfers: %d, %d\n"
+               "localMemorySize: %d, %d\n",
+               globalSize_x, globalSize_x,
                numberOfSynapseTransfers, numberOfSynapseTransfers,
                numberOfAxonTransfers, numberOfAxonTransfers,
                numberOfUpdateTransfers, numberOfUpdateTransfers,
                numberOfNodes, numberOfNodes,
                numberOfSynapseSections, numberOfSynapseSections,
-               numberOfRandTransfers, numberOfRandTransfers);
+               numberOfRandTransfers, numberOfRandTransfers,
+               localMemorySize, localMemorySize);
     }
 
     if(brickId >= numberOfBricks) {
@@ -480,33 +489,31 @@ processing(__global const SynapseTransfer* synapseTransfers,
     //----------------------------------------------------------------------------------------------
     __local SynapseSection* tempSections = (__local SynapseSection*)localMemory;
 
-    for(uint i = localId_x; i < numberOfSynapseSections; i = i + 256)
+    for(ulong i = localId_x; i < numberOfSynapseTransfers; i = i + localSize_x)
     {
-        if(synapseTransfers[i].brickId == UNINIT_STATE_32
-            || synapseTransfers[i].brickId != brickId) 
-        {
+        if(synapseTransfers[i].brickId != brickId) {
             continue;
         }
 
-        tempSections[0] = synapseSections[i];
+        tempSections[localId_x] = synapseSections[synapseTransfers[i].sourceEdgeId];
 
-        if(tempSections[0].status == DELETED_SECTION) 
+        if(tempSections[localId_x].status == DELETED_SECTION) 
         {
             printf("poi1\n");
-            resetSynapseSection(tempSections,
+            resetSynapseSection(&tempSections[localId_x],
                                 synapseTransfers[i].brickId,
                                 synapseTransfers[i].sourceEdgeId);
         }
         else
         {
-            printf("poi12\n");
-            processSynapseSection(tempSections,
+            printf("poi2\n");
+            processSynapseSection(&tempSections[localId_x],
                                   nodes,
                                   synapseTransfers[i].weight,
                                   randTransfers);
         }
 
-        synapseSections[i] = tempSections[0];
+        synapseSections[i] = tempSections[localId_x];
     }
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
@@ -514,25 +521,28 @@ processing(__global const SynapseTransfer* synapseTransfers,
     //----------------------------------------------------------------------------------------------
     // process nodes
     //----------------------------------------------------------------------------------------------
-    __local Node* tempNodes = (__local Node*)&localMemory[0];
+    __local Node* tempNodes = (__local Node*)localMemory;
 
-    for(uint i = localId_x; i < NUMBER_OF_NODES_PER_BRICK; i = i + 256)
+    const ulong offset = brickId * NUMBER_OF_NODES_PER_BRICK;
+
+    for(ulong i = localId_x; i < NUMBER_OF_NODES_PER_BRICK; i = i + localSize_x)
     {
-        tempNodes[0] = nodes[i];
-        processNodes(tempNodes, i, axonTransfers);
-        nodes[i] = tempNodes[0];
+        tempNodes[localId_x] = nodes[i + offset];
+        processNodes(&tempNodes[localId_x], i + offset, axonTransfers);
+        nodes[i + offset] = tempNodes[localId_x];
     }
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
+    return;
     //----------------------------------------------------------------------------------------------
     // process memorizing
     //----------------------------------------------------------------------------------------------
-    __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[0];
+    __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[localId_x];
 
-    for(uint i = localId_x; i < numberOfSynapseSections; i = i + 256)
+    for(uint i = localId_x; i < numberOfSynapseSections; i = i + localSize_x)
     {
-        tempSectionMem[0] = synapseSections[i];
+        tempSectionMem[localId_x] = synapseSections[i];
 
         if(tempSectionMem->sourceBrickId != brickId) {
             continue;
@@ -540,7 +550,7 @@ processing(__global const SynapseTransfer* synapseTransfers,
 
         // TODO: memorizing
 
-        synapseSections[i] = tempSectionMem[0];
+        synapseSections[i] = tempSectionMem[localId_x];
     }
     //----------------------------------------------------------------------------------------------
 }

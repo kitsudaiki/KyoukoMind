@@ -128,8 +128,6 @@ processUpdateDeleteEdge(Brick &brick,
                         const uint32_t edgeSectionId,
                         const uint8_t inititalSide)
 {
-    LOG_WARNING("processUpdateDeleteEdge");
-
     const float temp = edgeSection.edges[inititalSide].weight;
     edgeSection.totalWeight -= temp;
     edgeSection.edges[inititalSide].weight = 0.0000001f;
@@ -163,8 +161,6 @@ processUpdateEdge(Brick &brick,
                   const UpdateEdgeContainer &container,
                   const uint8_t inititalSide)
 {
-    LOG_WARNING("processUpdateEdge");
-
     EdgeSection* edgeSection = &getEdgeBlock(brick)[container.targetId];
 
     // here no assert, because based on the async processing it is possible to get a

@@ -41,8 +41,6 @@ processEdgeForwardSection(NetworkSegment &segment,
                           Brick &brick,
                           const EdgeContainer &container)
 {
-    LOG_WARNING("processEdgeForwardSection");
-
     EdgeSection* edgeSection = &getEdgeBlock(brick)[container.targetEdgeSectionId];
     if(edgeSection->status != ACTIVE_SECTION) {
         return;
@@ -66,9 +64,7 @@ processEdgeForwardSection(NetworkSegment &segment,
     for(uint8_t side = 2; side < 23; side++)
     {
         const Edge tempEdge = edgeSection->edges[side];
-        if(tempEdge.available == 0
-                || tempEdge.weight == 0.0f)
-        {
+        if(tempEdge.weight == 0.0f) {
             continue;
         }
 
@@ -80,16 +76,15 @@ processEdgeForwardSection(NetworkSegment &segment,
 
             void* transferData = segment.synapseEdges.buffer.data;
             SynapseTransfer* synapseTransfer = static_cast<SynapseTransfer*>(transferData);
-            synapseTransfer[tempEdge.targetId].weight = tempEdge.weight * ratio;
-            synapseTransfer[tempEdge.targetId].sourceEdgeId = container.targetEdgeSectionId;
-            synapseTransfer[tempEdge.targetId].brickId = brick.brickId;
+            const uint32_t pos = segment.getNextTransferPos();
+            synapseTransfer[pos].weight = tempEdge.weight * ratio;
+            synapseTransfer[pos].sourceEdgeId = container.targetEdgeSectionId;
+            synapseTransfer[pos].brickId = brick.brickId;
         }
         else
         {
             if(tempEdge.targetId != UNINIT_STATE_32)
             {
-                LOG_ERROR("send normal");
-
                 // normal external edge
                 EdgeContainer newContainer;
                 newContainer.targetEdgeSectionId = tempEdge.targetId;
@@ -100,7 +95,6 @@ processEdgeForwardSection(NetworkSegment &segment,
             else
             {
                 // send pendinge-edge if the learning-step is not finished
-                LOG_ERROR("send pending " + std::to_string(container.targetEdgeSectionId));
                 PendingEdgeContainer newContainer;
                 newContainer.weight = tempEdge.weight * ratio;
                 newContainer.sourceEdgeSectionId = container.targetEdgeSectionId;
@@ -127,14 +121,11 @@ processLearningEdge(NetworkSegment &segment,
                     const LearingEdgeContainer &container,
                     const uint8_t initSide)
 {
-    LOG_WARNING("processLerningEdge");
-
     const uint64_t targetEdgeId = addEmptyEdgeSection(brick,
                                                       initSide,
                                                       container.sourceEdgeSectionId);
 
     // create reply-message
-    LOG_ERROR("send learn reply");
     LearningEdgeReplyContainer reply;
     reply.sourceEdgeSectionId = container.sourceEdgeSectionId;
     reply.targetEdgeSectionId = static_cast<uint32_t>(targetEdgeId);
@@ -164,11 +155,8 @@ processAxon(NetworkSegment &segment,
             Brick &brick,
             const AxonEdgeContainer &container)
 {
-    LOG_WARNING("processAxon");
-
     if(container.targetBrickPath != 0)
     {
-        LOG_ERROR("send axon");
         // forward axon the the next in the path
         AxonEdgeContainer newContainer;
         newContainer.targetBrickPath = container.targetBrickPath >> 5;
@@ -204,8 +192,6 @@ processPendingEdge(NetworkSegment &segment,
                    Brick &brick,
                    const PendingEdgeContainer &container)
 {
-    LOG_WARNING("processPendingEdge " + std::to_string(brick.brickId) + " " + std::to_string(container.sourceSide));
-
     const uint32_t numberOfEdgeSections = static_cast<uint32_t>(brick.edges.numberOfItems);
     EdgeSection* forwardEnd = getEdgeBlock(brick);
     EdgeSection* forwardStart = &forwardEnd[numberOfEdgeSections - 1];
