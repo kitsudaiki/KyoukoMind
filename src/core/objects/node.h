@@ -24,10 +24,9 @@ struct Node
 
     float potential = 0.0f;
     uint8_t refractionTime = 0;
-    uint8_t padding[5];
-
     uint8_t active = 0;
-    uint8_t tooHigh = 0;
+
+    uint8_t padding[6];
 
     // Axon
     uint64_t targetBrickPath = 0;

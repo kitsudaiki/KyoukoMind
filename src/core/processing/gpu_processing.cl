@@ -8,20 +8,15 @@
 #define UNINIT_STATE_8  0xFF
 
 // common information
-#define SYNAPSES_PER_SYNAPSESECTION 19
-#define MAX_NUMBER_OF_NODES_PER_BRICK 16384
+#define SYNAPSES_PER_SYNAPSESECTION 20
 #define NUMBER_OF_NODES_PER_BRICK 1000
 
 // learning
-#define NEW_FORWARD_EDGE_BORDER 0.1f
 #define NEW_SYNAPSE_BORDER 1.0f
 #define DELETE_SYNAPSE_BORDER 1.0f
-#define MINIMUM_NEW_EDGE_BODER 1.0f
 #define MAX_SOMA_DISTANCE 5
 
 // processing
-#define NUMBER_OF_PROCESSING_UNITS 1
-#define PROCESS_INTERVAL 100000 // usec
 #define NODE_COOLDOWN 3.0f
 #define ACTION_POTENTIAL 100.0f
 #define REFRACTION_TIME 2
@@ -43,7 +38,8 @@ typedef struct SynapseTransfer_struct
     uint brickId;
     uint sourceEdgeId;
     float weight;
-} SynapseTransfer;
+} 
+SynapseTransfer;
 
 //==================================================================================================
 
@@ -52,17 +48,19 @@ typedef struct AxonTransfer_struct
     uint targetId;
     ulong path;
     float weight;
-} AxonTransfer;
+} 
+AxonTransfer;
 
 //==================================================================================================
 
 typedef struct UpdateTransfer_struct
 {
-    uint brickId ;
-    uint targetId ;
-    uchar deleted ;
+    uint brickId;
+    uint targetId;
+    uchar deleted;
     float weightDiff;
-} UpdateTransfer;
+} 
+UpdateTransfer;
 
 //==================================================================================================
 
@@ -70,7 +68,8 @@ typedef struct RandTransfer_struct
 {
     float randWeight[999];
     uint randPos[1024];
-} RandTransfer;
+} 
+RandTransfer;
 
 //==================================================================================================
 
@@ -81,16 +80,15 @@ typedef struct Node_struct
 
     float potential;
     uchar refractionTime;
-    uchar padding[5];
-
     uchar active;
-    uchar tooHigh;
+
+    uchar padding[6];
 
     // Axon
     ulong targetBrickPath;
     uint targetAxonId;
-
-} Node;
+} 
+Node;
 
 //==================================================================================================
 
@@ -101,8 +99,8 @@ typedef struct Synapse_struct
     ushort targetNodeId;
     uchar inProcess;
     uchar somaDistance;
-
-} Synapse;
+} 
+Synapse;
 
 //==================================================================================================
 
@@ -111,16 +109,16 @@ typedef struct SynapseSection_struct
     uchar status;
 
     uchar numberOfSynapses;
-    uchar padding[6];
+    uchar padding[2];
 
-    ulong activeMapping;
     float totalWeight;
 
     uint sourceEdgeId;
     uint sourceBrickId;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
-} SynapseSection;
+} 
+SynapseSection;
 
 //==================================================================================================
 
@@ -135,18 +133,18 @@ addSynapse(__local SynapseSection* synapseSection,
            const uint targetNodeId,
            const uint somaDistance)
 {
-    if(synapseSection->numberOfSynapses < SYNAPSES_PER_SYNAPSESECTION)
-    {
-        Synapse newSynapse;
-
-        newSynapse.targetNodeId = (ushort)(targetNodeId % NUMBER_OF_NODES_PER_BRICK);
-        newSynapse.memorize = globalMemorizingOffset;
-        newSynapse.somaDistance = (uchar)((somaDistance % (MAX_SOMA_DISTANCE - 1)) + 1);
-
-        const uint pos = synapseSection->numberOfSynapses;
-        synapseSection->synapses[pos] = newSynapse;
-        synapseSection->numberOfSynapses++;
+    if(synapseSection->numberOfSynapses >= SYNAPSES_PER_SYNAPSESECTION) {
+        return;
     }
+
+    Synapse newSynapse;
+    newSynapse.targetNodeId = (ushort)(targetNodeId % NUMBER_OF_NODES_PER_BRICK);
+    newSynapse.memorize = globalMemorizingOffset;
+    newSynapse.somaDistance = (uchar)((somaDistance % (MAX_SOMA_DISTANCE - 1)) + 1);
+
+    const uint pos = synapseSection->numberOfSynapses;
+    synapseSection->synapses[pos] = newSynapse;
+    synapseSection->numberOfSynapses++;
 }
 
 //==================================================================================================
@@ -162,7 +160,6 @@ resetSynapseSection(__local SynapseSection* synapseSection,
     synapseSection->status = ACTIVE_SECTION;
 
     synapseSection->numberOfSynapses = 0;
-    synapseSection->activeMapping = 0;
     synapseSection->totalWeight = 0.0000001f;
 
     synapseSection->sourceEdgeId = sourceEdgeId;
@@ -203,7 +200,7 @@ createNewSynapse(__local SynapseSection* synapseSection,
 {
     const ulong index = get_global_id(0) * get_local_id(0);
 
-    const uint targetNodeId = randTransfers->randPos[(index) % 1024] % MAX_NUMBER_OF_NODES_PER_BRICK;
+    const uint targetNodeId = randTransfers->randPos[(index) % 1024] % NUMBER_OF_NODES_PER_BRICK;
     const uint somaDistance = randTransfers->randPos[(index + 1) % 1024] % 256;
 
     addSynapse(synapseSection,
@@ -221,7 +218,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
                    const uint index)
 {
     const uint posRandArry = (get_global_id(0) % 333) * 3 + index;
-    const uint maxPos = (synapseSection->numberOfSynapses + 1) % 19; // 19 = max number of synapses per section
+    const uint maxPos = (synapseSection->numberOfSynapses + 1) % SYNAPSES_PER_SYNAPSESECTION;
     const uint choosePosition = (randTransfers->randPos[posRandArry] 
                                  % (synapseSection->numberOfSynapses + 1))
                                     % maxPos;
@@ -366,9 +363,6 @@ processNodes(__local Node* node,
     if(node->currentState < 0.0f) {
         node->currentState = 0.0f;
     }
-
-    // check if node-state is too high compared to the border
-    node->tooHigh = node->currentState > 1.2f * node->border;
 
     // make cooldown in the node
     node->potential /= NODE_COOLDOWN;

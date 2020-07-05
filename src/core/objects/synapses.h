@@ -24,9 +24,8 @@ struct SynapseSection
     uint8_t status = ACTIVE_SECTION;
 
     uint8_t numberOfSynapses = 0;
-    uint8_t padding[6];
+    uint8_t padding[2];
 
-    uint64_t activeMapping = 0;
     // has to be at least a very small value to avoid division by zero
     float totalWeight = 0.0000001f;
 
