@@ -15,15 +15,21 @@ namespace KyoukoMind
 struct NetworkSegment
 {
     std::vector<Brick*> bricks;
+
+    // host-representation of permanent gpu-data
     DataConnection nodes;
     DataConnection synapses;
 
+    // device to host transfer
     DataConnection axonEdges;
     DataConnection updateEdges;
+
+    // host to device transfer
     DataConnection synapseEdges;
     uint32_t synapseEdgesCounter = 0;
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
+    // opencl-control objects
     Kitsunemimi::Opencl::Opencl ocl;
     Kitsunemimi::Opencl::OpenClData oclData;
 

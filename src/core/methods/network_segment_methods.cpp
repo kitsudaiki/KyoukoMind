@@ -107,9 +107,6 @@ initTransferBlocks(NetworkSegment &segment,
                    const uint32_t totalNumberOfAxons,
                    const uint64_t maxNumberOySynapseSections)
 {
-    assert(totalNumberOfAxons > 0);
-    assert(maxNumberOySynapseSections > 0);
-
     //----------------------------------------------------------------------------------------------
 
     // init device-to-host-buffer
