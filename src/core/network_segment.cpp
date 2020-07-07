@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #include "network_segment.h"
 
 #include <core/methods/data_connection_methods.h>

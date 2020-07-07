@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef SYNAPSES_H
 #define SYNAPSES_H
 

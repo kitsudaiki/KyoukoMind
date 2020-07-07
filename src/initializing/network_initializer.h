@@ -1,10 +1,6 @@
 /**
- *  @file    network_initializer.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef NETWORK_INITIALIZER_H

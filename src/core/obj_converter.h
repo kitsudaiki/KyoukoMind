@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef OBJ_CONVERTER_H
 #define OBJ_CONVERTER_H
 

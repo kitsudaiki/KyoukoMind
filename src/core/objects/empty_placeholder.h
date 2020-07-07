@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef EMPTY_PLACEHOLDER_H
 #define EMPTY_PLACEHOLDER_H
 

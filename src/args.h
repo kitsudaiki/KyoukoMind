@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef ARGS_H
 #define ARGS_H
 

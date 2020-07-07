@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #include "brick.h"
 
 #include <core/methods/data_connection_methods.h>

@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef NETWORK_CALLBACKS_H
 #define NETWORK_CALLBACKS_H
 

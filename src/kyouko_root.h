@@ -1,10 +1,6 @@
 /**
- *  @file    kyouko_root.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef KYOUKO_ROOT_OBJECT_H

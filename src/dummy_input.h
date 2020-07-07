@@ -1,10 +1,6 @@
 /**
- *  @file    dummy_input.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef DUMMY_INPUT_H

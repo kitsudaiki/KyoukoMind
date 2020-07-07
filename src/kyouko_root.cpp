@@ -1,10 +1,6 @@
 /**
- *  @file    kyouko_network.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <kyouko_root.h>

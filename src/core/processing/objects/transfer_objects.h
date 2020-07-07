@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef TRANSFER_OBJECTS_H
 #define TRANSFER_OBJECTS_H
 

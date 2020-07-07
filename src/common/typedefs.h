@@ -1,10 +1,6 @@
 /**
- *  @file    typedefs.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef TYPEDEFS_H

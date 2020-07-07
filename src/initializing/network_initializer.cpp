@@ -1,10 +1,6 @@
 /**
- *  @file    network_initializer.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include "network_initializer.h"

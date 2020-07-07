@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef NETWORK_SEGMENT_H
 #define NETWORK_SEGMENT_H
 

@@ -1,10 +1,6 @@
 /**
- *  @file    network_manager.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <core/network_manager.h>

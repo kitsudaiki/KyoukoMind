@@ -1,10 +1,6 @@
 /**
- *  @file    processing_unit.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef PROCESSING_UNIT_H

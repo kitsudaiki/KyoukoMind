@@ -1,10 +1,6 @@
 /**
- *  @file    processing_unit_handler.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <core/processing/processing_unit_handler.h>

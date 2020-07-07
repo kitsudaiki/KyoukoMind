@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #include "gpu_interface.h"
 
 #include <libKitsunemimiOpencl/opencl.h>

@@ -1,4 +1,9 @@
-﻿#ifndef CONTROL_PROCESSING_H
+﻿/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
+#ifndef CONTROL_PROCESSING_H
 #define CONTROL_PROCESSING_H
 
 #include <kyouko_root.h>

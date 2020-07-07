@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef CLIENT_PROCESSING_H
 #define CLIENT_PROCESSING_H
 

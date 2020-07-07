@@ -1,10 +1,6 @@
 /**
- *  @file    axon_initializer.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include "axon_initializer.h"

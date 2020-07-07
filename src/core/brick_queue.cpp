@@ -1,10 +1,6 @@
 /**
- *  @file    brick_queue.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <core/brick_queue.h>

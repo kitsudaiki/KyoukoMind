@@ -1,10 +1,6 @@
 /**
- *  @file    process_learning.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef PROCESS_LEARNING_H

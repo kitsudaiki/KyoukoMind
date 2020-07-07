@@ -1,10 +1,6 @@
 /**
- *  @file    process_normal.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef PROCESS_NORMAL_H

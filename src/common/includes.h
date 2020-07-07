@@ -1,10 +1,6 @@
 /**
- *  @file    includes.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef INCLUDES_H

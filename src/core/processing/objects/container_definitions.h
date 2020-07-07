@@ -1,10 +1,6 @@
 /**
- *  @file    content_container.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef CONTENT_CONTAINER_H

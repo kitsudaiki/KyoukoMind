@@ -1,10 +1,6 @@
 /**
- *  @file    network_manager.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef NETWORK_MANAGER_H

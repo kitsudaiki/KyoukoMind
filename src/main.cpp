@@ -1,10 +1,6 @@
 /**
- *  @file    main.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <common.h>

@@ -1,10 +1,6 @@
 /**
- *  @file    node.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef NODES_H

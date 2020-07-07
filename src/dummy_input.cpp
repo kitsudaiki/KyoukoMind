@@ -1,10 +1,6 @@
 /**
- *  @file    dummy_input.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <dummy_input.h>

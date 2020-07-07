@@ -1,10 +1,6 @@
 ﻿/**
- *  @file    message_processing.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef EDGE_CONTAINER_PROCESSING_H

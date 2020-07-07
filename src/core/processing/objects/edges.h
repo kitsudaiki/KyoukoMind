@@ -1,10 +1,6 @@
 /**
- *  @file    edges.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef EDGES_H

@@ -1,10 +1,6 @@
 /**
- *  @file    defines.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <common/includes.h>

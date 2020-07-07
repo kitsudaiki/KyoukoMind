@@ -1,10 +1,6 @@
 /**
- *  @file    axon_initializer.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef AXON_INITIALIZER_H

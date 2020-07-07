@@ -1,4 +1,9 @@
-﻿#include "obj_converter.h"
+﻿/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
+#include "obj_converter.h"
 
 #include <kyouko_root.h>
 

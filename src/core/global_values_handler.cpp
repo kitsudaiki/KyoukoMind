@@ -1,10 +1,6 @@
 /**
- *  @file    global_values_handler.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <core/global_values_handler.h>

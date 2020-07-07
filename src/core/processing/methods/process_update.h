@@ -1,10 +1,6 @@
 /**
- *  @file    process_update.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef PROCESS_UPDATE_H

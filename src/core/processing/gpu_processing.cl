@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #pragma OPENCL EXTENSION cl_khr_fp16 : enable
 
 // const predefined values

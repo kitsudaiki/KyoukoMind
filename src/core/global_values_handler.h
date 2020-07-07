@@ -1,10 +1,6 @@
 /**
- *  @file    global_values_handler.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef GLOBAL_VALUES_HANDLER_H

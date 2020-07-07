@@ -1,10 +1,6 @@
 /**
- *  @file    file_parser.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef FILE_PARSER_H
