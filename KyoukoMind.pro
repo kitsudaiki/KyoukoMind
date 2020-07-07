@@ -85,7 +85,6 @@ HEADERS += \
     src/config.h \
     src/io/network_callbacks.h \
     src/core/processing/methods/edge_methods.h \
-    src/core/processing/methods/synapse_methods.h \
     src/io/client_processing.h \
     src/io/control_processing.h \
     src/core/obj_converter.h \

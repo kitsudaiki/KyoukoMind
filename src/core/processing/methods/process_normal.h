@@ -14,7 +14,6 @@
 #include <kyouko_root.h>
 
 #include <core/processing/objects/container_definitions.h>
-#include <core/processing/methods/synapse_methods.h>
 #include <core/methods/data_connection_methods.h>
 
 #include <core/brick.h>
