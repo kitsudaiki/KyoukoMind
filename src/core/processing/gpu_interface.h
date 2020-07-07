@@ -5,7 +5,7 @@
 
 #include <core/objects/container_definitions.h>
 #include <core/objects/synapses.h>
-#include <core/objects/network_segment.h>
+#include <core/network_segment.h>
 
 namespace KyoukoMind
 {

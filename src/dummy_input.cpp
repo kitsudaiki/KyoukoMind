@@ -10,8 +10,6 @@
 #include <dummy_input.h>
 #include <kyouko_root.h>
 
-#include <core/methods/brick_initializing_methods.h>
-#include <core/methods/brick_cycle_methods.h>
 #include <core/processing/methods/message_processing.h>
 #include <core/objects/container_definitions.h>
 
@@ -29,9 +27,9 @@ void
 DummyInput::run()
 {
     initialize();
-    initCycle(inputBrick);
+    inputBrick->initCycle();
 
-    const uint64_t targetEdgeId = addEmptyEdgeSection(*inputBrick->neighbors[22].targetBrick, 1, 0);
+    const uint64_t targetEdgeId = inputBrick->neighbors[22].targetBrick->addEmptyEdgeSection(1, 0);
 
 
     while(!m_abort)
@@ -47,7 +45,7 @@ DummyInput::run()
         handler->setGlobalValues(gValues);
 
         // get neighbor
-        Neighbor* neighbor = &inputBrick->neighbors[22];
+        Brick::Neighbor* neighbor = &inputBrick->neighbors[22];
 
         // set input-values
         EdgeContainer newEdge;
@@ -74,11 +72,11 @@ DummyInput::run()
         Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);*/
 
         // finish and restart cycle
-        finishSide(inputBrick, 22);
-        while(isReady(inputBrick) == false) {
+        inputBrick->finishSide(22);
+        while(inputBrick->isReady() == false) {
             usleep(1000);
         }
-        initCycle(inputBrick);
+        inputBrick->initCycle();
         sleepThread(100000);
     }
 }
@@ -102,7 +100,7 @@ DummyInput::initialize()
     inputBrick->isInputBrick = 1;
 
     // init the new neighbors
-    assert(connectBricks(*inputBrick, sourceSide, *targetBrick));
+    assert(inputBrick->connectBricks(sourceSide, *targetBrick));
     KyoukoRoot::m_inputBricks->insert(std::make_pair(0, inputBrick));
 }
 

@@ -16,7 +16,7 @@ namespace KyoukoMind
 {
 class GlobalValuesHandler;
 
-struct Brick;
+class Brick;
 
 class BrickQueue
 {

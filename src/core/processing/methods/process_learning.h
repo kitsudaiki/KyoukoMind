@@ -14,13 +14,11 @@
 #include <kyouko_root.h>
 
 #include <core/objects/container_definitions.h>
-#include <core/methods/brick_item_methods.h>
 #include <core/methods/synapse_methods.h>
 #include <core/methods/data_connection_methods.h>
-#include <core/methods/network_segment_methods.h>
 
-#include <core/objects/brick.h>
-#include <core/objects/network_segment.h>
+#include <core/brick.h>
+#include <core/network_segment.h>
 
 namespace KyoukoMind
 {
@@ -46,9 +44,9 @@ initializeNewEdge(NetworkSegment &segment,
 {
     if(side == 22)
     {
-        const uint64_t id = addEmptySynapseSection(segment, edgeSectionId, brick.brickId);
+        const uint64_t id = segment.addEmptySynapseSection(edgeSectionId, brick.brickId);
         const uint32_t targetId = static_cast<uint32_t>(id);
-        SynapseSection* synapseSection = &getSynapseSectionBlock(segment)[targetId];
+        SynapseSection* synapseSection = &segment.getSynapseSectionBlock()[targetId];
         synapseSection->sourceEdgeId = edgeSectionId;
         edgeSection->edges[22].targetId = targetId;
         edgeSection->edges[22].weight = weight;

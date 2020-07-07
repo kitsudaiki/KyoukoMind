@@ -14,13 +14,11 @@
 #include <kyouko_root.h>
 
 #include <core/objects/container_definitions.h>
-#include <core/methods/brick_item_methods.h>
 #include <core/methods/synapse_methods.h>
 #include <core/methods/data_connection_methods.h>
-#include <core/methods/network_segment_methods.h>
 
-#include <core/objects/brick.h>
-#include <core/objects/network_segment.h>
+#include <core/brick.h>
+#include <core/network_segment.h>
 
 #include <core/processing/methods/process_learning.h>
 #include <core/processing/methods/process_update.h>
@@ -121,9 +119,8 @@ processLearningEdge(NetworkSegment &segment,
                     const LearingEdgeContainer &container,
                     const uint8_t initSide)
 {
-    const uint64_t targetEdgeId = addEmptyEdgeSection(brick,
-                                                      initSide,
-                                                      container.sourceEdgeSectionId);
+    const uint64_t targetEdgeId = brick. addEmptyEdgeSection(initSide,
+                                                             container.sourceEdgeSectionId);
 
     // create reply-message
     LearningEdgeReplyContainer reply;

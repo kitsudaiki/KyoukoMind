@@ -66,19 +66,14 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/objects/brick.h \
-    src/core/objects/brick_pos.h \
     src/core/objects/container_definitions.h \
     src/core/objects/data_connection.h \
     src/core/objects/edges.h \
     src/core/objects/empty_placeholder.h \
-    src/core/objects/neighbor.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
     src/core/processing/processing_unit.h \
     src/core/processing/processing_unit_handler.h \
-    src/core/methods/brick_initializing_methods.h \
-    src/core/methods/brick_item_methods.h \
     src/core/global_values_handler.h \
     src/core/network_manager.h \
     src/initializing/axon_initializer.h \
@@ -90,13 +85,10 @@ HEADERS += \
     src/config.h \
     src/io/network_callbacks.h \
     src/core/methods/edge_methods.h \
-    src/core/methods/neighbor_methods.h \
     src/core/methods/synapse_methods.h \
     src/io/client_processing.h \
     src/io/control_processing.h \
     src/core/obj_converter.h \
-    src/core/objects/network_segment.h \
-    src/core/methods/network_segment_methods.h \
     src/core/methods/data_connection_methods.h \
     src/core/brick_queue.h \
     src/core/processing/gpu_processing.cl \
@@ -109,26 +101,26 @@ HEADERS += \
     src/core/processing/methods/process_update.h \
     src/core/processing/methods/process_normal.h \
     src/core/processing/methods/message_processing.h \
-    src/core/methods/brick_cycle_methods.h
+    src/core/brick.h \
+    src/core/network_segment.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
-    src/core/methods/brick_initializing_methods.cpp \
     src/core/global_values_handler.cpp \
     src/core/network_manager.cpp \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/core/obj_converter.cpp \
-    src/core/methods/network_segment_methods.cpp \
     src/core/methods/data_connection_methods.cpp \
     src/core/brick_queue.cpp \
     src/core/processing/gpu_interface.cpp \
     src/core/validation.cpp \
     src/kyouko_root.cpp \
     src/dummy_input.cpp \
-    src/core/methods/brick_cycle_methods.cpp
+    src/core/brick.cpp \
+    src/core/network_segment.cpp
 
 
 CONFIG(run_tests) {

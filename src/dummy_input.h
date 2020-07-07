@@ -12,7 +12,7 @@
 
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
-#include <core/objects/network_segment.h>
+#include <core/network_segment.h>
 
 namespace KyoukoMind
 {

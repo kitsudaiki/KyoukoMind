@@ -1,19 +1,69 @@
-#include "network_segment_methods.h"
+#include "network_segment.h"
 
-#include <core/methods/brick_cycle_methods.h>
-
-#include <core/methods/neighbor_methods.h>
-#include <core/methods/brick_item_methods.h>
-#include <core/methods/brick_initializing_methods.h>
 #include <core/methods/data_connection_methods.h>
-#include <core/methods/network_segment_methods.h>
-
-#include <core/objects/transfer_objects.h>
 
 namespace KyoukoMind
 {
 
-//==================================================================================================
+NetworkSegment::NetworkSegment()
+{
+
+}
+
+/**
+ * @brief NetworkSegment::getNextTransferPos
+ * @return
+ */
+uint32_t
+NetworkSegment::getNextTransferPos()
+{
+    uint32_t pos = 0;
+
+    while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    pos = synapseEdgesCounter;
+    synapseEdgesCounter++;
+    lock.clear(std::memory_order_release);
+
+    return pos;
+}
+
+/**
+ * @brief NetworkSegment::resetTransferPos
+ */
+void
+NetworkSegment::resetTransferPos()
+{
+    while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    synapseEdgesCounter = 0;
+    lock.clear(std::memory_order_release);
+}
+
+/**
+ * @brief NetworkSegment::addEmptySynapseSection
+ * @param sourceEdgeId
+ * @param sourceBrickId
+ * @return
+ */
+uint64_t
+NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
+                                       const uint32_t sourceBrickId)
+{
+    assert(sourceEdgeId != UNINIT_STATE_32);
+    assert(sourceBrickId != UNINIT_STATE_32);
+
+    const uint64_t position = reserveDynamicItem(synapses);
+    assert(position != UNINIT_STATE_32);
+
+    // add new edge-forward-section
+    SynapseSection newSection;
+    newSection.sourceEdgeId = sourceEdgeId;
+    newSection.sourceBrickId = sourceBrickId;
+
+    assert(synapses.inUse != 0);
+    getSynapseSectionBlock()[position] = newSection;
+
+    return position;
+}
 
 /**
  * initialize the node-list of the brick
@@ -21,13 +71,12 @@ namespace KyoukoMind
  * @return false if nodes are already initialized, esle true
  */
 bool
-initNodeBlocks(NetworkSegment &segment,
-               uint32_t numberOfNodes)
+NetworkSegment::initNodeBlocks(uint32_t numberOfNodes)
 {
     assert(numberOfNodes > 0);
 
-    if(segment.nodes.numberOfItems != 0
-            || segment.nodes.inUse != 0)
+    if(nodes.numberOfItems != 0
+            || nodes.inUse != 0)
     {
         // TODO: log-output
         return false;
@@ -39,7 +88,7 @@ initNodeBlocks(NetworkSegment &segment,
     }
 
     // init
-    if(initDataBlocks(segment.nodes,
+    if(initDataBlocks(nodes,
                       numberOfNodes,
                       sizeof(Node)) == false)
     {
@@ -47,19 +96,17 @@ initNodeBlocks(NetworkSegment &segment,
     }
 
     // fill array with empty nodes
-    Node* array = static_cast<Node*>(segment.nodes.buffer.data);
+    Node* array = static_cast<Node*>(nodes.buffer.data);
     for(uint32_t i = 0; i < numberOfNodes; i++)
     {
         Node tempNode;
         tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
         array[i] = tempNode;
     }
-    segment.nodes.inUse = 1;
+    nodes.inUse = 1;
 
     return true;
 }
-
-//==================================================================================================
 
 /**
  * init the edge-sections of thebrick
@@ -67,14 +114,13 @@ initNodeBlocks(NetworkSegment &segment,
  * @return false, if already initialized, else true
  */
 bool
-initSynapseSectionBlocks(NetworkSegment &segment,
-                         const uint32_t numberOfSynapseSections)
+NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
 {
-    assert(segment.synapses.inUse == 0);
+    assert(synapses.inUse == 0);
     assert(numberOfSynapseSections > 0);
 
     // init
-    if(initDataBlocks(segment.synapses,
+    if(initDataBlocks(synapses,
                       numberOfSynapseSections,
                       sizeof(SynapseSection)) == false)
     {
@@ -82,18 +128,16 @@ initSynapseSectionBlocks(NetworkSegment &segment,
     }
 
     // fill array with empty synapsesections
-    SynapseSection* array = getSynapseSectionBlock(segment);
+    SynapseSection* array = getSynapseSectionBlock();
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         SynapseSection newSection;
         array[i] = newSection;
     }
-    segment.synapses.inUse = 1;
+    synapses.inUse = 1;
 
     return true;
 }
-
-//==================================================================================================
 
 /**
  * @brief initTransferBlocks
@@ -103,14 +147,13 @@ initSynapseSectionBlocks(NetworkSegment &segment,
  * @return
  */
 bool
-initTransferBlocks(NetworkSegment &segment,
-                   const uint32_t totalNumberOfAxons,
-                   const uint64_t maxNumberOySynapseSections)
+NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
+                                   const uint64_t maxNumberOySynapseSections)
 {
     //----------------------------------------------------------------------------------------------
 
     // init device-to-host-buffer
-    if(initDataBlocks(segment.axonEdges,
+    if(initDataBlocks(axonEdges,
                       totalNumberOfAxons,
                       sizeof(AxonTransfer)) == false)
     {
@@ -118,18 +161,18 @@ initTransferBlocks(NetworkSegment &segment,
     }
 
     // fill array with empty values
-    AxonTransfer* axonArray = getAxonTransferBlock(segment);
+    AxonTransfer* axonArray = getAxonTransferBlock();
     for(uint32_t i = 0; i < totalNumberOfAxons; i++)
     {
         AxonTransfer newEdge;
         axonArray[i] = newEdge;
     }
-    segment.axonEdges.inUse = 1;
+    axonEdges.inUse = 1;
 
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(initDataBlocks(segment.synapseEdges,
+    if(initDataBlocks(synapseEdges,
                       maxNumberOySynapseSections,
                       sizeof(SynapseTransfer)) == false)
     {
@@ -137,18 +180,18 @@ initTransferBlocks(NetworkSegment &segment,
     }
 
     // fill array with empty values
-    SynapseTransfer* synapseArray = getSynapseTransferBlock(segment);
+    SynapseTransfer* synapseArray = getSynapseTransferBlock();
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
         SynapseTransfer newSynapseTransfer;
         synapseArray[i] = newSynapseTransfer;
     }
-    segment.synapseEdges.inUse = 1;
+    synapseEdges.inUse = 1;
 
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(initDataBlocks(segment.updateEdges,
+    if(initDataBlocks(updateEdges,
                       maxNumberOySynapseSections,
                       sizeof(UpdateTransfer)) == false)
     {
@@ -156,20 +199,18 @@ initTransferBlocks(NetworkSegment &segment,
     }
 
     // fill array with empty values
-    UpdateTransfer* updateArray = getUpdateTransferBlock(segment);
+    UpdateTransfer* updateArray = getUpdateTransferBlock();
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
         UpdateTransfer newUpdateTransfer;
         updateArray[i] = newUpdateTransfer;
     }
-    segment.updateEdges.inUse = 1;
+    updateEdges.inUse = 1;
 
     //----------------------------------------------------------------------------------------------
 
     return true;
 }
-
-//==================================================================================================
 
 /**
  * add a new client-connection to a brick,
@@ -178,45 +219,42 @@ initTransferBlocks(NetworkSegment &segment,
  * @return true, if successful, else false
  */
 bool
-addClientOutputConnection(NetworkSegment &segment,
-                          const uint32_t brickPos)
+NetworkSegment::addClientOutputConnection(const uint32_t brickPos)
 {
     // get and check connection-item
-    if(segment.nodes.inUse == 0)
+    if(nodes.inUse == 0)
     {
         // TODO: log-output
         return false;
     }
 
-    Brick* brick = segment.bricks[brickPos];
+    Brick* brick = bricks[brickPos];
 
     // set brick as output-brick
     brick->isOutputBrick = 1;
 
     // set the border-value of all nodes within the brick
     // to a high-value, so the node can never become active
-    Node* nodeArray = &getNodeBlock(segment)[brick->nodePos];
+    Node* nodeArray = &getNodeBlock()[brick->nodePos];
     nodeArray->border = 100000.0f;
 
     return true;
 }
 
-//==================================================================================================
-
 /**
  * @brief BrickHandler::getMetadata
  * @return
  */
-Kitsunemimi::DataItem*
-getMetadata(NetworkSegment &segment)
+DataItem*
+NetworkSegment::getMetadata()
 {
     DataArray* edges = new DataArray();
     DataArray* nodes = new DataArray();
 
     // collect data
-    for(uint32_t i = 0; i < segment.bricks.size(); i++)
+    for(uint32_t i = 0; i < bricks.size(); i++)
     {
-        Brick* brick = segment.bricks[i];
+        Brick* brick = bricks[i];
 
         if(brick->nodePos >= 0) {
             nodes->append(new DataValue(static_cast<long>(brick->brickId)));
@@ -235,8 +273,6 @@ getMetadata(NetworkSegment &segment)
     return result;
 }
 
-//==================================================================================================
-
 /**
  * @brief BrickHandler::connect
  * @param sourceBrickId
@@ -245,17 +281,14 @@ getMetadata(NetworkSegment &segment)
  * @return
  */
 bool
-connectBricks(NetworkSegment &segment,
-              const uint32_t sourceBrickId,
-              const uint8_t sourceSide,
-              const uint32_t targetBrickId)
+NetworkSegment::connectBricks(const uint32_t sourceBrickId,
+                              const uint8_t sourceSide,
+                              const uint32_t targetBrickId)
 {
-    Brick* sourceBrick = segment.bricks[sourceBrickId];
-    Brick* targetBrick = segment.bricks[targetBrickId];
-    return connectBricks(*sourceBrick, sourceSide, *targetBrick);
+    Brick* sourceBrick = bricks[sourceBrickId];
+    Brick* targetBrick = bricks[targetBrickId];
+    return sourceBrick->connectBricks(sourceSide, *targetBrick);
 }
-
-//==================================================================================================
 
 /**
  * disconnect two bricks from the handler from each other
@@ -263,16 +296,13 @@ connectBricks(NetworkSegment &segment,
  * @return result of the sub-call
  */
 bool
-disconnectBricks(NetworkSegment &segment,
-                 const uint32_t sourceBrickId,
-                 const uint8_t sourceSide,
-                 const uint32_t targetBrickId)
+NetworkSegment::disconnectBricks(const uint32_t sourceBrickId,
+                                 const uint8_t sourceSide,
+                                 const uint32_t targetBrickId)
 {
-    Brick* sourceBrick = segment.bricks[sourceBrickId];
-    Brick* targetBrick = segment.bricks[targetBrickId];
-    return disconnectBricks(*sourceBrick, sourceSide, *targetBrick);
+    Brick* sourceBrick = bricks[sourceBrickId];
+    Brick* targetBrick = bricks[targetBrickId];
+    return sourceBrick->disconnectBricks(sourceSide, *targetBrick);
 }
-
-//==================================================================================================
 
 }

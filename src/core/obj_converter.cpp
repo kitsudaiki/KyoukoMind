@@ -2,17 +2,32 @@
 
 #include <kyouko_root.h>
 
-#include <core/objects/brick.h>
-#include <core/objects/brick_pos.h>
+#include <core/brick.h>
 #include <core/objects/edges.h>
 #include <core/objects/data_connection.h>
-#include <core/objects/network_segment.h>
-
-#include <core/methods/network_segment_methods.h>
-#include <core/methods/brick_item_methods.h>
+#include <core/network_segment.h>
 
 namespace KyoukoMind
 {
+
+/**
+ * @brief convertPos
+ * @param pos
+ * @return
+ */
+Vec4
+convertPos(const Brick::BrickPos pos)
+{
+    Kitsunemimi::Obj::Vec4 vec;
+
+    vec.x = static_cast<float>(pos.x)
+            + static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
+    vec.y = static_cast<float>(pos.y)
+            + static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
+    vec.z = static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
+
+    return vec;
+}
 
 /**
  * @brief convertNetworkToObj
@@ -82,7 +97,7 @@ convertBrickToObj(ObjItem &result,
     }
 
     NetworkSegment* segment = KyoukoRoot::m_segment;
-    Node* start = &getNodeBlock(*segment)[brick->nodePos];
+    Node* start = &segment->getNodeBlock()[brick->nodePos];
     Node* end = start + NUMBER_OF_NODES_PER_BRICK;
 
     // iterate over all nodes in the brick
@@ -130,7 +145,7 @@ convertNodeToObj(ObjItem &result,
     }
 
     NetworkSegment* segment = KyoukoRoot::m_segment;
-    Node* nodeArray = &getNodeBlock(*segment)[brick->nodePos];
+    Node* nodeArray = &segment->getNodeBlock()[brick->nodePos];
     Node* node = &nodeArray[nodeId];
 
     convertNodeToObj(result, brick, node);
@@ -253,25 +268,6 @@ convertEdgesToObj(ObjItem &result,
             }
         }
     }
-}
-
-/**
- * @brief convertPos
- * @param pos
- * @return
- */
-Vec4
-convertPos(const BrickPos pos)
-{
-    Kitsunemimi::Obj::Vec4 vec;
-
-    vec.x = static_cast<float>(pos.x)
-            + static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
-    vec.y = static_cast<float>(pos.y)
-            + static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
-    vec.z = static_cast <float>(rand()) / static_cast <float> (0x7FFFFFFF);
-
-    return vec;
 }
 
 }

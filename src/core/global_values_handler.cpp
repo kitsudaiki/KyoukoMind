@@ -8,7 +8,7 @@
  */
 
 #include <core/global_values_handler.h>
-#include <core/objects/brick.h>
+#include <core/brick.h>
 
 namespace KyoukoMind
 {

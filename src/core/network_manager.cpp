@@ -16,7 +16,7 @@
 
 #include <core/processing/processing_unit_handler.h>
 
-#include <core/objects/brick.h>
+#include <core/brick.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>

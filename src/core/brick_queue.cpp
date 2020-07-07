@@ -10,8 +10,7 @@
 #include <core/brick_queue.h>
 #include <core/global_values_handler.h>
 
-#include <core/objects/brick.h>
-#include <core/methods/brick_initializing_methods.h>
+#include <core/brick.h>
 
 namespace KyoukoMind
 {

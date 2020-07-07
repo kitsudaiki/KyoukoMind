@@ -14,13 +14,11 @@
 #include <kyouko_root.h>
 
 #include <core/objects/container_definitions.h>
-#include <core/methods/brick_item_methods.h>
 #include <core/methods/synapse_methods.h>
 #include <core/methods/data_connection_methods.h>
-#include <core/methods/network_segment_methods.h>
 
-#include <core/objects/brick.h>
-#include <core/objects/network_segment.h>
+#include <core/brick.h>
+#include <core/network_segment.h>
 
 #include <core/processing/methods/process_normal.h>
 

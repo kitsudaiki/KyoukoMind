@@ -12,10 +12,12 @@
 
 #include <common.h>
 #include "init_meta_data.h"
+#include <core/brick.h>
 
 namespace KyoukoMind
 {
 class NextChooser;
+
 struct Neighbor;
 struct NetworkSegment;
 
@@ -36,7 +38,8 @@ NewAxon getNextAxonPathStep(const uint32_t x,
                             const uint32_t currentStep,
                             std::vector<std::vector<InitMetaDataEntry> > &networkMetaStructure);
 
-uint8_t chooseNextSide(const uint8_t initialSide, Neighbor* neighbors);
+uint8_t chooseNextSide(const uint8_t initialSide,
+                       Brick::Neighbor* neighbors);
 
 } // namespace KyoukoMind
 

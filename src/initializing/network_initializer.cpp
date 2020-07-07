@@ -9,7 +9,7 @@
 
 #include "network_initializer.h"
 #include <kyouko_root.h>
-#include <core/objects/brick.h>
+#include <core/brick.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>
@@ -17,9 +17,6 @@
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/methods/message_processing.h>
 #include <core/processing/gpu_interface.h>
-
-#include <core/methods/network_segment_methods.h>
-#include <core/methods/brick_initializing_methods.h>
 
 namespace KyoukoMind
 {
@@ -54,7 +51,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     const uint32_t numberOfNodeBricks = getNumberOfNodeBricks();
     const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
 
-    assert(initNodeBlocks(*segment, totalNumberOfNodes));
+    assert(segment->initNodeBlocks(totalNumberOfNodes));
     KyoukoRoot::m_queue->setBorder(getNumberOfBricks());
 
     // init bricks
@@ -62,11 +59,11 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     connectAllBricks(*segment);
     createAxons(*segment, m_networkMetaStructure);
 
-    if(initSynapseSectionBlocks(*segment, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+    if(segment->initSynapseSectionBlocks(MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
         return false;
     }
 
-    if(initTransferBlocks(*segment, totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+    if(segment->initTransferBlocks(totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
         return false;
     }
 
@@ -153,7 +150,6 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
                 case 2:
                 {
                     Brick* newBrick = new Brick(brickId, x, y);
-                    initRandValues(*newBrick);
 
                     m_networkMetaStructure[x][y].brick = newBrick;
                     m_networkMetaStructure[x][y].brickId = brickId;
@@ -170,8 +166,6 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
                     Brick* newBrick = new Brick(brickId, x, y);
                     newBrick->nodeBrickId = numberOfNodeBricks;
                     newBrick->isNodeBrick = 1;
-
-                    initRandValues(*newBrick);
 
                     const uint32_t nodePos = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
                     assert(nodePos < 0x7FFFFFFF);
@@ -221,12 +215,9 @@ NetworkInitializer::connectAllBricks(NetworkSegment &segment)
                 {
                     const uint32_t sourceId = m_networkMetaStructure[x][y].brick->brickId;
                     const uint32_t targetId = m_networkMetaStructure[next.first][next.second].brick->brickId;
-                    connectBricks(segment,
-                                  sourceId,
-                                  side,
-                                  targetId);
+                    segment.connectBricks(sourceId, side, targetId);
 
-                    Neighbor* neighbor = &m_networkMetaStructure[x][y].brick->neighbors[side];
+                    Brick::Neighbor* neighbor = &m_networkMetaStructure[x][y].brick->neighbors[side];
                     neighbor->targetBrickPos.x = next.first;
                     neighbor->targetBrickPos.y = next.second;
                 }

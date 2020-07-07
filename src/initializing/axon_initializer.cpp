@@ -10,10 +10,7 @@
 #include "axon_initializer.h"
 #include <kyouko_root.h>
 
-#include <core/objects/brick.h>
-#include <core/methods/brick_item_methods.h>
-#include <core/methods/brick_initializing_methods.h>
-#include <core/methods/network_segment_methods.h>
+#include <core/network_segment.h>
 
 namespace KyoukoMind
 {
@@ -41,7 +38,7 @@ createAxons(NetworkSegment &segment,
             {
                 // get node-brick
                 uint32_t nodeNumberPerBrick = NUMBER_OF_NODES_PER_BRICK;
-                Node* nodes = &getNodeBlock(segment)[brick->nodePos];
+                Node* nodes = &segment.getNodeBlock()[brick->nodePos];
 
                 // iterate over all nodes of the brick and create an axon for each node
                 for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)
@@ -75,7 +72,7 @@ createAxons(NetworkSegment &segment,
                 networkMetaStructure[x][y].numberOfAxons = 1;
             }
 
-            initEdgeSectionBlocks(*brick, networkMetaStructure[x][y].numberOfAxons);
+            brick->initEdgeSectionBlocks(networkMetaStructure[x][y].numberOfAxons);
         }
     }
 
@@ -138,7 +135,7 @@ getNextAxonPathStep(const uint32_t x,
     }
 
     // get the neighbor of the choosen side
-    Neighbor* choosenOne = &networkMetaStructure[x][y].brick->neighbors[nextSite];
+    Brick::Neighbor* choosenOne = &networkMetaStructure[x][y].brick->neighbors[nextSite];
 
     // update path
     const uint64_t newPath = currentPath + ((uint64_t)nextSite << (currentStep * 5));
@@ -158,7 +155,8 @@ getNextAxonPathStep(const uint32_t x,
  * @return
  */
 uint8_t
-chooseNextSide(const uint8_t initialSide, Neighbor* neighbors)
+chooseNextSide(const uint8_t initialSide,
+               Brick::Neighbor* neighbors)
 {
     const std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
     std::vector<uint8_t> availableSides;

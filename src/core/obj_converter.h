@@ -3,14 +3,13 @@
 
 #include <common.h>
 #include <libKitsunemimiObj/obj_item.h>
-#include <core/objects/brick_pos.h>
 
 using Kitsunemimi::Obj::Vec4;
 using Kitsunemimi::Obj::ObjItem;
 
 namespace KyoukoMind
 {
-struct Brick;
+class Brick;
 struct Node;
 
 // convert whole network
@@ -44,8 +43,6 @@ void convertEdgesToObj(ObjItem &result,
                        Brick* brick,
                        const uint32_t id,
                        const uint32_t vecPos);
-
-Kitsunemimi::Obj::Vec4 convertPos(const BrickPos pos);
 
 }
 

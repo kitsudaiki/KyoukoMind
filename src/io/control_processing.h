@@ -2,14 +2,9 @@
 #define CONTROL_PROCESSING_H
 
 #include <kyouko_root.h>
+
+#include <core/network_segment.h>
 #include <core/objects/container_definitions.h>
-
-#include <core/methods/brick_cycle_methods.h>
-
-#include <core/methods/brick_initializing_methods.h>
-#include <core/methods/neighbor_methods.h>
-#include <core/methods/brick_item_methods.h>
-#include <core/methods/network_segment_methods.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -141,7 +136,7 @@ process_registerInput(const ControlRegisterInput &content,
     newBrick->isInputBrick = 1;
 
     // init the new neighbors
-    const bool success = connectBricks(*newBrick, sourceSide, *targetBrick);
+    const bool success = newBrick->connectBricks(sourceSide, *targetBrick);
     if(success == false)
     {
         delete newBrick;
@@ -154,9 +149,8 @@ process_registerInput(const ControlRegisterInput &content,
     }
     rootObject->m_inputBricks->insert(std::make_pair(content.brickId, newBrick));
 
-    initEdgeSectionBlocks(*newBrick, NUMBER_OF_NODES_PER_BRICK);
-    initRandValues(*newBrick);
-    initCycle(newBrick);
+    newBrick->initEdgeSectionBlocks(NUMBER_OF_NODES_PER_BRICK);
+    newBrick->initCycle();
 
     send_generic_response(true, "", session, blockerId);
 
@@ -172,7 +166,7 @@ process_registerInput(const ControlRegisterInput &content,
  */
 bool
 process_registerOutput(const ControlRegisterOutput &content,
-                       KyoukoRoot* rootObject,
+                       KyoukoRoot*,
                        Kitsunemimi::Project::Session* session,
                        const uint64_t blockerId)
 {
@@ -203,7 +197,7 @@ process_registerOutput(const ControlRegisterOutput &content,
     }
 
     NetworkSegment* segment = KyoukoRoot::m_segment;
-    addClientOutputConnection(*segment, content.brickId);
+    segment->addClientOutputConnection(content.brickId);
     send_generic_response(true, "", session, blockerId);
 
     return true;
@@ -239,7 +233,7 @@ process_getMetadata(KyoukoRoot* rootObject,
                     Kitsunemimi::Project::Session* session,
                     const uint64_t blockerId)
 {
-    DataItem* response = getMetadata(*rootObject->m_segment);
+    DataItem* response = rootObject->m_segment->getMetadata();
     send_metadata_response(response, session, blockerId);
 }
 

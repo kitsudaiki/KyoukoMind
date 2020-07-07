@@ -12,13 +12,10 @@
 
 #include <core/global_values_handler.h>
 
-#include <core/objects/brick.h>
+#include <core/brick.h>
 #include <core/objects/container_definitions.h>
 
-#include <core/methods/neighbor_methods.h>
-
 #include <core/processing/methods/message_processing.h>
-#include <core/methods/brick_cycle_methods.h>
 #include <core/processing/gpu_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -108,7 +105,7 @@ ProcessingUnit::run()
         }
         else
         {
-            initCycle(brick);
+            brick->initCycle();
 
             if(brick->isNodeBrick)
             {
@@ -135,12 +132,12 @@ ProcessingUnit::run()
 
             // write output
             if(brick->isOutputBrick == 1) {
-                writeClientOutput(*segment, *brick, m_clientBuffer);
+                brick->writeClientOutput(*segment, m_clientBuffer);
             }
-            writeMonitoringOutput(*brick, m_monitoringBuffer);
+            brick->writeMonitoringOutput(m_monitoringBuffer);
 
             // finish current block
-            finishCycle(brick);
+            brick->finishCycle();
         }
     }
 }

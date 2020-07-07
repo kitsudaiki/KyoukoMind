@@ -10,7 +10,7 @@
 #include <kyouko_root.h>
 #include <core/network_manager.h>
 #include <core/global_values_handler.h>
-#include <core/objects/brick.h>
+#include <core/brick.h>
 #include <core/obj_converter.h>
 #include <core/validation.h>
 

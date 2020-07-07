@@ -4,11 +4,6 @@
 #include <kyouko_root.h>
 #include <core/objects/container_definitions.h>
 
-#include <core/methods/brick_initializing_methods.h>
-#include <core/methods/neighbor_methods.h>
-#include <core/methods/network_segment_methods.h>
-
-#include <core/methods/brick_cycle_methods.h>
 #include <core/processing/methods/message_processing.h>
 #include <core/processing/processing_unit.h>
 
@@ -106,7 +101,7 @@ clientLearnInput_processing(const ClientLearnInputData &content,
     if(it != rootObject->m_inputBricks->end())
     {
         Brick* brick = it->second;
-        Neighbor* neighbor = &brick->neighbors[22];
+        Brick::Neighbor* neighbor = &brick->neighbors[22];
         const uint16_t ok = neighbor->targetBrick->nodePos >= 0;
 
         for(uint16_t i = 0; i < ok * NUMBER_OF_NODES_PER_BRICK; i++)
@@ -135,11 +130,11 @@ clientLearnFinishCycleData_processing(const ClientLearnFinishCycleData &content,
     {
         Brick* brick = it->second;
 
-        finishSide(brick, 22);
-        while(isReady(brick) == false) {
+        brick->finishSide(22);
+        while(brick->isReady() == false) {
             usleep(1000);
         }
-        initCycle(brick);
+        brick->initCycle();
     }
 }
 

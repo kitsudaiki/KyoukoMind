@@ -15,7 +15,7 @@
 namespace KyoukoMind
 {
 
-struct Brick;
+class Brick;
 
 enum BrickTypes
 {
