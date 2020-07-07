@@ -2,7 +2,7 @@
 
 #include <libKitsunemimiOpencl/opencl.h>
 #include <gpu_processing.h>
-#include <core/objects/transfer_objects.h>
+#include <core/processing/objects/transfer_objects.h>
 
 namespace KyoukoMind
 {

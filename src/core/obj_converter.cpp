@@ -3,7 +3,7 @@
 #include <kyouko_root.h>
 
 #include <core/brick.h>
-#include <core/objects/edges.h>
+#include <core/processing/objects/edges.h>
 #include <core/objects/data_connection.h>
 #include <core/network_segment.h>
 

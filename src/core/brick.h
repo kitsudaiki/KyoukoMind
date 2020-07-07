@@ -4,6 +4,7 @@
 #include <common.h>
 #include <kyouko_root.h>
 
+#include <core/processing/objects/edges.h>
 #include <core/objects/data_connection.h>
 
 namespace KyoukoMind

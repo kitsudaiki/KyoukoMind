@@ -3,10 +3,6 @@
 
 #include <common.h>
 
-#include <core/objects/node.h>
-#include <core/objects/edges.h>
-#include <core/objects/synapses.h>
-
 namespace KyoukoMind
 {
 

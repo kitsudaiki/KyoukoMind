@@ -66,12 +66,12 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/objects/container_definitions.h \
+    src/core/processing/objects/container_definitions.h \
     src/core/objects/data_connection.h \
-    src/core/objects/edges.h \
+    src/core/processing/objects/edges.h \
     src/core/objects/empty_placeholder.h \
-    src/core/objects/node.h \
-    src/core/objects/synapses.h \
+    src/core/processing/objects/node.h \
+    src/core/processing/objects/synapses.h \
     src/core/processing/processing_unit.h \
     src/core/processing/processing_unit_handler.h \
     src/core/global_values_handler.h \
@@ -84,8 +84,8 @@ HEADERS += \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
-    src/core/methods/edge_methods.h \
-    src/core/methods/synapse_methods.h \
+    src/core/processing/methods/edge_methods.h \
+    src/core/processing/methods/synapse_methods.h \
     src/io/client_processing.h \
     src/io/control_processing.h \
     src/core/obj_converter.h \
@@ -93,7 +93,7 @@ HEADERS += \
     src/core/brick_queue.h \
     src/core/processing/gpu_processing.cl \
     src/core/processing/gpu_interface.h \
-    src/core/objects/transfer_objects.h \
+    src/core/processing/objects/transfer_objects.h \
     src/core/validation.h \
     src/kyouko_root.h \
     src/dummy_input.h \

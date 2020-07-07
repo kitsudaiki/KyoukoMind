@@ -2,7 +2,8 @@
 #define SYNAPSE_METHODS_H
 
 #include <common.h>
-#include <core/objects/synapses.h>
+
+#include <core/processing/objects/synapses.h>
 
 namespace KyoukoMind
 {

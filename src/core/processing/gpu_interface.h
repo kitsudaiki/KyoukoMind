@@ -3,8 +3,8 @@
 
 #include <common.h>
 
-#include <core/objects/container_definitions.h>
-#include <core/objects/synapses.h>
+#include <core/processing/objects/container_definitions.h>
+#include <core/processing/objects/synapses.h>
 #include <core/network_segment.h>
 
 namespace KyoukoMind

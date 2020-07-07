@@ -2,7 +2,7 @@
 #define EDGE_METHODS_H
 
 #include <common.h>
-#include <core/objects/edges.h>
+#include <core/processing/objects/edges.h>
 
 namespace KyoukoMind
 {

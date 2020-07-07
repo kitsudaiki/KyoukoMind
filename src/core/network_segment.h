@@ -6,7 +6,9 @@
 #include <core/objects/data_connection.h>
 #include <core/brick.h>
 #include <libKitsunemimiOpencl/opencl.h>
-#include <core/objects/transfer_objects.h>
+#include <core/processing/objects/transfer_objects.h>
+#include <core/processing/objects/node.h>
+#include <core/processing/objects/synapses.h>
 
 namespace KyoukoMind
 {

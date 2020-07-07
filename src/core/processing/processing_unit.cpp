@@ -13,7 +13,7 @@
 #include <core/global_values_handler.h>
 
 #include <core/brick.h>
-#include <core/objects/container_definitions.h>
+#include <core/processing/objects/container_definitions.h>
 
 #include <core/processing/methods/message_processing.h>
 #include <core/processing/gpu_interface.h>
