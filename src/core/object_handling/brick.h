@@ -32,15 +32,9 @@ public:
     struct Neighbor
     {
         uint8_t inUse = 0;
-
         Brick* targetBrick = nullptr;
         Neighbor* targetNeighbor = nullptr;
         BrickPos targetBrickPos;
-
-        std::queue<StackBuffer*> bufferQueue;
-        StackBuffer* outgoingBuffer = nullptr;
-        StackBuffer* currentBuffer = nullptr;
-
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
 
@@ -77,12 +71,6 @@ public:
           const uint32_t y);
     ~Brick();
 
-    void initCycle();
-    void finishCycle();
-    void finishSide(const uint8_t side);
-    bool processReady();
-    bool isReady();
-
     float getSummedValue(NetworkSegment &segment);
 
     bool connectBricks(const uint8_t sourceSide,
@@ -105,10 +93,6 @@ private:
                       Brick* targetBrick,
                       Neighbor* targetNeighbor);
     bool uninitBrickNeighbor(const uint8_t side);
-
-    void sendNeighborBuffer(Neighbor &sourceNeighbor,
-                            Neighbor &targetNeighbor);
-    void switchNeighborBuffer(Neighbor &neighbor);
 };
 
 }

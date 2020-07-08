@@ -103,8 +103,6 @@ ProcessingUnit::run()
         }
         else
         {
-            brick->initCycle();
-
             if(brick->isNodeBrick)
             {
                 // process axons coming from the gpu
@@ -133,9 +131,6 @@ ProcessingUnit::run()
                 brick->writeClientOutput(*segment, m_clientBuffer);
             }
             brick->writeMonitoringOutput(m_monitoringBuffer);
-
-            // finish current block
-            brick->finishCycle();
         }
     }
 }

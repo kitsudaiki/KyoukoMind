@@ -13,12 +13,6 @@ namespace KyoukoMind
 
 class ItemBuffer
 {
-    struct EmptyPlaceHolder
-    {
-        uint8_t status = DELETED_SECTION;
-        uint64_t bytePositionOfNextEmptyBlock = UNINIT_STATE_32;
-    } __attribute__((packed));
-
 public:
     uint32_t itemSize = 0;
     uint64_t numberOfItems = 0;
