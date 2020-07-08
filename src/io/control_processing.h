@@ -8,7 +8,7 @@
 
 #include <kyouko_root.h>
 
-#include <core/network_segment.h>
+#include <core/object_handling/network_segment.h>
 #include <core/processing/objects/container_definitions.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>

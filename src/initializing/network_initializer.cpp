@@ -5,7 +5,7 @@
 
 #include "network_initializer.h"
 #include <kyouko_root.h>
-#include <core/brick.h>
+#include <core/object_handling/network_segment.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>

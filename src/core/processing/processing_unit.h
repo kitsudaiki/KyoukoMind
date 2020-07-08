@@ -8,11 +8,12 @@
 
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
-#include <core/network_segment.h>
 
 namespace KyoukoMind
 {
 class GlobalValuesHandler;
+class NetworkSegment;
+class Brick;
 
 class ProcessingUnit
         : public Kitsunemimi::Thread
@@ -26,7 +27,6 @@ public:
     std::vector<Brick*> m_finishBrickBuffer;
 
 private:
-
     DataBuffer m_clientBuffer;
     DataBuffer m_monitoringBuffer;
 };

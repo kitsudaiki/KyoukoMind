@@ -6,9 +6,11 @@
 #include <core/processing/processing_unit.h>
 #include <kyouko_root.h>
 
+#include <core/object_handling/network_segment.h>
+#include <core/processing/objects/transfer_objects.h>
 #include <core/global_values_handler.h>
 
-#include <core/brick.h>
+#include <core/object_handling/brick.h>
 #include <core/processing/objects/container_definitions.h>
 
 #include <core/processing/external/message_processing.h>

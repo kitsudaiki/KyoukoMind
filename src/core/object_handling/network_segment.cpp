@@ -5,7 +5,9 @@
 
 #include "network_segment.h"
 
-#include <core/methods/data_connection_methods.h>
+#include <core/processing/objects/transfer_objects.h>
+#include <core/processing/objects/node.h>
+#include <core/processing/objects/synapses.h>
 
 namespace KyoukoMind
 {
@@ -56,7 +58,7 @@ NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
     assert(sourceEdgeId != UNINIT_STATE_32);
     assert(sourceBrickId != UNINIT_STATE_32);
 
-    const uint64_t position = reserveDynamicItem(synapses);
+    const uint64_t position = synapses.reserveDynamicItem();
     assert(position != UNINIT_STATE_32);
 
     // add new edge-forward-section
@@ -64,7 +66,7 @@ NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
     newSection.sourceEdgeId = sourceEdgeId;
     newSection.sourceBrickId = sourceBrickId;
 
-    getSynapseSectionBlock()[position] = newSection;
+    //getSynapseSectionBlock()[position] = newSection;
 
     return position;
 }
@@ -83,9 +85,8 @@ NetworkSegment::initNodeBlocks(uint32_t numberOfNodes)
     }
 
     // init
-    if(initDataBlocks(nodes,
-                      numberOfNodes,
-                      sizeof(Node)) == false)
+    if(nodes.initDataBlocks(numberOfNodes,
+                            sizeof(Node)) == false)
     {
         return false;
     }
@@ -111,9 +112,8 @@ bool
 NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 {
     // init
-    if(initDataBlocks(edges,
-                      numberOfEdgeSections,
-                      sizeof(EdgeSection)) == false)
+    if(edges.initDataBlocks(numberOfEdgeSections,
+                            sizeof(EdgeSection)) == false)
     {
         return false;
     }
@@ -140,15 +140,14 @@ NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
     assert(numberOfSynapseSections > 0);
 
     // init
-    if(initDataBlocks(synapses,
-                      numberOfSynapseSections,
-                      sizeof(SynapseSection)) == false)
+    if(synapses.initDataBlocks(numberOfSynapseSections,
+                               sizeof(SynapseSection)) == false)
     {
         return false;
     }
 
     // fill array with empty synapsesections
-    SynapseSection* array = getSynapseSectionBlock();
+    SynapseSection* array = static_cast<SynapseSection*>(synapses.buffer.data);
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         SynapseSection newSection;
@@ -172,15 +171,14 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init device-to-host-buffer
-    if(initDataBlocks(axonEdges,
-                      totalNumberOfAxons,
-                      sizeof(AxonTransfer)) == false)
+    if(axonEdges.initDataBlocks(totalNumberOfAxons,
+                                sizeof(AxonTransfer)) == false)
     {
         return false;
     }
 
     // fill array with empty values
-    AxonTransfer* axonArray = getAxonTransferBlock();
+    AxonTransfer* axonArray = static_cast<AxonTransfer*>(axonEdges.buffer.data);
     for(uint32_t i = 0; i < totalNumberOfAxons; i++)
     {
         AxonTransfer newEdge;
@@ -190,15 +188,14 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(initDataBlocks(synapseEdges,
-                      maxNumberOySynapseSections,
-                      sizeof(SynapseTransfer)) == false)
+    if(synapseEdges.initDataBlocks(maxNumberOySynapseSections,
+                                   sizeof(SynapseTransfer)) == false)
     {
         return false;
     }
 
     // fill array with empty values
-    SynapseTransfer* synapseArray = getSynapseTransferBlock();
+    SynapseTransfer* synapseArray = static_cast<SynapseTransfer*>(synapseEdges.buffer.data);
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
         SynapseTransfer newSynapseTransfer;
@@ -208,15 +205,14 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(initDataBlocks(updateEdges,
-                      maxNumberOySynapseSections,
-                      sizeof(UpdateTransfer)) == false)
+    if(updateEdges.initDataBlocks(maxNumberOySynapseSections,
+                                  sizeof(UpdateTransfer)) == false)
     {
         return false;
     }
 
     // fill array with empty values
-    UpdateTransfer* updateArray = getUpdateTransferBlock();
+    UpdateTransfer* updateArray = static_cast<UpdateTransfer*>(updateEdges.buffer.data);
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
         UpdateTransfer newUpdateTransfer;
@@ -244,7 +240,7 @@ NetworkSegment::addClientOutputConnection(const uint32_t brickPos)
 
     // set the border-value of all nodes within the brick
     // to a high-value, so the node can never become active
-    Node* nodeArray = &getNodeBlock()[brick->nodePos];
+    Node* nodeArray = &static_cast<Node*>(nodes.buffer.data)[brick->nodePos];
     nodeArray->border = 100000.0f;
 
     return true;

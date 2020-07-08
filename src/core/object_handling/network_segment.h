@@ -7,13 +7,11 @@
 #define NETWORK_SEGMENT_H
 
 #include <common.h>
-#include <kyouko_root.h>
-#include <core/objects/data_connection.h>
-#include <core/brick.h>
+
+#include <core/object_handling/item_buffer.h>
+#include <core/object_handling/brick.h>
+
 #include <libKitsunemimiOpencl/opencl.h>
-#include <core/processing/objects/transfer_objects.h>
-#include <core/processing/objects/node.h>
-#include <core/processing/objects/synapses.h>
 
 namespace KyoukoMind
 {
@@ -65,42 +63,6 @@ public:
     bool disconnectBricks(const uint32_t sourceBrickId,
                           const uint8_t sourceSide,
                           const uint32_t targetBrickId);
-
-
-    //==================================================================================================
-
-    inline Node* getNodeBlock()
-    {
-        return static_cast<Node*>(nodes.buffer.data);
-    }
-
-    //==================================================================================================
-
-    inline SynapseSection* getSynapseSectionBlock()
-    {
-        return static_cast<SynapseSection*>(synapses.buffer.data);
-    }
-
-    //==================================================================================================
-
-    inline AxonTransfer* getAxonTransferBlock()
-    {
-        return static_cast<AxonTransfer*>(axonEdges.buffer.data);
-    }
-
-    //==================================================================================================
-
-    inline SynapseTransfer* getSynapseTransferBlock()
-    {
-        return static_cast<SynapseTransfer*>(synapseEdges.buffer.data);
-    }
-
-    //==================================================================================================
-
-    inline UpdateTransfer* getUpdateTransferBlock()
-    {
-        return static_cast<UpdateTransfer*>(updateEdges.buffer.data);
-    }
 
 };
 

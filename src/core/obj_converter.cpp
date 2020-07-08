@@ -7,10 +7,11 @@
 
 #include <kyouko_root.h>
 
-#include <core/brick.h>
+#include <core/object_handling/brick.h>
 #include <core/processing/objects/edges.h>
-#include <core/objects/data_connection.h>
-#include <core/network_segment.h>
+#include <core/processing/objects/node.h>
+#include <core/object_handling/item_buffer.h>
+#include <core/object_handling/network_segment.h>
 
 namespace KyoukoMind
 {
@@ -102,7 +103,7 @@ convertBrickToObj(ObjItem &result,
     }
 
     NetworkSegment* segment = KyoukoRoot::m_segment;
-    Node* start = &segment->getNodeBlock()[brick->nodePos];
+    Node* start = &static_cast<Node*>(segment->nodes.buffer.data)[brick->nodePos];
     Node* end = start + NUMBER_OF_NODES_PER_BRICK;
 
     // iterate over all nodes in the brick
@@ -150,7 +151,7 @@ convertNodeToObj(ObjItem &result,
     }
 
     NetworkSegment* segment = KyoukoRoot::m_segment;
-    Node* nodeArray = &segment->getNodeBlock()[brick->nodePos];
+    Node* nodeArray = &static_cast<Node*>(segment->nodes.buffer.data)[brick->nodePos];
     Node* node = &nodeArray[nodeId];
 
     convertNodeToObj(result, brick, node);
@@ -221,7 +222,7 @@ convertAxonToObj(ObjItem &result,
  * @param brick
  * @param node
  */
-void
+/*void
 convertEdgesToObj(ObjItem &result,
                   Brick *brick,
                   const uint32_t id,
@@ -232,9 +233,6 @@ convertEdgesToObj(ObjItem &result,
     for(uint8_t side = 2; side < 23; side++)
     {
         const Edge tempEdge = section->edges[side];
-        /*if(tempEdge.available == 0) {
-            continue;
-        }*/
 
         if(side == 22)
         {
@@ -273,6 +271,6 @@ convertEdgesToObj(ObjItem &result,
             }
         }
     }
-}
+}*/
 
 }

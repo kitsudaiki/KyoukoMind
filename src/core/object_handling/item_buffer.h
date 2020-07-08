@@ -11,10 +11,15 @@
 namespace KyoukoMind
 {
 
-//==================================================================================================
-
-struct ItemBuffer
+class ItemBuffer
 {
+    struct EmptyPlaceHolder
+    {
+        uint8_t status = DELETED_SECTION;
+        uint64_t bytePositionOfNextEmptyBlock = UNINIT_STATE_32;
+    } __attribute__((packed));
+
+public:
     uint32_t itemSize = 0;
     uint64_t numberOfItems = 0;
     uint64_t numberOfDeletedDynamicItems = 0;
@@ -24,9 +29,14 @@ struct ItemBuffer
     uint64_t bytePositionOfLastEmptyBlock = UNINIT_STATE_32;
     uint64_t numberOfEmptyBlocks = 0;
 
-} __attribute__((packed));
+    ItemBuffer();
 
-//==================================================================================================
+    bool initDataBlocks(const uint64_t numberOfItems,
+                        const uint32_t itemSize);
+    bool deleteDynamicItem(const uint64_t itemPos);
+    uint64_t reuseItemPosition();
+    uint64_t reserveDynamicItem();
+};
 
 }
 

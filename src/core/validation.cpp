@@ -5,12 +5,11 @@
 
 #include "validation.h"
 
-#include <core/brick.h>
+#include <core/object_handling/brick.h>
 #include <core/processing/objects/container_definitions.h>
-#include <core/objects/data_connection.h>
+#include <core/object_handling/item_buffer.h>
 #include <core/processing/objects/edges.h>
-#include <core/objects/empty_placeholder.h>
-#include <core/network_segment.h>
+#include <core/object_handling/network_segment.h>
 #include <core/processing/objects/node.h>
 #include <core/processing/objects/synapses.h>
 

@@ -12,7 +12,7 @@
 
 #include <core/processing/processing_unit_handler.h>
 
-#include <core/brick.h>
+#include <core/object_handling/brick.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>

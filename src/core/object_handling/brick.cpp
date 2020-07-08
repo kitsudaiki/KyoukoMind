@@ -5,8 +5,8 @@
 
 #include "brick.h"
 
-#include <core/methods/data_connection_methods.h>
-#include <core/network_segment.h>
+#include <core/object_handling/network_segment.h>
+#include <core/processing/objects/node.h>
 
 #include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
@@ -153,7 +153,7 @@ Brick::getSummedValue(NetworkSegment &segment)
     assert(isOutputBrick != 0);
     assert(nodePos >= 0);
 
-    Node* node = &segment.getNodeBlock()[nodePos];
+    Node* node = &static_cast<Node*>(segment.nodes.buffer.data)[nodePos];
     return node->currentState;
 
     // write value to the internal ring-buffer
@@ -187,8 +187,8 @@ Brick::writeMonitoringOutput(DataBuffer &buffer)
     monitoringMessage.yPos = brickPos.y;
 
     // edges
-    monitoringMessage.numberOfEdgeSections = edges.numberOfItems
-                                             - edges.numberOfDeletedDynamicItems;
+    // monitoringMessage.numberOfEdgeSections = edges.numberOfItems
+    //                                         - edges.numberOfDeletedDynamicItems;
 
     monitoringMessage.globalLearning = globalValue.globalLearningOffset;
     monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;

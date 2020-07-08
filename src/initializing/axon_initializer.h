@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include "init_meta_data.h"
-#include <core/brick.h>
+#include <core/object_handling/brick.h>
 
 namespace KyoukoMind
 {

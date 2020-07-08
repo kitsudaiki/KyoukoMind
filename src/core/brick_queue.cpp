@@ -6,7 +6,7 @@
 #include <core/brick_queue.h>
 #include <core/global_values_handler.h>
 
-#include <core/brick.h>
+#include <core/object_handling/brick.h>
 
 namespace KyoukoMind
 {

@@ -10,7 +10,6 @@
 #include <kyouko_root.h>
 
 #include <core/processing/objects/edges.h>
-#include <core/objects/data_connection.h>
 
 namespace KyoukoMind
 {
@@ -65,9 +64,6 @@ public:
     // 22: the current brick
     Neighbor neighbors[23];
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
-
-    // data
-    ItemBuffer edges;
     int32_t nodePos = -1;
 
     // learning metadata
@@ -114,11 +110,6 @@ private:
                             Neighbor &targetNeighbor);
     void switchNeighborBuffer(Neighbor &neighbor);
 };
-
-inline EdgeSection* getEdgeBlock(Brick &brick)
-{
-    return static_cast<EdgeSection*>(brick.edges.buffer.data);
-}
 
 }
 

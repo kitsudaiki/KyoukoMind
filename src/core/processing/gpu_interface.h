@@ -10,10 +10,10 @@
 
 #include <core/processing/objects/container_definitions.h>
 #include <core/processing/objects/synapses.h>
-#include <core/network_segment.h>
 
 namespace KyoukoMind
 {
+class NetworkSegment;
 
 bool initializeGpu(NetworkSegment &segment,
                    const uint32_t numberOfBricks);

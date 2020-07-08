@@ -67,9 +67,7 @@ HEADERS += \
     src/common/includes.h \
     src/common/typedefs.h \
     src/core/processing/objects/container_definitions.h \
-    src/core/objects/data_connection.h \
     src/core/processing/objects/edges.h \
-    src/core/objects/empty_placeholder.h \
     src/core/processing/objects/node.h \
     src/core/processing/objects/synapses.h \
     src/core/processing/processing_unit.h \
@@ -88,7 +86,6 @@ HEADERS += \
     src/io/client_processing.h \
     src/io/control_processing.h \
     src/core/obj_converter.h \
-    src/core/methods/data_connection_methods.h \
     src/core/brick_queue.h \
     src/core/processing/gpu_processing.cl \
     src/core/processing/gpu_interface.h \
@@ -100,8 +97,9 @@ HEADERS += \
     src/core/processing/external/process_update.h \
     src/core/processing/external/process_normal.h \
     src/core/processing/external/message_processing.h \
-    src/core/brick.h \
-    src/core/network_segment.h
+    src/core/object_handling/brick.h \
+    src/core/object_handling/network_segment.h \
+    src/core/object_handling/item_buffer.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -112,14 +110,14 @@ SOURCES += \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/core/obj_converter.cpp \
-    src/core/methods/data_connection_methods.cpp \
     src/core/brick_queue.cpp \
     src/core/processing/gpu_interface.cpp \
     src/core/validation.cpp \
     src/kyouko_root.cpp \
     src/dummy_input.cpp \
-    src/core/brick.cpp \
-    src/core/network_segment.cpp
+    src/core/object_handling/brick.cpp \
+    src/core/object_handling/network_segment.cpp \
+    src/core/object_handling/item_buffer.cpp
 
 
 CONFIG(run_tests) {

@@ -8,6 +8,8 @@
 #include <libKitsunemimiOpencl/opencl.h>
 #include <gpu_processing.h>
 #include <core/processing/objects/transfer_objects.h>
+#include <core/processing/objects/node.h>
+#include <core/object_handling/network_segment.h>
 
 namespace KyoukoMind
 {

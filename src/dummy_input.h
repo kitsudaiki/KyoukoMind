@@ -8,10 +8,11 @@
 
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
-#include <core/network_segment.h>
 
 namespace KyoukoMind
 {
+class NetworkSegment;
+class Brick;
 
 class DummyInput
         : public Kitsunemimi::Thread

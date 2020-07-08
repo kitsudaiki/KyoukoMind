@@ -9,15 +9,6 @@
 #include <common.h>
 #include <kyouko_root.h>
 
-#include <core/processing/objects/container_definitions.h>
-#include <core/methods/data_connection_methods.h>
-
-#include <core/brick.h>
-#include <core/network_segment.h>
-
-#include <core/processing/external/process_learning.h>
-#include <core/processing/external/process_update.h>
-
 namespace KyoukoMind
 {
 

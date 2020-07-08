@@ -8,6 +8,7 @@
 
 #include <kyouko_root.h>
 #include <core/processing/objects/container_definitions.h>
+#include <core/object_handling/network_segment.h>
 
 #include <core/processing/external/message_processing.h>
 #include <core/processing/processing_unit.h>
