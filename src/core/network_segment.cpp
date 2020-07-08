@@ -114,6 +114,42 @@ NetworkSegment::initNodeBlocks(uint32_t numberOfNodes)
 }
 
 /**
+ * initialize forward-edge-block
+ *
+ * @return true if success, else false
+ */
+bool
+NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
+{
+    if(edges.inUse != 0)
+    {
+        // TODO: log-output
+        return false;
+    }
+
+    // init
+    if(initDataBlocks(edges,
+                      numberOfEdgeSections,
+                      sizeof(EdgeSection)) == false)
+    {
+        return false;
+    }
+
+    // fill array with empty forward-edge-sections
+    EdgeSection* array = static_cast<EdgeSection*>(edges.buffer.data);
+    for(uint32_t i = 0; i < numberOfEdgeSections; i++)
+    {
+        EdgeSection tempEdge;
+        array[i] = tempEdge;
+    }
+    nodes.inUse = 1;
+
+    edges.inUse = 1;
+
+    return true;
+}
+
+/**
  * init the edge-sections of thebrick
  *
  * @return false, if already initialized, else true

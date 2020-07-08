@@ -67,7 +67,7 @@ public:
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
     // data
-    DataConnection edges;
+    ItemBuffer edges;
     int32_t nodePos = -1;
 
     // learning metadata
@@ -93,10 +93,6 @@ public:
                        Brick &targetBrick);
     bool disconnectBricks(const uint8_t sourceSide,
                           Brick &targetBrick);
-
-    bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
-    uint64_t addEmptyEdgeSection(const uint8_t sourceSide,
-                                 const uint32_t sourceId);
 
     void writeMonitoringOutput(DataBuffer &buffer);
     void writeClientOutput(NetworkSegment &segment,

@@ -11,7 +11,7 @@
 #include <core/brick.h>
 #include <core/processing/objects/container_definitions.h>
 
-#include <core/processing/methods/message_processing.h>
+#include <core/processing/external/message_processing.h>
 #include <core/processing/gpu_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -114,9 +114,9 @@ ProcessingUnit::run()
                     {
                         AxonEdgeContainer tempContainer;
                         tempContainer.weight = axons[offset + i].weight;
-                        tempContainer.targetBrickPath = axons[offset + i].path;
+                        //tempContainer.targetBrickPath = axons[offset + i].path;
                         tempContainer.targetAxonId = axons[offset + i].targetId;
-                        processAxon(*segment, *brick, tempContainer);
+                        //processAxon(*segment, *brick, tempContainer);
                         LOG_ERROR("poi: " + std::to_string(tempContainer.weight));
                     }
                 }
@@ -124,7 +124,7 @@ ProcessingUnit::run()
 
             // main-processing
             brick->globalValues = KyoukoRoot::m_globalValuesHandler->getGlobalValues();
-            processIncomingMessages(*segment, *brick);
+            //processIncomingMessages(*segment, *brick);
 
             // write output
             if(brick->isOutputBrick == 1) {

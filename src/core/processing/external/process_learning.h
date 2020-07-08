@@ -30,7 +30,7 @@ namespace KyoukoMind
  * @param side
  * @param weight
  */
-inline void
+/*inline void
 initializeNewEdge(NetworkSegment &segment,
                   Brick &brick,
                   EdgeSection* edgeSection,
@@ -56,7 +56,7 @@ initializeNewEdge(NetworkSegment &segment,
         Kitsunemimi::addObject_StackBuffer(*brick.neighbors[side].outgoingBuffer,
                                            &newContainer);
     }
-}
+}*/
 
 //==================================================================================================
 
@@ -69,7 +69,7 @@ initializeNewEdge(NetworkSegment &segment,
  * @param weight
  * @return
  */
-inline float
+/*inline float
 singleLearnStep(NetworkSegment &segment,
                 Brick &brick,
                 EdgeSection* edgeSection,
@@ -98,7 +98,7 @@ singleLearnStep(NetworkSegment &segment,
     }
 
     return currentSideWeight;
-}
+}*/
 
 //==================================================================================================
 
@@ -109,7 +109,7 @@ singleLearnStep(NetworkSegment &segment,
  * @param forwardEdgeSectionId the id of the current section
  * @param weight weight with have to be consumed from the updated edges
  */
-inline void
+/*inline void
 learningEdgeSection(NetworkSegment &segment,
                     Brick &brick,
                     EdgeSection* edgeSection,
@@ -124,7 +124,7 @@ learningEdgeSection(NetworkSegment &segment,
     edgeSection->totalWeight += singleLearnStep(segment, brick, edgeSection, edgeSectionId, weight);
     edgeSection->totalWeight += singleLearnStep(segment, brick, edgeSection, edgeSectionId, weight);
     edgeSection->totalWeight += singleLearnStep(segment, brick, edgeSection, edgeSectionId, weight);
-}
+}*/
 
 //==================================================================================================
 
@@ -133,7 +133,7 @@ learningEdgeSection(NetworkSegment &segment,
  * @param brick
  * @param edge
  */
-inline void
+/*inline void
 processLearningEdgeReply(Brick &brick,
                          const LearningEdgeReplyContainer &container,
                          const uint8_t side)
@@ -141,7 +141,7 @@ processLearningEdgeReply(Brick &brick,
     EdgeSection* edgeSections = getEdgeBlock(brick);
     edgeSections[container.sourceEdgeSectionId].edges[side].targetId =
             static_cast<uint32_t>(container.targetEdgeSectionId);
-}
+}*/
 
 }
 

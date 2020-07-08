@@ -16,7 +16,7 @@ namespace KyoukoMind
 
 //==================================================================================================
 
-bool initDataBlocks(DataConnection &data,
+bool initDataBlocks(ItemBuffer &data,
                     const uint64_t numberOfItems,
                     const uint32_t itemSize);
 
@@ -28,7 +28,7 @@ bool initDataBlocks(DataConnection &data,
 * @return false if buffer is invalid or item already deleted, else true
 */
 inline bool
-deleteDynamicItem(DataConnection &data,
+deleteDynamicItem(ItemBuffer &data,
                   const uint64_t itemPos)
 {
     assert(data.inUse != 0);
@@ -77,7 +77,7 @@ deleteDynamicItem(DataConnection &data,
  * @return item-position in the buffer, else UNINIT_STATE_32 if no empty space in buffer exist
  */
 inline uint64_t
-reuseItemPosition(DataConnection &data)
+reuseItemPosition(ItemBuffer &data)
 {
     // get byte-position of free space, if exist
     const uint64_t selectedPosition = data.bytePositionOfFirstEmptyBlock;
@@ -110,7 +110,7 @@ reuseItemPosition(DataConnection &data)
 * @return id of the new section, else UNINIT_STATE_32 if allocation failed
 */
 inline uint64_t
-reserveDynamicItem(DataConnection &data)
+reserveDynamicItem(ItemBuffer &data)
 {
     assert(data.inUse != 0);
 

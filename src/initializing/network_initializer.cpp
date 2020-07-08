@@ -11,7 +11,7 @@
 #include <initializing/file_parser.h>
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/processing/methods/message_processing.h>
+//#include <core/processing/methods/message_processing.h>
 #include <core/processing/gpu_interface.h>
 
 namespace KyoukoMind

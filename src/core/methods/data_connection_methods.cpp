@@ -16,7 +16,7 @@ namespace KyoukoMind
  * @return false if nodes are already initialized, esle true
 */
 bool
-initDataBlocks(DataConnection &data,
+initDataBlocks(ItemBuffer &data,
                const uint64_t numberOfItems,
                const uint32_t itemSize)
 {

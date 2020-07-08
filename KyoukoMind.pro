@@ -84,7 +84,7 @@ HEADERS += \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
-    src/core/processing/methods/edge_methods.h \
+    src/core/processing/external/edge_methods.h \
     src/io/client_processing.h \
     src/io/control_processing.h \
     src/core/obj_converter.h \
@@ -96,10 +96,10 @@ HEADERS += \
     src/core/validation.h \
     src/kyouko_root.h \
     src/dummy_input.h \
-    src/core/processing/methods/process_learning.h \
-    src/core/processing/methods/process_update.h \
-    src/core/processing/methods/process_normal.h \
-    src/core/processing/methods/message_processing.h \
+    src/core/processing/external/process_learning.h \
+    src/core/processing/external/process_update.h \
+    src/core/processing/external/process_normal.h \
+    src/core/processing/external/message_processing.h \
     src/core/brick.h \
     src/core/network_segment.h
 

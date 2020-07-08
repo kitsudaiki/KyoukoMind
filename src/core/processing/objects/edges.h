@@ -19,8 +19,8 @@ struct Edge
     int32_t targetId = 0;
     uint8_t used = 0;
     uint8_t synapseConnection = 0;
-    uint8_t padding[2];
-    // total size: 12 Byte
+    uint8_t next[6];
+    // total size: 16 Byte
 } __attribute__((packed));
 
 //==================================================================================================
@@ -35,11 +35,11 @@ struct EdgeSection
     uint32_t targetBrickId = UNINIT_STATE_32;
     uint32_t targetBrickDistance = 0;
 
-    Edge edges[340];
+    Edge edges[255];
 
     EdgeSection()
     {
-        for(uint16_t i = 0; i < 340; i++)
+        for(uint16_t i = 0; i < 255; i++)
         {
             Edge newEdge;
             edges[i] = newEdge;

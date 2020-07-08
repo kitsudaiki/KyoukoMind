@@ -24,20 +24,18 @@ public:
     std::vector<Brick*> bricks;
 
     // host-representation of permanent gpu-data
-    DataConnection nodes;
-    DataConnection synapses;
+    ItemBuffer nodes;
+    ItemBuffer synapses;
+    ItemBuffer edges;
 
     // device to host transfer
-    DataConnection axonEdges;
-    DataConnection updateEdges;
+    ItemBuffer axonEdges;
+    ItemBuffer updateEdges;
 
     // host to device transfer
-    DataConnection synapseEdges;
+    ItemBuffer synapseEdges;
     uint32_t synapseEdgesCounter = 0;
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
-
-    // messaging
-    DataConnection messaging;
 
     // opencl-control objects
     Kitsunemimi::Opencl::Opencl ocl;
@@ -54,6 +52,7 @@ public:
                                     const uint32_t sourceBrickId);
 
     bool initNodeBlocks(uint32_t numberOfNodes);
+    bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
     bool initSynapseSectionBlocks(const uint32_t numberOfSynapseSections);
     bool initTransferBlocks(const uint32_t totalNumberOfAxons,
                              const uint64_t maxNumberOySynapseSections);

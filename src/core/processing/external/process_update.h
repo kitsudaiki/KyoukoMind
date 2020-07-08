@@ -26,7 +26,7 @@ namespace KyoukoMind
  * @param currentSection
  * @param forwardEdgeSectionId
  */
-inline bool
+/*inline bool
 checkAndDelete(Brick &brick,
                EdgeSection &edgeSection,
                const uint32_t edgeSectionId)
@@ -49,7 +49,7 @@ checkAndDelete(Brick &brick,
     }
 
     return false;
-}
+}*/
 
 //==================================================================================================
 
@@ -59,7 +59,7 @@ checkAndDelete(Brick &brick,
  * @param updateValue
  * @param inititalSide
  */
-inline void
+/*inline void
 processUpdateSetEdge(Brick &brick,
                      EdgeSection &edgeSection,
                      const float newValue,
@@ -78,7 +78,7 @@ processUpdateSetEdge(Brick &brick,
                     *brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
                     &newContainer);
     }
-}
+}*/
 
 //==================================================================================================
 
@@ -88,7 +88,7 @@ processUpdateSetEdge(Brick &brick,
  * @param updateValue
  * @param inititalSide
  */
-inline void
+/*inline void
 processUpdateSubEdge(Brick &brick,
                      EdgeSection &edgeSection,
                      const float updateValue,
@@ -107,7 +107,7 @@ processUpdateSubEdge(Brick &brick,
                     *brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
                     &newContainer);
     }
-}
+}*/
 
 //==================================================================================================
 
@@ -116,7 +116,7 @@ processUpdateSubEdge(Brick &brick,
  * @param currentSection
  * @param inititalSide
  */
-inline void
+/*inline void
 processUpdateDeleteEdge(Brick &brick,
                         EdgeSection &edgeSection,
                         const uint32_t edgeSectionId,
@@ -138,7 +138,7 @@ processUpdateDeleteEdge(Brick &brick,
                     *brick.neighbors[edgeSection.sourceSide].outgoingBuffer,
                     &newContainer);
     }
-}
+}*/
 
 //==================================================================================================
 
@@ -150,7 +150,7 @@ processUpdateDeleteEdge(Brick &brick,
  * @param updateType delete connection to the new edge
  * @param inititalSide side where the status-value comes in
  */
-inline void
+/*inline void
 processUpdateEdge(Brick &brick,
                   const UpdateEdgeContainer &container,
                   const uint8_t inititalSide)
@@ -179,7 +179,7 @@ processUpdateEdge(Brick &brick,
         default:
             break;
     }
-}
+}*/
 
 //==================================================================================================
 

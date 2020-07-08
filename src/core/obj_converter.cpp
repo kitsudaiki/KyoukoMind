@@ -169,7 +169,7 @@ void convertNodeToObj(ObjItem &result,
     const Vec4 vec = convertPos(brick->brickPos);
     result.vertizes.push_back(vec);
 
-    uint64_t targetBrickPath = node->targetBrickPath / 32;
+    /*uint64_t targetBrickPath = node->targetBrickPath / 32;
     Brick* axonEnd = convertAxonToObj(result, brick, targetBrickPath);
 
     result.vertizes.push_back(convertPos(axonEnd->brickPos));
@@ -178,7 +178,7 @@ void convertNodeToObj(ObjItem &result,
     convertEdgesToObj(result,
                       axonEnd,
                       node->targetAxonId,
-                      vecPos);
+                      vecPos);*/
 }
 
 /**
@@ -232,9 +232,9 @@ convertEdgesToObj(ObjItem &result,
     for(uint8_t side = 2; side < 23; side++)
     {
         const Edge tempEdge = section->edges[side];
-        if(tempEdge.available == 0) {
+        /*if(tempEdge.available == 0) {
             continue;
-        }
+        }*/
 
         if(side == 22)
         {

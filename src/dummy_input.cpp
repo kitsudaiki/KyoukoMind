@@ -6,7 +6,7 @@
 #include <dummy_input.h>
 #include <kyouko_root.h>
 
-#include <core/processing/methods/message_processing.h>
+#include <core/processing/external/message_processing.h>
 #include <core/processing/objects/container_definitions.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -24,9 +24,6 @@ DummyInput::run()
 {
     initialize();
     inputBrick->initCycle();
-
-    const uint64_t targetEdgeId = inputBrick->neighbors[22].targetBrick->addEmptyEdgeSection(1, 0);
-
 
     while(!m_abort)
     {
@@ -46,7 +43,7 @@ DummyInput::run()
         // set input-values
         EdgeContainer newEdge;
         newEdge.weight = 300;
-        newEdge.targetEdgeSectionId = targetEdgeId;
+        newEdge.targetEdgeSectionId = 1;
         Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);
         /*newEdge.targetEdgeSectionId = 2;
         Kitsunemimi::addObject_StackBuffer(*neighbor->outgoingBuffer, &newEdge);

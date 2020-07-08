@@ -15,7 +15,7 @@
 #include <core/brick.h>
 #include <core/network_segment.h>
 
-#include <core/processing/methods/process_normal.h>
+#include <core/processing/external/process_normal.h>
 
 namespace KyoukoMind
 {
@@ -27,7 +27,7 @@ namespace KyoukoMind
  *
  * @return false if a message-type does not exist, else true
  */
-inline bool
+/*inline bool
 processIncomingMessage(NetworkSegment &segment,
                        Brick &brick,
                        const uint8_t side,
@@ -114,14 +114,14 @@ processIncomingMessage(NetworkSegment &segment,
     }
 
     return result;
-}
+}*/
 
 /**
  * @brief ProcessingUnit::processIncomingMessages
  * @param brick
  * @return
  */
-inline void
+/*inline void
 processIncomingMessages(NetworkSegment &segment,
                         Brick &brick)
 {
@@ -141,7 +141,7 @@ processIncomingMessages(NetworkSegment &segment,
             }
         }
     }
-}
+}*/
 
 } // namespace KyoukoMind
 

@@ -46,8 +46,8 @@ createAxons(NetworkSegment &segment,
 
                     // update values of the brick and the node
                     networkMetaStructure[axon.targetX][axon.targetY].numberOfAxons++;
-                    nodes[nodeNumber].targetBrickPath = axon.targetPath;
-                    nodes[nodeNumber].targetAxonId = axonId;
+                    //nodes[nodeNumber].targetBrickPath = axon.targetPath;
+                    //nodes[nodeNumber].targetAxonId = axonId;
                 }
             }
         }
@@ -68,7 +68,6 @@ createAxons(NetworkSegment &segment,
                 networkMetaStructure[x][y].numberOfAxons = 1;
             }
 
-            brick->initEdgeSectionBlocks(networkMetaStructure[x][y].numberOfAxons);
         }
     }
 

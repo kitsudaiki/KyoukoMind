@@ -19,14 +19,14 @@ namespace KyoukoMind
  * @param section
  * @param position
  */
-inline void
+/*inline void
 deleteEdge(EdgeSection &section,
            const uint8_t side)
 {
 
     section.edges[side].targetId = UNINIT_STATE_32;
     section.totalWeight -= section.edges[side].weight;
-}
+}*/
 
 //==================================================================================================
 
@@ -36,7 +36,7 @@ deleteEdge(EdgeSection &section,
  * @param position
  * @return
  */
-inline void
+/*inline void
 updateEdgeWeight(EdgeSection &section,
                  const uint32_t side,
                  const float weightUpdate)
@@ -45,7 +45,7 @@ updateEdgeWeight(EdgeSection &section,
     section.edges[side].weight += weightUpdate;
     diff -= section.edges[side].weight;
     section.totalWeight -= diff;
-}
+}*/
 
 //==================================================================================================
 

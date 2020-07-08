@@ -9,7 +9,7 @@
 #include <kyouko_root.h>
 #include <core/processing/objects/container_definitions.h>
 
-#include <core/processing/methods/message_processing.h>
+#include <core/processing/external/message_processing.h>
 #include <core/processing/processing_unit.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>

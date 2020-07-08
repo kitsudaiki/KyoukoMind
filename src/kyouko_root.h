@@ -23,7 +23,7 @@ namespace KyoukoMind
 class NetworkManager;
 class BrickQueue;
 class DummyInput;
-struct NetworkSegment;
+class NetworkSegment;
 
 class KyoukoRoot
 {

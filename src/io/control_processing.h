@@ -154,7 +154,6 @@ process_registerInput(const ControlRegisterInput &content,
     }
     rootObject->m_inputBricks->insert(std::make_pair(content.brickId, newBrick));
 
-    newBrick->initEdgeSectionBlocks(NUMBER_OF_NODES_PER_BRICK);
     newBrick->initCycle();
 
     send_generic_response(true, "", session, blockerId);

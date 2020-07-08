@@ -13,7 +13,7 @@ namespace KyoukoMind
 {
 
 class BrickQueue;
-struct NetworkSegment;
+class NetworkSegment;
 
 class NetworkInitializer
 {

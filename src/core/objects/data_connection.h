@@ -3,8 +3,8 @@
  *  Contact: tobias.anker@kitsunemimi.moe
  */
 
-#ifndef DATA_CONNECTION_H
-#define DATA_CONNECTION_H
+#ifndef ITEM_BUFFER_H
+#define ITEM_BUFFER_H
 
 #include <common.h>
 
@@ -13,7 +13,7 @@ namespace KyoukoMind
 
 //==================================================================================================
 
-struct DataConnection
+struct ItemBuffer
 {
     uint8_t inUse = 0;
     uint32_t itemSize = 0;
@@ -31,4 +31,4 @@ struct DataConnection
 
 }
 
-#endif // DATA_CONNECTION_H
+#endif // ITEM_BUFFER_H

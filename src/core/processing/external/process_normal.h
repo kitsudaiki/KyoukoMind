@@ -15,8 +15,8 @@
 #include <core/brick.h>
 #include <core/network_segment.h>
 
-#include <core/processing/methods/process_learning.h>
-#include <core/processing/methods/process_update.h>
+#include <core/processing/external/process_learning.h>
+#include <core/processing/external/process_update.h>
 
 namespace KyoukoMind
 {
@@ -29,7 +29,7 @@ namespace KyoukoMind
  * @param forwardEdgeSectionId target edge-section of the incoming edge
  * @param weight incoming edge-weight
  */
-inline void
+/*inline void
 processEdgeForwardSection(NetworkSegment &segment,
                           Brick &brick,
                           const EdgeContainer &container)
@@ -97,7 +97,7 @@ processEdgeForwardSection(NetworkSegment &segment,
             }
         }
     }
-}
+}*/
 
 //==================================================================================================
 
@@ -108,7 +108,7 @@ processEdgeForwardSection(NetworkSegment &segment,
  * @param weight weight of the new edge
  * @param initSide side of the incoming message
  */
-inline void
+/*/*inline void
 processLearningEdge(NetworkSegment &segment,
                     Brick &brick,
                     const LearingEdgeContainer &container,
@@ -131,7 +131,7 @@ processLearningEdge(NetworkSegment &segment,
     processEdgeForwardSection(segment,
                               brick,
                               newContainer);
-}
+}*/
 
 //==================================================================================================
 
@@ -142,7 +142,7 @@ processLearningEdge(NetworkSegment &segment,
  * @param path rest of the path of the axon
  * @param weight weight of the axon
  */
-inline void
+/*inline void
 processAxon(NetworkSegment &segment,
             Brick &brick,
             const AxonEdgeContainer &container)
@@ -168,7 +168,7 @@ processAxon(NetworkSegment &segment,
                                   brick,
                                   newContainier);
     }
-}
+}*/
 
 //==================================================================================================
 
@@ -179,7 +179,7 @@ processAxon(NetworkSegment &segment,
  * @param sourceSide side of the incoming pending-edge
  * @param weight weight of the pending-edge
  */
-inline void
+/*inline void
 processPendingEdge(NetworkSegment &segment,
                    Brick &brick,
                    const PendingEdgeContainer &container)
@@ -212,7 +212,7 @@ processPendingEdge(NetworkSegment &segment,
 
         forwardEdgeSectionId--;
     }
-}
+}*/
 
 }
 

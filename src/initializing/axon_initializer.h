@@ -15,7 +15,7 @@ namespace KyoukoMind
 class NextChooser;
 
 struct Neighbor;
-struct NetworkSegment;
+class NetworkSegment;
 
 struct NewAxon {
     uint32_t targetX = 0;
