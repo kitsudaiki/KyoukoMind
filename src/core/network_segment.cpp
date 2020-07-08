@@ -64,7 +64,6 @@ NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
     newSection.sourceEdgeId = sourceEdgeId;
     newSection.sourceBrickId = sourceBrickId;
 
-    assert(synapses.inUse != 0);
     getSynapseSectionBlock()[position] = newSection;
 
     return position;
@@ -78,15 +77,6 @@ NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
 bool
 NetworkSegment::initNodeBlocks(uint32_t numberOfNodes)
 {
-    assert(numberOfNodes > 0);
-
-    if(nodes.numberOfItems != 0
-            || nodes.inUse != 0)
-    {
-        // TODO: log-output
-        return false;
-    }
-
     // if not set by user, use default-value
     if(numberOfNodes == 0) {
         numberOfNodes = NUMBER_OF_NODES_PER_BRICK;
@@ -108,7 +98,6 @@ NetworkSegment::initNodeBlocks(uint32_t numberOfNodes)
         tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
         array[i] = tempNode;
     }
-    nodes.inUse = 1;
 
     return true;
 }
@@ -121,12 +110,6 @@ NetworkSegment::initNodeBlocks(uint32_t numberOfNodes)
 bool
 NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 {
-    if(edges.inUse != 0)
-    {
-        // TODO: log-output
-        return false;
-    }
-
     // init
     if(initDataBlocks(edges,
                       numberOfEdgeSections,
@@ -142,9 +125,6 @@ NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
         EdgeSection tempEdge;
         array[i] = tempEdge;
     }
-    nodes.inUse = 1;
-
-    edges.inUse = 1;
 
     return true;
 }
@@ -157,7 +137,6 @@ NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 bool
 NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
 {
-    assert(synapses.inUse == 0);
     assert(numberOfSynapseSections > 0);
 
     // init
@@ -175,7 +154,6 @@ NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
         SynapseSection newSection;
         array[i] = newSection;
     }
-    synapses.inUse = 1;
 
     return true;
 }
@@ -208,7 +186,6 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
         AxonTransfer newEdge;
         axonArray[i] = newEdge;
     }
-    axonEdges.inUse = 1;
 
     //----------------------------------------------------------------------------------------------
 
@@ -227,7 +204,6 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
         SynapseTransfer newSynapseTransfer;
         synapseArray[i] = newSynapseTransfer;
     }
-    synapseEdges.inUse = 1;
 
     //----------------------------------------------------------------------------------------------
 
@@ -246,7 +222,6 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
         UpdateTransfer newUpdateTransfer;
         updateArray[i] = newUpdateTransfer;
     }
-    updateEdges.inUse = 1;
 
     //----------------------------------------------------------------------------------------------
 
@@ -262,13 +237,6 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
 bool
 NetworkSegment::addClientOutputConnection(const uint32_t brickPos)
 {
-    // get and check connection-item
-    if(nodes.inUse == 0)
-    {
-        // TODO: log-output
-        return false;
-    }
-
     Brick* brick = bricks[brickPos];
 
     // set brick as output-brick
@@ -301,9 +269,7 @@ NetworkSegment::getMetadata()
             nodes->append(new DataValue(static_cast<long>(brick->brickId)));
         }
 
-        if(brick->edges.inUse != 0) {
-            edges->append(new DataValue(static_cast<long>(brick->brickId)));
-        }
+        edges->append(new DataValue(static_cast<long>(brick->brickId)));
     }
 
     // build result

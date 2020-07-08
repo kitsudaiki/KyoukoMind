@@ -15,7 +15,6 @@ namespace KyoukoMind
 
 struct ItemBuffer
 {
-    uint8_t inUse = 0;
     uint32_t itemSize = 0;
     uint64_t numberOfItems = 0;
     uint64_t numberOfDeletedDynamicItems = 0;

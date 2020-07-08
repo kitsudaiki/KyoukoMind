@@ -31,7 +31,6 @@ inline bool
 deleteDynamicItem(ItemBuffer &data,
                   const uint64_t itemPos)
 {
-    assert(data.inUse != 0);
     assert(itemPos < data.numberOfItems);
 
     // get buffer
@@ -112,8 +111,6 @@ reuseItemPosition(ItemBuffer &data)
 inline uint64_t
 reserveDynamicItem(ItemBuffer &data)
 {
-    assert(data.inUse != 0);
-
     // try to reuse item
     const uint64_t reusePos = reuseItemPosition(data);
     if(reusePos != UNINIT_STATE_32) {

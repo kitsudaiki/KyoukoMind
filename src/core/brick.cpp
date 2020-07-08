@@ -187,11 +187,8 @@ Brick::writeMonitoringOutput(DataBuffer &buffer)
     monitoringMessage.yPos = brickPos.y;
 
     // edges
-    if(edges.inUse == 1)
-    {
-        monitoringMessage.numberOfEdgeSections = edges.numberOfItems
-                                                 - edges.numberOfDeletedDynamicItems;
-    }
+    monitoringMessage.numberOfEdgeSections = edges.numberOfItems
+                                             - edges.numberOfDeletedDynamicItems;
 
     monitoringMessage.globalLearning = globalValue.globalLearningOffset;
     monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
