@@ -20,6 +20,7 @@ struct Synapse
     uint16_t targetNodeId = UNINIT_STATE_16;
     uint8_t inProcess = 0;
     uint8_t somaDistance = 1;
+    // total size: 12 Byte
 };
 
 //==================================================================================================
@@ -48,6 +49,7 @@ struct SynapseSection
             synapses[i] = newSynapse;
         }
     }
+    // total size: 256 Byte
 };
 
 //==================================================================================================

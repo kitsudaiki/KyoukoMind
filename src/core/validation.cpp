@@ -24,6 +24,8 @@ validateStructSizes()
     std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
 
     assert(sizeof(SynapseSection) == 256);
+    assert(sizeof(EdgeSection) == 4096);
+
     return;
 }
 

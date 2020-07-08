@@ -17,16 +17,11 @@ struct Node
 {
     float currentState = 0.0f;
     float border = 100.0f;
-
     float potential = 0.0f;
     uint8_t refractionTime = 0;
     uint8_t active = 0;
-
-    uint8_t padding[6];
-
-    // Axon
-    uint64_t targetBrickPath = 0;
-    uint32_t targetAxonId = 0;
+    uint8_t padding[2];
+    // total size: 16 Byte
 };
 
 //==================================================================================================

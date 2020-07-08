@@ -15,10 +15,12 @@ namespace KyoukoMind
 
 struct Edge
 {
-    float weight = 0.0;
-    uint32_t targetId = UNINIT_STATE_32;
-    uint8_t available = 0;
-
+    float weight = 0.0000001f;
+    int32_t targetId = 0;
+    uint8_t used = 0;
+    uint8_t synapseConnection = 0;
+    uint8_t padding[2];
+    // total size: 12 Byte
 } __attribute__((packed));
 
 //==================================================================================================
@@ -26,22 +28,24 @@ struct Edge
 struct EdgeSection
 {
     uint8_t status = ACTIVE_SECTION;
+    uint8_t padding[5];
 
-    Edge edges[23];
-    float totalWeight = 0.0000001f;
+    uint16_t firstEdge = 0;
 
-    uint8_t sourceSide = UNINIT_STATE_8;
-    uint32_t sourceId = UNINIT_STATE_32;
+    uint32_t targetBrickId = UNINIT_STATE_32;
+    uint32_t targetBrickDistance = 0;
+
+    Edge edges[340];
 
     EdgeSection()
     {
-        for(uint8_t side = 0; side < 23; side++)
+        for(uint16_t i = 0; i < 340; i++)
         {
             Edge newEdge;
-            edges[side] = newEdge;
+            edges[i] = newEdge;
         }
     }
-
+    // total size: 4096 Byte
 } __attribute__((packed));
 
 //==================================================================================================
