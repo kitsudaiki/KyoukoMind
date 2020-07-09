@@ -85,9 +85,7 @@ NetworkSegment::initNodeBlocks(uint32_t numberOfNodes)
     }
 
     // init
-    if(nodes.initDataBlocks(numberOfNodes,
-                            sizeof(Node)) == false)
-    {
+    if(nodes.initDataBlocks(numberOfNodes,  sizeof(Node)) == false) {
         return false;
     }
 
@@ -112,9 +110,7 @@ bool
 NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 {
     // init
-    if(edges.initDataBlocks(numberOfEdgeSections,
-                            sizeof(EdgeSection)) == false)
-    {
+    if(edges.initDataBlocks(numberOfEdgeSections, sizeof(EdgeSection)) == false) {
         return false;
     }
 
@@ -140,9 +136,7 @@ NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
     assert(numberOfSynapseSections > 0);
 
     // init
-    if(synapses.initDataBlocks(numberOfSynapseSections,
-                               sizeof(SynapseSection)) == false)
-    {
+    if(synapses.initDataBlocks(numberOfSynapseSections, sizeof(SynapseSection)) == false) {
         return false;
     }
 
@@ -171,9 +165,7 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init device-to-host-buffer
-    if(axonEdges.initDataBlocks(totalNumberOfAxons,
-                                sizeof(AxonTransfer)) == false)
-    {
+    if(axonEdges.initDataBlocks(totalNumberOfAxons, sizeof(AxonTransfer)) == false) {
         return false;
     }
 
@@ -188,9 +180,7 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(synapseEdges.initDataBlocks(maxNumberOySynapseSections,
-                                   sizeof(SynapseTransfer)) == false)
-    {
+    if(synapseEdges.initDataBlocks(maxNumberOySynapseSections, sizeof(SynapseTransfer)) == false) {
         return false;
     }
 
@@ -205,9 +195,7 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(updateEdges.initDataBlocks(maxNumberOySynapseSections,
-                                  sizeof(UpdateTransfer)) == false)
-    {
+    if(updateEdges.initDataBlocks(maxNumberOySynapseSections,  sizeof(UpdateTransfer)) == false) {
         return false;
     }
 
