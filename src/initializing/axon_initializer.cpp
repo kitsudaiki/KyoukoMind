@@ -30,45 +30,32 @@ createAxons(NetworkSegment &segment,
             if(brick == nullptr) {
                 continue;
             }
+            if(brick->isNodeBrick == false) {
+                continue;
+            }
 
             if(networkMetaStructure[x][y].type == NODE_BRICK)
             {
                 // get node-brick
-                uint32_t nodeNumberPerBrick = NUMBER_OF_NODES_PER_BRICK;
-                Node* nodes = &static_cast<Node*>(segment.nodes.buffer.data)[brick->nodePos];
+                EdgeSection* edges = static_cast<EdgeSection*>(segment.edges.buffer.data);
+                const uint32_t pos = brick->brickId * NUMBER_OF_NODES_PER_BRICK;
 
                 // iterate over all nodes of the brick and create an axon for each node
-                for(uint16_t nodeNumber = 0; nodeNumber < nodeNumberPerBrick; nodeNumber++)
+                for(uint16_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
                 {
                     // create new axon
-                    const NewAxon axon = getNextAxonPathStep(x, y, 0, 8, 1, networkMetaStructure);
-                    InitMetaDataEntry entry = networkMetaStructure[axon.targetX][axon.targetY];
-                    const uint32_t axonId = entry.numberOfAxons;
+                    uint32_t lenght = 0;
+                    const NewAxon target = getNextAxonPathStep(x,
+                                                               y,
+                                                               0,
+                                                               lenght,
+                                                               networkMetaStructure);
 
-                    // update values of the brick and the node
-                    networkMetaStructure[axon.targetX][axon.targetY].numberOfAxons++;
-                    //nodes[nodeNumber].targetBrickPath = axon.targetPath;
-                    //nodes[nodeNumber].targetAxonId = axonId;
+                    Brick* targetBrick = networkMetaStructure[target.x][target.y].brick;
+                    edges[pos + i].targetBrickId = targetBrick->brickId;
+                    edges[pos + i].targetBrickDistance = lenght;
                 }
             }
-        }
-    }
-
-    // add the calculated number of axons to all bricks
-    for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
-    {
-        for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
-        {
-            Brick* brick = networkMetaStructure[x][y].brick;
-            if(brick == nullptr) {
-                continue;
-            }
-
-            // add the axon-number to the specific brick
-            if(networkMetaStructure[x][y].numberOfAxons == 0) {
-                networkMetaStructure[x][y].numberOfAxons = 1;
-            }
-
         }
     }
 
@@ -89,8 +76,7 @@ NewAxon
 getNextAxonPathStep(const uint32_t x,
                     const uint32_t y,
                     const uint8_t inputSide,
-                    const uint64_t currentPath,
-                    const uint32_t currentStep,
+                    uint32_t &currentStep,
                     std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
     // check if go to next
@@ -109,9 +95,8 @@ getNextAxonPathStep(const uint32_t x,
             || currentStep == 8)
     {
         NewAxon result;
-        result.targetX = x;
-        result.targetY = y;
-        result.targetPath = currentPath;
+        result.x = x;
+        result.y = y;
         return result;
     }
 
@@ -124,24 +109,20 @@ getNextAxonPathStep(const uint32_t x,
     if(nextSite == 0xFF)
     {
         NewAxon result;
-        result.targetX = x;
-        result.targetY = y;
-        result.targetPath = currentPath;
+        result.x = x;
+        result.y = y;
         return result;
     }
 
     // get the neighbor of the choosen side
     Brick::Neighbor* choosenOne = &networkMetaStructure[x][y].brick->neighbors[nextSite];
 
-    // update path
-    const uint64_t newPath = currentPath + ((uint64_t)nextSite << (currentStep * 5));
-
     // make next iteration
+    currentStep++;
     return getNextAxonPathStep(choosenOne->targetBrickPos.x,
                                choosenOne->targetBrickPos.y,
                                23 - nextSite,
-                               newPath,
-                               currentStep + 1,
+                               currentStep,
                                networkMetaStructure);
 }
 

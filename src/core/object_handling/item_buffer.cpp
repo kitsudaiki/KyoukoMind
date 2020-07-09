@@ -30,7 +30,7 @@ ItemBuffer::initDataBlocks(const uint64_t numberOfItems,
                            const uint32_t itemSize)
 {
     assert(itemSize != 0);
-    assert(numberOfItems == 0);
+    assert(this->numberOfItems == 0);
 
     // update meta-data of the brick
     this->itemSize = itemSize;

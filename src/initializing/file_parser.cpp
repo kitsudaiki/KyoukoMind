@@ -60,14 +60,7 @@ parse2dTestfile(const std::string &fileContent,
 
             InitMetaDataEntry tempEntry;
             tempEntry.type = static_cast<uint8_t>(std::stoi(splittedLine[linePartNumber]) + 1);
-            tempEntry.brickId = 0;
             result[linePartNumber].push_back(tempEntry);
-
-            if(tempEntry.type != EMPTY_BRICK)
-            {
-                tempEntry.brickId = idCounter;
-                idCounter++;
-            }
         }
     }
 

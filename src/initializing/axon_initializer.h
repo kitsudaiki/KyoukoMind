@@ -18,9 +18,8 @@ struct Neighbor;
 class NetworkSegment;
 
 struct NewAxon {
-    uint32_t targetX = 0;
-    uint32_t targetY = 0;
-    uint64_t targetPath = 0;
+    uint32_t x = 0;
+    uint32_t y = 0;
 };
 
 
@@ -30,8 +29,7 @@ bool createAxons(NetworkSegment &segment,
 NewAxon getNextAxonPathStep(const uint32_t x,
                             const uint32_t y,
                             const uint8_t inputSide,
-                            const uint64_t currentPath,
-                            const uint32_t currentStep,
+                            uint32_t &currentStep,
                             std::vector<std::vector<InitMetaDataEntry> > &networkMetaStructure);
 
 uint8_t chooseNextSide(const uint8_t initialSide,

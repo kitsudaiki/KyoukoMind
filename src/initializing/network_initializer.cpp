@@ -145,7 +145,6 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
                     Brick* newBrick = new Brick(brickId, x, y);
 
                     m_networkMetaStructure[x][y].brick = newBrick;
-                    m_networkMetaStructure[x][y].brickId = brickId;
 
                     segment.bricks.push_back(newBrick);
                     numberOfBricks++;
@@ -164,7 +163,6 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
                     newBrick->nodePos = static_cast<int32_t>(nodePos);
 
                     m_networkMetaStructure[x][y].brick = newBrick;
-                    m_networkMetaStructure[x][y].brickId = brickId;
 
                     segment.bricks.push_back(newBrick);
                     numberOfBricks++;
