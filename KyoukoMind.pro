@@ -86,7 +86,6 @@ HEADERS += \
     src/io/client_processing.h \
     src/io/control_processing.h \
     src/core/obj_converter.h \
-    src/core/brick_queue.h \
     src/core/processing/gpu_processing.cl \
     src/core/processing/gpu_interface.h \
     src/core/processing/objects/transfer_objects.h \
@@ -99,7 +98,8 @@ HEADERS += \
     src/core/processing/external/message_processing.h \
     src/core/object_handling/brick.h \
     src/core/object_handling/network_segment.h \
-    src/core/object_handling/item_buffer.h
+    src/core/object_handling/item_buffer.h \
+    src/core/processing/internal/edge_processing.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -110,7 +110,6 @@ SOURCES += \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/core/obj_converter.cpp \
-    src/core/brick_queue.cpp \
     src/core/processing/gpu_interface.cpp \
     src/core/validation.cpp \
     src/kyouko_root.cpp \

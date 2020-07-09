@@ -48,7 +48,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
 
     assert(segment->initNodeBlocks(totalNumberOfNodes));
-    KyoukoRoot::m_queue->setBorder(getNumberOfBricks());
 
     // init bricks
     addBricks(*segment);
@@ -132,8 +131,6 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
     uint32_t numberOfNodeBricks = 0;
     uint32_t numberOfBricks = 0;
 
-    BrickQueue* queue = KyoukoRoot::m_queue;
-
     for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
     {
         for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
@@ -149,7 +146,6 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
 
                     m_networkMetaStructure[x][y].brick = newBrick;
                     m_networkMetaStructure[x][y].brickId = brickId;
-                    queue->addToQueue(newBrick);
 
                     segment.bricks.push_back(newBrick);
                     numberOfBricks++;
@@ -169,7 +165,6 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
 
                     m_networkMetaStructure[x][y].brick = newBrick;
                     m_networkMetaStructure[x][y].brickId = brickId;
-                    queue->addToQueue(newBrick);
 
                     segment.bricks.push_back(newBrick);
                     numberOfBricks++;

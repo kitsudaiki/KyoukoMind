@@ -9,7 +9,6 @@
 #include <common.h>
 
 #include <core/global_values_handler.h>
-#include <core/brick_queue.h>
 
 namespace Kitsunemimi {
 namespace Project {
@@ -21,9 +20,9 @@ class SessionController;
 namespace KyoukoMind
 {
 class NetworkManager;
-class BrickQueue;
 class DummyInput;
 class NetworkSegment;
+class Brick;
 
 class KyoukoRoot
 {
@@ -33,7 +32,6 @@ public:
     ~KyoukoRoot();
 
     static KyoukoMind::NetworkSegment* m_segment;
-    static KyoukoMind::BrickQueue* m_queue;
     static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
 
     static Kitsunemimi::Project::Session* m_clientSession;
