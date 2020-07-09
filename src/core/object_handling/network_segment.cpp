@@ -77,13 +77,8 @@ NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
  * @return false if nodes are already initialized, esle true
  */
 bool
-NetworkSegment::initNodeBlocks(uint32_t numberOfNodes)
+NetworkSegment::initNodeBlocks(const uint32_t &numberOfNodes)
 {
-    // if not set by user, use default-value
-    if(numberOfNodes == 0) {
-        numberOfNodes = NUMBER_OF_NODES_PER_BRICK;
-    }
-
     // init
     if(nodes.initDataBlocks(numberOfNodes,  sizeof(Node)) == false) {
         return false;

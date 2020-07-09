@@ -49,7 +49,7 @@ public:
     uint64_t addEmptySynapseSection(const uint32_t sourceEdgeId,
                                     const uint32_t sourceBrickId);
 
-    bool initNodeBlocks(uint32_t numberOfNodes);
+    bool initNodeBlocks(const uint32_t &numberOfNodes);
     bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
     bool initSynapseSectionBlocks(const uint32_t numberOfSynapseSections);
     bool initTransferBlocks(const uint32_t totalNumberOfAxons,
