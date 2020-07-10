@@ -112,7 +112,7 @@ process_registerInput(const ControlRegisterInput &content,
     }
 
     // check if brick is node-brick
-    const uint8_t isNodeBrick = targetBrick->nodePos >= 0;
+    const uint8_t isNodeBrick = targetBrick->nodePos != UNINIT_STATE_32;
     if(isNodeBrick == 0)
     {
         errorMessage = "register input failed: brick with id "
@@ -187,7 +187,7 @@ process_registerOutput(const ControlRegisterOutput &content,
     }
 
     // check if brick is node-brick
-    const uint8_t isNodeBrick = outgoingBrick->nodePos >= 0;
+    const uint8_t isNodeBrick = outgoingBrick->nodePos != UNINIT_STATE_32;
     if(isNodeBrick == 0)
     {
         errorMessage = "register output failed: brick with id "

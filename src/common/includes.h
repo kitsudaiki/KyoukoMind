@@ -31,6 +31,7 @@
 #include <queue>
 #include <condition_variable>
 #include <unistd.h>
+#include <math.h>
 #include <cmath>
 #include <utility>
 #include <atomic>

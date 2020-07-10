@@ -91,7 +91,7 @@ clientControlOutputLearning_processing(const ClientControlOutputLearning &conten
     Brick* brick = rootObject->m_segment->bricks.at(content.brickId);
     assert(brick != nullptr);
 
-    brick->learningOverride = content.outputLearning;
+    //brick->learningOverride = content.outputLearning;
 }
 
 /**
@@ -108,7 +108,7 @@ clientLearnInput_processing(const ClientLearnInputData &content,
     {
         Brick* brick = it->second;
         Brick::Neighbor* neighbor = &brick->neighbors[22];
-        const uint16_t ok = neighbor->targetBrick->nodePos >= 0;
+        const uint16_t ok = neighbor->targetBrick->nodePos != UNINIT_STATE_32;
 
     }
 }

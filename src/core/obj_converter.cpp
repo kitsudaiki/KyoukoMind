@@ -98,7 +98,7 @@ void
 convertBrickToObj(ObjItem &result,
                   Brick* brick)
 {
-    if(brick->nodePos == -1) {
+    if(brick->nodePos == UNINIT_STATE_32) {
         return;
     }
 
@@ -144,7 +144,7 @@ convertNodeToObj(ObjItem &result,
 {
     Brick* brick = KyoukoRoot::m_segment->bricks.at(brickId);
 
-    if(brick->nodePos == -1
+    if(brick->nodePos == UNINIT_STATE_32
             || nodeId > NUMBER_OF_NODES_PER_BRICK)
     {
         return;

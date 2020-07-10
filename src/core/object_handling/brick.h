@@ -43,26 +43,15 @@ public:
     uint32_t nodeBrickId = UNINIT_STATE_32;
 
     BrickPos brickPos;
-    uint8_t inQueue = 0;
     uint8_t isOutputBrick = 0;
     uint8_t isInputBrick = 0;
     uint8_t isNodeBrick = 0;
 
-    // random values
-    float* randWeight = nullptr;
-    uint32_t randWeightPos = 0;
-    uint32_t* randValue = nullptr;
-    uint32_t randValuePos = 0;
-
     // 0 - 21: neighbor-bricks
     // 22: the current brick
     Neighbor neighbors[23];
-    std::atomic_flag lock = ATOMIC_FLAG_INIT;
-    int32_t nodePos = -1;
+    uint32_t nodePos = UNINIT_STATE_32;
 
-    // learning metadata
-    float learningOverride = 0.5;
-    GlobalValues globalValues;
 
     //----------------------------------------------------------------------------------------------
 
@@ -83,8 +72,6 @@ public:
                            DataBuffer &buffer);
 
 private:
-    void initRandValues();
-
     bool initBrickNeighbor(const uint8_t sourceSide,
                            Brick* targetBrick,
                            Neighbor* targetNeighbor);

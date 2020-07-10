@@ -10,16 +10,27 @@
 
 namespace KyoukoMind
 {
+class Brick;
 
 //==================================================================================================
 
 struct Edge
 {
     float weight = 0.0000001f;
-    int32_t targetId = 0;
-    uint8_t used = 0;
-    uint8_t synapseConnection = 0;
-    uint8_t next[6];
+    uint32_t targetId = UNINIT_STATE_32;
+    Brick* brick = nullptr;
+    uint8_t inputSide = UNINIT_STATE_8;
+    uint16_t prev = UNINIT_STATE_16;
+    uint8_t numberNext = 0;
+    uint16_t next[6];
+
+    Edge()
+    {
+        for(uint16_t i = 0; i < 6; i++)
+        {
+            next[i] = UNINIT_STATE_16;
+        }
+    }
     // total size: 16 Byte
 } __attribute__((packed));
 
@@ -28,18 +39,19 @@ struct Edge
 struct EdgeSection
 {
     uint8_t status = ACTIVE_SECTION;
-    uint8_t padding[5];
-
-    uint16_t firstEdge = 0;
+    uint8_t padding[7];
 
     uint32_t targetBrickId = UNINIT_STATE_32;
     uint32_t targetBrickDistance = 0;
 
-    Edge edges[255];
+    uint64_t padding1 = 0;
+    uint64_t padding2 = 0;
+
+    Edge edges[127];
 
     EdgeSection()
     {
-        for(uint16_t i = 0; i < 255; i++)
+        for(uint16_t i = 0; i < 127; i++)
         {
             Edge newEdge;
             edges[i] = newEdge;

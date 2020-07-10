@@ -35,7 +35,7 @@ createAxons(NetworkSegment &segment,
             {
                 // get node-brick
                 EdgeSection* edges = static_cast<EdgeSection*>(segment.edges.buffer.data);
-                const uint32_t pos = brick->brickId * NUMBER_OF_NODES_PER_BRICK;
+                const uint32_t pos = brick->nodeBrickId * NUMBER_OF_NODES_PER_BRICK;
 
                 // iterate over all nodes of the brick and create an axon for each node
                 for(uint32_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)

@@ -27,18 +27,12 @@ Brick::Brick(const uint32_t &brickId,
     this->brickId = brickId;
     this->brickPos.x = x;
     this->brickPos.y = y;
-
-    initRandValues();
 }
 
 /**
  * @brief Brick::~Brick
  */
-Brick::~Brick()
-{
-    delete randValue;
-    delete randWeight;
-}
+Brick::~Brick() {}
 
 /**
  * summarize the state of all nodes in a brick
@@ -51,7 +45,7 @@ float
 Brick::getSummedValue(NetworkSegment &segment)
 {
     assert(isOutputBrick != 0);
-    assert(nodePos >= 0);
+    assert(nodePos != UNINIT_STATE_32);
 
     Node* node = &static_cast<Node*>(segment.nodes.buffer.data)[nodePos];
     return node->currentState;
@@ -172,37 +166,6 @@ Brick::disconnectBricks(const uint8_t sourceSide,
     targetBrick.uninitBrickNeighbor(23 - sourceSide);
 
     return true;
-}
-
-/**
- * @brief initRandValues
- * @param brick
- */
-void
-Brick::initRandValues()
-{
-    randWeight = new float[999];
-    float compare = 0.0f;
-    for(uint32_t i = 0; i < 999; i++)
-    {
-        if(i % 3 == 0) {
-            compare = 0.0f;
-        }
-
-        float tempValue = static_cast<float>(rand()) / 0x7FFFFFFF;
-        assert(tempValue <= 1.0f);
-        if(tempValue + compare > 1.0f) {
-            tempValue = 1.0f - compare;
-        }
-        compare += tempValue;
-        randWeight[i] = tempValue;
-    }
-
-    randValue = new uint32_t[1024];
-    for(uint32_t i = 0; i < 1024; i++)
-    {
-        randValue[i] = static_cast<uint32_t>(rand());
-    }
 }
 
 /**

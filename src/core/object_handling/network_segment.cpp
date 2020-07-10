@@ -96,6 +96,43 @@ NetworkSegment::initNodeBlocks(const uint32_t &numberOfNodes)
     return true;
 }
 
+bool
+NetworkSegment::initRandomValues()
+{
+    if(randomfloatValues.initDataBlocks(999,  sizeof(float)) == false) {
+        return false;
+    }
+
+    float* randWeight = static_cast<float*>(randomfloatValues.buffer.data);
+    float compare = 0.0f;
+    for(uint32_t i = 0; i < 999; i++)
+    {
+        if(i % 3 == 0) {
+            compare = 0.0f;
+        }
+
+        float tempValue = static_cast<float>(rand()) / 0x7FFFFFFF;
+        assert(tempValue <= 1.0f);
+        if(tempValue + compare > 1.0f) {
+            tempValue = 1.0f - compare;
+        }
+        compare += tempValue;
+        randWeight[i] = tempValue;
+    }
+
+    if(randomIntValues.initDataBlocks(1024,  sizeof(uint32_t)) == false) {
+        return false;
+    }
+
+    uint32_t* randValue = static_cast<uint32_t*>(randomIntValues.buffer.data);
+    for(uint32_t i = 0; i < 1024; i++)
+    {
+        randValue[i] = static_cast<uint32_t>(rand());
+    }
+
+    return true;
+}
+
 /**
  * initialize forward-edge-block
  *
@@ -244,7 +281,7 @@ NetworkSegment::getMetadata()
     {
         Brick* brick = bricks[i];
 
-        if(brick->nodePos >= 0) {
+        if(brick->nodePos != UNINIT_STATE_32) {
             nodes->append(new DataValue(static_cast<long>(brick->brickId)));
         }
 

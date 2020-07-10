@@ -47,11 +47,15 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     const uint32_t numberOfNodeBricks = getNumberOfNodeBricks();
     const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
 
-    if(segment->initNodeBlocks(totalNumberOfNodes) == false) {
+    if(segment->initNodeBlocks(numberOfNodeBricks) == false) {
         return false;
     }
 
-    if(segment->initEdgeSectionBlocks(totalNumberOfNodes) == false) {
+    if(segment->initRandomValues() == false) {
+        return false;
+    }
+
+    if(segment->initEdgeSectionBlocks(numberOfNodeBricks) == false) {
         return false;
     }
 
@@ -166,7 +170,7 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
 
                     const uint32_t nodePos = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
                     assert(nodePos < 0x7FFFFFFF);
-                    newBrick->nodePos = static_cast<int32_t>(nodePos);
+                    newBrick->nodePos = nodePos;
 
                     m_networkMetaStructure[x][y].brick = newBrick;
 

@@ -35,6 +35,11 @@ public:
     uint32_t synapseEdgesCounter = 0;
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
+    // other
+    ItemBuffer randomIntValues;
+    ItemBuffer randomfloatValues;
+    ItemBuffer globalValues;
+
     // opencl-control objects
     Kitsunemimi::Opencl::Opencl ocl;
     Kitsunemimi::Opencl::OpenClData oclData;
@@ -50,6 +55,7 @@ public:
                                     const uint32_t sourceBrickId);
 
     bool initNodeBlocks(const uint32_t &numberOfNodes);
+    bool initRandomValues();
     bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
     bool initSynapseSectionBlocks(const uint32_t numberOfSynapseSections);
     bool initTransferBlocks(const uint32_t totalNumberOfAxons,
