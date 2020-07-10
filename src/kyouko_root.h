@@ -8,8 +8,6 @@
 
 #include <common.h>
 
-#include <core/global_values_handler.h>
-
 namespace Kitsunemimi {
 namespace Project {
 class Session;
@@ -32,8 +30,6 @@ public:
     ~KyoukoRoot();
 
     static KyoukoMind::NetworkSegment* m_segment;
-    static KyoukoMind::GlobalValuesHandler* m_globalValuesHandler;
-
     static Kitsunemimi::Project::Session* m_clientSession;
     static Kitsunemimi::Project::Session* m_controlSession;
     static Kitsunemimi::Project::Session* m_monitoringSession;

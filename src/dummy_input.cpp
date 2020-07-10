@@ -28,14 +28,12 @@ DummyInput::run()
     while(!m_abort)
     {
         // set global values
-        GlobalValuesHandler* handler = KyoukoRoot::m_globalValuesHandler;
-        GlobalValues gValues = handler->getGlobalValues();
-        gValues.globalGlia = m_gliaValue;
-        gValues.globalMemorizingTemp = m_memTemp;
-        gValues.globalMemorizingOffset = m_memOffset;
-        gValues.globalLearningTemp = m_learnTemp;
-        gValues.globalLearningOffset = m_learnOffset;
-        handler->setGlobalValues(gValues);
+        // GlobalValues gValues = handler->getGlobalValues();
+        // gValues.globalGlia = m_gliaValue;
+        // gValues.globalMemorizingTemp = m_memTemp;
+        // gValues.globalMemorizingOffset = m_memOffset;
+        // gValues.globalLearningTemp = m_learnTemp;
+        // gValues.globalLearningOffset = m_learnOffset;
 
         // get neighbor
         Brick::Neighbor* neighbor = &inputBrick->neighbors[22];

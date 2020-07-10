@@ -5,7 +5,7 @@
 
 #include <kyouko_root.h>
 #include <core/network_manager.h>
-#include <core/global_values_handler.h>
+#include <core/global_values.h>
 #include <core/object_handling/network_segment.h>
 #include <core/object_handling/brick.h>
 #include <core/obj_converter.h>
@@ -29,7 +29,6 @@ namespace KyoukoMind
 
 // init static variables
 KyoukoMind::NetworkSegment* KyoukoRoot::m_segment = nullptr;
-KyoukoMind::GlobalValuesHandler* KyoukoRoot::m_globalValuesHandler = nullptr;
 Kitsunemimi::Project::Session* KyoukoRoot::m_clientSession = nullptr;
 Kitsunemimi::Project::Session* KyoukoRoot::m_controlSession = nullptr;
 Kitsunemimi::Project::Session* KyoukoRoot::m_monitoringSession = nullptr;
@@ -43,7 +42,6 @@ KyoukoRoot::KyoukoRoot()
     validateStructSizes();
 
     m_segment = new NetworkSegment();
-    m_globalValuesHandler = new GlobalValuesHandler();
     m_inputBricks = new std::map<uint32_t, Brick*>();
 
     m_sessionController = new Kitsunemimi::Project::SessionController(this, &sessionCallback,

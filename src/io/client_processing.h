@@ -37,13 +37,9 @@ inline void
 clientControlLearning_processing(const ClientControlLearning &content,
                                  KyoukoRoot* rootObject)
 {
-    GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
-
-    GlobalValues gValues = handler->getGlobalValues();
-    gValues.globalLearningTemp = content.learnTemp;
-    gValues.globalLearningOffset = content.learnOffset;
-
-    handler->setGlobalValues(gValues);
+    // GlobalValues gValues = handler->getGlobalValues();
+    // gValues.globalLearningTemp = content.learnTemp;
+    // gValues.globalLearningOffset = content.learnOffset;
 }
 
 /**
@@ -54,13 +50,9 @@ inline void
 clientControlMemorizing_processing(const ClientControlMemorizing &content,
                                    KyoukoRoot* rootObject)
 {
-    GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
-
-    GlobalValues gValues = handler->getGlobalValues();
-    gValues.globalMemorizingTemp = content.memTemp;
-    gValues.globalMemorizingOffset = content.memOffset;
-
-    handler->setGlobalValues(gValues);
+    // GlobalValues gValues = handler->getGlobalValues();
+    // gValues.globalMemorizingTemp = content.memTemp;
+    // gValues.globalMemorizingOffset = content.memOffset;
 }
 
 /**
@@ -71,12 +63,8 @@ inline void
 clientControlGlia_processing(const ClientControlGlia &content,
                              KyoukoRoot* rootObject)
 {
-    GlobalValuesHandler* handler = rootObject->m_globalValuesHandler;
-
-    GlobalValues gValues = handler->getGlobalValues();
-    gValues.globalGlia = content.glia;
-
-    handler->setGlobalValues(gValues);
+    // GlobalValues gValues = handler->getGlobalValues();
+    // gValues.globalGlia = content.glia;
 }
 
 /**

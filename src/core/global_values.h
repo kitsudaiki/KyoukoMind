@@ -24,20 +24,6 @@ struct GlobalValues
     float globalGlia = 1.0f;
 };
 
-class GlobalValuesHandler
-{
-public:
-    GlobalValuesHandler();
-
-    GlobalValues getGlobalValues();
-    void setGlobalValues(const GlobalValues &values);
-
-private:
-    GlobalValues m_globalValues;
-
-    std::mutex m_mutex;
-};
-
 } // namespace KyoukoMind
 
 #endif // GLOBAL_VALUES_HANDLER_H

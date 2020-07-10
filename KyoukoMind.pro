@@ -72,7 +72,6 @@ HEADERS += \
     src/core/processing/objects/synapses.h \
     src/core/processing/processing_unit.h \
     src/core/processing/processing_unit_handler.h \
-    src/core/global_values_handler.h \
     src/core/network_manager.h \
     src/initializing/axon_initializer.h \
     src/initializing/file_parser.h \
@@ -99,12 +98,12 @@ HEADERS += \
     src/core/object_handling/brick.h \
     src/core/object_handling/network_segment.h \
     src/core/object_handling/item_buffer.h \
-    src/core/processing/internal/edge_processing.h
+    src/core/processing/internal/edge_processing.h \
+    src/core/global_values.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
-    src/core/global_values_handler.cpp \
     src/core/network_manager.cpp \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \

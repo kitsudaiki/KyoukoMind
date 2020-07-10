@@ -72,8 +72,6 @@ Brick::getSummedValue(NetworkSegment &segment)
 void
 Brick::writeMonitoringOutput(DataBuffer &buffer)
 {
-    GlobalValues globalValue = KyoukoRoot::m_globalValuesHandler->getGlobalValues();
-
     // fill message
     Kitsunemimi::Kyouko::MonitoringMessage monitoringMessage;
     monitoringMessage.brickId = brickId;
@@ -84,8 +82,8 @@ Brick::writeMonitoringOutput(DataBuffer &buffer)
     // monitoringMessage.numberOfEdgeSections = edges.numberOfItems
     //                                         - edges.numberOfDeletedDynamicItems;
 
-    monitoringMessage.globalLearning = globalValue.globalLearningOffset;
-    monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
+    // monitoringMessage.globalLearning = globalValue.globalLearningOffset;
+    // monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
 
     Kitsunemimi::addObject_DataBuffer(buffer, &monitoringMessage);
 }

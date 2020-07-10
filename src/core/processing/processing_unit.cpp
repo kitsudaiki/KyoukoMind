@@ -8,7 +8,7 @@
 
 #include <core/object_handling/network_segment.h>
 #include <core/processing/objects/transfer_objects.h>
-#include <core/global_values_handler.h>
+#include <core/global_values.h>
 
 #include <core/object_handling/brick.h>
 #include <core/processing/objects/container_definitions.h>
@@ -46,11 +46,6 @@ ProcessingUnit::run()
         if(m_block) {
             blockThread();
         }
-
-        GlobalValues globalValues = KyoukoRoot::m_globalValuesHandler->getGlobalValues();
-        globalValues.globalLearningTemp = 0.0f;
-        globalValues.globalMemorizingTemp = 0.0f;
-        KyoukoRoot::m_globalValuesHandler->setGlobalValues(globalValues);
 
         end = std::chrono::system_clock::now();
         const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
