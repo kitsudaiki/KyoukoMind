@@ -217,8 +217,8 @@ NetworkInitializer::connectAllBricks(NetworkSegment &segment)
                     segment.connectBricks(sourceId, side, targetId);
 
                     Brick::Neighbor* neighbor = &m_networkMetaStructure[x][y].brick->neighbors[side];
-                    neighbor->targetBrickPos.x = next.first;
-                    neighbor->targetBrickPos.y = next.second;
+                    neighbor->targetBrick->brickPos.x = next.first;
+                    neighbor->targetBrick->brickPos.y = next.second;
                 }
             }
         }

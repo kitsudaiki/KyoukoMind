@@ -116,8 +116,8 @@ getNextAxonPathStep(const uint32_t x,
 
     // make next iteration
     currentStep++;
-    return getNextAxonPathStep(choosenOne->targetBrickPos.x,
-                               choosenOne->targetBrickPos.y,
+    return getNextAxonPathStep(choosenOne->targetBrick->brickPos.x,
+                               choosenOne->targetBrick->brickPos.y,
                                23 - nextSite,
                                currentStep,
                                networkMetaStructure);

@@ -34,7 +34,6 @@ public:
         uint8_t inUse = 0;
         Brick* targetBrick = nullptr;
         Neighbor* targetNeighbor = nullptr;
-        BrickPos targetBrickPos;
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
 
