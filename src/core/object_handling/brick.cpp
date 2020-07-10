@@ -145,14 +145,14 @@ Brick::connectBricks(const uint8_t sourceSide,
  * @return true, if successful, else false
  */
 bool
-Brick::disconnectBricks(const uint8_t sourceSide,
-                        Brick &targetBrick)
+Brick::disconnectBricks(const uint8_t sourceSide)
 {
     assert(sourceSide < 23);
+    Brick* targetBrick = neighbors[sourceSide].targetBrick;
 
     // get neighbor-pointers
     Neighbor* sourceNeighbor = &neighbors[sourceSide];
-    Neighbor* targetNeighbor = &targetBrick.neighbors[23 - sourceSide];
+    Neighbor* targetNeighbor = &targetBrick->neighbors[23 - sourceSide];
 
     // check neighbors
     if(sourceNeighbor->inUse == 0
@@ -163,7 +163,7 @@ Brick::disconnectBricks(const uint8_t sourceSide,
 
     // add the new neighbor
     this->uninitBrickNeighbor(sourceSide);
-    targetBrick.uninitBrickNeighbor(23 - sourceSide);
+    targetBrick->uninitBrickNeighbor(23 - sourceSide);
 
     return true;
 }

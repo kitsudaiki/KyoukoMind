@@ -288,12 +288,10 @@ NetworkSegment::connectBricks(const uint32_t sourceBrickId,
  */
 bool
 NetworkSegment::disconnectBricks(const uint32_t sourceBrickId,
-                                 const uint8_t sourceSide,
-                                 const uint32_t targetBrickId)
+                                 const uint8_t sourceSide)
 {
     Brick* sourceBrick = bricks[sourceBrickId];
-    Brick* targetBrick = bricks[targetBrickId];
-    return sourceBrick->disconnectBricks(sourceSide, *targetBrick);
+    return sourceBrick->disconnectBricks(sourceSide);
 }
 
 }

@@ -63,8 +63,7 @@ public:
 
     bool connectBricks(const uint8_t sourceSide,
                        Brick &targetBrick);
-    bool disconnectBricks(const uint8_t sourceSide,
-                          Brick &targetBrick);
+    bool disconnectBricks(const uint8_t sourceSide);
 
     void writeMonitoringOutput(DataBuffer &buffer);
     void writeClientOutput(NetworkSegment &segment,

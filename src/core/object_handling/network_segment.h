@@ -65,8 +65,7 @@ public:
                        const uint8_t sourceSide,
                        const uint32_t targetBrickId);
     bool disconnectBricks(const uint32_t sourceBrickId,
-                          const uint8_t sourceSide,
-                          const uint32_t targetBrickId);
+                          const uint8_t sourceSide);
 
 };
 
