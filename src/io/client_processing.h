@@ -76,7 +76,7 @@ clientControlOutputLearning_processing(const ClientControlOutputLearning &conten
                                        KyoukoRoot* rootObject)
 {
 
-    Brick* brick = rootObject->m_segment->bricks.at(content.brickId);
+    Brick* brick = &getBuffer<Brick>(rootObject->m_segment->bricks)[content.brickId];
     assert(brick != nullptr);
 
     //brick->learningOverride = content.outputLearning;

@@ -156,7 +156,7 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
 
                     m_networkMetaStructure[x][y].brick = newBrick;
 
-                    segment.bricks.push_back(newBrick);
+                    segment.bricks.addNewItem(newBrick);
                     numberOfBricks++;
 
                     break;
@@ -174,7 +174,7 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
 
                     m_networkMetaStructure[x][y].brick = newBrick;
 
-                    segment.bricks.push_back(newBrick);
+                    segment.bricks.addNewItem(newBrick);
                     numberOfBricks++;
                     numberOfNodeBricks++;
 

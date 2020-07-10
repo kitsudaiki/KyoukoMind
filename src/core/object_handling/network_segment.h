@@ -18,7 +18,7 @@ namespace KyoukoMind
 class NetworkSegment
 {
 public:
-    std::vector<Brick*> bricks;
+    ItemBuffer bricks;
 
     // host-representation of permanent gpu-data
     ItemBuffer nodes;
@@ -45,6 +45,7 @@ public:
     uint64_t addEmptySynapseSection(const uint32_t sourceEdgeId,
                                     const uint32_t sourceBrickId);
 
+    bool initBricks(const uint32_t numberOfBricks);
     bool initNodeBlocks(const uint32_t &numberOfNodes);
     bool initRandomValues();
     bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);

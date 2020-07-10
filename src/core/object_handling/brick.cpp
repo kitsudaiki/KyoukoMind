@@ -20,6 +20,11 @@ namespace KyoukoMind
  * @param x
  * @param y
  */
+Brick::Brick()
+{
+
+}
+
 Brick::Brick(const uint32_t &brickId,
              const uint32_t x,
              const uint32_t y)

@@ -40,6 +40,30 @@ NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
 }
 
 /**
+ * @brief NetworkSegment::initBricks
+ * @param numberOfBricks
+ * @return
+ */
+bool
+NetworkSegment::initBricks(const uint32_t numberOfBricks)
+{
+    // init
+    if(bricks.initBuffer<Brick>(numberOfBricks) == false) {
+        return false;
+    }
+
+    // fill array with empty nodes
+    Brick* array = static_cast<Brick*>(bricks.buffer.data);
+    for(uint32_t i = 0; i < numberOfBricks; i++)
+    {
+        Brick tempBrick;
+        array[i] = tempBrick;
+    }
+
+    return true;
+}
+
+/**
  * initialize the node-list of the brick
  *
  * @return false if nodes are already initialized, esle true
@@ -221,7 +245,7 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
 bool
 NetworkSegment::addClientOutputConnection(const uint32_t brickPos)
 {
-    Brick* brick = bricks[brickPos];
+    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickPos];
 
     // set brick as output-brick
     brick->isOutputBrick = 1;
@@ -245,9 +269,9 @@ NetworkSegment::getMetadata()
     DataArray* nodes = new DataArray();
 
     // collect data
-    for(uint32_t i = 0; i < bricks.size(); i++)
+    for(uint32_t i = 0; i < bricks.numberOfItems; i++)
     {
-        Brick* brick = bricks[i];
+        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[i];
 
         if(brick->nodePos != UNINIT_STATE_32) {
             nodes->append(new DataValue(static_cast<long>(brick->brickId)));
@@ -276,8 +300,8 @@ NetworkSegment::connectBricks(const uint32_t sourceBrickId,
                               const uint8_t sourceSide,
                               const uint32_t targetBrickId)
 {
-    Brick* sourceBrick = bricks[sourceBrickId];
-    Brick* targetBrick = bricks[targetBrickId];
+    Brick* sourceBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[sourceBrickId];
+    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[targetBrickId];
     return sourceBrick->connectBricks(sourceSide, *targetBrick);
 }
 
@@ -290,7 +314,7 @@ bool
 NetworkSegment::disconnectBricks(const uint32_t sourceBrickId,
                                  const uint8_t sourceSide)
 {
-    Brick* sourceBrick = bricks[sourceBrickId];
+    Brick* sourceBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[sourceBrickId];
     return sourceBrick->disconnectBricks(sourceSide);
 }
 

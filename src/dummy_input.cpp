@@ -56,7 +56,7 @@ DummyInput::initialize()
     const uint8_t sourceSide = 22;
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* targetBrick = KyoukoRoot::m_segment->bricks.at(0);
+    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[0];
     assert(targetBrick != nullptr);
 
     // create fake-brick to connect it with the defined input-brick

@@ -99,7 +99,7 @@ process_registerInput(const ControlRegisterInput &content,
     const uint8_t sourceSide = 22;
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* targetBrick = KyoukoRoot::m_segment->bricks.at(content.brickId);
+    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[content.brickId];
 
     if(targetBrick == nullptr)
     {
@@ -175,7 +175,7 @@ process_registerOutput(const ControlRegisterOutput &content,
     std::string errorMessage = "";
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* outgoingBrick = KyoukoRoot::m_segment->bricks.at(content.brickId);
+    Brick* outgoingBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[content.brickId];
     if(outgoingBrick == nullptr)
     {
         errorMessage = "register output failed: brick with id "
@@ -217,7 +217,7 @@ process_doesBrickExist(const ControlDoesBrickExist &content,
                        Kitsunemimi::Project::Session* session,
                        const uint64_t blockerId)
 {
-    Brick* outgoingBrick = KyoukoRoot::m_segment->bricks.at(content.brickId);
+    Brick* outgoingBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[content.brickId];
     const bool exist = outgoingBrick != nullptr;
     send_doesBrickExist_response(exist, session, blockerId);
     return exist;
