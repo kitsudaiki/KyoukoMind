@@ -165,12 +165,12 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init device-to-host-buffer
-    if(axonEdges.initBuffer<AxonTransfer>(totalNumberOfAxons) == false) {
+    if(axonTransfers.initBuffer<AxonTransfer>(totalNumberOfAxons) == false) {
         return false;
     }
 
     // fill array with empty values
-    AxonTransfer* axonArray = getBuffer<AxonTransfer>(axonEdges);
+    AxonTransfer* axonArray = getBuffer<AxonTransfer>(axonTransfers);
     for(uint32_t i = 0; i < totalNumberOfAxons; i++)
     {
         AxonTransfer newEdge;
@@ -180,12 +180,12 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(synapseEdges.initBuffer<SynapseTransfer>(maxNumberOySynapseSections) == false) {
+    if(synapseTransfers.initBuffer<SynapseTransfer>(maxNumberOySynapseSections) == false) {
         return false;
     }
 
     // fill array with empty values
-    SynapseTransfer* synapseArray = getBuffer<SynapseTransfer>(synapseEdges);
+    SynapseTransfer* synapseArray = getBuffer<SynapseTransfer>(synapseTransfers);
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
         SynapseTransfer newSynapseTransfer;
@@ -195,12 +195,12 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(updateEdges.initBuffer<UpdateTransfer>(maxNumberOySynapseSections) == false) {
+    if(updateTransfers.initBuffer<UpdateTransfer>(maxNumberOySynapseSections) == false) {
         return false;
     }
 
     // fill array with empty values
-    UpdateTransfer* updateArray = getBuffer<UpdateTransfer>(updateEdges);
+    UpdateTransfer* updateArray = getBuffer<UpdateTransfer>(updateTransfers);
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
         UpdateTransfer newUpdateTransfer;

@@ -55,7 +55,7 @@ ProcessingUnit::run()
         {
             // copy transfer-edges to gpu
             start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->copyEdgesToGpu(*segment);
+            KyoukoRoot::m_gpuInterface->copySynapseTransfersToGpu(*segment);
             end = std::chrono::system_clock::now();
             const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
             LOG_DEBUG("time copy to gpu: " + std::to_string(gpu0 / 1000.0f) + '\n');
@@ -69,13 +69,13 @@ ProcessingUnit::run()
 
             // copy result from gpu to host
             start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->copyAxonsFromGpu();
+            KyoukoRoot::m_gpuInterface->copyAxonTransfersFromGpu();
             end = std::chrono::system_clock::now();
             const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
             LOG_DEBUG("time copy from gpu: " + std::to_string(gpu2 / 1000.0f) + '\n');
         }
 
-        segment->synapseEdges.resetBufferContent();
+        segment->synapseTransfers.resetBufferContent();
 
         // block thread until next cycle if queue is empty
         blockThread();
@@ -84,8 +84,8 @@ ProcessingUnit::run()
 
 
         uint32_t count = 0;
-        AxonTransfer* axons = static_cast<AxonTransfer*>(segment->axonEdges.buffer.data);
-        for(uint32_t i = 0; i < segment->axonEdges.numberOfItems; i++)
+        AxonTransfer* axons = static_cast<AxonTransfer*>(segment->axonTransfers.buffer.data);
+        for(uint32_t i = 0; i < segment->axonTransfers.numberOfItems; i++)
         {
 
         }

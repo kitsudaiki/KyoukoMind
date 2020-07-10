@@ -21,11 +21,11 @@ public:
 
     bool initializeGpu(NetworkSegment &segment,
                        const uint32_t numberOfBricks);
-    bool copyEdgesToGpu(NetworkSegment &segment);
+    bool copySynapseTransfersToGpu(NetworkSegment &segment);
     bool updateNodeOnDevice(const uint32_t nodeId,
                             const float value);
     bool runOnGpu();
-    bool copyAxonsFromGpu();
+    bool copyAxonTransfersFromGpu();
     bool closeDevice();
 
 private:

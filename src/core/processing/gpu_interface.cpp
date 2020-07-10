@@ -55,21 +55,21 @@ GpuInterface::initializeGpu(NetworkSegment &segment,
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
 
     // fill buffer for edges from host to gpu
-    oclData.buffer[0].data = segment.synapseEdges.buffer.data;
-    oclData.buffer[0].numberOfBytes = segment.synapseEdges.buffer.bufferPosition;
-    oclData.buffer[0].numberOfObjects = segment.synapseEdges.numberOfItems;
+    oclData.buffer[0].data = segment.synapseTransfers.buffer.data;
+    oclData.buffer[0].numberOfBytes = segment.synapseTransfers.buffer.bufferPosition;
+    oclData.buffer[0].numberOfObjects = segment.synapseTransfers.numberOfItems;
     oclData.buffer[0].useHostPtr = true;
 
     // fill buffer for axons from gpu to host
-    oclData.buffer[1].data = segment.axonEdges.buffer.data;
-    oclData.buffer[1].numberOfBytes = segment.axonEdges.buffer.bufferPosition;
-    oclData.buffer[1].numberOfObjects = segment.axonEdges.numberOfItems;
+    oclData.buffer[1].data = segment.axonTransfers.buffer.data;
+    oclData.buffer[1].numberOfBytes = segment.axonTransfers.buffer.bufferPosition;
+    oclData.buffer[1].numberOfObjects = segment.axonTransfers.numberOfItems;
     oclData.buffer[1].isOutput = true;
 
     // fill buffer for update-edges from gpu to host
-    oclData.buffer[2].data = segment.updateEdges.buffer.data;
-    oclData.buffer[2].numberOfBytes = segment.updateEdges.buffer.bufferPosition;
-    oclData.buffer[2].numberOfObjects = segment.updateEdges.numberOfItems;
+    oclData.buffer[2].data = segment.updateTransfers.buffer.data;
+    oclData.buffer[2].numberOfBytes = segment.updateTransfers.buffer.bufferPosition;
+    oclData.buffer[2].numberOfObjects = segment.updateTransfers.numberOfItems;
     oclData.buffer[2].isOutput = true;
 
     // fill buffer for nodes to map on gpu
@@ -118,10 +118,10 @@ GpuInterface::initializeGpu(NetworkSegment &segment,
  * @return
  */
 bool
-GpuInterface::copyEdgesToGpu(NetworkSegment &segment)
+GpuInterface::copySynapseTransfersToGpu(NetworkSegment &segment)
 {
     return ocl.updateBufferOnDevice(oclData.buffer[0],
-                                    segment.synapseEdges.numberOfItems);
+                                    segment.synapseTransfers.numberOfItems);
 }
 
 /**
@@ -168,7 +168,7 @@ GpuInterface::runOnGpu()
  * @return
  */
 bool
-GpuInterface::copyAxonsFromGpu()
+GpuInterface::copyAxonTransfersFromGpu()
 {
     return ocl.copyFromDevice(oclData);
 }

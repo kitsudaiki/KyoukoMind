@@ -25,12 +25,10 @@ public:
     ItemBuffer synapses;
     ItemBuffer edges;
 
-    // device to host transfer
-    ItemBuffer axonEdges;
-    ItemBuffer updateEdges;
-
-    // host to device transfer
-    ItemBuffer synapseEdges;
+    // transfer-buffer for gpu-interaction
+    ItemBuffer axonTransfers;
+    ItemBuffer updateTransfers;
+    ItemBuffer synapseTransfers;
 
     // other
     ItemBuffer randomIntValues;
