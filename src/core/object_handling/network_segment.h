@@ -32,8 +32,6 @@ public:
 
     // host to device transfer
     ItemBuffer synapseEdges;
-    uint32_t synapseEdgesCounter = 0;
-    std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
     // other
     ItemBuffer randomIntValues;

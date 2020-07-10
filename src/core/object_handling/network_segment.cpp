@@ -18,34 +18,6 @@ NetworkSegment::NetworkSegment()
 }
 
 /**
- * @brief NetworkSegment::getNextTransferPos
- * @return
- */
-uint32_t
-NetworkSegment::getNextTransferPos()
-{
-    uint32_t pos = 0;
-
-    while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    pos = synapseEdgesCounter;
-    synapseEdgesCounter++;
-    lock.clear(std::memory_order_release);
-
-    return pos;
-}
-
-/**
- * @brief NetworkSegment::resetTransferPos
- */
-void
-NetworkSegment::resetTransferPos()
-{
-    while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    synapseEdgesCounter = 0;
-    lock.clear(std::memory_order_release);
-}
-
-/**
  * @brief NetworkSegment::addEmptySynapseSection
  * @param sourceEdgeId
  * @param sourceBrickId
@@ -58,15 +30,11 @@ NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
     assert(sourceEdgeId != UNINIT_STATE_32);
     assert(sourceBrickId != UNINIT_STATE_32);
 
-    const uint64_t position = synapses.reserveDynamicItem();
-    assert(position != UNINIT_STATE_32);
-
-    // add new edge-forward-section
     SynapseSection newSection;
     newSection.sourceEdgeId = sourceEdgeId;
     newSection.sourceBrickId = sourceBrickId;
 
-    //getSynapseSectionBlock()[position] = newSection;
+    const uint64_t position = synapses.addNewItem(newSection);
 
     return position;
 }
@@ -80,7 +48,7 @@ bool
 NetworkSegment::initNodeBlocks(const uint32_t &numberOfNodes)
 {
     // init
-    if(nodes.initDataBlocks(numberOfNodes,  sizeof(Node)) == false) {
+    if(nodes.initBuffer<Node>(numberOfNodes) == false) {
         return false;
     }
 
@@ -99,11 +67,11 @@ NetworkSegment::initNodeBlocks(const uint32_t &numberOfNodes)
 bool
 NetworkSegment::initRandomValues()
 {
-    if(randomfloatValues.initDataBlocks(999,  sizeof(float)) == false) {
+    if(randomfloatValues.initBuffer<float>(999) == false) {
         return false;
     }
 
-    float* randWeight = static_cast<float*>(randomfloatValues.buffer.data);
+    float* randWeight = getBuffer<float>(randomfloatValues);
     float compare = 0.0f;
     for(uint32_t i = 0; i < 999; i++)
     {
@@ -120,11 +88,11 @@ NetworkSegment::initRandomValues()
         randWeight[i] = tempValue;
     }
 
-    if(randomIntValues.initDataBlocks(1024,  sizeof(uint32_t)) == false) {
+    if(randomIntValues.initBuffer<uint32_t>(1024) == false) {
         return false;
     }
 
-    uint32_t* randValue = static_cast<uint32_t*>(randomIntValues.buffer.data);
+    uint32_t* randValue = getBuffer<uint32_t>(randomIntValues);
     for(uint32_t i = 0; i < 1024; i++)
     {
         randValue[i] = static_cast<uint32_t>(rand());
@@ -142,12 +110,12 @@ bool
 NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 {
     // init
-    if(edges.initDataBlocks(numberOfEdgeSections, sizeof(EdgeSection)) == false) {
+    if(edges.initBuffer<EdgeSection>(numberOfEdgeSections) == false) {
         return false;
     }
 
     // fill array with empty forward-edge-sections
-    EdgeSection* array = static_cast<EdgeSection*>(edges.buffer.data);
+    EdgeSection* array = getBuffer<EdgeSection>(edges);
     for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
         EdgeSection tempEdge;
@@ -168,12 +136,12 @@ NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
     assert(numberOfSynapseSections > 0);
 
     // init
-    if(synapses.initDataBlocks(numberOfSynapseSections, sizeof(SynapseSection)) == false) {
+    if(synapses.initBuffer<SynapseSection>(numberOfSynapseSections) == false) {
         return false;
     }
 
     // fill array with empty synapsesections
-    SynapseSection* array = static_cast<SynapseSection*>(synapses.buffer.data);
+    SynapseSection* array = getBuffer<SynapseSection>(synapses);
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         SynapseSection newSection;
@@ -197,12 +165,12 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init device-to-host-buffer
-    if(axonEdges.initDataBlocks(totalNumberOfAxons, sizeof(AxonTransfer)) == false) {
+    if(axonEdges.initBuffer<AxonTransfer>(totalNumberOfAxons) == false) {
         return false;
     }
 
     // fill array with empty values
-    AxonTransfer* axonArray = static_cast<AxonTransfer*>(axonEdges.buffer.data);
+    AxonTransfer* axonArray = getBuffer<AxonTransfer>(axonEdges);
     for(uint32_t i = 0; i < totalNumberOfAxons; i++)
     {
         AxonTransfer newEdge;
@@ -212,12 +180,12 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(synapseEdges.initDataBlocks(maxNumberOySynapseSections, sizeof(SynapseTransfer)) == false) {
+    if(synapseEdges.initBuffer<SynapseTransfer>(maxNumberOySynapseSections) == false) {
         return false;
     }
 
     // fill array with empty values
-    SynapseTransfer* synapseArray = static_cast<SynapseTransfer*>(synapseEdges.buffer.data);
+    SynapseTransfer* synapseArray = getBuffer<SynapseTransfer>(synapseEdges);
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
         SynapseTransfer newSynapseTransfer;
@@ -227,12 +195,12 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
     //----------------------------------------------------------------------------------------------
 
     // init host-to-device-buffer
-    if(updateEdges.initDataBlocks(maxNumberOySynapseSections,  sizeof(UpdateTransfer)) == false) {
+    if(updateEdges.initBuffer<UpdateTransfer>(maxNumberOySynapseSections) == false) {
         return false;
     }
 
     // fill array with empty values
-    UpdateTransfer* updateArray = static_cast<UpdateTransfer*>(updateEdges.buffer.data);
+    UpdateTransfer* updateArray = getBuffer<UpdateTransfer>(updateEdges);
     for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
     {
         UpdateTransfer newUpdateTransfer;
@@ -260,7 +228,7 @@ NetworkSegment::addClientOutputConnection(const uint32_t brickPos)
 
     // set the border-value of all nodes within the brick
     // to a high-value, so the node can never become active
-    Node* nodeArray = &static_cast<Node*>(nodes.buffer.data)[brick->nodePos];
+    Node* nodeArray = &getBuffer<Node>(nodes)[brick->nodePos];
     nodeArray->border = 100000.0f;
 
     return true;

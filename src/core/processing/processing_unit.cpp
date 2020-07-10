@@ -80,7 +80,7 @@ ProcessingUnit::run()
             LOG_DEBUG("time copy from gpu: " + std::to_string(gpu2 / 1000.0f) + '\n');
         }
 
-        segment->resetTransferPos();
+        segment->synapseEdges.resetBufferContent();
 
         // block thread until next cycle if queue is empty
         blockThread();

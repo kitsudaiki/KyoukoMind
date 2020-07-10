@@ -10,6 +10,9 @@
 
 namespace KyoukoMind
 {
+class ItemBuffer;
+template<typename T>
+inline T* getBuffer(ItemBuffer &itembuffer);
 
 class ItemBuffer
 {
@@ -19,11 +22,58 @@ public:
     uint64_t numberOfDeletedDynamicItems = 0;
     DataBuffer buffer = DataBuffer(1);
 
+    ItemBuffer();
+
+    /**
+     * @brief addNewItem
+     * @param itemBuffer
+     * @param item
+     * @param simple
+     * @return
+     */
+    template<typename T>
+    uint64_t addNewItem(T &item,
+                        const bool simple = false)
+    {
+        uint64_t position = UNINIT_STATE_64;
+        while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+        if(simple)
+        {
+            position = numberOfItems;
+            numberOfItems++;
+        }
+        else
+        {
+            position = reserveDynamicItem();
+        }
+
+        T* buffer = getBuffer<T>(*this);
+        buffer[position] = item;
+
+        lock.clear(std::memory_order_release);
+
+        return position;
+    }
+
+    /**
+     * @brief initBuffer
+     * @param numberOfItems
+     * @return
+     */
+    template<typename T>
+    bool initBuffer(const uint64_t numberOfItems)
+    {
+        return initDataBlocks(numberOfItems, sizeof(T));
+    }
+
+    void resetBufferContent();
+
+private:
+    std::atomic_flag lock = ATOMIC_FLAG_INIT;
+
     uint64_t bytePositionOfFirstEmptyBlock = UNINIT_STATE_32;
     uint64_t bytePositionOfLastEmptyBlock = UNINIT_STATE_32;
-    uint64_t numberOfEmptyBlocks = 0;
-
-    ItemBuffer();
 
     bool initDataBlocks(const uint64_t numberOfItems,
                         const uint32_t itemSize);
@@ -31,6 +81,19 @@ public:
     uint64_t reuseItemPosition();
     uint64_t reserveDynamicItem();
 };
+
+/**
+ * @brief getBuffer
+ * @param itembuffer
+ * @return
+ */
+template<typename T>
+inline T*
+getBuffer(ItemBuffer &itembuffer)
+{
+    return static_cast<T*>(itembuffer.buffer.data);
+}
+
 
 }
 

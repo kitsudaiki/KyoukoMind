@@ -139,7 +139,7 @@ bool
 copyEdgesToGpu(NetworkSegment &segment)
 {
     return segment.ocl.updateBufferOnDevice(segment.oclData.buffer[0],
-                                            segment.synapseEdgesCounter);
+                                            segment.synapseEdges.numberOfItems);
 }
 
 /**

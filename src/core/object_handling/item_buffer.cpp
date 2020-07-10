@@ -14,10 +14,21 @@ struct EmptyPlaceHolder
     uint64_t bytePositionOfNextEmptyBlock = UNINIT_STATE_32;
 } __attribute__((packed));
 
-
 ItemBuffer::ItemBuffer()
 {
 
+}
+
+/**
+ * @brief resetBufferContent
+ * @param itemBuffer
+ */
+void
+ItemBuffer::resetBufferContent()
+{
+    while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    numberOfItems = 0;
+    lock.clear(std::memory_order_release);
 }
 
 /**
@@ -143,7 +154,8 @@ ItemBuffer::reserveDynamicItem()
     // calculate size information
     const uint32_t blockSize = buffer.blockSize;
     const uint64_t numberOfBlocks = buffer.numberOfBlocks;
-    const uint64_t newNumberOfBlocks = (((numberOfItems + 1) * itemSize) / blockSize) + 1;
+    const uint64_t newNumberOfBlocks = (((numberOfItems + 1)
+                                         * itemSize) / blockSize) + 1;
 
     // allocate a new block, if necessary
     if(numberOfBlocks < newNumberOfBlocks) {
