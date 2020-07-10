@@ -47,7 +47,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     const uint32_t numberOfNodeBricks = getNumberOfNodeBricks();
     const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
 
-    if(segment->initNodeBlocks(numberOfNodeBricks) == false) {
+    if(segment->initNodeBlocks(totalNumberOfNodes) == false) {
         return false;
     }
 
@@ -55,7 +55,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    if(segment->initEdgeSectionBlocks(numberOfNodeBricks) == false) {
+    if(segment->initEdgeSectionBlocks(totalNumberOfNodes) == false) {
         return false;
     }
 
