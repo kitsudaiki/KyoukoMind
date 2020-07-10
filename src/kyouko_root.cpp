@@ -10,6 +10,7 @@
 #include <core/object_handling/brick.h>
 #include <core/obj_converter.h>
 #include <core/validation.h>
+#include <core/processing/gpu_interface.h>
 
 #include <dummy_input.h>
 
@@ -29,6 +30,8 @@ namespace KyoukoMind
 
 // init static variables
 KyoukoMind::NetworkSegment* KyoukoRoot::m_segment = nullptr;
+KyoukoMind::GpuInterface* KyoukoRoot::m_gpuInterface = nullptr;
+
 Kitsunemimi::Project::Session* KyoukoRoot::m_clientSession = nullptr;
 Kitsunemimi::Project::Session* KyoukoRoot::m_controlSession = nullptr;
 Kitsunemimi::Project::Session* KyoukoRoot::m_monitoringSession = nullptr;
@@ -43,6 +46,7 @@ KyoukoRoot::KyoukoRoot()
 
     m_segment = new NetworkSegment();
     m_inputBricks = new std::map<uint32_t, Brick*>();
+    m_gpuInterface = new GpuInterface();
 
     m_sessionController = new Kitsunemimi::Project::SessionController(this, &sessionCallback,
                                                                       this, &clientCallback,

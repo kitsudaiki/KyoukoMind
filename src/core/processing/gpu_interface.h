@@ -8,23 +8,31 @@
 
 #include <common.h>
 
-#include <core/processing/objects/container_definitions.h>
-#include <core/processing/objects/synapses.h>
+#include <libKitsunemimiOpencl/opencl.h>
 
 namespace KyoukoMind
 {
 class NetworkSegment;
 
-bool initializeGpu(NetworkSegment &segment,
-                   const uint32_t numberOfBricks);
-void initRandValues(NetworkSegment &segment);
-bool copyEdgesToGpu(NetworkSegment &segment);
-bool updateNodeOnDevice(NetworkSegment &segment,
-                        const uint32_t nodeId,
-                        const float value);
-bool runOnGpu(NetworkSegment &segment);
-bool copyAxonsFromGpu(NetworkSegment &segment);
-bool closeDevice(NetworkSegment &segment);
+class GpuInterface
+{
+public:
+    GpuInterface();
+
+    bool initializeGpu(NetworkSegment &segment,
+                       const uint32_t numberOfBricks);
+    bool copyEdgesToGpu(NetworkSegment &segment);
+    bool updateNodeOnDevice(const uint32_t nodeId,
+                            const float value);
+    bool runOnGpu();
+    bool copyAxonsFromGpu();
+    bool closeDevice();
+
+private:
+    Kitsunemimi::Opencl::Opencl ocl;
+    Kitsunemimi::Opencl::OpenClData oclData;
+
+};
 
 }
 

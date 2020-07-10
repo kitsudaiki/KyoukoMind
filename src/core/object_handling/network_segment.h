@@ -11,7 +11,6 @@
 #include <core/object_handling/item_buffer.h>
 #include <core/object_handling/brick.h>
 
-#include <libKitsunemimiOpencl/opencl.h>
 
 namespace KyoukoMind
 {
@@ -37,10 +36,6 @@ public:
     ItemBuffer randomIntValues;
     ItemBuffer randomfloatValues;
     ItemBuffer globalValues;
-
-    // opencl-control objects
-    Kitsunemimi::Opencl::Opencl ocl;
-    Kitsunemimi::Opencl::OpenClData oclData;
 
 
     NetworkSegment();
