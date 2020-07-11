@@ -46,6 +46,7 @@ public:
                                     const uint32_t sourceBrickId);
 
     bool initBricks(const uint32_t numberOfBricks);
+    bool initGlobalValues();
     bool initNodeBlocks(const uint32_t &numberOfNodes);
     bool initRandomValues();
     bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);

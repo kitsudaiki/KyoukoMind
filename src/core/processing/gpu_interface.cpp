@@ -98,6 +98,7 @@ GpuInterface::initializeGpu(NetworkSegment &segment,
     oclData.buffer[7].data = segment.globalValues.buffer.data;
     oclData.buffer[7].numberOfBytes = segment.globalValues.buffer.bufferPosition;
     oclData.buffer[7].numberOfObjects = segment.globalValues.numberOfItems;
+    oclData.buffer[7].useHostPtr = true;
 
     // TODO: replace with a validation to make sure, that the local memory is big enough
     assert(ocl.getLocalMemorySize() == 256*256);

@@ -8,13 +8,14 @@
 #include <core/processing/objects/transfer_objects.h>
 #include <core/processing/objects/node.h>
 #include <core/processing/objects/synapses.h>
+#include <core/global_values.h>
 
 namespace KyoukoMind
 {
 
 NetworkSegment::NetworkSegment()
 {
-
+    initGlobalValues();
 }
 
 /**
@@ -59,6 +60,26 @@ NetworkSegment::initBricks(const uint32_t numberOfBricks)
         Brick tempBrick;
         array[i] = tempBrick;
     }
+
+    return true;
+}
+
+/**
+ * @brief NetworkSegment::initGlobalValues
+ * @return
+ */
+bool
+NetworkSegment::initGlobalValues()
+{
+    // init
+    if(globalValues.initBuffer<GlobalValues>(1) == false) {
+        return false;
+    }
+
+    // fill array with empty nodes
+    GlobalValues* array = static_cast<GlobalValues*>(globalValues.buffer.data);
+    GlobalValues tempValues;
+    array[0] = tempValues;
 
     return true;
 }
