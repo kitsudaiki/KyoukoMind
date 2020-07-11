@@ -118,7 +118,7 @@ SynapseSection;
 
 //==================================================================================================
 
-struct GlobalValues_struct
+typedef struct GlobalValues_struct
 {
     float globalMemorizingOffset;
     float globalMemorizingTemp;

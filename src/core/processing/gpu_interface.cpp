@@ -53,6 +53,9 @@ GpuInterface::initializeGpu(NetworkSegment &segment,
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
+    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
+    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
+    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
 
     // fill buffer for edges from host to gpu
     oclData.buffer[0].data = segment.synapseTransfers.buffer.data;
