@@ -44,7 +44,6 @@ public:
     uint32_t neighbors[23];
     uint32_t nodePos = UNINIT_STATE_32;
 
-
     //----------------------------------------------------------------------------------------------
 
     Brick();
@@ -52,6 +51,8 @@ public:
           const uint32_t x,
           const uint32_t y);
     ~Brick();
+
+    uint32_t getRandomNeighbor(const uint32_t lastBrick);
 
     float getSummedValue(NetworkSegment &segment);
 

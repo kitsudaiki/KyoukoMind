@@ -19,7 +19,7 @@ struct Edge
     float weight = 0.0000001f;
     uint32_t targetId = UNINIT_STATE_32;
     uint32_t brickId = UNINIT_STATE_32;
-    uint8_t padding[4];
+    uint32_t lastBrickId = UNINIT_STATE_32;
 
     // total size: 16 Byte
 } __attribute__((packed));

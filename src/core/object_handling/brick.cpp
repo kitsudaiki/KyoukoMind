@@ -40,6 +40,28 @@ Brick::Brick(const uint32_t &brickId,
 Brick::~Brick() {}
 
 /**
+ * @brief Brick::getRandomNeighbor
+ * @return
+ */
+uint32_t
+Brick::getRandomNeighbor(const uint32_t lastBrick)
+{
+    const uint32_t random = rand() % 1024;
+
+    for(uint32_t i = 0; i < 23; i++)
+    {
+        const uint8_t pos = (i + random) % 23;
+        if(neighbors[pos] != UNINIT_STATE_32
+                && neighbors[pos] != lastBrick)
+        {
+            return pos;
+        }
+    }
+
+    return lastBrick;
+}
+
+/**
  * summarize the state of all nodes in a brick
  * and return the average value of the last two cycles
  * for a cleaner output
