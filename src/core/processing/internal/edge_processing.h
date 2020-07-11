@@ -122,6 +122,7 @@ nextEdgeSectionStep(EdgeSection &section,
                                              pos * 2,
                                              currentWeight,
                                              section.edges[pos].brickId);
+        assert(currentWeight >= 0.0f);
     }
 
     if((1 + section.edges[pos + 1].brickId + section.edges[pos + 1].lastBrickId * 2) % 3 == 0)
@@ -130,6 +131,7 @@ nextEdgeSectionStep(EdgeSection &section,
                                              (pos + 1) * 2,
                                              currentWeight,
                                              section.edges[pos].brickId);
+        assert(currentWeight >= 0.0f);
     }
 
     // return the used weight

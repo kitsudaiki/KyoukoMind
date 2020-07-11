@@ -65,6 +65,8 @@ public:
                            DataBuffer &buffer);
 
 private:
+    void initNeighborList();
+
     void initNeighbor(const uint8_t side,
                       uint32_t targetBrickId);
     bool uninitNeighbor(const uint8_t side);

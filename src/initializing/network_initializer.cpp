@@ -60,6 +60,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     }
 
     // init bricks
+    segment->initBricks(1000);
     addBricks(*segment);
     connectAllBricks(*segment);
     createAxons(*segment, m_networkMetaStructure);
@@ -152,11 +153,13 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
                     break;
                 case 2:
                 {
-                    Brick* newBrick = new Brick(brickId, x, y);
+                    Brick newBrick(brickId, x, y);
 
-                    m_networkMetaStructure[x][y].brick = newBrick;
+                    // segment.bricks.addNewItem(newBrick, true);
+                    getBuffer<Brick>(segment.bricks)[numberOfBricks] = newBrick;
 
-                    segment.bricks.addNewItem(newBrick);
+                    Brick* ptr = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
+                    m_networkMetaStructure[x][y].brick = ptr;
                     numberOfBricks++;
 
                     break;
@@ -164,17 +167,19 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
                 case 3:
                 {
                     //Brick* brick = new Brick(brickId, x, y);
-                    Brick* newBrick = new Brick(brickId, x, y);
-                    newBrick->nodeBrickId = numberOfNodeBricks;
-                    newBrick->isNodeBrick = 1;
+                    Brick newBrick(brickId, x, y);
+                    newBrick.nodeBrickId = numberOfNodeBricks;
+                    newBrick.isNodeBrick = 1;
 
                     const uint32_t nodePos = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
                     assert(nodePos < 0x7FFFFFFF);
-                    newBrick->nodePos = nodePos;
+                    newBrick.nodePos = nodePos;
 
-                    m_networkMetaStructure[x][y].brick = newBrick;
+                    // segment.bricks.addNewItem(newBrick, true);
+                    getBuffer<Brick>(segment.bricks)[numberOfBricks] = newBrick;
+                    Brick* ptr = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
+                    m_networkMetaStructure[x][y].brick = ptr;
 
-                    segment.bricks.addNewItem(newBrick);
                     numberOfBricks++;
                     numberOfNodeBricks++;
 
@@ -214,10 +219,11 @@ NetworkInitializer::connectAllBricks(NetworkSegment &segment)
                 {
                     const uint32_t sourceId = m_networkMetaStructure[x][y].brick->brickId;
                     const uint32_t targetId = m_networkMetaStructure[next.first][next.second].brick->brickId;
+
+                    assert(targetId != UNINIT_STATE_32);
                     segment.connectBricks(sourceId, side, targetId);
 
-                    const uint32_t neighbor = m_networkMetaStructure[x][y].brick->neighbors[side];
-                    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[neighbor];
+                    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[targetId];
                     targetBrick->brickPos.x = next.first;
                     targetBrick->brickPos.y = next.second;
                 }

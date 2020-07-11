@@ -69,15 +69,6 @@ UpdateTransfer;
 
 //==================================================================================================
 
-typedef struct RandTransfer_struct
-{
-    float randWeight[999];
-    uint randPos[1024];
-} 
-RandTransfer;
-
-//==================================================================================================
-
 typedef struct Node_struct
 {
     float currentState;
@@ -124,6 +115,23 @@ typedef struct SynapseSection_struct
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 } 
 SynapseSection;
+
+//==================================================================================================
+
+struct GlobalValues_struct
+{
+    float globalMemorizingOffset;
+    float globalMemorizingTemp;
+
+    float globalLearningOffset;
+    float globalLearningTemp;
+
+    float globalOutLearningOffset;
+    float globalOutLearningTemp;
+
+    float globalGlia;
+}
+GlobalValues;
 
 //==================================================================================================
 
@@ -176,12 +184,13 @@ resetSynapseSection(__local SynapseSection* synapseSection,
  */
 void
 createNewSynapse(__local SynapseSection* synapseSection,
-                 __global RandTransfer* randTransfers)
+                      __global float* randomFloats,
+                      __global uint* randomInts)
 {
     const ulong index = get_global_id(0) * get_local_id(0);
 
-    const uint targetNodeId = randTransfers->randPos[(index) % 1024] % NUMBER_OF_NODES_PER_BRICK;
-    const uint somaDistance = randTransfers->randPos[(index + 1) % 1024] % 256;
+    const uint targetNodeId = randomInts[(index) % 1024] % NUMBER_OF_NODES_PER_BRICK;
+    const uint somaDistance = randomInts[(index + 1) % 1024] % 256;
 
     addSynapse(synapseSection,
                0.5f,  // memorizing
@@ -194,20 +203,21 @@ createNewSynapse(__local SynapseSection* synapseSection,
 void
 singleLearningStep(__local SynapseSection* synapseSection,
                    const float weight,
-                   __global RandTransfer* randTransfers,
+                      __global float* randomFloats,
+                      __global uint* randomInts,
                    const uint index)
 {
     const uint posRandArry = (get_global_id(0) % 333) * 3 + index;
     const uint maxPos = (synapseSection->numberOfSynapses + 1) % SYNAPSES_PER_SYNAPSESECTION;
-    const uint choosePosition = (randTransfers->randPos[posRandArry] 
+    const uint choosePosition = (randomInts[posRandArry] 
                                  % (synapseSection->numberOfSynapses + 1))
                                     % maxPos;
 
-    const float currentSideWeight = randTransfers->randWeight[posRandArry] * weight;
+    const float currentSideWeight = randomFloats[posRandArry] * weight;
 
     // create new synapse if necessary
     if(choosePosition == synapseSection->numberOfSynapses) {
-        createNewSynapse(synapseSection, randTransfers);
+        createNewSynapse(synapseSection, randomFloats, randomInts);
     }
 
     // synapses, which are fully memorized, are not allowed to be overwritten!!!
@@ -232,15 +242,16 @@ singleLearningStep(__local SynapseSection* synapseSection,
 void
 learningSynapseSection(__local SynapseSection* synapseSection,
                        float weight,
-                       __global RandTransfer* randTransfers)
+                      __global float* randomFloats,
+                      __global uint* randomInts)
 {
     if(weight < NEW_SYNAPSE_BORDER) {
         return;
     }
 
-    singleLearningStep(synapseSection, weight, randTransfers, 0);
-    singleLearningStep(synapseSection, weight, randTransfers, 1);
-    singleLearningStep(synapseSection, weight, randTransfers, 2);
+    singleLearningStep(synapseSection, weight, randomFloats, randomInts, 0);
+    singleLearningStep(synapseSection, weight, randomFloats, randomInts, 1);
+    singleLearningStep(synapseSection, weight, randomFloats, randomInts, 2);
 }
 
 //==================================================================================================
@@ -255,7 +266,8 @@ void
 processSynapseSection(__local SynapseSection* synapseSection,
                       __global Node* nodes,
                       const float inputWeight,
-                      __global RandTransfer* randTransfers)
+                      __global float* randomFloats,
+                      __global uint* randomInts)
 {
     if(inputWeight < 0.000001f) {
         return;
@@ -263,7 +275,10 @@ processSynapseSection(__local SynapseSection* synapseSection,
 
     // run lerning-process by creating and updating synapses
     const float weightDiff = inputWeight - synapseSection->totalWeight;
-    learningSynapseSection(synapseSection, weightDiff, randTransfers);
+    learningSynapseSection(synapseSection, 
+                           weightDiff,
+                           randomFloats,
+                           randomInts);
 
     if(synapseSection->totalWeight < 0.000001f) {
         return;
@@ -401,8 +416,12 @@ processing(__global const SynapseTransfer* synapseTransfers,
            const ulong numberOfNodes,
            __global SynapseSection* synapseSections,
            const ulong numberOfSynapseSections,
-           __global RandTransfer* randTransfers,
-           const ulong numberOfRandTransfers,
+           __global float* randomFloats,
+           const ulong numberRandomFloats,
+           __global uint* randomInts,
+           const ulong numberRandomInts,
+           __global GlobalValues* globalValue,
+           const ulong numberGlobalValue,
            __local uchar* localMemory,
            const ulong localMemorySize)
 {
@@ -440,7 +459,8 @@ processing(__global const SynapseTransfer* synapseTransfers,
         processSynapseSection(&tempSections[localId_x],
                               nodes,
                               synapseTransfers[i].weight,
-                              randTransfers);
+                              randomFloats,
+                              randomInts);
 
         synapseSections[i] = tempSections[localId_x];
         synapseSections[i].sourceBrickId = brickId;

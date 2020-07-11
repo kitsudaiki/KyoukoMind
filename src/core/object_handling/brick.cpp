@@ -22,7 +22,7 @@ namespace KyoukoMind
  */
 Brick::Brick()
 {
-
+    initNeighborList();
 }
 
 Brick::Brick(const uint32_t &brickId,
@@ -32,6 +32,8 @@ Brick::Brick(const uint32_t &brickId,
     this->brickId = brickId;
     this->brickPos.x = x;
     this->brickPos.y = y;
+
+    initNeighborList();
 }
 
 /**
@@ -129,6 +131,18 @@ Brick::writeClientOutput(NetworkSegment &segment,
     outputMessage.brickId = brickId;
 
     Kitsunemimi::addObject_DataBuffer(buffer, &outputMessage);
+}
+
+/**
+ * @brief Brick::initNeighborList
+ */
+void
+Brick::initNeighborList()
+{
+    for(uint8_t i = 0; i < 23; i++)
+    {
+        neighbors[i] = UNINIT_STATE_32;
+    }
 }
 
 /**
