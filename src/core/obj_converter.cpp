@@ -197,10 +197,11 @@ convertAxonToObj(ObjItem &result,
     while(path != 0)
     {
         const uint8_t side = path & 0x1F;
-        Brick* nextBrick = currentBrick->neighbors[side].targetBrick;
-        assert(nextBrick != nullptr);
+        const uint32_t nextBrick = currentBrick->neighbors[side];
+        assert(nextBrick != UNINIT_STATE_32);
 
-        const Vec4 nextVec = convertPos(nextBrick->brickPos);
+        Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[nextBrick];
+        const Vec4 nextVec = convertPos(targetBrick->brickPos);
         result.vertizes.push_back(nextVec);
 
         std::vector<uint32_t> linePart;
@@ -209,7 +210,7 @@ convertAxonToObj(ObjItem &result,
         linePart.push_back(numberOfVertizes);
         result.lines.push_back(linePart);
 
-        currentBrick = nextBrick;
+        currentBrick = targetBrick;
         path = path >> 5;
     }
 

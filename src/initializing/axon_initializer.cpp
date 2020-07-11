@@ -112,12 +112,13 @@ getNextAxonPathStep(const uint32_t x,
     }
 
     // get the neighbor of the choosen side
-    Brick::Neighbor* choosenOne = &networkMetaStructure[x][y].brick->neighbors[nextSite];
+    const uint32_t choosenOne = networkMetaStructure[x][y].brick->neighbors[nextSite];
+    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[choosenOne];
 
     // make next iteration
     currentStep++;
-    return getNextAxonPathStep(choosenOne->targetBrick->brickPos.x,
-                               choosenOne->targetBrick->brickPos.y,
+    return getNextAxonPathStep(targetBrick->brickPos.x,
+                               targetBrick->brickPos.y,
                                23 - nextSite,
                                currentStep,
                                networkMetaStructure);
@@ -130,14 +131,14 @@ getNextAxonPathStep(const uint32_t x,
  */
 uint8_t
 chooseNextSide(const uint8_t initialSide,
-               Brick::Neighbor* neighbors)
+               uint32_t* neighbors)
 {
     const std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
     std::vector<uint8_t> availableSides;
 
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
-        if(neighbors[sideOrder[i]].targetBrick != nullptr
+        if(neighbors[sideOrder[i]] != UNINIT_STATE_32
                 && sideOrder[i] != initialSide)
         {
             availableSides.push_back(sideOrder[i]);

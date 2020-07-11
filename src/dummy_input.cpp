@@ -36,7 +36,7 @@ DummyInput::run()
         // gValues.globalLearningOffset = m_learnOffset;
 
         // get neighbor
-        Brick::Neighbor* neighbor = &inputBrick->neighbors[22];
+        //Brick::Neighbor* neighbor = &inputBrick->neighbors[22];
 
         // set input-values
 

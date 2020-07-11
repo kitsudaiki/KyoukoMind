@@ -33,7 +33,7 @@ NewAxon getNextAxonPathStep(const uint32_t x,
                             const std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
 
 uint8_t chooseNextSide(const uint8_t initialSide,
-                       Brick::Neighbor* neighbors);
+                       uint32_t* neighbors);
 
 } // namespace KyoukoMind
 

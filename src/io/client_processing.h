@@ -95,9 +95,8 @@ clientLearnInput_processing(const ClientLearnInputData &content,
     if(it != rootObject->m_inputBricks->end())
     {
         Brick* brick = it->second;
-        Brick::Neighbor* neighbor = &brick->neighbors[22];
-        const uint16_t ok = neighbor->targetBrick->nodePos != UNINIT_STATE_32;
-
+        const uint16_t ok = brick->neighbors[22] != UNINIT_STATE_32;
+        // TODO
     }
 }
 

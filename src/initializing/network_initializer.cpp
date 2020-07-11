@@ -216,9 +216,10 @@ NetworkInitializer::connectAllBricks(NetworkSegment &segment)
                     const uint32_t targetId = m_networkMetaStructure[next.first][next.second].brick->brickId;
                     segment.connectBricks(sourceId, side, targetId);
 
-                    Brick::Neighbor* neighbor = &m_networkMetaStructure[x][y].brick->neighbors[side];
-                    neighbor->targetBrick->brickPos.x = next.first;
-                    neighbor->targetBrick->brickPos.y = next.second;
+                    const uint32_t neighbor = m_networkMetaStructure[x][y].brick->neighbors[side];
+                    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[neighbor];
+                    targetBrick->brickPos.x = next.first;
+                    targetBrick->brickPos.y = next.second;
                 }
             }
         }

@@ -29,13 +29,6 @@ public:
 
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
-    struct Neighbor
-    {
-        uint8_t inUse = 0;
-        Brick* targetBrick = nullptr;
-        Neighbor* targetNeighbor = nullptr;
-    } __attribute__((packed));
-    //----------------------------------------------------------------------------------------------
 
     // common
     uint32_t brickId = UNINIT_STATE_32;
@@ -48,7 +41,7 @@ public:
 
     // 0 - 21: neighbor-bricks
     // 22: the current brick
-    Neighbor neighbors[23];
+    uint32_t neighbors[23];
     uint32_t nodePos = UNINIT_STATE_32;
 
 
@@ -71,14 +64,9 @@ public:
                            DataBuffer &buffer);
 
 private:
-    bool initBrickNeighbor(const uint8_t sourceSide,
-                           Brick* targetBrick,
-                           Neighbor* targetNeighbor);
-
-    void initNeighbor(Neighbor &neighbor,
-                      Brick* targetBrick,
-                      Neighbor* targetNeighbor);
-    bool uninitBrickNeighbor(const uint8_t side);
+    void initNeighbor(const uint8_t side,
+                      uint32_t targetBrickId);
+    bool uninitNeighbor(const uint8_t side);
 };
 
 }

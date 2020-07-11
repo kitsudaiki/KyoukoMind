@@ -120,24 +120,18 @@ Brick::connectBricks(const uint8_t sourceSide,
 {
     assert(sourceSide < 23);
 
-    // get neighbor-pointers
-    Neighbor* sourceNeighbor = &neighbors[sourceSide];
-    Neighbor* targetNeighbor = &targetBrick.neighbors[23-sourceSide];
-
     // check neighbors
-    if(sourceNeighbor->inUse == 1
-            || targetNeighbor->inUse == 1)
+    if(neighbors[sourceSide] != UNINIT_STATE_32
+            || targetBrick.neighbors[23-sourceSide] != UNINIT_STATE_32)
     {
         return false;
     }
 
     // init the new neighbors
-    this->initBrickNeighbor(sourceSide,
-                            &targetBrick,
-                            targetNeighbor);
-    targetBrick.initBrickNeighbor(23 - sourceSide,
-                                  this,
-                                  sourceNeighbor);
+    this->initNeighbor(sourceSide,
+                       targetBrick.brickId);
+    targetBrick.initNeighbor(23 - sourceSide,
+                             this->brickId);
 
     return true;
 }
@@ -151,43 +145,20 @@ bool
 Brick::disconnectBricks(const uint8_t sourceSide)
 {
     assert(sourceSide < 23);
-    Brick* targetBrick = neighbors[sourceSide].targetBrick;
+    const uint32_t targetId = neighbors[sourceSide];
 
-    // get neighbor-pointers
-    Neighbor* sourceNeighbor = &neighbors[sourceSide];
-    Neighbor* targetNeighbor = &targetBrick->neighbors[23 - sourceSide];
+    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[targetId];
 
     // check neighbors
-    if(sourceNeighbor->inUse == 0
-            || targetNeighbor->inUse == 0)
+    if(neighbors[sourceSide] == UNINIT_STATE_32
+            || targetBrick->neighbors[23-sourceSide] == UNINIT_STATE_32)
     {
         return false;
     }
 
     // add the new neighbor
-    this->uninitBrickNeighbor(sourceSide);
-    targetBrick->uninitBrickNeighbor(23 - sourceSide);
-
-    return true;
-}
-
-/**
- * initialize a specific neighbor of a brick
- *
- * @return true, if successful, else false
- */
-bool
-Brick::initBrickNeighbor(const uint8_t sourceSide,
-                         Brick* targetBrick,
-                         Neighbor* targetNeighbor)
-{
-
-    // get and check neighbor
-    Neighbor* neighbor = &neighbors[sourceSide];
-    assert(neighbor->inUse == 0);
-
-    // init neighbor
-    initNeighbor(*neighbor, targetBrick, targetNeighbor);
+    this->uninitNeighbor(sourceSide);
+    targetBrick->uninitNeighbor(23 - sourceSide);
 
     return true;
 }
@@ -198,15 +169,13 @@ Brick::initBrickNeighbor(const uint8_t sourceSide,
  * @return true, if successful, else false
  */
 bool
-Brick::uninitBrickNeighbor(const uint8_t side)
+Brick::uninitNeighbor(const uint8_t side)
 {
-    // get and check neighbor
-    Neighbor* neighbor = &neighbors[side];
-    assert(neighbor->inUse == 1);
+    if(neighbors[side] == UNINIT_STATE_32) {
+        return false;
+    }
 
-    // uninit
-    // TODO: issue #58
-    neighbor->inUse = 0;
+    neighbors[side] = UNINIT_STATE_32;
 
     return true;
 }
@@ -218,16 +187,10 @@ Brick::uninitBrickNeighbor(const uint8_t side)
  * @param targetNeighbor
  */
 void
-Brick::initNeighbor(Neighbor &neighbor,
-                    Brick* targetBrick,
-                    Neighbor* targetNeighbor)
+Brick::initNeighbor(const uint8_t side,
+                    uint32_t targetBrickId)
 {
-    assert(neighbor.inUse == 0);
-
-    // init side
-    neighbor.targetNeighbor = targetNeighbor;
-    neighbor.targetBrick = targetBrick;
-    neighbor.inUse = 1;
+    neighbors[side] = targetBrickId;
 }
 
 } // namespace KyoukoMind
