@@ -34,7 +34,7 @@ createAxons(NetworkSegment &segment,
             if(brick->isNodeBrick == 1)
             {
                 // get node-brick
-                EdgeSection* edges = static_cast<EdgeSection*>(segment.edges.buffer.data);
+                Node* nodes = getBuffer<Node>(segment.nodes);
                 const uint32_t pos = brick->nodeBrickId * NUMBER_OF_NODES_PER_BRICK;
 
                 // iterate over all nodes of the brick and create an axon for each node
@@ -49,8 +49,8 @@ createAxons(NetworkSegment &segment,
                                                                networkMetaStructure);
 
                     Brick* targetBrick = networkMetaStructure[target.x][target.y].brick;
-                    edges[pos + i].targetBrickId = targetBrick->brickId;
-                    edges[pos + i].targetBrickDistance = lenght;
+                    nodes[pos + i].targetBrickId = targetBrick->brickId;
+                    nodes[pos + i].targetBrickDistance = lenght;
                 }
             }
         }

@@ -18,10 +18,14 @@ struct Node
     float currentState = 0.0f;
     float border = 100.0f;
     float potential = 0.0f;
+
     uint8_t refractionTime = 0;
     uint8_t active = 0;
-    uint8_t padding[2];
-    // total size: 16 Byte
+
+    uint32_t targetBrickId = UNINIT_STATE_32;
+    uint32_t targetBrickDistance = 0;
+
+    // total size: 24 Byte
 };
 
 //==================================================================================================
