@@ -42,6 +42,8 @@ typedef struct SynapseTransfer_struct
 {
     uint brickId;
     uint sourceEdgeId;
+    uchar positionInEdge;
+    uchar padding[3];
     float weight;
 } 
 SynapseTransfer;
@@ -51,7 +53,6 @@ SynapseTransfer;
 typedef struct AxonTransfer_struct
 {
     uint targetId;
-    ulong path;
     float weight;
 } 
 AxonTransfer;
@@ -60,9 +61,10 @@ AxonTransfer;
 
 typedef struct UpdateTransfer_struct
 {
-    uint brickId;
     uint targetId;
-    uchar deleted;
+    uchar positionInEdge;
+    uchar deleteEdge;
+    uint8_t padding[2];
     float weightDiff;
 } 
 UpdateTransfer;
@@ -387,12 +389,12 @@ memorizeSynapses(__local SynapseSection* synapseSection,
         transferContainer.brickId = synapseSection->sourceBrickId;
         transferContainer.targetId = synapseSection->sourceEdgeId;
         transferContainer.weightDiff = absDiff;
-        transferContainer.deleted = false;
+        transferContainer.deleteEdge = 0;
 
         // if section is too low, delete the section
         if(synapseSection->totalWeight <= DELETE_SYNAPSE_BORDER) 
         {
-            transferContainer.deleted = true;
+            transferContainer.deleted = 1;
             synapseSection->status = DELETED_SECTION;
             resetSynapseSection(synapseSection,
                                 synapseSection->sourceBrickId,

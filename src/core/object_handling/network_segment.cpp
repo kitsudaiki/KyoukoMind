@@ -54,7 +54,7 @@ NetworkSegment::initBricks(const uint32_t numberOfBricks)
     }
 
     // fill array with empty nodes
-    Brick* array = static_cast<Brick*>(bricks.buffer.data);
+    Brick* array = getBuffer<Brick>(bricks);
     for(uint32_t i = 0; i < numberOfBricks; i++)
     {
         Brick tempBrick;
@@ -77,7 +77,7 @@ NetworkSegment::initGlobalValues()
     }
 
     // fill array with empty nodes
-    GlobalValues* array = static_cast<GlobalValues*>(globalValues.buffer.data);
+    GlobalValues* array = getBuffer<GlobalValues>(globalValues);
     GlobalValues tempValues;
     array[0] = tempValues;
 
@@ -98,7 +98,7 @@ NetworkSegment::initNodeBlocks(const uint32_t &numberOfNodes)
     }
 
     // fill array with empty nodes
-    Node* array = static_cast<Node*>(nodes.buffer.data);
+    Node* array = getBuffer<Node>(nodes);
     for(uint32_t i = 0; i < numberOfNodes; i++)
     {
         Node tempNode;
