@@ -40,6 +40,8 @@ DummyInput::run()
 
         // set input-values
 
+        EdgeSection* edges = getBuffer<EdgeSection>(KyoukoRoot::m_segment->edges);
+
 
         sleepThread(100000);
     }

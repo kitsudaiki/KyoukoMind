@@ -69,8 +69,8 @@ KyoukoRoot::start()
     m_networkManager = new NetworkManager();
     m_networkManager->startThread();
 
-    m_dummyInput = new DummyInput();
-    m_dummyInput->startThread();
+    // m_dummyInput = new DummyInput();
+    // m_dummyInput->startThread();
     return true;
     //return initServer();
 }
