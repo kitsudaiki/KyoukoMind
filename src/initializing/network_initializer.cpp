@@ -37,7 +37,8 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    if(parse2dTestfile(fileContent, m_networkMetaStructure) == false) {
+    const uint32_t numberOfBricks = parse2dTestfile(fileContent, m_networkMetaStructure);
+    if(numberOfBricks == 0) {
         return false;
     }
 
@@ -60,7 +61,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     }
 
     // init bricks
-    segment->initBricks(1000);
+    segment->initBricks(numberOfBricks);
     addBricks(*segment);
     connectAllBricks(*segment);
     createAxons(*segment, m_networkMetaStructure);

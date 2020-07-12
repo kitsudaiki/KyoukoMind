@@ -14,8 +14,8 @@ namespace KyoukoMind
 
 const std::string readFile(const std::string filePath);
 
-bool parse2dTestfile(const std::string &fileContent,
-                     std::vector<std::vector<InitMetaDataEntry>> &result);
+uint32_t parse2dTestfile(const std::string &fileContent,
+                         std::vector<std::vector<InitMetaDataEntry>> &result);
 
 }
 

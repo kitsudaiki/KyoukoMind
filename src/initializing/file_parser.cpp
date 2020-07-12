@@ -17,11 +17,11 @@ namespace KyoukoMind
  * @param result
  * @return
  */
-bool
+uint32_t
 parse2dTestfile(const std::string &fileContent,
                 std::vector<std::vector<InitMetaDataEntry> > &result)
 {
-    uint32_t idCounter = 0;
+    uint32_t counter = 0;
     //InitStructure m_networkMetaStructure;
     uint32_t firstLineLenght = 0;
 
@@ -55,16 +55,17 @@ parse2dTestfile(const std::string &fileContent,
             }
 
             if(firstLineLenght != splittedLine.size()) {
-                return false;
+                return 0;
             }
 
             InitMetaDataEntry tempEntry;
             tempEntry.type = static_cast<uint8_t>(std::stoi(splittedLine[linePartNumber]) + 1);
             result[linePartNumber].push_back(tempEntry);
+            counter++;
         }
     }
 
-    return true;
+    return counter;
 }
 
 } // namespace KyoukoMind
