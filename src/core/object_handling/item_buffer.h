@@ -32,24 +32,19 @@ public:
      * @return
      */
     template<typename T>
-    uint64_t addNewItem(T &item,
-                        const bool simple = false)
+    uint64_t addNewItem(T &item)
     {
+        assert(itemSize != 0);
+        assert((numberOfItems + 1) * itemSize < buffer.bufferPosition);
+
         uint64_t position = UNINIT_STATE_64;
         while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-        if(simple)
-        {
-            position = numberOfItems;
-            numberOfItems++;
-        }
-        else
-        {
-            position = reserveDynamicItem();
-        }
+        position = numberOfItems;
+        numberOfItems++;
 
-        T* buffer = getBuffer<T>(*this);
-        buffer[position] = item;
+        T* array = static_cast<T*>(buffer.data);
+        array[position] = item;
 
         lock.clear(std::memory_order_release);
 

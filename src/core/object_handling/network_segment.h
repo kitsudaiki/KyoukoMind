@@ -52,7 +52,7 @@ public:
     bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
     bool initSynapseSectionBlocks(const uint32_t numberOfSynapseSections);
     bool initTransferBlocks(const uint32_t totalNumberOfAxons,
-                             const uint64_t maxNumberOySynapseSections);
+                            const uint64_t maxNumberOySynapseSections);
     bool addClientOutputConnection(const uint32_t brickPos);
     DataItem* getMetadata();
 

@@ -71,7 +71,9 @@ lernEdge(Edge &edge,
 inline float
 processEdge(Edge &edge,
             const float weight,
-            const uint32_t lastBrickId)
+            const uint32_t lastBrickId,
+            const uint16_t pos,
+            const uint32_t edgeSectionPos)
 {
     if(weight < 0.01f) {
         return 0.0f;
@@ -91,7 +93,20 @@ processEdge(Edge &edge,
     }
     ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
 
-    return edge.weight * ratio;
+    const float usedWeight = edge.weight * ratio;
+    if(usedWeight >= 0.01f)
+    {
+        SynapseTransfer newTransfer;
+        newTransfer.weight = usedWeight;
+        newTransfer.brickId = edge.brickId;
+        newTransfer.positionInEdge = static_cast<uint8_t>(pos);
+        newTransfer.sourceEdgeId = edgeSectionPos;
+
+        KyoukoRoot::m_segment->synapseTransfers.addNewItem(newTransfer);
+        return usedWeight;
+    }
+
+    return 0.0f;
 }
 
 /**
@@ -106,7 +121,8 @@ inline float
 nextEdgeSectionStep(EdgeSection &section,
                     const uint16_t pos,
                     const float weight,
-                    const uint32_t lastBrickId)
+                    const uint32_t lastBrickId,
+                    const uint32_t edgeSectionPos)
 {
     if(pos > 255
             || weight < 0.01f)
@@ -118,11 +134,15 @@ nextEdgeSectionStep(EdgeSection &section,
 
     currentWeight -= processEdge(section.edges[pos],
                                  currentWeight,
-                                 lastBrickId);
+                                 lastBrickId,
+                                 pos,
+                                 edgeSectionPos);
     assert(currentWeight >= 0.0f);
     currentWeight -= processEdge(section.edges[pos + 1],
                                  currentWeight,
-                                 lastBrickId);
+                                 lastBrickId,
+                                 pos + 1,
+                                 edgeSectionPos);
     assert(currentWeight >= 0.0f);
 
     if((1 + section.edges[pos].brickId + section.edges[pos].lastBrickId * 2) % 3 == 0)
@@ -130,7 +150,8 @@ nextEdgeSectionStep(EdgeSection &section,
         currentWeight -= nextEdgeSectionStep(section,
                                              pos * 2,
                                              currentWeight,
-                                             section.edges[pos].brickId);
+                                             section.edges[pos].brickId,
+                                             edgeSectionPos);
         assert(currentWeight >= 0.0f);
     }
 
@@ -139,7 +160,8 @@ nextEdgeSectionStep(EdgeSection &section,
         currentWeight -= nextEdgeSectionStep(section,
                                              (pos + 1) * 2,
                                              currentWeight,
-                                             section.edges[pos].brickId);
+                                             section.edges[pos].brickId,
+                                             edgeSectionPos);
         assert(currentWeight >= 0.0f);
     }
 
@@ -153,13 +175,15 @@ nextEdgeSectionStep(EdgeSection &section,
  * @param weight
  */
 inline void
-nextEdgeSectionStep(EdgeSection &section,
-                    const float weight)
+processEdgeSection(EdgeSection &section,
+                   const float weight,
+                   const uint32_t edgeSectionPos)
 {
     nextEdgeSectionStep(section,
                         1,
                         weight,
-                        UNINIT_STATE_32);
+                        UNINIT_STATE_32,
+                        edgeSectionPos);
 }
 
 }

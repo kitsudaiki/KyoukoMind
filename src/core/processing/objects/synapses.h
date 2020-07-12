@@ -29,14 +29,15 @@ struct SynapseSection
 {
     uint8_t status = ACTIVE_SECTION;
 
-    uint8_t numberOfSynapses = 0;
-    uint8_t padding[2];
+    uint8_t numberOfSynapses = SYNAPSES_PER_SYNAPSESECTION;
+    uint8_t padding;
+
+    uint8_t positionInEdge = UNINIT_STATE_8;
+    uint32_t sourceEdgeId = UNINIT_STATE_32;
+    uint32_t sourceBrickId = UNINIT_STATE_32;
 
     // has to be at least a very small value to avoid division by zero
     float totalWeight = 0.0000001f;
-
-    uint32_t sourceEdgeId = UNINIT_STATE_32;
-    uint32_t sourceBrickId = UNINIT_STATE_32;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
