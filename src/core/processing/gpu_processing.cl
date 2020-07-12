@@ -440,7 +440,15 @@ processing(__global const SynapseTransfer* synapseTransfers,
         }
 
         tempSections[localId_x] = synapseSections[synapseTransfers[i].sourceEdgeId];
-
+        if(tempSections[localId_x].status == DELETED_SECTION)
+        {
+            SynapseSection newSection;
+            newSection.status = ACTIVE_SECTION;
+            newSection.numberOfSynapses = SYNAPSES_PER_SYNAPSESECTION;
+            newSection.positionInEdge = synapseTransfers[i].positionInEdge;
+            newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
+            tempSections[localId_x] = newSection;
+        }
         processSynapseSection(&tempSections[localId_x],
                               nodes,
                               synapseTransfers[i].weight,

@@ -80,6 +80,7 @@ NetworkSegment::initGlobalValues()
     GlobalValues* array = getBuffer<GlobalValues>(globalValues);
     GlobalValues tempValues;
     array[0] = tempValues;
+    globalValues.numberOfItems = 1;
 
     return true;
 }
@@ -105,6 +106,7 @@ NetworkSegment::initNodeBlocks(const uint32_t &numberOfNodes)
         tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
         array[i] = tempNode;
     }
+    nodes.numberOfItems = numberOfNodes;
 
     return true;
 }
@@ -132,6 +134,8 @@ NetworkSegment::initRandomValues()
         compare += tempValue;
         randWeight[i] = tempValue;
     }
+    randomfloatValues.numberOfItems = 999;
+
 
     if(randomIntValues.initBuffer<uint32_t>(1024) == false) {
         return false;
@@ -142,6 +146,7 @@ NetworkSegment::initRandomValues()
     {
         randValue[i] = static_cast<uint32_t>(rand());
     }
+    randomIntValues.numberOfItems = 1024;
 
     return true;
 }
@@ -166,6 +171,7 @@ NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
         EdgeSection tempEdge;
         array[i] = tempEdge;
     }
+    edges.numberOfItems = numberOfEdgeSections;
 
     return true;
 }
@@ -181,6 +187,7 @@ NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
     assert(numberOfSynapseSections > 0);
 
     // init
+    synapses.dynamic = true;
     if(synapses.initBuffer<SynapseSection>(numberOfSynapseSections) == false) {
         return false;
     }
@@ -190,9 +197,9 @@ NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         SynapseSection newSection;
-        newSection.status = DELETED_SECTION;
         array[i] = newSection;
     }
+    synapses.numberOfItems = numberOfSynapseSections;
 
     return true;
 }
@@ -222,6 +229,7 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
         AxonTransfer newEdge;
         axonArray[i] = newEdge;
     }
+    axonTransfers.numberOfItems = totalNumberOfAxons;
 
     //----------------------------------------------------------------------------------------------
 
@@ -237,6 +245,7 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
         SynapseTransfer newSynapseTransfer;
         synapseArray[i] = newSynapseTransfer;
     }
+    synapseTransfers.numberOfItems = maxNumberOySynapseSections;
 
     //----------------------------------------------------------------------------------------------
 
@@ -252,6 +261,7 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
         UpdateTransfer newUpdateTransfer;
         updateArray[i] = newUpdateTransfer;
     }
+    updateTransfers.numberOfItems = maxNumberOySynapseSections;
 
     //----------------------------------------------------------------------------------------------
 
@@ -291,7 +301,7 @@ NetworkSegment::getMetadata()
     DataArray* nodes = new DataArray();
 
     // collect data
-    for(uint32_t i = 0; i < bricks.numberOfItems; i++)
+    for(uint32_t i = 0; i < bricks.itemCapacity; i++)
     {
         Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[i];
 

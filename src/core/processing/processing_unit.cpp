@@ -72,7 +72,7 @@ ProcessingUnit::run()
             LOG_DEBUG("time copy from gpu: " + std::to_string(gpu2 / 1000.0f) + '\n');
         }
 
-        segment->synapseTransfers.resetBufferContent();
+        segment->synapseTransfers.deleteAll();
 
         // block thread until next cycle if queue is empty
         blockThread();
@@ -88,19 +88,19 @@ ProcessingUnit::run()
 
         EdgeSection* edges = getBuffer<EdgeSection>(segment->edges);
 
-        for(uint32_t i = 0; i < segment->axonTransfers.numberOfItems; i++)
+        for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
         {
             if(axons[i].weight == 0.0f) {
                 continue;
             }
-            std::cout<<axons[i].weight<<std::endl;
+            std::cout<<"axon-weight: "<<axons[i].weight<<std::endl;
             count++;
             const uint32_t id = axons[i].targetId;
             processEdgeSection(edges[id], axons->weight, id, axons[i].brickId);
         }
 
         std::cout<<"number of active Axons: "<<count<<std::endl;
-        std::cout<<"number of synapse-sections: "<<KyoukoRoot::m_segment->synapses.numberOfItems<<std::endl;
+        std::cout<<"number of synapse-sections: "<<(KyoukoRoot::m_segment->synapses.numberOfItems)<<std::endl;
 
         end = std::chrono::system_clock::now();
         const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();

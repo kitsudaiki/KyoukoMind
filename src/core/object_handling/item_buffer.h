@@ -18,9 +18,10 @@ class ItemBuffer
 {
 public:
     uint32_t itemSize = 0;
+    uint64_t itemCapacity = 0;
     uint64_t numberOfItems = 0;
-    uint64_t numberOfDeletedDynamicItems = 0;
     DataBuffer buffer = DataBuffer(1);
+    bool dynamic = false;
 
     ItemBuffer();
 
@@ -40,8 +41,15 @@ public:
         uint64_t position = UNINIT_STATE_64;
         while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-        position = numberOfItems;
-        numberOfItems++;
+        if(dynamic == false)
+        {
+            position = numberOfItems;
+            numberOfItems++;
+        }
+        else
+        {
+            position = reserveDynamicItem();
+        }
 
         T* array = static_cast<T*>(buffer.data);
         array[position] = item;
@@ -62,9 +70,11 @@ public:
         return initDataBlocks(numberOfItems, sizeof(T));
     }
 
-    void resetBufferContent();
+    bool deleteAll();
+    bool deleteDynamicItem(const uint64_t itemPos);
 
 private:
+    uint64_t* m_allocationList = nullptr;
     std::atomic_flag lock = ATOMIC_FLAG_INIT;
 
     uint64_t bytePositionOfFirstEmptyBlock = UNINIT_STATE_32;
@@ -72,7 +82,6 @@ private:
 
     bool initDataBlocks(const uint64_t numberOfItems,
                         const uint32_t itemSize);
-    bool deleteDynamicItem(const uint64_t itemPos);
     uint64_t reuseItemPosition();
     uint64_t reserveDynamicItem();
 };

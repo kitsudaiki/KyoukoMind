@@ -69,6 +69,9 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     if(segment->initSynapseSectionBlocks(MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
         return false;
     }
+    if(segment->synapses.deleteAll() == false) {
+        return false;
+    }
 
     if(segment->initTransferBlocks(totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
         return false;
@@ -78,8 +81,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     if(KyoukoRoot::m_gpuInterface->initializeGpu(*segment, numberOfNodeBricks) == false) {
         return false;
     }
-
-    segment->synapses.resetBufferContent();
 
     return true;
 }

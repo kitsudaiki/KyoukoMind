@@ -16,19 +16,37 @@ struct EmptyPlaceHolder
 
 ItemBuffer::ItemBuffer()
 {
-
 }
 
 /**
- * @brief resetBufferContent
- * @param itemBuffer
+ * @brief ItemBuffer::deleteAll
+ * @return
  */
-void
-ItemBuffer::resetBufferContent()
+bool
+ItemBuffer::deleteAll()
 {
     while(lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    numberOfItems = 0;
+
+    if(dynamic)
+    {
+        for(uint64_t i = 0; i < itemCapacity; i++)
+        {
+            deleteDynamicItem(i);
+        }
+    }
+    else
+    {
+        uint8_t* byteBuffer = static_cast<uint8_t*>(buffer.data);
+        for(uint64_t i = 0; i < numberOfItems * itemSize; i = i + itemSize)
+        {
+            byteBuffer[i] = DELETED_SECTION;
+        }
+        numberOfItems = 0;
+    }
+
     lock.clear(std::memory_order_release);
+
+    return true;
 }
 
 /**
@@ -41,11 +59,12 @@ ItemBuffer::initDataBlocks(const uint64_t numberOfItems,
                            const uint32_t itemSize)
 {
     assert(itemSize != 0);
-    assert(this->numberOfItems == 0);
+    assert(this->itemCapacity == 0);
+
 
     // update meta-data of the brick
     this->itemSize = itemSize;
-    this->numberOfItems = numberOfItems;
+    this->itemCapacity = numberOfItems;
     const uint64_t requiredNumberOfBlocks = ((numberOfItems * itemSize)
                                              / buffer.blockSize) + 1;
 
@@ -65,7 +84,8 @@ ItemBuffer::initDataBlocks(const uint64_t numberOfItems,
 bool
 ItemBuffer::deleteDynamicItem(const uint64_t itemPos)
 {
-    assert(itemPos < numberOfItems);
+    assert(itemPos < itemCapacity);
+    assert(numberOfItems != 0);
 
     // get buffer
     uint8_t* blockBegin = static_cast<uint8_t*>(buffer.data);
@@ -97,7 +117,7 @@ ItemBuffer::deleteDynamicItem(const uint64_t itemPos)
         bytePositionOfFirstEmptyBlock = currentBytePos;
     }
 
-    numberOfDeletedDynamicItems++;
+    numberOfItems--;
 
     return true;
 }
@@ -129,7 +149,7 @@ ItemBuffer::reuseItemPosition()
     }
 
     // convert byte-position to item-position and return this
-    numberOfDeletedDynamicItems--;
+    numberOfItems++;
     assert(selectedPosition % itemSize == 0);
 
     return selectedPosition / itemSize;
@@ -154,7 +174,7 @@ ItemBuffer::reserveDynamicItem()
     // calculate size information
     const uint32_t blockSize = buffer.blockSize;
     const uint64_t numberOfBlocks = buffer.numberOfBlocks;
-    const uint64_t newNumberOfBlocks = (((numberOfItems + 1)
+    const uint64_t newNumberOfBlocks = (((itemCapacity + 1)
                                          * itemSize) / blockSize) + 1;
 
     // allocate a new block, if necessary
@@ -162,9 +182,9 @@ ItemBuffer::reserveDynamicItem()
         Kitsunemimi::allocateBlocks_DataBuffer(buffer, newNumberOfBlocks - numberOfBlocks);
     }
 
-    numberOfItems++;
+    itemCapacity++;
 
-    return numberOfItems-1;
+    return itemCapacity-1;
 }
 
 }

@@ -54,7 +54,7 @@ convertNetworkToString(std::string &result)
 void
 convertNetworkToObj(ObjItem &result)
 {
-    const uint64_t numberOfBricks = KyoukoRoot::m_segment->bricks.numberOfItems;
+    const uint64_t numberOfBricks = KyoukoRoot::m_segment->bricks.itemCapacity;
     for(uint64_t i = 0; i < numberOfBricks; i++)
     {
         Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[i];

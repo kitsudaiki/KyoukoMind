@@ -60,44 +60,44 @@ GpuInterface::initializeGpu(NetworkSegment &segment,
     // fill buffer for edges from host to gpu
     oclData.buffer[0].data = segment.synapseTransfers.buffer.data;
     oclData.buffer[0].numberOfBytes = segment.synapseTransfers.buffer.bufferPosition;
-    oclData.buffer[0].numberOfObjects = segment.synapseTransfers.numberOfItems;
+    oclData.buffer[0].numberOfObjects = segment.synapseTransfers.itemCapacity;
     oclData.buffer[0].useHostPtr = true;
 
     // fill buffer for axons from gpu to host
     oclData.buffer[1].data = segment.axonTransfers.buffer.data;
     oclData.buffer[1].numberOfBytes = segment.axonTransfers.buffer.bufferPosition;
-    oclData.buffer[1].numberOfObjects = segment.axonTransfers.numberOfItems;
+    oclData.buffer[1].numberOfObjects = segment.axonTransfers.itemCapacity;
     oclData.buffer[1].isOutput = true;
 
     // fill buffer for update-edges from gpu to host
     oclData.buffer[2].data = segment.updateTransfers.buffer.data;
     oclData.buffer[2].numberOfBytes = segment.updateTransfers.buffer.bufferPosition;
-    oclData.buffer[2].numberOfObjects = segment.updateTransfers.numberOfItems;
+    oclData.buffer[2].numberOfObjects = segment.updateTransfers.itemCapacity;
     oclData.buffer[2].isOutput = true;
 
     // fill buffer for nodes to map on gpu
     oclData.buffer[3].data = segment.nodes.buffer.data;
     oclData.buffer[3].numberOfBytes = segment.nodes.buffer.bufferPosition;
-    oclData.buffer[3].numberOfObjects = segment.nodes.numberOfItems;
+    oclData.buffer[3].numberOfObjects = segment.nodes.itemCapacity;
 
     // fill buffer for synapse-sections to map on gpu
     oclData.buffer[4].data = segment.synapses.buffer.data;
     oclData.buffer[4].numberOfBytes = segment.synapses.buffer.bufferPosition;
-    oclData.buffer[4].numberOfObjects = segment.synapses.numberOfItems;
+    oclData.buffer[4].numberOfObjects = segment.synapses.itemCapacity;
 
     // fill buffer for random values to map on gpu
     oclData.buffer[5].data = segment.randomfloatValues.buffer.data;
     oclData.buffer[5].numberOfBytes = segment.randomfloatValues.buffer.bufferPosition;
-    oclData.buffer[5].numberOfObjects = segment.randomfloatValues.numberOfItems;
+    oclData.buffer[5].numberOfObjects = segment.randomfloatValues.itemCapacity;
 
     oclData.buffer[6].data = segment.randomIntValues.buffer.data;
     oclData.buffer[6].numberOfBytes = segment.randomIntValues.buffer.bufferPosition;
-    oclData.buffer[6].numberOfObjects = segment.randomIntValues.numberOfItems;
+    oclData.buffer[6].numberOfObjects = segment.randomIntValues.itemCapacity;
 
     // fill buffer for global values to map on gpu
     oclData.buffer[7].data = segment.globalValues.buffer.data;
     oclData.buffer[7].numberOfBytes = segment.globalValues.buffer.bufferPosition;
-    oclData.buffer[7].numberOfObjects = segment.globalValues.numberOfItems;
+    oclData.buffer[7].numberOfObjects = segment.globalValues.itemCapacity;
     oclData.buffer[7].useHostPtr = true;
 
     // TODO: replace with a validation to make sure, that the local memory is big enough

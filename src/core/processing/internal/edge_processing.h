@@ -35,13 +35,14 @@ lernEdge(Edge &edge,
     }
 
     // get random-values
-    const uint32_t randPos = (edge.brickId + edge.lastBrickId * 2) % 1024;
+    const uint32_t randPos = (edge.brickId + edge.lastBrickId * 2 + (uint32_t)(weight * 3)) % 1024;
     uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
 
     // try to create new synapse-section
     if(edge.targetId == UNINIT_STATE_32
             && randValues[(randPos + 1) % 1024] % 3 == 0)
     {
+
         SynapseSection newSection;
         const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
         assert(newPos != UNINIT_STATE_64);
@@ -50,6 +51,7 @@ lernEdge(Edge &edge,
 
     if(edge.targetId == UNINIT_STATE_32)
     {
+        std::cout<<"hmmmmm"<<std::endl;
         edge.weight = 0.0f;
         return;
     }
@@ -57,6 +59,7 @@ lernEdge(Edge &edge,
     // update weight
     const float randValue = static_cast<float>(randValues[(randPos + 1) % 1024] % 1024) / 1024.0f;
     edge.weight += weight * randValue;
+    std::cout<<"learn update: "<<(weight * randValue)<<std::endl;
 
     return;
 }
@@ -101,8 +104,10 @@ processEdge(Edge &edge,
         newTransfer.brickId = edge.brickId;
         newTransfer.positionInEdge = static_cast<uint8_t>(pos);
         newTransfer.sourceEdgeId = edgeSectionPos;
+        std::cout<<"SynapseTransfer-weight: "<<usedWeight<<std::endl;
 
-        KyoukoRoot::m_segment->synapseTransfers.addNewItem(newTransfer);
+        const uint64_t x = KyoukoRoot::m_segment->synapseTransfers.addNewItem(newTransfer);
+        assert(x != UNINIT_STATE_64);
         return usedWeight;
     }
 
