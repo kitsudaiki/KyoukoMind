@@ -61,6 +61,13 @@ lernEdge(Edge &edge,
     return;
 }
 
+/**
+ * @brief processEdge
+ * @param edge
+ * @param weight
+ * @param lastBrickId
+ * @return
+ */
 inline float
 processEdge(Edge &edge,
             const float weight,
@@ -88,10 +95,12 @@ processEdge(Edge &edge,
 }
 
 /**
- * @brief processEdgeSection
+ * @brief nextEdgeSectionStep
  * @param section
- * @param edge
+ * @param pos
  * @param weight
+ * @param lastBrickId
+ * @return
  */
 inline float
 nextEdgeSectionStep(EdgeSection &section,
