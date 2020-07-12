@@ -137,13 +137,11 @@ nextEdgeSectionStep(EdgeSection &section,
                                  lastBrickId,
                                  pos,
                                  edgeSectionPos);
-    assert(currentWeight >= 0.0f);
     currentWeight -= processEdge(section.edges[pos + 1],
                                  currentWeight,
                                  lastBrickId,
                                  pos + 1,
                                  edgeSectionPos);
-    assert(currentWeight >= 0.0f);
 
     if((1 + section.edges[pos].brickId + section.edges[pos].lastBrickId * 2) % 3 == 0)
     {
@@ -152,7 +150,6 @@ nextEdgeSectionStep(EdgeSection &section,
                                              currentWeight,
                                              section.edges[pos].brickId,
                                              edgeSectionPos);
-        assert(currentWeight >= 0.0f);
     }
 
     if((1 + section.edges[pos + 1].brickId + section.edges[pos + 1].lastBrickId * 2) % 3 == 0)
@@ -162,7 +159,6 @@ nextEdgeSectionStep(EdgeSection &section,
                                              currentWeight,
                                              section.edges[pos].brickId,
                                              edgeSectionPos);
-        assert(currentWeight >= 0.0f);
     }
 
     // return the used weight
@@ -177,12 +173,13 @@ nextEdgeSectionStep(EdgeSection &section,
 inline void
 processEdgeSection(EdgeSection &section,
                    const float weight,
-                   const uint32_t edgeSectionPos)
+                   const uint32_t edgeSectionPos,
+                   const uint32_t brickId)
 {
     nextEdgeSectionStep(section,
                         1,
                         weight,
-                        UNINIT_STATE_32,
+                        brickId,
                         edgeSectionPos);
 }
 

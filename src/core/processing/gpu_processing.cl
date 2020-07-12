@@ -52,6 +52,7 @@ SynapseTransfer;
 typedef struct AxonTransfer_struct
 {
     uint targetId;
+    uint brickId;
     float weight;
 } 
 AxonTransfer;
@@ -309,11 +310,12 @@ processNodes(__local Node* node,
         node->active = 0;
     }
 
+
     // build new axon-transfer-edge, which is send back to the host
     AxonTransfer newEdge;
     newEdge.targetId = node->active * node->targetBrickId;
-    const float multiplicator = pow(globalValue->globalGlia, node->targetBrickDistance);
-    newEdge.weight = node->active * node->potential * multiplicator;
+    newEdge.brickId = node->targetBrickId;
+    newEdge.weight = node->active * node->potential * pow(globalValue->globalGlia, node->targetBrickDistance);
     axonTransfers[globalNodeId] = newEdge;
 
     // post-steps

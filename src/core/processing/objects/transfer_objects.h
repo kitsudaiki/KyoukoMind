@@ -25,8 +25,9 @@ struct SynapseTransfer
 struct AxonTransfer
 {
     uint32_t targetId = 0;
+    uint32_t brickId = 0;
     float weight = 0.0f;
-    // total size: 8 Byte
+    // total size: 12 Byte
 };
 
 //==================================================================================================

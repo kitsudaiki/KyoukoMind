@@ -190,6 +190,7 @@ NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         SynapseSection newSection;
+        newSection.status = DELETED_SECTION;
         array[i] = newSection;
     }
 

@@ -79,6 +79,8 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
+    segment->synapses.resetBufferContent();
+
     return true;
 }
 

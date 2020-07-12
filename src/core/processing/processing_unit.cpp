@@ -14,6 +14,7 @@
 #include <core/processing/objects/container_definitions.h>
 
 #include <core/processing/external/message_processing.h>
+#include <core/processing/internal/edge_processing.h>
 #include <core/processing/gpu_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -47,10 +48,6 @@ ProcessingUnit::run()
             blockThread();
         }
 
-        end = std::chrono::system_clock::now();
-        const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
-
         if(USE_GPU)
         {
             // copy transfer-edges to gpu
@@ -82,14 +79,32 @@ ProcessingUnit::run()
 
         start = std::chrono::system_clock::now();
 
-
         uint32_t count = 0;
-        AxonTransfer* axons = static_cast<AxonTransfer*>(segment->axonTransfers.buffer.data);
+        AxonTransfer* axons = getBuffer<AxonTransfer>(segment->axonTransfers);
+
+        // test-input
+        axons[0].weight = 100.0f;
+        axons[0].targetId = 0;
+
+        EdgeSection* edges = getBuffer<EdgeSection>(segment->edges);
+
         for(uint32_t i = 0; i < segment->axonTransfers.numberOfItems; i++)
         {
-
+            if(axons[i].weight == 0.0f) {
+                continue;
+            }
+            std::cout<<axons[i].weight<<std::endl;
+            count++;
+            const uint32_t id = axons[i].targetId;
+            processEdgeSection(edges[id], axons->weight, id, axons[i].brickId);
         }
+
         std::cout<<"number of active Axons: "<<count<<std::endl;
+        std::cout<<"number of synapse-sections: "<<KyoukoRoot::m_segment->synapses.numberOfItems<<std::endl;
+
+        end = std::chrono::system_clock::now();
+        const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
     }
 }
 
