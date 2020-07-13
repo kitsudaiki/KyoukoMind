@@ -17,7 +17,7 @@ class Brick;
 struct Edge
 {
     float weight = 0.0000001f;
-    uint32_t targetId = UNINIT_STATE_32;
+    uint32_t synapseSectionId = UNINIT_STATE_32;
     uint32_t brickId = UNINIT_STATE_32;
     uint32_t lastBrickId = UNINIT_STATE_32;
 
