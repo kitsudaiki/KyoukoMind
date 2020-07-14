@@ -83,7 +83,7 @@ ProcessingUnit::run()
         AxonTransfer* axons = getBuffer<AxonTransfer>(segment->axonTransfers);
 
         // test-input
-        for(uint32_t i = 0; i < 100; i++)
+        for(uint32_t i = 0; i < 1; i++)
         {
             axons[i].weight = 100.0f;
 

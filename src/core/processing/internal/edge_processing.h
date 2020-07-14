@@ -28,6 +28,7 @@ namespace KyoukoMind
  */
 inline void
 lernEdge(Edge &edge,
+         const uint16_t pos,
          const float weight)
 {
     if(weight < 0.1f) {
@@ -35,8 +36,9 @@ lernEdge(Edge &edge,
     }
 
     // try to create new synapse-section
-    if(edge.synapseSectionId == UNINIT_STATE_32
+    if((edge.synapseSectionId == UNINIT_STATE_32
             && static_cast<uint32_t>(rand()) % 3 == 0)
+            || pos > 101)
     {
         SynapseSection newSection;
         const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
@@ -44,19 +46,31 @@ lernEdge(Edge &edge,
         edge.synapseSectionId = static_cast<uint32_t>(newPos);
     }
 
-    // update weight
-    if(edge.synapseSectionId != UNINIT_STATE_32)
+    if(pos <= 101)
     {
+        // update weight
+        float edgeWeight = 0.0f;
+        if(edge.synapseSectionId != UNINIT_STATE_32)
+        {
+            const float randRatio = static_cast<float>(static_cast<uint32_t>(rand()) % 1024) / 1024.0f;
+            edgeWeight = weight * randRatio;
+            edge.synapseWeight += weight * (1.0f - randRatio);
+        }
+        else
+        {
+            edgeWeight = weight;
+        }
+
         const float randRatio = static_cast<float>(static_cast<uint32_t>(rand()) % 1024) / 1024.0f;
-        edge.edgeWeight += weight * randRatio;
-        edge.synapseWeight += weight * (1.0f - randRatio);
+        edge.edgeWeight1 += edgeWeight * randRatio;
+        edge.edgeWeight2 += edgeWeight * (1.0f - randRatio);
+
+        //std::cout<<"+++ learn update: "<<(weight * randValue)<<std::endl;
     }
     else
     {
-        edge.edgeWeight += weight;
+        edge.synapseWeight += weight;
     }
-
-    //std::cout<<"+++ learn update: "<<(weight * randValue)<<std::endl;
 
     return;
 }
@@ -112,14 +126,13 @@ nextEdgeSectionStep(EdgeSection &section,
                     const uint32_t edgeSectionPos)
 {
     // end-condition
-    if(pos > 254
+    if(pos > 203
             || weight < 0.1f)
     {
         return;
     }
 
     // get initial values
-    float currentWeight = weight;
     Edge* edge = &section.edges[pos];
 
     // init new edge, if necessary
@@ -130,31 +143,32 @@ nextEdgeSectionStep(EdgeSection &section,
     }
 
     // calculate and process ratio
-    const float totalWeight = edge->edgeWeight + 0.0000001f;
+    const float totalWeight = edge->edgeWeight1
+                              + edge->edgeWeight2
+                              + edge->synapseWeight
+                              + 0.0000001f;
     float ratio = weight / totalWeight;
     assert(ratio >= 0.0f);
     if(ratio > 1.0f) {
-        lernEdge(*edge, weight - totalWeight);
+        lernEdge(*edge, pos, weight - totalWeight);
     }
 
     // limit ratio to 1.0
     ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
 
     // process connection to synapse
-    currentWeight -= processSynapseConnection(*edge, ratio, pos, edgeSectionPos);
+    //processSynapseConnection(*edge, ratio, pos, edgeSectionPos);
 
     // update remaining weight based on the ratio
-    currentWeight = ratio * currentWeight;
-
     nextEdgeSectionStep(section,
                         pos * 2,
-                        currentWeight,
+                        edge->edgeWeight1 * ratio,
                         section.edges[pos].currentBrickId,
                         edgeSectionPos);
 
     nextEdgeSectionStep(section,
                         (pos * 2) + 1,
-                        currentWeight,
+                        edge->edgeWeight2 * ratio,
                         section.edges[pos].currentBrickId,
                         edgeSectionPos);
 
@@ -178,6 +192,14 @@ processEdgeSection(EdgeSection &section,
                         weight,
                         brickId,
                         edgeSectionPos);
+
+    float test = 0.0f;
+    for(uint32_t i = 0; i < 204; i++)
+    {
+        test += section.edges[i].synapseWeight;
+    }
+    std::cout<<"test: "<<test<<"   weight: "<<weight<<std::endl;
+    assert(weight >= test);
 }
 
 }
