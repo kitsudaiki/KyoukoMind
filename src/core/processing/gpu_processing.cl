@@ -51,8 +51,6 @@ SynapseTransfer;
 
 typedef struct AxonTransfer_struct
 {
-    uint targetId;
-    uint brickId;
     float weight;
 } 
 AxonTransfer;
@@ -83,7 +81,6 @@ typedef struct Node_struct
     uchar padding[2];
 
     // Axon
-    uint targetBrickId;
     uint targetBrickDistance;
 } 
 Node;
@@ -313,8 +310,6 @@ processNodes(__local Node* node,
 
     // build new axon-transfer-edge, which is send back to the host
     AxonTransfer newEdge;
-    newEdge.targetId = node->active * node->targetBrickId;
-    newEdge.brickId = node->targetBrickId;
     newEdge.weight = node->active * node->potential * pow(globalValue->globalGlia, node->targetBrickDistance);
     axonTransfers[globalNodeId] = newEdge;
 
@@ -477,7 +472,7 @@ processing(__global const SynapseTransfer* synapseTransfers,
     }
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
-
+return;
     //----------------------------------------------------------------------------------------------
     // process memorizing
     //----------------------------------------------------------------------------------------------

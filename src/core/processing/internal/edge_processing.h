@@ -34,27 +34,6 @@ lernEdge(Edge &edge,
         return;
     }
 
-    // update weight
-    const float randValue = static_cast<float>(static_cast<uint32_t>(rand()) % 1024) / 1024.0f;
-    edge.weight += weight * randValue;
-    //std::cout<<"+++ learn update: "<<(weight * randValue)<<std::endl;
-
-    return;
-}
-
-/**
- * @brief initNewEdge
- * @param edge
- * @param lastBrickId
- */
-inline void
-initNewEdge(Edge &edge,
-            const uint32_t lastBrickId)
-{
-    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[lastBrickId];
-    edge.brickId = brick->getRandomNeighbor(UNINIT_STATE_32);
-    edge.lastBrickId = lastBrickId;
-
     // try to create new synapse-section
     if(edge.synapseSectionId == UNINIT_STATE_32
             && static_cast<uint32_t>(rand()) % 3 == 0)
@@ -64,6 +43,22 @@ initNewEdge(Edge &edge,
         assert(newPos != UNINIT_STATE_64);
         edge.synapseSectionId = static_cast<uint32_t>(newPos);
     }
+
+    // update weight
+    if(edge.synapseSectionId != UNINIT_STATE_32)
+    {
+        const float randRatio = static_cast<float>(static_cast<uint32_t>(rand()) % 1024) / 1024.0f;
+        edge.edgeWeight += weight * randRatio;
+        edge.synapseWeight += weight * (1.0f - randRatio);
+    }
+    else
+    {
+        edge.edgeWeight += weight;
+    }
+
+    //std::cout<<"+++ learn update: "<<(weight * randValue)<<std::endl;
+
+    return;
 }
 
 /**
@@ -76,63 +71,26 @@ initNewEdge(Edge &edge,
  */
 inline float
 processSynapseConnection(Edge &edge,
-                         const float weight,
+                         const float ratio,
                          const uint16_t pos,
                          const uint32_t edgeSectionPos)
 {
-    float ratio = weight / edge.weight;
-    assert(ratio >= 0.0f);
-    if(ratio > 1.0f) {
-        lernEdge(edge, weight - edge.weight);
-    }
-    ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-
-    const float usedWeight = edge.weight * ratio;
     //std::cout<<"--- edge.weight: "<<edge.weight<<std::endl;
-    if(usedWeight >= 0.01f)
+    const float weight = edge.synapseWeight * ratio;
+    if(edge.synapseSectionId != UNINIT_STATE_32
+            && weight >= 0.01f)
     {
         //return usedWeight;
         SynapseTransfer newTransfer;
-        newTransfer.weight = usedWeight;
-        newTransfer.brickId = edge.brickId;
+        newTransfer.weight = weight;
+        newTransfer.brickId = edge.currentBrickId;
         newTransfer.positionInEdge = static_cast<uint8_t>(pos);
         newTransfer.sourceEdgeId = edgeSectionPos;
         //std::cout<<"SynapseTransfer-weight: "<<usedWeight<<std::endl;
 
         const uint64_t x = KyoukoRoot::m_segment->synapseTransfers.addNewItem(newTransfer);
         assert(x != UNINIT_STATE_64);
-        return usedWeight;
-    }
-
-    return 0.0f;
-}
-
-/**
- * @brief processEdge
- * @param edge
- * @param weight
- * @param lastBrickId
- * @return
- */
-inline float
-processEdge(Edge &edge,
-            const float weight,
-            const uint32_t lastBrickId,
-            const uint16_t pos,
-            const uint32_t edgeSectionPos)
-{
-    if(weight < 0.1f) {
-        return 0.0f;
-    }
-
-    //std::cout<<"##### process pos: "<<pos<<"   weight: "<<weight<<std::endl;
-    // set brick-ids, if not already done
-    if(edge.brickId == UNINIT_STATE_32) {
-        initNewEdge(edge, lastBrickId);
-    }
-
-    if(edge.synapseSectionId != UNINIT_STATE_32) {
-        return processSynapseConnection(edge, weight, pos, edgeSectionPos);
+        return weight;
     }
 
     return 0.0f;
@@ -146,41 +104,62 @@ processEdge(Edge &edge,
  * @param lastBrickId
  * @return
  */
-inline float
+inline void
 nextEdgeSectionStep(EdgeSection &section,
                     const uint16_t pos,
                     const float weight,
                     const uint32_t lastBrickId,
                     const uint32_t edgeSectionPos)
 {
-    if(pos > 255
+    // end-condition
+    if(pos > 254
             || weight < 0.1f)
     {
-        return 0.0f;
+        return;
     }
 
+    // get initial values
     float currentWeight = weight;
+    Edge* edge = &section.edges[pos];
 
-    currentWeight -= processEdge(section.edges[pos],
-                                 currentWeight * 0.5f,
-                                 lastBrickId,
-                                 pos,
-                                 edgeSectionPos);
+    // init new edge, if necessary
+    if(edge->currentBrickId == UNINIT_STATE_32)
+    {
+        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[lastBrickId];
+        edge->currentBrickId = brick->getRandomNeighbor(UNINIT_STATE_32);
+    }
 
-    currentWeight -= nextEdgeSectionStep(section,
-                                         pos * 2,
-                                         currentWeight * 0.66f,
-                                         section.edges[pos].brickId,
-                                         edgeSectionPos);
+    // calculate and process ratio
+    const float totalWeight = edge->edgeWeight + 0.0000001f;
+    float ratio = weight / totalWeight;
+    assert(ratio >= 0.0f);
+    if(ratio > 1.0f) {
+        lernEdge(*edge, weight - totalWeight);
+    }
 
-    currentWeight -= nextEdgeSectionStep(section,
-                                         (pos * 2) + 1,
-                                         currentWeight * 0.33f,
-                                         section.edges[pos].brickId,
-                                         edgeSectionPos);
+    // limit ratio to 1.0
+    ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+
+    // process connection to synapse
+    currentWeight -= processSynapseConnection(*edge, ratio, pos, edgeSectionPos);
+
+    // update remaining weight based on the ratio
+    currentWeight = ratio * currentWeight;
+
+    nextEdgeSectionStep(section,
+                        pos * 2,
+                        currentWeight,
+                        section.edges[pos].currentBrickId,
+                        edgeSectionPos);
+
+    nextEdgeSectionStep(section,
+                        (pos * 2) + 1,
+                        currentWeight,
+                        section.edges[pos].currentBrickId,
+                        edgeSectionPos);
 
     // return the used weight
-    return weight - currentWeight;
+    return;
 }
 
 /**

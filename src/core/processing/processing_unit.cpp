@@ -83,10 +83,11 @@ ProcessingUnit::run()
         AxonTransfer* axons = getBuffer<AxonTransfer>(segment->axonTransfers);
 
         // test-input
-        axons[0].weight = 500.0f;
-        axons[0].targetId = 0;
-        axons[1].weight = 500.0f;
-        axons[1].targetId = 0;
+        for(uint32_t i = 0; i < 100; i++)
+        {
+            axons[i].weight = 100.0f;
+
+        }
 
         EdgeSection* edges = getBuffer<EdgeSection>(segment->edges);
 
@@ -97,8 +98,7 @@ ProcessingUnit::run()
             }
             std::cout<<"axon-weight: "<<axons[i].weight<<std::endl;
             count++;
-            const uint32_t id = axons[i].targetId;
-            processEdgeSection(edges[id], axons[i].weight, id, axons[i].brickId);
+            processEdgeSection(edges[i], axons[i].weight, i, edges[i].targetBrickId);
         }
 
         std::cout<<"number of active Axons: "<<count<<std::endl;

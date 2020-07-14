@@ -24,8 +24,6 @@ public:
 
     void run();
 
-    std::vector<Brick*> m_finishBrickBuffer;
-
 private:
     DataBuffer m_clientBuffer;
     DataBuffer m_monitoringBuffer;

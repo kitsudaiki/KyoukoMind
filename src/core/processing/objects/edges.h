@@ -16,11 +16,10 @@ class Brick;
 
 struct Edge
 {
-    float weight = 0.0000001f;
+    float synapseWeight = 0.0f;
+    float edgeWeight = 0.0f;
     uint32_t synapseSectionId = UNINIT_STATE_32;
-    uint32_t brickId = UNINIT_STATE_32;
-    uint32_t lastBrickId = UNINIT_STATE_32;
-
+    uint32_t currentBrickId = UNINIT_STATE_32;
     // total size: 16 Byte
 } __attribute__((packed));
 
@@ -28,11 +27,16 @@ struct Edge
 
 struct EdgeSection
 {
-    Edge edges[256];
+    uint32_t targetBrickId = UNINIT_STATE_32;
+    uint8_t padding1[4];
+
+    Edge edges[255];
+
+    uint8_t padding2[8];
 
     EdgeSection()
     {
-        for(uint16_t i = 0; i < 256; i++)
+        for(uint16_t i = 0; i < 255; i++)
         {
             Edge newEdge;
             edges[i] = newEdge;
