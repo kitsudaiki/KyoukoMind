@@ -137,24 +137,6 @@ GlobalValues;
 //==================================================================================================
 
 /**
- * @return false, if the section is already full, else true
- */
-void
-resetSynapseSection(__local SynapseSection* synapseSection)
-{
-    synapseSection->status = DELETED_SECTION;
-
-    synapseSection->numberOfSynapses = 0;
-    synapseSection->totalWeight = 0.0000001f;
-
-    synapseSection->positionInEdge = UNINIT_STATE_8;
-    synapseSection->sourceEdgeId = UNINIT_STATE_32;
-    synapseSection->sourceBrickId = UNINIT_STATE_32;
-}
-
-//==================================================================================================
-
-/**
  * @brief NodeBrick::createNewEdge
  * @param currentSection
  * @param edgeSectionId
@@ -368,17 +350,28 @@ memorizeSynapses(__local SynapseSection* synapseSection,
 
     // create update-container for the host
     UpdateTransfer transferContainer;
+
     transferContainer.targetId = synapseSection->sourceEdgeId;
     transferContainer.positionInEdge = synapseSection->positionInEdge;
-
     transferContainer.weightDiff = synapseSection->totalWeight;
     transferContainer.deleteEdge = 0;
+    //printf("update: pos-in-edge: %d     section-id: %d       synapse-id: %d\n", transferContainer.positionInEdge, synapseSection->sourceEdgeId, sectionPosition);
+
+    //printf("######################################################### %d\n", sectionPosition);
+
 
     // if section is too low, delete the section
     if(synapseSection->totalWeight <= DELETE_SYNAPSE_BORDER) 
     {
+        //printf("poi   %d     status: %d\n", transferContainer.positionInEdge, synapseSection->status);
         transferContainer.deleteEdge = 1;
-        resetSynapseSection(synapseSection);
+        
+        synapseSection->status = DELETED_SECTION;
+        synapseSection->numberOfSynapses = 0;
+        synapseSection->totalWeight = 0.0000001f;
+        synapseSection->positionInEdge = UNINIT_STATE_8;
+        synapseSection->sourceEdgeId = UNINIT_STATE_32;
+        synapseSection->sourceBrickId = UNINIT_STATE_32;
     }
 
     updateTransfers[sectionPosition] = transferContainer;
@@ -445,6 +438,7 @@ processing(__global const SynapseTransfer* synapseTransfers,
             newSection.status = ACTIVE_SECTION;
             newSection.numberOfSynapses = SYNAPSES_PER_SYNAPSESECTION;
             newSection.positionInEdge = synapseTransfers[i].positionInEdge;
+            //printf("create: pos-in-edge: %d     section-id: %d       synapse-id: %d\n", newSection.positionInEdge, synapseTransfers[i].sourceEdgeId, synapseSectionId);
             newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
             tempSections[localId_x] = newSection;
         }
@@ -454,7 +448,7 @@ processing(__global const SynapseTransfer* synapseTransfers,
                               synapseTransfers[i].weight,
                               randomFloats,
                               randomInts);
-        
+
         synapseSections[synapseSectionId] = tempSections[localId_x];
         synapseSections[synapseSectionId].sourceBrickId = brickId;
     }
@@ -477,7 +471,7 @@ processing(__global const SynapseTransfer* synapseTransfers,
     }
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
-return;
+
     //----------------------------------------------------------------------------------------------
     // process memorizing
     //----------------------------------------------------------------------------------------------
@@ -486,15 +480,20 @@ return;
     for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
     {
         // skip if section is deleted
-        if(synapseSections[i].status != ACTIVE_SECTION) {
-            return;
+        if(synapseSections[i].status == ACTIVE_SECTION) 
+        {
+            tempSectionMem[localId_x] = synapseSections[i];
+            memorizeSynapses(&tempSectionMem[localId_x], 
+                             i, 
+                             updateTransfers);
+            synapseSections[i] = tempSectionMem[localId_x];
         }
-
-        tempSectionMem[localId_x] = synapseSections[i];
-        memorizeSynapses(&tempNodes[localId_x], 
-                         i, 
-                         updateTransfers);
-        synapseSections[i] = tempSectionMem[localId_x];
+        else
+        {
+            UpdateTransfer transferContainer;
+            transferContainer.weightDiff = 0.0f;
+            updateTransfers[i] = transferContainer;
+        }
     }
     //----------------------------------------------------------------------------------------------
 }
