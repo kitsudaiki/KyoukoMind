@@ -435,10 +435,10 @@ processing(__global const SynapseTransfer* synapseTransfers,
         if(synapseTransfers[i].brickId != brickId) {
             continue;
         }
-        const uint synapseSectionId = synapseTransfers[i].synapseSectionId;
-        printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %d\n",synapseSectionId);
 
+        const uint synapseSectionId = synapseTransfers[i].synapseSectionId;
         tempSections[localId_x] = synapseSections[synapseSectionId];
+
         if(tempSections[localId_x].status == DELETED_SECTION)
         {
             SynapseSection newSection;
@@ -454,6 +454,7 @@ processing(__global const SynapseTransfer* synapseTransfers,
                               synapseTransfers[i].weight,
                               randomFloats,
                               randomInts);
+        
         synapseSections[synapseSectionId] = tempSections[localId_x];
         synapseSections[synapseSectionId].sourceBrickId = brickId;
     }
