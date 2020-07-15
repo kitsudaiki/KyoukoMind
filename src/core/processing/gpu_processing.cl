@@ -40,6 +40,7 @@ enum SectionStatus
 typedef struct SynapseTransfer_struct
 {
     uint brickId;
+    uint synapseSectionId;
     uint sourceEdgeId;
     uchar positionInEdge;
     uchar padding[3];
@@ -369,6 +370,7 @@ memorizeSynapses(__local SynapseSection* synapseSection,
     UpdateTransfer transferContainer;
     transferContainer.targetId = synapseSection->sourceEdgeId;
     transferContainer.positionInEdge = synapseSection->positionInEdge;
+
     transferContainer.weightDiff = synapseSection->totalWeight;
     transferContainer.deleteEdge = 0;
 
@@ -433,8 +435,10 @@ processing(__global const SynapseTransfer* synapseTransfers,
         if(synapseTransfers[i].brickId != brickId) {
             continue;
         }
+        const uint synapseSectionId = synapseTransfers[i].synapseSectionId;
+        printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %d\n",synapseSectionId);
 
-        tempSections[localId_x] = synapseSections[synapseTransfers[i].sourceEdgeId];
+        tempSections[localId_x] = synapseSections[synapseSectionId];
         if(tempSections[localId_x].status == DELETED_SECTION)
         {
             SynapseSection newSection;
@@ -444,14 +448,14 @@ processing(__global const SynapseTransfer* synapseTransfers,
             newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
             tempSections[localId_x] = newSection;
         }
+
         processSynapseSection(&tempSections[localId_x],
                               nodes,
                               synapseTransfers[i].weight,
                               randomFloats,
                               randomInts);
-
-        synapseSections[i] = tempSections[localId_x];
-        synapseSections[i].sourceBrickId = brickId;
+        synapseSections[synapseSectionId] = tempSections[localId_x];
+        synapseSections[synapseSectionId].sourceBrickId = brickId;
     }
 
     work_group_barrier(CLK_LOCAL_MEM_FENCE);

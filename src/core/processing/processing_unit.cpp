@@ -79,24 +79,43 @@ ProcessingUnit::run()
 
         start = std::chrono::system_clock::now();
 
-        uint32_t count = 0;
-        AxonTransfer* axons = getBuffer<AxonTransfer>(segment->axonTransfers);
+        EdgeSection* edges = getBuffer<EdgeSection>(segment->edges);
 
+        uint32_t count = 0;
+        // process axon-transfers
+        UpdateTransfer* updates = getBuffer<UpdateTransfer>(segment->updateTransfers);
+        for(uint32_t i = 0; i < segment->updateTransfers.itemCapacity; i++)
+        {
+            if(updates[i].weightDiff < 0.01f)
+            {
+                continue;
+            }
+
+            // std::cout<<"axon-weight: "<<axons[i].weight<<std::endl;
+            count++;
+            const UpdateTransfer container = updates[i];
+            /*updateEdgeSection(edges[container.targetId],
+                              container.positionInEdge,
+                              container.weightDiff,
+                              container.deleteEdge);*/
+            //std::cout<<"container.positionInEdge: "<<(int)container.positionInEdge<<std::endl;
+        }
+        std::cout<<"number of update-transfers: "<<count<<std::endl;
+
+        count = 0;
+        // process axon-transfers
+        AxonTransfer* axons = getBuffer<AxonTransfer>(segment->axonTransfers);
         // test-input
         for(uint32_t i = 0; i < 1; i++)
         {
             axons[i].weight = 100.0f;
-
         }
-
-        EdgeSection* edges = getBuffer<EdgeSection>(segment->edges);
-
         for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
         {
             if(axons[i].weight == 0.0f) {
                 continue;
             }
-            std::cout<<"axon-weight: "<<axons[i].weight<<std::endl;
+            // std::cout<<"axon-weight: "<<axons[i].weight<<std::endl;
             count++;
             processEdgeSection(edges[i], axons[i].weight, i, edges[i].targetBrickId);
         }
