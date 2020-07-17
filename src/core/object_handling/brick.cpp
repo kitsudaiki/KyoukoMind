@@ -48,16 +48,22 @@ Brick::~Brick() {}
 uint32_t
 Brick::getRandomNeighbor(const uint32_t lastBrick)
 {
-    const uint32_t random = rand() % 1024;
+    const std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
+    std::vector<uint8_t> availableSides;
 
-    for(uint32_t i = 0; i < 23; i++)
+    for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
-        const uint8_t pos = (i + random) % 23;
-        if(neighbors[pos] != UNINIT_STATE_32
-                && neighbors[pos] != lastBrick)
+        if(neighbors[sideOrder[i]] != UNINIT_STATE_32
+                && neighbors[sideOrder[i]] != lastBrick)
         {
-            return pos;
+            availableSides.push_back(sideOrder[i]);
         }
+    }
+
+    if(availableSides.size() != 0)
+    {
+        const uint side = availableSides[static_cast<uint32_t>(rand()) % availableSides.size()];
+        return neighbors[side];
     }
 
     return lastBrick;
