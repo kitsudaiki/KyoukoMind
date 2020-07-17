@@ -35,6 +35,8 @@ convertPos(const Brick::BrickPos pos)
     return vec;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 /**
  * @brief convertNetworkToObj
  * @param result
@@ -61,6 +63,8 @@ convertNetworkToObj(ObjItem &result)
         convertBrickToObj(result, brick);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
 
 /**
  * @brief convertBrickToString
@@ -102,18 +106,13 @@ convertBrickToObj(ObjItem &result,
         return;
     }
 
-    NetworkSegment* segment = KyoukoRoot::m_segment;
-    Node* start = &static_cast<Node*>(segment->nodes.buffer.data)[brick->nodePos];
-    Node* end = start + NUMBER_OF_NODES_PER_BRICK;
-
-    // iterate over all nodes in the brick
-    for(Node* node = start;
-        node < end;
-        node++)
+    for(uint32_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
     {
-        convertNodeToObj(result, brick, node);
+        convertNodeToObj(result, brick, brick->nodePos + i);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
 
 /**
  * @brief convertNodeToString
@@ -124,7 +123,7 @@ convertBrickToObj(ObjItem &result,
 void
 convertNodeToString(std::string &result,
                     const uint32_t brickId,
-                    const uint16_t nodeId)
+                    const uint32_t nodeId)
 {
     ObjItem item;
     convertNodeToObj(item, brickId, nodeId);
@@ -140,21 +139,10 @@ convertNodeToString(std::string &result,
 void
 convertNodeToObj(ObjItem &result,
                  const uint32_t brickId,
-                 const uint16_t nodeId)
+                 const uint32_t nodeId)
 {
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
-
-    if(brick->nodePos == UNINIT_STATE_32
-            || nodeId > NUMBER_OF_NODES_PER_BRICK)
-    {
-        return;
-    }
-
-    NetworkSegment* segment = KyoukoRoot::m_segment;
-    Node* nodeArray = &static_cast<Node*>(segment->nodes.buffer.data)[brick->nodePos];
-    Node* node = &nodeArray[nodeId];
-
-    convertNodeToObj(result, brick, node);
+    convertNodeToObj(result, brick, nodeId);
 }
 
 /**
@@ -163,59 +151,29 @@ convertNodeToObj(ObjItem &result,
  * @param brick
  * @param nodeId
  */
-void convertNodeToObj(ObjItem &result,
-                      Brick* brick,
-                      Node* node)
-{
-    const Vec4 vec = convertPos(brick->brickPos);
-    result.vertizes.push_back(vec);
-
-    /*uint64_t targetBrickPath = node->targetBrickPath / 32;
-    Brick* axonEnd = convertAxonToObj(result, brick, targetBrickPath);
-
-    result.vertizes.push_back(convertPos(axonEnd->brickPos));
-    const uint32_t vecPos = static_cast<uint32_t>(result.vertizes.size());
-
-    convertEdgesToObj(result,
-                      axonEnd,
-                      node->targetAxonId,
-                      vecPos);*/
-}
-
-/**
- * @brief convertAxonToObj
- * @param result
- * @param brick
- * @param path
- */
-Brick*
-convertAxonToObj(ObjItem &result,
+void
+convertNodeToObj(ObjItem &result,
                  Brick* brick,
-                 uint64_t path)
+                 const uint32_t nodeId)
 {
-    Brick* currentBrick = brick;
-    while(path != 0)
-    {
-        const uint8_t side = path & 0x1F;
-        const uint32_t nextBrick = currentBrick->neighbors[side];
-        assert(nextBrick != UNINIT_STATE_32);
+    // get data
+    NetworkSegment* segment = KyoukoRoot::m_segment;
+    EdgeSection* edgeSection = &getBuffer<EdgeSection>(segment->edges)[nodeId];
+    Brick* targetBrick = &getBuffer<Brick>(segment->bricks)[edgeSection->targetBrickId];
 
-        Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[nextBrick];
-        const Vec4 nextVec = convertPos(targetBrick->brickPos);
-        result.vertizes.push_back(nextVec);
+    // set vertizes
+    result.vertizes.push_back(convertPos(brick->brickPos));
+    result.vertizes.push_back(convertPos(targetBrick->brickPos));
 
-        std::vector<uint32_t> linePart;
-        const uint32_t numberOfVertizes = static_cast<uint32_t>(result.vertizes.size());
-        linePart.push_back(numberOfVertizes - 1);
-        linePart.push_back(numberOfVertizes);
-        result.lines.push_back(linePart);
+    // create line
+    const uint32_t actualPos = static_cast<uint32_t>(result.vertizes.size());
+    result.lines.push_back({actualPos - 1, actualPos});
 
-        currentBrick = targetBrick;
-        path = path >> 5;
-    }
-
-    return currentBrick;
+    // convert edges
+    convertEdgesToObj(result, edgeSection, 1, actualPos);
 }
+
+//--------------------------------------------------------------------------------------------------
 
 /**
  * @brief convertEdgesToObj
@@ -223,55 +181,39 @@ convertAxonToObj(ObjItem &result,
  * @param brick
  * @param node
  */
-/*void
+void
 convertEdgesToObj(ObjItem &result,
-                  Brick *brick,
-                  const uint32_t id,
-                  const uint32_t vecPos)
+                  EdgeSection* section,
+                  const uint16_t pos,
+                  const uint32_t vectorPos)
 {
-    EdgeSection* section = &getEdgeBlock(*brick)[id];
-
-    for(uint8_t side = 2; side < 23; side++)
-    {
-        const Edge tempEdge = section->edges[side];
-
-        if(side == 22)
-        {
-            if(tempEdge.targetId == UNINIT_STATE_32){
-                continue;
-            }
-
-            const Vec4 sameVec = convertPos(brick->brickPos);
-            result.vertizes.push_back(sameVec);
-
-            std::vector<uint32_t> linePart;
-            const uint32_t numberOfVertizes = static_cast<uint32_t>(result.vertizes.size());
-            linePart.push_back(vecPos);
-            linePart.push_back(numberOfVertizes);
-            result.lines.push_back(linePart);
-
-        }
-        else
-        {
-            if(tempEdge.targetId != UNINIT_STATE_32)
-            {
-                Brick* nextBrick = brick->neighbors[side].targetBrick;
-
-                result.vertizes.push_back(convertPos(nextBrick->brickPos));
-                const uint32_t nextVecPos = static_cast<uint32_t>(result.vertizes.size());
-
-                convertEdgesToObj(result,
-                                  nextBrick,
-                                  tempEdge.targetId,
-                                  nextVecPos);
-
-                std::vector<uint32_t> linePart;
-                linePart.push_back(vecPos);
-                linePart.push_back(nextVecPos);
-                result.lines.push_back(linePart);
-            }
-        }
+    Edge* edge = &section->edges[pos];
+    if(edge->currentBrickId == UNINIT_STATE_32) {
+        return;
     }
-}*/
+
+    NetworkSegment* segment = KyoukoRoot::m_segment;
+    std::cout<<"edge->currentBrickId: "<<edge->currentBrickId<<std::endl;
+    Brick* brick = &getBuffer<Brick>(segment->bricks)[edge->currentBrickId];
+    result.vertizes.push_back(convertPos(brick->brickPos));
+
+    const uint32_t actualPos = static_cast<uint32_t>(result.vertizes.size());
+    result.lines.push_back({vectorPos, actualPos});
+
+    if(pos < 127)
+    {
+        convertEdgesToObj(result,
+                          section,
+                          pos * 2,
+                          actualPos);
+
+        convertEdgesToObj(result,
+                          section,
+                          (pos * 2) + 1,
+                          actualPos);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 
 }

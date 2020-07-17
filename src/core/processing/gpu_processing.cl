@@ -82,6 +82,7 @@ typedef struct Node_struct
     uchar padding[2];
 
     // Axon
+    uint brickId;
     uint targetBrickDistance;
 } 
 Node;

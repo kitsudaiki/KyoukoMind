@@ -16,6 +16,7 @@ namespace KyoukoMind
 {
 class Brick;
 struct Node;
+struct EdgeSection;
 
 // convert whole network
 void convertNetworkToString(std::string &result);
@@ -32,22 +33,19 @@ void convertBrickToObj(ObjItem &result,
 // convert one node
 void convertNodeToString(std::string &result,
                          const uint32_t brickId,
-                         const uint16_t nodeId);
+                         const uint32_t nodeId);
 void convertNodeToObj(ObjItem &result,
                       const uint32_t brickId,
-                      const uint16_t nodeId);
+                      const uint32_t nodeId);
 void convertNodeToObj(ObjItem &result,
                       Brick* brick,
-                      Node* node);
+                      const uint32_t nodeId);
 
-Brick* convertAxonToObj(ObjItem &result,
-                        Brick* brick,
-                        uint64_t path);
-
+// convert one edge
 void convertEdgesToObj(ObjItem &result,
-                       Brick* brick,
-                       const uint32_t id,
-                       const uint32_t vecPos);
+                       EdgeSection* section,
+                       const uint16_t pos,
+                       const uint32_t vectorPos);
 
 }
 
