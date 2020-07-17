@@ -127,7 +127,7 @@ nextEdgeSectionStep(EdgeSection &section,
     if(edge->currentBrickId == UNINIT_STATE_32)
     {
         Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[lastBrickId];
-        edge->currentBrickId = brick->getRandomNeighbor(UNINIT_STATE_32);
+        edge->currentBrickId = brick->getRandomNeighbor(edge->currentBrickId);
     }
 
     float ratio = 0.0f;
@@ -257,6 +257,15 @@ updateEdgeSection(EdgeSection &section,
     else
     {
         edge->synapseWeight = 0;
+    }
+
+    // shouldn't be necessary, but only to be sure
+    if(pos >= 127
+            && edge->synapseSectionId == UNINIT_STATE_32)
+    {
+        edge->edgeWeight = 0.0f;
+        edge->currentBrickId = UNINIT_STATE_32;
+        edge->synapseWeight = 0.0f;
     }
 
     // process edges
