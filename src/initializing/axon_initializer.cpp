@@ -6,7 +6,7 @@
 #include "axon_initializer.h"
 #include <kyouko_root.h>
 
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 #include <core/processing/objects/node.h>
 
 namespace KyoukoMind
@@ -17,7 +17,7 @@ namespace KyoukoMind
  * @return
  */
 bool
-createAxons(NetworkSegment &segment,
+createAxons(Segment &segment,
             const std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
     // calculate number of axons per brick

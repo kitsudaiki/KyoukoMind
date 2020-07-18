@@ -13,7 +13,7 @@
 #include <core/processing/objects/transfer_objects.h>
 
 #include <core/object_handling/brick.h>
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 #include <core/object_handling/item_buffer.h>
 
 #include <core/processing/objects/synapses.h>

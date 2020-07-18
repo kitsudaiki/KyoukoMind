@@ -11,7 +11,7 @@
 
 namespace KyoukoMind
 {
-class NetworkSegment;
+class Segment;
 class Brick;
 
 class DummyInput

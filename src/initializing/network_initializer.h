@@ -13,7 +13,7 @@ namespace KyoukoMind
 {
 
 class BrickQueue;
-class NetworkSegment;
+class Segment;
 
 class NetworkInitializer
 {
@@ -26,8 +26,8 @@ public:
 private:
     std::vector<std::vector<InitMetaDataEntry>> m_networkMetaStructure;
 
-    void connectAllBricks(NetworkSegment &segment);
-    void addBricks(NetworkSegment &segment);
+    void connectAllBricks(Segment &segment);
+    void addBricks(Segment &segment);
 
     uint32_t getNumberOfBricks();
     uint32_t getNumberOfNodeBricks();

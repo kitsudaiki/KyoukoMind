@@ -8,7 +8,7 @@
 
 #include <kyouko_root.h>
 
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 #include <core/processing/objects/container_definitions.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
@@ -198,7 +198,7 @@ process_registerOutput(const ControlRegisterOutput &content,
         return false;
     }
 
-    NetworkSegment* segment = KyoukoRoot::m_segment;
+    Segment* segment = KyoukoRoot::m_segment;
     segment->addClientOutputConnection(content.brickId);
     send_generic_response(true, "", session, blockerId);
 

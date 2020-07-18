@@ -12,16 +12,16 @@
 
 namespace KyoukoMind
 {
-class NetworkSegment;
+class Segment;
 
 class GpuInterface
 {
 public:
     GpuInterface();
 
-    bool initializeGpu(NetworkSegment &segment,
+    bool initializeGpu(Segment &segment,
                        const uint32_t numberOfBricks);
-    bool copySynapseTransfersToGpu(NetworkSegment &segment);
+    bool copySynapseTransfersToGpu(Segment &segment);
     bool updateNodeOnDevice(const uint32_t nodeId,
                             const float value);
     bool runOnGpu();

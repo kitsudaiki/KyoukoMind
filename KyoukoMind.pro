@@ -96,10 +96,10 @@ HEADERS += \
     src/core/processing/external/process_normal.h \
     src/core/processing/external/message_processing.h \
     src/core/object_handling/brick.h \
-    src/core/object_handling/network_segment.h \
     src/core/object_handling/item_buffer.h \
     src/core/processing/internal/edge_processing.h \
-    src/core/global_values.h
+    src/core/global_values.h \
+    src/core/object_handling/segment.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -114,8 +114,8 @@ SOURCES += \
     src/kyouko_root.cpp \
     src/dummy_input.cpp \
     src/core/object_handling/brick.cpp \
-    src/core/object_handling/network_segment.cpp \
-    src/core/object_handling/item_buffer.cpp
+    src/core/object_handling/item_buffer.cpp \
+    src/core/object_handling/segment.cpp
 
 
 CONFIG(run_tests) {

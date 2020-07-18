@@ -8,7 +8,7 @@
 
 #include <core/processing/external/message_processing.h>
 #include <core/processing/objects/container_definitions.h>
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 

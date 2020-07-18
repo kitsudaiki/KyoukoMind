@@ -15,7 +15,7 @@
 namespace KyoukoMind
 {
 
-class NetworkSegment
+class Segment
 {
 public:
     ItemBuffer bricks;
@@ -36,7 +36,7 @@ public:
     ItemBuffer globalValues;
 
 
-    NetworkSegment();
+    Segment();
 
     // transfer-position
     uint32_t getNextTransferPos();

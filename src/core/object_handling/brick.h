@@ -57,14 +57,14 @@ public:
 
     uint32_t getRandomNeighbor(const uint32_t location);
 
-    float getSummedValue(NetworkSegment &segment);
+    float getSummedValue(Segment &segment);
 
     bool connectBricks(const uint8_t sourceSide,
                        Brick &targetBrick);
     bool disconnectBricks(const uint8_t sourceSide);
 
     void writeMonitoringOutput(DataBuffer &buffer);
-    void writeClientOutput(NetworkSegment &segment,
+    void writeClientOutput(Segment &segment,
                            DataBuffer &buffer);
 
 private:

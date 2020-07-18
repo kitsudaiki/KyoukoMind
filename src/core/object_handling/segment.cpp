@@ -3,7 +3,7 @@
  *  Contact: tobias.anker@kitsunemimi.moe
  */
 
-#include "network_segment.h"
+#include "segment.h"
 
 #include <core/processing/objects/transfer_objects.h>
 #include <core/processing/objects/node.h>
@@ -13,7 +13,7 @@
 namespace KyoukoMind
 {
 
-NetworkSegment::NetworkSegment()
+Segment::Segment()
 {
     initGlobalValues();
 }
@@ -25,7 +25,7 @@ NetworkSegment::NetworkSegment()
  * @return
  */
 uint64_t
-NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
+Segment::addEmptySynapseSection(const uint32_t sourceEdgeId,
                                        const uint32_t sourceBrickId)
 {
     assert(sourceEdgeId != UNINIT_STATE_32);
@@ -46,7 +46,7 @@ NetworkSegment::addEmptySynapseSection(const uint32_t sourceEdgeId,
  * @return
  */
 bool
-NetworkSegment::initBricks(const uint32_t numberOfBricks)
+Segment::initBricks(const uint32_t numberOfBricks)
 {
     // init
     if(bricks.initBuffer<Brick>(numberOfBricks) == false) {
@@ -69,7 +69,7 @@ NetworkSegment::initBricks(const uint32_t numberOfBricks)
  * @return
  */
 bool
-NetworkSegment::initGlobalValues()
+Segment::initGlobalValues()
 {
     // init
     if(globalValues.initBuffer<GlobalValues>(1) == false) {
@@ -91,7 +91,7 @@ NetworkSegment::initGlobalValues()
  * @return false if nodes are already initialized, esle true
  */
 bool
-NetworkSegment::initNodeBlocks(const uint32_t &numberOfNodes)
+Segment::initNodeBlocks(const uint32_t &numberOfNodes)
 {
     // init
     if(nodes.initBuffer<Node>(numberOfNodes) == false) {
@@ -112,7 +112,7 @@ NetworkSegment::initNodeBlocks(const uint32_t &numberOfNodes)
 }
 
 bool
-NetworkSegment::initRandomValues()
+Segment::initRandomValues()
 {
     if(randomfloatValues.initBuffer<float>(999) == false) {
         return false;
@@ -157,7 +157,7 @@ NetworkSegment::initRandomValues()
  * @return true if success, else false
  */
 bool
-NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
+Segment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
 {
     // init
     if(edges.initBuffer<EdgeSection>(numberOfEdgeSections) == false) {
@@ -182,7 +182,7 @@ NetworkSegment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
  * @return false, if already initialized, else true
  */
 bool
-NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
+Segment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
 {
     assert(numberOfSynapseSections > 0);
 
@@ -212,7 +212,7 @@ NetworkSegment::initSynapseSectionBlocks(const uint32_t numberOfSynapseSections)
  * @return
  */
 bool
-NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
+Segment::initTransferBlocks(const uint32_t totalNumberOfAxons,
                                    const uint64_t maxNumberOySynapseSections)
 {
     //----------------------------------------------------------------------------------------------
@@ -275,7 +275,7 @@ NetworkSegment::initTransferBlocks(const uint32_t totalNumberOfAxons,
  * @return true, if successful, else false
  */
 bool
-NetworkSegment::addClientOutputConnection(const uint32_t brickPos)
+Segment::addClientOutputConnection(const uint32_t brickPos)
 {
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickPos];
 
@@ -295,7 +295,7 @@ NetworkSegment::addClientOutputConnection(const uint32_t brickPos)
  * @return
  */
 DataItem*
-NetworkSegment::getMetadata()
+Segment::getMetadata()
 {
     DataArray* edges = new DataArray();
     DataArray* nodes = new DataArray();
@@ -328,7 +328,7 @@ NetworkSegment::getMetadata()
  * @return
  */
 bool
-NetworkSegment::connectBricks(const uint32_t sourceBrickId,
+Segment::connectBricks(const uint32_t sourceBrickId,
                               const uint8_t sourceSide,
                               const uint32_t targetBrickId)
 {
@@ -343,7 +343,7 @@ NetworkSegment::connectBricks(const uint32_t sourceBrickId,
  * @return result of the sub-call
  */
 bool
-NetworkSegment::disconnectBricks(const uint32_t sourceBrickId,
+Segment::disconnectBricks(const uint32_t sourceBrickId,
                                  const uint8_t sourceSide)
 {
     Brick* sourceBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[sourceBrickId];

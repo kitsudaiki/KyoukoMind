@@ -12,7 +12,7 @@
 namespace KyoukoMind
 {
 class GlobalValuesHandler;
-class NetworkSegment;
+class Segment;
 class Brick;
 
 class ProcessingUnit

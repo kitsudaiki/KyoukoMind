@@ -9,7 +9,7 @@
 #include <gpu_processing.h>
 #include <core/processing/objects/transfer_objects.h>
 #include <core/processing/objects/node.h>
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 
 namespace KyoukoMind
 {
@@ -27,7 +27,7 @@ GpuInterface::GpuInterface()
  * @return
  */
 bool
-GpuInterface::initializeGpu(NetworkSegment &segment,
+GpuInterface::initializeGpu(Segment &segment,
                             const uint32_t numberOfBricks)
 {
     const std::string kernelCode(reinterpret_cast<char*>(gpu_processing_cl),
@@ -122,7 +122,7 @@ GpuInterface::initializeGpu(NetworkSegment &segment,
  * @return
  */
 bool
-GpuInterface::copySynapseTransfersToGpu(NetworkSegment &segment)
+GpuInterface::copySynapseTransfersToGpu(Segment &segment)
 {
     return ocl.updateBufferOnDevice(oclData.buffer[0],
                                     segment.synapseTransfers.numberOfItems);

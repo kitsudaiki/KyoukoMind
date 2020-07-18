@@ -5,7 +5,7 @@
 
 #include "brick.h"
 
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 #include <core/processing/objects/node.h>
 #include <core/processing/objects/edges.h>
 
@@ -73,7 +73,7 @@ Brick::getRandomNeighbor(const uint32_t location)
  * @return summend value of all nodes of the brick
  */
 float
-Brick::getSummedValue(NetworkSegment &segment)
+Brick::getSummedValue(Segment &segment)
 {
     assert(isOutputBrick != 0);
     assert(nodePos != UNINIT_STATE_32);
@@ -125,7 +125,7 @@ Brick::writeMonitoringOutput(DataBuffer &buffer)
  * @param buffer
  */
 void
-Brick::writeClientOutput(NetworkSegment &segment,
+Brick::writeClientOutput(Segment &segment,
                          DataBuffer &buffer)
 {
     Kitsunemimi::Kyouko::MindOutputData outputMessage;

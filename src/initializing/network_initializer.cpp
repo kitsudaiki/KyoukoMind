@@ -5,7 +5,7 @@
 
 #include "network_initializer.h"
 #include <kyouko_root.h>
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>
@@ -42,7 +42,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    NetworkSegment* segment = KyoukoRoot::m_segment;
+    Segment* segment = KyoukoRoot::m_segment;
 
     // init segment
     const uint32_t numberOfNodeBricks = getNumberOfNodeBricks();
@@ -141,7 +141,7 @@ NetworkInitializer::getNumberOfNodeBricks()
  * @return
  */
 void
-NetworkInitializer::addBricks(NetworkSegment &segment)
+NetworkInitializer::addBricks(Segment &segment)
 {
     uint32_t numberOfNodeBricks = 0;
     uint32_t numberOfBricks = 0;
@@ -202,7 +202,7 @@ NetworkInitializer::addBricks(NetworkSegment &segment)
  * connect all brickts of the initializing data with each other
  */
 void
-NetworkInitializer::connectAllBricks(NetworkSegment &segment)
+NetworkInitializer::connectAllBricks(Segment &segment)
 {
     for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
     {

@@ -6,7 +6,7 @@
 #include <core/processing/processing_unit.h>
 #include <kyouko_root.h>
 
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 #include <core/processing/objects/transfer_objects.h>
 #include <core/global_values.h>
 
@@ -18,6 +18,9 @@
 #include <core/processing/gpu_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+
+#include <core/obj_converter.h>
+#include <libKitsunemimiPersistence/files/text_file.h>
 
 namespace KyoukoMind
 {
@@ -40,7 +43,7 @@ ProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
-    NetworkSegment* segment = KyoukoRoot::m_segment;
+    Segment* segment = KyoukoRoot::m_segment;
 
     while(!m_abort)
     {

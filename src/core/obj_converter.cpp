@@ -11,7 +11,7 @@
 #include <core/processing/objects/edges.h>
 #include <core/processing/objects/node.h>
 #include <core/object_handling/item_buffer.h>
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 
 namespace KyoukoMind
 {
@@ -157,7 +157,7 @@ convertNodeToObj(ObjItem &result,
                  const uint32_t nodeId)
 {
     // get data
-    NetworkSegment* segment = KyoukoRoot::m_segment;
+    Segment* segment = KyoukoRoot::m_segment;
     EdgeSection* edgeSection = &getBuffer<EdgeSection>(segment->edges)[nodeId];
     Brick* targetBrick = &getBuffer<Brick>(segment->bricks)[edgeSection->targetBrickId];
 
@@ -192,7 +192,7 @@ convertEdgesToObj(ObjItem &result,
         return;
     }
 
-    NetworkSegment* segment = KyoukoRoot::m_segment;
+    Segment* segment = KyoukoRoot::m_segment;
     std::cout<<"edge->currentBrickId: "<<getBrickId(edge->location)<<std::endl;
     Brick* brick = &getBuffer<Brick>(segment->bricks)[getBrickId(edge->location)];
     result.vertizes.push_back(convertPos(brick->brickPos));

@@ -6,7 +6,7 @@
 #include <kyouko_root.h>
 #include <core/network_manager.h>
 #include <core/global_values.h>
-#include <core/object_handling/network_segment.h>
+#include <core/object_handling/segment.h>
 #include <core/object_handling/brick.h>
 #include <core/obj_converter.h>
 #include <core/validation.h>
@@ -29,7 +29,7 @@ namespace KyoukoMind
 {
 
 // init static variables
-KyoukoMind::NetworkSegment* KyoukoRoot::m_segment = nullptr;
+KyoukoMind::Segment* KyoukoRoot::m_segment = nullptr;
 KyoukoMind::GpuInterface* KyoukoRoot::m_gpuInterface = nullptr;
 
 Kitsunemimi::Project::Session* KyoukoRoot::m_clientSession = nullptr;
@@ -44,7 +44,7 @@ KyoukoRoot::KyoukoRoot()
 {
     validateStructSizes();
 
-    m_segment = new NetworkSegment();
+    m_segment = new Segment();
     m_inputBricks = new std::map<uint32_t, Brick*>();
     m_gpuInterface = new GpuInterface();
 
