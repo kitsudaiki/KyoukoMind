@@ -10,7 +10,7 @@
 #include <core/object_handling/brick.h>
 #include <core/obj_converter.h>
 #include <core/validation.h>
-#include <core/processing/gpu_interface.h>
+#include <core/processing/internal/gpu_interface.h>
 
 #include <dummy_input.h>
 

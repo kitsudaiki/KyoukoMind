@@ -9,7 +9,7 @@
 #include <kyouko_root.h>
 
 #include <core/object_handling/segment.h>
-#include <core/processing/objects/container_definitions.h>
+#include <core/processing/internal/objects/container_definitions.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>

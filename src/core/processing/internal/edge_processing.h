@@ -9,14 +9,14 @@
 #include <common.h>
 
 #include <kyouko_root.h>
-#include <core/processing/objects/edges.h>
-#include <core/processing/objects/transfer_objects.h>
+#include <core/processing/internal/objects/edges.h>
+#include <core/processing/internal/objects/transfer_objects.h>
 
 #include <core/object_handling/brick.h>
 #include <core/object_handling/segment.h>
 #include <core/object_handling/item_buffer.h>
 
-#include <core/processing/objects/synapses.h>
+#include <core/processing/internal/objects/synapses.h>
 
 namespace KyoukoMind
 {

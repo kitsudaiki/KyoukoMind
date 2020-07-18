@@ -7,15 +7,15 @@
 #include <kyouko_root.h>
 
 #include <core/object_handling/segment.h>
-#include <core/processing/objects/transfer_objects.h>
+#include <core/processing/internal/objects/transfer_objects.h>
 #include <core/global_values.h>
 
 #include <core/object_handling/brick.h>
-#include <core/processing/objects/container_definitions.h>
+#include <core/processing/internal/objects/container_definitions.h>
 
 #include <core/processing/external/message_processing.h>
 #include <core/processing/internal/edge_processing.h>
-#include <core/processing/gpu_interface.h>
+#include <core/processing/internal/gpu_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 

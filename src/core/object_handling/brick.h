@@ -9,7 +9,7 @@
 #include <common.h>
 #include <kyouko_root.h>
 
-#include <core/processing/objects/edges.h>
+#include <core/processing/internal/objects/edges.h>
 
 namespace KyoukoMind
 {

@@ -66,10 +66,10 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/processing/objects/container_definitions.h \
-    src/core/processing/objects/edges.h \
-    src/core/processing/objects/node.h \
-    src/core/processing/objects/synapses.h \
+    src/core/processing/internal/objects/container_definitions.h \
+    src/core/processing/internal/objects/edges.h \
+    src/core/processing/internal/objects/node.h \
+    src/core/processing/internal/objects/synapses.h \
     src/core/processing/processing_unit.h \
     src/core/processing/processing_unit_handler.h \
     src/core/network_manager.h \
@@ -85,9 +85,9 @@ HEADERS += \
     src/io/client_processing.h \
     src/io/control_processing.h \
     src/core/obj_converter.h \
-    src/core/processing/gpu_processing.cl \
-    src/core/processing/gpu_interface.h \
-    src/core/processing/objects/transfer_objects.h \
+    src/core/processing/internal/gpu_processing.cl \
+    src/core/processing/internal/gpu_interface.h \
+    src/core/processing/internal/objects/transfer_objects.h \
     src/core/validation.h \
     src/kyouko_root.h \
     src/dummy_input.h \
@@ -109,7 +109,7 @@ SOURCES += \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/core/obj_converter.cpp \
-    src/core/processing/gpu_interface.cpp \
+    src/core/processing/internal/gpu_interface.cpp \
     src/core/validation.cpp \
     src/kyouko_root.cpp \
     src/dummy_input.cpp \
@@ -130,14 +130,14 @@ SOURCES += \
     src/main.cpp
 }
 
-GPU_KERNEL = src/core/processing/gpu_processing.cl
+GPU_KERNEL = src/core/processing/internal/gpu_processing.cl
 
 OTHER_FILES +=  \
     $$GPU_KERNEL
 
 gpu_processing.input = GPU_KERNEL
 gpu_processing.output = ${QMAKE_FILE_BASE}.h
-gpu_processing.commands = xxd -i ${QMAKE_FILE_IN} | sed 's/______KyoukoMind_src_core_processing_//g' > ${QMAKE_FILE_BASE}.h
+gpu_processing.commands = xxd -i ${QMAKE_FILE_IN} | sed 's/______KyoukoMind_src_core_processing_internal_//g' > ${QMAKE_FILE_BASE}.h
 gpu_processing.variable_out = HEADERS
 gpu_processing.CONFIG += target_predeps no_link
 
