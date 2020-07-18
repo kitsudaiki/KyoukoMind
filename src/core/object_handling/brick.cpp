@@ -7,6 +7,7 @@
 
 #include <core/object_handling/network_segment.h>
 #include <core/processing/objects/node.h>
+#include <core/processing/objects/edges.h>
 
 #include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
@@ -46,27 +47,22 @@ Brick::~Brick() {}
  * @return
  */
 uint32_t
-Brick::getRandomNeighbor(const uint32_t lastBrick)
+Brick::getRandomNeighbor(const uint32_t location)
 {
-    const std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
-    std::vector<uint8_t> availableSides;
+    uint8_t inputSide = getInputSide(location);
+    if(inputSide == 0) {
+        inputSide = 9;
+    }
+    const PossibleNext next = getPossibleNext(inputSide);
 
-    for(uint8_t i = 0; i < sideOrder.size(); i++)
-    {
-        if(neighbors[sideOrder[i]] != UNINIT_STATE_32
-                && neighbors[sideOrder[i]] != lastBrick)
-        {
-            availableSides.push_back(sideOrder[i]);
-        }
+    const uint8_t nextSide = next.next[rand() % 3];
+    uint32_t nextLocation = neighbors[nextSide];
+
+    if(nextLocation != UNINIT_STATE_32) {
+        nextLocation += static_cast<uint32_t>(23 - nextSide) << 24;
     }
 
-    if(availableSides.size() != 0)
-    {
-        const uint side = availableSides[static_cast<uint32_t>(rand()) % availableSides.size()];
-        return neighbors[side];
-    }
-
-    return lastBrick;
+    return nextLocation;
 }
 
 /**
@@ -220,6 +216,77 @@ Brick::uninitNeighbor(const uint8_t side)
     neighbors[side] = UNINIT_STATE_32;
 
     return true;
+}
+
+/**
+ * @brief Brick::getPossibleNext
+ * @param inputSide
+ * @return
+ */
+const Brick::PossibleNext
+Brick::getPossibleNext(const uint8_t inputSide)
+{
+    PossibleNext next;
+
+    switch(inputSide)
+    {
+        case 9:
+        {
+            next.next[0] = 11;
+            next.next[1] = 13;
+            next.next[2] = 14;
+            break;
+        }
+
+        case 10:
+        {
+            next.next[0] = 12;
+            next.next[1] = 13;
+            next.next[2] = 14;
+            break;
+        }
+
+        case 11:
+        {
+            next.next[0] = 9;
+            next.next[1] = 12;
+            next.next[2] = 13;
+            break;
+        }
+
+        case 12:
+        {
+            next.next[0] = 10;
+            next.next[1] = 11;
+            next.next[2] = 14;
+            break;
+        }
+
+        case 13:
+        {
+            next.next[0] = 9;
+            next.next[1] = 10;
+            next.next[2] = 11;
+            break;
+        }
+
+        case 14:
+        {
+            next.next[0] = 9;
+            next.next[1] = 10;
+            next.next[2] = 12;
+            break;
+        }
+
+        default:
+        {
+            next.next[0] = UNINIT_STATE_8;
+            next.next[1] = UNINIT_STATE_8;
+            next.next[2] = UNINIT_STATE_8;
+        }
+    }
+
+    return next;
 }
 
 /**

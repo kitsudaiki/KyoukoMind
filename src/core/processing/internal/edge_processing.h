@@ -90,7 +90,7 @@ processSynapseConnection(Edge &edge,
         SynapseTransfer newTransfer;
         newTransfer.synapseSectionId = edge.synapseSectionId;
         newTransfer.weight = weight;
-        newTransfer.brickId = edge.currentBrickId;
+        newTransfer.brickId = getBrickId(edge.location);
         newTransfer.positionInEdge = static_cast<uint8_t>(pos);
         newTransfer.sourceEdgeId = edgeSectionPos;
         //std::cout<<"SynapseTransfer-positionInEdge: "<<(int)pos<<std::endl;
@@ -112,7 +112,7 @@ inline void
 nextEdgeSectionStep(EdgeSection &section,
                     const uint16_t pos,
                     const float weight,
-                    const uint32_t lastBrickId,
+                    const uint32_t lastLocation,
                     const uint32_t edgeSectionPos)
 {
     // end-condition
@@ -124,15 +124,17 @@ nextEdgeSectionStep(EdgeSection &section,
     Edge* edge = &section.edges[pos];
 
     // init new edge, if necessary
-    if(edge->currentBrickId == UNINIT_STATE_32)
+    const uint32_t currentBrickId = getBrickId(edge->location);
+    if(currentBrickId == 0x00FFFFFF)
     {
-        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[lastBrickId];
-        edge->currentBrickId = brick->getRandomNeighbor(edge->currentBrickId);
+        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(lastLocation)];
+        edge->location = brick->getRandomNeighbor(lastLocation);
     }
 
     float ratio = 0.0f;
 
-    if(pos < 127)
+    if(pos < 127
+            && edge->location != UNINIT_STATE_32)
     {
         // calculate and process ratio
         const float totalWeight = edge->synapseWeight + 0.0000001f
@@ -155,13 +157,13 @@ nextEdgeSectionStep(EdgeSection &section,
         nextEdgeSectionStep(section,
                             pos * 2,
                             section.edges[pos * 2].edgeWeight * ratio,
-                            edge->currentBrickId,
+                            edge->location,
                             edgeSectionPos);
 
         nextEdgeSectionStep(section,
                             (pos * 2) + 1,
                             section.edges[(pos * 2) + 1].edgeWeight * ratio,
-                            edge->currentBrickId,
+                            edge->location,
                             edgeSectionPos);
     }
     else
@@ -264,7 +266,7 @@ updateEdgeSection(EdgeSection &section,
             && edge->synapseSectionId == UNINIT_STATE_32)
     {
         edge->edgeWeight = 0.0f;
-        edge->currentBrickId = UNINIT_STATE_32;
+        edge->location = UNINIT_STATE_32;
         edge->synapseWeight = 0.0f;
     }
 
@@ -280,7 +282,7 @@ updateEdgeSection(EdgeSection &section,
             {
                 diff += edge->edgeWeight;
                 edge->edgeWeight = 0.0f;
-                edge->currentBrickId = UNINIT_STATE_32;
+                edge->location = UNINIT_STATE_32;
             }
 
             const float tempWeight = edge->edgeWeight;
@@ -291,7 +293,7 @@ updateEdgeSection(EdgeSection &section,
             if(edge->synapseSectionId == UNINIT_STATE_32)
             {
                 edge->edgeWeight = 0.0f;
-                edge->currentBrickId = UNINIT_STATE_32;
+                edge->location = UNINIT_STATE_32;
                 edge->synapseWeight = 0.0f;
             }
         }

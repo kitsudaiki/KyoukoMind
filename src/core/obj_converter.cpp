@@ -188,13 +188,13 @@ convertEdgesToObj(ObjItem &result,
                   const uint32_t vectorPos)
 {
     Edge* edge = &section->edges[pos];
-    if(edge->currentBrickId == UNINIT_STATE_32) {
+    if(getBrickId(edge->location) == 0x00FFFFFF) {
         return;
     }
 
     NetworkSegment* segment = KyoukoRoot::m_segment;
-    std::cout<<"edge->currentBrickId: "<<edge->currentBrickId<<std::endl;
-    Brick* brick = &getBuffer<Brick>(segment->bricks)[edge->currentBrickId];
+    std::cout<<"edge->currentBrickId: "<<getBrickId(edge->location)<<std::endl;
+    Brick* brick = &getBuffer<Brick>(segment->bricks)[getBrickId(edge->location)];
     result.vertizes.push_back(convertPos(brick->brickPos));
 
     const uint32_t actualPos = static_cast<uint32_t>(result.vertizes.size());

@@ -18,7 +18,11 @@ class Brick
 {
 
 public:
-
+    //----------------------------------------------------------------------------------------------
+    struct PossibleNext
+    {
+        uint8_t next[3];
+    } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
     struct BrickPos
     {
@@ -26,7 +30,6 @@ public:
         uint32_t y = 0;
         uint32_t z = 0;
         uint32_t w = 0;
-
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
 
@@ -52,7 +55,7 @@ public:
           const uint32_t y);
     ~Brick();
 
-    uint32_t getRandomNeighbor(const uint32_t lastBrick);
+    uint32_t getRandomNeighbor(const uint32_t location);
 
     float getSummedValue(NetworkSegment &segment);
 
@@ -70,6 +73,8 @@ private:
     void initNeighbor(const uint8_t side,
                       uint32_t targetBrickId);
     bool uninitNeighbor(const uint8_t side);
+
+    const PossibleNext getPossibleNext(const uint8_t inputSide);
 };
 
 }
