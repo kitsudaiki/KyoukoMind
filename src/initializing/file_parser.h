@@ -1,10 +1,6 @@
 /**
- *  @file    file_parser.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef FILE_PARSER_H
@@ -18,8 +14,8 @@ namespace KyoukoMind
 
 const std::string readFile(const std::string filePath);
 
-bool parse2dTestfile(const std::string &fileContent,
-                     std::vector<std::vector<InitMetaDataEntry>> &result);
+uint32_t parse2dTestfile(const std::string &fileContent,
+                         std::vector<std::vector<InitMetaDataEntry>> &result);
 
 }
 

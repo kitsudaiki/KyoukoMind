@@ -1,32 +1,33 @@
 /**
- *  @file    network_initializer.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include "network_initializer.h"
-#include <root_object.h>
-#include <core/objects/brick.h>
+#include <kyouko_root.h>
+#include <core/object_handling/segment.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/processing/methods/edge_container_processing.h>
-#include <core/methods/brick_initializing_methods.h>
+//#include <core/processing/methods/message_processing.h>
+#include <core/processing/internal/gpu_interface.h>
 
 namespace KyoukoMind
 {
+
+NetworkInitializer::NetworkInitializer()
+{
+
+}
 
 /**
  * @brief NetworkInitializer::initNetwork
  * @return
  */
 bool
-createNewNetwork(const std::string &fileContent)
+NetworkInitializer::createNewNetwork(const std::string &fileContent)
 {
     // init randomizer
     srand(time(NULL));
@@ -36,44 +37,70 @@ createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    std::vector<std::vector<InitMetaDataEntry>> networkMetaStructure;
-    if(parse2dTestfile(fileContent, networkMetaStructure) == false) {
+    const uint32_t numberOfBricks = parse2dTestfile(fileContent, m_networkMetaStructure);
+    if(numberOfBricks == 0) {
         return false;
     }
 
-    NetworkSegment* segment = RootObject::m_segment;
+    Segment* segment = KyoukoRoot::m_segment;
 
     // init segment
-    assert(initSynapseSectionBlocks(*segment, 1));
-    const uint32_t totalNumberOfNodes = getNumberOfNodeBricks(networkMetaStructure)
-                                        * NUMBER_OF_NODES_PER_BRICK;
-    assert(initNodeBlocks(*segment, totalNumberOfNodes));
-    RootObject::m_queue->setBorder(getNumberOfBricks(networkMetaStructure));
+    const uint32_t numberOfNodeBricks = getNumberOfNodeBricks();
+    const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
+
+    if(segment->initNodeBlocks(totalNumberOfNodes) == false) {
+        return false;
+    }
+
+    if(segment->initRandomValues() == false) {
+        return false;
+    }
+
+    if(segment->initEdgeSectionBlocks(totalNumberOfNodes) == false) {
+        return false;
+    }
 
     // init bricks
-    addBricks(*segment, networkMetaStructure);
-    connectAllBricks(*segment, networkMetaStructure);
-    createAxons(*segment, networkMetaStructure);
+    segment->initBricks(numberOfBricks);
+    addBricks(*segment);
+    connectAllBricks(*segment);
+    createAxons(*segment, m_networkMetaStructure);
+
+    if(segment->initSynapseSectionBlocks(MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+        return false;
+    }
+    if(segment->synapses.deleteAll() == false) {
+        return false;
+    }
+
+    if(segment->initTransferBlocks(totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+        return false;
+    }
+
+    // init gpu
+    if(KyoukoRoot::m_gpuInterface->initializeGpu(*segment, numberOfNodeBricks) == false) {
+        return false;
+    }
 
     return true;
 }
 
 /**
  * @brief getNumberOfBricks
- * @param networkMetaStructure
+ * @param m_networkMetaStructure
  * @return
  */
 uint32_t
-getNumberOfBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
+NetworkInitializer::getNumberOfBricks()
 {
     uint32_t numberOfBricks = 0;
 
-    for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
+    for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
     {
-        for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
+        for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
         {
-            if(networkMetaStructure[x][y].type == 3
-                    || networkMetaStructure[x][y].type == 2)
+            if(m_networkMetaStructure[x][y].type == 3
+                    || m_networkMetaStructure[x][y].type == 2)
             {
                 numberOfBricks++;
             }
@@ -85,19 +112,19 @@ getNumberOfBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStruct
 
 /**
  * @brief getNumberOfNodeBricks
- * @param networkMetaStructure
+ * @param m_networkMetaStructure
  * @return
  */
 uint32_t
-getNumberOfNodeBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
+NetworkInitializer::getNumberOfNodeBricks()
 {
     uint32_t numberOfNodeBricks = 0;
 
-    for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
+    for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
     {
-        for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
+        for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
         {
-            if(networkMetaStructure[x][y].type == 3) {
+            if(m_networkMetaStructure[x][y].type == 3) {
                 numberOfNodeBricks++;
             }
         }
@@ -114,33 +141,29 @@ getNumberOfNodeBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaSt
  * @return
  */
 void
-addBricks(NetworkSegment &segment,
-          std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
+NetworkInitializer::addBricks(Segment &segment)
 {
     uint32_t numberOfNodeBricks = 0;
     uint32_t numberOfBricks = 0;
 
-    BrickQueue* queue = RootObject::m_queue;
-
-    for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
+    for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
     {
-        for(uint32_t y = 0; y < networkMetaStructure[x].size(); y++)
+        for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
         {
-            const BrickID brickId = numberOfBricks;
-            switch(networkMetaStructure[x][y].type)
+            const uint32_t brickId = numberOfBricks;
+            switch(m_networkMetaStructure[x][y].type)
             {
                 case 1:
                     break;
                 case 2:
                 {
-                    Brick* newBrick = new Brick(brickId, x, y);
-                    initRandValues(*newBrick);
+                    Brick newBrick(brickId, x, y);
 
-                    networkMetaStructure[x][y].brick = newBrick;
-                    networkMetaStructure[x][y].brickId = brickId;
-                    queue->addToQueue(newBrick);
+                    // segment.bricks.addNewItem(newBrick, true);
+                    getBuffer<Brick>(segment.bricks)[numberOfBricks] = newBrick;
 
-                    segment.bricks.push_back(newBrick);
+                    Brick* ptr = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
+                    m_networkMetaStructure[x][y].brick = ptr;
                     numberOfBricks++;
 
                     break;
@@ -148,18 +171,19 @@ addBricks(NetworkSegment &segment,
                 case 3:
                 {
                     //Brick* brick = new Brick(brickId, x, y);
-                    Brick* newBrick = new Brick(brickId, x, y);
-                    initRandValues(*newBrick);
+                    Brick newBrick(brickId, x, y);
+                    newBrick.nodeBrickId = numberOfNodeBricks;
+                    newBrick.isNodeBrick = 1;
 
                     const uint32_t nodePos = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
                     assert(nodePos < 0x7FFFFFFF);
-                    newBrick->nodePos = static_cast<int32_t>(nodePos);
+                    newBrick.nodePos = nodePos;
 
-                    networkMetaStructure[x][y].brick = newBrick;
-                    networkMetaStructure[x][y].brickId = brickId;
-                    queue->addToQueue(newBrick);
+                    // segment.bricks.addNewItem(newBrick, true);
+                    getBuffer<Brick>(segment.bricks)[numberOfBricks] = newBrick;
+                    Brick* ptr = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
+                    m_networkMetaStructure[x][y].brick = ptr;
 
-                    segment.bricks.push_back(newBrick);
                     numberOfBricks++;
                     numberOfNodeBricks++;
 
@@ -178,12 +202,11 @@ addBricks(NetworkSegment &segment,
  * connect all brickts of the initializing data with each other
  */
 void
-connectAllBricks(NetworkSegment &segment,
-                 std::vector<std::vector<InitMetaDataEntry>> &metaStructure)
+NetworkInitializer::connectAllBricks(Segment &segment)
 {
-    for(uint32_t x = 0; x < metaStructure.size(); x++)
+    for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
     {
-        for(uint32_t y = 0; y < metaStructure[x].size(); y++)
+        for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
         {
             std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
             for(uint8_t i = 0; i < sideOrder.size(); i++)
@@ -195,18 +218,18 @@ connectAllBricks(NetworkSegment &segment,
                 // set the values in the neighbor-struct
                 if(next.first != UNINIT_STATE_32
                         && next.second != UNINIT_STATE_32
-                        && metaStructure[x][y].type != EMPTY_BRICK
-                        && metaStructure[next.first][next.second].type != EMPTY_BRICK)
+                        && m_networkMetaStructure[x][y].type != EMPTY_BRICK
+                        && m_networkMetaStructure[next.first][next.second].type != EMPTY_BRICK)
                 {
-                    const BrickID sourceId = metaStructure[x][y].brick->brickId;
-                    const BrickID targetId = metaStructure[next.first][next.second].brick->brickId;
-                    connectBricks(segment,
-                                  sourceId,
-                                  side,
-                                  targetId);
-                    Neighbor* neighbor = &metaStructure[x][y].brick->neighbors[side];
-                    neighbor->targetBrickPos.x = next.first;
-                    neighbor->targetBrickPos.y = next.second;
+                    const uint32_t sourceId = m_networkMetaStructure[x][y].brick->brickId;
+                    const uint32_t targetId = m_networkMetaStructure[next.first][next.second].brick->brickId;
+
+                    assert(targetId != UNINIT_STATE_32);
+                    segment.connectBricks(sourceId, side, targetId);
+
+                    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[targetId];
+                    targetBrick->brickPos.x = next.first;
+                    targetBrick->brickPos.y = next.second;
                 }
             }
         }
@@ -221,31 +244,31 @@ connectAllBricks(NetworkSegment &segment,
  * @return number of bricks to the next node-brick
  */
 uint32_t
-getDistantToNextNodeBrick(const uint32_t x,
-                          const uint32_t y,
-                          const uint8_t side,
-                          std::vector<std::vector<InitMetaDataEntry>> &metaStructure)
+NetworkInitializer::getDistantToNextNodeBrick(const uint32_t x,
+                                              const uint32_t y,
+                                              const uint8_t side)
 {
     std::pair<uint32_t, uint32_t> next = getNext(x, y, side);
 
-    uint64_t maxDistance = metaStructure.size();
+    uint64_t maxDistance = m_networkMetaStructure.size();
 
     if(maxDistance > MAX_DISTANCE-1) {
         maxDistance = MAX_DISTANCE-1;
     }
 
-    for(uint32_t distance = 1; distance < metaStructure.size(); distance++)
+    for(uint32_t distance = 1; distance < m_networkMetaStructure.size(); distance++)
     {
-        if(metaStructure[next.first][next.second].type == static_cast<uint8_t>(EMPTY_BRICK)) {
+        if(m_networkMetaStructure[next.first][next.second].type == static_cast<uint8_t>(EMPTY_BRICK)) {
             return MAX_DISTANCE;
         }
 
-        if(metaStructure[next.first][next.second].type == static_cast<uint8_t>(EMPTY_BRICK)) {
+        if(m_networkMetaStructure[next.first][next.second].type == static_cast<uint8_t>(EMPTY_BRICK)) {
             return distance;
         }
 
         next = getNext(next.first, next.second, side);
     }
+
     return MAX_DISTANCE;
 }
 
@@ -255,15 +278,16 @@ getDistantToNextNodeBrick(const uint32_t x,
  * @return pair of the x-y-coordinates of the next node
  */
 std::pair<uint32_t, uint32_t>
-getNext(const uint32_t x,
-        const uint32_t y,
-        const uint8_t side)
+NetworkInitializer::getNext(const uint32_t x,
+                            const uint32_t y,
+                            const uint8_t side)
 {
     std::pair<uint32_t, uint32_t> result;
     result.first = UNINIT_STATE_32;
     result.second = UNINIT_STATE_32;
 
-    switch (side) {
+    switch (side)
+    {
     case 9:
         {
             result.first = x - 1;

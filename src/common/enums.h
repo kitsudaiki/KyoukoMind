@@ -1,10 +1,6 @@
 /**
- *  @file    enums.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef ENUMS_H

@@ -1,10 +1,6 @@
 /**
- *  @file    main_tests.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 int

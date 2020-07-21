@@ -1,10 +1,6 @@
 /**
- *  @file    network_initializer.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef NETWORK_INITIALIZER_H
@@ -17,27 +13,34 @@ namespace KyoukoMind
 {
 
 class BrickQueue;
-struct NetworkSegment;
+class Segment;
 
-bool createNewNetwork(const std::string &fileContent);
+class NetworkInitializer
+{
 
-void connectAllBricks(NetworkSegment &segment,
-                      std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
+public:
+    NetworkInitializer();
 
-void addBricks(NetworkSegment &segment,
-               std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
+    bool createNewNetwork(const std::string &fileContent);
 
-uint32_t getNumberOfBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
-uint32_t getNumberOfNodeBricks(std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure);
+private:
+    std::vector<std::vector<InitMetaDataEntry>> m_networkMetaStructure;
 
-std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
-                                      const uint32_t y,
-                                      const uint8_t side);
+    void connectAllBricks(Segment &segment);
+    void addBricks(Segment &segment);
 
-uint32_t getDistantToNextNodeBrick(const uint32_t x,
-                                   const uint32_t y,
-                                   const uint8_t side);
+    uint32_t getNumberOfBricks();
+    uint32_t getNumberOfNodeBricks();
 
+    std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
+                                          const uint32_t y,
+                                          const uint8_t side);
+
+    uint32_t getDistantToNextNodeBrick(const uint32_t x,
+                                       const uint32_t y,
+                                       const uint8_t side);
+
+};
 
 } // namespace KyoukoMind
 

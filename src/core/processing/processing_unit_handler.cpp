@@ -1,10 +1,6 @@
 /**
- *  @file    processing_unit_handler.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <core/processing/processing_unit_handler.h>
@@ -12,7 +8,7 @@
 
 #include <libKitsunemimiCommon/threading/thread.h>
 
-#include <root_object.h>
+#include <kyouko_root.h>
 
 namespace KyoukoMind
 {

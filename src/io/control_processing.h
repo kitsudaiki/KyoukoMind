@@ -1,12 +1,15 @@
-﻿#ifndef CONTROL_PROCESSING_H
+﻿/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
+#ifndef CONTROL_PROCESSING_H
 #define CONTROL_PROCESSING_H
 
-#include <root_object.h>
-#include <core/objects/container_definitions.h>
-#include <core/methods/brick_initializing_methods.h>
-#include <core/processing/methods/brick_processing.h>
-#include <core/methods/neighbor_methods.h>
-#include <core/methods/network_segment_methods.h>
+#include <kyouko_root.h>
+
+#include <core/object_handling/segment.h>
+#include <core/processing/internal/objects/container_definitions.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
@@ -87,7 +90,7 @@ send_metadata_response(DataItem* metadata,
  */
 bool
 process_registerInput(const ControlRegisterInput &content,
-                      RootObject* rootObject,
+                      KyoukoRoot* rootObject,
                       Kitsunemimi::Project::Session* session,
                       const uint64_t blockerId)
 {
@@ -96,7 +99,7 @@ process_registerInput(const ControlRegisterInput &content,
     const uint8_t sourceSide = 22;
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* targetBrick = RootObject::m_segment->bricks.at(content.brickId);
+    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[content.brickId];
 
     if(targetBrick == nullptr)
     {
@@ -109,7 +112,7 @@ process_registerInput(const ControlRegisterInput &content,
     }
 
     // check if brick is node-brick
-    const uint8_t isNodeBrick = targetBrick->nodePos >= 0;
+    const uint8_t isNodeBrick = targetBrick->nodePos != UNINIT_STATE_32;
     if(isNodeBrick == 0)
     {
         errorMessage = "register input failed: brick with id "
@@ -138,7 +141,7 @@ process_registerInput(const ControlRegisterInput &content,
     newBrick->isInputBrick = 1;
 
     // init the new neighbors
-    const bool success = connectBricks(*newBrick, sourceSide, *targetBrick);
+    const bool success = newBrick->connectBricks(sourceSide, *targetBrick);
     if(success == false)
     {
         delete newBrick;
@@ -149,9 +152,8 @@ process_registerInput(const ControlRegisterInput &content,
         send_generic_response(false, errorMessage, session, blockerId);
         return false;
     }
-    rootObject->m_inputBricks->insert(std::pair<uint32_t, Brick*>(content.brickId,
-                                                                  newBrick));
-    initCycle(newBrick);
+    rootObject->m_inputBricks->insert(std::make_pair(content.brickId, newBrick));
+
     send_generic_response(true, "", session, blockerId);
 
     return true;
@@ -166,14 +168,14 @@ process_registerInput(const ControlRegisterInput &content,
  */
 bool
 process_registerOutput(const ControlRegisterOutput &content,
-                       RootObject* rootObject,
+                       KyoukoRoot*,
                        Kitsunemimi::Project::Session* session,
                        const uint64_t blockerId)
 {
     std::string errorMessage = "";
 
     // check if target-brick, which is specified by the id in the messge, does exist
-    Brick* outgoingBrick = RootObject::m_segment->bricks.at(content.brickId);
+    Brick* outgoingBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[content.brickId];
     if(outgoingBrick == nullptr)
     {
         errorMessage = "register output failed: brick with id "
@@ -185,7 +187,7 @@ process_registerOutput(const ControlRegisterOutput &content,
     }
 
     // check if brick is node-brick
-    const uint8_t isNodeBrick = outgoingBrick->nodePos >= 0;
+    const uint8_t isNodeBrick = outgoingBrick->nodePos != UNINIT_STATE_32;
     if(isNodeBrick == 0)
     {
         errorMessage = "register output failed: brick with id "
@@ -196,8 +198,8 @@ process_registerOutput(const ControlRegisterOutput &content,
         return false;
     }
 
-    NetworkSegment* segment = RootObject::m_segment;
-    addClientOutputConnection(*segment, content.brickId);
+    Segment* segment = KyoukoRoot::m_segment;
+    segment->addClientOutputConnection(content.brickId);
     send_generic_response(true, "", session, blockerId);
 
     return true;
@@ -211,11 +213,11 @@ process_registerOutput(const ControlRegisterOutput &content,
  */
 bool
 process_doesBrickExist(const ControlDoesBrickExist &content,
-                       RootObject* rootObject,
+                       KyoukoRoot* rootObject,
                        Kitsunemimi::Project::Session* session,
                        const uint64_t blockerId)
 {
-    Brick* outgoingBrick = RootObject::m_segment->bricks.at(content.brickId);
+    Brick* outgoingBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[content.brickId];
     const bool exist = outgoingBrick != nullptr;
     send_doesBrickExist_response(exist, session, blockerId);
     return exist;
@@ -229,11 +231,11 @@ process_doesBrickExist(const ControlDoesBrickExist &content,
  * @param blockerId
  */
 void
-process_getMetadata(RootObject* rootObject,
+process_getMetadata(KyoukoRoot* rootObject,
                     Kitsunemimi::Project::Session* session,
                     const uint64_t blockerId)
 {
-    DataItem* response = getMetadata(*rootObject->m_segment);
+    DataItem* response = rootObject->m_segment->getMetadata();
     send_metadata_response(response, session, blockerId);
 }
 
@@ -244,7 +246,7 @@ process_getMetadata(RootObject* rootObject,
  * @param blockerId
  */
 void
-process_getSnapshot(RootObject* rootObject,
+process_getSnapshot(KyoukoRoot* rootObject,
                     Kitsunemimi::Project::Session* session,
                     const uint64_t blockerId)
 {
@@ -266,7 +268,7 @@ controlCallback(void* target,
                 const uint64_t blockerId,
                 DataBuffer* data)
 {
-    RootObject* rootObject = static_cast<RootObject*>(target);
+    KyoukoRoot* rootObject = static_cast<KyoukoRoot*>(target);
 
     LOG_DEBUG("process incoming client message with size: " + std::to_string(data->bufferPosition));
 

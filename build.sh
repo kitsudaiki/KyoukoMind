@@ -75,6 +75,10 @@ get_required_kitsune_lib_repo "libKitsunemimiPersistence" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
+get_required_kitsune_lib_repo "libKitsunemimiOpencl" "master" 4
+echo ""
+echo "###########################################################################################################"
+echo ""
 get_required_kitsune_lib_repo "libKitsunemimiObj" "master" 4
 echo ""
 echo "###########################################################################################################"
@@ -83,11 +87,11 @@ get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.10.2" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.4.3" 1
+get_required_kitsune_lib_repo "libKitsunemimiIni" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.6.2" 4
+get_required_kitsune_lib_repo "libKitsunemimiNetwork" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -95,7 +99,7 @@ get_required_kitsune_lib_repo "libKitsunemimiProjectNetwork" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.1.3" 4
+get_required_kitsune_lib_repo "libKitsunemimiArgs" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -103,7 +107,7 @@ get_required_kitsune_lib_repo "libKitsunemimiConfig" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo "libKitsunemimiKyoukoCommon" "add-obj-output" 4
+get_required_private_repo "libKitsunemimiKyoukoCommon" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""

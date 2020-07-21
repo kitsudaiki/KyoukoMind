@@ -1,10 +1,6 @@
 /**
- *  @file    includes.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef INCLUDES_H
@@ -35,9 +31,13 @@
 #include <queue>
 #include <condition_variable>
 #include <unistd.h>
+#include <math.h>
 #include <cmath>
 #include <utility>
 #include <atomic>
+
+#include <boost/filesystem.hpp>
+namespace bfs = boost::filesystem;
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 using Kitsunemimi::DataBuffer;

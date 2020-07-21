@@ -1,10 +1,6 @@
 /**
- *  @file    file_parser.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include "file_parser.h"
@@ -21,11 +17,11 @@ namespace KyoukoMind
  * @param result
  * @return
  */
-bool
+uint32_t
 parse2dTestfile(const std::string &fileContent,
                 std::vector<std::vector<InitMetaDataEntry> > &result)
 {
-    BrickID idCounter = 0;
+    uint32_t counter = 0;
     //InitStructure m_networkMetaStructure;
     uint32_t firstLineLenght = 0;
 
@@ -59,23 +55,17 @@ parse2dTestfile(const std::string &fileContent,
             }
 
             if(firstLineLenght != splittedLine.size()) {
-                return false;
+                return 0;
             }
 
             InitMetaDataEntry tempEntry;
             tempEntry.type = static_cast<uint8_t>(std::stoi(splittedLine[linePartNumber]) + 1);
-            tempEntry.brickId = 0;
             result[linePartNumber].push_back(tempEntry);
-
-            if(tempEntry.type != EMPTY_BRICK)
-            {
-                tempEntry.brickId = idCounter;
-                idCounter++;
-            }
+            counter++;
         }
     }
 
-    return true;
+    return counter;
 }
 
 } // namespace KyoukoMind

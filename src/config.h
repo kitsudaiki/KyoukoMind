@@ -1,3 +1,8 @@
+/**
+ *  @author  Tobias Anker
+ *  Contact: tobias.anker@kitsunemimi.moe
+ */
+
 #ifndef GATEWAY_CONFIG_H
 #define GATEWAY_CONFIG_H
 

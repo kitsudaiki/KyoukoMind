@@ -1,26 +1,26 @@
-﻿/**
- *  @file    processing_unit.cpp
- *
+/**
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <core/processing/processing_unit.h>
-#include <root_object.h>
+#include <kyouko_root.h>
 
-#include <core/global_values_handler.h>
+#include <core/object_handling/segment.h>
+#include <core/processing/internal/objects/transfer_objects.h>
+#include <core/global_values.h>
 
-#include <core/objects/brick.h>
-#include <core/objects/container_definitions.h>
+#include <core/object_handling/brick.h>
+#include <core/processing/internal/objects/container_definitions.h>
 
-#include <core/processing/methods/edge_container_processing.h>
-#include <core/processing/methods/brick_processing.h>
-#include <core/processing/methods/node_processing.h>
-#include <core/methods/neighbor_methods.h>
+#include <core/processing/external/message_processing.h>
+#include <core/processing/internal/edge_processing.h>
+#include <core/processing/internal/gpu_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+
+#include <core/obj_converter.h>
+#include <libKitsunemimiPersistence/files/text_file.h>
 
 namespace KyoukoMind
 {
@@ -43,7 +43,7 @@ ProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
-    NetworkSegment* segment = RootObject::m_segment;
+    Segment* segment = KyoukoRoot::m_segment;
 
     while(!m_abort)
     {
@@ -51,179 +51,86 @@ ProcessingUnit::run()
             blockThread();
         }
 
-        Brick* brick = RootObject::m_queue->getFromQueue();
-        if(brick == nullptr)
+        if(USE_GPU)
         {
-            GlobalValues globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
-            globalValues.globalLearningTemp = 0.0f;
-            globalValues.globalMemorizingTemp = 0.0f;
-            RootObject::m_globalValuesHandler->setGlobalValues(globalValues);
-
-            end = std::chrono::system_clock::now();
-            const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-            LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
-
-            // block thread until next cycle if queue is empty
-            blockThread();
-
+            // copy transfer-edges to gpu
             start = std::chrono::system_clock::now();
+            KyoukoRoot::m_gpuInterface->copySynapseTransfersToGpu(*segment);
+            end = std::chrono::system_clock::now();
+            const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+            LOG_DEBUG("time copy to gpu: " + std::to_string(gpu0 / 1000.0f) + '\n');
+
+            // run process on gpu
+            start = std::chrono::system_clock::now();
+            KyoukoRoot::m_gpuInterface->runOnGpu();
+            end = std::chrono::system_clock::now();
+            const float gpu1 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+            LOG_DEBUG("gpu run-time: " + std::to_string(gpu1 / 1000.0f) + '\n');
+
+            // copy result from gpu to host
+            start = std::chrono::system_clock::now();
+            KyoukoRoot::m_gpuInterface->copyAxonTransfersFromGpu();
+            end = std::chrono::system_clock::now();
+            const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+            LOG_DEBUG("time copy from gpu: " + std::to_string(gpu2 / 1000.0f) + '\n');
         }
-        else
+
+        segment->synapseTransfers.deleteAll();
+
+        // block thread until next cycle if queue is empty
+        blockThread();
+
+        start = std::chrono::system_clock::now();
+
+        EdgeSection* edges = getBuffer<EdgeSection>(segment->edges);
+
+        uint32_t count = 0;
+
+        // process update-transfers
+        UpdateTransfer* updates = getBuffer<UpdateTransfer>(segment->updateTransfers);
+        for(uint32_t i = 0; i < segment->updateTransfers.itemCapacity; i++)
         {
-            initCycle(brick);
-
-            // main-processing
-            brick->globalValues = RootObject::m_globalValuesHandler->getGlobalValues();
-            processIncomingMessages(*segment, *brick);
-            if(brick->nodePos >= 0) {
-                processNodes(*segment, *brick);
+            if(updates[i].newWeight < 0.0f) {
+                continue;
             }
 
-            // post-processing
-            postLearning(*segment, *brick);
-            memorizeSynapses(*segment, *brick);
-
-            // write output
-            if(brick->isOutputBrick == 1) {
-                writeClientOutput(*segment, *brick, m_clientBuffer);
-            }
-            writeMonitoringOutput(*brick, m_monitoringBuffer);
-
-            // finish current block
-            finishCycle(brick,
-                        m_clientBuffer,
-                        m_monitoringBuffer);
+            count++;
+            const UpdateTransfer container = updates[i];
+            updateEdgeSection(edges[container.targetId],
+                              container.positionInEdge,
+                              container.newWeight,
+                              container.deleteEdge);
         }
-    }
-}
+        std::cout<<"number of update-transfers: "<<count<<std::endl;
 
-/**
- * @brief ProcessingUnit::processIncomingMessages
- * @param brick
- * @return
- */
-void
-ProcessingUnit::processIncomingMessages(NetworkSegment &segment,
-                                        Brick &brick)
-{
-    // process normal communication
-    for(uint8_t side = 0; side < 23; side++)
-    {
-        if(brick.neighbors[side].inUse == 1)
+        count = 0;
+
+        // process axon-transfers
+        AxonTransfer* axons = getBuffer<AxonTransfer>(segment->axonTransfers);
+        // test-input
+        for(uint32_t i = 0; i < 1; i++)
         {
-            StackBuffer* currentBuffer = brick.neighbors[side].currentBuffer;
-            DataBuffer* currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
-
-            while(currentBlock != nullptr)
-            {
-                processIncomingMessage(segment, brick, side, currentBlock);
-                Kitsunemimi::removeFirst_StackBuffer(*currentBuffer);
-                currentBlock = Kitsunemimi::getFirstElement_StackBuffer(*currentBuffer);
-            }
+            axons[i].weight = 100.0f;
         }
-    }
-}
-
-/**
- * processing of all incoming messages in a brick
- *
- * @return false if a message-type does not exist, else true
- */
-bool
-ProcessingUnit::processIncomingMessage(NetworkSegment &segment,
-                                       Brick &brick,
-                                       const uint8_t side,
-                                       DataBuffer* message)
-{
-    bool result = true;
-
-    // get start and end of the message-payload
-    uint8_t* data = static_cast<uint8_t*>(message->data);
-    uint8_t* end = data + message->bufferPosition;
-
-    while(data < end)
-    {
-        const uint8_t type = data[0];
-        void* obj = static_cast<void*>(data);
-
-        switch(type)
+        for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
         {
-            // -------------------------------------------------------------------------------------
-            case STATUS_EDGE_CONTAINER:
-            {
-                const UpdateEdgeContainer edge = *static_cast<UpdateEdgeContainer*>(obj);
-                assert(edge.targetId != UNINIT_STATE_32);
-                processUpdateEdge(brick, edge, side);
-                data += sizeof(UpdateEdgeContainer);
-                break;
+            if(axons[i].weight == 0.0f) {
+                continue;
             }
-            // -------------------------------------------------------------------------------------
-            case PENDING_EDGE_CONTAINER:
-            {
-                const PendingEdgeContainer edge = *static_cast<PendingEdgeContainer*>(obj);
-                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                processPendingEdge(segment, brick, edge);
-                data += sizeof(PendingEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case FOREWARD_EDGE_CONTAINER:
-            {
-                const EdgeContainer edge = *static_cast<EdgeContainer*>(obj);
-                assert(edge.targetEdgeSectionId != UNINIT_STATE_32);
-                processEdgeForwardSection(segment, brick, edge);
-                data += sizeof(EdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case AXON_EDGE_CONTAINER:
-            {
-                const AxonEdgeContainer edge = *static_cast<AxonEdgeContainer*>(obj);
-                assert(edge.targetAxonId != UNINIT_STATE_32);
-                processAxon(segment, brick, edge);
-                data += sizeof(AxonEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case LEARNING_EDGE_CONTAINER:
-            {
-                const LearingEdgeContainer edge = *static_cast<LearingEdgeContainer*>(obj);
-                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                assert(side != 0);
-                processLerningEdge(segment, brick, edge, side);
-                data += sizeof(LearingEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case LEARNING_REPLY_EDGE_CONTAINER:
-            {
-                const LearningEdgeReplyContainer edge =
-                        *static_cast<LearningEdgeReplyContainer*>(obj);
-                assert(edge.sourceEdgeSectionId != UNINIT_STATE_32);
-                processLearningEdgeReply(brick, edge, side);
-                data += sizeof(LearningEdgeReplyContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case DIRECT_EDGE_CONTAINER:
-            {
-                const DirectEdgeContainer edge = *static_cast<DirectEdgeContainer*>(obj);
-                processDirectEdge(segment, brick, edge);
-                data += sizeof(DirectEdgeContainer);
-                break;
-            }
-            // -------------------------------------------------------------------------------------
-            case UNDEFINED_CONTAINER:
-            {
-                return result;
-            }
-            // -------------------------------------------------------------------------------------
-            default:
-                result = false;
+            count++;
+            processEdgeSection(edges[i],
+                               axons[i].weight,
+                               i,
+                               edges[i].targetBrickId);
         }
-    }
 
-    return result;
+        std::cout<<"number of active Axons: "<<count<<std::endl;
+        std::cout<<"number of synapse-sections: "<<(KyoukoRoot::m_segment->synapses.numberOfItems)<<std::endl;
+
+        end = std::chrono::system_clock::now();
+        const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
+    }
 }
 
 } // namespace KyoukoMind

@@ -1,10 +1,6 @@
 /**
- *  @file    defines.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <common/includes.h>
@@ -20,8 +16,9 @@
 
 // network-predefines
 #define EDGES_PER_EDGESECTION 6
-#define SYNAPSES_PER_SYNAPSESECTION 64
-#define NUMBER_OF_NODES_PER_BRICK 10
+#define SYNAPSES_PER_SYNAPSESECTION 20
+#define NUMBER_OF_NODES_PER_BRICK 1000
+#define MAX_NUMBER_OF_SYNAPSE_SECTIONS 100000
 #define MINIMUM_NODE_BODER 20
 #define MAXIMUM_NODE_BODER 50
 
@@ -46,6 +43,7 @@
 #define ACTION_POTENTIAL 100.0f
 #define REFRACTION_TIME 2
 #define PROCESSING_MULTIPLICATOR 1.0f
+#define USE_GPU true
 
 // messages
 #define MESSAGES_PER_BLOCK 1024

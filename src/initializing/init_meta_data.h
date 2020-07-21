@@ -1,10 +1,6 @@
 /**
- *  @file    init_meta_data.h
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #ifndef INIT_META_DATA_H
@@ -15,7 +11,7 @@
 namespace KyoukoMind
 {
 
-struct Brick;
+class Brick;
 
 enum BrickTypes
 {
@@ -32,9 +28,7 @@ enum BrickTypes
 struct InitMetaDataEntry
 {
     uint8_t type = EMPTY_BRICK;
-    BrickID brickId = 0;
     Brick* brick = nullptr;
-    uint32_t numberOfAxons = 0;
 };
 
 } // namespace KyoukoMind

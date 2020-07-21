@@ -1,14 +1,10 @@
 /**
- *  @file    network_manager.cpp
- *
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
- *
- *
  */
 
 #include <core/network_manager.h>
-#include <root_object.h>
+#include <kyouko_root.h>
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/file_methods.h>
@@ -16,7 +12,7 @@
 
 #include <core/processing/processing_unit_handler.h>
 
-#include <core/objects/brick.h>
+#include <core/object_handling/brick.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
@@ -67,7 +63,7 @@ NetworkManager::initNetwork()
     std::vector<std::string> brickFiles;
     Kitsunemimi::Persistence::listFiles(brickFiles, directoryPath, false);
     if(brickFiles.size() == 0
-            || Kitsunemimi::Persistence::doesPathExist(directoryPath) == false)
+            || bfs::exists(directoryPath) == false)
     {
         LOG_INFO("no files found. Try to create a new cluster");
 
@@ -80,12 +76,15 @@ NetworkManager::initNetwork()
         LOG_INFO("use init-file: " + initialFile);
 
         std::string fileContent = "";
-        std::string error = "";
-        if(Kitsunemimi::Persistence::readFile(fileContent, initialFile, error) == false) {
+        std::string errorMessage = "";
+        if(Kitsunemimi::Persistence::readFile(fileContent, initialFile, errorMessage) == false)
+        {
+            LOG_ERROR(errorMessage);
             return false;
         }
 
-        return createNewNetwork(fileContent);
+        NetworkInitializer initializer;
+        return initializer.createNewNetwork(fileContent);
     }
     else {
         for(uint32_t i = 0; i < brickFiles.size(); i++) {

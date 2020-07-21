@@ -21,6 +21,11 @@ LIBS += -L../libKitsunemimiProjectNetwork/src/debug -lKitsunemimiProjectNetwork
 LIBS += -L../libKitsunemimiProjectNetwork/src/release -lKitsunemimiProjectNetwork
 INCLUDEPATH += ../libKitsunemimiProjectNetwork/include
 
+LIBS += -L../libKitsunemimiOpencl/src -lKitsunemimiOpencl
+LIBS += -L../libKitsunemimiOpencl/src/debug -lKitsunemimiOpencl
+LIBS += -L../libKitsunemimiOpencl/src/release -lKitsunemimiOpencl
+INCLUDEPATH += ../libKitsunemimiOpencl/include
+
 LIBS += -L../libKitsunemimiNetwork/src -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
@@ -51,7 +56,7 @@ LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
 
-LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt
+LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL
 
 INCLUDEPATH += $$PWD \
                src
@@ -61,60 +66,56 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/objects/brick.h \
-    src/core/objects/brick_pos.h \
-    src/core/objects/container_definitions.h \
-    src/core/objects/data_connection.h \
-    src/core/objects/edges.h \
-    src/core/objects/empty_placeholder.h \
-    src/core/objects/neighbor.h \
-    src/core/objects/node.h \
-    src/core/objects/synapses.h \
+    src/core/processing/internal/objects/container_definitions.h \
+    src/core/processing/internal/objects/edges.h \
+    src/core/processing/internal/objects/node.h \
+    src/core/processing/internal/objects/synapses.h \
     src/core/processing/processing_unit.h \
     src/core/processing/processing_unit_handler.h \
-    src/core/methods/brick_initializing_methods.h \
-    src/core/methods/brick_item_methods.h \
-    src/core/processing/methods/brick_processing.h \
-    src/core/global_values_handler.h \
     src/core/network_manager.h \
     src/initializing/axon_initializer.h \
     src/initializing/file_parser.h \
     src/initializing/init_meta_data.h \
     src/initializing/network_initializer.h \
     src/common.h \
-    src/root_object.h \
     src/args.h \
     src/config.h \
     src/io/network_callbacks.h \
-    src/core/processing/methods/edge_container_processing.h \
-    src/core/processing/methods/synapse_container_processing.h \
-    src/core/methods/edge_methods.h \
-    src/core/methods/neighbor_methods.h \
-    src/core/methods/synapse_methods.h \
+    src/core/processing/external/edge_methods.h \
     src/io/client_processing.h \
     src/io/control_processing.h \
     src/core/obj_converter.h \
-    src/core/objects/network_segment.h \
-    src/core/methods/network_segment_methods.h \
-    src/core/methods/data_connection_methods.h \
-    src/core/brick_queue.h \
-    src/core/processing/methods/node_processing.h
+    src/core/processing/internal/gpu_processing.cl \
+    src/core/processing/internal/gpu_interface.h \
+    src/core/processing/internal/objects/transfer_objects.h \
+    src/core/validation.h \
+    src/kyouko_root.h \
+    src/dummy_input.h \
+    src/core/processing/external/process_learning.h \
+    src/core/processing/external/process_update.h \
+    src/core/processing/external/process_normal.h \
+    src/core/processing/external/message_processing.h \
+    src/core/object_handling/brick.h \
+    src/core/object_handling/item_buffer.h \
+    src/core/processing/internal/edge_processing.h \
+    src/core/global_values.h \
+    src/core/object_handling/segment.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
-    src/core/methods/brick_initializing_methods.cpp \
-    src/core/processing/methods/brick_processing.cpp \
-    src/core/global_values_handler.cpp \
     src/core/network_manager.cpp \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
-    src/root_object.cpp \
     src/core/obj_converter.cpp \
-    src/core/methods/network_segment_methods.cpp \
-    src/core/methods/data_connection_methods.cpp \
-    src/core/brick_queue.cpp
+    src/core/processing/internal/gpu_interface.cpp \
+    src/core/validation.cpp \
+    src/kyouko_root.cpp \
+    src/dummy_input.cpp \
+    src/core/object_handling/brick.cpp \
+    src/core/object_handling/item_buffer.cpp \
+    src/core/object_handling/segment.cpp
 
 
 CONFIG(run_tests) {
@@ -128,6 +129,20 @@ SOURCES += \
 SOURCES += \
     src/main.cpp
 }
+
+GPU_KERNEL = src/core/processing/internal/gpu_processing.cl
+
+OTHER_FILES +=  \
+    $$GPU_KERNEL
+
+gpu_processing.input = GPU_KERNEL
+gpu_processing.output = ${QMAKE_FILE_BASE}.h
+gpu_processing.commands = xxd -i ${QMAKE_FILE_IN} | sed 's/______KyoukoMind_src_core_processing_internal_//g' > ${QMAKE_FILE_BASE}.h
+gpu_processing.variable_out = HEADERS
+gpu_processing.CONFIG += target_predeps no_link
+
+QMAKE_EXTRA_COMPILERS += gpu_processing
+
 
 
 

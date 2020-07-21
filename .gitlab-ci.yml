@@ -7,7 +7,7 @@ build:
     - ssh-keyscan -H 10.0.3.120 >> ~/.ssh/known_hosts
 
     - apt-get update
-    - apt-get install -y libboost-filesystem-dev openssl libssl-dev  libboost-filesystem-dev libsqlite3-dev
+    - apt-get install -y libboost-filesystem-dev openssl libssl-dev opencl-headers ocl-icd-opencl-dev xxd
 
     - cd /builds/tobiasanker/KyoukoMind
     - ./build.sh test
