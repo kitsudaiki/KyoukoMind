@@ -40,6 +40,7 @@ lernEdge(EdgeSection &section,
         const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
         assert(newPos != UNINIT_STATE_64);
         edge.synapseSectionId = static_cast<uint32_t>(newPos);
+        edge.synapseSectionId = edge.synapseSectionId | 0x80000000;
     }
 
     // update weight in current edge
@@ -88,12 +89,15 @@ processSynapseConnection(Edge &edge,
     {
         //return usedWeight;
         SynapseTransfer newTransfer;
-        newTransfer.synapseSectionId = edge.synapseSectionId;
+        newTransfer.synapseSectionId = edge.synapseSectionId & 0x7FFFFFFF;
+        newTransfer.isNew = edge.synapseSectionId >> 31;
         newTransfer.weight = weight;
         newTransfer.brickId = getBrickId(edge.location);
         newTransfer.positionInEdge = static_cast<uint8_t>(pos);
         newTransfer.sourceEdgeId = edgeSectionPos;
-        //std::cout<<"SynapseTransfer-positionInEdge: "<<(int)pos<<std::endl;
+
+        edge.synapseSectionId = edge.synapseSectionId & 0x7FFFFFFF;
+        //std::cout<<"SynapseTransfer-positionInEdge: "<<(int)pos<<"    brick-id: "<<newTransfer.brickId<<std::endl;
 
         KyoukoRoot::m_segment->synapseTransfers.addNewItem(newTransfer);
         return;
@@ -115,6 +119,7 @@ nextEdgeSectionStep(EdgeSection &section,
                     const uint32_t lastLocation,
                     const uint32_t edgeSectionPos)
 {
+    assert(getBrickId(lastLocation) != UNINIT_STATE_24);
     // end-condition
     if(weight < 0.1f) {
         return;
@@ -124,8 +129,7 @@ nextEdgeSectionStep(EdgeSection &section,
     Edge* edge = &section.edges[pos];
 
     // init new edge, if necessary
-    const uint32_t currentBrickId = getBrickId(edge->location);
-    if(currentBrickId == 0x00FFFFFF)
+    if(getBrickId(edge->location) == UNINIT_STATE_24)
     {
         Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(lastLocation)];
         edge->location = brick->getRandomNeighbor(lastLocation);
@@ -133,57 +137,62 @@ nextEdgeSectionStep(EdgeSection &section,
 
     float ratio = 0.0f;
 
-    if(pos < 127
-            && edge->location != UNINIT_STATE_32)
+    if(getBrickId(edge->location) != UNINIT_STATE_24)
     {
-        // calculate and process ratio
-        const float totalWeight = edge->synapseWeight + 0.0000001f
-                                  + section.edges[pos * 2].edgeWeight
-                                  + section.edges[(pos * 2) + 1].edgeWeight;
+        if(pos < 127)
+        {
+            // calculate and process ratio
+            const float totalWeight = edge->synapseWeight + 0.0000001f
+                                      + section.edges[pos * 2].edgeWeight
+                                      + section.edges[(pos * 2) + 1].edgeWeight;
 
-        ratio = weight / totalWeight;
-        if(ratio > 1.0f) {
-            lernEdge(section, *edge, pos, weight - totalWeight);
+            ratio = weight / totalWeight;
+            if(ratio > 1.0f) {
+                lernEdge(section, *edge, pos, weight - totalWeight);
+            }
+            if(ratio <= 0.0f) {
+                std::cout<<"ratio: "<<ratio<<std::endl;
+                assert(false);
+            }
+
+            // limit ratio to 1.0
+            ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+
+            // update remaining weight based on the ratio
+            nextEdgeSectionStep(section,
+                                pos * 2,
+                                section.edges[pos * 2].edgeWeight * ratio,
+                                edge->location,
+                                edgeSectionPos);
+
+            nextEdgeSectionStep(section,
+                                (pos * 2) + 1,
+                                section.edges[(pos * 2) + 1].edgeWeight * ratio,
+                                edge->location,
+                                edgeSectionPos);
         }
-        if(ratio <= 0.0f) {
-            std::cout<<"ratio: "<<ratio<<std::endl;
-            assert(false);
+        else
+        {
+            // calculate and process ratio
+            const float totalWeight = edge->synapseWeight + 0.0000001f;
+            ratio = weight / totalWeight;
+            if(ratio > 1.0f) {
+                lernEdge(section, *edge, pos, weight - totalWeight);
+            }
+            if(ratio <= 0.0f) {
+                assert(false);
+            }
+
+            // limit ratio to 1.0
+            ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
         }
 
-        // limit ratio to 1.0
-        ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-
-        // update remaining weight based on the ratio
-        nextEdgeSectionStep(section,
-                            pos * 2,
-                            section.edges[pos * 2].edgeWeight * ratio,
-                            edge->location,
-                            edgeSectionPos);
-
-        nextEdgeSectionStep(section,
-                            (pos * 2) + 1,
-                            section.edges[(pos * 2) + 1].edgeWeight * ratio,
-                            edge->location,
-                            edgeSectionPos);
+        // process connection to synapse
+        processSynapseConnection(*edge, ratio, pos, edgeSectionPos);
     }
-    else
-    {
-        // calculate and process ratio
-        const float totalWeight = edge->synapseWeight + 0.0000001f;
-        ratio = weight / totalWeight;
-        if(ratio > 1.0f) {
-            lernEdge(section, *edge, pos, weight - totalWeight);
-        }
-        if(ratio <= 0.0f) {
-            assert(false);
-        }
-
-        // limit ratio to 1.0
-        ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+    else {
+        assert(edge->synapseWeight == 0.0f);
     }
-
-    // process connection to synapse
-    processSynapseConnection(*edge, ratio, pos, edgeSectionPos);
 
     return;
 }
@@ -210,12 +219,10 @@ processEdgeSection(EdgeSection &section,
     for(uint32_t i = 1; i < 255; i++)
     {
         test += section.edges[i].synapseWeight;
-        if(KyoukoRoot::m_segment->synapses.numberOfItems == 0) {
-            std::cout<<"i: "<<i<<"   weight: "<<section.edges[i].synapseWeight<<std::endl;
-        }
+        std::cout<<"i: "<<i<<"   weight: "<<section.edges[i].edgeWeight<<std::endl;
+
     }
-    std::cout<<"################################## test: "<<test<<"   weight: "<<weight<<std::endl;
-    assert(weight >= test);*/
+    std::cout<<"################################## test: "<<test<<"   weight: "<<weight<<std::endl;*/
 }
 
 /**
@@ -228,46 +235,32 @@ processEdgeSection(EdgeSection &section,
 inline void
 updateEdgeSection(EdgeSection &section,
                   const uint8_t posInSection,
-                  const float weightDiff,
+                  const float newWeight,
                   const uint8_t deleteEdge)
 {
     assert(posInSection < 255);
 
     uint8_t pos = posInSection;
-    float diff = weightDiff;
 
     Edge* edge = &section.edges[pos];
 
-    // process synapse-connection
-    if(edge->synapseSectionId != UNINIT_STATE_32)
-    {
-        if(deleteEdge != 0)
-        {
-            assert(KyoukoRoot::m_segment->synapses.deleteDynamicItem(edge->synapseSectionId));
-            diff = edge->synapseWeight;
-            edge->synapseWeight = 0;
-            edge->synapseSectionId = UNINIT_STATE_32;
-        }
-        else
-        {
-            edge->synapseWeight -= diff;
-        }
+    // TODO: find out, why this id can be in uninit-state here, because this should exist,
+    //       but somehow it works. I don't get it and that's not good, even if it works ...
+    if(edge->synapseSectionId == UNINIT_STATE_32) {
+        return;
+    }
 
-        const float tempWeight = edge->synapseWeight;
-        edge->synapseWeight = (tempWeight < 1.0f) * 0.0f + (tempWeight >= 0.0f) * tempWeight;
+    // process synapse-connection
+    if(deleteEdge != 0)
+    {
+        assert(KyoukoRoot::m_segment->synapses.deleteDynamicItem(edge->synapseSectionId));
+        edge->synapseWeight = 0;
+        edge->synapseSectionId = UNINIT_STATE_32;
     }
     else
     {
-        edge->synapseWeight = 0;
-    }
-
-    // shouldn't be necessary, but only to be sure
-    if(pos >= 127
-            && edge->synapseSectionId == UNINIT_STATE_32)
-    {
-        edge->edgeWeight = 0.0f;
-        edge->location = UNINIT_STATE_32;
-        edge->synapseWeight = 0.0f;
+        edge->synapseWeight = newWeight;
+        assert(edge->synapseWeight >= 0.0f);
     }
 
     // process edges
@@ -275,18 +268,21 @@ updateEdgeSection(EdgeSection &section,
     {
         if(pos < 127)
         {
-            edge->edgeWeight -= diff;
+            const Edge edge1 = section.edges[pos * 2];
+            const Edge edge2 = section.edges[(pos * 2) + 1];
 
-            if(edge->edgeWeight < 1.0f
-                    && deleteEdge != 0)
+            if(getBrickId(edge1.location) == UNINIT_STATE_24
+                    && getBrickId(edge2.location) == UNINIT_STATE_24
+                    && edge->synapseSectionId == UNINIT_STATE_32)
             {
-                diff += edge->edgeWeight;
                 edge->edgeWeight = 0.0f;
                 edge->location = UNINIT_STATE_32;
+                edge->synapseWeight = 0.0f;
             }
-
-            const float tempWeight = edge->edgeWeight;
-            edge->edgeWeight = (tempWeight < 1.0f) * 0.0f + (tempWeight >= 0.0f) * tempWeight;
+            else
+            {
+                edge->edgeWeight = edge1.edgeWeight + edge2.edgeWeight + edge->synapseWeight;
+            }
         }
         else
         {
@@ -295,6 +291,10 @@ updateEdgeSection(EdgeSection &section,
                 edge->edgeWeight = 0.0f;
                 edge->location = UNINIT_STATE_32;
                 edge->synapseWeight = 0.0f;
+            }
+            else
+            {
+                edge->edgeWeight = edge->synapseWeight;
             }
         }
 

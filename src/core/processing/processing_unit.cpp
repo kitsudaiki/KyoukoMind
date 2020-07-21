@@ -90,7 +90,7 @@ ProcessingUnit::run()
         UpdateTransfer* updates = getBuffer<UpdateTransfer>(segment->updateTransfers);
         for(uint32_t i = 0; i < segment->updateTransfers.itemCapacity; i++)
         {
-            if(updates[i].weightDiff == 0.0f) {
+            if(updates[i].newWeight < 0.0f) {
                 continue;
             }
 
@@ -98,7 +98,7 @@ ProcessingUnit::run()
             const UpdateTransfer container = updates[i];
             updateEdgeSection(edges[container.targetId],
                               container.positionInEdge,
-                              container.weightDiff,
+                              container.newWeight,
                               container.deleteEdge);
         }
         std::cout<<"number of update-transfers: "<<count<<std::endl;
