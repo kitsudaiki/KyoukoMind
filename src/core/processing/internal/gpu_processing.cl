@@ -365,7 +365,8 @@ memorizeSynapses(__local SynapseSection* synapseSection,
     {
         //printf("poi   %d     status: %d\n", transferContainer.positionInEdge, synapseSection->status);
         transferContainer.deleteEdge = 1;
-        
+        //printf("--- delete: pos-in-edge: %d     edge-section-id: %d       synapse-section-id: %d\n", transferContainer.positionInEdge, synapseSection->sourceEdgeId, sectionPosition);
+
         synapseSection->status = DELETED_SECTION;
         synapseSection->numberOfSynapses = 0;
         synapseSection->totalWeight = 0.0000001f;
@@ -373,7 +374,7 @@ memorizeSynapses(__local SynapseSection* synapseSection,
         synapseSection->sourceEdgeId = UNINIT_STATE_32;
         synapseSection->sourceBrickId = UNINIT_STATE_32;
 
-        // printf("######################################################### delete synapse-section-id: %d\n", sectionPosition);
+        //printf("####################### delete synapse-section-id: %d\n", sectionPosition);
 
     }
 
@@ -441,7 +442,7 @@ processing(__global const SynapseTransfer* synapseTransfers,
             newSection.status = ACTIVE_SECTION;
             newSection.numberOfSynapses = SYNAPSES_PER_SYNAPSESECTION;
             newSection.positionInEdge = synapseTransfers[i].positionInEdge;
-            // printf("create: pos-in-edge: %d     edge-section-id: %d       synapse-section-id: %d\n", newSection.positionInEdge, synapseTransfers[i].sourceEdgeId, synapseSectionId);
+            //printf("create: pos-in-edge: %d     edge-section-id: %d       synapse-section-id: %d\n", newSection.positionInEdge, synapseTransfers[i].sourceEdgeId, synapseSectionId);
             newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
             tempSections[localId_x] = newSection;
         }

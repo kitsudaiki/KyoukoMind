@@ -122,6 +122,7 @@ ProcessingUnit::run()
                                axons[i].weight,
                                i,
                                edges[i].targetBrickId);
+            cleanupEdgeSection(edges[i]);
         }
 
         std::cout<<"number of active Axons: "<<count<<std::endl;
