@@ -30,16 +30,15 @@ bool
 GpuInterface::initializeGpu(Segment &segment,
                             const uint32_t numberOfBricks)
 {
-    const std::string kernelCode(reinterpret_cast<char*>(gpu_processing_cl),
-                                 gpu_processing_cl_len);
+    const std::string processingCode(reinterpret_cast<char*>(gpu_processing_cl),
+                                     gpu_processing_cl_len);
 
     // create config-object
-    Kitsunemimi::Opencl::OpenClConfig oclConfig;
-    oclConfig.kernelCode = kernelCode;
-    oclConfig.kernelName = "processing";
+    oclProcessingConfig.kernelCode = processingCode;
+    oclProcessingConfig.kernelName = "processing";
 
     // init gpu-connection
-    if(ocl.initDevice(oclConfig) == false) {
+    if(ocl.initDevice(oclProcessingConfig) == false) {
         return false;
     }
 
@@ -98,7 +97,6 @@ GpuInterface::initializeGpu(Segment &segment,
     oclData.buffer[7].data = segment.globalValues.buffer.data;
     oclData.buffer[7].numberOfBytes = segment.globalValues.buffer.bufferPosition;
     oclData.buffer[7].numberOfObjects = segment.globalValues.itemCapacity;
-    oclData.buffer[7].useHostPtr = true;
 
     // TODO: replace with a validation to make sure, that the local memory is big enough
     assert(ocl.getLocalMemorySize() == 256*256);
@@ -126,6 +124,17 @@ GpuInterface::copySynapseTransfersToGpu(Segment &segment)
 {
     return ocl.updateBufferOnDevice(oclData.buffer[0],
                                     segment.synapseTransfers.numberOfItems);
+}
+
+/**
+ * @brief GpuInterface::copyGlobalValuesToGpu
+ * @param segment
+ * @return
+ */
+bool
+GpuInterface::copyGlobalValuesToGpu()
+{
+    return ocl.updateBufferOnDevice(oclData.buffer[7], 1);
 }
 
 /**

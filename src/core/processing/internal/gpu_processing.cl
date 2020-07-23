@@ -133,6 +133,8 @@ typedef struct GlobalValues_struct
     float globalOutLearningTemp;
 
     float globalGlia;
+
+    uint runUpdate;
 }
 GlobalValues;
 
@@ -352,20 +354,15 @@ memorizeSynapses(__local SynapseSection* synapseSection,
 
     // create update-container for the host
     UpdateTransfer transferContainer;
-
     transferContainer.targetId = synapseSection->sourceEdgeId;
     transferContainer.positionInEdge = synapseSection->positionInEdge;
     transferContainer.newWeight = synapseSection->totalWeight;
     transferContainer.deleteEdge = 0;
-    // printf("update: pos-in-edge: %d     edge-section-id: %d       synapse-section-id: %d\n", transferContainer.positionInEdge, synapseSection->sourceEdgeId, sectionPosition);
-
 
     // if section is too low, delete the section
     if(synapseSection->totalWeight <= DELETE_SYNAPSE_BORDER) 
     {
-        //printf("poi   %d     status: %d\n", transferContainer.positionInEdge, synapseSection->status);
         transferContainer.deleteEdge = 1;
-        //printf("--- delete: pos-in-edge: %d     edge-section-id: %d       synapse-section-id: %d\n", transferContainer.positionInEdge, synapseSection->sourceEdgeId, sectionPosition);
 
         synapseSection->status = DELETED_SECTION;
         synapseSection->numberOfSynapses = 0;
@@ -373,9 +370,6 @@ memorizeSynapses(__local SynapseSection* synapseSection,
         synapseSection->positionInEdge = UNINIT_STATE_8;
         synapseSection->sourceEdgeId = UNINIT_STATE_32;
         synapseSection->sourceBrickId = UNINIT_STATE_32;
-
-        //printf("####################### delete synapse-section-id: %d\n", sectionPosition);
-
     }
 
     updateTransfers[sectionPosition] = transferContainer;
@@ -413,91 +407,105 @@ processing(__global const SynapseTransfer* synapseTransfers,
     const uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
     const uint brickId = globalId_x / localSize_x; 
 
-    // debug-prints
-    if(globalId_x == 0) {
-        printf("numberOfSynapseTransfers: %d\n", numberOfSynapseTransfers);
-    }
-
     if(brickId >= numberOfBricks) {
         return;
     }
 
-    //----------------------------------------------------------------------------------------------
-    // process input synapses
-    //----------------------------------------------------------------------------------------------
-    __local SynapseSection* tempSections = (__local SynapseSection*)localMemory;
-
-    for(ulong i = localId_x; i < numberOfSynapseTransfers; i = i + localSize_x)
+    if(globalValue->runUpdate == 0)
     {
-        if(synapseTransfers[i].brickId != brickId) {
-            continue;
+        if(globalId_x == 0)
+        {
+            printf("processing\n");
         }
 
-        const uint synapseSectionId = synapseTransfers[i].synapseSectionId;
-        tempSections[localId_x] = synapseSections[synapseSectionId];
+        //----------------------------------------------------------------------------------------------
+        // process input synapses
+        //----------------------------------------------------------------------------------------------
+        __local SynapseSection* tempSections = (__local SynapseSection*)localMemory;
 
-        if(synapseTransfers[i].isNew == 1)
+        for(ulong i = localId_x; i < numberOfSynapseTransfers; i = i + localSize_x)
         {
-            SynapseSection newSection;
-            newSection.status = ACTIVE_SECTION;
-            newSection.numberOfSynapses = SYNAPSES_PER_SYNAPSESECTION;
-            newSection.positionInEdge = synapseTransfers[i].positionInEdge;
-            //printf("create: pos-in-edge: %d     edge-section-id: %d       synapse-section-id: %d\n", newSection.positionInEdge, synapseTransfers[i].sourceEdgeId, synapseSectionId);
-            newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
-            tempSections[localId_x] = newSection;
+            if(synapseTransfers[i].brickId != brickId) {
+                continue;
+            }
+
+            const uint synapseSectionId = synapseTransfers[i].synapseSectionId;
+            tempSections[localId_x] = synapseSections[synapseSectionId];
+
+            if(synapseTransfers[i].isNew == 1)
+            {
+                SynapseSection newSection;
+                newSection.status = ACTIVE_SECTION;
+                newSection.numberOfSynapses = SYNAPSES_PER_SYNAPSESECTION;
+                newSection.positionInEdge = synapseTransfers[i].positionInEdge;
+                newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
+                tempSections[localId_x] = newSection;
+            }
+
+            if(tempSections[localId_x].status != ACTIVE_SECTION) {
+                continue;
+            }
+
+            processSynapseSection(&tempSections[localId_x],
+                                  nodes,
+                                  synapseTransfers[i].weight,
+                                  randomFloats,
+                                  randomInts);
+
+            synapseSections[synapseSectionId] = tempSections[localId_x];
+            synapseSections[synapseSectionId].sourceBrickId = brickId;
         }
 
-        processSynapseSection(&tempSections[localId_x],
-                              nodes,
-                              synapseTransfers[i].weight,
-                              randomFloats,
-                              randomInts);
+        work_group_barrier(CLK_LOCAL_MEM_FENCE | CLK_GLOBAL_MEM_FENCE);
 
-        synapseSections[synapseSectionId] = tempSections[localId_x];
-        synapseSections[synapseSectionId].sourceBrickId = brickId;
-    }
+        //----------------------------------------------------------------------------------------------
+        // process nodes
+        //----------------------------------------------------------------------------------------------
+        __local Node* tempNodes = (__local Node*)localMemory;
 
-    work_group_barrier(CLK_LOCAL_MEM_FENCE);
-
-    //----------------------------------------------------------------------------------------------
-    // process nodes
-    //----------------------------------------------------------------------------------------------
-    __local Node* tempNodes = (__local Node*)localMemory;
-
-    for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
-    {
-        tempNodes[localId_x] = nodes[i];
-        processNodes(&tempNodes[localId_x], 
-                     i, 
-                     axonTransfers,
-                     globalValue);
-        nodes[i] = tempNodes[localId_x];
-    }
-
-    work_group_barrier(CLK_LOCAL_MEM_FENCE);
-
-    //----------------------------------------------------------------------------------------------
-    // process memorizing
-    //----------------------------------------------------------------------------------------------
-    __local SynapseSection* tempSectionMem = (__local SynapseSection*)localMemory;
-
-    for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
-    {
-        // skip if section is deleted
-        if(synapseSections[i].status == ACTIVE_SECTION) 
+        for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
         {
-            tempSectionMem[localId_x] = synapseSections[i];
-            memorizeSynapses(&tempSectionMem[localId_x], 
-                             i, 
-                             updateTransfers);
-            synapseSections[i] = tempSectionMem[localId_x];
-        }
-        else
-        {
-            UpdateTransfer transferContainer;
-            transferContainer.newWeight = -1.0f;
-            updateTransfers[i] = transferContainer;
+            tempNodes[localId_x] = nodes[i];
+            processNodes(&tempNodes[localId_x], 
+                         i, 
+                         axonTransfers,
+                         globalValue);
+            nodes[i] = tempNodes[localId_x];
         }
     }
-    //----------------------------------------------------------------------------------------------
+    else
+    {
+        if(globalId_x == 0)
+        {
+            printf("update\n");
+        }
+
+        //----------------------------------------------------------------------------------------------
+        // process memorizing
+        //----------------------------------------------------------------------------------------------
+        __local SynapseSection* tempSectionMem = (__local SynapseSection*)localMemory;
+
+        for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
+        {
+            // skip if section is deleted
+            if(synapseSections[i].status == ACTIVE_SECTION) 
+            {
+                tempSectionMem[localId_x] = synapseSections[i];
+                memorizeSynapses(&tempSectionMem[localId_x], 
+                                 i, 
+                                 updateTransfers);
+                synapseSections[i] = tempSectionMem[localId_x];
+            }
+            else
+            {
+                UpdateTransfer transferContainer;
+                transferContainer.newWeight = -1.0f;
+                transferContainer.targetId = UNINIT_STATE_32;
+                transferContainer.positionInEdge = UNINIT_STATE_8;
+                transferContainer.deleteEdge = 0;
+                updateTransfers[i] = transferContainer;
+            }
+        }
+        //----------------------------------------------------------------------------------------------
+    }
 }

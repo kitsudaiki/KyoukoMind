@@ -22,6 +22,7 @@ public:
     bool initializeGpu(Segment &segment,
                        const uint32_t numberOfBricks);
     bool copySynapseTransfersToGpu(Segment &segment);
+    bool copyGlobalValuesToGpu();
     bool updateNodeOnDevice(const uint32_t nodeId,
                             const float value);
     bool runOnGpu();
@@ -30,6 +31,10 @@ public:
 
 private:
     Kitsunemimi::Opencl::Opencl ocl;
+
+    Kitsunemimi::Opencl::OpenClConfig oclProcessingConfig;
+    Kitsunemimi::Opencl::OpenClConfig oclUpdateConfig;
+
     Kitsunemimi::Opencl::OpenClData oclData;
 
 };

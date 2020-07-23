@@ -22,6 +22,7 @@ struct GlobalValues
     float globalOutLearningTemp = 0.0f;
 
     float globalGlia = 1.0f;
+    uint32_t runUpdate = 0;
 };
 
 } // namespace KyoukoMind
