@@ -25,7 +25,7 @@ public:
     bool copyGlobalValuesToGpu();
     bool updateNodeOnDevice(const uint32_t nodeId,
                             const float value);
-    bool runOnGpu();
+    bool runOnGpu(const std::string &kernelName);
     bool copyAxonTransfersFromGpu();
     bool closeDevice();
 

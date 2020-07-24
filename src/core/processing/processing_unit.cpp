@@ -61,20 +61,14 @@ ProcessingUnit::run()
             LOG_DEBUG("time copy to gpu: " + std::to_string(gpu0 / 1000.0f) + '\n');
 
             // run process on gpu
-            getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues)->runUpdate = 0;
-            KyoukoRoot::m_gpuInterface->copyGlobalValuesToGpu();
-
             start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->runOnGpu();
+            KyoukoRoot::m_gpuInterface->runOnGpu("processing");
             end = std::chrono::system_clock::now();
             const float gpu1 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
             LOG_DEBUG("gpu run-time: " + std::to_string(gpu1 / 1000.0f) + '\n');
 
-            getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues)->runUpdate = 1;
-            KyoukoRoot::m_gpuInterface->copyGlobalValuesToGpu();
-
             start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->runOnGpu();
+            KyoukoRoot::m_gpuInterface->runOnGpu("updating");
             end = std::chrono::system_clock::now();
             const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
             LOG_DEBUG("gpu run-time: " + std::to_string(gpu2 / 1000.0f) + '\n');

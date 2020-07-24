@@ -34,8 +34,8 @@ GpuInterface::initializeGpu(Segment &segment,
                                      gpu_processing_cl_len);
 
     // create config-object
-    oclProcessingConfig.kernelCode = processingCode;
-    oclProcessingConfig.kernelName = "processing";
+    oclProcessingConfig.kernelDefinition.insert(std::make_pair("processing", processingCode));
+    oclProcessingConfig.kernelDefinition.insert(std::make_pair("updating", processingCode));
 
     // init gpu-connection
     if(ocl.initDevice(oclProcessingConfig) == false) {
@@ -168,9 +168,9 @@ GpuInterface::updateNodeOnDevice(const uint32_t nodeId,
  * @return
  */
 bool
-GpuInterface::runOnGpu()
+GpuInterface::runOnGpu(const std::string &kernelName)
 {
-    return ocl.run(oclData);
+    return ocl.run(oclData, kernelName);
 }
 
 /**
