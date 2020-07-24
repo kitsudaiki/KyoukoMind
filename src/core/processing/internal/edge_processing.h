@@ -32,6 +32,8 @@ lernEdge(EdgeSection &section,
          const uint16_t pos,
          const float weight)
 {
+    uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
+
     // try to create new synapse-section
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.location)];
     if(edge.synapseSectionId == UNINIT_STATE_32
@@ -53,13 +55,15 @@ lernEdge(EdgeSection &section,
 
         if(edge.synapseSectionId != UNINIT_STATE_32)
         {
-            const float randRatio = static_cast<float>(static_cast<uint32_t>(rand()) % 1024) / 1024.0f;
+            section.randomPos = (section.randomPos + 1) % 1024;
+            const float randRatio = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
             edgeWeight = weight * randRatio;
             edge.synapseWeight += weight * (1.0f - randRatio);
         }
 
         // update weight in next edges
-        const float randRatio = static_cast<float>(static_cast<uint32_t>(rand()) % 1024) / 1024.0f;
+        section.randomPos = (section.randomPos + 1) % 1024;
+        const float randRatio = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
         section.edges[pos * 2].edgeWeight += edgeWeight * randRatio;
         section.edges[(pos * 2) + 1].edgeWeight += edgeWeight * (1.0f - randRatio);
     }

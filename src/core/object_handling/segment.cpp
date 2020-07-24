@@ -146,6 +146,7 @@ Segment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
     for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
         EdgeSection tempEdge;
+        tempEdge.randomPos = i % 1024;
         array[i] = tempEdge;
     }
     edges.numberOfItems = numberOfEdgeSections;

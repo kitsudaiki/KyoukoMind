@@ -41,7 +41,8 @@ getInputSide(const uint32_t location)
 struct EdgeSection
 {
     uint32_t targetBrickId = UNINIT_STATE_32;
-    uint8_t padding1[4];
+    uint16_t randomPos = 0;
+    uint8_t padding1[2];
 
     Edge edges[255];
 
