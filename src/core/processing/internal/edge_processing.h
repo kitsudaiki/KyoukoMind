@@ -198,35 +198,6 @@ nextEdgeSectionStep(EdgeSection &section,
 }
 
 /**
- * @brief processEdgeSection
- * @param section
- * @param weight
- */
-inline void
-processEdgeSection(EdgeSection &section,
-                   const float weight,
-                   const uint32_t edgeSectionPos,
-                   const uint32_t brickId)
-{
-    nextEdgeSectionStep(section,
-                        1,
-                        weight,
-                        brickId,
-                        edgeSectionPos);
-
-
-    // some debug-output
-    /*float test = 0.0f;
-    for(uint32_t i = 1; i < 255; i++)
-    {
-        test += section.edges[i].synapseWeight;
-        std::cout<<"i: "<<i<<"   weight: "<<section.edges[i].edgeWeight<<std::endl;
-
-    }
-    std::cout<<"################################## test: "<<test<<"   weight: "<<weight<<std::endl;*/
-}
-
-/**
  * @brief cleanupEdgeSection
  * @param section
  */
@@ -269,38 +240,87 @@ cleanupEdgeSection(EdgeSection &section)
 }
 
 /**
+ * @brief processEdgeSection
+ * @param section
+ * @param weight
+ */
+inline uint32_t
+processEdgeSection()
+{
+    uint32_t count = 0;
+
+    Segment* segment = KyoukoRoot::m_segment;
+    EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
+    AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
+
+    for(uint32_t i = 0; i < 1; i++)
+    {
+        axonTransfers[i].weight = 100.0f;
+    }
+
+    for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
+    {
+        if(axonTransfers[i].weight == 0.0f) {
+            continue;
+        }
+
+        count++;
+        nextEdgeSectionStep(edgeSections[i],
+                            1,
+                            axonTransfers[i].weight,
+                            edgeSections[i].targetBrickId,
+                            i);
+        cleanupEdgeSection(edgeSections[i]);
+    }
+
+    return count;
+}
+
+
+/**
  * @brief updateEdgeSection
  * @param section
  * @param posInSection
  * @param weightDiff
  * @param deleteEdge
  */
-inline void
-updateEdgeSection(EdgeSection &section,
-                  const uint8_t posInSection,
-                  const float newWeight,
-                  const uint8_t deleteEdge)
+inline uint32_t
+updateEdgeSection()
 {
-    assert(posInSection < 255);
+    uint32_t count = 0;
 
-    Edge* edge = &section.edges[posInSection];
+    Segment* segment = KyoukoRoot::m_segment;
+    EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
 
-    // process synapse-connection
-    if(deleteEdge != 0)
+    UpdateTransfer* start = getBuffer<UpdateTransfer>(segment->updateTransfers);
+    UpdateTransfer* end = start + segment->updateTransfers.itemCapacity;
+
+    for(UpdateTransfer* container = start;
+        container < end;
+        container++)
     {
-        // std::cout<<"--- pos: "<<(int)posInSection<<std::endl;
-        assert(edge->synapseSectionId != UNINIT_STATE_32);
+        if(container->newWeight < 0.0f) {
+            continue;
+        }
 
-        assert(KyoukoRoot::m_segment->synapses.deleteDynamicItem(edge->synapseSectionId));
-        edge->synapseWeight = 0;
-        edge->synapseSectionId = UNINIT_STATE_32;
-    }
-    else
-    {
-        edge->synapseWeight = newWeight;
+        count++;
+
+        Edge* edge = &edgeSections[container->targetId].edges[container->positionInEdge];
+
+        // process synapse-connection
+        if(container->deleteEdge != 0)
+        {
+            assert(KyoukoRoot::m_segment->synapses.deleteDynamicItem(edge->synapseSectionId));
+            edge->synapseWeight = 0;
+            edge->synapseSectionId = UNINIT_STATE_32;
+        }
+        else
+        {
+            edge->synapseWeight = container->newWeight;
+        }
     }
 
-    return;
+    return count;
 }
 
 }
