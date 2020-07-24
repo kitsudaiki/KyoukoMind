@@ -31,7 +31,6 @@ public:
     ItemBuffer synapseTransfers;
 
     // other
-    ItemBuffer randomfloatValues;
     ItemBuffer randomIntValues;
     ItemBuffer globalValues;
 

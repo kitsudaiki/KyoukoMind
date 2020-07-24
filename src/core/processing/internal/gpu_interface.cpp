@@ -54,7 +54,6 @@ GpuInterface::initializeGpu(Segment &segment,
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
 
     // fill buffer for edges from host to gpu
     oclData.buffer[0].data = segment.synapseTransfers.buffer.data;
@@ -85,18 +84,14 @@ GpuInterface::initializeGpu(Segment &segment,
     oclData.buffer[4].numberOfObjects = segment.synapses.itemCapacity;
 
     // fill buffer for random values to map on gpu
-    oclData.buffer[5].data = segment.randomfloatValues.buffer.data;
-    oclData.buffer[5].numberOfBytes = segment.randomfloatValues.buffer.bufferPosition;
-    oclData.buffer[5].numberOfObjects = segment.randomfloatValues.itemCapacity;
-
-    oclData.buffer[6].data = segment.randomIntValues.buffer.data;
-    oclData.buffer[6].numberOfBytes = segment.randomIntValues.buffer.bufferPosition;
-    oclData.buffer[6].numberOfObjects = segment.randomIntValues.itemCapacity;
+    oclData.buffer[5].data = segment.randomIntValues.buffer.data;
+    oclData.buffer[5].numberOfBytes = segment.randomIntValues.buffer.bufferPosition;
+    oclData.buffer[5].numberOfObjects = segment.randomIntValues.itemCapacity;
 
     // fill buffer for global values to map on gpu
-    oclData.buffer[7].data = segment.globalValues.buffer.data;
-    oclData.buffer[7].numberOfBytes = segment.globalValues.buffer.bufferPosition;
-    oclData.buffer[7].numberOfObjects = segment.globalValues.itemCapacity;
+    oclData.buffer[6].data = segment.globalValues.buffer.data;
+    oclData.buffer[6].numberOfBytes = segment.globalValues.buffer.bufferPosition;
+    oclData.buffer[6].numberOfObjects = segment.globalValues.itemCapacity;
 
     // TODO: replace with a validation to make sure, that the local memory is big enough
     assert(ocl.getLocalMemorySize() == 256*256);
@@ -134,7 +129,7 @@ GpuInterface::copySynapseTransfersToGpu(Segment &segment)
 bool
 GpuInterface::copyGlobalValuesToGpu()
 {
-    return ocl.updateBufferOnDevice(oclData.buffer[7], 1);
+    return ocl.updateBufferOnDevice(oclData.buffer[6], 1);
 }
 
 /**
