@@ -32,36 +32,46 @@ lernEdge(EdgeSection &section,
          const uint16_t pos,
          const float weight)
 {
+    uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
+
     // try to create new synapse-section
-    if((edge.synapseSectionId == UNINIT_STATE_32
-            && static_cast<uint32_t>(rand()) % 3 == 0))
+    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.location)];
+    if(edge.synapseSectionId == UNINIT_STATE_32
+            && brick->isNodeBrick)
     {
         SynapseSection newSection;
         const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
         assert(newPos != UNINIT_STATE_64);
         edge.synapseSectionId = static_cast<uint32_t>(newPos);
+        // very left bit says if this connection is new
         edge.synapseSectionId = edge.synapseSectionId | 0x80000000;
     }
 
     // update weight in current edge
-    float edgeWeight = 0.0f;
-    if(edge.synapseSectionId != UNINIT_STATE_32)
+
+    if(pos < 128)
     {
-        const float randRatio = static_cast<float>(static_cast<uint32_t>(rand()) % 1024) / 1024.0f;
-        edgeWeight = weight * randRatio;
-        edge.synapseWeight += weight * (1.0f - randRatio);
+        float edgeWeight = weight;
+
+        if(edge.synapseSectionId != UNINIT_STATE_32)
+        {
+            section.randomPos = (section.randomPos + 1) % 1024;
+            const float randRatio = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
+            edgeWeight = weight * randRatio;
+            edge.synapseWeight += weight * (1.0f - randRatio);
+        }
+
+        // update weight in next edges
+        section.randomPos = (section.randomPos + 1) % 1024;
+        const float randRatio = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
+        section.edges[pos * 2].edgeWeight += edgeWeight * randRatio;
+        section.edges[(pos * 2) + 1].edgeWeight += edgeWeight * (1.0f - randRatio);
     }
     else
     {
-        edgeWeight = weight;
-    }
-
-    if(pos < 127)
-    {
-        // update weight in next edges
-        const float randRatio = static_cast<float>(static_cast<uint32_t>(rand()) % 1024) / 1024.0f;
-        section.edges[pos * 2].edgeWeight += edgeWeight * randRatio;
-        section.edges[(pos * 2) + 1].edgeWeight += edgeWeight * (1.0f - randRatio);
+        if(edge.synapseSectionId != UNINIT_STATE_32) {
+            edge.synapseWeight = edge.edgeWeight;
+        }
     }
 
     //std::cout<<"+++ learn update: "<<(weight * randValue)<<std::endl;
@@ -83,21 +93,25 @@ processSynapseConnection(Edge &edge,
                          const uint16_t pos,
                          const uint32_t edgeSectionPos)
 {
-    //std::cout<<"--- edge.weight: "<<edge.weight<<std::endl;
-    const float weight = edge.synapseWeight * ratio;
     if(edge.synapseSectionId != UNINIT_STATE_32)
     {
         //return usedWeight;
         SynapseTransfer newTransfer;
         newTransfer.synapseSectionId = edge.synapseSectionId & 0x7FFFFFFF;
         newTransfer.isNew = edge.synapseSectionId >> 31;
-        newTransfer.weight = weight;
+        if(newTransfer.isNew != 0
+                && edgeSectionPos == 0) {
+            assert(newTransfer.isNew == 1);
+            // std::cout<<"create pos: "<<(int)pos<<"    edge-section-id: "<<edgeSectionPos<<"   synapse-section-id: "<<newTransfer.synapseSectionId<<std::endl;
+        }
+        newTransfer.weight = edge.synapseWeight * ratio;
         newTransfer.brickId = getBrickId(edge.location);
         newTransfer.positionInEdge = static_cast<uint8_t>(pos);
         newTransfer.sourceEdgeId = edgeSectionPos;
 
+        // set the left bit to 0 to mark this connections as not new anymore
         edge.synapseSectionId = edge.synapseSectionId & 0x7FFFFFFF;
-        //std::cout<<"SynapseTransfer-positionInEdge: "<<(int)pos<<"    brick-id: "<<newTransfer.brickId<<std::endl;
+        assert(edge.synapseSectionId >> 31 == 0);
 
         KyoukoRoot::m_segment->synapseTransfers.addNewItem(newTransfer);
         return;
@@ -139,7 +153,7 @@ nextEdgeSectionStep(EdgeSection &section,
 
     if(getBrickId(edge->location) != UNINIT_STATE_24)
     {
-        if(pos < 127)
+        if(pos < 128)
         {
             // calculate and process ratio
             const float totalWeight = edge->synapseWeight + 0.0000001f
@@ -149,10 +163,6 @@ nextEdgeSectionStep(EdgeSection &section,
             ratio = weight / totalWeight;
             if(ratio > 1.0f) {
                 lernEdge(section, *edge, pos, weight - totalWeight);
-            }
-            if(ratio <= 0.0f) {
-                std::cout<<"ratio: "<<ratio<<std::endl;
-                assert(false);
             }
 
             // limit ratio to 1.0
@@ -179,9 +189,6 @@ nextEdgeSectionStep(EdgeSection &section,
             if(ratio > 1.0f) {
                 lernEdge(section, *edge, pos, weight - totalWeight);
             }
-            if(ratio <= 0.0f) {
-                assert(false);
-            }
 
             // limit ratio to 1.0
             ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
@@ -190,11 +197,50 @@ nextEdgeSectionStep(EdgeSection &section,
         // process connection to synapse
         processSynapseConnection(*edge, ratio, pos, edgeSectionPos);
     }
-    else {
-        assert(edge->synapseWeight == 0.0f);
-    }
 
     return;
+}
+
+/**
+ * @brief cleanupEdgeSection
+ * @param section
+ */
+inline void
+cleanupEdgeSection(EdgeSection &section)
+{
+    for(uint32_t i = 255; i >= 128; i--)
+    {
+        Edge* edge = &section.edges[i];
+        if(edge->synapseSectionId == UNINIT_STATE_32)
+        {
+            edge->edgeWeight = 0.0f;
+            edge->location = UNINIT_STATE_32;
+        }
+        else
+        {
+            edge->edgeWeight = edge->synapseWeight;
+        }
+    }
+
+    for(uint32_t i = 127; i >= 1; i--)
+    {
+        Edge* edge = &section.edges[i];
+        Edge* next1 = &section.edges[i * 2];
+        Edge* next2 = &section.edges[(i * 2) +1];
+
+        if(edge->synapseSectionId == UNINIT_STATE_32
+                && next1->edgeWeight == 0.0f
+                && next2->edgeWeight == 0.0f)
+        {
+            edge->edgeWeight = 0.0f;
+            edge->location = UNINIT_STATE_32;
+            edge->synapseWeight = 0.0f;
+        }
+        else
+        {
+            edge->edgeWeight = next1->edgeWeight + next2->edgeWeight + edge->synapseWeight;
+        }
+    }
 }
 
 /**
@@ -202,28 +248,33 @@ nextEdgeSectionStep(EdgeSection &section,
  * @param section
  * @param weight
  */
-inline void
-processEdgeSection(EdgeSection &section,
-                   const float weight,
-                   const uint32_t edgeSectionPos,
-                   const uint32_t brickId)
+inline uint32_t
+processEdgeSection()
 {
-    nextEdgeSectionStep(section,
-                        1,
-                        weight,
-                        brickId,
-                        edgeSectionPos);
+    uint32_t count = 0;
 
+    Segment* segment = KyoukoRoot::m_segment;
+    EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
+    AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
 
-    /*float test = 0.0f;
-    for(uint32_t i = 1; i < 255; i++)
+    for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
-        test += section.edges[i].synapseWeight;
-        std::cout<<"i: "<<i<<"   weight: "<<section.edges[i].edgeWeight<<std::endl;
+        if(axonTransfers[i].weight == 0.0f) {
+            continue;
+        }
 
+        count++;
+        nextEdgeSectionStep(edgeSections[i],
+                            1,
+                            axonTransfers[i].weight,
+                            edgeSections[i].targetBrickId,
+                            i);
+        cleanupEdgeSection(edgeSections[i]);
     }
-    std::cout<<"################################## test: "<<test<<"   weight: "<<weight<<std::endl;*/
+
+    return count;
 }
+
 
 /**
  * @brief updateEdgeSection
@@ -232,77 +283,43 @@ processEdgeSection(EdgeSection &section,
  * @param weightDiff
  * @param deleteEdge
  */
-inline void
-updateEdgeSection(EdgeSection &section,
-                  const uint8_t posInSection,
-                  const float newWeight,
-                  const uint8_t deleteEdge)
+inline uint32_t
+updateEdgeSection()
 {
-    assert(posInSection < 255);
+    uint32_t count = 0;
 
-    uint8_t pos = posInSection;
+    Segment* segment = KyoukoRoot::m_segment;
+    EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
 
-    Edge* edge = &section.edges[pos];
+    UpdateTransfer* start = getBuffer<UpdateTransfer>(segment->updateTransfers);
+    UpdateTransfer* end = start + segment->updateTransfers.itemCapacity;
 
-    // TODO: find out, why this id can be in uninit-state here, because this should exist,
-    //       but somehow it works. I don't get it and that's not good, even if it works ...
-    if(edge->synapseSectionId == UNINIT_STATE_32) {
-        return;
-    }
-
-    // process synapse-connection
-    if(deleteEdge != 0)
+    for(UpdateTransfer* container = start;
+        container < end;
+        container++)
     {
-        assert(KyoukoRoot::m_segment->synapses.deleteDynamicItem(edge->synapseSectionId));
-        edge->synapseWeight = 0;
-        edge->synapseSectionId = UNINIT_STATE_32;
-    }
-    else
-    {
-        edge->synapseWeight = newWeight;
-        assert(edge->synapseWeight >= 0.0f);
-    }
+        if(container->newWeight < 0.0f) {
+            continue;
+        }
 
-    // process edges
-    while(pos > 2)
-    {
-        if(pos < 127)
+        count++;
+
+        Edge* edge = &edgeSections[container->targetId].edges[container->positionInEdge];
+
+        // process synapse-connection
+        if(container->deleteEdge != 0)
         {
-            const Edge edge1 = section.edges[pos * 2];
-            const Edge edge2 = section.edges[(pos * 2) + 1];
-
-            if(getBrickId(edge1.location) == UNINIT_STATE_24
-                    && getBrickId(edge2.location) == UNINIT_STATE_24
-                    && edge->synapseSectionId == UNINIT_STATE_32)
-            {
-                edge->edgeWeight = 0.0f;
-                edge->location = UNINIT_STATE_32;
-                edge->synapseWeight = 0.0f;
-            }
-            else
-            {
-                edge->edgeWeight = edge1.edgeWeight + edge2.edgeWeight + edge->synapseWeight;
-            }
+            assert(KyoukoRoot::m_segment->synapses.deleteDynamicItem(edge->synapseSectionId));
+            edge->synapseWeight = 0;
+            edge->synapseSectionId = UNINIT_STATE_32;
         }
         else
         {
-            if(edge->synapseSectionId == UNINIT_STATE_32)
-            {
-                edge->edgeWeight = 0.0f;
-                edge->location = UNINIT_STATE_32;
-                edge->synapseWeight = 0.0f;
-            }
-            else
-            {
-                edge->edgeWeight = edge->synapseWeight;
-            }
+            edge->synapseWeight = container->newWeight;
         }
-
-        pos = pos >> 1;
-        edge = &section.edges[pos];
     }
 
-    return;
+    return count;
 }
 
 }

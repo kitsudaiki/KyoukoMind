@@ -62,17 +62,23 @@ ProcessingUnit::run()
 
             // run process on gpu
             start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->runOnGpu();
+            KyoukoRoot::m_gpuInterface->runOnGpu("processing");
             end = std::chrono::system_clock::now();
             const float gpu1 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
             LOG_DEBUG("gpu run-time: " + std::to_string(gpu1 / 1000.0f) + '\n');
+
+            start = std::chrono::system_clock::now();
+            KyoukoRoot::m_gpuInterface->runOnGpu("updating");
+            end = std::chrono::system_clock::now();
+            const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+            LOG_DEBUG("gpu run-time: " + std::to_string(gpu2 / 1000.0f) + '\n');
 
             // copy result from gpu to host
             start = std::chrono::system_clock::now();
             KyoukoRoot::m_gpuInterface->copyAxonTransfersFromGpu();
             end = std::chrono::system_clock::now();
-            const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-            LOG_DEBUG("time copy from gpu: " + std::to_string(gpu2 / 1000.0f) + '\n');
+            const float gpu3 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+            LOG_DEBUG("time copy from gpu: " + std::to_string(gpu3 / 1000.0f) + '\n');
         }
 
         segment->synapseTransfers.deleteAll();
@@ -82,49 +88,11 @@ ProcessingUnit::run()
 
         start = std::chrono::system_clock::now();
 
-        EdgeSection* edges = getBuffer<EdgeSection>(segment->edges);
+        const uint32_t numberOfActiveUpdates = updateEdgeSection();
+        const uint32_t numberOfActiveAxons = processEdgeSection();
 
-        uint32_t count = 0;
-
-        // process update-transfers
-        UpdateTransfer* updates = getBuffer<UpdateTransfer>(segment->updateTransfers);
-        for(uint32_t i = 0; i < segment->updateTransfers.itemCapacity; i++)
-        {
-            if(updates[i].newWeight < 0.0f) {
-                continue;
-            }
-
-            count++;
-            const UpdateTransfer container = updates[i];
-            updateEdgeSection(edges[container.targetId],
-                              container.positionInEdge,
-                              container.newWeight,
-                              container.deleteEdge);
-        }
-        std::cout<<"number of update-transfers: "<<count<<std::endl;
-
-        count = 0;
-
-        // process axon-transfers
-        AxonTransfer* axons = getBuffer<AxonTransfer>(segment->axonTransfers);
-        // test-input
-        for(uint32_t i = 0; i < 1; i++)
-        {
-            axons[i].weight = 100.0f;
-        }
-        for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
-        {
-            if(axons[i].weight == 0.0f) {
-                continue;
-            }
-            count++;
-            processEdgeSection(edges[i],
-                               axons[i].weight,
-                               i,
-                               edges[i].targetBrickId);
-        }
-
-        std::cout<<"number of active Axons: "<<count<<std::endl;
+        std::cout<<"number of update-transfers: "<<numberOfActiveUpdates<<std::endl;
+        std::cout<<"number of active Axons: "<<numberOfActiveAxons<<std::endl;
         std::cout<<"number of synapse-sections: "<<(KyoukoRoot::m_segment->synapses.numberOfItems)<<std::endl;
 
         end = std::chrono::system_clock::now();

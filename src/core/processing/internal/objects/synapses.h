@@ -28,11 +28,10 @@ struct Synapse
 struct SynapseSection
 {
     uint8_t status = ACTIVE_SECTION;
-
-    uint8_t numberOfSynapses = SYNAPSES_PER_SYNAPSESECTION;
-    uint8_t padding;
-
     uint8_t positionInEdge = UNINIT_STATE_8;
+
+    uint16_t randomPos = UNINIT_STATE_16;
+
     uint32_t sourceEdgeId = UNINIT_STATE_32;
     uint32_t sourceBrickId = UNINIT_STATE_32;
 

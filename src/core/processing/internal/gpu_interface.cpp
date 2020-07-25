@@ -30,16 +30,15 @@ bool
 GpuInterface::initializeGpu(Segment &segment,
                             const uint32_t numberOfBricks)
 {
-    const std::string kernelCode(reinterpret_cast<char*>(gpu_processing_cl),
-                                 gpu_processing_cl_len);
+    const std::string processingCode(reinterpret_cast<char*>(gpu_processing_cl),
+                                     gpu_processing_cl_len);
 
     // create config-object
-    Kitsunemimi::Opencl::OpenClConfig oclConfig;
-    oclConfig.kernelCode = kernelCode;
-    oclConfig.kernelName = "processing";
+    oclProcessingConfig.kernelDefinition.insert(std::make_pair("processing", processingCode));
+    oclProcessingConfig.kernelDefinition.insert(std::make_pair("updating", processingCode));
 
     // init gpu-connection
-    if(ocl.initDevice(oclConfig) == false) {
+    if(ocl.initDevice(oclProcessingConfig) == false) {
         return false;
     }
 
@@ -48,7 +47,6 @@ GpuInterface::initializeGpu(Segment &segment,
     oclData.threadsPerWg.x = 256;
 
     // add empty buffer
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
@@ -86,19 +84,14 @@ GpuInterface::initializeGpu(Segment &segment,
     oclData.buffer[4].numberOfObjects = segment.synapses.itemCapacity;
 
     // fill buffer for random values to map on gpu
-    oclData.buffer[5].data = segment.randomfloatValues.buffer.data;
-    oclData.buffer[5].numberOfBytes = segment.randomfloatValues.buffer.bufferPosition;
-    oclData.buffer[5].numberOfObjects = segment.randomfloatValues.itemCapacity;
-
-    oclData.buffer[6].data = segment.randomIntValues.buffer.data;
-    oclData.buffer[6].numberOfBytes = segment.randomIntValues.buffer.bufferPosition;
-    oclData.buffer[6].numberOfObjects = segment.randomIntValues.itemCapacity;
+    oclData.buffer[5].data = segment.randomIntValues.buffer.data;
+    oclData.buffer[5].numberOfBytes = segment.randomIntValues.buffer.bufferPosition;
+    oclData.buffer[5].numberOfObjects = segment.randomIntValues.itemCapacity;
 
     // fill buffer for global values to map on gpu
-    oclData.buffer[7].data = segment.globalValues.buffer.data;
-    oclData.buffer[7].numberOfBytes = segment.globalValues.buffer.bufferPosition;
-    oclData.buffer[7].numberOfObjects = segment.globalValues.itemCapacity;
-    oclData.buffer[7].useHostPtr = true;
+    oclData.buffer[6].data = segment.globalValues.buffer.data;
+    oclData.buffer[6].numberOfBytes = segment.globalValues.buffer.bufferPosition;
+    oclData.buffer[6].numberOfObjects = segment.globalValues.itemCapacity;
 
     // TODO: replace with a validation to make sure, that the local memory is big enough
     assert(ocl.getLocalMemorySize() == 256*256);
@@ -126,6 +119,17 @@ GpuInterface::copySynapseTransfersToGpu(Segment &segment)
 {
     return ocl.updateBufferOnDevice(oclData.buffer[0],
                                     segment.synapseTransfers.numberOfItems);
+}
+
+/**
+ * @brief GpuInterface::copyGlobalValuesToGpu
+ * @param segment
+ * @return
+ */
+bool
+GpuInterface::copyGlobalValuesToGpu()
+{
+    return ocl.updateBufferOnDevice(oclData.buffer[6], 1);
 }
 
 /**
@@ -159,9 +163,9 @@ GpuInterface::updateNodeOnDevice(const uint32_t nodeId,
  * @return
  */
 bool
-GpuInterface::runOnGpu()
+GpuInterface::runOnGpu(const std::string &kernelName)
 {
-    return ocl.run(oclData);
+    return ocl.run(oclData, kernelName);
 }
 
 /**

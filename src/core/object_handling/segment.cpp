@@ -114,29 +114,6 @@ Segment::initNodeBlocks(const uint32_t &numberOfNodes)
 bool
 Segment::initRandomValues()
 {
-    if(randomfloatValues.initBuffer<float>(999) == false) {
-        return false;
-    }
-
-    float* randWeight = getBuffer<float>(randomfloatValues);
-    float compare = 0.0f;
-    for(uint32_t i = 0; i < 999; i++)
-    {
-        if(i % 3 == 0) {
-            compare = 0.0f;
-        }
-
-        float tempValue = static_cast<float>(rand()) / 0x7FFFFFFF;
-        assert(tempValue <= 1.0f);
-        if(tempValue + compare > 1.0f) {
-            tempValue = 1.0f - compare;
-        }
-        compare += tempValue;
-        randWeight[i] = tempValue;
-    }
-    randomfloatValues.numberOfItems = 999;
-
-
     if(randomIntValues.initBuffer<uint32_t>(1024) == false) {
         return false;
     }
@@ -169,6 +146,7 @@ Segment::initEdgeSectionBlocks(const uint32_t numberOfEdgeSections)
     for(uint32_t i = 0; i < numberOfEdgeSections; i++)
     {
         EdgeSection tempEdge;
+        tempEdge.randomPos = i % 1024;
         array[i] = tempEdge;
     }
     edges.numberOfItems = numberOfEdgeSections;
