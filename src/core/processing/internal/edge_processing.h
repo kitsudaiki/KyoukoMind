@@ -257,11 +257,6 @@ processEdgeSection()
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
 
-    for(uint32_t i = 0; i < 1; i++)
-    {
-        axonTransfers[i].weight = 100.0f;
-    }
-
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
         if(axonTransfers[i].weight == 0.0f) {
