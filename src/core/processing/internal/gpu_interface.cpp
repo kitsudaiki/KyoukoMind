@@ -34,8 +34,12 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
                                      gpu_processing_cl_len);
 
     // create config-object
-    oclProcessingConfig.kernelDefinition.insert(std::make_pair("processing", processingCode));
-    oclProcessingConfig.kernelDefinition.insert(std::make_pair("updating", processingCode));
+    oclProcessingConfig.kernelDefinition.insert(std::make_pair("synapse_processing",
+                                                               processingCode));
+    oclProcessingConfig.kernelDefinition.insert(std::make_pair("node_processing",
+                                                               processingCode));
+    oclProcessingConfig.kernelDefinition.insert(std::make_pair("updating",
+                                                               processingCode));
 
     // init gpu-connection
     if(ocl.initDevice(oclProcessingConfig) == false) {

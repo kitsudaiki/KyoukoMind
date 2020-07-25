@@ -62,12 +62,8 @@ ProcessingUnit::run()
 
             // run process on gpu
             start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->runOnGpu("processing");
-            end = std::chrono::system_clock::now();
-            const float gpu1 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-            LOG_DEBUG("gpu run-time: " + std::to_string(gpu1 / 1000.0f) + '\n');
-
-            start = std::chrono::system_clock::now();
+            KyoukoRoot::m_gpuInterface->runOnGpu("synapse_processing");
+            KyoukoRoot::m_gpuInterface->runOnGpu("node_processing");
             KyoukoRoot::m_gpuInterface->runOnGpu("updating");
             end = std::chrono::system_clock::now();
             const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();

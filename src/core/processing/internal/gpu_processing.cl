@@ -376,40 +376,35 @@ memorizeSynapses(__local SynapseSection* synapseSection,
 //==================================================================================================
 
 __kernel void 
-processing(__global const SynapseTransfer* synapseTransfers,
-           const ulong numberOfSynapseTransfers,
-           __global AxonTransfer* axonTransfers,
-           const ulong numberOfAxonTransfers,
-           __global UpdateTransfer* updateTransfers,
-           const ulong numberOfUpdateTransfers,
-           __global Node* nodes,
-           const ulong numberOfNodes,
-           __global SynapseSection* synapseSections,
-           const ulong numberOfSynapseSections,
-           __global uint* randomInts,
-           const ulong numberRandomInts,
-           __global GlobalValues* globalValue,
-           const ulong numberGlobalValue,
-           __local uchar* localMemory,
-           const ulong localMemorySize)
+synapse_processing(__global const SynapseTransfer* synapseTransfers,
+                   const ulong numberOfSynapseTransfers,
+                   __global AxonTransfer* axonTransfers,
+                   const ulong numberOfAxonTransfers,
+                   __global UpdateTransfer* updateTransfers,
+                   const ulong numberOfUpdateTransfers,
+                   __global Node* nodes,
+                   const ulong numberOfNodes,
+                   __global SynapseSection* synapseSections,
+                   const ulong numberOfSynapseSections,
+                   __global uint* randomInts,
+                   const ulong numberRandomInts,
+                   __global GlobalValues* globalValue,
+                   const ulong numberGlobalValue,
+                   __local uchar* localMemory,
+                   const ulong localMemorySize)
 {
     // calculate global ids
     const size_t globalId_x = get_global_id(0);
     const size_t globalSize_x = get_global_size(0);
     const int localId_x = get_local_id(0);
     const int localSize_x = get_local_size(0);
-    globalValue->globalGlia = 1.1f;
-
     const uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
     const uint brickId = globalId_x / localSize_x; 
 
+    globalValue->globalGlia = 1.1f;
+
     if(brickId >= numberOfBricks) {
         return;
-    }
-
-    if(globalId_x == 0)
-    {
-        printf("processing\n");
     }
 
     //----------------------------------------------------------------------------------------------
@@ -448,13 +443,40 @@ processing(__global const SynapseTransfer* synapseTransfers,
         synapseSections[synapseSectionId] = tempSections[localId_x];
         synapseSections[synapseSectionId].sourceBrickId = brickId;
     }
+}
 
-    work_group_barrier(CLK_LOCAL_MEM_FENCE | CLK_GLOBAL_MEM_FENCE);
+//==================================================================================================
 
-    //----------------------------------------------------------------------------------------------
-    // process nodes
-    //----------------------------------------------------------------------------------------------
+__kernel void 
+node_processing(__global const SynapseTransfer* synapseTransfers,
+                const ulong numberOfSynapseTransfers,
+                __global AxonTransfer* axonTransfers,
+                const ulong numberOfAxonTransfers,
+                __global UpdateTransfer* updateTransfers,
+                const ulong numberOfUpdateTransfers,
+                __global Node* nodes,
+                const ulong numberOfNodes,
+                __global SynapseSection* synapseSections,
+                const ulong numberOfSynapseSections,
+                __global uint* randomInts,
+                const ulong numberRandomInts,
+                __global GlobalValues* globalValue,
+                const ulong numberGlobalValue,
+                __local uchar* localMemory,
+                const ulong localMemorySize)
+{
+    const size_t globalId_x = get_global_id(0);
+    const size_t globalSize_x = get_global_size(0);
+    const int localId_x = get_local_id(0);
+    const int localSize_x = get_local_size(0);
+    const uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
+    const uint brickId = globalId_x / localSize_x; 
+
     __local Node* tempNodes = (__local Node*)localMemory;
+
+    if(brickId >= numberOfBricks) {
+        return;
+    }
 
     for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
     {
@@ -466,6 +488,8 @@ processing(__global const SynapseTransfer* synapseTransfers,
         nodes[i] = tempNodes[localId_x];
     }
 }
+
+//==================================================================================================
 
 __kernel void
 updating(__global const SynapseTransfer* synapseTransfers,
@@ -489,11 +513,6 @@ updating(__global const SynapseTransfer* synapseTransfers,
     const size_t globalSize_x = get_global_size(0);
     const int localId_x = get_local_id(0);
     const int localSize_x = get_local_size(0);
-
-    if(globalId_x == 0)
-    {
-        printf("update\n");
-    }
 
     //----------------------------------------------------------------------------------------------
     // process memorizing
