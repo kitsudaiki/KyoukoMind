@@ -11,7 +11,6 @@
 #include <core/object_handling/item_buffer.h>
 #include <core/object_handling/brick.h>
 
-
 namespace KyoukoMind
 {
 
@@ -44,14 +43,7 @@ public:
     uint64_t addEmptySynapseSection(const uint32_t sourceEdgeId,
                                     const uint32_t sourceBrickId);
 
-    bool initBricks(const uint32_t numberOfBricks);
-    bool initGlobalValues();
-    bool initNodeBlocks(const uint32_t &numberOfNodes);
-    bool initRandomValues();
-    bool initEdgeSectionBlocks(const uint32_t numberOfEdgeSections);
-    bool initSynapseSectionBlocks(const uint32_t numberOfSynapseSections);
-    bool initTransferBlocks(const uint32_t totalNumberOfAxons,
-                            const uint64_t maxNumberOySynapseSections);
+
     bool addClientOutputConnection(const uint32_t brickPos);
     DataItem* getMetadata();
 

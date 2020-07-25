@@ -99,7 +99,8 @@ HEADERS += \
     src/core/object_handling/item_buffer.h \
     src/core/processing/internal/edge_processing.h \
     src/core/global_values.h \
-    src/core/object_handling/segment.h
+    src/core/object_handling/segment.h \
+    src/initializing/segment_initializing.h
 
 SOURCES += \
     src/core/processing/processing_unit.cpp \
@@ -115,7 +116,8 @@ SOURCES += \
     src/dummy_input.cpp \
     src/core/object_handling/brick.cpp \
     src/core/object_handling/item_buffer.cpp \
-    src/core/object_handling/segment.cpp
+    src/core/object_handling/segment.cpp \
+    src/initializing/segment_initializing.cpp
 
 
 CONFIG(run_tests) {

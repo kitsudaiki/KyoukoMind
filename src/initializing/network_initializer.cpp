@@ -13,6 +13,7 @@
 #include <core/processing/processing_unit_handler.h>
 //#include <core/processing/methods/message_processing.h>
 #include <core/processing/internal/gpu_interface.h>
+#include <initializing/segment_initializing.h>
 
 namespace KyoukoMind
 {
@@ -48,32 +49,32 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     const uint32_t numberOfNodeBricks = getNumberOfNodeBricks();
     const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
 
-    if(segment->initNodeBlocks(totalNumberOfNodes) == false) {
+    if(initNodeBlocks(*segment, totalNumberOfNodes) == false) {
         return false;
     }
 
-    if(segment->initRandomValues() == false) {
+    if(initRandomValues(*segment) == false) {
         return false;
     }
 
-    if(segment->initEdgeSectionBlocks(totalNumberOfNodes) == false) {
+    if(initEdgeSectionBlocks(*segment, totalNumberOfNodes) == false) {
         return false;
     }
 
     // init bricks
-    segment->initBricks(numberOfBricks);
+    initBricks(*segment, numberOfBricks);
     addBricks(*segment);
     connectAllBricks(*segment);
     createAxons(*segment, m_networkMetaStructure);
 
-    if(segment->initSynapseSectionBlocks(MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+    if(initSynapseSectionBlocks(*segment, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
         return false;
     }
     if(segment->synapses.deleteAll() == false) {
         return false;
     }
 
-    if(segment->initTransferBlocks(totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+    if(initTransferBlocks(*segment, totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
         return false;
     }
 
