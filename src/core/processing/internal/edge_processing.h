@@ -53,25 +53,25 @@ lernEdge(EdgeSection &section,
     {
         float edgeWeight = weight;
 
-        if(edge.synapseSectionId != UNINIT_STATE_32)
-        {
-            section.randomPos = (section.randomPos + 1) % 1024;
-            const float randRatio = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
-            edgeWeight = weight * randRatio;
-            edge.synapseWeight += weight * (1.0f - randRatio);
-        }
+        // get random values
+        section.randomPos = (section.randomPos + 1) % 1024;
+        const float randRatio1 = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
+        section.randomPos = (section.randomPos + 1) % 1024;
+        const float randRatio2 = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
+
+        // update synapse-weight
+        const uint8_t hasSynapse = edge.synapseSectionId != UNINIT_STATE_32;
+        edgeWeight -= hasSynapse * (weight * randRatio1);
+        edge.synapseWeight += hasSynapse * (weight * randRatio1);
 
         // update weight in next edges
-        section.randomPos = (section.randomPos + 1) % 1024;
-        const float randRatio = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
-        section.edges[pos * 2].edgeWeight += edgeWeight * randRatio;
-        section.edges[(pos * 2) + 1].edgeWeight += edgeWeight * (1.0f - randRatio);
+        section.edges[pos * 2].edgeWeight += edgeWeight * randRatio2;
+        section.edges[(pos * 2) + 1].edgeWeight += edgeWeight * (1.0f - randRatio2);
     }
     else
     {
-        if(edge.synapseSectionId != UNINIT_STATE_32) {
-            edge.synapseWeight = edge.edgeWeight;
-        }
+        const uint8_t hasSynapse = edge.synapseSectionId != UNINIT_STATE_32;
+        edge.synapseWeight = hasSynapse * edge.edgeWeight;
     }
 
     //std::cout<<"+++ learn update: "<<(weight * randValue)<<std::endl;
@@ -99,11 +99,6 @@ processSynapseConnection(Edge &edge,
         SynapseTransfer newTransfer;
         newTransfer.synapseSectionId = edge.synapseSectionId & 0x7FFFFFFF;
         newTransfer.isNew = edge.synapseSectionId >> 31;
-        if(newTransfer.isNew != 0
-                && edgeSectionPos == 0) {
-            assert(newTransfer.isNew == 1);
-            // std::cout<<"create pos: "<<(int)pos<<"    edge-section-id: "<<edgeSectionPos<<"   synapse-section-id: "<<newTransfer.synapseSectionId<<std::endl;
-        }
         newTransfer.weight = edge.synapseWeight * ratio;
         newTransfer.brickId = getBrickId(edge.location);
         newTransfer.positionInEdge = static_cast<uint8_t>(pos);
@@ -133,7 +128,6 @@ nextEdgeSectionStep(EdgeSection &section,
                     const uint32_t lastLocation,
                     const uint32_t edgeSectionPos)
 {
-    assert(getBrickId(lastLocation) != UNINIT_STATE_24);
     // end-condition
     if(weight < 0.1f) {
         return;
