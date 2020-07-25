@@ -14,10 +14,10 @@ namespace KyoukoMind
 {
 class Segment;
 
-class GpuInterface
+class GpuProcessingUnit
 {
 public:
-    GpuInterface();
+    GpuProcessingUnit();
 
     bool initializeGpu(Segment &segment,
                        const uint32_t numberOfBricks);
@@ -36,7 +36,6 @@ private:
     Kitsunemimi::Opencl::OpenClConfig oclUpdateConfig;
 
     Kitsunemimi::Opencl::OpenClData oclData;
-
 };
 
 }

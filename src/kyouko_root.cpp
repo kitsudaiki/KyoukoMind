@@ -30,7 +30,7 @@ namespace KyoukoMind
 
 // init static variables
 KyoukoMind::Segment* KyoukoRoot::m_segment = nullptr;
-KyoukoMind::GpuInterface* KyoukoRoot::m_gpuInterface = nullptr;
+KyoukoMind::GpuProcessingUnit* KyoukoRoot::m_gpuInterface = nullptr;
 
 Kitsunemimi::Project::Session* KyoukoRoot::m_clientSession = nullptr;
 Kitsunemimi::Project::Session* KyoukoRoot::m_controlSession = nullptr;
@@ -46,7 +46,7 @@ KyoukoRoot::KyoukoRoot()
 
     m_segment = new Segment();
     m_inputBricks = new std::map<uint32_t, Brick*>();
-    m_gpuInterface = new GpuInterface();
+    m_gpuInterface = new GpuProcessingUnit();
 
     m_sessionController = new Kitsunemimi::Project::SessionController(this, &sessionCallback,
                                                                       this, &clientCallback,

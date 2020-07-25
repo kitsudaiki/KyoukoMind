@@ -20,7 +20,7 @@ namespace KyoukoMind
 class NetworkManager;
 class DummyInput;
 class Segment;
-class GpuInterface;
+class GpuProcessingUnit;
 class Brick;
 
 class KyoukoRoot
@@ -31,7 +31,7 @@ public:
     ~KyoukoRoot();
 
     static KyoukoMind::Segment* m_segment;
-    static KyoukoMind::GpuInterface* m_gpuInterface;
+    static KyoukoMind::GpuProcessingUnit* m_gpuInterface;
 
     static Kitsunemimi::Project::Session* m_clientSession;
     static Kitsunemimi::Project::Session* m_controlSession;

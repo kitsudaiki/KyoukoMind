@@ -14,7 +14,7 @@
 namespace KyoukoMind
 {
 
-GpuInterface::GpuInterface()
+GpuProcessingUnit::GpuProcessingUnit()
 {
 
 }
@@ -27,7 +27,7 @@ GpuInterface::GpuInterface()
  * @return
  */
 bool
-GpuInterface::initializeGpu(Segment &segment,
+GpuProcessingUnit::initializeGpu(Segment &segment,
                             const uint32_t numberOfBricks)
 {
     const std::string processingCode(reinterpret_cast<char*>(gpu_processing_cl),
@@ -115,7 +115,7 @@ GpuInterface::initializeGpu(Segment &segment,
  * @return
  */
 bool
-GpuInterface::copySynapseTransfersToGpu(Segment &segment)
+GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
 {
     return ocl.updateBufferOnDevice(oclData.buffer[0],
                                     segment.synapseTransfers.numberOfItems);
@@ -127,7 +127,7 @@ GpuInterface::copySynapseTransfersToGpu(Segment &segment)
  * @return
  */
 bool
-GpuInterface::copyGlobalValuesToGpu()
+GpuProcessingUnit::copyGlobalValuesToGpu()
 {
     return ocl.updateBufferOnDevice(oclData.buffer[6], 1);
 }
@@ -138,7 +138,7 @@ GpuInterface::copyGlobalValuesToGpu()
  * @return
  */
 bool
-GpuInterface::updateNodeOnDevice(const uint32_t nodeId,
+GpuProcessingUnit::updateNodeOnDevice(const uint32_t nodeId,
                                  const float value)
 {
     const uint64_t pos = nodeId * sizeof(Node);
@@ -163,7 +163,7 @@ GpuInterface::updateNodeOnDevice(const uint32_t nodeId,
  * @return
  */
 bool
-GpuInterface::runOnGpu(const std::string &kernelName)
+GpuProcessingUnit::runOnGpu(const std::string &kernelName)
 {
     return ocl.run(oclData, kernelName);
 }
@@ -176,7 +176,7 @@ GpuInterface::runOnGpu(const std::string &kernelName)
  * @return
  */
 bool
-GpuInterface::copyAxonTransfersFromGpu()
+GpuProcessingUnit::copyAxonTransfersFromGpu()
 {
     return ocl.copyFromDevice(oclData);
 }
@@ -188,7 +188,7 @@ GpuInterface::copyAxonTransfersFromGpu()
  * @return
  */
 bool
-GpuInterface::closeDevice()
+GpuProcessingUnit::closeDevice()
 {
     // because the memory was allocated at another point, it should not be free by the close-process
     // of the device
