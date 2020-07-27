@@ -5,12 +5,12 @@
 
 #include <kyouko_root.h>
 #include <core/network_manager.h>
-#include <core/global_values.h>
+#include <core/object_handling/global_values.h>
 #include <core/object_handling/segment.h>
 #include <core/object_handling/brick.h>
 #include <core/obj_converter.h>
 #include <core/validation.h>
-#include <core/processing/internal/gpu_interface.h>
+#include <core/processing/gpu/gpu_processing_uint.h>
 
 #include <dummy_input.h>
 

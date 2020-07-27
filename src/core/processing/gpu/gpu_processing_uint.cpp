@@ -3,12 +3,12 @@
  *  Contact: tobias.anker@kitsunemimi.moe
  */
 
-#include "gpu_interface.h"
+#include "gpu_processing_uint.h"
 
 #include <libKitsunemimiOpencl/gpu_interface.h>
 #include <gpu_processing.h>
-#include <core/processing/internal/objects/transfer_objects.h>
-#include <core/processing/internal/objects/node.h>
+#include <core/processing/objects/transfer_objects.h>
+#include <core/processing/objects/node.h>
 #include <core/object_handling/segment.h>
 
 namespace KyoukoMind

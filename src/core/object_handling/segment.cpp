@@ -5,10 +5,10 @@
 
 #include "segment.h"
 
-#include <core/processing/internal/objects/transfer_objects.h>
-#include <core/processing/internal/objects/node.h>
-#include <core/processing/internal/objects/synapses.h>
-#include <core/global_values.h>
+#include <core/processing/objects/transfer_objects.h>
+#include <core/processing/objects/node.h>
+#include <core/processing/objects/synapses.h>
+#include <core/object_handling/global_values.h>
 
 #include <initializing/segment_initializing.h>
 

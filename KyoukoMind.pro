@@ -66,59 +66,57 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/processing/internal/objects/container_definitions.h \
-    src/core/processing/internal/objects/edges.h \
-    src/core/processing/internal/objects/node.h \
-    src/core/processing/internal/objects/synapses.h \
-    src/core/processing/processing_unit.h \
+    src/core/object_handling/brick.h \
+    src/core/object_handling/global_values.h \
+    src/core/object_handling/item_buffer.h \
+    src/core/object_handling/segment.h \
+    src/core/processing/cpu/cpu_processing_unit.h \
+    src/core/processing/cpu/edge_processing.h \
+    src/core/processing/external/edge_methods.h \
+    src/core/processing/external/message_processing.h \
+    src/core/processing/external/process_learning.h \
+    src/core/processing/external/process_normal.h \
+    src/core/processing/external/process_update.h \
+    src/core/processing/gpu/gpu_processing_uint.h \
+    src/core/processing/objects/container_definitions.h \
+    src/core/processing/objects/edges.h \
+    src/core/processing/objects/node.h \
+    src/core/processing/objects/synapses.h \
+    src/core/processing/objects/transfer_objects.h \
     src/core/processing/processing_unit_handler.h \
     src/core/network_manager.h \
+    src/core/obj_converter.h \
+    src/core/validation.h \
     src/initializing/axon_initializer.h \
     src/initializing/file_parser.h \
     src/initializing/init_meta_data.h \
     src/initializing/network_initializer.h \
-    src/common.h \
-    src/args.h \
-    src/config.h \
-    src/io/network_callbacks.h \
-    src/core/processing/external/edge_methods.h \
+    src/initializing/segment_initializing.h \
     src/io/client_processing.h \
     src/io/control_processing.h \
-    src/core/obj_converter.h \
-    src/core/processing/internal/gpu_processing.cl \
-    src/core/processing/internal/gpu_interface.h \
-    src/core/processing/internal/objects/transfer_objects.h \
-    src/core/validation.h \
-    src/kyouko_root.h \
+    src/io/network_callbacks.h \
+    src/args.h \
+    src/common.h \
+    src/config.h \
     src/dummy_input.h \
-    src/core/processing/external/process_learning.h \
-    src/core/processing/external/process_update.h \
-    src/core/processing/external/process_normal.h \
-    src/core/processing/external/message_processing.h \
-    src/core/object_handling/brick.h \
-    src/core/object_handling/item_buffer.h \
-    src/core/processing/internal/edge_processing.h \
-    src/core/global_values.h \
-    src/core/object_handling/segment.h \
-    src/initializing/segment_initializing.h
+    src/kyouko_root.h
 
 SOURCES += \
-    src/core/processing/processing_unit.cpp \
-    src/core/processing/processing_unit_handler.cpp \
-    src/core/network_manager.cpp \
-    src/initializing/axon_initializer.cpp \
-    src/initializing/file_parser.cpp \
-    src/initializing/network_initializer.cpp \
-    src/core/obj_converter.cpp \
-    src/core/processing/internal/gpu_interface.cpp \
-    src/core/validation.cpp \
-    src/kyouko_root.cpp \
-    src/dummy_input.cpp \
     src/core/object_handling/brick.cpp \
     src/core/object_handling/item_buffer.cpp \
     src/core/object_handling/segment.cpp \
-    src/initializing/segment_initializing.cpp
-
+    src/core/processing/cpu/cpu_processing_unit.cpp \
+    src/core/processing/processing_unit_handler.cpp \
+    src/core/network_manager.cpp \
+    src/core/obj_converter.cpp \
+    src/core/validation.cpp \
+    src/initializing/axon_initializer.cpp \
+    src/initializing/file_parser.cpp \
+    src/initializing/network_initializer.cpp \
+    src/initializing/segment_initializing.cpp \
+    src/dummy_input.cpp \
+    src/kyouko_root.cpp \
+    src/core/processing/gpu/gpu_processing_uint.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
@@ -132,20 +130,16 @@ SOURCES += \
     src/main.cpp
 }
 
-GPU_KERNEL = src/core/processing/internal/gpu_processing.cl
+GPU_KERNEL = src/core/processing/gpu/synapse_node_processing.cl
 
 OTHER_FILES +=  \
     $$GPU_KERNEL
 
 gpu_processing.input = GPU_KERNEL
 gpu_processing.output = ${QMAKE_FILE_BASE}.h
-gpu_processing.commands = xxd -i ${QMAKE_FILE_IN} | sed 's/______KyoukoMind_src_core_processing_internal_//g' > ${QMAKE_FILE_BASE}.h
+gpu_processing.commands = xxd -i ${QMAKE_FILE_IN} | sed 's/______KyoukoMind_src_core_processing_gpu_//g' > ${QMAKE_FILE_BASE}.h
 gpu_processing.variable_out = HEADERS
 gpu_processing.CONFIG += target_predeps no_link
 
 QMAKE_EXTRA_COMPILERS += gpu_processing
-
-
-
-
 

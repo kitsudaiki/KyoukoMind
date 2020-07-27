@@ -15,12 +15,12 @@ class GlobalValuesHandler;
 class Segment;
 class Brick;
 
-class ProcessingUnit
+class CpuProcessingUnit
         : public Kitsunemimi::Thread
 {
 
 public:
-    ProcessingUnit();
+    CpuProcessingUnit();
 
     void run();
 

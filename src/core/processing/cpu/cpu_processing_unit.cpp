@@ -3,19 +3,19 @@
  *  Contact: tobias.anker@kitsunemimi.moe
  */
 
-#include <core/processing/processing_unit.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 #include <kyouko_root.h>
 
 #include <core/object_handling/segment.h>
-#include <core/processing/internal/objects/transfer_objects.h>
-#include <core/global_values.h>
+#include <core/processing/objects/transfer_objects.h>
+#include <core/object_handling/global_values.h>
 
 #include <core/object_handling/brick.h>
-#include <core/processing/internal/objects/container_definitions.h>
+#include <core/processing/objects/container_definitions.h>
 
 #include <core/processing/external/message_processing.h>
-#include <core/processing/internal/edge_processing.h>
-#include <core/processing/internal/gpu_interface.h>
+#include <core/processing/cpu/edge_processing.h>
+#include <core/processing/gpu/gpu_processing_uint.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -29,7 +29,7 @@ namespace KyoukoMind
  * @brief ProcessingUnit::ProcessingUnit
  * @param brickHandler
  */
-ProcessingUnit::ProcessingUnit()
+CpuProcessingUnit::CpuProcessingUnit()
 {
     m_block = true;
 }
@@ -38,7 +38,7 @@ ProcessingUnit::ProcessingUnit()
  * @brief ProcessingUnit::run
  */
 void
-ProcessingUnit::run()
+CpuProcessingUnit::run()
 {
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;

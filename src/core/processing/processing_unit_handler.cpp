@@ -4,7 +4,7 @@
  */
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/processing/processing_unit.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 
 #include <libKitsunemimiCommon/threading/thread.h>
 
@@ -43,7 +43,7 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
 
     for(uint16_t i = 0; i < numberOfThreads; i++)
     {
-        ProcessingUnit* newUnit = new ProcessingUnit();
+        CpuProcessingUnit* newUnit = new CpuProcessingUnit();
         m_allProcessingUnits.push_back(newUnit);
         newUnit->startThread();
     }
@@ -76,7 +76,7 @@ ProcessingUnitHandler::closeAllProcessingUnits()
 
     for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++)
     {
-        ProcessingUnit* unit = m_allProcessingUnits.at(i);
+        CpuProcessingUnit* unit = m_allProcessingUnits.at(i);
         unit->stopThread();
         delete unit;
     }

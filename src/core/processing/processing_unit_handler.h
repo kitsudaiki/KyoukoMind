@@ -10,7 +10,7 @@
 
 namespace KyoukoMind
 {
-class ProcessingUnit;
+class CpuProcessingUnit;
 class BrickQueue;
 
 class ProcessingUnitHandler
@@ -23,7 +23,7 @@ public:
     void initNextCycle();
     bool closeAllProcessingUnits();
 private:
-    std::vector<ProcessingUnit*> m_allProcessingUnits;
+    std::vector<CpuProcessingUnit*> m_allProcessingUnits;
 };
 
 } // namespace KyoukoMind
