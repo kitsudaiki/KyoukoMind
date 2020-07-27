@@ -8,10 +8,17 @@
 
 #include <common.h>
 
+namespace Kitsunemimi {
+class Barrier;
+namespace Opencl {
+class GpuHandler;
+}
+}
+
 namespace KyoukoMind
 {
 class CpuProcessingUnit;
-class BrickQueue;
+class GpuProcessingUnit;
 
 class ProcessingUnitHandler
 {
@@ -19,11 +26,16 @@ public:
     ProcessingUnitHandler();
     ~ProcessingUnitHandler();
 
-    bool initProcessingUnits(const uint16_t numberOfThreads);
-    void initNextCycle();
+    std::vector<CpuProcessingUnit*> m_cpuProcessingUnits;
+    std::vector<GpuProcessingUnit*> m_gpuProcessingUnits;
+
+    bool initProcessingUnits(Kitsunemimi::Barrier* cpuBarrier,
+                             Kitsunemimi::Barrier* gpuBarrier,
+                             const uint16_t numberOfThreads);
     bool closeAllProcessingUnits();
+
 private:
-    std::vector<CpuProcessingUnit*> m_allProcessingUnits;
+    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
 };
 
 } // namespace KyoukoMind

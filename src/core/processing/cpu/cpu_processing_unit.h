@@ -9,6 +9,10 @@
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
+namespace Kitsunemimi {
+class Barrier;
+}
+
 namespace KyoukoMind
 {
 class GlobalValuesHandler;
@@ -23,6 +27,8 @@ public:
     CpuProcessingUnit();
 
     void run();
+
+    Kitsunemimi::Barrier* m_barrier = nullptr;
 
 private:
     DataBuffer m_clientBuffer;

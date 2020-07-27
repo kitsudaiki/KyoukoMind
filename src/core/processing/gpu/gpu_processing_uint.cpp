@@ -5,20 +5,26 @@
 
 #include "gpu_processing_uint.h"
 
+#include <synapse_node_processing.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
-#include <gpu_processing.h>
+#include <libKitsunemimiCommon/threading/barrier.h>
+
 #include <core/processing/objects/transfer_objects.h>
 #include <core/processing/objects/node.h>
+
 #include <core/object_handling/segment.h>
+
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 namespace KyoukoMind
 {
 
-GpuProcessingUnit::GpuProcessingUnit()
+GpuProcessingUnit::GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInterface)
 {
     m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
     assert(m_gpuHandler->m_interfaces.size() > 0);
     m_gpuInterface = m_gpuHandler->m_interfaces.at(0);
+    m_gpuInterface = gpuInterface;
 }
 
 /**
@@ -30,10 +36,10 @@ GpuProcessingUnit::GpuProcessingUnit()
  */
 bool
 GpuProcessingUnit::initializeGpu(Segment &segment,
-                            const uint32_t numberOfBricks)
+                                 const uint32_t numberOfBricks)
 {
-    const std::string processingCode(reinterpret_cast<char*>(gpu_processing_cl),
-                                     gpu_processing_cl_len);
+    const std::string processingCode(reinterpret_cast<char*>(synapse_node_processing_cl),
+                                     synapse_node_processing_cl_len);
 
     // init worker-sizes
     oclData.numberOfWg.x = numberOfBricks;
@@ -112,6 +118,50 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 
 
     return true;
+}
+
+/**
+ * @brief GpuProcessingUnit::run
+ */
+void
+GpuProcessingUnit::run()
+{
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+
+    Segment* segment = KyoukoRoot::m_segment;
+
+    while(!m_abort)
+    {
+        m_gpuBarrier->triggerBarrier();
+
+        // copy transfer-edges to gpu
+        start = std::chrono::system_clock::now();
+        copySynapseTransfersToGpu(*segment);
+        end = std::chrono::system_clock::now();
+        const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        LOG_DEBUG("time copy to gpu: " + std::to_string(gpu0 / 1000.0f) + '\n');
+
+        // run process on gpu
+        start = std::chrono::system_clock::now();
+        runOnGpu("synapse_processing");
+        runOnGpu("node_processing");
+        runOnGpu("updating");
+        end = std::chrono::system_clock::now();
+        const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        LOG_DEBUG("gpu run-time: " + std::to_string(gpu2 / 1000.0f) + '\n');
+
+        // copy result from gpu to host
+        start = std::chrono::system_clock::now();
+        copyAxonTransfersFromGpu();
+        end = std::chrono::system_clock::now();
+        const float gpu3 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        LOG_DEBUG("time copy from gpu: " + std::to_string(gpu3 / 1000.0f) + '\n');
+
+        segment->synapseTransfers.deleteAll();
+
+        m_cpuBarrier->triggerBarrier();
+    }
 }
 
 /**

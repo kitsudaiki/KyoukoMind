@@ -9,6 +9,7 @@
 #include <core/object_handling/segment.h>
 #include <core/processing/objects/transfer_objects.h>
 #include <core/object_handling/global_values.h>
+#include <libKitsunemimiCommon/threading/barrier.h>
 
 #include <core/object_handling/brick.h>
 #include <core/processing/objects/container_definitions.h>
@@ -31,7 +32,6 @@ namespace KyoukoMind
  */
 CpuProcessingUnit::CpuProcessingUnit()
 {
-    m_block = true;
 }
 
 /**
@@ -43,44 +43,9 @@ CpuProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
-    Segment* segment = KyoukoRoot::m_segment;
-
     while(!m_abort)
     {
-        if(m_block) {
-            blockThread();
-        }
-
-        if(USE_GPU)
-        {
-            // copy transfer-edges to gpu
-            start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->copySynapseTransfersToGpu(*segment);
-            end = std::chrono::system_clock::now();
-            const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-            LOG_DEBUG("time copy to gpu: " + std::to_string(gpu0 / 1000.0f) + '\n');
-
-            // run process on gpu
-            start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->runOnGpu("synapse_processing");
-            KyoukoRoot::m_gpuInterface->runOnGpu("node_processing");
-            KyoukoRoot::m_gpuInterface->runOnGpu("updating");
-            end = std::chrono::system_clock::now();
-            const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-            LOG_DEBUG("gpu run-time: " + std::to_string(gpu2 / 1000.0f) + '\n');
-
-            // copy result from gpu to host
-            start = std::chrono::system_clock::now();
-            KyoukoRoot::m_gpuInterface->copyAxonTransfersFromGpu();
-            end = std::chrono::system_clock::now();
-            const float gpu3 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-            LOG_DEBUG("time copy from gpu: " + std::to_string(gpu3 / 1000.0f) + '\n');
-        }
-
-        segment->synapseTransfers.deleteAll();
-
-        // block thread until next cycle if queue is empty
-        blockThread();
+        m_barrier->triggerBarrier();
 
         start = std::chrono::system_clock::now();
 

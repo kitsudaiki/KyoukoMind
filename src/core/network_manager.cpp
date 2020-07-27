@@ -5,6 +5,9 @@
 
 #include <core/network_manager.h>
 #include <kyouko_root.h>
+
+#include <libKitsunemimiCommon/threading/barrier.h>
+
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/file_methods.h>
@@ -25,9 +28,11 @@ namespace KyoukoMind
  */
 NetworkManager::NetworkManager()
 {
-    assert(sizeof(Brick) < 4096);
+    m_cpuPhase = new Kitsunemimi::Barrier(3);
+    m_gpuPhase = new Kitsunemimi::Barrier(2);
 
     m_processingUnitHandler = new ProcessingUnitHandler();
+
     initNetwork();
 }
 
@@ -44,7 +49,8 @@ NetworkManager::run()
         }
 
         usleep(PROCESS_INTERVAL);
-        m_processingUnitHandler->initNextCycle();
+        m_gpuPhase->triggerBarrier();
+        m_cpuPhase->triggerBarrier();
     }
 }
 
@@ -57,8 +63,6 @@ NetworkManager::initNetwork()
     bool success = false;
     const std::string directoryPath = GET_STRING_CONFIG("Storage", "path", success);
     LOG_INFO("use storage-directory: " + directoryPath);
-
-    m_processingUnitHandler->initProcessingUnits(NUMBER_OF_PROCESSING_UNITS);
 
     std::vector<std::string> brickFiles;
     Kitsunemimi::Persistence::listFiles(brickFiles, directoryPath, false);
@@ -84,13 +88,22 @@ NetworkManager::initNetwork()
         }
 
         NetworkInitializer initializer;
-        return initializer.createNewNetwork(fileContent);
+        success = initializer.createNewNetwork(fileContent);
+        if(success == false)
+        {
+            LOG_ERROR("failed to initialize network");
+            return false;
+        }
     }
     else {
         for(uint32_t i = 0; i < brickFiles.size(); i++) {
             // TODO
         }
     }
+
+    m_processingUnitHandler->initProcessingUnits(m_cpuPhase,
+                                                 m_gpuPhase,
+                                                 NUMBER_OF_PROCESSING_UNITS);
 
     return true;
 }

@@ -31,7 +31,6 @@ public:
     ~KyoukoRoot();
 
     static KyoukoMind::Segment* m_segment;
-    static KyoukoMind::GpuProcessingUnit* m_gpuInterface;
 
     static Kitsunemimi::Project::Session* m_clientSession;
     static Kitsunemimi::Project::Session* m_controlSession;

@@ -5,8 +5,15 @@
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/cpu/cpu_processing_unit.h>
+#include <core/processing/gpu/gpu_processing_uint.h>
 
 #include <libKitsunemimiCommon/threading/thread.h>
+#include <libKitsunemimiCommon/threading/barrier.h>
+
+#include <libKitsunemimiOpencl/gpu_handler.h>
+#include <libKitsunemimiOpencl/gpu_interface.h>
+
+#include <core/object_handling/segment.h>
 
 #include <kyouko_root.h>
 
@@ -35,32 +42,39 @@ ProcessingUnitHandler::~ProcessingUnitHandler()
  * @return
  */
 bool
-ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
+ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* cpuBarrier,
+                                           Kitsunemimi::Barrier* gpuBarrier,
+                                           const uint16_t numberOfThreads)
 {
-    if(m_allProcessingUnits.size() != 0) {
-        return false;
-    }
-
+    // init cpu
     for(uint16_t i = 0; i < numberOfThreads; i++)
     {
         CpuProcessingUnit* newUnit = new CpuProcessingUnit();
-        m_allProcessingUnits.push_back(newUnit);
+        m_cpuProcessingUnits.push_back(newUnit);
+        newUnit->m_barrier = cpuBarrier;
+        newUnit->startThread();
+    }
+
+    // init gpu
+    m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
+    for(uint16_t i = 0; i < m_gpuHandler->m_interfaces.size(); i++)
+    {
+        GpuProcessingUnit* newUnit = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(i));
+        m_gpuProcessingUnits.push_back(newUnit);
+
+        // init gpu
+        Segment* segment = KyoukoRoot::m_segment;
+        const uint32_t numberOfBricks = static_cast<uint32_t>(segment->bricks.itemCapacity);
+        if(newUnit->initializeGpu(*segment, numberOfBricks) == false) {
+            return false;
+        }
+        newUnit->m_gpuBarrier = gpuBarrier;
+        newUnit->m_cpuBarrier = cpuBarrier;
+
         newUnit->startThread();
     }
 
     return true;
-}
-
-/**
- * @brief ProcessingUnitHandler::initNextCycle
- */
-void
-ProcessingUnitHandler::initNextCycle()
-{
-    for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++)
-    {
-        m_allProcessingUnits.at(i)->continueThread();
-    }
 }
 
 /**
@@ -70,18 +84,18 @@ ProcessingUnitHandler::initNextCycle()
 bool
 ProcessingUnitHandler::closeAllProcessingUnits()
 {
-    if(m_allProcessingUnits.size() == 0) {
+    if(m_cpuProcessingUnits.size() == 0) {
         return false;
     }
 
-    for(uint32_t i = 0; i < m_allProcessingUnits.size(); i++)
+    for(uint32_t i = 0; i < m_cpuProcessingUnits.size(); i++)
     {
-        CpuProcessingUnit* unit = m_allProcessingUnits.at(i);
+        CpuProcessingUnit* unit = m_cpuProcessingUnits.at(i);
         unit->stopThread();
         delete unit;
     }
 
-    m_allProcessingUnits.clear();
+    m_cpuProcessingUnits.clear();
 
     return true;
 }

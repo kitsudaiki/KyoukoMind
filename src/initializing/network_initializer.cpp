@@ -78,11 +78,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    // init gpu
-    if(KyoukoRoot::m_gpuInterface->initializeGpu(*segment, numberOfNodeBricks) == false) {
-        return false;
-    }
-
     return true;
 }
 

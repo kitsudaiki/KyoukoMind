@@ -19,6 +19,8 @@ namespace KyoukoMind
 void
 validateStructSizes()
 {
+    assert(sizeof(Brick) < 4096);
+
     assert(sizeof(Synapse) == 12);
     std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
 
