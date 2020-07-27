@@ -250,6 +250,8 @@ processEdgeSection()
     Segment* segment = KyoukoRoot::m_segment;
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
+    axonTransfers[0].weight = 100.0f;
+
 
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {

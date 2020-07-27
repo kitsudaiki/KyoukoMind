@@ -5,7 +5,7 @@
 
 #include "gpu_interface.h"
 
-#include <libKitsunemimiOpencl/opencl.h>
+#include <libKitsunemimiOpencl/gpu_interface.h>
 #include <gpu_processing.h>
 #include <core/processing/internal/objects/transfer_objects.h>
 #include <core/processing/internal/objects/node.h>
@@ -16,7 +16,9 @@ namespace KyoukoMind
 
 GpuProcessingUnit::GpuProcessingUnit()
 {
-
+    m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
+    assert(m_gpuHandler->m_interfaces.size() > 0);
+    m_gpuInterface = m_gpuHandler->m_interfaces.at(0);
 }
 
 /**
@@ -32,19 +34,6 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 {
     const std::string processingCode(reinterpret_cast<char*>(gpu_processing_cl),
                                      gpu_processing_cl_len);
-
-    // create config-object
-    oclProcessingConfig.kernelDefinition.insert(std::make_pair("synapse_processing",
-                                                               processingCode));
-    oclProcessingConfig.kernelDefinition.insert(std::make_pair("node_processing",
-                                                               processingCode));
-    oclProcessingConfig.kernelDefinition.insert(std::make_pair("updating",
-                                                               processingCode));
-
-    // init gpu-connection
-    if(ocl.initDevice(oclProcessingConfig) == false) {
-        return false;
-    }
 
     // init worker-sizes
     oclData.numberOfWg.x = numberOfBricks;
@@ -97,16 +86,30 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     oclData.buffer[6].numberOfBytes = segment.globalValues.buffer.bufferPosition;
     oclData.buffer[6].numberOfObjects = segment.globalValues.itemCapacity;
 
-    // TODO: replace with a validation to make sure, that the local memory is big enough
-    assert(ocl.getLocalMemorySize() == 256*256);
-    oclData.localMemorySize = 256*256;
+    assert(m_gpuInterface->initCopyToDevice(oclData));
 
-    if(ocl.initCopyToDevice(oclData) == false) {
-        return false;
-    }
+    assert(m_gpuInterface->addKernel("synapse_processing",  processingCode));
+    assert(m_gpuInterface->addKernel("node_processing",  processingCode));
+    assert(m_gpuInterface->addKernel("updating",  processingCode));
 
-    ocl.updateBufferOnDevice(oclData.buffer[3]);
-    //segment.ocl.updateBufferOnDevice(segment.oclData.buffer[4]);
+    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 0, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 3, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 4, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 5, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 6, oclData));
+
+    assert(m_gpuInterface->bindKernelToBuffer("node_processing", 1, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("node_processing", 3, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("node_processing", 6, oclData));
+
+    assert(m_gpuInterface->bindKernelToBuffer("updating", 2, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("updating", 4, oclData));
+
+    assert(m_gpuInterface->getLocalMemorySize() == 256*256);
+    assert(m_gpuInterface->setLocalMemory("synapse_processing",  256*256));
+    assert(m_gpuInterface->setLocalMemory("node_processing",  256*256));
+    assert(m_gpuInterface->setLocalMemory("updating",  256*256));
+
 
     return true;
 }
@@ -121,8 +124,9 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 bool
 GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
 {
-    return ocl.updateBufferOnDevice(oclData.buffer[0],
-                                    segment.synapseTransfers.numberOfItems);
+    return m_gpuInterface->updateBufferOnDevice("synapse_processing",
+                                                0,
+                                                segment.synapseTransfers.numberOfItems);
 }
 
 /**
@@ -133,31 +137,9 @@ GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
 bool
 GpuProcessingUnit::copyGlobalValuesToGpu()
 {
-    return ocl.updateBufferOnDevice(oclData.buffer[6], 1);
-}
-
-/**
- * @brief updateNodeOnDevice
- * @param segment
- * @return
- */
-bool
-GpuProcessingUnit::updateNodeOnDevice(const uint32_t nodeId,
-                                 const float value)
-{
-    const uint64_t pos = nodeId * sizeof(Node);
-
-    cl::CommandQueue* queue = &ocl.m_queue;
-    const cl_int ret = queue->enqueueWriteBuffer(oclData.buffer[3].clBuffer,
-                                                 CL_TRUE,
-                                                 pos,
-                                                 sizeof(float),
-                                                 &value);
-    if(ret != CL_SUCCESS) {
-        return false;
-    }
-
-    return true;
+    return m_gpuInterface->updateBufferOnDevice("synapse_processing",
+                                                4,
+                                                1);
 }
 
 /**
@@ -169,7 +151,7 @@ GpuProcessingUnit::updateNodeOnDevice(const uint32_t nodeId,
 bool
 GpuProcessingUnit::runOnGpu(const std::string &kernelName)
 {
-    return ocl.run(oclData, kernelName);
+    return m_gpuInterface->run(oclData, kernelName);
 }
 
 /**
@@ -182,7 +164,7 @@ GpuProcessingUnit::runOnGpu(const std::string &kernelName)
 bool
 GpuProcessingUnit::copyAxonTransfersFromGpu()
 {
-    return ocl.copyFromDevice(oclData);
+    return m_gpuInterface->copyFromDevice(oclData);
 }
 
 /**
@@ -201,7 +183,7 @@ GpuProcessingUnit::closeDevice()
     oclData.buffer[2].data = nullptr;
     oclData.buffer[3].data = nullptr;
 
-    return ocl.closeDevice(oclData);
+    return m_gpuInterface->closeDevice(oclData);
 }
 
 }
