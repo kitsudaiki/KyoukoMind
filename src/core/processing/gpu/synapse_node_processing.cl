@@ -217,7 +217,14 @@ processSynapseSection(__local SynapseSection* synapseSection,
                 tempSynapse.weight
                 * ratio
                 * ((float)tempSynapse.somaDistance / (float)MAX_SOMA_DISTANCE);
-        synapse->inProcess = nodes[tempSynapse.targetNodeId].active;
+
+        if(nodes[tempSynapse.targetNodeId].active != 0)
+        {
+            synapse->memorize = synapse->memorize * 1.01;
+            synapse->memorize = (synapse->memorize > 1.0f) * 1.0f 
+                                + (synapse->memorize <= 1.0f) * synapse->memorize;
+            printf("memorizing: %f\n", synapse->memorize);
+        }
     }
 }
 
@@ -402,7 +409,6 @@ memorizeSynapses(__local SynapseSection* synapseSection,
     transferContainer.positionInEdge = synapseSection->positionInEdge;
     transferContainer.newWeight = totalWeight;
     transferContainer.deleteEdge = totalWeight <= DELETE_SYNAPSE_BORDER;
-
     synapseSection->status = transferContainer.deleteEdge + 1;
 
     updateTransfers[sectionPosition] = transferContainer;

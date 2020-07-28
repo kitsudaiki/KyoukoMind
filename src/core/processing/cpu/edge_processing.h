@@ -259,12 +259,25 @@ processEdgeSection()
         }
 
         count++;
+
+        // first cleanup to give more space for creating new edges
         cleanupEdgeSection(edgeSections[i]);
+
         nextEdgeSectionStep(edgeSections[i],
                             1,
                             axonTransfers[i].weight,
                             edgeSections[i].targetBrickId,
                             i);
+
+        /*float test = 0.0f;
+        for(uint32_t j = 1; j < 255; j++)
+        {
+            test += edgeSections[i].edges[j].synapseWeight;
+            //std::cout<<"j: "<<j<<"   weight: "<<edgeSections[i].edges[j].synapseWeight<<std::endl;
+
+        }
+        std::cout<<"################################## test: "<<test<<"   weight: "<<axonTransfers[i].weight<<std::endl;*/
+
     }
 
     return count;
