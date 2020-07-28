@@ -36,8 +36,10 @@ lernEdge(EdgeSection &section,
 
     // try to create new synapse-section
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.location)];
+    section.randomPos = (section.randomPos + 1) % 1024;
     if(edge.synapseSectionId == UNINIT_STATE_32
-            && brick->isNodeBrick)
+            && brick->isNodeBrick
+            && randValues[section.randomPos] % 5 == 0)
     {
         SynapseSection newSection;
         const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
