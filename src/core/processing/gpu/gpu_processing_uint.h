@@ -31,8 +31,9 @@ public:
 
     void run();
 
-    Kitsunemimi::Barrier* m_gpuBarrier = nullptr;
-    Kitsunemimi::Barrier* m_cpuBarrier = nullptr;
+    Kitsunemimi::Barrier* m_phase1 = nullptr;
+    Kitsunemimi::Barrier* m_phase2 = nullptr;
+    Kitsunemimi::Barrier* m_phase3 = nullptr;
 
 private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;

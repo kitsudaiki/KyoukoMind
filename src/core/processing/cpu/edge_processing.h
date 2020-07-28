@@ -252,7 +252,6 @@ processEdgeSection()
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
     axonTransfers[0].weight = 100.0f;
 
-
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
         if(axonTransfers[i].weight == 0.0f) {
@@ -260,12 +259,12 @@ processEdgeSection()
         }
 
         count++;
+        cleanupEdgeSection(edgeSections[i]);
         nextEdgeSectionStep(edgeSections[i],
                             1,
                             axonTransfers[i].weight,
                             edgeSections[i].targetBrickId,
                             i);
-        cleanupEdgeSection(edgeSections[i]);
     }
 
     return count;
@@ -294,7 +293,8 @@ updateEdgeSection()
         container < end;
         container++)
     {
-        if(container->newWeight < 0.0f) {
+        if(container->newWeight < 0.0f
+                || container->targetId == UNINIT_STATE_32) {
             continue;
         }
 

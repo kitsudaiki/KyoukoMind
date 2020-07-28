@@ -29,8 +29,9 @@ public:
     std::vector<CpuProcessingUnit*> m_cpuProcessingUnits;
     std::vector<GpuProcessingUnit*> m_gpuProcessingUnits;
 
-    bool initProcessingUnits(Kitsunemimi::Barrier* cpuBarrier,
-                             Kitsunemimi::Barrier* gpuBarrier,
+    bool initProcessingUnits(Kitsunemimi::Barrier* phase1,
+                             Kitsunemimi::Barrier* phase2,
+                             Kitsunemimi::Barrier* phase3,
                              const uint16_t numberOfThreads);
     bool closeAllProcessingUnits();
 

@@ -45,7 +45,8 @@ CpuProcessingUnit::run()
 
     while(!m_abort)
     {
-        m_barrier->triggerBarrier();
+        m_phase1->triggerBarrier();
+        m_phase2->triggerBarrier();
 
         start = std::chrono::system_clock::now();
 
@@ -59,6 +60,8 @@ CpuProcessingUnit::run()
         end = std::chrono::system_clock::now();
         const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
+
+        m_phase3->triggerBarrier();
     }
 }
 

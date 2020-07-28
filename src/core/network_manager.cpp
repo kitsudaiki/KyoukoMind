@@ -28,8 +28,9 @@ namespace KyoukoMind
  */
 NetworkManager::NetworkManager()
 {
-    m_cpuPhase = new Kitsunemimi::Barrier(3);
-    m_gpuPhase = new Kitsunemimi::Barrier(2);
+    m_phase1 = new Kitsunemimi::Barrier(3);
+    m_phase2 = new Kitsunemimi::Barrier(3);
+    m_phase3 = new Kitsunemimi::Barrier(3);
 
     m_processingUnitHandler = new ProcessingUnitHandler();
 
@@ -42,6 +43,9 @@ NetworkManager::NetworkManager()
 void
 NetworkManager::run()
 {
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+
     while(!m_abort)
     {
         if(m_block) {
@@ -49,8 +53,14 @@ NetworkManager::run()
         }
 
         usleep(PROCESS_INTERVAL);
-        m_gpuPhase->triggerBarrier();
-        m_cpuPhase->triggerBarrier();
+        start = std::chrono::system_clock::now();
+        m_phase1->triggerBarrier();
+        m_phase2->triggerBarrier();
+        m_phase3->triggerBarrier();
+        end = std::chrono::system_clock::now();
+        const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        LOG_WARNING("cycle-time: " + std::to_string(gpu0 / 1000.0f) + '\n');
+
     }
 }
 
@@ -101,8 +111,9 @@ NetworkManager::initNetwork()
         }
     }
 
-    m_processingUnitHandler->initProcessingUnits(m_cpuPhase,
-                                                 m_gpuPhase,
+    m_processingUnitHandler->initProcessingUnits(m_phase1,
+                                                 m_phase2,
+                                                 m_phase3,
                                                  NUMBER_OF_PROCESSING_UNITS);
 
     return true;

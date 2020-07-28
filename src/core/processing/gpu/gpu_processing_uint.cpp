@@ -133,7 +133,7 @@ GpuProcessingUnit::run()
 
     while(!m_abort)
     {
-        m_gpuBarrier->triggerBarrier();
+        m_phase1->triggerBarrier();
 
         // copy transfer-edges to gpu
         start = std::chrono::system_clock::now();
@@ -160,7 +160,8 @@ GpuProcessingUnit::run()
 
         segment->synapseTransfers.deleteAll();
 
-        m_cpuBarrier->triggerBarrier();
+        m_phase2->triggerBarrier();
+        m_phase3->triggerBarrier();
     }
 }
 

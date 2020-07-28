@@ -28,7 +28,9 @@ public:
 
     void run();
 
-    Kitsunemimi::Barrier* m_barrier = nullptr;
+    Kitsunemimi::Barrier* m_phase1 = nullptr;
+    Kitsunemimi::Barrier* m_phase2 = nullptr;
+    Kitsunemimi::Barrier* m_phase3 = nullptr;
 
 private:
     DataBuffer m_clientBuffer;
