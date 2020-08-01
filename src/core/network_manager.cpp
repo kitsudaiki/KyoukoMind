@@ -5,6 +5,9 @@
 
 #include <core/network_manager.h>
 #include <kyouko_root.h>
+
+#include <libKitsunemimiCommon/threading/barrier.h>
+
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/file_methods.h>
@@ -25,9 +28,12 @@ namespace KyoukoMind
  */
 NetworkManager::NetworkManager()
 {
-    assert(sizeof(Brick) < 4096);
+    m_phase1 = new Kitsunemimi::Barrier(3);
+    m_phase2 = new Kitsunemimi::Barrier(3);
+    m_phase3 = new Kitsunemimi::Barrier(3);
 
     m_processingUnitHandler = new ProcessingUnitHandler();
+
     initNetwork();
 }
 
@@ -37,6 +43,9 @@ NetworkManager::NetworkManager()
 void
 NetworkManager::run()
 {
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+
     while(!m_abort)
     {
         if(m_block) {
@@ -44,7 +53,13 @@ NetworkManager::run()
         }
 
         usleep(PROCESS_INTERVAL);
-        m_processingUnitHandler->initNextCycle();
+        start = std::chrono::system_clock::now();
+        m_phase1->triggerBarrier();
+        m_phase2->triggerBarrier();
+        m_phase3->triggerBarrier();
+        end = std::chrono::system_clock::now();
+        const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        LOG_WARNING("cycle-time: " + std::to_string(gpu0 / 1000.0f) + '\n');
     }
 }
 
@@ -58,10 +73,9 @@ NetworkManager::initNetwork()
     const std::string directoryPath = GET_STRING_CONFIG("Storage", "path", success);
     LOG_INFO("use storage-directory: " + directoryPath);
 
-    m_processingUnitHandler->initProcessingUnits(NUMBER_OF_PROCESSING_UNITS);
-
     std::vector<std::string> brickFiles;
     Kitsunemimi::Persistence::listFiles(brickFiles, directoryPath, false);
+
     if(brickFiles.size() == 0
             || bfs::exists(directoryPath) == false)
     {
@@ -84,13 +98,24 @@ NetworkManager::initNetwork()
         }
 
         NetworkInitializer initializer;
-        return initializer.createNewNetwork(fileContent);
+        success = initializer.createNewNetwork(fileContent);
+        if(success == false)
+        {
+            LOG_ERROR("failed to initialize network");
+            return false;
+        }
     }
-    else {
+    else
+    {
         for(uint32_t i = 0; i < brickFiles.size(); i++) {
             // TODO
         }
     }
+
+    m_processingUnitHandler->initProcessingUnits(m_phase1,
+                                                 m_phase2,
+                                                 m_phase3,
+                                                 NUMBER_OF_PROCESSING_UNITS);
 
     return true;
 }

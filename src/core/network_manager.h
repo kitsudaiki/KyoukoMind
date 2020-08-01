@@ -9,14 +9,14 @@
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
+namespace Kitsunemimi {
+class Barrier;
+}
+
 namespace KyoukoMind
 {
 
-class Config;
-class BrickQueue;
 class ProcessingUnitHandler;
-class MessageController;
-class ConnectionTrigger;
 
 class NetworkManager
         : public Kitsunemimi::Thread
@@ -25,15 +25,15 @@ class NetworkManager
 public:
     NetworkManager();
 
-    MessageController* getMessageController() const;
-
     void run();
 
 private:
     bool initNetwork();
 
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
-    ConnectionTrigger* m_trigger = nullptr;
+    Kitsunemimi::Barrier* m_phase1 = nullptr;
+    Kitsunemimi::Barrier* m_phase2 = nullptr;
+    Kitsunemimi::Barrier* m_phase3 = nullptr;
 
     uint32_t m_numberOfThreads = 0;
 };

@@ -7,7 +7,7 @@
 #include <kyouko_root.h>
 
 #include <core/object_handling/segment.h>
-#include <core/processing/internal/objects/node.h>
+#include <core/processing/objects/node.h>
 
 namespace KyoukoMind
 {

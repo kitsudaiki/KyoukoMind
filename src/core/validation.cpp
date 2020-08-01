@@ -6,12 +6,14 @@
 #include "validation.h"
 
 #include <core/object_handling/brick.h>
-#include <core/processing/internal/objects/container_definitions.h>
 #include <core/object_handling/item_buffer.h>
-#include <core/processing/internal/objects/edges.h>
 #include <core/object_handling/segment.h>
-#include <core/processing/internal/objects/node.h>
-#include <core/processing/internal/objects/synapses.h>
+#include <core/object_handling/global_values.h>
+
+#include <core/processing/objects/node.h>
+#include <core/processing/objects/synapses.h>
+#include <core/processing/objects/edges.h>
+#include <core/processing/objects/container_definitions.h>
 
 namespace KyoukoMind
 {
@@ -19,10 +21,13 @@ namespace KyoukoMind
 void
 validateStructSizes()
 {
+    assert(sizeof(Brick) < 4096);
+
     assert(sizeof(Synapse) == 12);
     std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
 
     assert(sizeof(SynapseSection) == 256);
+    assert(sizeof(GlobalValues) == 256);
     assert(sizeof(EdgeSection) == 4096);
 
     return;

@@ -9,14 +9,14 @@
 #include <common.h>
 
 #include <kyouko_root.h>
-#include <core/processing/internal/objects/edges.h>
-#include <core/processing/internal/objects/transfer_objects.h>
+#include <core/processing/objects/edges.h>
+#include <core/processing/objects/transfer_objects.h>
 
 #include <core/object_handling/brick.h>
 #include <core/object_handling/segment.h>
 #include <core/object_handling/item_buffer.h>
 
-#include <core/processing/internal/objects/synapses.h>
+#include <core/processing/objects/synapses.h>
 
 namespace KyoukoMind
 {
@@ -36,8 +36,11 @@ lernEdge(EdgeSection &section,
 
     // try to create new synapse-section
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.location)];
+    section.randomPos = (section.randomPos + 1) % 1024;
     if(edge.synapseSectionId == UNINIT_STATE_32
-            && brick->isNodeBrick)
+            && brick->isNodeBrick
+            && randValues[section.randomPos] % 5 == 0
+            && weight >= 5.0f)
     {
         SynapseSection newSection;
         const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
@@ -250,6 +253,7 @@ processEdgeSection()
     Segment* segment = KyoukoRoot::m_segment;
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
+    axonTransfers[0].weight = 200.0f;
 
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
@@ -258,12 +262,25 @@ processEdgeSection()
         }
 
         count++;
+
+        // first cleanup to give more space for creating new edges
+        cleanupEdgeSection(edgeSections[i]);
+
         nextEdgeSectionStep(edgeSections[i],
                             1,
                             axonTransfers[i].weight,
                             edgeSections[i].targetBrickId,
                             i);
-        cleanupEdgeSection(edgeSections[i]);
+
+        /*float test = 0.0f;
+        for(uint32_t j = 1; j < 255; j++)
+        {
+            test += edgeSections[i].edges[j].synapseWeight;
+            //std::cout<<"j: "<<j<<"   weight: "<<edgeSections[i].edges[j].synapseWeight<<std::endl;
+
+        }
+        std::cout<<"################################## test: "<<test<<"   weight: "<<axonTransfers[i].weight<<std::endl;*/
+
     }
 
     return count;
@@ -292,7 +309,8 @@ updateEdgeSection()
         container < end;
         container++)
     {
-        if(container->newWeight < 0.0f) {
+        if(container->newWeight < 0.0f
+                || container->targetId == UNINIT_STATE_32) {
             continue;
         }
 

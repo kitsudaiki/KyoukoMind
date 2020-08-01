@@ -9,20 +9,28 @@
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
+namespace Kitsunemimi {
+class Barrier;
+}
+
 namespace KyoukoMind
 {
 class GlobalValuesHandler;
 class Segment;
 class Brick;
 
-class ProcessingUnit
+class CpuProcessingUnit
         : public Kitsunemimi::Thread
 {
 
 public:
-    ProcessingUnit();
+    CpuProcessingUnit();
 
     void run();
+
+    Kitsunemimi::Barrier* m_phase1 = nullptr;
+    Kitsunemimi::Barrier* m_phase2 = nullptr;
+    Kitsunemimi::Barrier* m_phase3 = nullptr;
 
 private:
     DataBuffer m_clientBuffer;
