@@ -202,7 +202,7 @@ GpuProcessingUnit::copyGlobalValuesToGpu()
 bool
 GpuProcessingUnit::runOnGpu(const std::string &kernelName)
 {
-    return m_gpuInterface->run(oclData, kernelName);
+    return m_gpuInterface->run(kernelName, oclData);
 }
 
 /**

@@ -18,7 +18,7 @@
 
 // learning
 #define NEW_SYNAPSE_BORDER 1.0f
-#define DELETE_SYNAPSE_BORDER 1.0f
+#define DELETE_SYNAPSE_BORDER 0.1f
 #define MAX_SOMA_DISTANCE 5
 
 // processing
@@ -220,10 +220,10 @@ processSynapseSection(__local SynapseSection* synapseSection,
 
         if(nodes[tempSynapse.targetNodeId].active != 0)
         {
-            synapse->memorize = synapse->memorize * 1.01;
+            synapse->memorize = synapse->memorize * 1.1;
             synapse->memorize = (synapse->memorize > 1.0f) * 1.0f 
                                 + (synapse->memorize <= 1.0f) * synapse->memorize;
-            printf("memorizing: %f\n", synapse->memorize);
+            //printf("memorizing: %f\n", synapse->memorize);
         }
     }
 }
@@ -253,10 +253,6 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
     const uint brickId = globalId_x / localSize_x; 
 
     globalValue->globalGlia = 1.1f;
-
-    if(brickId >= numberOfBricks) {
-        return;
-    }
 
     __local SynapseSection* tempSections = (__local SynapseSection*)localMemory;
 
@@ -358,14 +354,8 @@ node_processing(__global AxonTransfer* axonTransfers,
     const size_t globalSize_x = get_global_size(0);
     const int localId_x = get_local_id(0);
     const int localSize_x = get_local_size(0);
-    const uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
-    const uint brickId = globalId_x / localSize_x; 
 
     __local Node* tempNodes = (__local Node*)localMemory;
-
-    if(brickId >= numberOfBricks) {
-        return;
-    }
 
     for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
     {
@@ -409,6 +399,7 @@ memorizeSynapses(__local SynapseSection* synapseSection,
     transferContainer.positionInEdge = synapseSection->positionInEdge;
     transferContainer.newWeight = totalWeight;
     transferContainer.deleteEdge = totalWeight <= DELETE_SYNAPSE_BORDER;
+
     synapseSection->status = transferContainer.deleteEdge + 1;
 
     updateTransfers[sectionPosition] = transferContainer;
@@ -427,7 +418,6 @@ updating(__global UpdateTransfer* updateTransfers,
     const size_t globalId_x = get_global_id(0);
     const size_t globalSize_x = get_global_size(0);
     const int localId_x = get_local_id(0);
-    const int localSize_x = get_local_size(0);
 
     __local SynapseSection* tempSectionMem = (__local SynapseSection*)localMemory;
 

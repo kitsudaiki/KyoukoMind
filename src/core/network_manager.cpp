@@ -60,7 +60,6 @@ NetworkManager::run()
         end = std::chrono::system_clock::now();
         const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         LOG_WARNING("cycle-time: " + std::to_string(gpu0 / 1000.0f) + '\n');
-
     }
 }
 
@@ -76,6 +75,7 @@ NetworkManager::initNetwork()
 
     std::vector<std::string> brickFiles;
     Kitsunemimi::Persistence::listFiles(brickFiles, directoryPath, false);
+
     if(brickFiles.size() == 0
             || bfs::exists(directoryPath) == false)
     {
@@ -105,7 +105,8 @@ NetworkManager::initNetwork()
             return false;
         }
     }
-    else {
+    else
+    {
         for(uint32_t i = 0; i < brickFiles.size(); i++) {
             // TODO
         }

@@ -39,7 +39,8 @@ lernEdge(EdgeSection &section,
     section.randomPos = (section.randomPos + 1) % 1024;
     if(edge.synapseSectionId == UNINIT_STATE_32
             && brick->isNodeBrick
-            && randValues[section.randomPos] % 5 == 0)
+            && randValues[section.randomPos] % 5 == 0
+            && weight >= 5.0f)
     {
         SynapseSection newSection;
         const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
@@ -252,7 +253,7 @@ processEdgeSection()
     Segment* segment = KyoukoRoot::m_segment;
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
-    axonTransfers[0].weight = 100.0f;
+    axonTransfers[0].weight = 200.0f;
 
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {

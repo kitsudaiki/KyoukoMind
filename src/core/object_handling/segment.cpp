@@ -21,29 +21,6 @@ Segment::Segment()
 }
 
 /**
- * @brief NetworkSegment::addEmptySynapseSection
- * @param sourceEdgeId
- * @param sourceBrickId
- * @return
- */
-uint64_t
-Segment::addEmptySynapseSection(const uint32_t sourceEdgeId,
-                                       const uint32_t sourceBrickId)
-{
-    assert(sourceEdgeId != UNINIT_STATE_32);
-    assert(sourceBrickId != UNINIT_STATE_32);
-
-    SynapseSection newSection;
-    newSection.sourceEdgeId = sourceEdgeId;
-    newSection.sourceBrickId = sourceBrickId;
-
-    const uint64_t position = synapses.addNewItem(newSection);
-
-    return position;
-}
-
-
-/**
  * add a new client-connection to a brick,
  * for data input and output
  *

@@ -33,15 +33,7 @@ public:
     ItemBuffer randomIntValues;
     ItemBuffer globalValues;
 
-
     Segment();
-
-    // transfer-position
-    uint32_t getNextTransferPos();
-    void resetTransferPos();
-
-    uint64_t addEmptySynapseSection(const uint32_t sourceEdgeId,
-                                    const uint32_t sourceBrickId);
 
 
     bool addClientOutputConnection(const uint32_t brickPos);
