@@ -122,18 +122,11 @@ SynapseSection;
 
 typedef struct GlobalValues_struct
 {
-    float globalMemorizingOffset;
-    float globalMemorizingTemp;
+    float memorizingValue;
+    float lerningValue;
+    float gliaValue;
 
-    float globalLearningOffset;
-    float globalLearningTemp;
-
-    float globalOutLearningOffset;
-    float globalOutLearningTemp;
-
-    float globalGlia;
-
-    uint runUpdate;
+    uchar padding[244];
 }
 GlobalValues;
 
@@ -252,9 +245,10 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
     const uint numberOfBricks = numberOfNodes / NUMBER_OF_NODES_PER_BRICK;
     const uint brickId = globalId_x / localSize_x; 
 
-    globalValue->globalGlia = 1.1f;
+    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
+    __local SynapseSection* tempSections = (__local SynapseSection*)&localMemory[256];
 
-    __local SynapseSection* tempSections = (__local SynapseSection*)localMemory;
+    localGlobalValue->gliaValue = 1.1f;
 
     for(ulong i = localId_x; i < numberOfSynapseTransfers; i = i + localSize_x)
     {
@@ -300,7 +294,7 @@ void
 processNodes(__local Node* node,
              ulong globalNodeId,
              __global AxonTransfer* axonTransfers,
-             __global GlobalValues* globalValue)
+             __local GlobalValues* globalValue)
 {
     // set to 255.0f, if value is too high
     const float cur = node->currentState;
@@ -320,10 +314,9 @@ processNodes(__local Node* node,
         node->active = 0;
     }
 
-
     // build new axon-transfer-edge, which is send back to the host
     AxonTransfer newEdge;
-    newEdge.weight = node->active * node->potential * pow(globalValue->globalGlia, node->targetBrickDistance);
+    newEdge.weight = node->active * node->potential * pow(globalValue->gliaValue, node->targetBrickDistance);
     axonTransfers[globalNodeId] = newEdge;
 
     // post-steps
@@ -355,7 +348,8 @@ node_processing(__global AxonTransfer* axonTransfers,
     const int localId_x = get_local_id(0);
     const int localSize_x = get_local_size(0);
 
-    __local Node* tempNodes = (__local Node*)localMemory;
+    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
+    __local Node* tempNodes = (__local Node*)&localMemory[256];
 
     for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
     {
@@ -363,7 +357,7 @@ node_processing(__global AxonTransfer* axonTransfers,
         processNodes(&tempNodes[localId_x],
                      i,
                      axonTransfers,
-                     globalValue);
+                     localGlobalValue);
         nodes[i] = tempNodes[localId_x];
     }
 }

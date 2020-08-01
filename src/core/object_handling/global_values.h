@@ -12,17 +12,11 @@ namespace KyoukoMind
 {
 struct GlobalValues
 {
-    float globalMemorizingOffset = 0.0f;
-    float globalMemorizingTemp = 0.0f;
+    float memorizingValue = 0.0f;
+    float lerningValue = 0.50f;
+    float gliaValue = 1.0f;
 
-    float globalLearningOffset = 0.50f;
-    float globalLearningTemp = 0.0f;
-
-    float globalOutLearningOffset = 0.0f;
-    float globalOutLearningTemp = 0.0f;
-
-    float globalGlia = 1.0f;
-    uint32_t runUpdate = 0;
+    uint8_t padding[244];
 };
 
 } // namespace KyoukoMind
