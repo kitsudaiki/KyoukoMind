@@ -163,9 +163,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
     }
 
     // calculate new value
-    // TODO: add lerning-value
     synapseSection->synapses[choosePosition].weight += weight;
-    synapseSection->totalWeight += fabs(weight);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,19 +203,8 @@ processSynapseSection(__local SynapseSection* synapseSection,
         synapse < end;
         synapse++)
     {
-        const Synapse tempSynapse = *synapse;
-        nodes[tempSynapse.targetNodeId].currentState +=
-                tempSynapse.weight
-                * ratio
-                * ((float)tempSynapse.somaDistance / (float)MAX_SOMA_DISTANCE);
-
-        if(nodes[tempSynapse.targetNodeId].active != 0)
-        {
-            synapse->memorize = synapse->memorize * 1.1;
-            synapse->memorize = (synapse->memorize > 1.0f) * 1.0f 
-                                + (synapse->memorize <= 1.0f) * synapse->memorize;
-            //printf("memorizing: %f\n", synapse->memorize);
-        }
+        const float somaUpdate = (float)synapse->somaDistance / (float)MAX_SOMA_DISTANCE;
+        nodes[synapse->targetNodeId].currentState += synapse->weight * ratio * somaUpdate;
     }
 }
 
@@ -370,6 +357,7 @@ node_processing(__global AxonTransfer* axonTransfers,
  */
 void
 memorizeSynapses(__local SynapseSection* synapseSection,
+                 __global Node* nodes,
                  const ulong sectionPosition,
                  __global UpdateTransfer* updateTransfers)
 {
@@ -382,8 +370,15 @@ memorizeSynapses(__local SynapseSection* synapseSection,
         synapse < end;
         synapse++)
     {
+        if(nodes[synapse->targetNodeId].active != 0) {
+            synapse->memorize *= 1.1f;
+            synapse->memorize = (synapse->memorize > 1.0f) * 1.0f 
+                                + (synapse->memorize <= 1.0f) * synapse->memorize;
+        }
+
         // update weight
         synapse->weight -= synapse->weight * (1.0f - synapse->memorize);
+        //printf("%f\n", synapse->memorize);
         totalWeight += fabs(synapse->weight);
     }
 
@@ -404,6 +399,8 @@ memorizeSynapses(__local SynapseSection* synapseSection,
 __kernel void
 updating(__global UpdateTransfer* updateTransfers,
          const ulong numberOfUpdateTransfers,
+         __global Node* nodes,
+         const ulong numberOfNodes,
          __global SynapseSection* synapseSections,
          const ulong numberOfSynapseSections,
          __local uchar* localMemory,
@@ -422,6 +419,7 @@ updating(__global UpdateTransfer* updateTransfers,
         {
             tempSectionMem[localId_x] = synapseSections[i];
             memorizeSynapses(&tempSectionMem[localId_x],
+                             nodes,
                              i,
                              updateTransfers);
             synapseSections[i] = tempSectionMem[localId_x];

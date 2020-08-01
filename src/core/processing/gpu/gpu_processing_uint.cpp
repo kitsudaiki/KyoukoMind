@@ -109,6 +109,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     assert(m_gpuInterface->bindKernelToBuffer("node_processing", 6, oclData));
 
     assert(m_gpuInterface->bindKernelToBuffer("updating", 2, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("updating", 3, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 4, oclData));
 
     assert(m_gpuInterface->getLocalMemorySize() == 256*256);
