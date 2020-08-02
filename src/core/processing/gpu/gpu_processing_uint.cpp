@@ -139,6 +139,7 @@ GpuProcessingUnit::run()
         // copy transfer-edges to gpu
         start = std::chrono::system_clock::now();
         copySynapseTransfersToGpu(*segment);
+        copyGlobalValuesToGpu();
         end = std::chrono::system_clock::now();
         const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         LOG_DEBUG("time copy to gpu: " + std::to_string(gpu0 / 1000.0f) + '\n');
