@@ -7,9 +7,11 @@
 
 #include <kyouko_root.h>
 
-#include <core/object_handling/brick.h>
 #include <core/processing/objects/edges.h>
 #include <core/processing/objects/node.h>
+#include <core/processing/cpu/edge_processing.h>
+
+#include <core/object_handling/brick.h>
 #include <core/object_handling/item_buffer.h>
 #include <core/object_handling/segment.h>
 
@@ -57,6 +59,7 @@ void
 convertNetworkToObj(ObjItem &result)
 {
     const uint64_t numberOfBricks = KyoukoRoot::m_segment->bricks.itemCapacity;
+
     for(uint64_t i = 0; i < numberOfBricks; i++)
     {
         Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[i];
@@ -102,13 +105,18 @@ void
 convertBrickToObj(ObjItem &result,
                   Brick* brick)
 {
-    if(brick->nodePos == UNINIT_STATE_32) {
+    if(brick->nodeBrickId == UNINIT_STATE_32) {
         return;
     }
 
     for(uint32_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
     {
-        convertNodeToObj(result, brick, brick->nodePos + i);
+        AxonTransfer* axons = getBuffer<AxonTransfer>(KyoukoRoot::m_segment->axonTransfers);
+        if(axons[brick->nodeBrickId * NUMBER_OF_NODES_PER_BRICK + i].weight <= 0.0f) {
+            continue;
+        }
+
+        convertNodeToObj(result, brick, brick->brickId * NUMBER_OF_NODES_PER_BRICK + i);
     }
 }
 
@@ -187,6 +195,8 @@ convertEdgesToObj(ObjItem &result,
                   const uint16_t pos,
                   const uint32_t vectorPos)
 {
+    cleanupEdgeSection(*section);
+
     Edge* edge = &section->edges[pos];
     if(getBrickId(edge->location) == 0x00FFFFFF) {
         return;
