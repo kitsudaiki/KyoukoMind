@@ -143,8 +143,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
     __local Synapse* chosenSynapse = &synapseSection->synapses[choosePosition];
 
     // create new synapse if necessary
-    if(chosenSynapse->targetNodeId == UNINIT_STATE_16
-        || fabs(chosenSynapse->weight) < 0.01f) 
+    if(chosenSynapse->targetNodeId == UNINIT_STATE_16) 
     {
         synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
         const uint targetNodeId = randomInts[synapseSection->randomPos] % NUMBER_OF_NODES_PER_BRICK;
@@ -163,9 +162,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
     }
 
     // calculate new value
-    // TODO: add lerning-value
     synapseSection->synapses[choosePosition].weight += weight;
-    synapseSection->totalWeight += fabs(weight);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,19 +202,8 @@ processSynapseSection(__local SynapseSection* synapseSection,
         synapse < end;
         synapse++)
     {
-        const Synapse tempSynapse = *synapse;
-        nodes[tempSynapse.targetNodeId].currentState +=
-                tempSynapse.weight
-                * ratio
-                * ((float)tempSynapse.somaDistance / (float)MAX_SOMA_DISTANCE);
-
-        if(nodes[tempSynapse.targetNodeId].active != 0)
-        {
-            synapse->memorize = synapse->memorize * 1.1;
-            synapse->memorize = (synapse->memorize > 1.0f) * 1.0f 
-                                + (synapse->memorize <= 1.0f) * synapse->memorize;
-            //printf("memorizing: %f\n", synapse->memorize);
-        }
+        const float somaUpdate = (float)synapse->somaDistance / (float)MAX_SOMA_DISTANCE;
+        nodes[synapse->targetNodeId].currentState += synapse->weight * ratio * somaUpdate;
     }
 }
 
@@ -246,6 +232,7 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
     const uint brickId = globalId_x / localSize_x; 
 
     __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
+    localGlobalValue[0] = globalValue[0];
     __local SynapseSection* tempSections = (__local SynapseSection*)&localMemory[256];
 
     localGlobalValue->gliaValue = 1.1f;
@@ -349,6 +336,7 @@ node_processing(__global AxonTransfer* axonTransfers,
     const int localSize_x = get_local_size(0);
 
     __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
+        localGlobalValue[0] = globalValue[0];
     __local Node* tempNodes = (__local Node*)&localMemory[256];
 
     for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
@@ -370,6 +358,7 @@ node_processing(__global AxonTransfer* axonTransfers,
  */
 void
 memorizeSynapses(__local SynapseSection* synapseSection,
+                 __global Node* nodes,
                  const ulong sectionPosition,
                  __global UpdateTransfer* updateTransfers)
 {
@@ -382,8 +371,16 @@ memorizeSynapses(__local SynapseSection* synapseSection,
         synapse < end;
         synapse++)
     {
+        if(nodes[synapse->targetNodeId].active != 0) 
+        {
+            synapse->memorize *= 1.05f;
+            synapse->memorize = (synapse->memorize > 1.0f) * 1.0f 
+                                + (synapse->memorize <= 1.0f) * synapse->memorize;
+        }
+
         // update weight
         synapse->weight -= synapse->weight * (1.0f - synapse->memorize);
+        //printf("%f\n", synapse->memorize);
         totalWeight += fabs(synapse->weight);
     }
 
@@ -404,6 +401,8 @@ memorizeSynapses(__local SynapseSection* synapseSection,
 __kernel void
 updating(__global UpdateTransfer* updateTransfers,
          const ulong numberOfUpdateTransfers,
+         __global Node* nodes,
+         const ulong numberOfNodes,
          __global SynapseSection* synapseSections,
          const ulong numberOfSynapseSections,
          __local uchar* localMemory,
@@ -418,15 +417,7 @@ updating(__global UpdateTransfer* updateTransfers,
     for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
     {
         // skip if section is deleted
-        if(synapseSections[i].status == ACTIVE_SECTION)
-        {
-            tempSectionMem[localId_x] = synapseSections[i];
-            memorizeSynapses(&tempSectionMem[localId_x],
-                             i,
-                             updateTransfers);
-            synapseSections[i] = tempSectionMem[localId_x];
-        }
-        else
+        if(synapseSections[i].status == DELETED_SECTION)
         {
             UpdateTransfer transferContainer;
             transferContainer.newWeight = -1.0f;
@@ -434,6 +425,15 @@ updating(__global UpdateTransfer* updateTransfers,
             transferContainer.positionInEdge = UNINIT_STATE_8;
             transferContainer.deleteEdge = 0;
             updateTransfers[i] = transferContainer;
+
+            continue;
         }
+
+        tempSectionMem[localId_x] = synapseSections[i];
+        memorizeSynapses(&tempSectionMem[localId_x],
+                         nodes,
+                         i,
+                         updateTransfers);
+        synapseSections[i] = tempSectionMem[localId_x];
     }
 }
