@@ -137,7 +137,7 @@ void
 singleLearningStep(__local SynapseSection* synapseSection,
                    const float weight,
                    __global uint* randomInts,
-                   __global GlobalValues* globalValue)
+                   __local GlobalValues* globalValue)
 {
     synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
     const uint choosePosition = randomInts[synapseSection->randomPos] % SYNAPSES_PER_SYNAPSESECTION;
@@ -180,7 +180,7 @@ processSynapseSection(__local SynapseSection* synapseSection,
                       __global Node* nodes,
                       const float inputWeight,
                       __global uint* randomInts,
-                      __global GlobalValues* globalValue)
+                      __local GlobalValues* globalValue)
 {
     if(inputWeight < 0.000001f) {
         return;
@@ -233,7 +233,9 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
     const uint numberOfBricks = numberOfNodes / globalValue->numberOfNodesPerBrick;
     const uint brickId = globalId_x / localSize_x; 
 
-    __local SynapseSection* tempSections = (__local SynapseSection*)localMemory;
+    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
+    localGlobalValue[0] = globalValue[0];
+    __local SynapseSection* tempSections = (__local SynapseSection*)&localMemory[256];
 
     for(ulong i = localId_x; i < numberOfSynapseTransfers; i = i + localSize_x)
     {
@@ -263,7 +265,7 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
                               nodes,
                               synapseTransfers[i].weight,
                               randomInts,
-                              globalValue);
+                              localGlobalValue);
 
         synapseSections[synapseSectionId] = tempSections[localId_x];
         synapseSections[synapseSectionId].sourceBrickId = brickId;
@@ -281,7 +283,7 @@ void
 processNodes(__local Node* node,
              ulong globalNodeId,
              __global AxonTransfer* axonTransfers,
-             __global GlobalValues* globalValue)
+             __local GlobalValues* globalValue)
 {
     // set to 255.0f, if value is too high
     const float cur = node->currentState;
@@ -335,7 +337,9 @@ node_processing(__global AxonTransfer* axonTransfers,
     const int localId_x = get_local_id(0);
     const int localSize_x = get_local_size(0);
 
-    __local Node* tempNodes = (__local Node*)localMemory;
+    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
+    localGlobalValue[0] = globalValue[0];
+    __local Node* tempNodes = (__local Node*)&localMemory[256];
 
     for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
     {
@@ -343,7 +347,7 @@ node_processing(__global AxonTransfer* axonTransfers,
         processNodes(&tempNodes[localId_x],
                      i,
                      axonTransfers,
-                     globalValue);
+                     localGlobalValue);
         nodes[i] = tempNodes[localId_x];
     }
 }
@@ -359,7 +363,7 @@ memorizeSynapses(__local SynapseSection* synapseSection,
                  __global Node* nodes,
                  const ulong sectionPosition,
                  __global UpdateTransfer* updateTransfers,
-                 __global GlobalValues* globalValue)
+                 __local GlobalValues* globalValue)
 {
     // update values based on the memorizing-value
     __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
@@ -413,8 +417,9 @@ updating(__global UpdateTransfer* updateTransfers,
     const size_t globalSize_x = get_global_size(0);
     const int localId_x = get_local_id(0);
 
-    __local SynapseSection* tempSectionMem = (__local SynapseSection*)localMemory;
-
+    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
+    localGlobalValue[0] = globalValue[0];
+    __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[256];
 
     for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
     {
@@ -436,7 +441,7 @@ updating(__global UpdateTransfer* updateTransfers,
                          nodes,
                          i,
                          updateTransfers,
-                         globalValue);
+                         localGlobalValue);
         synapseSections[i] = tempSectionMem[localId_x];
     }
 }

@@ -43,7 +43,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 
     // init worker-sizes
     oclData.numberOfWg.x = numberOfBricks;
-    oclData.threadsPerWg.x = 256;
+    oclData.threadsPerWg.x = 255;
 
     // add empty buffer
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
