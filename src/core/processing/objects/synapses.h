@@ -16,7 +16,7 @@ namespace KyoukoMind
 struct Synapse
 {
     float weight = 0.0;
-    float memorize = INITIAL_MEMORIZING;
+    float memorize = 0.5f;
     uint16_t targetNodeId = UNINIT_STATE_16;
     uint8_t inProcess = 0;
     uint8_t somaDistance = 1;

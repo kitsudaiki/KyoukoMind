@@ -7,6 +7,8 @@
 #include <kyouko_root.h>
 
 #include <core/object_handling/segment.h>
+#include <core/object_handling/global_values.h>
+
 #include <core/processing/objects/node.h>
 
 namespace KyoukoMind
@@ -20,6 +22,8 @@ bool
 createAxons(Segment &segment,
             const std::vector<std::vector<InitMetaDataEntry>> &networkMetaStructure)
 {
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+
     // calculate number of axons per brick
     for(uint32_t x = 0; x < networkMetaStructure.size(); x++)
     {
@@ -37,10 +41,10 @@ createAxons(Segment &segment,
                 EdgeSection* edges = getBuffer<EdgeSection>(segment.edges);
                 Node* nodes = getBuffer<Node>(segment.nodes);
 
-                const uint32_t pos = brick->nodeBrickId * NUMBER_OF_NODES_PER_BRICK;
+                const uint32_t pos = brick->nodeBrickId * globalValues->numberOfNodesPerBrick;
 
                 // iterate over all nodes of the brick and create an axon for each node
-                for(uint32_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
+                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++)
                 {
                     // create new axon
                     uint32_t lenght = 0;

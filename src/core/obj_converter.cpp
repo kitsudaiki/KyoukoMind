@@ -14,6 +14,7 @@
 #include <core/object_handling/brick.h>
 #include <core/object_handling/item_buffer.h>
 #include <core/object_handling/segment.h>
+#include <core/object_handling/global_values.h>
 
 namespace KyoukoMind
 {
@@ -109,14 +110,15 @@ convertBrickToObj(ObjItem &result,
         return;
     }
 
-    for(uint32_t i = 0; i < NUMBER_OF_NODES_PER_BRICK; i++)
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++)
     {
         AxonTransfer* axons = getBuffer<AxonTransfer>(KyoukoRoot::m_segment->axonTransfers);
-        if(axons[brick->nodeBrickId * NUMBER_OF_NODES_PER_BRICK + i].weight <= 0.0f) {
+        if(axons[brick->nodeBrickId * globalValues->numberOfNodesPerBrick + i].weight <= 0.0f) {
             continue;
         }
 
-        convertNodeToObj(result, brick, brick->brickId * NUMBER_OF_NODES_PER_BRICK + i);
+        convertNodeToObj(result, brick, brick->brickId * globalValues->numberOfNodesPerBrick + i);
     }
 }
 
