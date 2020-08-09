@@ -16,7 +16,19 @@ struct GlobalValues
     float lerningValue = 0.50f;
     float gliaValue = 1.0f;
 
-    uint8_t padding[244];
+    float initialMemorizing = 0.5f;
+
+    float nodeCooldown = 3.0f;
+    float actionPotential = 100.0f;
+    uint64_t refractionTime = 2;
+
+    float newSynapseBorder = 1.0f;
+    float deleteSynapseBorder = 0.1f;
+    uint32_t maxSomaDistance = 5;
+
+    uint32_t numberOfNodesPerBrick = 1000;
+
+    uint8_t padding[208];
 };
 
 } // namespace KyoukoMind

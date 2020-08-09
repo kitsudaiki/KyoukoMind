@@ -310,7 +310,8 @@ updateEdgeSection()
         container++)
     {
         if(container->newWeight < 0.0f
-                || container->targetId == UNINIT_STATE_32) {
+                || container->targetId == UNINIT_STATE_32)
+        {
             continue;
         }
 

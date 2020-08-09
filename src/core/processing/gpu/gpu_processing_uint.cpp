@@ -43,7 +43,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 
     // init worker-sizes
     oclData.numberOfWg.x = numberOfBricks;
-    oclData.threadsPerWg.x = 255;
+    oclData.threadsPerWg.x = 256;
 
     // add empty buffer
     oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
@@ -89,8 +89,8 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 
     // fill buffer for global values to map on gpu
     oclData.buffer[6].data = segment.globalValues.buffer.data;
-    oclData.buffer[6].numberOfBytes = segment.globalValues.buffer.bufferPosition;
-    oclData.buffer[6].numberOfObjects = segment.globalValues.itemCapacity;
+    oclData.buffer[6].numberOfBytes = 256;
+    oclData.buffer[6].numberOfObjects = 1;
 
     assert(m_gpuInterface->initCopyToDevice(oclData));
 
@@ -111,6 +111,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     assert(m_gpuInterface->bindKernelToBuffer("updating", 2, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 3, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 4, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("updating", 6, oclData));
 
     assert(m_gpuInterface->getLocalMemorySize() == 256*256);
     assert(m_gpuInterface->setLocalMemory("synapse_processing",  256*256));

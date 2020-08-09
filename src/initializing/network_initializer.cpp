@@ -6,6 +6,7 @@
 #include "network_initializer.h"
 #include <kyouko_root.h>
 #include <core/object_handling/segment.h>
+#include <core/object_handling/global_values.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>
@@ -47,7 +48,8 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
 
     // init segment
     const uint32_t numberOfNodeBricks = getNumberOfNodeBricks();
-    const uint32_t totalNumberOfNodes = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValues->numberOfNodesPerBrick;
 
     if(initNodeBlocks(*segment, totalNumberOfNodes) == false) {
         return false;
@@ -141,6 +143,7 @@ NetworkInitializer::addBricks(Segment &segment)
 {
     uint32_t numberOfNodeBricks = 0;
     uint32_t numberOfBricks = 0;
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
     {
@@ -171,7 +174,7 @@ NetworkInitializer::addBricks(Segment &segment)
                     newBrick.nodeBrickId = numberOfNodeBricks;
                     newBrick.isNodeBrick = 1;
 
-                    const uint32_t nodePos = numberOfNodeBricks * NUMBER_OF_NODES_PER_BRICK;
+                    const uint32_t nodePos = numberOfNodeBricks * globalValues->numberOfNodesPerBrick;
                     assert(nodePos < 0x7FFFFFFF);
                     newBrick.nodePos = nodePos;
 
