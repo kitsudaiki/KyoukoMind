@@ -32,6 +32,8 @@ public:
 
     EventType getType() const;
 
+    virtual bool processEvent() = 0;
+
     void finishEvent(const std::string &message);
 
 protected:
@@ -49,6 +51,8 @@ class GetMetadataEvent
     GetMetadataEvent(Kitsunemimi::Project::Session* session,
                      const uint64_t blockerId);
     ~GetMetadataEvent();
+
+    bool processEvent();
 };
 
 //==================================================================================================
@@ -60,6 +64,8 @@ class GetObjSnapshotEvent
     GetObjSnapshotEvent(Kitsunemimi::Project::Session* session,
                         const uint64_t blockerId);
     ~GetObjSnapshotEvent();
+
+    bool processEvent();
 };
 
 }

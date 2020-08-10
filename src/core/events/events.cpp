@@ -5,6 +5,10 @@
 
 #include "events.h"
 
+#include <kyouko_root.h>
+#include <core/object_handling/segment.h>
+#include <core/obj_converter.h>
+
 namespace KyoukoMind
 {
 
@@ -50,6 +54,16 @@ GetMetadataEvent::~GetMetadataEvent()
 
 }
 
+bool
+GetMetadataEvent::processEvent()
+{
+    DataItem* result = KyoukoRoot::m_segment->getMetadata();
+    finishEvent(result->toString());
+    delete result;
+
+    return true;
+}
+
 //==================================================================================================
 // GetObjSnapshotEvent
 //==================================================================================================
@@ -64,6 +78,16 @@ GetObjSnapshotEvent::GetObjSnapshotEvent(Kitsunemimi::Project::Session* session,
 GetObjSnapshotEvent::~GetObjSnapshotEvent()
 {
 
+}
+
+bool
+GetObjSnapshotEvent::processEvent()
+{
+    std::string convertedString = "";
+    convertNetworkToString(convertedString);
+    finishEvent(convertedString);
+
+    return true;
 }
 
 }
