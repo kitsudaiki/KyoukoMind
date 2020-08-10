@@ -49,6 +49,7 @@ protected:
 class GetMetadataEvent
         : public KyoukoEvent
 {
+public:
     GetMetadataEvent(Kitsunemimi::Project::Session* session,
                      const uint64_t blockerId);
     ~GetMetadataEvent();
@@ -62,6 +63,7 @@ class GetMetadataEvent
 class GetObjSnapshotEvent
         : public KyoukoEvent
 {
+public:
     GetObjSnapshotEvent(Kitsunemimi::Project::Session* session,
                         const uint64_t blockerId);
     ~GetObjSnapshotEvent();
