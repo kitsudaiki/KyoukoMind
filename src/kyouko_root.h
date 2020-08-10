@@ -18,7 +18,6 @@ class SessionController;
 namespace KyoukoMind
 {
 class NetworkManager;
-class DummyInput;
 class Segment;
 class GpuProcessingUnit;
 class Brick;
@@ -47,7 +46,6 @@ private:
     Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
     NetworkManager* m_networkManager = nullptr;
     uint32_t m_serverId = 0;
-    DummyInput* m_dummyInput = nullptr;
 };
 
 } // namespace KyoukoMind

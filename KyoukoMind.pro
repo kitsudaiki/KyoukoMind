@@ -98,7 +98,6 @@ HEADERS += \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/dummy_input.h \
     src/kyouko_root.h \
     src/core/events/event_processing.h \
     src/core/events/events.h
@@ -116,7 +115,6 @@ SOURCES += \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/initializing/segment_initializing.cpp \
-    src/dummy_input.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/events/event_processing.cpp \

@@ -13,8 +13,6 @@
 #include <core/events/event_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
-#include <dummy_input.h>
-
 #include <io/network_callbacks.h>
 #include <io/client_processing.h>
 #include <io/control_processing.h>
@@ -71,8 +69,6 @@ KyoukoRoot::start()
     m_networkManager = new NetworkManager();
     m_networkManager->startThread();
 
-    // m_dummyInput = new DummyInput();
-    // m_dummyInput->startThread();
     return true;
     //return initServer();
 }
