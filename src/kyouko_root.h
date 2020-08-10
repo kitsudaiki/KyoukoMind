@@ -22,6 +22,7 @@ class DummyInput;
 class Segment;
 class GpuProcessingUnit;
 class Brick;
+class EventProcessing;
 
 class KyoukoRoot
 {
@@ -31,6 +32,7 @@ public:
     ~KyoukoRoot();
 
     static KyoukoMind::Segment* m_segment;
+    static KyoukoMind::EventProcessing* m_eventProcessing;
 
     static Kitsunemimi::Project::Session* m_clientSession;
     static Kitsunemimi::Project::Session* m_controlSession;

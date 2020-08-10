@@ -99,7 +99,9 @@ HEADERS += \
     src/common.h \
     src/config.h \
     src/dummy_input.h \
-    src/kyouko_root.h
+    src/kyouko_root.h \
+    src/core/events/event_processing.h \
+    src/core/events/events.h
 
 SOURCES += \
     src/core/object_handling/brick.cpp \
@@ -116,7 +118,9 @@ SOURCES += \
     src/initializing/segment_initializing.cpp \
     src/dummy_input.cpp \
     src/kyouko_root.cpp \
-    src/core/processing/gpu/gpu_processing_uint.cpp
+    src/core/processing/gpu/gpu_processing_uint.cpp \
+    src/core/events/event_processing.cpp \
+    src/core/events/events.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

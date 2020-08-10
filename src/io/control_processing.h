@@ -213,7 +213,7 @@ process_registerOutput(const ControlRegisterOutput &content,
  */
 bool
 process_doesBrickExist(const ControlDoesBrickExist &content,
-                       KyoukoRoot* rootObject,
+                       KyoukoRoot*,
                        Kitsunemimi::Project::Session* session,
                        const uint64_t blockerId)
 {
