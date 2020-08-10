@@ -35,9 +35,9 @@ namespace KyoukoMind
  */
 void
 send_generic_response(const bool success,
-                      const std::string &errorMessage,
                       Kitsunemimi::Project::Session* session,
-                      const uint64_t blockerId)
+                      const uint64_t blockerId,
+                      const std::string &errorMessage = "")
 {
     DataMap response;
     response.insert("success", new DataValue(success));
@@ -107,7 +107,7 @@ process_registerInput(const ControlRegisterInput &content,
                        + std::to_string(content.brickId)
                        + " doesn't exist.";
         LOG_ERROR(errorMessage);
-        send_generic_response(false, errorMessage, session, blockerId);
+        send_generic_response(false, session, blockerId, errorMessage);
         return false;
     }
 
@@ -119,7 +119,7 @@ process_registerInput(const ControlRegisterInput &content,
                        + std::to_string(content.brickId)
                        + " is not a node-brick.";
         LOG_ERROR(errorMessage);
-        send_generic_response(false, errorMessage, session, blockerId);
+        send_generic_response(false, session, blockerId, errorMessage);
         return false;
     }
 
@@ -132,7 +132,7 @@ process_registerInput(const ControlRegisterInput &content,
                        + std::to_string(content.brickId)
                        + " is already registered.";
         LOG_ERROR(errorMessage);
-        send_generic_response(false, errorMessage, session, blockerId);
+        send_generic_response(false, session, blockerId, errorMessage);
         return false;
     }
 
@@ -149,12 +149,12 @@ process_registerInput(const ControlRegisterInput &content,
                        + std::to_string(content.brickId)
                        + " can not be prepared for an unknown reason.";
         LOG_ERROR(errorMessage);
-        send_generic_response(false, errorMessage, session, blockerId);
+        send_generic_response(false, session, blockerId, errorMessage);
         return false;
     }
     rootObject->m_inputBricks->insert(std::make_pair(content.brickId, newBrick));
 
-    send_generic_response(true, "", session, blockerId);
+    send_generic_response(true, session, blockerId);
 
     return true;
 }
@@ -182,7 +182,7 @@ process_registerOutput(const ControlRegisterOutput &content,
                        + std::to_string(content.brickId)
                        + " doesn't exist.";
         LOG_ERROR(errorMessage);
-        send_generic_response(false, errorMessage, session, blockerId);
+        send_generic_response(false, session, blockerId, errorMessage);
         return false;
     }
 
@@ -194,13 +194,13 @@ process_registerOutput(const ControlRegisterOutput &content,
                        + std::to_string(content.brickId)
                        + " is not a node-brick.";
         LOG_ERROR(errorMessage);
-        send_generic_response(false, errorMessage, session, blockerId);
+        send_generic_response(false, session, blockerId, errorMessage);
         return false;
     }
 
     Segment* segment = KyoukoRoot::m_segment;
     segment->addClientOutputConnection(content.brickId);
-    send_generic_response(true, "", session, blockerId);
+    send_generic_response(true, session, blockerId);
 
     return true;
 }
