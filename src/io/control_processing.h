@@ -9,12 +9,15 @@
 #include <kyouko_root.h>
 
 #include <core/object_handling/segment.h>
+#include <core/events/events.h>
+#include <core/events/event_processing.h>
 #include <core/processing/objects/container_definitions.h>
 
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
+#include <libKitsunemimiCommon/threading/event.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/control_contianer.h>
 
 using Kitsunemimi::Kyouko::ControlRegisterInput;
@@ -272,6 +275,24 @@ controlCallback(void* target,
             const ControlDoesBrickExist content
                     = *(static_cast<const ControlDoesBrickExist*>(data->data));
             process_doesBrickExist(content, rootObject, session, blockerId);
+            break;
+        }
+
+        case CONTROL_GET_METADATA:
+        {
+            LOG_DEBUG("CONTROL_GET_METADATA");
+            assert(sizeof(ControlGetMetadata) == data->bufferPosition);
+            Kitsunemimi::Event* newEvent = new GetMetadataEvent(session, blockerId);
+            KyoukoRoot::m_eventProcessing->addEventToQueue(newEvent);
+            break;
+        }
+
+        case CONTROL_GET_SNAPSHOT:
+        {
+            LOG_DEBUG("CONTROL_GET_SNAPSHOT");
+            assert(sizeof(ControlGetSnapshot) == data->bufferPosition);
+            Kitsunemimi::Event* newEvent = new GetObjSnapshotEvent(session, blockerId);
+            KyoukoRoot::m_eventProcessing->addEventToQueue(newEvent);
             break;
         }
 
