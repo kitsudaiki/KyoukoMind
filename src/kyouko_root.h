@@ -43,8 +43,6 @@ public:
     bool start();
     bool initServer();
 
-    const std::string convertToObj();
-
 private:
     Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
     NetworkManager* m_networkManager = nullptr;

@@ -92,34 +92,4 @@ KyoukoRoot::initServer()
     return m_serverId != 0;
 }
 
-/**
- * @brief RootObject::convertToObj
- * @param brickId
- * @param nodeId
- * @return
- */
-const std::string
-KyoukoRoot::convertToObj()
-{
-    m_networkManager->initBlockThread();
-    // wait the double time of one cycle to ensure, that it is paused
-    usleep(20000);
-
-    std::string convertedString = "";
-    convertNodeToString(convertedString, 18, 0);
-    //convertNetworkToString(convertedString);
-
-    std::string errorMessage = "";
-    Kitsunemimi::Persistence::writeFile("/tmp/test_output.obj",
-                                        convertedString,
-                                        errorMessage,
-                                        true);
-
-    usleep(20000);
-
-    m_networkManager->continueThread();
-
-    return convertedString;
-}
-
 } // namespace KyoukoMind

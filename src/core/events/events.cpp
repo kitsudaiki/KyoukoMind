@@ -50,4 +50,20 @@ GetMetadataEvent::~GetMetadataEvent()
 
 }
 
+//==================================================================================================
+// GetObjSnapshotEvent
+//==================================================================================================
+GetObjSnapshotEvent::GetObjSnapshotEvent(Kitsunemimi::Project::Session* session,
+                                         const uint64_t blockerId)
+    : KyoukoEvent(session, blockerId)
+
+{
+    m_type = GET_OBJ_SNAPSHOT_EVENT;
+}
+
+GetObjSnapshotEvent::~GetObjSnapshotEvent()
+{
+
+}
+
 }

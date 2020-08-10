@@ -224,38 +224,6 @@ process_doesBrickExist(const ControlDoesBrickExist &content,
 }
 
 /**
- * @brief process_getMetadata
- * @param content
- * @param rootObject
- * @param session
- * @param blockerId
- */
-void
-process_getMetadata(KyoukoRoot* rootObject,
-                    Kitsunemimi::Project::Session* session,
-                    const uint64_t blockerId)
-{
-    DataItem* response = rootObject->m_segment->getMetadata();
-    send_metadata_response(response, session, blockerId);
-}
-
-/**
- * @brief process_getSnapshot
- * @param rootObject
- * @param session
- * @param blockerId
- */
-void
-process_getSnapshot(KyoukoRoot* rootObject,
-                    Kitsunemimi::Project::Session* session,
-                    const uint64_t blockerId)
-{
-    rootObject->convertToObj();
-    // TODO: send snapshot back
-    session->sendResponse("resp", 4, blockerId);
-}
-
-/**
  * @brief controlCallback
  * @param target
  * @param session
@@ -304,22 +272,6 @@ controlCallback(void* target,
             const ControlDoesBrickExist content
                     = *(static_cast<const ControlDoesBrickExist*>(data->data));
             process_doesBrickExist(content, rootObject, session, blockerId);
-            break;
-        }
-
-        case CONTROL_GET_METADATA:
-        {
-            LOG_DEBUG("CONTROL_GET_METADATA");
-            assert(sizeof(ControlGetMetadata) == data->bufferPosition);
-            process_getMetadata(rootObject, session, blockerId);
-            break;
-        }
-
-        case CONTROL_GET_SNAPSHOT:
-        {
-            LOG_DEBUG("CONTROL_GET_SNAPSHOT");
-            assert(sizeof(ControlGetSnapshot) == data->bufferPosition);
-            process_getSnapshot(rootObject, session, blockerId);
             break;
         }
 

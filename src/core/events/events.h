@@ -23,6 +23,7 @@ public:
     enum EventType {
         UNDEFINED = 0,
         GET_METADATA_EVENT = 1,
+        GET_OBJ_SNAPSHOT_EVENT = 2,
     };
 
     KyoukoEvent(Kitsunemimi::Project::Session* session,
@@ -48,6 +49,17 @@ class GetMetadataEvent
     GetMetadataEvent(Kitsunemimi::Project::Session* session,
                      const uint64_t blockerId);
     ~GetMetadataEvent();
+};
+
+//==================================================================================================
+// GetObjSnapshotEvent
+//==================================================================================================
+class GetObjSnapshotEvent
+        : public KyoukoEvent
+{
+    GetObjSnapshotEvent(Kitsunemimi::Project::Session* session,
+                        const uint64_t blockerId);
+    ~GetObjSnapshotEvent();
 };
 
 }
