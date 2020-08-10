@@ -34,9 +34,18 @@ KyoukoEvent::getType() const
 }
 
 void
-KyoukoEvent::finishEvent(const std::string &message)
+KyoukoEvent::finishEvent(const bool success,
+                         const std::string &message)
 {
-    m_session->sendResponse(message.c_str(), message.size(), m_blockerId);
+    DataMap response;
+    response.insert("success", new DataValue(success));
+    if(message != "")
+    {
+        response.insert("message", new DataValue(message));
+    }
+
+    const std::string responseMessage = response.toString();
+    m_session->sendResponse(responseMessage.c_str(), responseMessage.size(), m_blockerId);
 }
 
 //==================================================================================================
@@ -58,7 +67,7 @@ bool
 GetMetadataEvent::processEvent()
 {
     DataItem* result = KyoukoRoot::m_segment->getMetadata();
-    finishEvent(result->toString());
+    finishEvent(true, result->toString());
     delete result;
 
     return true;
@@ -85,7 +94,7 @@ GetObjSnapshotEvent::processEvent()
 {
     std::string convertedString = "";
     convertNetworkToString(convertedString);
-    finishEvent(convertedString);
+    finishEvent(true, convertedString);
 
     return true;
 }

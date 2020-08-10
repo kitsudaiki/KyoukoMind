@@ -34,12 +34,13 @@ public:
 
     virtual bool processEvent() = 0;
 
-    void finishEvent(const std::string &message);
-
 protected:
     EventType m_type = UNDEFINED;
     Kitsunemimi::Project::Session* m_session = nullptr;
     uint64_t m_blockerId = 0;
+
+    void finishEvent(const bool success,
+                     const std::string &message = "");
 };
 
 //==================================================================================================
