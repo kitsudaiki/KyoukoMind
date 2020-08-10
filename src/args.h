@@ -8,9 +8,6 @@
 
 #include <libKitsunemimiArgs/arg_parser.h>
 
-namespace KyoukoMind
-{
-
 bool
 registerArguments(Kitsunemimi::Args::ArgParser &argparser)
 {
@@ -32,8 +29,6 @@ registerArguments(Kitsunemimi::Args::ArgParser &argparser)
     argparser.registerPlain("debug,d",
                             "enable debug-mode");
     return true;
-}
-
 }
 
 #endif // ARGS_H

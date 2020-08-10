@@ -9,9 +9,6 @@
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
-namespace KyoukoMind
-{
-
 class EventProcessing
         : public Kitsunemimi::Thread
 {
@@ -21,7 +18,5 @@ public:
 protected:
     void run();
 };
-
-}
 
 #endif // EVENT_PROCESSING_H

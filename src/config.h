@@ -8,9 +8,6 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 
-namespace KyoukoMind
-{
-
 void
 registerConfigs()
 {
@@ -19,8 +16,6 @@ registerConfigs()
     REGISTER_STRING_CONFIG("Init", "file", "");
 
     REGISTER_STRING_CONFIG("Storage", "path", "/tmp/KyoukoMind/");
-}
-
 }
 
 #endif // GATEWAY_CONFIG_H

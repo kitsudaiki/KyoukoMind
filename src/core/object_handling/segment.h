@@ -11,9 +11,6 @@
 #include <core/object_handling/item_buffer.h>
 #include <core/object_handling/brick.h>
 
-namespace KyoukoMind
-{
-
 class Segment
 {
 public:
@@ -46,7 +43,5 @@ public:
                           const uint8_t sourceSide);
 
 };
-
-}
 
 #endif // NETWORK_SEGMENT_H

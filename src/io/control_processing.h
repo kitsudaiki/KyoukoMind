@@ -26,9 +26,6 @@ using Kitsunemimi::Kyouko::ControlDoesBrickExist;
 using Kitsunemimi::Kyouko::ControlGetMetadata;
 using Kitsunemimi::Kyouko::ControlGetSnapshot;
 
-namespace KyoukoMind
-{
-
 /**
  * @brief send_generic_response
  * @param success
@@ -292,8 +289,6 @@ controlCallback(void* target,
     }
 
     delete data;
-}
-
 }
 
 #endif // CONTROL_PROCESSING_H

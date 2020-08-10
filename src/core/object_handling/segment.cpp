@@ -12,9 +12,6 @@
 
 #include <initializing/segment_initializing.h>
 
-namespace KyoukoMind
-{
-
 Segment::Segment()
 {
     initGlobalValues(*this);
@@ -100,6 +97,4 @@ Segment::disconnectBricks(const uint32_t sourceBrickId,
 {
     Brick* sourceBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[sourceBrickId];
     return sourceBrick->disconnectBricks(sourceSide);
-}
-
 }

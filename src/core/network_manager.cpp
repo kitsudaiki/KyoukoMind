@@ -20,9 +20,6 @@
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief NetManager::NetManager
  */
@@ -119,5 +116,3 @@ NetworkManager::initNetwork()
 
     return true;
 }
-
-} // namespace KyoukoMind

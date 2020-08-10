@@ -8,8 +8,6 @@
 
 #include <common.h>
 
-namespace KyoukoMind
-{
 struct GlobalValues
 {
     float memorizingValue = 0.0f;
@@ -30,7 +28,5 @@ struct GlobalValues
 
     uint8_t padding[208];
 };
-
-} // namespace KyoukoMind
 
 #endif // GLOBAL_VALUES_HANDLER_H

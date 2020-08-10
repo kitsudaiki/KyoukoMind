@@ -11,9 +11,6 @@
 
 #include <core/processing/objects/node.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief createAxons
  * @return
@@ -158,5 +155,3 @@ chooseNextSide(const uint8_t initialSide,
 
     return 0xFF;
 }
-
-} // namespace KyoukoMind

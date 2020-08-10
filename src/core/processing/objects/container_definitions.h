@@ -8,9 +8,6 @@
 
 #include <common.h>
 
-namespace KyoukoMind
-{
-
 //==================================================================================================
 
 enum ContainerType
@@ -164,7 +161,5 @@ struct DebugContainer
 } __attribute__((packed));
 
 //==================================================================================================
-
-} // namespace KyoukoMind
 
 #endif // CONTENT_CONTAINER_H

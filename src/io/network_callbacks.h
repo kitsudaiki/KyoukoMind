@@ -11,9 +11,6 @@
 #include <libKitsunemimiProjectNetwork/session_controller.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief errorCallback
  */
@@ -72,8 +69,6 @@ sessionCallback(void* target,
             rootObject->m_clientSession = nullptr;
         }
     }
-}
-
 }
 
 #endif // NETWORK_CALLBACKS_H

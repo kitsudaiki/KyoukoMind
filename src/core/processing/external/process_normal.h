@@ -9,9 +9,6 @@
 #include <common.h>
 #include <kyouko_root.h>
 
-namespace KyoukoMind
-{
-
 //==================================================================================================
 
 /**
@@ -204,7 +201,5 @@ processPendingEdge(NetworkSegment &segment,
         forwardEdgeSectionId--;
     }
 }*/
-
-}
 
 #endif // PROCESS_NORMAL_H

@@ -9,9 +9,6 @@
 #include <common.h>
 #include <core/processing/objects/edges.h>
 
-namespace KyoukoMind
-{
-
 //==================================================================================================
 
 /**
@@ -48,7 +45,5 @@ updateEdgeWeight(EdgeSection &section,
 }*/
 
 //==================================================================================================
-
-}
 
 #endif // EDGE_METHODS_H

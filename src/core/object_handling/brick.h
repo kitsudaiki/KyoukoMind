@@ -11,9 +11,6 @@
 
 #include <core/processing/objects/edges.h>
 
-namespace KyoukoMind
-{
-
 class Brick
 {
 
@@ -76,7 +73,5 @@ private:
 
     const PossibleNext getPossibleNext(const uint8_t inputSide);
 };
-
-}
 
 #endif // BRICK_H

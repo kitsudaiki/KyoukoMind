@@ -15,8 +15,6 @@ class SessionController;
 }
 }
 
-namespace KyoukoMind
-{
 class NetworkManager;
 class Segment;
 class GpuProcessingUnit;
@@ -30,8 +28,8 @@ public:
     KyoukoRoot();
     ~KyoukoRoot();
 
-    static KyoukoMind::Segment* m_segment;
-    static KyoukoMind::EventProcessing* m_eventProcessing;
+    static Segment* m_segment;
+    static EventProcessing* m_eventProcessing;
 
     static Kitsunemimi::Project::Session* m_clientSession;
     static Kitsunemimi::Project::Session* m_controlSession;
@@ -47,7 +45,5 @@ private:
     NetworkManager* m_networkManager = nullptr;
     uint32_t m_serverId = 0;
 };
-
-} // namespace KyoukoMind
 
 #endif //KYOUKO_ROOT_OBJECT_H

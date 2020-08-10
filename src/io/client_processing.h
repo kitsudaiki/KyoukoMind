@@ -26,9 +26,6 @@ using Kitsunemimi::Kyouko::ClientControlOutputLearning;
 using Kitsunemimi::Kyouko::ClientLearnInputData;
 using Kitsunemimi::Kyouko::ClientLearnFinishCycleData;
 
-namespace KyoukoMind
-{
-
 /**
  * @brief clientControlLearning_processing
  * @param content
@@ -203,8 +200,6 @@ clientCallback(void* target,
                 break;
         }
     }
-}
-
 }
 
 #endif // CLIENT_PROCESSING_H

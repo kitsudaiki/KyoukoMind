@@ -21,9 +21,6 @@
 
 #include <libKitsunemimiCommon/threading/barrier.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief ProcessingUnit::ProcessingUnit
  * @param brickHandler
@@ -71,5 +68,3 @@ CpuProcessingUnit::run()
         m_phase3->triggerBarrier();
     }
 }
-
-} // namespace KyoukoMind

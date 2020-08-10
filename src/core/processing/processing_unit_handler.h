@@ -15,8 +15,6 @@ class GpuHandler;
 }
 }
 
-namespace KyoukoMind
-{
 class CpuProcessingUnit;
 class GpuProcessingUnit;
 
@@ -38,7 +36,5 @@ public:
 private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
 };
-
-} // namespace KyoukoMind
 
 #endif // PROCESSING_UNIT_HANDLER_H

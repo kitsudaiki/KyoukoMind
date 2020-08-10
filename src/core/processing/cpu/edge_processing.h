@@ -18,9 +18,6 @@
 
 #include <core/processing/objects/synapses.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief lernEdge
  * @param edge
@@ -333,8 +330,6 @@ updateEdgeSection()
     }
 
     return count;
-}
-
 }
 
 #endif // EDGE_PROCESSING_H

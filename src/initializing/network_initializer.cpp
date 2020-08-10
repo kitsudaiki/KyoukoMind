@@ -16,8 +16,6 @@
 #include <core/processing/gpu/gpu_processing_uint.h>
 #include <initializing/segment_initializing.h>
 
-namespace KyoukoMind
-{
 
 NetworkInitializer::NetworkInitializer()
 {
@@ -344,5 +342,3 @@ NetworkInitializer::getNext(const uint32_t x,
     }
     return result;
 }
-
-} // namespace KyoukoMind

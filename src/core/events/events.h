@@ -10,9 +10,6 @@
 #include <libKitsunemimiCommon/threading/event.h>
 #include <libKitsunemimiProjectNetwork/session.h>
 
-namespace KyoukoMind
-{
-
 //==================================================================================================
 // KyoukoEvent
 //==================================================================================================
@@ -87,7 +84,5 @@ public:
 
     uint32_t m_brickId = 0;
 };
-
-}
 
 #endif // EVENTS_H

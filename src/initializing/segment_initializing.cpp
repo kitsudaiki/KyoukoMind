@@ -7,9 +7,6 @@
 #include <core/processing/objects/synapses.h>
 #include <core/object_handling/global_values.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief NetworkSegment::initBricks
  * @param numberOfBricks
@@ -219,6 +216,4 @@ initTransferBlocks(Segment &segment,
     //----------------------------------------------------------------------------------------------
 
     return true;
-}
-
 }

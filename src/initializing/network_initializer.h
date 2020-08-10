@@ -9,9 +9,6 @@
 #include <common.h>
 #include "init_meta_data.h"
 
-namespace KyoukoMind
-{
-
 class BrickQueue;
 class Segment;
 
@@ -41,7 +38,5 @@ private:
                                        const uint8_t side);
 
 };
-
-} // namespace KyoukoMind
 
 #endif // NETWORK_INITIALIZER_H

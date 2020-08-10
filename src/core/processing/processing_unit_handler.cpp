@@ -17,9 +17,6 @@
 
 #include <kyouko_root.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief ProcessingUnitHandler::ProcessingUnitHandler
  * @param brickHandler
@@ -106,5 +103,3 @@ ProcessingUnitHandler::closeAllProcessingUnits()
 
     return true;
 }
-
-} // namespace KyoukoMind

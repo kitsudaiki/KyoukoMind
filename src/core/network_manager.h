@@ -13,9 +13,6 @@ namespace Kitsunemimi {
 class Barrier;
 }
 
-namespace KyoukoMind
-{
-
 class ProcessingUnitHandler;
 
 class NetworkManager
@@ -37,7 +34,5 @@ private:
 
     uint32_t m_numberOfThreads = 0;
 };
-
-} // namespace KyoukoMind
 
 #endif // NETWORK_MANAGER_H

@@ -9,9 +9,6 @@
 #include <common.h>
 #include <kyouko_root.h>
 
-namespace KyoukoMind
-{
-
 //==================================================================================================
 
 /**
@@ -134,7 +131,5 @@ processIncomingMessages(NetworkSegment &segment,
         }
     }
 }*/
-
-} // namespace KyoukoMind
 
 #endif // EDGE_CONTAINER_PROCESSING_H

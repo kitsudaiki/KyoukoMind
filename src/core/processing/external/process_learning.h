@@ -9,8 +9,6 @@
 #include <common.h>
 #include <kyouko_root.h>
 
-namespace KyoukoMind
-{
 
 //==================================================================================================
 
@@ -135,7 +133,5 @@ processLearningEdgeReply(Brick &brick,
     edgeSections[container.sourceEdgeSectionId].edges[side].targetId =
             static_cast<uint32_t>(container.targetEdgeSectionId);
 }*/
-
-}
 
 #endif // PROCESS_LEARNING_H

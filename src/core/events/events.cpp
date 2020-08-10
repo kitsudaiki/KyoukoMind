@@ -9,9 +9,6 @@
 #include <core/object_handling/segment.h>
 #include <core/obj_converter.h>
 
-namespace KyoukoMind
-{
-
 //==================================================================================================
 // KyoukoEvent
 //==================================================================================================
@@ -124,4 +121,3 @@ DoesBrickIdExistEvent::processEvent()
     return true;
 }
 
-}

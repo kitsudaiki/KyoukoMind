@@ -24,12 +24,10 @@
 #include <libKitsunemimiProjectNetwork/session.h>
 #include <libKitsunemimiProjectNetwork/session_controller.h>
 
-namespace KyoukoMind
-{
 
 // init static variables
-KyoukoMind::Segment* KyoukoRoot::m_segment = nullptr;
-KyoukoMind::EventProcessing* KyoukoRoot::m_eventProcessing = nullptr;;
+Segment* KyoukoRoot::m_segment = nullptr;
+EventProcessing* KyoukoRoot::m_eventProcessing = nullptr;;
 
 Kitsunemimi::Project::Session* KyoukoRoot::m_clientSession = nullptr;
 Kitsunemimi::Project::Session* KyoukoRoot::m_controlSession = nullptr;
@@ -87,5 +85,3 @@ KyoukoRoot::initServer()
     m_serverId = m_sessionController->addTcpServer(port);
     return m_serverId != 0;
 }
-
-} // namespace KyoukoMind

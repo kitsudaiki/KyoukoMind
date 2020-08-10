@@ -20,7 +20,7 @@ main(int argc, char *argv[])
 
     // create and init argument-parser
     Kitsunemimi::Args::ArgParser argParser;
-    KyoukoMind::registerArguments(argParser);
+    registerArguments(argParser);
 
     // parse cli-input
     if(argParser.parse(argc, argv) == false) {
@@ -36,7 +36,7 @@ main(int argc, char *argv[])
     if(Kitsunemimi::Config::initConfig(configFilePath) == false) {
         return 1;
     }
-    KyoukoMind::registerConfigs();
+    registerConfigs();
 
     // log-file
     std::string logDirPath = "/var/log/";
@@ -50,7 +50,7 @@ main(int argc, char *argv[])
     Kitsunemimi::Persistence::initFileLogger(logDirPath, logBaseName, enableDebug);
 
     // create server
-    KyoukoMind::KyoukoRoot* rootObject = new KyoukoMind::KyoukoRoot();
+    KyoukoRoot* rootObject = new KyoukoRoot();
     rootObject->start();
 
     int a = 0;

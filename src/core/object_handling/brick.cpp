@@ -12,9 +12,6 @@
 #include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief Brick::Brick
  * @param brickId
@@ -301,5 +298,3 @@ Brick::initNeighbor(const uint8_t side,
 {
     neighbors[side] = targetBrickId;
 }
-
-} // namespace KyoukoMind

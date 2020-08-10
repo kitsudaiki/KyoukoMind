@@ -6,9 +6,6 @@
 #include "event_processing.h"
 #include <core/events/events.h>
 
-namespace KyoukoMind
-{
-
 EventProcessing::EventProcessing()
 {
 
@@ -33,6 +30,4 @@ EventProcessing::run()
 
         kyoukoEvent->processEvent();
     }
-}
-
 }

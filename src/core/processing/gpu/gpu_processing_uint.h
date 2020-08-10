@@ -16,8 +16,6 @@ namespace Kitsunemimi {
 class Barrier;
 }
 
-namespace KyoukoMind
-{
 class Segment;
 
 class GpuProcessingUnit
@@ -47,7 +45,5 @@ private:
     bool copyAxonTransfersFromGpu();
     bool closeDevice();
 };
-
-}
 
 #endif // GPU_INTERFACE_H
