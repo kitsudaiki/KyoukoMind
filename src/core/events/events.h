@@ -24,6 +24,7 @@ public:
         UNDEFINED = 0,
         GET_METADATA_EVENT = 1,
         GET_OBJ_SNAPSHOT_EVENT = 2,
+        DOES_BRICK_ID_EXIST_EVENT = 3,
     };
 
     KyoukoEvent(Kitsunemimi::Project::Session* session,
@@ -69,6 +70,22 @@ public:
     ~GetObjSnapshotEvent();
 
     bool processEvent();
+};
+
+//==================================================================================================
+// DoesBrickIdExistEvent
+//==================================================================================================
+class DoesBrickIdExistEvent
+        : public KyoukoEvent
+{
+public:
+    DoesBrickIdExistEvent(Kitsunemimi::Project::Session* session,
+                          const uint64_t blockerId);
+    ~DoesBrickIdExistEvent();
+
+    bool processEvent();
+
+    uint32_t m_brickId = 0;
 };
 
 }

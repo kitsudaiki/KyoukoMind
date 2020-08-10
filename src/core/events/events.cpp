@@ -99,4 +99,29 @@ GetObjSnapshotEvent::processEvent()
     return true;
 }
 
+//==================================================================================================
+// GetObjSnapshotEvent
+//==================================================================================================
+DoesBrickIdExistEvent::DoesBrickIdExistEvent(Kitsunemimi::Project::Session* session,
+                                             const uint64_t blockerId)
+    : KyoukoEvent(session, blockerId)
+
+{
+    m_type = DOES_BRICK_ID_EXIST_EVENT;
+}
+
+DoesBrickIdExistEvent::~DoesBrickIdExistEvent()
+{
+
+}
+
+bool
+DoesBrickIdExistEvent::processEvent()
+{
+    const bool result = KyoukoRoot::m_segment->bricks.numberOfItems < m_brickId;
+    finishEvent(result);
+
+    return true;
+}
+
 }

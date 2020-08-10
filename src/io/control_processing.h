@@ -209,24 +209,6 @@ process_registerOutput(const ControlRegisterOutput &content,
 }
 
 /**
- * @brief doesBrickExist
- * @param content
- * @param rootObject
- * @return
- */
-bool
-process_doesBrickExist(const ControlDoesBrickExist &content,
-                       KyoukoRoot*,
-                       Kitsunemimi::Project::Session* session,
-                       const uint64_t blockerId)
-{
-    Brick* outgoingBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[content.brickId];
-    const bool exist = outgoingBrick != nullptr;
-    send_doesBrickExist_response(exist, session, blockerId);
-    return exist;
-}
-
-/**
  * @brief controlCallback
  * @param target
  * @param session
@@ -272,9 +254,13 @@ controlCallback(void* target,
         {
             LOG_DEBUG("CONTROL_DOES_BRICK_EXIST");
             assert(sizeof(ControlDoesBrickExist) == data->bufferPosition);
+
             const ControlDoesBrickExist content
                     = *(static_cast<const ControlDoesBrickExist*>(data->data));
-            process_doesBrickExist(content, rootObject, session, blockerId);
+            DoesBrickIdExistEvent* newEvent = new DoesBrickIdExistEvent(session, blockerId);
+            newEvent->m_brickId = content.brickId;
+            KyoukoRoot::m_eventProcessing->addEventToQueue(newEvent);
+
             break;
         }
 
@@ -282,8 +268,10 @@ controlCallback(void* target,
         {
             LOG_DEBUG("CONTROL_GET_METADATA");
             assert(sizeof(ControlGetMetadata) == data->bufferPosition);
+
             Kitsunemimi::Event* newEvent = new GetMetadataEvent(session, blockerId);
             KyoukoRoot::m_eventProcessing->addEventToQueue(newEvent);
+
             break;
         }
 
@@ -291,8 +279,10 @@ controlCallback(void* target,
         {
             LOG_DEBUG("CONTROL_GET_SNAPSHOT");
             assert(sizeof(ControlGetSnapshot) == data->bufferPosition);
+
             Kitsunemimi::Event* newEvent = new GetObjSnapshotEvent(session, blockerId);
             KyoukoRoot::m_eventProcessing->addEventToQueue(newEvent);
+
             break;
         }
 
