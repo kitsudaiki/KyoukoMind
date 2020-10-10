@@ -42,7 +42,7 @@ function get_required_kitsune_lib_repo () {
     NUMBER_OF_THREADS=$3
 
     # clone repo
-    git clone https://github.com/tobiasanker/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
+    git clone https://github.com/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
     cd "$PARENT_DIR/$REPO_NAME"
     git checkout $TAG_OR_BRANCH
 
@@ -55,7 +55,7 @@ function get_required_private_repo () {
     NUMBER_OF_THREADS=$3
 
     # clone repo
-    git clone git@10.0.3.120:tobiasanker/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
+    git clone git@10.0.3.120:kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
     cd "$PARENT_DIR/$REPO_NAME"
     git checkout $TAG_OR_BRANCH
 

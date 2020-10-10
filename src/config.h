@@ -15,7 +15,7 @@ registerConfigs()
 
     REGISTER_STRING_CONFIG("Init", "file", "");
 
-    REGISTER_STRING_CONFIG("Storage", "path", "/tmp/KyoukoMind/");
+    REGISTER_STRING_CONFIG("Storage", "path", "/tmp/");
 }
 
 #endif // GATEWAY_CONFIG_H

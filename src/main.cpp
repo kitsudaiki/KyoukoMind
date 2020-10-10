@@ -27,27 +27,12 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    // debugging for logging
+    // init logging
     const bool enableDebug = argParser.wasSet("debug");
     Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
-
-    // config-file
-    const std::string configFilePath = argParser.getStringValues("config").at(0);
-    if(Kitsunemimi::Config::initConfig(configFilePath) == false) {
-        return 1;
-    }
-    registerConfigs();
-
-    // log-file
-    std::string logDirPath = "/var/log/";
-    if(argParser.wasSet("log-dir")) {
-        logDirPath = argParser.getStringValues("log-dir").at(0);
-    }
-    std::string logBaseName = "KyoukoMind";
-    if(argParser.wasSet("log-base")) {
-        logBaseName = argParser.getStringValues("log-base").at(0);
-    }
-    Kitsunemimi::Persistence::initFileLogger(logDirPath, logBaseName, enableDebug);
+    Kitsunemimi::Persistence::initFileLogger("/var/log/",
+                                             "KyoukoMind",
+                                             enableDebug);
 
     // create server
     KyoukoRoot* rootObject = new KyoukoRoot();

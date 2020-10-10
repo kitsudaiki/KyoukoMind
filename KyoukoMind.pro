@@ -4,6 +4,11 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
+LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
+LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
+LIBS += -L../libKitsunemimiSakuraMessaging/src/release -lKitsunemimiSakuraMessaging
+INCLUDEPATH += ../libKitsunemimiSakuraMessaging/include
+
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/release -lKitsunemimiArgs
@@ -16,10 +21,15 @@ INCLUDEPATH += ../libKitsunemimiConfig/include
 
 INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
 
-LIBS += -L../libKitsunemimiProjectNetwork/src -lKitsunemimiProjectNetwork
-LIBS += -L../libKitsunemimiProjectNetwork/src/debug -lKitsunemimiProjectNetwork
-LIBS += -L../libKitsunemimiProjectNetwork/src/release -lKitsunemimiProjectNetwork
-INCLUDEPATH += ../libKitsunemimiProjectNetwork/include
+LIBS += -L../libKitsunemimiSakuraNetwork/src -lKitsunemimiSakuraNetwork
+LIBS += -L../libKitsunemimiSakuraNetwork/src/debug -lKitsunemimiSakuraNetwork
+LIBS += -L../libKitsunemimiSakuraNetwork/src/release -lKitsunemimiSakuraNetwork
+INCLUDEPATH += ../libKitsunemimiSakuraNetwork/include
+
+LIBS += -L../libKitsunemimiSakuraLang/src -lKitsunemimiSakuraLang
+LIBS += -L../libKitsunemimiSakuraLang/src/debug -lKitsunemimiSakuraLang
+LIBS += -L../libKitsunemimiSakuraLang/src/release -lKitsunemimiSakuraLang
+INCLUDEPATH += ../libKitsunemimiSakuraLang/include
 
 LIBS += -L../libKitsunemimiOpencl/src -lKitsunemimiOpencl
 LIBS += -L../libKitsunemimiOpencl/src/debug -lKitsunemimiOpencl
@@ -45,6 +55,11 @@ LIBS += -L../libKitsunemimiIni/src -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/debug -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/release -lKitsunemimiIni
 INCLUDEPATH += ../libKitsunemimiIni/include
+
+LIBS += -L../libKitsunemimiJinja2/src -lKitsunemimiJinja2
+LIBS += -L../libKitsunemimiJinja2/src/debug -lKitsunemimiJinja2
+LIBS += -L../libKitsunemimiJinja2/src/release -lKitsunemimiJinja2
+INCLUDEPATH += ../libKitsunemimiJinja2/include
 
 LIBS += -L../libKitsunemimiJson/src -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/debug -lKitsunemimiJson
@@ -92,15 +107,10 @@ HEADERS += \
     src/initializing/init_meta_data.h \
     src/initializing/network_initializer.h \
     src/initializing/segment_initializing.h \
-    src/io/client_processing.h \
-    src/io/control_processing.h \
-    src/io/network_callbacks.h \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/kyouko_root.h \
-    src/core/events/event_processing.h \
-    src/core/events/events.h
+    src/kyouko_root.h
 
 SOURCES += \
     src/core/object_handling/brick.cpp \
@@ -116,9 +126,7 @@ SOURCES += \
     src/initializing/network_initializer.cpp \
     src/initializing/segment_initializing.cpp \
     src/kyouko_root.cpp \
-    src/core/processing/gpu/gpu_processing_uint.cpp \
-    src/core/events/event_processing.cpp \
-    src/core/events/events.cpp
+    src/core/processing/gpu/gpu_processing_uint.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
