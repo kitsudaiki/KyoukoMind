@@ -11,7 +11,10 @@
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
-#include <libKitsunemimiConfig/config_handler.h>
+
+#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
+
+using Kitsunemimi::Sakura::MessagingController;
 
 int
 main(int argc, char *argv[])
@@ -38,6 +41,10 @@ main(int argc, char *argv[])
         return 1;
     }
     registerConfigs();
+    std::vector<std::string> groupNames = {};
+    if(MessagingController::initializeMessagingController("KyoukoMind", groupNames) == false) {
+        return 1;
+    }
 
     // create server
     KyoukoRoot* rootObject = new KyoukoRoot();
