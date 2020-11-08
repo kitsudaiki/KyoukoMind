@@ -3,19 +3,17 @@
  *  Contact: tobias.anker@kitsunemimi.moe
  */
 
-#ifndef GATEWAY_CONFIG_H
-#define GATEWAY_CONFIG_H
+#ifndef KYOUKOMIND_CONFIG_H
+#define KYOUKOMIND_CONFIG_H
 
 #include <libKitsunemimiConfig/config_handler.h>
 
 void
 registerConfigs()
 {
-    REGISTER_INT_CONFIG("Network", "port", 2448);
+    REGISTER_STRING_CONFIG("Init", "file", "/tmp/KyoukoMind_init");
 
-    REGISTER_STRING_CONFIG("Init", "file", "");
-
-    REGISTER_STRING_CONFIG("Storage", "path", "/tmp/");
+    REGISTER_STRING_CONFIG("Network", "socket", "/tmp/KyoukoMind_uds.sock");
 }
 
-#endif // GATEWAY_CONFIG_H
+#endif // KYOUKOMIND_CONFIG_H

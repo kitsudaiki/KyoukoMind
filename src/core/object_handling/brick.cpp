@@ -14,15 +14,18 @@
 
 /**
  * @brief Brick::Brick
- * @param brickId
- * @param x
- * @param y
  */
 Brick::Brick()
 {
     initNeighborList();
 }
 
+/**
+ * @brief Brick::Brick
+ * @param brickId
+ * @param x
+ * @param y
+ */
 Brick::Brick(const uint32_t &brickId,
              const uint32_t x,
              const uint32_t y)

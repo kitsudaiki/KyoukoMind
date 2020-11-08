@@ -26,19 +26,6 @@ KyoukoRoot::KyoukoRoot()
 {
     validateStructSizes();
 
-    std::string errorMessage = "";
-
-    bool ret = Kitsunemimi::Persistence::writeFile("/tmp/KyoukoMind.conf",
-                                        getTestConfig(),
-                                        errorMessage,
-                                        true);
-
-    Kitsunemimi::Config::initConfig("/tmp/KyoukoMind.conf");
-    std::vector<std::string> groupNames = {"ToriiGateway"};
-    Kitsunemimi::Sakura::MessagingController::initializeMessagingController("KyoukoMind", groupNames);
-    Kitsunemimi::Sakura::MessagingClient* client = Kitsunemimi::Sakura::MessagingController::getInstance()->getClient("ToriiGateway");
-
-
     m_segment = new Segment();
     m_inputBricks = new std::map<uint32_t, Brick*>();
 }
@@ -60,21 +47,4 @@ KyoukoRoot::start()
 
     return true;
     //return initServer();
-}
-
-/**
- * @brief Session_Test::getTestConfig
- * @return
- */
-const std::string
-KyoukoRoot::getTestConfig()
-{
-    const std::string config = "[DEFAULT]\n"
-                               "port = 12346\n"
-                               "\n"
-                               "\n"
-                               "[ToriiGateway]\n"
-                               "port = 12345\n"
-                               "address = \"127.0.0.1\"\n";
-    return config;
 }

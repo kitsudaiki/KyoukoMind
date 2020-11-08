@@ -30,9 +30,14 @@ main(int argc, char *argv[])
     // init logging
     const bool enableDebug = argParser.wasSet("debug");
     Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
-    Kitsunemimi::Persistence::initFileLogger("/var/log/",
-                                             "KyoukoMind",
-                                             enableDebug);
+    Kitsunemimi::Persistence::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
+
+    // init config
+    const std::string configFile = argParser.getStringValue("config");
+    if(Kitsunemimi::Config::initConfig(configFile) == false) {
+        return 1;
+    }
+    registerConfigs();
 
     // create server
     KyoukoRoot* rootObject = new KyoukoRoot();
