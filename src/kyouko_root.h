@@ -24,7 +24,7 @@ public:
     static std::map<uint32_t, Brick*>* m_inputBricks;
 
     bool start();
-    bool initServer();
+    bool initSakuraFiles();
 
 private:
     NetworkManager* m_networkManager = nullptr;

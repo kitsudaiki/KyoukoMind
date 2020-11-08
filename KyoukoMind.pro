@@ -110,7 +110,8 @@ HEADERS += \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/kyouko_root.h
+    src/kyouko_root.h \
+    src/blossoms/test_blossom.h
 
 SOURCES += \
     src/core/object_handling/brick.cpp \
@@ -126,7 +127,8 @@ SOURCES += \
     src/initializing/network_initializer.cpp \
     src/initializing/segment_initializing.cpp \
     src/kyouko_root.cpp \
-    src/core/processing/gpu/gpu_processing_uint.cpp
+    src/core/processing/gpu/gpu_processing_uint.cpp \
+    src/blossoms/test_blossom.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

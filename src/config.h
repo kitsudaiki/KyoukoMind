@@ -11,9 +11,9 @@
 void
 registerConfigs()
 {
-    REGISTER_STRING_CONFIG("Init", "file", "/tmp/KyoukoMind_init");
+    REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", "/etc/KyoukoMind/sakura-files");
 
-    REGISTER_STRING_CONFIG("Network", "socket", "/tmp/KyoukoMind_uds.sock");
+    REGISTER_STRING_CONFIG("Init", "file", "/tmp/KyoukoMind_init");
 }
 
 #endif // KYOUKOMIND_CONFIG_H
