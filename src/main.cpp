@@ -8,6 +8,7 @@
 #include <kyouko_root.h>
 #include <args.h>
 #include <config.h>
+#include <core/callbacks.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -41,16 +42,22 @@ main(int argc, char *argv[])
         return 1;
     }
     registerConfigs();
-    std::vector<std::string> groupNames = {};
-    if(MessagingController::initializeMessagingController("KyoukoMind", groupNames) == false) {
-        return 1;
-    }
 
     // create server
     KyoukoRoot* rootObject = new KyoukoRoot();
     if(rootObject->initSakuraFiles() == false) {
         return 1;
     }
+
+    std::vector<std::string> groupNames = {};
+    if(MessagingController::initializeMessagingController("KyoukoMind",
+                                                          groupNames,
+                                                          rootObject,
+                                                          &sessionCallback) == false)
+    {
+        return 1;
+    }
+
     rootObject->start();
 
     int a = 0;

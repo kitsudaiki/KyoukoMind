@@ -111,7 +111,8 @@ HEADERS += \
     src/common.h \
     src/config.h \
     src/kyouko_root.h \
-    src/blossoms/test_blossom.h
+    src/blossoms/test_blossom.h \
+    src/core/callbacks.h
 
 SOURCES += \
     src/core/object_handling/brick.cpp \
