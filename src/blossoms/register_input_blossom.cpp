@@ -20,25 +20,34 @@
  *      limitations under the License.
  */
 
-#include "test_blossom.h"
+#include "register_input_blossom.h"
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+#include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 
-TestBlossom::TestBlossom()
+RegisterInputBlossom::RegisterInputBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
-    validationMap.emplace("input", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
-    validationMap.emplace("output", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
+    validationMap.emplace("id", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+    validationMap.emplace("position", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+    validationMap.emplace("range", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
 }
 
 bool
-TestBlossom::runTask(BlossomLeaf &blossomLeaf, std::string &)
+RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
+                              std::string &errorMessage)
 {
-    LOG_DEBUG("TestBlossom");
-    Kitsunemimi::DataValue* value = blossomLeaf.input.get("input")->toValue();
-    blossomLeaf.output.insert("output", new Kitsunemimi::DataValue(42));
+    LOG_DEBUG("register output");
+
+    Kitsunemimi::DataMap* input = &blossomLeaf.input;
+    const uint32_t id = static_cast<uint32_t>(input->get("id")->toValue()->getInt());
+    const uint32_t position = static_cast<uint32_t>(input->get("position")->toValue()->getInt());
+    const uint32_t range = static_cast<uint32_t>(input->get("range")->toValue()->getInt());
+
+    KyoukoRoot::registeredInputs.insert(std::make_pair(id, arrayPos(position, range)));
+
     return true;
 }
 

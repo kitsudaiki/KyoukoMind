@@ -19,15 +19,20 @@
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 
-#include <src/blossoms/test_blossom.h>
+#include <src/blossoms/register_input_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
 Segment* KyoukoRoot::m_segment = nullptr;
 std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
+
 Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
 Kitsunemimi::Kyouko::MonitoringMetaMessage KyoukoRoot::monitoringMetaMessage;
+
+std::map<uint32_t, arrayPos> KyoukoRoot::registeredInputs;
+std::map<uint32_t, arrayPos> KyoukoRoot::registeredOutputs;
+
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
@@ -37,7 +42,7 @@ KyoukoRoot::KyoukoRoot()
     validateStructSizes();
 
     // test
-    TestBlossom* newBlossom = new TestBlossom();
+    RegisterInputBlossom* newBlossom = new RegisterInputBlossom();
     SakuraLangInterface::getInstance()->addBlossom("test1",  "test2", newBlossom);
 
     m_segment = new Segment();

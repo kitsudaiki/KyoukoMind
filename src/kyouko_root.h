@@ -13,6 +13,17 @@ class NetworkManager;
 class Segment;
 class Brick;
 
+struct arrayPos {
+    uint32_t position = 0;
+    uint32_t range = 0;
+
+    arrayPos(const uint32_t position, const uint32_t range)
+    {
+        this->position = position;
+        this->range = range;
+    }
+};
+
 class KyoukoRoot
 {
 
@@ -25,6 +36,9 @@ public:
 
     static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;
     static Kitsunemimi::Kyouko::MonitoringMetaMessage monitoringMetaMessage;
+
+    static std::map<uint32_t, arrayPos> registeredInputs;
+    static std::map<uint32_t, arrayPos> registeredOutputs;
 
     bool start();
     bool initSakuraFiles();

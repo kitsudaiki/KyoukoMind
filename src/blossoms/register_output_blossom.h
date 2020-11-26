@@ -20,20 +20,21 @@
  *      limitations under the License.
  */
 
-#ifndef TEST_BLOSSOM_H
-#define TEST_BLOSSOM_H
+#ifndef REGISTER_OUTPUT_BLOSSOM_H
+#define REGISTER_OUTPUT_BLOSSOM_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class TestBlossom
+class RegisterOutputBlossom
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    TestBlossom();
+    RegisterOutputBlossom();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &);
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
+                 std::string &errorMessage);
 };
 
 
-#endif // TEST_BLOSSOM_H
+#endif // REGISTER_OUTPUT_BLOSSOM_H
