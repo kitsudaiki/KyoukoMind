@@ -25,9 +25,7 @@
  * @brief ProcessingUnit::ProcessingUnit
  * @param brickHandler
  */
-CpuProcessingUnit::CpuProcessingUnit()
-{
-}
+CpuProcessingUnit::CpuProcessingUnit() {}
 
 /**
  * @brief ProcessingUnit::run
@@ -40,8 +38,8 @@ CpuProcessingUnit::run()
         m_phase1->triggerBarrier();
         m_phase2->triggerBarrier();
 
-        m_numberOfActiveUpdates = updateEdgeSection();
-        m_numberOfActiveAxons = processEdgeSection();
+        KyoukoRoot::monitoringMetaMessage.numberOfUpdateMessages = updateEdgeSection();
+        KyoukoRoot::monitoringMetaMessage.numberOfAxonMessages = processEdgeSection();
 
         m_phase3->triggerBarrier();
     }

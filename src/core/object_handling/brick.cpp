@@ -12,6 +12,8 @@
 #include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
 
+#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
+
 /**
  * @brief Brick::Brick
  */
@@ -33,6 +35,10 @@ Brick::Brick(const uint32_t &brickId,
     this->brickId = brickId;
     this->brickPos.x = x;
     this->brickPos.y = y;
+
+    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].xPos = brickPos.x;
+    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].yPos = brickPos.y;
+    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].brickId = brickId;
 
     initNeighborList();
 }
@@ -63,76 +69,6 @@ Brick::getRandomNeighbor(const uint32_t location)
     }
 
     return nextLocation;
-}
-
-/**
- * summarize the state of all nodes in a brick
- * and return the average value of the last two cycles
- * for a cleaner output
- *
- * @return summend value of all nodes of the brick
- */
-float
-Brick::getSummedValue(Segment &segment)
-{
-    assert(isOutputBrick != 0);
-    assert(nodePos != UNINIT_STATE_32);
-
-    Node* node = &static_cast<Node*>(segment.nodes.buffer.data)[nodePos];
-    return node->currentState;
-
-    // write value to the internal ring-buffer
-    /*brick.outBuffer[brick.outBufferPos] += node->currentState;
-    brick.outBufferPos = (brick.outBufferPos + 1) % 10;
-    node->currentState /= NODE_COOLDOWN;
-
-    // summarize the ring-buffer and get the average value
-    float result = 0.0f;
-    for(uint32_t i = 0; i < 10; i++)
-    {
-        result += brick.outBuffer[i];
-    }
-    result /= 10.0f;
-
-    return result;*/
-}
-
-/**
- * @brief reportStatus
- */
-void
-Brick::writeMonitoringOutput(DataBuffer &buffer)
-{
-    // fill message
-    Kitsunemimi::Kyouko::MonitoringMessage monitoringMessage;
-    monitoringMessage.brickId = brickId;
-    monitoringMessage.xPos = brickPos.x;
-    monitoringMessage.yPos = brickPos.y;
-
-    // edges
-    // monitoringMessage.numberOfEdgeSections = edges.numberOfItems
-    //                                         - edges.numberOfDeletedDynamicItems;
-
-    // monitoringMessage.globalLearning = globalValue.globalLearningOffset;
-    // monitoringMessage.globalMemorizing = globalValue.globalMemorizingOffset;
-
-    Kitsunemimi::addObject_DataBuffer(buffer, &monitoringMessage);
-}
-
-/**
- * @brief writeOutput
- * @param brick
- * @param buffer
- */
-void
-Brick::writeClientOutput(Segment &segment,
-                         DataBuffer &buffer)
-{
-    Kitsunemimi::Kyouko::MindOutputData outputMessage;
-    outputMessage.value = getSummedValue(segment);
-    outputMessage.brickId = brickId;
-
-    Kitsunemimi::addObject_DataBuffer(buffer, &outputMessage);
 }
 
 /**

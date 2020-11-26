@@ -38,6 +38,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     }
 
     const uint32_t numberOfBricks = parse2dTestfile(fileContent, m_networkMetaStructure);
+    KyoukoRoot::monitoringBrickMessage.numberOfInfos = numberOfBricks;
     if(numberOfBricks == 0) {
         return false;
     }
@@ -79,31 +80,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     }
 
     return true;
-}
-
-/**
- * @brief getNumberOfBricks
- * @param m_networkMetaStructure
- * @return
- */
-uint32_t
-NetworkInitializer::getNumberOfBricks()
-{
-    uint32_t numberOfBricks = 0;
-
-    for(uint32_t x = 0; x < m_networkMetaStructure.size(); x++)
-    {
-        for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
-        {
-            if(m_networkMetaStructure[x][y].type == 3
-                    || m_networkMetaStructure[x][y].type == 2)
-            {
-                numberOfBricks++;
-            }
-        }
-    }
-
-    return numberOfBricks;
 }
 
 /**

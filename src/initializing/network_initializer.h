@@ -26,7 +26,6 @@ private:
     void connectAllBricks(Segment &segment);
     void addBricks(Segment &segment);
 
-    uint32_t getNumberOfBricks();
     uint32_t getNumberOfNodeBricks();
 
     std::pair<uint32_t, uint32_t> getNext(const uint32_t x,

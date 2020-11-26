@@ -7,11 +7,11 @@
 #define KYOUKO_ROOT_OBJECT_H
 
 #include <common.h>
+#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 
 class NetworkManager;
 class Segment;
 class Brick;
-class EventProcessing;
 
 class KyoukoRoot
 {
@@ -22,6 +22,9 @@ public:
 
     static Segment* m_segment;
     static std::map<uint32_t, Brick*>* m_inputBricks;
+
+    static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;
+    static Kitsunemimi::Kyouko::MonitoringMetaMessage monitoringMetaMessage;
 
     bool start();
     bool initSakuraFiles();

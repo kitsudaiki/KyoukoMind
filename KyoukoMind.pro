@@ -71,6 +71,11 @@ LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
 
+LIBS += -L../libKitsunemimiKyoukoCommon/src -lKitsunemimiKyoukoCommon
+LIBS += -L../libKitsunemimiKyoukoCommon/src/debug -lKitsunemimiKyoukoCommon
+LIBS += -L../libKitsunemimiKyoukoCommon/src/release -lKitsunemimiKyoukoCommon
+INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
+
 LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL
 
 INCLUDEPATH += $$PWD \

@@ -26,6 +26,8 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 // init static variables
 Segment* KyoukoRoot::m_segment = nullptr;
 std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
+Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
+Kitsunemimi::Kyouko::MonitoringMetaMessage KyoukoRoot::monitoringMetaMessage;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
