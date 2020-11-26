@@ -87,11 +87,6 @@ HEADERS += \
     src/core/object_handling/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/cpu/edge_processing.h \
-    src/core/processing/external/edge_methods.h \
-    src/core/processing/external/message_processing.h \
-    src/core/processing/external/process_learning.h \
-    src/core/processing/external/process_normal.h \
-    src/core/processing/external/process_update.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/processing/objects/container_definitions.h \
     src/core/processing/objects/edges.h \
