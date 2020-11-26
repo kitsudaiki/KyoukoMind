@@ -24,6 +24,9 @@ class CpuProcessingUnit
 public:
     CpuProcessingUnit();
 
+    uint32_t m_numberOfActiveUpdates = 0;
+    uint32_t m_numberOfActiveAxons = 0;
+
     void run();
 
     Kitsunemimi::Barrier* m_phase1 = nullptr;
