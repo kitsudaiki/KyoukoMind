@@ -26,24 +26,37 @@
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 
-void clientDataCallback(void* target,
-                        Kitsunemimi::Sakura::Session*,
-                        const void* data,
-                        const uint64_t dataSize)
+void
+clientDataCallback(void* target,
+                   Kitsunemimi::Sakura::Session*,
+                   const void* data,
+                   const uint64_t dataSize)
 {
 }
 
-void monitoringDataCallback(void* target,
-                            Kitsunemimi::Sakura::Session*,
-                            const void* data,
-                            const uint64_t dataSize)
+/**
+ * @brief monitoringDataCallback
+ */
+void
+monitoringDataCallback(void*,
+                       Kitsunemimi::Sakura::Session*,
+                       const void*,
+                       const uint64_t)
 {
 }
 
-void sessionCallback(void* target,
-                     bool isInit,
-                     Kitsunemimi::Sakura::MessagingClient* session,
-                     const std::string identifier)
+/**
+ * @brief sessionCallback
+ * @param target
+ * @param isInit
+ * @param session
+ * @param identifier
+ */
+void
+sessionCallback(void* target,
+                bool isInit,
+                Kitsunemimi::Sakura::MessagingClient* session,
+                const std::string identifier)
 {
     if(isInit)
     {

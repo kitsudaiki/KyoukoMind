@@ -24,6 +24,7 @@
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
+KyoukoRoot* KyoukoRoot::m_root = nullptr;
 Segment* KyoukoRoot::m_segment = nullptr;
 std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
 
@@ -45,6 +46,7 @@ KyoukoRoot::KyoukoRoot()
     RegisterInputBlossom* newBlossom = new RegisterInputBlossom();
     SakuraLangInterface::getInstance()->addBlossom("test1",  "test2", newBlossom);
 
+    m_root = this;
     m_segment = new Segment();
     m_inputBricks = new std::map<uint32_t, Brick*>();
 }
@@ -105,5 +107,20 @@ KyoukoRoot::initSakuraFiles()
         }
     }
 
+    return true;
+}
+
+/**
+ * @brief KyoukoRoot::learn
+ * @param input
+ * @param should
+ * @param errorMessage
+ * @return
+ */
+bool
+KyoukoRoot::learn(const std::string &input,
+                  const std::string &should,
+                  std::string &errorMessage)
+{
     return true;
 }

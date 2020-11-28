@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  */
@@ -31,6 +31,7 @@ public:
     KyoukoRoot();
     ~KyoukoRoot();
 
+    static KyoukoRoot* m_root;
     static Segment* m_segment;
     static std::map<uint32_t, Brick*>* m_inputBricks;
 
@@ -42,6 +43,10 @@ public:
 
     bool start();
     bool initSakuraFiles();
+
+    bool learn(const std::string &input,
+               const std::string &should,
+               std::string &errorMessage);
 
 private:
     NetworkManager* m_networkManager = nullptr;
