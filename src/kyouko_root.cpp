@@ -23,6 +23,7 @@
 #include <src/blossoms/register_output_blossom.h>
 #include <src/blossoms/learn_blossom.h>
 #include <src/blossoms/metadata_blossom.h>
+#include <src/blossoms/print_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -91,6 +92,9 @@ KyoukoRoot::initBlossoms()
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "learn",
                                                           new LearnBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "print",
+                                                          new PrintBlossom()));
 }
 
 /**
