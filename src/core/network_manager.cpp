@@ -55,8 +55,8 @@ NetworkManager::run()
         m_phase2->triggerBarrier();
         m_phase3->triggerBarrier();
         end = std::chrono::system_clock::now();
-        const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        LOG_WARNING("cycle-time: " + std::to_string(gpu0 / 1000.0f) + '\n');
+        const float totalTime = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.timeTotal = totalTime;
     }
 }
 

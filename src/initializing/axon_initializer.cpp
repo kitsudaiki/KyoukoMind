@@ -32,7 +32,7 @@ createAxons(Segment &segment,
                 continue;
             }
 
-            if(brick->isNodeBrick == 1)
+            if(brick->nodeBrickId != UNINIT_STATE_32)
             {
                 // get node-brick
                 EdgeSection* edges = getBuffer<EdgeSection>(segment.edges);

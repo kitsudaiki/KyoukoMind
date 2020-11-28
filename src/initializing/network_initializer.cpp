@@ -146,7 +146,6 @@ NetworkInitializer::addBricks(Segment &segment)
                     //Brick* brick = new Brick(brickId, x, y);
                     Brick newBrick(brickId, x, y);
                     newBrick.nodeBrickId = numberOfNodeBricks;
-                    newBrick.isNodeBrick = 1;
 
                     const uint32_t nodePos = numberOfNodeBricks * globalValues->numberOfNodesPerBrick;
                     assert(nodePos < 0x7FFFFFFF);

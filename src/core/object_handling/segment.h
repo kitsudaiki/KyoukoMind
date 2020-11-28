@@ -32,8 +32,6 @@ public:
 
     Segment();
 
-
-    bool addClientOutputConnection(const uint32_t brickPos);
     DataItem* getMetadata();
 
     bool connectBricks(const uint32_t sourceBrickId,

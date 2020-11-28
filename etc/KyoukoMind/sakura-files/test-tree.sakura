@@ -1,8 +1,0 @@
-["test-tree"]
-- input = "{{}}"
-- test_output = ""
-
-test1("this is a test")
-->test2:
-   - input = input
-   - output >> test_output

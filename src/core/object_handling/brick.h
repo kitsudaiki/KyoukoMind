@@ -35,9 +35,6 @@ public:
     uint32_t nodeBrickId = UNINIT_STATE_32;
 
     BrickPos brickPos;
-    uint8_t isOutputBrick = 0;
-    uint8_t isInputBrick = 0;
-    uint8_t isNodeBrick = 0;
 
     // 0 - 21: neighbor-bricks
     // 22: the current brick
