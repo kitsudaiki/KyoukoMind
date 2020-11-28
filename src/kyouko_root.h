@@ -42,6 +42,7 @@ public:
     static std::map<uint32_t, arrayPos> registeredOutputs;
 
     bool start();
+    void initBlossoms();
     bool initSakuraFiles();
 
     bool learn(const std::string &input,
@@ -51,7 +52,6 @@ public:
 private:
     NetworkManager* m_networkManager = nullptr;
     uint32_t m_serverId = 0;
-    const std::string getTestConfig();
 };
 
 #endif //KYOUKO_ROOT_OBJECT_H

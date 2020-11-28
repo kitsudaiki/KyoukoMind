@@ -45,6 +45,7 @@ main(int argc, char *argv[])
 
     // create server
     KyoukoRoot* rootObject = new KyoukoRoot();
+    rootObject->initBlossoms();
     if(rootObject->initSakuraFiles() == false) {
         return 1;
     }

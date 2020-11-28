@@ -20,6 +20,9 @@
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 
 #include <src/blossoms/register_input_blossom.h>
+#include <src/blossoms/register_output_blossom.h>
+#include <src/blossoms/learn_blossom.h>
+#include <src/blossoms/metadata_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -68,6 +71,26 @@ KyoukoRoot::start()
 
     return true;
     //return initServer();
+}
+
+/**
+ * @brief KyoukoRoot::initBlossoms
+ */
+void
+KyoukoRoot::initBlossoms()
+{
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "register_input",
+                                                          new RegisterInputBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "register_output",
+                                                          new RegisterOutputBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "get_metadata",
+                                                          new MetadataBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "learn",
+                                                          new LearnBlossom()));
 }
 
 /**
@@ -124,3 +147,5 @@ KyoukoRoot::learn(const std::string &input,
 {
     return true;
 }
+
+
