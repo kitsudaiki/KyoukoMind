@@ -114,7 +114,8 @@ HEADERS += \
     src/core/callbacks.h \
     src/blossoms/register_input_blossom.h \
     src/blossoms/register_output_blossom.h \
-    src/blossoms/learn_blossom.h
+    src/blossoms/learn_blossom.h \
+    src/blossoms/metadata_blossom.h
 
 SOURCES += \
     src/core/object_handling/brick.cpp \
@@ -133,7 +134,8 @@ SOURCES += \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/blossoms/register_input_blossom.cpp \
     src/blossoms/register_output_blossom.cpp \
-    src/blossoms/learn_blossom.cpp
+    src/blossoms/learn_blossom.cpp \
+    src/blossoms/metadata_blossom.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
