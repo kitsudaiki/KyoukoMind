@@ -9,9 +9,6 @@
 #include <common.h>
 #include "init_meta_data.h"
 
-namespace KyoukoMind
-{
-
 class BrickQueue;
 class Segment;
 
@@ -29,7 +26,6 @@ private:
     void connectAllBricks(Segment &segment);
     void addBricks(Segment &segment);
 
-    uint32_t getNumberOfBricks();
     uint32_t getNumberOfNodeBricks();
 
     std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
@@ -41,7 +37,5 @@ private:
                                        const uint8_t side);
 
 };
-
-} // namespace KyoukoMind
 
 #endif // NETWORK_INITIALIZER_H

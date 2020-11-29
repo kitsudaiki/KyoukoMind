@@ -8,9 +8,6 @@
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
 #include <libKitsunemimiCommon/common_methods/vector_methods.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief parse2dTestfile
  * @param fileContent
@@ -67,5 +64,3 @@ parse2dTestfile(const std::string &fileContent,
 
     return counter;
 }
-
-} // namespace KyoukoMind

@@ -11,9 +11,6 @@
 
 #include <core/processing/objects/node.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief createAxons
  * @return
@@ -35,7 +32,7 @@ createAxons(Segment &segment,
                 continue;
             }
 
-            if(brick->isNodeBrick == 1)
+            if(brick->nodeBrickId != UNINIT_STATE_32)
             {
                 // get node-brick
                 EdgeSection* edges = getBuffer<EdgeSection>(segment.edges);
@@ -158,5 +155,3 @@ chooseNextSide(const uint8_t initialSide,
 
     return 0xFF;
 }
-
-} // namespace KyoukoMind

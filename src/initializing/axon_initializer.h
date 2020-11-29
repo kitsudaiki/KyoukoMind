@@ -10,8 +10,6 @@
 #include "init_meta_data.h"
 #include <core/object_handling/brick.h>
 
-namespace KyoukoMind
-{
 class NextChooser;
 
 struct Neighbor;
@@ -34,7 +32,5 @@ NewAxon getNextAxonPathStep(const uint32_t x,
 
 uint8_t chooseNextSide(const uint8_t initialSide,
                        uint32_t* neighbors);
-
-} // namespace KyoukoMind
 
 #endif // AXON_INITIALIZER_H

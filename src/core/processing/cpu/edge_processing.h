@@ -18,9 +18,6 @@
 
 #include <core/processing/objects/synapses.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief lernEdge
  * @param edge
@@ -38,7 +35,7 @@ lernEdge(EdgeSection &section,
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.location)];
     section.randomPos = (section.randomPos + 1) % 1024;
     if(edge.synapseSectionId == UNINIT_STATE_32
-            && brick->isNodeBrick
+            && brick->nodeBrickId != UNINIT_STATE_32
             && randValues[section.randomPos] % 5 == 0
             && weight >= 5.0f)
     {
@@ -333,8 +330,6 @@ updateEdgeSection()
     }
 
     return count;
-}
-
 }
 
 #endif // EDGE_PROCESSING_H

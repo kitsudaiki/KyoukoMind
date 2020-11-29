@@ -5,9 +5,6 @@
 
 #include "item_buffer.h"
 
-namespace KyoukoMind
-{
-
 struct EmptyPlaceHolder
 {
     uint8_t status = DELETED_SECTION;
@@ -185,6 +182,4 @@ ItemBuffer::reserveDynamicItem()
     itemCapacity++;
 
     return itemCapacity-1;
-}
-
 }

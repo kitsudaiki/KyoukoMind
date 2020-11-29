@@ -1,0 +1,5 @@
+["get_metadata"]
+- metadata = ""
+
+get_metadata("get metadata of segment")
+- metadata >> metadata

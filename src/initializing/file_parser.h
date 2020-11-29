@@ -9,14 +9,10 @@
 #include <common.h>
 #include <initializing/init_meta_data.h>
 
-namespace KyoukoMind
-{
-
 const std::string readFile(const std::string filePath);
 
 uint32_t parse2dTestfile(const std::string &fileContent,
                          std::vector<std::vector<InitMetaDataEntry>> &result);
 
-}
 
 #endif // FILE_PARSER_H

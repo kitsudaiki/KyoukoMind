@@ -11,9 +11,6 @@
 #include <core/object_handling/item_buffer.h>
 #include <core/object_handling/brick.h>
 
-namespace KyoukoMind
-{
-
 class Segment
 {
 public:
@@ -35,8 +32,6 @@ public:
 
     Segment();
 
-
-    bool addClientOutputConnection(const uint32_t brickPos);
     DataItem* getMetadata();
 
     bool connectBricks(const uint32_t sourceBrickId,
@@ -46,7 +41,5 @@ public:
                           const uint8_t sourceSide);
 
 };
-
-}
 
 #endif // NETWORK_SEGMENT_H

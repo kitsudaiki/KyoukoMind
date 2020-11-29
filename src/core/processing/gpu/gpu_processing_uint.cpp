@@ -16,8 +16,6 @@
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-namespace KyoukoMind
-{
 
 GpuProcessingUnit::GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInterface)
 {
@@ -238,6 +236,4 @@ GpuProcessingUnit::closeDevice()
     oclData.buffer[3].data = nullptr;
 
     return m_gpuInterface->closeDevice(oclData);
-}
-
 }

@@ -8,9 +8,6 @@
 
 #include <common.h>
 
-namespace KyoukoMind
-{
-
 class Brick;
 
 enum BrickTypes
@@ -30,7 +27,5 @@ struct InitMetaDataEntry
     uint8_t type = EMPTY_BRICK;
     Brick* brick = nullptr;
 };
-
-} // namespace KyoukoMind
 
 #endif // INIT_META_DATA_H

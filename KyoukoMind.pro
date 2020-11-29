@@ -4,6 +4,11 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
+LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
+LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
+LIBS += -L../libKitsunemimiSakuraMessaging/src/release -lKitsunemimiSakuraMessaging
+INCLUDEPATH += ../libKitsunemimiSakuraMessaging/include
+
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/release -lKitsunemimiArgs
@@ -16,10 +21,15 @@ INCLUDEPATH += ../libKitsunemimiConfig/include
 
 INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
 
-LIBS += -L../libKitsunemimiProjectNetwork/src -lKitsunemimiProjectNetwork
-LIBS += -L../libKitsunemimiProjectNetwork/src/debug -lKitsunemimiProjectNetwork
-LIBS += -L../libKitsunemimiProjectNetwork/src/release -lKitsunemimiProjectNetwork
-INCLUDEPATH += ../libKitsunemimiProjectNetwork/include
+LIBS += -L../libKitsunemimiSakuraNetwork/src -lKitsunemimiSakuraNetwork
+LIBS += -L../libKitsunemimiSakuraNetwork/src/debug -lKitsunemimiSakuraNetwork
+LIBS += -L../libKitsunemimiSakuraNetwork/src/release -lKitsunemimiSakuraNetwork
+INCLUDEPATH += ../libKitsunemimiSakuraNetwork/include
+
+LIBS += -L../libKitsunemimiSakuraLang/src -lKitsunemimiSakuraLang
+LIBS += -L../libKitsunemimiSakuraLang/src/debug -lKitsunemimiSakuraLang
+LIBS += -L../libKitsunemimiSakuraLang/src/release -lKitsunemimiSakuraLang
+INCLUDEPATH += ../libKitsunemimiSakuraLang/include
 
 LIBS += -L../libKitsunemimiOpencl/src -lKitsunemimiOpencl
 LIBS += -L../libKitsunemimiOpencl/src/debug -lKitsunemimiOpencl
@@ -46,6 +56,11 @@ LIBS += -L../libKitsunemimiIni/src/debug -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/release -lKitsunemimiIni
 INCLUDEPATH += ../libKitsunemimiIni/include
 
+LIBS += -L../libKitsunemimiJinja2/src -lKitsunemimiJinja2
+LIBS += -L../libKitsunemimiJinja2/src/debug -lKitsunemimiJinja2
+LIBS += -L../libKitsunemimiJinja2/src/release -lKitsunemimiJinja2
+INCLUDEPATH += ../libKitsunemimiJinja2/include
+
 LIBS += -L../libKitsunemimiJson/src -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/debug -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/release -lKitsunemimiJson
@@ -55,6 +70,11 @@ LIBS += -L../libKitsunemimiPersistence/src -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
+
+LIBS += -L../libKitsunemimiKyoukoCommon/src -lKitsunemimiKyoukoCommon
+LIBS += -L../libKitsunemimiKyoukoCommon/src/debug -lKitsunemimiKyoukoCommon
+LIBS += -L../libKitsunemimiKyoukoCommon/src/release -lKitsunemimiKyoukoCommon
+INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
 
 LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL
 
@@ -72,11 +92,6 @@ HEADERS += \
     src/core/object_handling/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/cpu/edge_processing.h \
-    src/core/processing/external/edge_methods.h \
-    src/core/processing/external/message_processing.h \
-    src/core/processing/external/process_learning.h \
-    src/core/processing/external/process_normal.h \
-    src/core/processing/external/process_update.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/processing/objects/container_definitions.h \
     src/core/processing/objects/edges.h \
@@ -92,14 +107,16 @@ HEADERS += \
     src/initializing/init_meta_data.h \
     src/initializing/network_initializer.h \
     src/initializing/segment_initializing.h \
-    src/io/client_processing.h \
-    src/io/control_processing.h \
-    src/io/network_callbacks.h \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/dummy_input.h \
-    src/kyouko_root.h
+    src/kyouko_root.h \
+    src/core/callbacks.h \
+    src/blossoms/register_input_blossom.h \
+    src/blossoms/register_output_blossom.h \
+    src/blossoms/learn_blossom.h \
+    src/blossoms/metadata_blossom.h \
+    src/blossoms/print_blossom.h
 
 SOURCES += \
     src/core/object_handling/brick.cpp \
@@ -114,9 +131,13 @@ SOURCES += \
     src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/initializing/segment_initializing.cpp \
-    src/dummy_input.cpp \
     src/kyouko_root.cpp \
-    src/core/processing/gpu/gpu_processing_uint.cpp
+    src/core/processing/gpu/gpu_processing_uint.cpp \
+    src/blossoms/register_input_blossom.cpp \
+    src/blossoms/register_output_blossom.cpp \
+    src/blossoms/learn_blossom.cpp \
+    src/blossoms/metadata_blossom.cpp \
+    src/blossoms/print_blossom.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

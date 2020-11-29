@@ -16,9 +16,6 @@
 #include <core/object_handling/segment.h>
 #include <core/object_handling/global_values.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief convertPos
  * @param pos
@@ -228,4 +225,3 @@ convertEdgesToObj(ObjItem &result,
 
 //--------------------------------------------------------------------------------------------------
 
-}

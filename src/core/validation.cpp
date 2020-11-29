@@ -15,9 +15,6 @@
 #include <core/processing/objects/edges.h>
 #include <core/processing/objects/container_definitions.h>
 
-namespace KyoukoMind
-{
-
 void
 validateStructSizes()
 {
@@ -32,5 +29,3 @@ validateStructSizes()
 
     return;
 }
-
-} // namespace KyoukoMind

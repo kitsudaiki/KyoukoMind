@@ -8,8 +8,6 @@
 
 #include <common.h>
 
-namespace KyoukoMind
-{
 class ItemBuffer;
 template<typename T>
 inline T* getBuffer(ItemBuffer &itembuffer);
@@ -96,9 +94,6 @@ inline T*
 getBuffer(ItemBuffer &itembuffer)
 {
     return static_cast<T*>(itembuffer.buffer.data);
-}
-
-
 }
 
 #endif // ITEM_BUFFER_H

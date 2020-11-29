@@ -12,34 +12,9 @@
 
 #include <initializing/segment_initializing.h>
 
-namespace KyoukoMind
-{
-
 Segment::Segment()
 {
     initGlobalValues(*this);
-}
-
-/**
- * add a new client-connection to a brick,
- * for data input and output
- *
- * @return true, if successful, else false
- */
-bool
-Segment::addClientOutputConnection(const uint32_t brickPos)
-{
-    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickPos];
-
-    // set brick as output-brick
-    brick->isOutputBrick = 1;
-
-    // set the border-value of all nodes within the brick
-    // to a high-value, so the node can never become active
-    Node* nodeArray = &getBuffer<Node>(nodes)[brick->nodePos];
-    nodeArray->border = 100000.0f;
-
-    return true;
 }
 
 /**
@@ -100,6 +75,4 @@ Segment::disconnectBricks(const uint32_t sourceBrickId,
 {
     Brick* sourceBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[sourceBrickId];
     return sourceBrick->disconnectBricks(sourceSide);
-}
-
 }

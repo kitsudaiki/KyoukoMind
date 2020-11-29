@@ -12,8 +12,6 @@
 using Kitsunemimi::Obj::Vec4;
 using Kitsunemimi::Obj::ObjItem;
 
-namespace KyoukoMind
-{
 class Brick;
 struct Node;
 struct EdgeSection;
@@ -46,7 +44,5 @@ void convertEdgesToObj(ObjItem &result,
                        EdgeSection* section,
                        const uint16_t pos,
                        const uint32_t vectorPos);
-
-}
 
 #endif // OBJ_CONVERTER_H

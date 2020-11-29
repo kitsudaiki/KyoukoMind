@@ -3,24 +3,17 @@
  *  Contact: tobias.anker@kitsunemimi.moe
  */
 
-#ifndef GATEWAY_CONFIG_H
-#define GATEWAY_CONFIG_H
+#ifndef KYOUKOMIND_CONFIG_H
+#define KYOUKOMIND_CONFIG_H
 
 #include <libKitsunemimiConfig/config_handler.h>
-
-namespace KyoukoMind
-{
 
 void
 registerConfigs()
 {
-    REGISTER_INT_CONFIG("Network", "port", 2448);
+    REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", "/etc/KyoukoMind/sakura-files");
 
-    REGISTER_STRING_CONFIG("Init", "file", "");
-
-    REGISTER_STRING_CONFIG("Storage", "path", "/tmp/KyoukoMind/");
+    REGISTER_STRING_CONFIG("Init", "file", "/tmp/KyoukoMind_init");
 }
 
-}
-
-#endif // GATEWAY_CONFIG_H
+#endif // KYOUKOMIND_CONFIG_H

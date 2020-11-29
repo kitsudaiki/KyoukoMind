@@ -8,11 +8,6 @@
 
 #include <common.h>
 
-namespace KyoukoMind
-{
-
 void validateStructSizes();
-
-} // namespace KyoukoMind
 
 #endif // VALIDATION_H

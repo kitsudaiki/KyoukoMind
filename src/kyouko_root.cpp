@@ -4,58 +4,61 @@
  */
 
 #include <kyouko_root.h>
+
 #include <core/network_manager.h>
-#include <core/object_handling/global_values.h>
 #include <core/object_handling/segment.h>
-#include <core/object_handling/brick.h>
-#include <core/obj_converter.h>
 #include <core/validation.h>
-#include <core/processing/gpu/gpu_processing_uint.h>
 
-#include <dummy_input.h>
-
-#include <io/network_callbacks.h>
-#include <io/client_processing.h>
-#include <io/control_processing.h>
-
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiPersistence/files/file_methods.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
+#include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
-#include <libKitsunemimiProjectNetwork/session.h>
-#include <libKitsunemimiProjectNetwork/session_controller.h>
+#include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 
-namespace KyoukoMind
-{
+#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
+#include <libKitsunemimiSakuraMessaging/messaging_client.h>
+
+#include <src/blossoms/register_input_blossom.h>
+#include <src/blossoms/register_output_blossom.h>
+#include <src/blossoms/learn_blossom.h>
+#include <src/blossoms/metadata_blossom.h>
+#include <src/blossoms/print_blossom.h>
+
+using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
-KyoukoMind::Segment* KyoukoRoot::m_segment = nullptr;
-
-Kitsunemimi::Project::Session* KyoukoRoot::m_clientSession = nullptr;
-Kitsunemimi::Project::Session* KyoukoRoot::m_controlSession = nullptr;
-Kitsunemimi::Project::Session* KyoukoRoot::m_monitoringSession = nullptr;
+KyoukoRoot* KyoukoRoot::m_root = nullptr;
+Segment* KyoukoRoot::m_segment = nullptr;
 std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
 
+Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
+Kitsunemimi::Kyouko::MonitoringMetaMessage KyoukoRoot::monitoringMetaMessage;
+
+std::map<uint32_t, arrayPos> KyoukoRoot::registeredInputs;
+std::map<uint32_t, arrayPos> KyoukoRoot::registeredOutputs;
+
+
 /**
- * main-class
+ * @brief KyoukoRoot::KyoukoRoot
  */
 KyoukoRoot::KyoukoRoot()
 {
     validateStructSizes();
 
+    // test
+    RegisterInputBlossom* newBlossom = new RegisterInputBlossom();
+    SakuraLangInterface::getInstance()->addBlossom("test1",  "test2", newBlossom);
+
+    m_root = this;
     m_segment = new Segment();
     m_inputBricks = new std::map<uint32_t, Brick*>();
-
-    m_sessionController = new Kitsunemimi::Project::SessionController(this, &sessionCallback,
-                                                                      this, &clientCallback,
-                                                                      this, &controlCallback,
-                                                                      this, &errorCallback);
 }
 
-KyoukoRoot::~KyoukoRoot()
-{
-    m_sessionController->closeServer(m_serverId);
-}
+/**
+ * @brief KyoukoRoot::~KyoukoRoot
+ */
+KyoukoRoot::~KyoukoRoot() {}
 
 /**
  * init all components
@@ -67,55 +70,86 @@ KyoukoRoot::start()
     m_networkManager = new NetworkManager();
     m_networkManager->startThread();
 
-    // m_dummyInput = new DummyInput();
-    // m_dummyInput->startThread();
     return true;
     //return initServer();
 }
 
 /**
- * @brief RootObject::initServer
- * @return
+ * @brief KyoukoRoot::initBlossoms
  */
-bool
-KyoukoRoot::initServer()
+void
+KyoukoRoot::initBlossoms()
 {
-    bool success = false;
-    uint16_t port = static_cast<uint16_t>(GET_INT_CONFIG("Network", "port", success));
-
-    LOG_INFO("create server on port " + std::to_string(port));
-    m_serverId = m_sessionController->addTcpServer(port);
-    return m_serverId != 0;
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "register_input",
+                                                          new RegisterInputBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "register_output",
+                                                          new RegisterOutputBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "get_metadata",
+                                                          new MetadataBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "learn",
+                                                          new LearnBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "print",
+                                                          new PrintBlossom()));
 }
 
 /**
- * @brief RootObject::convertToObj
- * @param brickId
- * @param nodeId
+ * @brief KyoukoRoot::initSakuraFiles
  * @return
  */
-const std::string
-KyoukoRoot::convertToObj()
+bool
+KyoukoRoot::initSakuraFiles()
 {
-    m_networkManager->initBlockThread();
-    // wait the double time of one cycle to ensure, that it is paused
-    usleep(20000);
+    bool success = false;
+    const std::string sakuraDir = GET_STRING_CONFIG("DEFAULT", "sakura-file-locaion", success);
+    if(success == false) {
+        return false;
+    }
 
-    std::string convertedString = "";
-    convertNodeToString(convertedString, 18, 0);
-    //convertNetworkToString(convertedString);
+    std::vector<std::string> sakuraFiles;
+    if(Kitsunemimi::Persistence::listFiles(sakuraFiles, sakuraDir) == false)
+    {
+        LOG_ERROR("path with sakura-files doesn't exist: " + sakuraDir);
+        return false;
+    }
 
     std::string errorMessage = "";
-    Kitsunemimi::Persistence::writeFile("/tmp/test_output.obj",
-                                        convertedString,
-                                        errorMessage,
-                                        true);
+    for(const std::string &filePath : sakuraFiles)
+    {
+        std::string content = "";
+        if(Kitsunemimi::Persistence::readFile(content, filePath, errorMessage) == false)
+        {
+            LOG_ERROR("reading sakura-files failed with error: " + errorMessage);
+            return false;
+        }
 
-    usleep(20000);
+        if(SakuraLangInterface::getInstance()->addTree("", content, errorMessage) == false)
+        {
+            LOG_ERROR("parsing sakura-files failed with error: " + errorMessage);
+            return false;
+        }
+    }
 
-    m_networkManager->continueThread();
-
-    return convertedString;
+    return true;
 }
 
-} // namespace KyoukoMind
+/**
+ * @brief KyoukoRoot::learn
+ * @param input
+ * @param should
+ * @param errorMessage
+ * @return
+ */
+bool
+KyoukoRoot::learn(const std::string &input,
+                  const std::string &should,
+                  std::string &errorMessage)
+{
+    return true;
+}
+
+

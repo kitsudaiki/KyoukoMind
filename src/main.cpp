@@ -8,10 +8,14 @@
 #include <kyouko_root.h>
 #include <args.h>
 #include <config.h>
+#include <core/callbacks.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
-#include <libKitsunemimiConfig/config_handler.h>
+
+#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
+
+using Kitsunemimi::Sakura::MessagingController;
 
 int
 main(int argc, char *argv[])
@@ -20,37 +24,41 @@ main(int argc, char *argv[])
 
     // create and init argument-parser
     Kitsunemimi::Args::ArgParser argParser;
-    KyoukoMind::registerArguments(argParser);
+    registerArguments(argParser);
 
     // parse cli-input
     if(argParser.parse(argc, argv) == false) {
         return 1;
     }
 
-    // debugging for logging
+    // init logging
     const bool enableDebug = argParser.wasSet("debug");
     Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
+    Kitsunemimi::Persistence::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
 
-    // config-file
-    const std::string configFilePath = argParser.getStringValues("config").at(0);
-    if(Kitsunemimi::Config::initConfig(configFilePath) == false) {
+    // init config
+    const std::string configFile = argParser.getStringValue("config");
+    if(Kitsunemimi::Config::initConfig(configFile) == false) {
         return 1;
     }
-    KyoukoMind::registerConfigs();
-
-    // log-file
-    std::string logDirPath = "/var/log/";
-    if(argParser.wasSet("log-dir")) {
-        logDirPath = argParser.getStringValues("log-dir").at(0);
-    }
-    std::string logBaseName = "KyoukoMind";
-    if(argParser.wasSet("log-base")) {
-        logBaseName = argParser.getStringValues("log-base").at(0);
-    }
-    Kitsunemimi::Persistence::initFileLogger(logDirPath, logBaseName, enableDebug);
+    registerConfigs();
 
     // create server
-    KyoukoMind::KyoukoRoot* rootObject = new KyoukoMind::KyoukoRoot();
+    KyoukoRoot* rootObject = new KyoukoRoot();
+    rootObject->initBlossoms();
+    if(rootObject->initSakuraFiles() == false) {
+        return 1;
+    }
+
+    std::vector<std::string> groupNames = {};
+    if(MessagingController::initializeMessagingController("KyoukoMind",
+                                                          groupNames,
+                                                          rootObject,
+                                                          &sessionCallback) == false)
+    {
+        return 1;
+    }
+
     rootObject->start();
 
     int a = 0;

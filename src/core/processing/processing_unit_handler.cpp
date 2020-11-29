@@ -17,9 +17,6 @@
 
 #include <kyouko_root.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief ProcessingUnitHandler::ProcessingUnitHandler
  * @param brickHandler
@@ -98,7 +95,6 @@ ProcessingUnitHandler::closeAllProcessingUnits()
     for(uint32_t i = 0; i < m_cpuProcessingUnits.size(); i++)
     {
         CpuProcessingUnit* unit = m_cpuProcessingUnits.at(i);
-        unit->stopThread();
         delete unit;
     }
 
@@ -106,5 +102,3 @@ ProcessingUnitHandler::closeAllProcessingUnits()
 
     return true;
 }
-
-} // namespace KyoukoMind

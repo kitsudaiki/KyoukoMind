@@ -21,16 +21,11 @@
 
 #include <libKitsunemimiCommon/threading/barrier.h>
 
-namespace KyoukoMind
-{
-
 /**
  * @brief ProcessingUnit::ProcessingUnit
  * @param brickHandler
  */
-CpuProcessingUnit::CpuProcessingUnit()
-{
-}
+CpuProcessingUnit::CpuProcessingUnit() {}
 
 /**
  * @brief ProcessingUnit::run
@@ -38,38 +33,14 @@ CpuProcessingUnit::CpuProcessingUnit()
 void
 CpuProcessingUnit::run()
 {
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-
-    while(!m_abort)
+    while(m_abort == false)
     {
         m_phase1->triggerBarrier();
         m_phase2->triggerBarrier();
 
-        start = std::chrono::system_clock::now();
-        std::cout<<"number of synapse-sections1: "
-                 <<(KyoukoRoot::m_segment->synapses.numberOfItems)
-                 <<std::endl;
-
-        const uint32_t numberOfActiveUpdates = updateEdgeSection();
-        const uint32_t numberOfActiveAxons = processEdgeSection();
-
-        std::cout<<"number of update-transfers: "
-                 <<numberOfActiveUpdates
-                 <<std::endl;
-        std::cout<<"number of active Axons: "
-                 <<numberOfActiveAxons
-                 <<std::endl;
-        std::cout<<"number of synapse-sections2: "
-                 <<(KyoukoRoot::m_segment->synapses.numberOfItems)
-                 <<std::endl;
-
-        end = std::chrono::system_clock::now();
-        const float duration = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        LOG_DEBUG("time: " + std::to_string(duration / 1000.0f) + '\n');
+        KyoukoRoot::monitoringMetaMessage.numberOfUpdateMessages = updateEdgeSection();
+        KyoukoRoot::monitoringMetaMessage.numberOfAxonMessages = processEdgeSection();
 
         m_phase3->triggerBarrier();
     }
 }
-
-} // namespace KyoukoMind

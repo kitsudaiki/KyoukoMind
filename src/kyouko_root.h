@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  */
@@ -7,21 +7,22 @@
 #define KYOUKO_ROOT_OBJECT_H
 
 #include <common.h>
+#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 
-namespace Kitsunemimi {
-namespace Project {
-class Session;
-class SessionController;
-}
-}
-
-namespace KyoukoMind
-{
 class NetworkManager;
-class DummyInput;
 class Segment;
-class GpuProcessingUnit;
 class Brick;
+
+struct arrayPos {
+    uint32_t position = 0;
+    uint32_t range = 0;
+
+    arrayPos(const uint32_t position, const uint32_t range)
+    {
+        this->position = position;
+        this->range = range;
+    }
+};
 
 class KyoukoRoot
 {
@@ -30,26 +31,27 @@ public:
     KyoukoRoot();
     ~KyoukoRoot();
 
-    static KyoukoMind::Segment* m_segment;
-
-    static Kitsunemimi::Project::Session* m_clientSession;
-    static Kitsunemimi::Project::Session* m_controlSession;
-    static Kitsunemimi::Project::Session* m_monitoringSession;
-
+    static KyoukoRoot* m_root;
+    static Segment* m_segment;
     static std::map<uint32_t, Brick*>* m_inputBricks;
 
-    bool start();
-    bool initServer();
+    static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;
+    static Kitsunemimi::Kyouko::MonitoringMetaMessage monitoringMetaMessage;
 
-    const std::string convertToObj();
+    static std::map<uint32_t, arrayPos> registeredInputs;
+    static std::map<uint32_t, arrayPos> registeredOutputs;
+
+    bool start();
+    void initBlossoms();
+    bool initSakuraFiles();
+
+    bool learn(const std::string &input,
+               const std::string &should,
+               std::string &errorMessage);
 
 private:
-    Kitsunemimi::Project::SessionController* m_sessionController = nullptr;
     NetworkManager* m_networkManager = nullptr;
     uint32_t m_serverId = 0;
-    DummyInput* m_dummyInput = nullptr;
 };
-
-} // namespace KyoukoMind
 
 #endif //KYOUKO_ROOT_OBJECT_H

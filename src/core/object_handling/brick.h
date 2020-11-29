@@ -11,9 +11,6 @@
 
 #include <core/processing/objects/edges.h>
 
-namespace KyoukoMind
-{
-
 class Brick
 {
 
@@ -38,9 +35,6 @@ public:
     uint32_t nodeBrickId = UNINIT_STATE_32;
 
     BrickPos brickPos;
-    uint8_t isOutputBrick = 0;
-    uint8_t isInputBrick = 0;
-    uint8_t isNodeBrick = 0;
 
     // 0 - 21: neighbor-bricks
     // 22: the current brick
@@ -57,15 +51,9 @@ public:
 
     uint32_t getRandomNeighbor(const uint32_t location);
 
-    float getSummedValue(Segment &segment);
-
     bool connectBricks(const uint8_t sourceSide,
                        Brick &targetBrick);
     bool disconnectBricks(const uint8_t sourceSide);
-
-    void writeMonitoringOutput(DataBuffer &buffer);
-    void writeClientOutput(Segment &segment,
-                           DataBuffer &buffer);
 
 private:
     void initNeighborList();
@@ -76,7 +64,5 @@ private:
 
     const PossibleNext getPossibleNext(const uint8_t inputSide);
 };
-
-}
 
 #endif // BRICK_H

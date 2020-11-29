@@ -13,8 +13,6 @@ namespace Kitsunemimi {
 class Barrier;
 }
 
-namespace KyoukoMind
-{
 class GlobalValuesHandler;
 class Segment;
 class Brick;
@@ -36,7 +34,5 @@ private:
     DataBuffer m_clientBuffer;
     DataBuffer m_monitoringBuffer;
 };
-
-} // namespace KyoukoMind
 
 #endif // PROCESSING_UNIT_H
