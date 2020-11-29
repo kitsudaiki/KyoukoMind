@@ -1,9 +1,11 @@
-image: registry.gitlab.com/kitsune_other/kitsune_docker_unittest:0.1.2
+image: registry.gitlab.com/kitsudaiki/kitsunemimi-ci-docker-images/opencl-tests:1.0.0
 
 build:
   script:
     - echo Working on branch $CI_COMMIT_REF_NAME
 
+    - mkdir -p ~/.ssh
+    - touch ~/.ssh/known_hosts
     - ssh-keyscan -H 10.0.3.120 >> ~/.ssh/known_hosts
 
     - apt-get update
