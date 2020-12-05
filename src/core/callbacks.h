@@ -23,6 +23,9 @@
 #ifndef CALLBACKS_H
 #define CALLBACKS_H
 
+#include <kyouko_root.h>
+#include <core/client_handler.h>
+
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 
@@ -70,11 +73,24 @@ sessionCallback(void* target,
 {
     if(isInit)
     {
-        if(identifier == "client") {
+        if(identifier == "client")
+        {
             session->setStreamMessageCallback(target, &clientDataCallback);
+            KyoukoRoot::m_clientHandler->setClientSession(session);
+        }
+        if(identifier == "monitoring")
+        {
+            session->setStreamMessageCallback(target, &monitoringDataCallback);
+            KyoukoRoot::m_clientHandler->setMonitoringSession(session);
+        }
+    }
+    else
+    {
+        if(identifier == "client") {
+            KyoukoRoot::m_clientHandler->setClientSession(nullptr);
         }
         if(identifier == "monitoring") {
-            session->setStreamMessageCallback(target, &monitoringDataCallback);
+            KyoukoRoot::m_clientHandler->setMonitoringSession(nullptr);
         }
     }
 }
