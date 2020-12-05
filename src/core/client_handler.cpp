@@ -12,6 +12,50 @@
  */
 ClientHandler::ClientHandler() {}
 
+ClientHandler::~ClientHandler() {}
+
+/**
+ * @brief ClientHandler::sendToClient
+ * @param data
+ * @param dataSize
+ * @return
+ */
+bool
+ClientHandler::sendToClient(const void *data,
+                            const uint32_t dataSize)
+{
+    bool result = false;
+    while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    if(m_client != nullptr) {
+        result = m_client->sendStreamData(data, dataSize);;
+    }
+
+    m_clientSession_lock.clear(std::memory_order_release);
+    return result;
+}
+
+/**
+ * @brief ClientHandler::sendToMonitoring
+ * @param data
+ * @param dataSize
+ * @return
+ */
+bool
+ClientHandler::sendToMonitoring(const void *data,
+                                const uint32_t dataSize)
+{
+    bool result = false;
+    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    if(m_client != nullptr) {
+        result = m_monitoring->sendStreamData(data, dataSize);
+    }
+
+    m_monitoringSession_lock.clear(std::memory_order_release);
+    return result;
+}
+
 /**
  * @brief set net client-session
  *
