@@ -26,12 +26,22 @@
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 
+#include <libKitsunemimiPersistence/logger/logger.h>
+
+/**
+ * @brief clientDataCallback
+ * @param data
+ * @param dataSize
+ */
 void
-clientDataCallback(void* target,
+clientDataCallback(void*,
                    Kitsunemimi::Sakura::Session*,
                    const void* data,
                    const uint64_t dataSize)
 {
+    const char* charData = static_cast<const char*>(data);
+    const std::string text(charData, dataSize);
+    LOG_WARNING("client-text: " + text);
 }
 
 /**

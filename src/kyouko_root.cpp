@@ -8,6 +8,7 @@
 #include <core/network_manager.h>
 #include <core/object_handling/segment.h>
 #include <core/validation.h>
+#include <core/client_handler.h>
 
 #include <libKitsunemimiPersistence/files/file_methods.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -30,6 +31,7 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 Segment* KyoukoRoot::m_segment = nullptr;
+ClientHandler* KyoukoRoot::m_clientHandler = nullptr;
 std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
 
 Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
@@ -52,6 +54,7 @@ KyoukoRoot::KyoukoRoot()
 
     m_root = this;
     m_segment = new Segment();
+    m_clientHandler = new ClientHandler();
     m_inputBricks = new std::map<uint32_t, Brick*>();
 }
 

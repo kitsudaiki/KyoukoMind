@@ -12,6 +12,7 @@
 class NetworkManager;
 class Segment;
 class Brick;
+class ClientHandler;
 
 struct arrayPos {
     uint32_t position = 0;
@@ -33,6 +34,7 @@ public:
 
     static KyoukoRoot* m_root;
     static Segment* m_segment;
+    static ClientHandler* m_clientHandler;
     static std::map<uint32_t, Brick*>* m_inputBricks;
 
     static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;

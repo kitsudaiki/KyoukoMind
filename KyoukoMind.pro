@@ -116,7 +116,8 @@ HEADERS += \
     src/blossoms/register_output_blossom.h \
     src/blossoms/learn_blossom.h \
     src/blossoms/metadata_blossom.h \
-    src/blossoms/print_blossom.h
+    src/blossoms/print_blossom.h \
+    src/core/client_handler.h
 
 SOURCES += \
     src/core/object_handling/brick.cpp \
@@ -137,7 +138,8 @@ SOURCES += \
     src/blossoms/register_output_blossom.cpp \
     src/blossoms/learn_blossom.cpp \
     src/blossoms/metadata_blossom.cpp \
-    src/blossoms/print_blossom.cpp
+    src/blossoms/print_blossom.cpp \
+    src/core/client_handler.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
