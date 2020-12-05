@@ -6,7 +6,7 @@
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <kyouko_root.h>
 
-#include <core/obj_converter.h>
+#include <import_export/obj_converter.h>
 
 #include <core/object_handling/segment.h>
 #include <core/object_handling/global_values.h>

@@ -100,7 +100,7 @@ HEADERS += \
     src/core/processing/objects/transfer_objects.h \
     src/core/processing/processing_unit_handler.h \
     src/core/network_manager.h \
-    src/core/obj_converter.h \
+    src/import_export/obj_converter.h \
     src/core/validation.h \
     src/initializing/axon_initializer.h \
     src/initializing/file_parser.h \
@@ -125,7 +125,7 @@ SOURCES += \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/network_manager.cpp \
-    src/core/obj_converter.cpp \
+    src/import_export/obj_converter.cpp \
     src/core/validation.cpp \
     src/initializing/axon_initializer.cpp \
     src/initializing/file_parser.cpp \
