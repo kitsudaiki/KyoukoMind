@@ -37,8 +37,7 @@
  * @param dataSize
  */
 void
-clientDataCallback(void*,
-                   Kitsunemimi::Sakura::Session*,
+clientDataCallback(Kitsunemimi::Sakura::Session*,
                    const void* data,
                    const uint64_t dataSize)
 {
@@ -51,8 +50,7 @@ clientDataCallback(void*,
  * @brief monitoringDataCallback
  */
 void
-monitoringDataCallback(void*,
-                       Kitsunemimi::Sakura::Session*,
+monitoringDataCallback(Kitsunemimi::Sakura::Session*,
                        const void*,
                        const uint64_t)
 {
@@ -66,32 +64,29 @@ monitoringDataCallback(void*,
  * @param identifier
  */
 void
-sessionCallback(void* target,
-                bool isInit,
-                Kitsunemimi::Sakura::MessagingClient* session,
-                const std::string identifier)
+sessionCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
+                      const std::string identifier)
 {
-    if(isInit)
+    if(identifier == "client")
     {
-        if(identifier == "client")
-        {
-            session->setStreamMessageCallback(target, &clientDataCallback);
-            KyoukoRoot::m_clientHandler->setClientSession(session);
-        }
-        if(identifier == "monitoring")
-        {
-            session->setStreamMessageCallback(target, &monitoringDataCallback);
-            KyoukoRoot::m_clientHandler->setMonitoringSession(session);
-        }
+        session->setStreamMessageCallback(&clientDataCallback);
+        KyoukoRoot::m_clientHandler->setClientSession(session);
     }
-    else
+    if(identifier == "monitoring")
     {
-        if(identifier == "client") {
-            KyoukoRoot::m_clientHandler->setClientSession(nullptr);
-        }
-        if(identifier == "monitoring") {
-            KyoukoRoot::m_clientHandler->setMonitoringSession(nullptr);
-        }
+        session->setStreamMessageCallback(&monitoringDataCallback);
+        KyoukoRoot::m_clientHandler->setMonitoringSession(session);
+    }
+}
+
+void
+sessionCloseCallback(const std::string identifier)
+{
+    if(identifier == "client") {
+        KyoukoRoot::m_clientHandler->setClientSession(nullptr);
+    }
+    if(identifier == "monitoring") {
+        KyoukoRoot::m_clientHandler->setMonitoringSession(nullptr);
     }
 }
 

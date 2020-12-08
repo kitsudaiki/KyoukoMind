@@ -128,6 +128,7 @@ GpuProcessingUnit::run()
 {
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
+    float timeValue = 0.0f;
 
     Segment* segment = KyoukoRoot::m_segment;
 
@@ -140,26 +141,40 @@ GpuProcessingUnit::run()
         copySynapseTransfersToGpu(*segment);
         copyGlobalValuesToGpu();
         end = std::chrono::system_clock::now();
-        const float gpu0 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        LOG_DEBUG("time copy to gpu: " + std::to_string(gpu0 / 1000.0f) + '\n');
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.timeCopyToGpu = timeValue;
 
         // run process on gpu
         start = std::chrono::system_clock::now();
         runOnGpu("synapse_processing");
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.timeSynapse = timeValue;
+
+        start = std::chrono::system_clock::now();
         runOnGpu("node_processing");
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.timeNode = timeValue;
+
+        start = std::chrono::system_clock::now();
         runOnGpu("updating");
         end = std::chrono::system_clock::now();
-        const float gpu2 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        LOG_DEBUG("gpu run-time: " + std::to_string(gpu2 / 1000.0f) + '\n');
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.timeUpdate = timeValue;
 
         // copy result from gpu to host
         start = std::chrono::system_clock::now();
         copyAxonTransfersFromGpu();
         end = std::chrono::system_clock::now();
-        const float gpu3 = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        LOG_DEBUG("time copy from gpu: " + std::to_string(gpu3 / 1000.0f) + '\n');
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.timeCopyFromGpu = timeValue;
 
+        start = std::chrono::system_clock::now();
         segment->synapseTransfers.deleteAll();
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.timeCleanup = timeValue;
 
         m_phase2->triggerBarrier();
         m_phase3->triggerBarrier();
@@ -189,9 +204,7 @@ GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
 bool
 GpuProcessingUnit::copyGlobalValuesToGpu()
 {
-    return m_gpuInterface->updateBufferOnDevice("synapse_processing",
-                                                4,
-                                                1);
+    return m_gpuInterface->updateBufferOnDevice("synapse_processing", 4, 1);
 }
 
 /**

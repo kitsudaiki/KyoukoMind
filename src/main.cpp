@@ -53,8 +53,8 @@ main(int argc, char *argv[])
     std::vector<std::string> groupNames = {};
     if(MessagingController::initializeMessagingController("KyoukoMind",
                                                           groupNames,
-                                                          rootObject,
-                                                          &sessionCallback) == false)
+                                                          &sessionCreateCallback,
+                                                          &sessionCloseCallback) == false)
     {
         return 1;
     }

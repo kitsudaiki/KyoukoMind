@@ -14,11 +14,13 @@
 #include <libKitsunemimiPersistence/files/text_file.h>
 
 #include <core/processing/processing_unit_handler.h>
-
+#include <core/client_handler.h>
 #include <core/object_handling/brick.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
+
+using std::chrono::duration_cast;
 
 /**
  * @brief NetManager::NetManager
@@ -40,8 +42,11 @@ NetworkManager::NetworkManager()
 void
 NetworkManager::run()
 {
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
+    std::chrono::high_resolution_clock::time_point edgeStart;
+    std::chrono::high_resolution_clock::time_point edgeEnd;
+
+    std::chrono::high_resolution_clock::time_point synapseStart;
+    std::chrono::high_resolution_clock::time_point synapseEnd;
 
     while(!m_abort)
     {
@@ -50,13 +55,50 @@ NetworkManager::run()
         }
 
         usleep(PROCESS_INTERVAL);
-        start = std::chrono::system_clock::now();
         m_phase1->triggerBarrier();
+        edgeStart = std::chrono::system_clock::now();
+
         m_phase2->triggerBarrier();
+        edgeEnd = std::chrono::system_clock::now();
+        synapseStart = std::chrono::system_clock::now();
+
         m_phase3->triggerBarrier();
-        end = std::chrono::system_clock::now();
-        const float totalTime = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.timeTotal = totalTime;
+        synapseEnd = std::chrono::system_clock::now();
+
+        const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
+        const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
+
+        KyoukoRoot::monitoringMetaMessage.timeEdgePhase = edgeTime;
+        KyoukoRoot::monitoringMetaMessage.timeSynapsePhase = synapseTime;
+        KyoukoRoot::monitoringMetaMessage.timeTotal = edgeTime + synapseTime;
+
+        const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
+        KyoukoRoot::m_clientHandler->sendToMonitoring(meta.c_str(), meta.size());
+
+        // debug-output
+        const std::string testClient = "poi";
+        KyoukoRoot::m_clientHandler->sendToClient(testClient.c_str(), testClient.size());
+        m_testMonitoring = "{\"bricks\": [";
+        for(int i = 0; i < 20; i++)
+        {
+            for(int j = 0; j < 20; j++)
+            {
+                if(i == 0 && j == 0) {
+                    m_testMonitoring += "";
+                } else {
+                    m_testMonitoring += ",";
+                }
+
+                const int rand = std::rand() % 400;
+                const std::string part = "[" + std::to_string(i)
+                                       + "," + std::to_string(j)
+                                       + "," + std::to_string(rand) + "]";
+                m_testMonitoring += part;
+            }
+        }
+        m_testMonitoring += "]}";
+        KyoukoRoot::m_clientHandler->sendToMonitoring(m_testMonitoring.c_str(),
+                                                      m_testMonitoring.size());
     }
 }
 

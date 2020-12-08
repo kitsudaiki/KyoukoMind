@@ -22,8 +22,8 @@ public:
     ClientHandler();
     ~ClientHandler();
 
-    bool sendToClient(const void* data, const uint32_t dataSize);
-    bool sendToMonitoring(const void* data, const uint32_t dataSize);
+    bool sendToClient(const void* data, const uint64_t dataSize);
+    bool sendToMonitoring(const void* data, const uint64_t dataSize);
 
     void setClientSession(MessagingClient* session);
     void setMonitoringSession(MessagingClient* session);

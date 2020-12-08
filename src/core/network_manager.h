@@ -7,6 +7,7 @@
 #define NETWORK_MANAGER_H
 
 #include <common.h>
+#include <random>
 #include <libKitsunemimiCommon/threading/thread.h>
 
 namespace Kitsunemimi {
@@ -33,6 +34,7 @@ private:
     Kitsunemimi::Barrier* m_phase3 = nullptr;
 
     uint32_t m_numberOfThreads = 0;
+    std::string m_testMonitoring = "";
 };
 
 #endif // NETWORK_MANAGER_H

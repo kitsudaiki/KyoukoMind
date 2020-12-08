@@ -38,7 +38,7 @@ public:
     static std::map<uint32_t, Brick*>* m_inputBricks;
 
     static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;
-    static Kitsunemimi::Kyouko::MonitoringMetaMessage monitoringMetaMessage;
+    static Kitsunemimi::Kyouko::MonitoringProcessingData monitoringMetaMessage;
 
     static std::map<uint32_t, arrayPos> registeredInputs;
     static std::map<uint32_t, arrayPos> registeredOutputs;

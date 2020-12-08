@@ -22,7 +22,7 @@ ClientHandler::~ClientHandler() {}
  */
 bool
 ClientHandler::sendToClient(const void *data,
-                            const uint32_t dataSize)
+                            const uint64_t dataSize)
 {
     bool result = false;
     while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
@@ -43,12 +43,12 @@ ClientHandler::sendToClient(const void *data,
  */
 bool
 ClientHandler::sendToMonitoring(const void *data,
-                                const uint32_t dataSize)
+                                const uint64_t dataSize)
 {
     bool result = false;
     while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    if(m_client != nullptr) {
+    if(m_monitoring != nullptr) {
         result = m_monitoring->sendStreamData(data, dataSize);
     }
 
