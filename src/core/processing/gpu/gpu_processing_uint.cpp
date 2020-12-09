@@ -142,39 +142,39 @@ GpuProcessingUnit::run()
         copyGlobalValuesToGpu();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.timeCopyToGpu = timeValue;
+        KyoukoRoot::monitoringMetaMessage.copyToGpu = timeValue;
 
         // run process on gpu
         start = std::chrono::system_clock::now();
         runOnGpu("synapse_processing");
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.timeSynapse = timeValue;
+        KyoukoRoot::monitoringMetaMessage.gpuSynapse = timeValue;
 
         start = std::chrono::system_clock::now();
         runOnGpu("node_processing");
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.timeNode = timeValue;
+        KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;
 
         start = std::chrono::system_clock::now();
         runOnGpu("updating");
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.timeUpdate = timeValue;
+        KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
 
         // copy result from gpu to host
         start = std::chrono::system_clock::now();
         copyAxonTransfersFromGpu();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.timeCopyFromGpu = timeValue;
+        KyoukoRoot::monitoringMetaMessage.copyFromGpu = timeValue;
 
         start = std::chrono::system_clock::now();
         segment->synapseTransfers.deleteAll();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.timeCleanup = timeValue;
+        KyoukoRoot::monitoringMetaMessage.cleanup = timeValue;
 
         m_phase2->triggerBarrier();
         m_phase3->triggerBarrier();

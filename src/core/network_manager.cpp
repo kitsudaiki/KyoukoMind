@@ -68,9 +68,9 @@ NetworkManager::run()
         const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
         const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
 
-        KyoukoRoot::monitoringMetaMessage.timeEdgePhase = edgeTime;
-        KyoukoRoot::monitoringMetaMessage.timeSynapsePhase = synapseTime;
-        KyoukoRoot::monitoringMetaMessage.timeTotal = edgeTime + synapseTime;
+        KyoukoRoot::monitoringMetaMessage.edgePhase = edgeTime;
+        KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
+        KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
 
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
         KyoukoRoot::m_clientHandler->sendToMonitoring(meta.c_str(), meta.size());

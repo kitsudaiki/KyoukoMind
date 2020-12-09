@@ -33,13 +33,26 @@ CpuProcessingUnit::CpuProcessingUnit() {}
 void
 CpuProcessingUnit::run()
 {
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+    float timeValue = 0.0f;
+
     while(m_abort == false)
     {
         m_phase1->triggerBarrier();
         m_phase2->triggerBarrier();
 
-        KyoukoRoot::monitoringMetaMessage.numberOfUpdateMessages = updateEdgeSection();
-        KyoukoRoot::monitoringMetaMessage.numberOfAxonMessages = processEdgeSection();
+        start = std::chrono::system_clock::now();
+        updateEdgeSection();
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.cpuUpdate = timeValue;
+
+        start = std::chrono::system_clock::now();
+        processEdgeSection();
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.cpuProcessing = timeValue;
 
         m_phase3->triggerBarrier();
     }

@@ -35,7 +35,7 @@ ClientHandler* KyoukoRoot::m_clientHandler = nullptr;
 std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
 
 Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
-Kitsunemimi::Kyouko::MonitoringProcessingData KyoukoRoot::monitoringMetaMessage;
+Kitsunemimi::Kyouko::MonitoringProcessingTimes KyoukoRoot::monitoringMetaMessage;
 
 std::map<uint32_t, arrayPos> KyoukoRoot::registeredInputs;
 std::map<uint32_t, arrayPos> KyoukoRoot::registeredOutputs;
