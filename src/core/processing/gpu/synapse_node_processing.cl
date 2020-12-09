@@ -169,48 +169,6 @@ singleLearningStep(__local SynapseSection* synapseSection,
 
 //--------------------------------------------------------------------------------------------------
 
-/**
-* process of a specific edge-section of a brick
-*
-* @param edgeSectionId id of the edge-section within the current brick
-* @param weight incoming weight-value
-*/
-void
-processSynapseSection(__local SynapseSection* synapseSection,
-                      __global Node* nodes,
-                      const float inputWeight,
-                      __global uint* randomInts,
-                      __local GlobalValues* globalValue)
-{
-    if(inputWeight < 0.000001f) {
-        return;
-    }
-
-    // run lerning-process by creating and updating synapses
-    const float weightDiff = inputWeight - synapseSection->totalWeight;
-    if(weightDiff > 0.0f)
-    {
-        singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, globalValue);
-        singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, globalValue);
-        singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, globalValue);
-    }
-
-    // limit ration to 1.0f
-    float ratio = inputWeight / synapseSection->totalWeight;
-    ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-
-    __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
-    for(__local Synapse* synapse = synapseSection->synapses;
-        synapse < end;
-        synapse++)
-    {
-        const float somaUpdate = (float)synapse->somaDistance / (float)globalValue->maxSomaDistance;
-        nodes[synapse->targetNodeId].currentState += synapse->weight * ratio * somaUpdate;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-
 __kernel void 
 synapse_processing(__global const SynapseTransfer* synapseTransfers,
                    const ulong numberOfSynapseTransfers,
@@ -243,7 +201,6 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             continue;
         }
 
-
         const uint synapseSectionId = synapseTransfers[i].synapseSectionId;
         tempSections[localId_x] = synapseSections[synapseSectionId];
 
@@ -257,15 +214,36 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             tempSections[localId_x] = newSection;
         }
 
-        if(tempSections[localId_x].status != ACTIVE_SECTION) {
+        if(tempSections[localId_x].status != ACTIVE_SECTION
+            || synapseTransfers[i].weight < 0.000001f) 
+        {
             continue;
         }
 
-        processSynapseSection(&tempSections[localId_x],
-                              nodes,
-                              synapseTransfers[i].weight,
-                              randomInts,
-                              localGlobalValue);
+        __local SynapseSection* synapseSection = &tempSections[localId_x];
+
+        // run lerning-process by creating and updating synapses
+        const float weightDiff = synapseTransfers[i].weight - synapseSection->totalWeight;
+        if(weightDiff > 0.0f)
+        {
+            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue);
+            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue);
+            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue);
+        }
+
+        // limit ration to 1.0f
+        float ratio = synapseTransfers[i].weight / synapseSection->totalWeight;
+        ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+
+        __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
+        for(__local Synapse* synapse = synapseSection->synapses;
+            synapse < end;
+            synapse++)
+        {
+            const float somaUpdate = (float)synapse->somaDistance / (float)localGlobalValue->maxSomaDistance;
+            nodes[synapse->targetNodeId].currentState += synapse->weight * ratio * somaUpdate;
+        }
+
 
         synapseSections[synapseSectionId] = tempSections[localId_x];
         synapseSections[synapseSectionId].sourceBrickId = brickId;
@@ -273,54 +251,6 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
 }
 
 //==================================================================================================
-
-/**
- * processing of the nodes of a specific node-brick
- *
- * @return number of active nodes in this brick
- */
-void
-processNodes(__local Node* node,
-             ulong globalNodeId,
-             __global AxonTransfer* axonTransfers,
-             __local GlobalValues* globalValue)
-{
-    // set to 255.0f, if value is too high
-    const float cur = node->currentState;
-    node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
-    node->currentState = (cur < 0.000001f) * 0.0f + (cur >= 0.000001f) * cur;
-
-    // check if active
-    if(node->border <= node->currentState
-            && node->refractionTime == 0)
-    {
-        node->potential = globalValue->actionPotential;
-        node->active = 1;
-        node->refractionTime = globalValue->refractionTime;
-    }
-    else if(node->refractionTime == 0) 
-    {
-        node->active = 0;
-    }
-
-    // build new axon-transfer-edge, which is send back to the host
-    AxonTransfer newEdge;
-    newEdge.weight = node->active * node->potential * pow(globalValue->gliaValue, node->targetBrickDistance);
-    axonTransfers[globalNodeId] = newEdge;
-
-    // post-steps
-    node->refractionTime = node->refractionTime >> 1;
-
-    // set to 0.0f, if value is negative
-    const float newCur = node->currentState;
-    node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
-
-    // make cooldown in the node
-    node->potential /= globalValue->nodeCooldown;
-    node->currentState /= globalValue->nodeCooldown;
-}
-
-//--------------------------------------------------------------------------------------------------
 
 __kernel void 
 node_processing(__global AxonTransfer* axonTransfers,
@@ -344,62 +274,48 @@ node_processing(__global AxonTransfer* axonTransfers,
     for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
     {
         tempNodes[localId_x] = nodes[i];
-        processNodes(&tempNodes[localId_x],
-                     i,
-                     axonTransfers,
-                     localGlobalValue);
+        __local Node* node = &tempNodes[localId_x];
+        const ulong globalNodeId = i;
+
+        // set to 255.0f, if value is too high
+        const float cur = node->currentState;
+        node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
+        node->currentState = (cur < 0.000001f) * 0.0f + (cur >= 0.000001f) * cur;
+
+        // check if active
+        if(node->border <= node->currentState
+                && node->refractionTime == 0)
+        {
+            node->potential = globalValue->actionPotential;
+            node->active = 1;
+            node->refractionTime = globalValue->refractionTime;
+        }
+        else if(node->refractionTime == 0)
+        {
+            node->active = 0;
+        }
+
+        // build new axon-transfer-edge, which is send back to the host
+        AxonTransfer newEdge;
+        newEdge.weight = node->active * node->potential * pow(globalValue->gliaValue, node->targetBrickDistance);
+        axonTransfers[globalNodeId] = newEdge;
+
+        // post-steps
+        node->refractionTime = node->refractionTime >> 1;
+
+        // set to 0.0f, if value is negative
+        const float newCur = node->currentState;
+        node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
+
+        // make cooldown in the node
+        node->potential /= globalValue->nodeCooldown;
+        node->currentState /= globalValue->nodeCooldown;
+
         nodes[i] = tempNodes[localId_x];
     }
 }
 
 //==================================================================================================
-
-/**
- * @brief memorizeEdges
- * @param brick
- */
-void
-memorizeSynapses(__local SynapseSection* synapseSection,
-                 __global Node* nodes,
-                 const ulong sectionPosition,
-                 __global UpdateTransfer* updateTransfers,
-                 __local GlobalValues* globalValue)
-{
-    // update values based on the memorizing-value
-    __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
-
-    float totalWeight = 0.0f;
-
-    for(__local Synapse* synapse = synapseSection->synapses;
-        synapse < end;
-        synapse++)
-    {
-        if(nodes[synapse->targetNodeId].active != 0) 
-        {
-            synapse->memorize *= 1.05f;
-            synapse->memorize = (synapse->memorize > 1.0f) * 1.0f 
-                                + (synapse->memorize <= 1.0f) * synapse->memorize;
-        }
-
-        // update weight
-        synapse->weight -= synapse->weight * (1.0f - synapse->memorize);
-        //printf("%f\n", synapse->memorize);
-        totalWeight += fabs(synapse->weight);
-    }
-
-    // create update-container for the host
-    UpdateTransfer transferContainer;
-    transferContainer.targetId = synapseSection->sourceEdgeId;
-    transferContainer.positionInEdge = synapseSection->positionInEdge;
-    transferContainer.newWeight = totalWeight;
-    transferContainer.deleteEdge = totalWeight <= globalValue->deleteSynapseBorder;
-
-    synapseSection->status = transferContainer.deleteEdge + 1;
-
-    updateTransfers[sectionPosition] = transferContainer;
-}
-
-//--------------------------------------------------------------------------------------------------
 
 __kernel void
 updating(__global UpdateTransfer* updateTransfers,
@@ -423,25 +339,60 @@ updating(__global UpdateTransfer* updateTransfers,
 
     for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
     {
+        UpdateTransfer transferContainer;
+        updateTransfers[i] = transferContainer;
+
         // skip if section is deleted
         if(synapseSections[i].status == DELETED_SECTION)
         {
-            UpdateTransfer transferContainer;
-            transferContainer.newWeight = -1.0f;
-            transferContainer.targetId = UNINIT_STATE_32;
-            transferContainer.positionInEdge = UNINIT_STATE_8;
-            transferContainer.deleteEdge = 0;
-            updateTransfers[i] = transferContainer;
+            updateTransfers[i].newWeight = -1.0f;
+            updateTransfers[i].targetId = UNINIT_STATE_32;
+            updateTransfers[i].positionInEdge = UNINIT_STATE_8;
+            updateTransfers[i].deleteEdge = 0;
 
             continue;
         }
+        else
+        {
+            updateTransfers[i].newWeight = 0.0f;
+            updateTransfers[i].targetId = UNINIT_STATE_32;
+            updateTransfers[i].positionInEdge = UNINIT_STATE_8;
+            updateTransfers[i].deleteEdge = 0;
+        }
 
         tempSectionMem[localId_x] = synapseSections[i];
-        memorizeSynapses(&tempSectionMem[localId_x],
-                         nodes,
-                         i,
-                         updateTransfers,
-                         localGlobalValue);
+        __local SynapseSection* synapseSection = &tempSectionMem[localId_x];
+        const ulong sectionPosition = i;
+
+        // update values based on the memorizing-value
+        __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
+        updateTransfers[i].newWeight = 0;
+        for(__local Synapse* synapse = synapseSection->synapses;
+            synapse < end;
+            synapse++)
+        {
+            if(nodes[synapse->targetNodeId].active != 0) 
+            {
+                synapse->memorize *= 1.05f;
+                const float mem = synapse->memorize;
+                synapse->memorize = (mem > 1.0f) * 1.0f + (mem <= 1.0f) * mem;
+            }
+
+            // update weight
+            synapse->weight -= synapse->weight * (1.0f - synapse->memorize);
+            updateTransfers[i].newWeight += fabs(synapse->weight);
+        }
+
+        // create update-container for the host
+        updateTransfers[i].targetId = synapseSection->sourceEdgeId;
+        updateTransfers[i].positionInEdge = synapseSection->positionInEdge;
+        updateTransfers[i].newWeight = updateTransfers[i].newWeight;
+        updateTransfers[i].deleteEdge = updateTransfers[i].newWeight <= globalValue->deleteSynapseBorder;
+
+        synapseSection->status = transferContainer.deleteEdge + 1;
+
+        updateTransfers[sectionPosition] = transferContainer;
+
         synapseSections[i] = tempSectionMem[localId_x];
     }
 }
