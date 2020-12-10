@@ -32,13 +32,9 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 Segment* KyoukoRoot::m_segment = nullptr;
 ClientHandler* KyoukoRoot::m_clientHandler = nullptr;
-std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
 
 Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
 Kitsunemimi::Kyouko::MonitoringProcessingTimes KyoukoRoot::monitoringMetaMessage;
-
-std::vector<arrayPos> KyoukoRoot::registeredInputs;
-std::vector<float> KyoukoRoot::registeredOutputs;
 
 
 /**
@@ -55,7 +51,6 @@ KyoukoRoot::KyoukoRoot()
     m_root = this;
     m_segment = new Segment();
     m_clientHandler = new ClientHandler();
-    m_inputBricks = new std::map<uint32_t, Brick*>();
 }
 
 /**

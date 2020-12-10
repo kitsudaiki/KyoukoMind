@@ -111,3 +111,61 @@ ClientHandler::getMonitoringSession()
     m_monitoringSession_lock.clear(std::memory_order_release);
     return session;
 }
+
+/**
+ * @brief ClientHandler::registerInput
+ * @return
+ */
+uint32_t
+ClientHandler::registerInput(const uint32_t pos, const uint32_t range)
+{
+    uint32_t listPos = 0;
+    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_inputs.push_back(ArrayPos(pos, range));
+    listPos = static_cast<uint32_t>(m_inputs.size()) - 1;
+    m_input_lock.clear(std::memory_order_release);
+    return listPos;
+}
+
+/**
+ * @brief ClientHandler::getInput
+ * @return
+ */
+ArrayPos
+ClientHandler::getInput(const uint32_t pos)
+{
+    ArrayPos item;
+    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    item = m_inputs.at(pos);
+    m_input_lock.clear(std::memory_order_release);
+    return item;
+}
+
+/**
+ * @brief ClientHandler::registerOutput
+ * @return
+ */
+uint32_t
+ClientHandler::registerOutput()
+{
+    uint32_t pos = 0;
+    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_outputs.push_back(0.0f);
+    pos = static_cast<uint32_t>(m_outputs.size()) - 1;
+    m_output_lock.clear(std::memory_order_release);
+    return pos;
+}
+
+/**
+ * @brief ClientHandler::setOutput
+ * @param pos
+ * @param value
+ */
+void
+ClientHandler::setOutput(const uint32_t pos, const float value)
+{
+    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_outputs[pos] += value;
+    m_outputs[pos] /= 2.0f;
+    m_output_lock.clear(std::memory_order_release);
+}

@@ -61,9 +61,16 @@ Brick::getRandomNeighbor(const uint32_t location)
     }
     const PossibleNext next = getPossibleNext(inputSide);
 
+    // in case of an output
+    if(outputPos != UNINIT_STATE_32
+            && rand() % 4 == 0)
+    {
+        const uint32_t nextLocation = outputPos + (static_cast<uint32_t>(25) << 24);
+        return nextLocation;
+    }
+
     const uint8_t nextSide = next.next[rand() % 3];
     uint32_t nextLocation = neighbors[nextSide];
-
     if(nextLocation != UNINIT_STATE_32) {
         nextLocation += static_cast<uint32_t>(23 - nextSide) << 24;
     }

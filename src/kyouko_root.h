@@ -14,17 +14,6 @@ class Segment;
 class Brick;
 class ClientHandler;
 
-struct arrayPos {
-    uint32_t position = 0;
-    uint32_t range = 0;
-
-    arrayPos(const uint32_t position, const uint32_t range)
-    {
-        this->position = position;
-        this->range = range;
-    }
-};
-
 class KyoukoRoot
 {
 
@@ -35,13 +24,9 @@ public:
     static KyoukoRoot* m_root;
     static Segment* m_segment;
     static ClientHandler* m_clientHandler;
-    static std::map<uint32_t, Brick*>* m_inputBricks;
 
     static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;
     static Kitsunemimi::Kyouko::MonitoringProcessingTimes monitoringMetaMessage;
-
-    static std::vector<arrayPos> registeredInputs;
-    static std::vector<float> registeredOutputs;
 
     bool start();
     void initBlossoms();
