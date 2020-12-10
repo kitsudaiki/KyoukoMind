@@ -5,14 +5,13 @@
 
 #include "network_initializer.h"
 #include <kyouko_root.h>
-#include <core/object_handling/segment.h>
-#include <core/object_handling/global_values.h>
+#include <core/processing/objects/segment.h>
+#include <core/processing/objects/global_values.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>
 
 #include <core/processing/processing_unit_handler.h>
-//#include <core/processing/methods/message_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 #include <initializing/segment_initializing.h>
 

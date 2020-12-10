@@ -8,18 +8,18 @@
 
 #include <import_export/obj_converter.h>
 
-#include <core/object_handling/segment.h>
-#include <core/object_handling/global_values.h>
-#include <core/object_handling/brick.h>
+#include <libKitsunemimiCommon/threading/barrier.h>
 
+#include <core/processing/objects/segment.h>
+
+#include <core/processing/objects/global_values.h>
+#include <core/processing/objects/brick.h>
 #include <core/processing/objects/transfer_objects.h>
 
 #include <core/processing/cpu/edge_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
-
-#include <libKitsunemimiCommon/threading/barrier.h>
 
 /**
  * @brief ProcessingUnit::ProcessingUnit

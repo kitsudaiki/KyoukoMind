@@ -46,7 +46,7 @@ RegisterOutputBlossom::runTask(BlossomLeaf &blossomLeaf,
     const uint32_t position = static_cast<uint32_t>(input->get("position")->toValue()->getInt());
     const uint32_t range = static_cast<uint32_t>(input->get("range")->toValue()->getInt());
 
-    KyoukoRoot::registeredOutputs.insert(std::make_pair(id, arrayPos(position, range)));
+    //KyoukoRoot::registeredOutputs.insert(std::make_pair(id, arrayPos(position, range)));
 
     return true;
 }

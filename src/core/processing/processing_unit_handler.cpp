@@ -13,7 +13,7 @@
 #include <libKitsunemimiOpencl/gpu_handler.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
-#include <core/object_handling/segment.h>
+#include <core/processing/objects/segment.h>
 
 #include <kyouko_root.h>
 

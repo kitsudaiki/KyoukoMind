@@ -5,11 +5,11 @@
 
 #include "validation.h"
 
-#include <core/object_handling/brick.h>
-#include <core/object_handling/item_buffer.h>
-#include <core/object_handling/segment.h>
-#include <core/object_handling/global_values.h>
+#include <core/processing/objects/item_buffer.h>
+#include <core/processing/objects/segment.h>
 
+#include <core/processing/objects/global_values.h>
+#include <core/processing/objects/brick.h>
 #include <core/processing/objects/node.h>
 #include <core/processing/objects/synapses.h>
 #include <core/processing/objects/edges.h>

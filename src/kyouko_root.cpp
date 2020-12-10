@@ -6,9 +6,9 @@
 #include <kyouko_root.h>
 
 #include <core/network_manager.h>
-#include <core/object_handling/segment.h>
+#include <core/processing/objects/segment.h>
 #include <core/validation.h>
-#include <core/client_handler.h>
+#include <core/handler/client_handler.h>
 
 #include <libKitsunemimiPersistence/files/file_methods.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -37,8 +37,8 @@ std::map<uint32_t, Brick*>* KyoukoRoot::m_inputBricks = nullptr;
 Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
 Kitsunemimi::Kyouko::MonitoringProcessingTimes KyoukoRoot::monitoringMetaMessage;
 
-std::map<uint32_t, arrayPos> KyoukoRoot::registeredInputs;
-std::map<uint32_t, arrayPos> KyoukoRoot::registeredOutputs;
+std::vector<arrayPos> KyoukoRoot::registeredInputs;
+std::vector<float> KyoukoRoot::registeredOutputs;
 
 
 /**

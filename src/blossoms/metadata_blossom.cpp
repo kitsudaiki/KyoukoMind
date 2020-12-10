@@ -24,7 +24,7 @@
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-#include <core/object_handling/segment.h>
+#include <core/processing/objects/segment.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;

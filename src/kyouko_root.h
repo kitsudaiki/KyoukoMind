@@ -40,8 +40,8 @@ public:
     static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;
     static Kitsunemimi::Kyouko::MonitoringProcessingTimes monitoringMetaMessage;
 
-    static std::map<uint32_t, arrayPos> registeredInputs;
-    static std::map<uint32_t, arrayPos> registeredOutputs;
+    static std::vector<arrayPos> registeredInputs;
+    static std::vector<float> registeredOutputs;
 
     bool start();
     void initBlossoms();

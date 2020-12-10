@@ -12,7 +12,7 @@
 #include <core/processing/objects/transfer_objects.h>
 #include <core/processing/objects/node.h>
 
-#include <core/object_handling/segment.h>
+#include <core/processing/objects/segment.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 

@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include "init_meta_data.h"
-#include <core/object_handling/brick.h>
+#include <core/processing/objects/brick.h>
 
 class NextChooser;
 

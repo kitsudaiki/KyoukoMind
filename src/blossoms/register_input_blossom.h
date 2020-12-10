@@ -32,8 +32,7 @@ public:
     RegisterInputBlossom();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 std::string &errorMessage);
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &);
 };
 
 

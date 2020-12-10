@@ -86,10 +86,10 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/object_handling/brick.h \
-    src/core/object_handling/global_values.h \
-    src/core/object_handling/item_buffer.h \
-    src/core/object_handling/segment.h \
+    src/core/processing/objects/brick.h \
+    src/core/processing/objects/global_values.h \
+    src/core/processing/objects/item_buffer.h \
+    src/core/processing/objects/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/cpu/edge_processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
@@ -117,12 +117,12 @@ HEADERS += \
     src/blossoms/learn_blossom.h \
     src/blossoms/metadata_blossom.h \
     src/blossoms/print_blossom.h \
-    src/core/client_handler.h
+    src/core/handler/client_handler.h
 
 SOURCES += \
-    src/core/object_handling/brick.cpp \
-    src/core/object_handling/item_buffer.cpp \
-    src/core/object_handling/segment.cpp \
+    src/core/processing/objects/brick.cpp \
+    src/core/processing/objects/item_buffer.cpp \
+    src/core/processing/objects/segment.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/network_manager.cpp \
@@ -139,7 +139,7 @@ SOURCES += \
     src/blossoms/learn_blossom.cpp \
     src/blossoms/metadata_blossom.cpp \
     src/blossoms/print_blossom.cpp \
-    src/core/client_handler.cpp
+    src/core/handler/client_handler.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

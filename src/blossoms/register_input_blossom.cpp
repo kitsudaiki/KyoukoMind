@@ -30,23 +30,25 @@ using namespace Kitsunemimi::Sakura;
 RegisterInputBlossom::RegisterInputBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
-    validationMap.emplace("id", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+    validationMap.emplace("id", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
     validationMap.emplace("position", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
     validationMap.emplace("range", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
 }
 
 bool
 RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
-                              std::string &errorMessage)
+                              std::string &)
 {
     LOG_DEBUG("register output");
 
     Kitsunemimi::DataMap* input = &blossomLeaf.input;
-    const uint32_t id = static_cast<uint32_t>(input->get("id")->toValue()->getInt());
     const uint32_t position = static_cast<uint32_t>(input->get("position")->toValue()->getInt());
     const uint32_t range = static_cast<uint32_t>(input->get("range")->toValue()->getInt());
 
-    KyoukoRoot::registeredInputs.insert(std::make_pair(id, arrayPos(position, range)));
+    KyoukoRoot::registeredInputs.push_back(arrayPos(position, range));
+
+    const long pos = static_cast<long>(KyoukoRoot::registeredInputs.size() - 1);
+    blossomLeaf.output.insert("id", new DataValue(pos));
 
     return true;
 }

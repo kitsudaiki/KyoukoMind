@@ -12,9 +12,9 @@
 #include <core/processing/objects/edges.h>
 #include <core/processing/objects/transfer_objects.h>
 
-#include <core/object_handling/brick.h>
-#include <core/object_handling/segment.h>
-#include <core/object_handling/item_buffer.h>
+#include <core/processing/objects/brick.h>
+#include <core/processing/objects/segment.h>
+#include <core/processing/objects/item_buffer.h>
 
 #include <core/processing/objects/synapses.h>
 

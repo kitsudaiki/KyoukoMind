@@ -8,8 +8,8 @@
 
 #include <common.h>
 
-#include <core/object_handling/item_buffer.h>
-#include <core/object_handling/brick.h>
+#include <core/processing/objects/item_buffer.h>
+#include <core/processing/objects/brick.h>
 
 class Segment
 {

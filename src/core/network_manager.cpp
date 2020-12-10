@@ -14,8 +14,8 @@
 #include <libKitsunemimiPersistence/files/text_file.h>
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/client_handler.h>
-#include <core/object_handling/brick.h>
+#include <core/handler/client_handler.h>
+#include <core/processing/objects/brick.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
