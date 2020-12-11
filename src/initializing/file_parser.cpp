@@ -37,6 +37,8 @@ parse2dTestfile(const std::string &fileContent,
         Kitsunemimi::splitStringByDelimiter(splittedLine, allLines[lineNumber], '|');
         Kitsunemimi::removeEmptyStrings(splittedLine);
 
+        result.push_back(std::vector<InitMetaDataEntry>());
+
         // process the splitted line
         for(uint32_t linePartNumber = 0; linePartNumber < splittedLine.size(); linePartNumber++)
         {
@@ -45,10 +47,6 @@ parse2dTestfile(const std::string &fileContent,
                     && linePartNumber == 0)
             {
                 firstLineLenght = static_cast<uint32_t>(splittedLine.size());
-                for(uint32_t i = 0; i < firstLineLenght; i++)
-                {
-                    result.push_back(std::vector<InitMetaDataEntry>());
-                }
             }
 
             if(firstLineLenght != splittedLine.size()) {
@@ -57,7 +55,7 @@ parse2dTestfile(const std::string &fileContent,
 
             InitMetaDataEntry tempEntry;
             tempEntry.type = static_cast<uint8_t>(std::stoi(splittedLine[linePartNumber]) + 1);
-            result[linePartNumber].push_back(tempEntry);
+            result[lineNumber].push_back(tempEntry);
             counter++;
         }
     }
