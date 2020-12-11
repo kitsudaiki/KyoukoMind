@@ -133,7 +133,7 @@ GlobalValues;
 
 //==================================================================================================
 
-void
+inline void
 singleLearningStep(__local SynapseSection* synapseSection,
                    const float weight,
                    __global uint* randomInts,
@@ -329,19 +329,18 @@ updating(__global UpdateTransfer* updateTransfers,
          __local uchar* localMemory,
          const ulong localMemorySize)
 {
+    // prepare coordinates
     const size_t globalId_x = get_global_id(0);
     const size_t globalSize_x = get_global_size(0);
     const int localId_x = get_local_id(0);
 
+    // prepare shared memory
     __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
     localGlobalValue[0] = globalValue[0];
     __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[256];
 
     for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
     {
-        UpdateTransfer transferContainer;
-        updateTransfers[i] = transferContainer;
-
         // skip if section is deleted
         if(synapseSections[i].status == DELETED_SECTION)
         {
@@ -352,17 +351,18 @@ updating(__global UpdateTransfer* updateTransfers,
 
             continue;
         }
-        else
-        {
-            updateTransfers[i].newWeight = 0.0f;
-            updateTransfers[i].targetId = UNINIT_STATE_32;
-            updateTransfers[i].positionInEdge = UNINIT_STATE_8;
-            updateTransfers[i].deleteEdge = 0;
-        }
 
+        // prepare new container
+        UpdateTransfer transferContainer;
+        updateTransfers[i] = transferContainer;
+        updateTransfers[i].newWeight = 0.0f;
+        updateTransfers[i].targetId = UNINIT_STATE_32;
+        updateTransfers[i].positionInEdge = UNINIT_STATE_8;
+        updateTransfers[i].deleteEdge = 0;
+
+        // load data into shared memory
         tempSectionMem[localId_x] = synapseSections[i];
         __local SynapseSection* synapseSection = &tempSectionMem[localId_x];
-        const ulong sectionPosition = i;
 
         // update values based on the memorizing-value
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
@@ -371,12 +371,11 @@ updating(__global UpdateTransfer* updateTransfers,
             synapse < end;
             synapse++)
         {
-            if(nodes[synapse->targetNodeId].active != 0) 
-            {
-                synapse->memorize *= 1.05f;
-                const float mem = synapse->memorize;
-                synapse->memorize = (mem > 1.0f) * 1.0f + (mem <= 1.0f) * mem;
-            }
+            // update memorizing value
+            const int active = nodes[synapse->targetNodeId].active != 0;
+            synapse->memorize *= 1.0f + (active * 0.05f);
+            const float mem = active * synapse->memorize;
+            synapse->memorize = (mem > 1.0f) * 1.0f + (mem <= 1.0f) * mem;
 
             // update weight
             synapse->weight -= synapse->weight * (1.0f - synapse->memorize);
@@ -391,8 +390,7 @@ updating(__global UpdateTransfer* updateTransfers,
 
         synapseSection->status = transferContainer.deleteEdge + 1;
 
-        updateTransfers[sectionPosition] = transferContainer;
-
+        updateTransfers[i] = transferContainer;
         synapseSections[i] = tempSectionMem[localId_x];
     }
 }
