@@ -41,6 +41,7 @@ public:
     uint32_t neighbors[23];
     uint32_t nodePos = UNINIT_STATE_32;
     uint32_t outputPos = UNINIT_STATE_32;
+    uint32_t activity = 0;
 
     //----------------------------------------------------------------------------------------------
 

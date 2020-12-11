@@ -33,6 +33,7 @@ lernEdge(EdgeSection &section,
 
     // try to create new synapse-section
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.location)];
+    brick->activity++;
     section.randomPos = (section.randomPos + 1) % 1024;
     if(edge.synapseSectionId == UNINIT_STATE_32
             && brick->nodeBrickId != UNINIT_STATE_32
@@ -141,6 +142,7 @@ nextEdgeSectionStep(EdgeSection &section,
     {
         Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(lastLocation)];
         edge->location = brick->getRandomNeighbor(lastLocation);
+        brick->activity++;
     }
 
     if(edge->location >> 24 == 25) {

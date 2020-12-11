@@ -83,16 +83,22 @@ ClientHandler::sendToMonitoring()
 {
     std::string monitoringOutput = "{\"bricks\": [";
     Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+
+    bool found = false;
     for(uint32_t i = 0; i < KyoukoRoot::m_segment->bricks.numberOfItems; i++)
     {
-        if(i != 0) {
-            monitoringOutput += ",";
+        if(brick[i].brickId != UNINIT_STATE_32)
+        {
+            if(found) {
+                monitoringOutput += ",";
+            }
+            const std::string part = "[" + std::to_string(brick[i].brickPos.x)
+                                   + "," + std::to_string(brick[i].brickPos.y)
+                                   + "," + std::to_string(brick[i].activity) + "]";
+            brick[i].activity = 0;
+            monitoringOutput += part;
+            found = true;
         }
-
-        const std::string part = "[" + std::to_string(brick[i].brickPos.x)
-                               + "," + std::to_string(brick[i].brickPos.y)
-                               + "," + std::to_string(100) + "]";
-        monitoringOutput += part;
     }
     monitoringOutput += "]}";
     return sendToMonitoring(monitoringOutput.c_str(), monitoringOutput.size());
