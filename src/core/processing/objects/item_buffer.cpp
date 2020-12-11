@@ -62,6 +62,7 @@ ItemBuffer::initDataBlocks(const uint64_t numberOfItems,
     // update meta-data of the brick
     this->itemSize = itemSize;
     this->itemCapacity = numberOfItems;
+    this->numberOfItems = numberOfItems;
     const uint64_t requiredNumberOfBlocks = ((numberOfItems * itemSize)
                                              / buffer.blockSize) + 1;
 

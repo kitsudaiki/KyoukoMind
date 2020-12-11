@@ -11,12 +11,12 @@
 #include <kyouko_root.h>
 #include <core/processing/objects/edges.h>
 #include <core/processing/objects/transfer_objects.h>
-
 #include <core/processing/objects/brick.h>
 #include <core/processing/objects/segment.h>
 #include <core/processing/objects/item_buffer.h>
-
 #include <core/processing/objects/synapses.h>
+
+#include <core/handler/client_handler.h>
 
 /**
  * @brief lernEdge
@@ -144,7 +144,7 @@ nextEdgeSectionStep(EdgeSection &section,
     }
 
     if(edge->location >> 24 == 25) {
-
+        KyoukoRoot::m_clientHandler->setOutput(edge->location & 0x00FFFFFF, weight);
     }
 
     float ratio = 0.0f;
@@ -311,7 +311,8 @@ updateEdgeSection()
         Edge* edge = &edgeSections[container->targetId].edges[container->positionInEdge];
 
         // process synapse-connection
-        if(container->deleteEdge != 0)
+        if(container->deleteEdge != 0
+                && edge->synapseSectionId != UNINIT_STATE_32)
         {
             assert(KyoukoRoot::m_segment->synapses.deleteDynamicItem(edge->synapseSectionId));
             edge->synapseWeight = 0;

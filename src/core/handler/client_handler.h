@@ -14,13 +14,15 @@ class MessagingClient;
 }
 }
 
-struct ArrayPos {
+struct InputObj
+{
     uint32_t position = 0;
     uint32_t range = 0;
+    float value = 0.0f;
 
-    ArrayPos() {}
+    InputObj() {}
 
-    ArrayPos(const uint32_t position, const uint32_t range)
+    InputObj(const uint32_t position, const uint32_t range)
     {
         this->position = position;
         this->range = range;
@@ -35,8 +37,9 @@ public:
     ClientHandler();
     ~ClientHandler();
 
-    bool sendToClient(const void* data, const uint64_t dataSize);
-    bool sendToMonitoring(const void* data, const uint64_t dataSize);
+    bool sendToClient();
+    bool sendToMonitoring();
+    bool sendToMonitoring(const char* data, const uint64_t dataSize);
 
     void setClientSession(MessagingClient* session);
     void setMonitoringSession(MessagingClient* session);
@@ -44,8 +47,9 @@ public:
     MessagingClient* getClientSession();
     MessagingClient* getMonitoringSession();
 
+    bool insertInput(const std::string &inputData);
     uint32_t registerInput(const uint32_t pos, const uint32_t range);
-    ArrayPos getInput(const uint32_t pos);
+    InputObj getInput(const uint32_t pos);
 
     uint32_t registerOutput();
     void setOutput(const uint32_t pos, const float value);
@@ -62,7 +66,7 @@ private:
     std::vector<float> m_outputs;
 
     std::atomic_flag m_input_lock = ATOMIC_FLAG_INIT;
-    std::vector<ArrayPos> m_inputs;
+    std::vector<InputObj> m_inputs;
 };
 
 #endif // CLIENT_HANDLER_H

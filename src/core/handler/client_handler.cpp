@@ -5,7 +5,12 @@
 
 #include "client_handler.h"
 
+#include <kyouko_root.h>
+#include <core/processing/objects/segment.h>
+
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
+
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 /**
  * @brief ClientHandler::ClientHandler
@@ -14,45 +19,28 @@ ClientHandler::ClientHandler() {}
 
 ClientHandler::~ClientHandler() {}
 
+//==================================================================================================
+
 /**
  * @brief ClientHandler::sendToClient
- * @param data
- * @param dataSize
  * @return
  */
 bool
-ClientHandler::sendToClient(const void *data,
-                            const uint64_t dataSize)
+ClientHandler::sendToClient()
 {
     bool result = false;
     while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    if(m_client != nullptr) {
-        result = m_client->sendStreamData(data, dataSize);;
+    if(m_client != nullptr)
+    {
+        std::string textOutput = "";
+        for(uint32_t i = 0; i < m_outputs.size(); i++) {
+            textOutput += static_cast<char>(m_outputs.at(i));
+        }
+        result = m_client->sendStreamData(textOutput.c_str(), textOutput.size());
     }
 
     m_clientSession_lock.clear(std::memory_order_release);
-    return result;
-}
-
-/**
- * @brief ClientHandler::sendToMonitoring
- * @param data
- * @param dataSize
- * @return
- */
-bool
-ClientHandler::sendToMonitoring(const void *data,
-                                const uint64_t dataSize)
-{
-    bool result = false;
-    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-
-    if(m_monitoring != nullptr) {
-        result = m_monitoring->sendStreamData(data, dataSize);
-    }
-
-    m_monitoringSession_lock.clear(std::memory_order_release);
     return result;
 }
 
@@ -70,19 +58,6 @@ ClientHandler::setClientSession(MessagingClient* session)
 }
 
 /**
- * @brief set net monitoring-session
- *
- * @return pointer to monitoring-session
- */
-void
-ClientHandler::setMonitoringSession(MessagingClient* session)
-{
-    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_monitoring = session;
-    m_monitoringSession_lock.clear(std::memory_order_release);
-}
-
-/**
  * @brief get client session
  *
  * @return pointer to client-session
@@ -95,6 +70,65 @@ ClientHandler::getClientSession()
     session = m_client;
     m_clientSession_lock.clear(std::memory_order_release);
     return session;
+}
+
+//==================================================================================================
+
+/**
+ * @brief ClientHandler::sendToMonitoring
+ * @return
+ */
+bool
+ClientHandler::sendToMonitoring()
+{
+    std::string monitoringOutput = "{\"bricks\": [";
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    for(uint32_t i = 0; i < KyoukoRoot::m_segment->bricks.numberOfItems; i++)
+    {
+        if(i != 0) {
+            monitoringOutput += ",";
+        }
+
+        const std::string part = "[" + std::to_string(brick[i].brickPos.x)
+                               + "," + std::to_string(brick[i].brickPos.y)
+                               + "," + std::to_string(100) + "]";
+        monitoringOutput += part;
+    }
+    monitoringOutput += "]}";
+    return sendToMonitoring(monitoringOutput.c_str(), monitoringOutput.size());
+}
+
+/**
+ * @brief ClientHandler::sendToMonitoring
+ * @param data
+ * @param dataSize
+ * @return
+ */
+bool
+ClientHandler::sendToMonitoring(const char* data, const uint64_t dataSize)
+{
+    bool result = false;
+    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    if(m_monitoring != nullptr) {
+        result = m_monitoring->sendStreamData(data, dataSize);
+    }
+
+    m_monitoringSession_lock.clear(std::memory_order_release);
+    return result;
+}
+
+/**
+ * @brief set net monitoring-session
+ *
+ * @return pointer to monitoring-session
+ */
+void
+ClientHandler::setMonitoringSession(MessagingClient* session)
+{
+    while(m_monitoringSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_monitoring = session;
+    m_monitoringSession_lock.clear(std::memory_order_release);
 }
 
 /**
@@ -112,8 +146,32 @@ ClientHandler::getMonitoringSession()
     return session;
 }
 
+//==================================================================================================
+
+/**
+ * @brief ClientHandler::processInput
+ * @param input
+ * @return
+ */
+bool
+ClientHandler::insertInput(const std::string &inputData)
+{
+    bool result = false;
+    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    if(inputData.size() <= m_inputs.size())
+    {
+        for(uint32_t i = 0; i < inputData.size(); i++) {
+            m_inputs[i].value = static_cast<float>(inputData.at(i));
+        }
+    }
+    m_input_lock.clear(std::memory_order_release);
+    return result;
+}
+
 /**
  * @brief ClientHandler::registerInput
+ * @param pos
+ * @param range
  * @return
  */
 uint32_t
@@ -121,7 +179,7 @@ ClientHandler::registerInput(const uint32_t pos, const uint32_t range)
 {
     uint32_t listPos = 0;
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_inputs.push_back(ArrayPos(pos, range));
+    m_inputs.push_back(InputObj(pos, range));
     listPos = static_cast<uint32_t>(m_inputs.size()) - 1;
     m_input_lock.clear(std::memory_order_release);
     return listPos;
@@ -131,15 +189,17 @@ ClientHandler::registerInput(const uint32_t pos, const uint32_t range)
  * @brief ClientHandler::getInput
  * @return
  */
-ArrayPos
+InputObj
 ClientHandler::getInput(const uint32_t pos)
 {
-    ArrayPos item;
+    InputObj item;
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     item = m_inputs.at(pos);
     m_input_lock.clear(std::memory_order_release);
     return item;
 }
+
+//==================================================================================================
 
 /**
  * @brief ClientHandler::registerOutput
@@ -169,3 +229,5 @@ ClientHandler::setOutput(const uint32_t pos, const float value)
     m_outputs[pos] /= 2.0f;
     m_output_lock.clear(std::memory_order_release);
 }
+
+//==================================================================================================

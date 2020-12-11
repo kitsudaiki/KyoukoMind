@@ -72,33 +72,13 @@ NetworkManager::run()
         KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
         KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
 
+        // monitoring-output
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
         KyoukoRoot::m_clientHandler->sendToMonitoring(meta.c_str(), meta.size());
+        KyoukoRoot::m_clientHandler->sendToMonitoring();
 
-        // debug-output
-        const std::string testClient = "poi";
-        KyoukoRoot::m_clientHandler->sendToClient(testClient.c_str(), testClient.size());
-        m_testMonitoring = "{\"bricks\": [";
-        for(int i = 0; i < 20; i++)
-        {
-            for(int j = 0; j < 20; j++)
-            {
-                if(i == 0 && j == 0) {
-                    m_testMonitoring += "";
-                } else {
-                    m_testMonitoring += ",";
-                }
-
-                const int rand = std::rand() % 400;
-                const std::string part = "[" + std::to_string(i)
-                                       + "," + std::to_string(j)
-                                       + "," + std::to_string(rand) + "]";
-                m_testMonitoring += part;
-            }
-        }
-        m_testMonitoring += "]}";
-        KyoukoRoot::m_clientHandler->sendToMonitoring(m_testMonitoring.c_str(),
-                                                      m_testMonitoring.size());
+        // client-output
+        KyoukoRoot::m_clientHandler->sendToClient();
     }
 }
 

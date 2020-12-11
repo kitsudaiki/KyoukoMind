@@ -23,6 +23,7 @@
 #include "register_input_blossom.h"
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+#include <core/handler/client_handler.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -37,16 +38,16 @@ RegisterInputBlossom::RegisterInputBlossom()
 
 bool
 RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
-                              std::string &)
+                              std::string &errorMessage)
 {
-    LOG_DEBUG("register output");
+    LOG_DEBUG("register input");
 
     Kitsunemimi::DataMap* input = &blossomLeaf.input;
     const uint32_t position = static_cast<uint32_t>(input->get("position")->toValue()->getInt());
     const uint32_t range = static_cast<uint32_t>(input->get("range")->toValue()->getInt());
 
-
-    //blossomLeaf.output.insert("id", new DataValue(pos));
+    const uint32_t id = KyoukoRoot::m_clientHandler->registerInput(position, range);
+    blossomLeaf.output.insert("id", new DataValue(static_cast<int>(id)));
 
     return true;
 }
