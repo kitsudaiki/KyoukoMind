@@ -5,8 +5,8 @@
 
 #include "network_initializer.h"
 #include <kyouko_root.h>
-#include <core/processing/objects/segment.h>
-#include <core/processing/objects/global_values.h>
+#include <core/objects/segment.h>
+#include <core/objects/global_values.h>
 
 #include <initializing/axon_initializer.h>
 #include <initializing/file_parser.h>

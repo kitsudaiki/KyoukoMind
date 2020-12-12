@@ -9,10 +9,10 @@
 #include <libKitsunemimiOpencl/gpu_interface.h>
 #include <libKitsunemimiCommon/threading/barrier.h>
 
-#include <core/processing/objects/transfer_objects.h>
-#include <core/processing/objects/node.h>
+#include <core/objects/transfer_objects.h>
+#include <core/objects/node.h>
 
-#include <core/processing/objects/segment.h>
+#include <core/objects/segment.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 

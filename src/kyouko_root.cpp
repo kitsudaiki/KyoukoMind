@@ -6,10 +6,10 @@
 #include <kyouko_root.h>
 
 #include <core/network_manager.h>
-#include <core/processing/objects/segment.h>
+#include <core/objects/segment.h>
 #include <core/validation.h>
-#include <core/handler/client_connection_handler.h>
-#include <core/handler/monitoring_connection_handler.h>
+#include <core/connection_handler/client_connection_handler.h>
+#include <core/connection_handler/monitoring_connection_handler.h>
 
 #include <libKitsunemimiPersistence/files/file_methods.h>
 #include <libKitsunemimiPersistence/files/text_file.h>

@@ -1,11 +1,11 @@
 #include "segment_initializing.h"
 
-#include <core/processing/objects/segment.h>
+#include <core/objects/segment.h>
 
-#include <core/processing/objects/transfer_objects.h>
-#include <core/processing/objects/node.h>
-#include <core/processing/objects/synapses.h>
-#include <core/processing/objects/global_values.h>
+#include <core/objects/transfer_objects.h>
+#include <core/objects/node.h>
+#include <core/objects/synapses.h>
+#include <core/objects/global_values.h>
 
 /**
  * @brief NetworkSegment::initBricks

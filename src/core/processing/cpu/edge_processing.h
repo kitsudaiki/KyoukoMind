@@ -9,14 +9,14 @@
 #include <common.h>
 
 #include <kyouko_root.h>
-#include <core/processing/objects/edges.h>
-#include <core/processing/objects/transfer_objects.h>
-#include <core/processing/objects/brick.h>
-#include <core/processing/objects/segment.h>
-#include <core/processing/objects/item_buffer.h>
-#include <core/processing/objects/synapses.h>
+#include <core/objects/edges.h>
+#include <core/objects/transfer_objects.h>
+#include <core/objects/brick.h>
+#include <core/objects/segment.h>
+#include <core/objects/item_buffer.h>
+#include <core/objects/synapses.h>
 
-#include <core/handler/client_connection_handler.h>
+#include <core/connection_handler/client_connection_handler.h>
 
 /**
  * @brief lernEdge

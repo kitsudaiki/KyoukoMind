@@ -24,8 +24,8 @@
 #define CALLBACKS_H
 
 #include <kyouko_root.h>
-#include <core/handler/client_connection_handler.h>
-#include <core/handler/monitoring_connection_handler.h>
+#include <core/connection_handler/client_connection_handler.h>
+#include <core/connection_handler/monitoring_connection_handler.h>
 
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>

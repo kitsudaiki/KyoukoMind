@@ -5,15 +5,15 @@
 
 #include "validation.h"
 
-#include <core/processing/objects/item_buffer.h>
-#include <core/processing/objects/segment.h>
+#include <core/objects/item_buffer.h>
+#include <core/objects/segment.h>
 
-#include <core/processing/objects/global_values.h>
-#include <core/processing/objects/brick.h>
-#include <core/processing/objects/node.h>
-#include <core/processing/objects/synapses.h>
-#include <core/processing/objects/edges.h>
-#include <core/processing/objects/container_definitions.h>
+#include <core/objects/global_values.h>
+#include <core/objects/brick.h>
+#include <core/objects/node.h>
+#include <core/objects/synapses.h>
+#include <core/objects/edges.h>
+#include <core/objects/container_definitions.h>
 
 void
 validateStructSizes()

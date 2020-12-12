@@ -7,14 +7,14 @@
 
 #include <kyouko_root.h>
 
-#include <core/processing/objects/global_values.h>
-#include <core/processing/objects/brick.h>
-#include <core/processing/objects/edges.h>
-#include <core/processing/objects/node.h>
+#include <core/objects/global_values.h>
+#include <core/objects/brick.h>
+#include <core/objects/edges.h>
+#include <core/objects/node.h>
 #include <core/processing/cpu/edge_processing.h>
 
-#include <core/processing/objects/item_buffer.h>
-#include <core/processing/objects/segment.h>
+#include <core/objects/item_buffer.h>
+#include <core/objects/segment.h>
 
 /**
  * @brief convertPos

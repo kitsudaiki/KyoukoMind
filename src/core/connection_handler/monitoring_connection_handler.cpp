@@ -6,7 +6,7 @@
 #include "monitoring_connection_handler.h"
 
 #include <kyouko_root.h>
-#include <core/processing/objects/segment.h>
+#include <core/objects/segment.h>
 
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 

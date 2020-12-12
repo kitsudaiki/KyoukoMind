@@ -86,18 +86,18 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/processing/objects/brick.h \
-    src/core/processing/objects/global_values.h \
-    src/core/processing/objects/item_buffer.h \
-    src/core/processing/objects/segment.h \
+    src/core/objects/brick.h \
+    src/core/objects/global_values.h \
+    src/core/objects/item_buffer.h \
+    src/core/objects/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/cpu/edge_processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
-    src/core/processing/objects/container_definitions.h \
-    src/core/processing/objects/edges.h \
-    src/core/processing/objects/node.h \
-    src/core/processing/objects/synapses.h \
-    src/core/processing/objects/transfer_objects.h \
+    src/core/objects/container_definitions.h \
+    src/core/objects/edges.h \
+    src/core/objects/node.h \
+    src/core/objects/synapses.h \
+    src/core/objects/transfer_objects.h \
     src/core/processing/processing_unit_handler.h \
     src/core/network_manager.h \
     src/import_export/obj_converter.h \
@@ -117,13 +117,13 @@ HEADERS += \
     src/blossoms/learn_blossom.h \
     src/blossoms/metadata_blossom.h \
     src/blossoms/print_blossom.h \
-    src/core/handler/monitoring_connection_handler.h \
-    src/core/handler/client_connection_handler.h
+    src/core/connection_handler/monitoring_connection_handler.h \
+    src/core/connection_handler/client_connection_handler.h
 
 SOURCES += \
-    src/core/processing/objects/brick.cpp \
-    src/core/processing/objects/item_buffer.cpp \
-    src/core/processing/objects/segment.cpp \
+    src/core/objects/brick.cpp \
+    src/core/objects/item_buffer.cpp \
+    src/core/objects/segment.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/network_manager.cpp \
@@ -140,8 +140,8 @@ SOURCES += \
     src/blossoms/learn_blossom.cpp \
     src/blossoms/metadata_blossom.cpp \
     src/blossoms/print_blossom.cpp \
-    src/core/handler/monitoring_connection_handler.cpp \
-    src/core/handler/client_connection_handler.cpp
+    src/core/connection_handler/monitoring_connection_handler.cpp \
+    src/core/connection_handler/client_connection_handler.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

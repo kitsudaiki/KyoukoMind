@@ -10,11 +10,11 @@
 
 #include <libKitsunemimiCommon/threading/barrier.h>
 
-#include <core/processing/objects/segment.h>
+#include <core/objects/segment.h>
 
-#include <core/processing/objects/global_values.h>
-#include <core/processing/objects/brick.h>
-#include <core/processing/objects/transfer_objects.h>
+#include <core/objects/global_values.h>
+#include <core/objects/brick.h>
+#include <core/objects/transfer_objects.h>
 
 #include <core/processing/cpu/edge_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>

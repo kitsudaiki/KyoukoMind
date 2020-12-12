@@ -23,7 +23,7 @@
 #include "register_input_blossom.h"
 
 #include <libKitsunemimiPersistence/logger/logger.h>
-#include <core/handler/client_connection_handler.h>
+#include <core/connection_handler/client_connection_handler.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;

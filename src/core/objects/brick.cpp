@@ -5,9 +5,9 @@
 
 #include "brick.h"
 
-#include <core/processing/objects/segment.h>
-#include <core/processing/objects/node.h>
-#include <core/processing/objects/edges.h>
+#include <core/objects/segment.h>
+#include <core/objects/node.h>
+#include <core/objects/edges.h>
 
 #include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
