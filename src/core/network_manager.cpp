@@ -14,7 +14,8 @@
 #include <libKitsunemimiPersistence/files/text_file.h>
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/handler/client_handler.h>
+#include <core/handler/client_connection_handler.h>
+#include <core/handler/monitoring_connection_handler.h>
 #include <core/processing/objects/brick.h>
 
 #include <initializing/file_parser.h>
@@ -74,8 +75,8 @@ NetworkManager::run()
 
         // monitoring-output
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
-        KyoukoRoot::m_clientHandler->sendToMonitoring(meta.c_str(), meta.size());
-        KyoukoRoot::m_clientHandler->sendToMonitoring();
+        KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
+        KyoukoRoot::m_monitoringHandler->sendToMonitoring();
 
         // client-output
         KyoukoRoot::m_clientHandler->sendToClient();

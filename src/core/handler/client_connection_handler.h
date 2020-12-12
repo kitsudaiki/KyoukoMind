@@ -31,21 +31,17 @@ struct InputObj
 
 using Kitsunemimi::Sakura::MessagingClient;
 
-class ClientHandler
+class ClientConnectionHandler
 {
 public:
-    ClientHandler();
-    ~ClientHandler();
+    ClientConnectionHandler();
+    ~ClientConnectionHandler();
 
     bool sendToClient();
-    bool sendToMonitoring();
-    bool sendToMonitoring(const char* data, const uint64_t dataSize);
 
     void setClientSession(MessagingClient* session);
-    void setMonitoringSession(MessagingClient* session);
 
     MessagingClient* getClientSession();
-    MessagingClient* getMonitoringSession();
 
     bool insertInput(const std::string &inputData);
     uint32_t registerInput(const uint32_t pos, const uint32_t range);
@@ -57,10 +53,6 @@ public:
 private:
     std::atomic_flag m_clientSession_lock = ATOMIC_FLAG_INIT;
     MessagingClient* m_client = nullptr;
-
-    std::atomic_flag m_monitoringSession_lock = ATOMIC_FLAG_INIT;
-    MessagingClient* m_monitoring = nullptr;
-
 
     std::atomic_flag m_output_lock = ATOMIC_FLAG_INIT;
     std::vector<float> m_outputs;

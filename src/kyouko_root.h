@@ -12,7 +12,8 @@
 class NetworkManager;
 class Segment;
 class Brick;
-class ClientHandler;
+class ClientConnectionHandler;
+class MonitoringConnectionHandler;
 
 class KyoukoRoot
 {
@@ -23,7 +24,8 @@ public:
 
     static KyoukoRoot* m_root;
     static Segment* m_segment;
-    static ClientHandler* m_clientHandler;
+    static ClientConnectionHandler* m_clientHandler;
+    static MonitoringConnectionHandler* m_monitoringHandler;
 
     static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;
     static Kitsunemimi::Kyouko::MonitoringProcessingTimes monitoringMetaMessage;

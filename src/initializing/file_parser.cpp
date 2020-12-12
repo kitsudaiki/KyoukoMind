@@ -8,6 +8,8 @@
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
 #include <libKitsunemimiCommon/common_methods/vector_methods.h>
 
+#include <libKitsunemimiPersistence/logger/logger.h>
+
 /**
  * @brief parse2dTestfile
  * @param fileContent

@@ -8,7 +8,8 @@
 #include <core/network_manager.h>
 #include <core/processing/objects/segment.h>
 #include <core/validation.h>
-#include <core/handler/client_handler.h>
+#include <core/handler/client_connection_handler.h>
+#include <core/handler/monitoring_connection_handler.h>
 
 #include <libKitsunemimiPersistence/files/file_methods.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -31,7 +32,8 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 Segment* KyoukoRoot::m_segment = nullptr;
-ClientHandler* KyoukoRoot::m_clientHandler = nullptr;
+ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
+MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
 
 Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
 Kitsunemimi::Kyouko::MonitoringProcessingTimes KyoukoRoot::monitoringMetaMessage;
@@ -50,7 +52,8 @@ KyoukoRoot::KyoukoRoot()
 
     m_root = this;
     m_segment = new Segment();
-    m_clientHandler = new ClientHandler();
+    m_clientHandler = new ClientConnectionHandler();
+    m_monitoringHandler = new MonitoringConnectionHandler();
 }
 
 /**

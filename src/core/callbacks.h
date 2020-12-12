@@ -24,7 +24,8 @@
 #define CALLBACKS_H
 
 #include <kyouko_root.h>
-#include <core/handler/client_handler.h>
+#include <core/handler/client_connection_handler.h>
+#include <core/handler/monitoring_connection_handler.h>
 
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
@@ -75,7 +76,7 @@ sessionCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
     if(identifier == "monitoring")
     {
         session->setStreamMessageCallback(&monitoringDataCallback);
-        KyoukoRoot::m_clientHandler->setMonitoringSession(session);
+        KyoukoRoot::m_monitoringHandler->setMonitoringSession(session);
     }
 }
 
@@ -86,7 +87,7 @@ sessionCloseCallback(const std::string identifier)
         KyoukoRoot::m_clientHandler->setClientSession(nullptr);
     }
     if(identifier == "monitoring") {
-        KyoukoRoot::m_clientHandler->setMonitoringSession(nullptr);
+        KyoukoRoot::m_monitoringHandler->setMonitoringSession(nullptr);
     }
 }
 

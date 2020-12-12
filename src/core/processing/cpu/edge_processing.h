@@ -16,7 +16,7 @@
 #include <core/processing/objects/item_buffer.h>
 #include <core/processing/objects/synapses.h>
 
-#include <core/handler/client_handler.h>
+#include <core/handler/client_connection_handler.h>
 
 /**
  * @brief lernEdge
@@ -35,6 +35,7 @@ lernEdge(EdgeSection &section,
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.location)];
     brick->activity++;
     section.randomPos = (section.randomPos + 1) % 1024;
+
     if(edge.synapseSectionId == UNINIT_STATE_32
             && brick->nodeBrickId != UNINIT_STATE_32
             && randValues[section.randomPos] % 5 == 0
@@ -49,7 +50,6 @@ lernEdge(EdgeSection &section,
     }
 
     // update weight in current edge
-
     if(pos < 128)
     {
         float edgeWeight = weight;
