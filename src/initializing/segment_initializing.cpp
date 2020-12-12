@@ -21,14 +21,7 @@ initBricks(Segment &segment,
         return false;
     }
 
-    // fill array with empty nodes
-    Brick* array = getBuffer<Brick>(segment.bricks);
-    for(uint32_t i = 0; i < numberOfBricks; i++)
-    {
-        Brick tempBrick;
-        array[i] = tempBrick;
-    }
-
+    segment.bricks.numberOfItems = numberOfBricks;
     return true;
 }
 

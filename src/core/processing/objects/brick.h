@@ -40,7 +40,6 @@ public:
     // 22: the current brick
     uint32_t neighbors[23];
     uint32_t nodePos = UNINIT_STATE_32;
-    uint32_t outputPos = UNINIT_STATE_32;
     uint32_t activity = 0;
 
     //----------------------------------------------------------------------------------------------
@@ -57,6 +56,15 @@ public:
                        Brick &targetBrick);
     bool disconnectBricks(const uint8_t sourceSide);
 
+    uint32_t registerInput();
+    void setInputValue(const uint32_t pos, const float value);
+    const std::vector<float> getInputValues();
+
+    uint32_t registerOutput();
+    void setOutputValue(const uint32_t pos, const float value);
+    uint32_t getNumberOfOutputValues();
+    const std::vector<float> getOutputValues();
+
 private:
     void initNeighborList();
 
@@ -65,6 +73,13 @@ private:
     bool uninitNeighbor(const uint8_t side);
 
     const PossibleNext getPossibleNext(const uint8_t inputSide);
+
+
+    std::vector<float> m_inputs;
+    std::atomic_flag m_input_lock = ATOMIC_FLAG_INIT;
+
+    std::vector<float> m_outputs;
+    std::atomic_flag m_output_lock = ATOMIC_FLAG_INIT;
 };
 
 #endif // BRICK_H

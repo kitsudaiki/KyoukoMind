@@ -136,17 +136,17 @@ nextEdgeSectionStep(EdgeSection &section,
 
     // get initial values
     Edge* edge = &section.edges[pos];
+    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(lastLocation)];
 
     // init new edge, if necessary
     if(getBrickId(edge->location) == UNINIT_STATE_24)
     {
-        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(lastLocation)];
         edge->location = brick->getRandomNeighbor(lastLocation);
         brick->activity++;
     }
 
     if(edge->location >> 24 == 25) {
-        KyoukoRoot::m_clientHandler->setOutput(edge->location & 0x00FFFFFF, weight);
+        brick->setOutputValue(edge->location & 0x00FFFFFF, weight);
     }
 
     float ratio = 0.0f;

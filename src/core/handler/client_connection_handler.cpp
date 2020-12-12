@@ -9,7 +9,7 @@
 #include <core/processing/objects/segment.h>
 
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
-
+#include <libKitsunemimiJson/json_item.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 /**
@@ -34,8 +34,10 @@ ClientConnectionHandler::sendToClient()
     if(m_client != nullptr)
     {
         std::string textOutput = "";
-        for(uint32_t i = 0; i < m_outputs.size(); i++) {
-            textOutput += static_cast<char>(m_outputs.at(i));
+        Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+        const std::vector<float> output = brick[m_outputBrick].getOutputValues();
+        for(uint32_t i = 0; i < output.size(); i++) {
+            textOutput += static_cast<char>(output.at(i));
         }
         result = m_client->sendStreamData(textOutput.c_str(), textOutput.size());
     }
@@ -72,6 +74,32 @@ ClientConnectionHandler::getClientSession()
     return session;
 }
 
+/**
+ * @brief ClientConnectionHandler::registerInput
+ * @param brickId
+ * @return
+ */
+uint32_t
+ClientConnectionHandler::registerInput(const uint32_t brickId)
+{
+    m_inputBrick = brickId;
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    return brick[brickId].registerInput();
+}
+
+/**
+ * @brief ClientConnectionHandler::registerOutput
+ * @param brickId
+ * @return
+ */
+uint32_t
+ClientConnectionHandler::registerOutput(const uint32_t brickId)
+{
+    m_outputBrick = brickId;
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    return brick[brickId].registerOutput();
+}
+
 //==================================================================================================
 
 /**
@@ -82,78 +110,20 @@ ClientConnectionHandler::getClientSession()
 bool
 ClientConnectionHandler::insertInput(const std::string &inputData)
 {
-    bool result = false;
-    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    if(inputData.size() <= m_inputs.size())
+    JsonItem jsonItem;
+    std::string errorMessage = "";
+    if(jsonItem.parse(inputData, errorMessage) == false)
     {
-        for(uint32_t i = 0; i < inputData.size(); i++) {
-            m_inputs[i].value = static_cast<float>(inputData.at(i));
-        }
+        LOG_ERROR(errorMessage);
+        return false;
     }
-    m_input_lock.clear(std::memory_order_release);
-    return result;
+
+    DataArray* array = jsonItem.getItemContent()->toArray();
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    for(uint32_t i = 0; i < array->size(); i++) {
+        brick[m_inputBrick].setInputValue(i, array->get(i)->getFloat());
+    }
+
+    return true;
 }
 
-/**
- * @brief ClientHandler::registerInput
- * @param pos
- * @param range
- * @return
- */
-uint32_t
-ClientConnectionHandler::registerInput(const uint32_t pos, const uint32_t range)
-{
-    uint32_t listPos = 0;
-    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_inputs.push_back(InputObj(pos, range));
-    listPos = static_cast<uint32_t>(m_inputs.size()) - 1;
-    m_input_lock.clear(std::memory_order_release);
-    return listPos;
-}
-
-/**
- * @brief ClientHandler::getInput
- * @return
- */
-InputObj
-ClientConnectionHandler::getInput(const uint32_t pos)
-{
-    InputObj item;
-    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    item = m_inputs.at(pos);
-    m_input_lock.clear(std::memory_order_release);
-    return item;
-}
-
-//==================================================================================================
-
-/**
- * @brief ClientHandler::registerOutput
- * @return
- */
-uint32_t
-ClientConnectionHandler::registerOutput()
-{
-    uint32_t pos = 0;
-    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_outputs.push_back(0.0f);
-    pos = static_cast<uint32_t>(m_outputs.size()) - 1;
-    m_output_lock.clear(std::memory_order_release);
-    return pos;
-}
-
-/**
- * @brief ClientHandler::setOutput
- * @param pos
- * @param value
- */
-void
-ClientConnectionHandler::setOutput(const uint32_t pos, const float value)
-{
-    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_outputs[pos] += value;
-    m_outputs[pos] /= 2.0f;
-    m_output_lock.clear(std::memory_order_release);
-}
-
-//==================================================================================================

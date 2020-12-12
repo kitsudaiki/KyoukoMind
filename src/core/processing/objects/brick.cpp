@@ -62,9 +62,10 @@ Brick::getRandomNeighbor(const uint32_t location)
     const PossibleNext next = getPossibleNext(inputSide);
 
     // in case of an output
-    if(outputPos != UNINIT_STATE_32
+    if(m_outputs.size() > 0
             && rand() % 4 == 0)
     {
+        const uint32_t outputPos = static_cast<uint32_t>(rand() % m_outputs.size());
         const uint32_t nextLocation = outputPos + (static_cast<uint32_t>(25) << 24);
         return nextLocation;
     }
@@ -142,6 +143,111 @@ Brick::disconnectBricks(const uint8_t sourceSide)
     targetBrick->uninitNeighbor(23 - sourceSide);
 
     return true;
+}
+
+/**
+ * @brief Brick::registerInput
+ * @return
+ */
+uint32_t
+Brick::registerInput()
+{
+    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    m_inputs.push_back(0.0f);
+    const uint32_t listPos = static_cast<uint32_t>(m_inputs.size()) - 1;
+    m_input_lock.clear(std::memory_order_release);
+    return listPos;
+}
+
+/**
+ * @brief Brick::setInputValue
+ * @param pos
+ * @param value
+ */
+void
+Brick::setInputValue(const uint32_t pos, const float value)
+{
+    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    for(uint32_t i = pos * 10; i < (pos * 10) + 10; i++) {
+        m_inputs[i] = value;
+    }
+    m_input_lock.clear(std::memory_order_release);
+}
+
+/**
+ * @brief Brick::getInputValues
+ * @return
+ */
+const std::vector<float>
+Brick::getInputValues()
+{
+    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    const std::vector<float> copy = m_inputs;
+    m_input_lock.clear(std::memory_order_release);
+    return copy;
+}
+
+/**
+ * @brief Brick::registerOutput
+ * @return
+ */
+uint32_t
+Brick::registerOutput()
+{
+    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_outputs.push_back(0.0f);
+    const uint32_t listPos = static_cast<uint32_t>(m_outputs.size()) - 1;
+    m_output_lock.clear(std::memory_order_release);
+    return listPos;
+}
+
+/**
+ * @brief Brick::setOutputValue
+ * @param pos
+ * @param value
+ */
+void
+Brick::setOutputValue(const uint32_t pos, const float value)
+{
+    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_outputs[pos] += value;
+    m_outputs[pos] /= 2.0f;
+    m_output_lock.clear(std::memory_order_release);
+}
+
+/**
+ * @brief Brick::getNumberOfOutputValues
+ * @return
+ */
+uint32_t
+Brick::getNumberOfOutputValues()
+{
+    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    const uint32_t size = static_cast<uint32_t>(m_outputs.size());
+    m_output_lock.clear(std::memory_order_release);
+    return size;
+}
+
+/**
+ * @brief Brick::getOutputValues
+ * @return
+ */
+const std::vector<float>
+Brick::getOutputValues()
+{
+    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    const std::vector<float> copy = m_outputs;
+    m_output_lock.clear(std::memory_order_release);
+    return copy;
 }
 
 /**

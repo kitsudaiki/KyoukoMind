@@ -46,7 +46,7 @@ RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
     const uint32_t position = static_cast<uint32_t>(input->get("position")->toValue()->getInt());
     const uint32_t range = static_cast<uint32_t>(input->get("range")->toValue()->getInt());
 
-    const uint32_t id = KyoukoRoot::m_clientHandler->registerInput(position, range);
+    const uint32_t id = 0;
     blossomLeaf.output.insert("id", new DataValue(static_cast<int>(id)));
 
     return true;
