@@ -36,11 +36,52 @@ Brick::Brick(const uint32_t &brickId,
     this->brickPos.x = x;
     this->brickPos.y = y;
 
-    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].xPos = brickPos.x;
-    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].yPos = brickPos.y;
-    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].brickId = brickId;
-
+    updateMonitoringMetadata();
     initNeighborList();
+}
+
+/**
+ * @brief Brick::Brick
+ * @param other
+ */
+Brick::Brick(const Brick &other)
+{
+    if(this != &other)
+    {
+        this->brickId = other.brickId;
+        this->nodeBrickId = other.nodeBrickId;
+        this->brickPos = other.brickPos;
+        this->nodePos = other.nodePos;
+        this->activity = other.activity;
+
+        for(uint32_t i = 0; i < 23; i++) {
+            this->neighbors[i] = other.neighbors[i];
+        }
+    }
+}
+
+/**
+ * @brief Brick::operator =
+ * @param other
+ * @return
+ */
+Brick
+&Brick::operator=(const Brick &other)
+{
+    if(this != &other)
+    {
+        this->brickId = other.brickId;
+        this->nodeBrickId = other.nodeBrickId;
+        this->brickPos = other.brickPos;
+        this->nodePos = other.nodePos;
+        this->activity = other.activity;
+
+        for(uint32_t i = 0; i < 23; i++) {
+            this->neighbors[i] = other.neighbors[i];
+        }
+    }
+
+    return *this;
 }
 
 /**
@@ -336,6 +377,17 @@ Brick::getPossibleNext(const uint8_t inputSide)
     }
 
     return next;
+}
+
+/**
+ * @brief Brick::updateMonitoringMetadata
+ */
+void
+Brick::updateMonitoringMetadata()
+{
+    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].xPos = brickPos.x;
+    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].yPos = brickPos.y;
+    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].brickId = brickId;
 }
 
 /**

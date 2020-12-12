@@ -22,6 +22,15 @@ initBricks(Segment &segment,
     }
 
     segment.bricks.numberOfItems = numberOfBricks;
+
+    // fill array with empty nodes
+    Brick* array = getBuffer<Brick>(segment.bricks);
+    for(uint32_t i = 0; i < numberOfBricks; i++)
+    {
+        Brick tempBrick;
+        array[i] = tempBrick;
+    }
+
     return true;
 }
 

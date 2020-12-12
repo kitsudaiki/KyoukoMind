@@ -48,6 +48,10 @@ public:
     Brick(const uint32_t &brickId,
           const uint32_t x,
           const uint32_t y);
+
+    Brick(const Brick &other);
+    Brick& operator=(const Brick &other);
+
     ~Brick();
 
     uint32_t getRandomNeighbor(const uint32_t location);
@@ -73,6 +77,7 @@ private:
     bool uninitNeighbor(const uint8_t side);
 
     const PossibleNext getPossibleNext(const uint8_t inputSide);
+    void updateMonitoringMetadata();
 
 
     std::vector<float> m_inputs;

@@ -129,11 +129,11 @@ NetworkInitializer::addBricks(Segment &segment)
                     break;
                 case 2:
                 {
+                    Brick newBrick(brickId, x, y);
+                    newBrick.nodeBrickId = UNINIT_STATE_32;
+
                     // segment.bricks.addNewItem(newBrick, true);
-                    Brick* brick = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
-                    brick->brickId = brickId;
-                    brick->brickPos.x = x;
-                    brick->brickPos.y = y;
+                    getBuffer<Brick>(segment.bricks)[numberOfBricks] = newBrick;
 
                     Brick* ptr = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
                     m_networkMetaStructure[x][y].brick = ptr;
@@ -143,17 +143,16 @@ NetworkInitializer::addBricks(Segment &segment)
                 }
                 case 3:
                 {
+                    //Brick* brick = new Brick(brickId, x, y);
+                    Brick newBrick(brickId, x, y);
+                    newBrick.nodeBrickId = numberOfNodeBricks;
+
                     const uint32_t nodePos = numberOfNodeBricks * globalValues->numberOfNodesPerBrick;
                     assert(nodePos < 0x7FFFFFFF);
+                    newBrick.nodePos = nodePos;
 
                     // segment.bricks.addNewItem(newBrick, true);
-                    Brick* brick = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
-                    brick->brickId = brickId;
-                    brick->brickPos.x = x;
-                    brick->brickPos.y = y;
-                    brick->nodePos = nodePos;
-                    brick->nodeBrickId = numberOfNodeBricks;
-
+                    getBuffer<Brick>(segment.bricks)[numberOfBricks] = newBrick;
                     Brick* ptr = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
                     m_networkMetaStructure[x][y].brick = ptr;
 
@@ -162,6 +161,7 @@ NetworkInitializer::addBricks(Segment &segment)
 
                     break;
                 }
+
                 default:
                     break;
             }
