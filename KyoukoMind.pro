@@ -118,7 +118,8 @@ HEADERS += \
     src/blossoms/metadata_blossom.h \
     src/blossoms/print_blossom.h \
     src/core/connection_handler/monitoring_connection_handler.h \
-    src/core/connection_handler/client_connection_handler.h
+    src/core/connection_handler/client_connection_handler.h \
+    src/blossoms/get_node_brick_ids_blossom.h
 
 SOURCES += \
     src/core/objects/brick.cpp \
@@ -141,7 +142,8 @@ SOURCES += \
     src/blossoms/metadata_blossom.cpp \
     src/blossoms/print_blossom.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \
-    src/core/connection_handler/client_connection_handler.cpp
+    src/core/connection_handler/client_connection_handler.cpp \
+    src/blossoms/get_node_brick_ids_blossom.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

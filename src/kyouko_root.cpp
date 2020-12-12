@@ -26,6 +26,7 @@
 #include <src/blossoms/learn_blossom.h>
 #include <src/blossoms/metadata_blossom.h>
 #include <src/blossoms/print_blossom.h>
+#include <src/blossoms/get_node_brick_ids_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -96,6 +97,9 @@ KyoukoRoot::initBlossoms()
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "print",
                                                           new PrintBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "get_node_brick_ids",
+                                                          new GetNodeBrickIds_Blossom()));
 }
 
 /**
