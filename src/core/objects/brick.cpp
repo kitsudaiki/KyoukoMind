@@ -204,8 +204,9 @@ Brick::registerInput()
     m_inputs.push_back(0.0f);
     m_inputs.push_back(0.0f);
     m_inputs.push_back(0.0f);
-    const uint32_t listPos = static_cast<uint32_t>(m_inputs.size()) - 1;
+    const uint32_t listPos = static_cast<uint32_t>(m_inputs.size() / 10) - 1;
     m_input_lock.clear(std::memory_order_release);
+
     return listPos;
 }
 
