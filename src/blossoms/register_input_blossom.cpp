@@ -46,7 +46,7 @@ RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
     const uint32_t brickId = static_cast<uint32_t>(input->get("brickId")->toValue()->getInt());
 
     Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    if(KyoukoRoot::m_segment->bricks.numberOfItems >= brickId)
+    if(brickId >= KyoukoRoot::m_segment->bricks.numberOfItems)
     {
         errorMessage = "brickId " + std::to_string(brickId) + " is too high";
         return false;

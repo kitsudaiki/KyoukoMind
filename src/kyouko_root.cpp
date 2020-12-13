@@ -47,10 +47,6 @@ KyoukoRoot::KyoukoRoot()
 {
     validateStructSizes();
 
-    // test
-    RegisterInputBlossom* newBlossom = new RegisterInputBlossom();
-    SakuraLangInterface::getInstance()->addBlossom("test1",  "test2", newBlossom);
-
     m_root = this;
     m_segment = new Segment();
     m_clientHandler = new ClientConnectionHandler();

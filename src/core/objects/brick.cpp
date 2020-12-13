@@ -13,7 +13,7 @@
 #include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
 
-#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 /**
  * @brief Brick::Brick
