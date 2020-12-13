@@ -42,12 +42,14 @@ CpuProcessingUnit::run()
         m_phase1->triggerBarrier();
         m_phase2->triggerBarrier();
 
+        // process update-messages
         start = std::chrono::system_clock::now();
         updateEdgeSection();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.cpuUpdate = timeValue;
 
+        // process edge-messages
         start = std::chrono::system_clock::now();
         processEdgeSection();
         end = std::chrono::system_clock::now();

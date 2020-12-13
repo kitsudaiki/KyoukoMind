@@ -17,7 +17,7 @@ struct Edge
     float synapseWeight = 0.0f;
     float edgeWeight = 0.0f;
     uint32_t synapseSectionId = UNINIT_STATE_32;
-    uint32_t location = UNINIT_STATE_32;
+    uint32_t brickLocation = UNINIT_STATE_32;
     // total size: 16 Byte
 } __attribute__((packed));
 
