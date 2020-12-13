@@ -116,10 +116,10 @@ HEADERS += \
     src/blossoms/register_output_blossom.h \
     src/blossoms/learn_blossom.h \
     src/blossoms/metadata_blossom.h \
-    src/blossoms/print_blossom.h \
     src/core/connection_handler/monitoring_connection_handler.h \
     src/core/connection_handler/client_connection_handler.h \
-    src/blossoms/get_node_brick_ids_blossom.h
+    src/blossoms/get_node_brick_ids_blossom.h \
+    src/blossoms/special_blossoms.h
 
 SOURCES += \
     src/core/objects/brick.cpp \
@@ -140,10 +140,10 @@ SOURCES += \
     src/blossoms/register_output_blossom.cpp \
     src/blossoms/learn_blossom.cpp \
     src/blossoms/metadata_blossom.cpp \
-    src/blossoms/print_blossom.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \
     src/core/connection_handler/client_connection_handler.cpp \
-    src/blossoms/get_node_brick_ids_blossom.cpp
+    src/blossoms/get_node_brick_ids_blossom.cpp \
+    src/blossoms/speacal_blossom.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

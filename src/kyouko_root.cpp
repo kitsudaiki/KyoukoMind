@@ -25,7 +25,7 @@
 #include <src/blossoms/register_output_blossom.h>
 #include <src/blossoms/learn_blossom.h>
 #include <src/blossoms/metadata_blossom.h>
-#include <src/blossoms/print_blossom.h>
+#include <src/blossoms/special_blossoms.h>
 #include <src/blossoms/get_node_brick_ids_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
@@ -95,11 +95,18 @@ KyoukoRoot::initBlossoms()
                                                           "learn",
                                                           new LearnBlossom()));
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "get_node_brick_ids",
+                                                          new GetNodeBrickIds_Blossom()));
+
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "print",
                                                           new PrintBlossom()));
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "get_node_brick_ids",
-                                                          new GetNodeBrickIds_Blossom()));
+                                                          "assert",
+                                                          new AssertBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "item_update",
+                                                          new ItemUpdateBlossom()));
 }
 
 /**
@@ -154,6 +161,8 @@ KyoukoRoot::learn(const std::string &input,
                   const std::string &should,
                   std::string &errorMessage)
 {
+    LOG_WARNING("input: " + input);
+    LOG_WARNING("should: " + should);
     return true;
 }
 
