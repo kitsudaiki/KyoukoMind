@@ -46,11 +46,19 @@ RegisterOutputBlossom::runTask(BlossomLeaf &blossomLeaf,
     const uint32_t brickId = static_cast<uint32_t>(input->get("brickId")->toValue()->getInt());
 
     Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    if(KyoukoRoot::m_segment->bricks.numberOfItems >= brickId) {
-        errorMessage = "brickId" + std::to_string(brickId) + " is too high";
+    if(KyoukoRoot::m_segment->bricks.numberOfItems >= brickId)
+    {
+        errorMessage = "brickId " + std::to_string(brickId) + " is too high";
+        return false;
     }
 
     const uint32_t pos = brick[brickId].registerOutput();
+    if(pos == UNINIT_STATE_32)
+    {
+        errorMessage = "brick " + std::to_string(brickId) + " is already full";
+        return false;
+    }
+
     blossomLeaf.output.insert("pos", new DataValue(static_cast<int>(pos)));
 
     return true;

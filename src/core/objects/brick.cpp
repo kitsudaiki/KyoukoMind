@@ -8,6 +8,7 @@
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
 #include <core/objects/edges.h>
+#include <core/objects/global_values.h>
 
 #include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
 #include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
@@ -194,6 +195,12 @@ uint32_t
 Brick::registerInput()
 {
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    if(m_inputs.size() >= globalValues->numberOfNodesPerBrick - 10) {
+        return UNINIT_STATE_32;
+    }
+
     m_inputs.push_back(0.0f);
     m_inputs.push_back(0.0f);
     m_inputs.push_back(0.0f);
@@ -205,6 +212,7 @@ Brick::registerInput()
     m_inputs.push_back(0.0f);
     m_inputs.push_back(0.0f);
     const uint32_t listPos = static_cast<uint32_t>(m_inputs.size() / 10) - 1;
+
     m_input_lock.clear(std::memory_order_release);
 
     return listPos;
@@ -246,6 +254,12 @@ uint32_t
 Brick::registerOutput()
 {
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    if(m_outputs.size() >= globalValues->numberOfNodesPerBrick - 1) {
+        return UNINIT_STATE_32;
+    }
+
     m_outputs.push_back(0.0f);
     const uint32_t listPos = static_cast<uint32_t>(m_outputs.size()) - 1;
     m_output_lock.clear(std::memory_order_release);
