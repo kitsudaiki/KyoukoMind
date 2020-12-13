@@ -63,6 +63,7 @@ public:
     uint32_t registerInput();
     void setInputValue(const uint32_t pos, const float value);
     const std::vector<float> getInputValues();
+    void clearInput();
 
     uint32_t registerOutput();
     void setOutputValue(const uint32_t pos, const float value);

@@ -248,6 +248,19 @@ Brick::getInputValues()
 }
 
 /**
+ * @brief Brick::clearInput
+ */
+void
+Brick::clearInput()
+{
+    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    for(uint32_t i = 0; i < m_inputs.size(); i++) {
+        m_inputs[i] = 0.0f;
+    }
+    m_input_lock.clear(std::memory_order_release);
+}
+
+/**
  * @brief Brick::registerOutput
  * @return
  */
