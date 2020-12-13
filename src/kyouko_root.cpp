@@ -159,6 +159,17 @@ KyoukoRoot::learn(const std::string &input,
 {
     LOG_WARNING("input: " + input);
     LOG_WARNING("should: " + should);
+
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+
+    const char* inputChar = input.c_str();
+
+    for(uint32_t i = 0; i < input.size(); i++)
+    {
+        const float value = (static_cast<float>(inputChar[i]) - 80.0f) * 10.0f;
+        brick[1].setInputValue(i, value);
+    }
+
     return true;
 }
 

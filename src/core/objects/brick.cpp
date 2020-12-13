@@ -227,6 +227,7 @@ void
 Brick::setInputValue(const uint32_t pos, const float value)
 {
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    LOG_WARNING("input-value: " + std::to_string(value));
     for(uint32_t i = pos * 10; i < (pos * 10) + 10; i++) {
         m_inputs[i] = value;
     }
