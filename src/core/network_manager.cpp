@@ -57,14 +57,14 @@ NetworkManager::run()
 
         usleep(PROCESS_INTERVAL);
         m_phase1->triggerBarrier();
-        edgeStart = std::chrono::system_clock::now();
-
-        m_phase2->triggerBarrier();
-        edgeEnd = std::chrono::system_clock::now();
         synapseStart = std::chrono::system_clock::now();
 
-        m_phase3->triggerBarrier();
+        m_phase2->triggerBarrier();
         synapseEnd = std::chrono::system_clock::now();
+        edgeStart = std::chrono::system_clock::now();
+
+        m_phase3->triggerBarrier();
+        edgeEnd = std::chrono::system_clock::now();
 
         const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
         const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
