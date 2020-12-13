@@ -23,7 +23,7 @@
 #include "register_input_blossom.h"
 
 #include <libKitsunemimiPersistence/logger/logger.h>
-#include <core/connection_handler/client_connection_handler.h>
+#include <core/objects/segment.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -31,9 +31,9 @@ using namespace Kitsunemimi::Sakura;
 RegisterInputBlossom::RegisterInputBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
-    validationMap.emplace("id", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
-    validationMap.emplace("position", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
-    validationMap.emplace("range", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+    validationMap.emplace("brickId", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+
+    validationMap.emplace("pos", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
 }
 
 bool
@@ -43,11 +43,15 @@ RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
     LOG_DEBUG("register input");
 
     Kitsunemimi::DataMap* input = &blossomLeaf.input;
-    const uint32_t position = static_cast<uint32_t>(input->get("position")->toValue()->getInt());
-    const uint32_t range = static_cast<uint32_t>(input->get("range")->toValue()->getInt());
+    const uint32_t brickId = static_cast<uint32_t>(input->get("brickId")->toValue()->getInt());
 
-    const uint32_t id = 0;
-    blossomLeaf.output.insert("id", new DataValue(static_cast<int>(id)));
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    if(KyoukoRoot::m_segment->bricks.numberOfItems >= brickId) {
+        errorMessage = "brickId" + std::to_string(brickId) + " is too high";
+    }
+
+    const uint32_t pos = brick[brickId].registerInput();
+    blossomLeaf.output.insert("pos", new DataValue(static_cast<int>(pos)));
 
     return true;
 }

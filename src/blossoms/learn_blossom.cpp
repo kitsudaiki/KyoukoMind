@@ -40,8 +40,8 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("start learning");
 
-    const std::string input = blossomLeaf.input.get("id")->toValue()->getString();
-    const std::string should = blossomLeaf.input.get("position")->toValue()->getString();
+    const std::string input = blossomLeaf.input.get("input")->toValue()->getString();
+    const std::string should = blossomLeaf.input.get("should")->toValue()->getString();
 
     return KyoukoRoot::m_root->learn(input, should, errorMessage);
 }

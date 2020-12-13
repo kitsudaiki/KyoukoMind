@@ -23,6 +23,7 @@
 #include "register_output_blossom.h"
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+#include <core/objects/segment.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -30,9 +31,9 @@ using namespace Kitsunemimi::Sakura;
 RegisterOutputBlossom::RegisterOutputBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
-    validationMap.emplace("id", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
-    validationMap.emplace("position", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
-    validationMap.emplace("range", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+    validationMap.emplace("brickId", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+
+    validationMap.emplace("pos", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
 }
 
 bool
@@ -42,11 +43,15 @@ RegisterOutputBlossom::runTask(BlossomLeaf &blossomLeaf,
     LOG_DEBUG("register output");
 
     Kitsunemimi::DataMap* input = &blossomLeaf.input;
-    const uint32_t id = static_cast<uint32_t>(input->get("id")->toValue()->getInt());
-    const uint32_t position = static_cast<uint32_t>(input->get("position")->toValue()->getInt());
-    const uint32_t range = static_cast<uint32_t>(input->get("range")->toValue()->getInt());
+    const uint32_t brickId = static_cast<uint32_t>(input->get("brickId")->toValue()->getInt());
 
-    //KyoukoRoot::registeredOutputs.insert(std::make_pair(id, arrayPos(position, range)));
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    if(KyoukoRoot::m_segment->bricks.numberOfItems >= brickId) {
+        errorMessage = "brickId" + std::to_string(brickId) + " is too high";
+    }
+
+    const uint32_t pos = brick[brickId].registerOutput();
+    blossomLeaf.output.insert("pos", new DataValue(static_cast<int>(pos)));
 
     return true;
 }
