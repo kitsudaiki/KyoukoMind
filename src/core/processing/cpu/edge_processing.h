@@ -19,27 +19,25 @@
 #include <core/connection_handler/client_connection_handler.h>
 
 /**
- * @brief lernEdge
+ * @brief createSynapse
+ * @param section
  * @param edge
  * @param weight
  */
 inline void
-lernEdge(EdgeSection &section,
-         Edge &edge,
-         const uint16_t pos,
-         const float weight)
+createSynapse(EdgeSection &section,
+              Edge &edge,
+              const float weight)
 {
     uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
-
-    // try to create new synapse-section
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.brickLocation)];
-    brick->activity++;
     section.randomPos = (section.randomPos + 1) % 1024;
+    brick->activity++;
 
-    if(edge.synapseSectionId == UNINIT_STATE_32
-            && brick->nodeBrickId != UNINIT_STATE_32
-            && randValues[section.randomPos] % 5 == 0
-            && weight >= 5.0f)
+    if(edge.synapseSectionId == UNINIT_STATE_32  // no synapse already exist
+            && brick->nodeBrickId != UNINIT_STATE_32  // current brick must be a node-brick
+            && randValues[section.randomPos] % 5 == 0  // random value to not create every time
+            && weight >= 5.0f)  // minimal weight for a new synapse-section
     {
         SynapseSection newSection;
         const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
@@ -48,37 +46,42 @@ lernEdge(EdgeSection &section,
         // very left bit says if this connection is new
         edge.synapseSectionId = edge.synapseSectionId | 0x80000000;
     }
+}
+
+/**
+ * @brief lernEdge
+ * @param edge
+ * @param weight
+ */
+inline void
+reweightEdge(EdgeSection &section,
+             Edge &edge,
+             const uint16_t positionInSection,
+             const float weight)
+{
+    uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
 
     // update weight in current edge
-    if(pos < 128)
-    {
-        float edgeWeight = weight;
+    float edgeWeight = weight;
 
-        // get random values
-        section.randomPos = (section.randomPos + 1) % 1024;
-        const float randRatio1 = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
-        section.randomPos = (section.randomPos + 1) % 1024;
-        const float randRatio2 = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
+    // get random values
+    section.randomPos = (section.randomPos + 1) % 1024;
+    const float randRatio1 = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
+    section.randomPos = (section.randomPos + 1) % 1024;
+    const float randRatio2 = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
 
-        // update synapse-weight
-        const uint8_t hasSynapse = edge.synapseSectionId != UNINIT_STATE_32;
-        edgeWeight -= hasSynapse * (weight * randRatio1);
-        edge.synapseWeight += hasSynapse * (weight * randRatio1);
+    // update synapse-weight
+    const uint8_t hasSynapse = edge.synapseSectionId != UNINIT_STATE_32;
+    edgeWeight -= hasSynapse * (weight * randRatio1);
+    edge.synapseWeight += hasSynapse * (weight * randRatio1);
 
-        // update weight in next edges
-        section.edges[pos * 2].edgeWeight += edgeWeight * randRatio2;
-        section.edges[(pos * 2) + 1].edgeWeight += edgeWeight * (1.0f - randRatio2);
-    }
-    else
-    {
-        const uint8_t hasSynapse = edge.synapseSectionId != UNINIT_STATE_32;
-        edge.synapseWeight = hasSynapse * edge.edgeWeight;
-    }
-
-    //std::cout<<"+++ learn update: "<<(weight * randValue)<<std::endl;
+    // update weight in next edges
+    section.edges[positionInSection * 2].edgeWeight += edgeWeight * randRatio2;
+    section.edges[(positionInSection * 2) + 1].edgeWeight += edgeWeight * (1.0f - randRatio2);
 
     return;
 }
+
 
 /**
  * @brief processSynapseConnection
@@ -138,10 +141,8 @@ nextEdgeSectionStep(EdgeSection &section,
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(lastLocation)];
 
     // init new edge, if necessary
-    if(getBrickId(edge->brickLocation) == UNINIT_STATE_24)
-    {
+    if(getBrickId(edge->brickLocation) == UNINIT_STATE_24) {
         edge->brickLocation = brick->getRandomNeighbor(lastLocation);
-        brick->activity++;
     }
 
     // handle output
@@ -151,54 +152,64 @@ nextEdgeSectionStep(EdgeSection &section,
 
     float ratio = 0.0f;
 
-    if(getBrickId(edge->brickLocation) != UNINIT_STATE_24)
-    {
-        if(pos < 128)
-        {
-            // calculate and process ratio
-            const float totalWeight = edge->synapseWeight + 0.0000001f
-                                      + section.edges[pos * 2].edgeWeight
-                                      + section.edges[(pos * 2) + 1].edgeWeight;
-
-            ratio = weight / totalWeight;
-            if(ratio > 1.0f) {
-                lernEdge(section, *edge, pos, weight - totalWeight);
-            }
-
-            // limit ratio to 1.0
-            ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-
-            // update remaining weight based on the ratio
-            nextEdgeSectionStep(section,
-                                pos * 2,
-                                section.edges[pos * 2].edgeWeight * ratio,
-                                edge->brickLocation,
-                                edgeSectionPos);
-
-            nextEdgeSectionStep(section,
-                                (pos * 2) + 1,
-                                section.edges[(pos * 2) + 1].edgeWeight * ratio,
-                                edge->brickLocation,
-                                edgeSectionPos);
-        }
-        else
-        {
-            // calculate and process ratio
-            const float totalWeight = edge->synapseWeight + 0.0000001f;
-            ratio = weight / totalWeight;
-            if(ratio > 1.0f) {
-                lernEdge(section, *edge, pos, weight - totalWeight);
-            }
-
-            // limit ratio to 1.0
-            ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-        }
-
-        // process connection to synapse
-        processSynapseConnection(*edge, ratio, pos, edgeSectionPos);
+    if(getBrickId(edge->brickLocation) == UNINIT_STATE_24) {
+        return;
     }
 
-    return;
+    brick->activity++;
+
+    if(pos < 128)
+    {
+        // prepare pointer
+        Edge* child1 = &section.edges[(pos * 2)];  // i is unequal
+        Edge* child2 = &section.edges[(pos * 2) + 1];  // i is equal
+
+
+        // calculate and process ratio
+        const float totalWeight = edge->synapseWeight + 0.0000001f
+                                  + child1->edgeWeight
+                                  + child2->edgeWeight;
+
+        ratio = weight / totalWeight;
+        if(ratio > 1.0f) {
+            reweightEdge(section, *edge, pos, weight - totalWeight);
+            createSynapse(section, *edge, edge->synapseWeight);
+        }
+
+        // limit ratio to 1.0
+        ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+
+        // update remaining weight based on the ratio
+        nextEdgeSectionStep(section,
+                            pos * 2,
+                            child1->edgeWeight * ratio,
+                            edge->brickLocation,
+                            edgeSectionPos);
+
+        nextEdgeSectionStep(section,
+                            (pos * 2) + 1,
+                            child2->edgeWeight * ratio,
+                            edge->brickLocation,
+                            edgeSectionPos);
+    }
+    else
+    {
+        // calculate and process ratio
+        const float totalWeight = edge->synapseWeight + 0.0000001f;
+        ratio = weight / totalWeight;
+        if(ratio > 1.0f) {
+            createSynapse(section, *edge, weight - totalWeight);
+        }
+
+        const uint8_t hasSynapse = edge->synapseSectionId != UNINIT_STATE_32;
+        edge->synapseWeight = hasSynapse * edge->edgeWeight;
+
+        // limit ratio to 1.0
+        ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+    }
+
+    // process connection to synapse
+    processSynapseConnection(*edge, ratio, pos, edgeSectionPos);
 }
 
 /**
@@ -267,6 +278,10 @@ processEdgeSection()
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
+        if(axonTransfers[i].weight == 0.0f) {
+            continue;
+        }
+
         cleanupEdgeSection(edgeSections[i]);
         nextEdgeSectionStep(edgeSections[i],
                             1,
