@@ -17,6 +17,7 @@
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/objects/brick.h>
+#include <core/objects/segment.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
@@ -72,6 +73,10 @@ NetworkManager::run()
         KyoukoRoot::monitoringMetaMessage.edgePhase = edgeTime;
         KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
         KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
+
+        KyoukoRoot::monitoringMetaMessage.synapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
+        KyoukoRoot::monitoringMetaMessage.nodes = KyoukoRoot::m_segment->nodes.numberOfItems;
+        KyoukoRoot::monitoringMetaMessage.edgeSections = KyoukoRoot::m_segment->edges.numberOfItems;
 
         // monitoring-output
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();

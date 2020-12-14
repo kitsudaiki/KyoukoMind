@@ -42,9 +42,19 @@ MonitoringConnectionHandler::sendToMonitoring()
             const std::string part = "[" + std::to_string(brick[i].brickPos.x)
                                    + "," + std::to_string(brick[i].brickPos.y)
                                    + "," + std::to_string(brick[i].nodeActivity)
-                                   + "," + std::to_string(brick[i].synapseActivity) + "]";
+                                   + "," + std::to_string(brick[i].synapseActivity)
+                                   + "," + std::to_string(brick[i].edgeCreateActivity)
+                                   + "," + std::to_string(brick[i].edgeDeleteActivity)
+                                   + "," + std::to_string(brick[i].synapseCreateActivity)
+                                   + "," + std::to_string(brick[i].synapseDeleteActivity) + "]";
+
             brick[i].nodeActivity = 0;
             brick[i].synapseActivity = 0;
+            brick[i].edgeCreateActivity = 0;
+            brick[i].edgeDeleteActivity = 0;
+            brick[i].synapseCreateActivity = 0;
+            brick[i].synapseDeleteActivity = 0;
+
             monitoringOutput += part;
             found = true;
         }
