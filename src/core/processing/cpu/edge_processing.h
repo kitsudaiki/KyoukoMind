@@ -148,13 +148,13 @@ nextEdgeSectionStep(EdgeSection &section,
 
     // prepare pointer
     Edge* edge = &section.edges[positionInSection];
-    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(lastLocation)];
 
     // init new edge, if necessary
     if(getBrickId(*edge) == UNINIT_STATE_24)
     {
+        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(lastLocation)];
         edge->brickLocation = brick->getRandomNeighbor(lastLocation);
-        if(getBrickId(*edge) == UNINIT_STATE_24) {
+        if(getBrickId(edge->brickLocation) == UNINIT_STATE_24) {
             return;
         }
 
@@ -167,9 +167,10 @@ nextEdgeSectionStep(EdgeSection &section,
     // }
 
     float ratio = 0.0f;
-    brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(*edge)];
+    const uint32_t idFromEdge = getBrickId(*edge);
+    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[idFromEdge];
 
-    if(positionInSection < 128)
+    if(positionInSection < 127)
     {
         // prepare pointer
         Edge* child1 = &section.edges[(positionInSection * 2)];  // i is unequal
@@ -249,7 +250,7 @@ resetEdge(Edge &edge)
 inline void
 cleanupEdgeSection(EdgeSection &section)
 {
-    for(uint32_t i = 255; i >= 128; i--)
+    for(uint32_t i = 253; i >= 127; i--)
     {
         Edge* edge = &section.edges[i];
         if(edge->synapseSectionId == UNINIT_STATE_32) {
@@ -259,11 +260,11 @@ cleanupEdgeSection(EdgeSection &section)
         }
     }
 
-    for(uint32_t i = 127; i >= 1; i--)
+    for(uint32_t i = 126; i >= 1; i--)
     {
         Edge* edge = &section.edges[i];
         Edge* next1 = &section.edges[i * 2];
-        Edge* next2 = &section.edges[(i * 2) +1];
+        Edge* next2 = &section.edges[(i * 2) + 1];
 
         if(edge->synapseSectionId == UNINIT_STATE_32
                 && next1->edgeWeight == 0.0f
