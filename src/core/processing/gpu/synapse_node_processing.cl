@@ -336,19 +336,20 @@ updating(__global UpdateTransfer* updateTransfers,
     {
         // prepare new container
         UpdateTransfer transferContainer;
-        updateTransfers[i] = transferContainer;
-        updateTransfers[i].newWeight = 0.0f;
-        updateTransfers[i].targetId = UNINIT_STATE_32;
-        updateTransfers[i].positionInEdge = UNINIT_STATE_8;
-        updateTransfers[i].deleteEdge = 0;
+        transferContainer = transferContainer;
+        transferContainer.newWeight = 0.0f;
+        transferContainer.targetId = UNINIT_STATE_32;
+        transferContainer.positionInEdge = UNINIT_STATE_8;
+        transferContainer.deleteEdge = 0;
 
         // skip if section is deleted
         if(synapseSections[i].status == DELETED_SECTION)
         {
-            updateTransfers[i].newWeight = 0.0f;
-            updateTransfers[i].targetId = UNINIT_STATE_32;
-            updateTransfers[i].positionInEdge = UNINIT_STATE_8;
-            updateTransfers[i].deleteEdge = 0;
+            transferContainer.newWeight = 0.0f;
+            transferContainer.targetId = UNINIT_STATE_32;
+            transferContainer.positionInEdge = UNINIT_STATE_8;
+            transferContainer.deleteEdge = 0;
+            updateTransfers[i] = transferContainer;
 
             continue;
         }
@@ -365,24 +366,22 @@ updating(__global UpdateTransfer* updateTransfers,
         {
             // update synapse weight
             const int active = nodes[synapse->targetNodeId].active != 0;
-            const float diff = synapse->dynamicWeight * (float)active * 0.05f;  // 0.05 is hard-coded learning-value
+            const float diff = synapse->dynamicWeight * (float)active * 0.00f;  // 0.05 is hard-coded learning-value
             synapse->dynamicWeight -= diff;
             synapse->staticWeight += diff;
 
             // update dynamicWeight
             synapse->dynamicWeight -= synapse->dynamicWeight * synapse->memorize;
-            updateTransfers[i].newWeight += fabs(synapse->dynamicWeight + synapse->staticWeight);
+            transferContainer.newWeight += fabs(synapse->dynamicWeight + synapse->staticWeight);
         }
 
         // create update-container for the host
-        updateTransfers[i].targetId = synapseSection->sourceEdgeId;
-        updateTransfers[i].positionInEdge = synapseSection->positionInEdge;
-        updateTransfers[i].newWeight = updateTransfers[i].newWeight;
-        updateTransfers[i].deleteEdge = updateTransfers[i].newWeight <= localGlobalValue->deleteSynapseBorder;
+        transferContainer.targetId = synapseSection->sourceEdgeId;
+        transferContainer.positionInEdge = synapseSection->positionInEdge;
+        transferContainer.deleteEdge = updateTransfers[i].newWeight <= localGlobalValue->deleteSynapseBorder;
 
         // delete +1 = DELETED_SECTION
         synapseSection->status = transferContainer.deleteEdge + 1;
-
         updateTransfers[i] = transferContainer;
         synapseSections[i] = tempSectionMem[localId_x];
     }

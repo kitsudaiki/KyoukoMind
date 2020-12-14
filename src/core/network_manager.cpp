@@ -70,11 +70,14 @@ NetworkManager::run()
         const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
         const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
 
+        // total times
         KyoukoRoot::monitoringMetaMessage.edgePhase = edgeTime;
         KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
         KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
 
-        KyoukoRoot::monitoringMetaMessage.synapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
+        // object-numbers in item-buffer
+        const uint64_t numberOfSynapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
+        KyoukoRoot::monitoringMetaMessage.synapseSections = numberOfSynapseSections;
         KyoukoRoot::monitoringMetaMessage.nodes = KyoukoRoot::m_segment->nodes.numberOfItems;
         KyoukoRoot::monitoringMetaMessage.edgeSections = KyoukoRoot::m_segment->edges.numberOfItems;
 
