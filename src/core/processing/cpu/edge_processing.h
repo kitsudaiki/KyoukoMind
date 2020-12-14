@@ -248,21 +248,35 @@ resetEdge(Edge &edge)
 inline void
 cleanupEdgeSection(EdgeSection &section)
 {
-    for(uint32_t i = 255; i >= 2; i = i - 2)
+    for(uint32_t i = 255; i >= 128; i--)
     {
-        Edge* edge1 = &section.edges[i];  // i is unequal
-        Edge* edge2 = &section.edges[i - 1];  // i is equal
-        Edge* parent = &section.edges[(i - 1) / 2];
-
-        if(edge1->edgeWeight == 0.0f) {
-            resetEdge(*edge1);
+        Edge* edge = &section.edges[i];
+        if(edge->synapseSectionId == UNINIT_STATE_32)
+        {
+            resetEdge(*edge);
         }
-
-        if(edge2->edgeWeight == 0.0f) {
-            resetEdge(*edge2);
+        else
+        {
+            edge->edgeWeight = edge->synapseWeight;
         }
+    }
 
-        parent->edgeWeight = edge1->edgeWeight + edge2->edgeWeight + parent->synapseWeight;
+    for(uint32_t i = 127; i >= 1; i--)
+    {
+        Edge* edge = &section.edges[i];
+        Edge* next1 = &section.edges[i * 2];
+        Edge* next2 = &section.edges[(i * 2) +1];
+
+        if(edge->synapseSectionId == UNINIT_STATE_32
+                && next1->edgeWeight == 0.0f
+                && next2->edgeWeight == 0.0f)
+        {
+            resetEdge(*edge);
+        }
+        else
+        {
+            edge->edgeWeight = next1->edgeWeight + next2->edgeWeight + edge->synapseWeight;
+        }
     }
 }
 
@@ -338,9 +352,12 @@ updateEdgeSection()
             continue;
         }
 
+        float newWeight = container->newWeight;
+        newWeight = (newWeight < 0.0f) * 0.0f + (newWeight >= 0.0f) * newWeight;
+
         Edge* edge = &edgeSections[container->targetId].edges[container->positionInEdge];
         const uint8_t notDel = container->deleteEdge == 0;
-        edge->synapseWeight = notDel * container->newWeight;
+        edge->synapseWeight = notDel * newWeight;
 
         count++;
     }
