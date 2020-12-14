@@ -13,7 +13,6 @@
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 #include <core/objects/edges.h>
-#include <core/objects/container_definitions.h>
 
 void
 validateStructSizes()

@@ -93,7 +93,6 @@ HEADERS += \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/cpu/edge_processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
-    src/core/objects/container_definitions.h \
     src/core/objects/edges.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
