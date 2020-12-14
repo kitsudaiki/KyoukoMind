@@ -40,7 +40,13 @@ public:
     // 22: the current brick
     uint32_t neighbors[23];
     uint32_t nodePos = UNINIT_STATE_32;
-    uint32_t activity = 0;
+
+    uint32_t nodeActivity = 0;
+    uint32_t synapseActivity = 0;
+    uint32_t edgeCreateActivity = 0;
+    uint32_t edgeDeleteActivity = 0;
+    uint32_t synapseCreateActivity = 0;
+    uint32_t synapseDeleteActivity = 0;
 
     //----------------------------------------------------------------------------------------------
 
@@ -54,7 +60,7 @@ public:
 
     ~Brick();
 
-    uint32_t getRandomNeighbor(const uint32_t location);
+    uint32_t getRandomNeighbor(const uint32_t lastLocation);
 
     bool connectBricks(const uint8_t sourceSide,
                        Brick &targetBrick);

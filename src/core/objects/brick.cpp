@@ -53,7 +53,12 @@ Brick::Brick(const Brick &other)
         this->nodeBrickId = other.nodeBrickId;
         this->brickPos = other.brickPos;
         this->nodePos = other.nodePos;
-        this->activity = other.activity;
+        this->nodeActivity = other.nodeActivity;
+        this->synapseActivity = other.synapseActivity;
+        this->edgeCreateActivity = other.edgeCreateActivity;
+        this->edgeDeleteActivity = other.edgeDeleteActivity;
+        this->synapseCreateActivity = other.synapseCreateActivity;
+        this->synapseDeleteActivity = other.synapseDeleteActivity;
 
         for(uint32_t i = 0; i < 23; i++) {
             this->neighbors[i] = other.neighbors[i];
@@ -75,7 +80,12 @@ Brick
         this->nodeBrickId = other.nodeBrickId;
         this->brickPos = other.brickPos;
         this->nodePos = other.nodePos;
-        this->activity = other.activity;
+        this->nodeActivity = other.nodeActivity;
+        this->synapseActivity = other.synapseActivity;
+        this->edgeCreateActivity = other.edgeCreateActivity;
+        this->edgeDeleteActivity = other.edgeDeleteActivity;
+        this->synapseCreateActivity = other.synapseCreateActivity;
+        this->synapseDeleteActivity = other.synapseDeleteActivity;
 
         for(uint32_t i = 0; i < 23; i++) {
             this->neighbors[i] = other.neighbors[i];
@@ -95,9 +105,9 @@ Brick::~Brick() {}
  * @return
  */
 uint32_t
-Brick::getRandomNeighbor(const uint32_t location)
+Brick::getRandomNeighbor(const uint32_t lastLocation)
 {
-    uint8_t inputSide = getInputSide(location);
+    uint8_t inputSide = getInputSide(lastLocation);
     if(inputSide == 0) {
         inputSide = 9;
     }

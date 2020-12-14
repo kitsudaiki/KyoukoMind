@@ -21,6 +21,11 @@ struct Edge
     // total size: 16 Byte
 } __attribute__((packed));
 
+inline uint32_t
+getBrickId(const Edge &edge)
+{
+    return edge.brickLocation & 0x00FFFFFF;
+}
 
 inline uint32_t
 getBrickId(const uint32_t location)
