@@ -150,12 +150,9 @@ singleLearningStep(__local SynapseSection* synapseSection,
     {
         synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
         const uint targetNodeId = randomInts[synapseSection->randomPos] % globalValue->numberOfNodesPerBrick;
-        synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-        const uint somaDistance = randomInts[synapseSection->randomPos] % 256;
 
         chosenSynapse->targetNodeId = (ushort)(targetNodeId % globalValue->numberOfNodesPerBrick);
         chosenSynapse->memorize = 0.5f;
-        chosenSynapse->somaDistance = (uchar)((somaDistance % (globalValue->maxSomaDistance - 1)) + 1);
         chosenSynapse->staticWeight = 0.0f;
         chosenSynapse->dynamicWeight = 0.0f;
     }
@@ -237,8 +234,7 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             synapse < end;
             synapse++)
         {
-            const float somaUpdate = (float)synapse->somaDistance / (float)localGlobalValue->maxSomaDistance;
-            nodes[synapse->targetNodeId].currentState += (synapse->staticWeight + synapse->dynamicWeight) * ratio * somaUpdate;
+            nodes[synapse->targetNodeId].currentState += (synapse->staticWeight + synapse->dynamicWeight) * ratio;
         }
 
         // write result back
