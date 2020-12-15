@@ -113,6 +113,8 @@ processSynapseConnection(Edge &edge,
         newTransfer.isNew = edge.synapseSectionId >> 31;
         newTransfer.weight = edge.synapseWeight * ratio;
         newTransfer.brickId = brick->brickId;
+        newTransfer.nodeBrickId = brick->nodeBrickId;
+        assert(brick->nodeBrickId != UNINIT_STATE_32);
         newTransfer.positionInEdge = static_cast<uint8_t>(positionInEdge);
         newTransfer.sourceEdgeId = edgeSectionPos;
 
@@ -310,7 +312,7 @@ processEdgeSection()
         }
 
         EdgeSection* currentSection = &edgeSections[i];
-        Brick* brick = &bricks[i / 1000];
+        Brick* brick = &bricks[axonTransfers[i].brickId];
         brick->nodeActivity++;
 
         cleanupEdgeSection(*currentSection);

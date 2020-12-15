@@ -29,6 +29,7 @@ enum SectionStatus
 typedef struct SynapseTransfer_struct
 {
     uint brickId;
+    uint nodeBrickId;
     uint synapseSectionId;
     uint sourceEdgeId;
     uchar positionInEdge;
@@ -43,6 +44,7 @@ SynapseTransfer;
 typedef struct AxonTransfer_struct
 {
     float weight;
+    uint brickId;
 } 
 AxonTransfer;
 
@@ -140,7 +142,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
                    const float weight,
                    __global uint* randomInts,
                    __local GlobalValues* globalValue,
-                   const uint brickId)
+                   const uint nodeBrickId)
 {
     // get random synapse within the current section
     synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
@@ -155,7 +157,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
         const uint targetNodeIdInBrick = randomInts[synapseSection->randomPos] % globalValue->numberOfNodesPerBrick;
 
         // set initial values for the new synapse
-        chosenSynapse->targetNodeId = (ushort)(targetNodeIdInBrick + (brickId * globalValue->numberOfNodesPerBrick));
+        chosenSynapse->targetNodeId = (ushort)(targetNodeIdInBrick + (nodeBrickId * globalValue->numberOfNodesPerBrick));
         chosenSynapse->memorize = 0.5f;
         chosenSynapse->staticWeight = 0.0f;
         chosenSynapse->dynamicWeight = 0.0f;
@@ -214,7 +216,7 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             newSection.randomPos = (globalId_x * localId_x) % 1024;
             newSection.positionInEdge = synapseTransfers[i].positionInEdge;
             newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
-            newSection.sourceBrickId = brickId;
+            newSection.sourceBrickId = synapseTransfers[i].brickId;
 
             tempSections[localId_x] = newSection;
 
@@ -233,9 +235,10 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
         const float weightDiff = synapseTransfers[i].weight - synapseSection->totalWeight;
         if(weightDiff > 0.0f)
         {
-            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue, brickId);
-            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue, brickId);
-            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue, brickId);
+            const uint nodeBrickId = synapseTransfers[i].nodeBrickId;
+            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue, nodeBrickId);
+            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue, nodeBrickId);
+            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue, nodeBrickId);
 
             // write result back
             synapseSections[synapseSectionId] = tempSections[localId_x];
@@ -273,6 +276,7 @@ node_processing(__global AxonTransfer* axonTransfers,
     const int localId_x = get_local_id(0);
     const int localSize_x = get_local_size(0);
 
+    // prepare shared memory
     __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
     localGlobalValue[0] = globalValue[0];
     __local Node* tempNodes = (__local Node*)&localMemory[256];
@@ -303,6 +307,7 @@ node_processing(__global AxonTransfer* axonTransfers,
         // build new axon-transfer-edge, which is send back to the host
         AxonTransfer newEdge;
         newEdge.weight = node->active * node->potential * pow(localGlobalValue->gliaValue, node->targetBrickDistance);
+        newEdge.brickId = node->brickId;
         axonTransfers[i] = newEdge;
 
         // post-steps
@@ -376,6 +381,10 @@ updating(__global UpdateTransfer* updateTransfers,
             synapse < end;
             synapse++)
         {
+            if(synapse->targetNodeId == UNINIT_STATE_16) {
+                continue;
+            }
+
             // update synapse weight
             const int active = nodes[synapse->targetNodeId].active != 0;
             const float diff = synapse->dynamicWeight * (float)active * localGlobalValue->lerningValue;

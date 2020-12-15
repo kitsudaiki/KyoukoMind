@@ -107,10 +107,7 @@ Brick::~Brick() {}
 uint32_t
 Brick::getRandomNeighbor(const uint32_t location)
 {
-    uint8_t inputSide = getInputSide(location);
-    if(inputSide == 0) {
-        inputSide = 9;
-    }
+    const uint8_t inputSide = getInputSide(location);
     const PossibleNext next = getPossibleNext(inputSide);
 
     const uint8_t nextSide = next.next[rand() % 3];
@@ -348,9 +345,18 @@ const Brick::PossibleNext
 Brick::getPossibleNext(const uint8_t inputSide)
 {
     PossibleNext next;
+    std::vector<uint8_t> possibleNext = { 9, 10, 11, 12, 13, 14 };
 
     switch(inputSide)
     {
+        case 0:
+        {
+            next.next[0] = possibleNext[rand() % 6];
+            next.next[1] = possibleNext[rand() % 6];
+            next.next[2] = possibleNext[rand() % 6];
+            break;
+        }
+
         case 9:
         {
             next.next[0] = 11;

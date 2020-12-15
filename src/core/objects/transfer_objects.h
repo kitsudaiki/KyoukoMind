@@ -13,13 +13,14 @@
 struct SynapseTransfer
 {
     uint32_t brickId = UNINIT_STATE_32;
+    uint32_t nodeBrickId = UNINIT_STATE_32;
     uint32_t synapseSectionId = UNINIT_STATE_32;
     uint32_t sourceEdgeId = UNINIT_STATE_32;
     uint8_t positionInEdge = UNINIT_STATE_8;
     uint8_t isNew = 0;
     uint8_t padding[2];
     float weight = 0.0f;
-    // total size: 20 Byte
+    // total size: 24 Byte
 };
 
 //==================================================================================================
@@ -27,7 +28,8 @@ struct SynapseTransfer
 struct AxonTransfer
 {
     float weight = 0.0f;
-    // total size: 4 Byte
+    uint32_t brickId = UNINIT_STATE_32;
+    // total size: 8 Byte
 };
 
 //==================================================================================================
