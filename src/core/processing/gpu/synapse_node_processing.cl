@@ -359,6 +359,7 @@ updating(__global UpdateTransfer* updateTransfers,
         __local SynapseSection* synapseSection = &tempSectionMem[localId_x];
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
 
+
         // iterate over all synapses in synapse-section
         for(__local Synapse* synapse = synapseSection->synapses;
             synapse < end;
@@ -366,19 +367,32 @@ updating(__global UpdateTransfer* updateTransfers,
         {
             // update synapse weight
             const int active = nodes[synapse->targetNodeId].active != 0;
-            const float diff = synapse->dynamicWeight * (float)active * 0.00f;  // 0.05 is hard-coded learning-value
+            const float diff = synapse->dynamicWeight * (float)active * localGlobalValue->lerningValue;
             synapse->dynamicWeight -= diff;
             synapse->staticWeight += diff;
 
             // update dynamicWeight
-            synapse->dynamicWeight -= synapse->dynamicWeight * synapse->memorize;
-            transferContainer.newWeight += fabs(synapse->dynamicWeight + synapse->staticWeight);
+            synapse->dynamicWeight = synapse->dynamicWeight * synapse->memorize;
+
+            const float synapseWeight = fabs(synapse->dynamicWeight + synapse->staticWeight);
+
+            // check for deletion of the single synapse
+            if(synapseWeight < localGlobalValue->deleteSynapseBorder) 
+            {
+                synapse->dynamicWeight = 0.0f;
+                synapse->staticWeight = 0.0f;
+                synapse->targetNodeId = UNINIT_STATE_16;
+            } 
+            else 
+            {
+                transferContainer.newWeight += synapseWeight;
+            }
         }
 
         // create update-container for the host
         transferContainer.targetId = synapseSection->sourceEdgeId;
         transferContainer.positionInEdge = synapseSection->positionInEdge;
-        transferContainer.deleteEdge = updateTransfers[i].newWeight <= localGlobalValue->deleteSynapseBorder;
+        transferContainer.deleteEdge = transferContainer.newWeight <= localGlobalValue->deleteSynapseBorder;
 
         // delete +1 = DELETED_SECTION
         synapseSection->status = transferContainer.deleteEdge + 1;

@@ -157,7 +157,7 @@ nextEdgeSectionStep(EdgeSection &section,
         if(getBrickId(edge->brickLocation) == UNINIT_STATE_24) {
             return;
         }
-
+        brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge->brickLocation)];
         brick->edgeCreateActivity++;
     }
 
@@ -238,9 +238,9 @@ resetEdge(Edge &edge)
         brick->edgeDeleteActivity++;
     }
 
-    //edge.synapseSectionId = UNINIT_STATE_32;
     edge.edgeWeight = 0.0f;
     edge.brickLocation = UNINIT_STATE_32;
+    edge.synapseWeight = 0.0f;
 }
 
 /**
