@@ -300,7 +300,7 @@ processEdgeSection()
     for(uint32_t i = 0; i < inputValues.size(); i++) {
         axonTransfers[i].weight = inputValues.at(i);
     }
-    //axonTransfers[1].weight = 1000.0f;
+    // axonTransfers[1].weight = 1000.0f;
 
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
@@ -310,7 +310,7 @@ processEdgeSection()
         }
 
         EdgeSection* currentSection = &edgeSections[i];
-        Brick* brick = &bricks[currentSection->targetBrickId];
+        Brick* brick = &bricks[i / 1000];
         brick->nodeActivity++;
 
         cleanupEdgeSection(*currentSection);

@@ -139,7 +139,8 @@ inline void
 singleLearningStep(__local SynapseSection* synapseSection,
                    const float weight,
                    __global uint* randomInts,
-                   __local GlobalValues* globalValue)
+                   __local GlobalValues* globalValue,
+                   const uint brickId)
 {
     synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
     const uint choosePosition = randomInts[synapseSection->randomPos] % SYNAPSES_PER_SYNAPSESECTION;
@@ -149,9 +150,9 @@ singleLearningStep(__local SynapseSection* synapseSection,
     if(chosenSynapse->targetNodeId == UNINIT_STATE_16) 
     {
         synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-        const uint targetNodeId = randomInts[synapseSection->randomPos] % globalValue->numberOfNodesPerBrick;
+        const uint targetNodeIdInBrick = randomInts[synapseSection->randomPos] % globalValue->numberOfNodesPerBrick;
 
-        chosenSynapse->targetNodeId = (ushort)(targetNodeId % globalValue->numberOfNodesPerBrick);
+        chosenSynapse->targetNodeId = (ushort)(targetNodeIdInBrick + (brickId * globalValue->numberOfNodesPerBrick));
         chosenSynapse->memorize = 0.5f;
         chosenSynapse->staticWeight = 0.0f;
         chosenSynapse->dynamicWeight = 0.0f;
@@ -220,9 +221,9 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
         const float weightDiff = synapseTransfers[i].weight - synapseSection->totalWeight;
         if(weightDiff > 0.0f)
         {
-            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue);
-            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue);
-            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue);
+            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue, brickId);
+            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue, brickId);
+            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue, brickId);
         }
 
         // limit ration to 1.0f
@@ -268,7 +269,6 @@ node_processing(__global AxonTransfer* axonTransfers,
     {
         tempNodes[localId_x] = nodes[i];
         __local Node* node = &tempNodes[localId_x];
-        const ulong globalNodeId = i;
 
         // set to 255.0f, if value is too high
         const float cur = node->currentState;
@@ -291,7 +291,7 @@ node_processing(__global AxonTransfer* axonTransfers,
         // build new axon-transfer-edge, which is send back to the host
         AxonTransfer newEdge;
         newEdge.weight = node->active * node->potential * pow(localGlobalValue->gliaValue, node->targetBrickDistance);
-        axonTransfers[globalNodeId] = newEdge;
+        axonTransfers[i] = newEdge;
 
         // post-steps
         node->refractionTime = node->refractionTime >> 1;
