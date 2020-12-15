@@ -142,6 +142,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
                    __local GlobalValues* globalValue,
                    const uint brickId)
 {
+    // get random synapse within the current section
     synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
     const uint choosePosition = randomInts[synapseSection->randomPos] % SYNAPSES_PER_SYNAPSESECTION;
     __local Synapse* chosenSynapse = &synapseSection->synapses[choosePosition];
@@ -149,16 +150,18 @@ singleLearningStep(__local SynapseSection* synapseSection,
     // create new synapse if necessary
     if(chosenSynapse->targetNodeId == UNINIT_STATE_16) 
     {
+        // get random node-id as target
         synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
         const uint targetNodeIdInBrick = randomInts[synapseSection->randomPos] % globalValue->numberOfNodesPerBrick;
 
+        // set initial values for the new synapse
         chosenSynapse->targetNodeId = (ushort)(targetNodeIdInBrick + (brickId * globalValue->numberOfNodesPerBrick));
         chosenSynapse->memorize = 0.5f;
         chosenSynapse->staticWeight = 0.0f;
         chosenSynapse->dynamicWeight = 0.0f;
     }
 
-    // calculate new value
+    // set new weight
     synapseSection->synapses[choosePosition].dynamicWeight += weight;
 }
 
@@ -186,19 +189,24 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
     const uint numberOfBricks = numberOfNodes / globalValue->numberOfNodesPerBrick;
     const uint brickId = globalId_x / localSize_x; 
 
+    // prepare shared memory
     __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
     localGlobalValue[0] = globalValue[0];
     __local SynapseSection* tempSections = (__local SynapseSection*)&localMemory[256];
 
     for(ulong i = localId_x; i < numberOfSynapseTransfers; i = i + localSize_x)
     {
+        // check if gpu-thread is to determine to handle this tranfer-container
         if(synapseTransfers[i].brickId != brickId) {
             continue;
         }
 
+        // load target-section into shared memory
         const uint synapseSectionId = synapseTransfers[i].synapseSectionId;
         tempSections[localId_x] = synapseSections[synapseSectionId];
+        __local SynapseSection* synapseSection = &tempSections[localId_x];
 
+        // check if section is new and schould be created
         if(synapseTransfers[i].isNew == 1)
         {
             SynapseSection newSection;
@@ -206,16 +214,20 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             newSection.randomPos = (globalId_x * localId_x) % 1024;
             newSection.positionInEdge = synapseTransfers[i].positionInEdge;
             newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
+            newSection.sourceBrickId = brickId;
+
             tempSections[localId_x] = newSection;
+
+            // write result back
+            synapseSections[synapseSectionId] = tempSections[localId_x];
         }
 
+        // check section-state to avoid unnecessary workload
         if(tempSections[localId_x].status != ACTIVE_SECTION
             || synapseTransfers[i].weight < 0.000001f) 
         {
             continue;
         }
-
-        __local SynapseSection* synapseSection = &tempSections[localId_x];
 
         // run lerning-process by creating and updating synapses
         const float weightDiff = synapseTransfers[i].weight - synapseSection->totalWeight;
@@ -224,12 +236,16 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue, brickId);
             singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue, brickId);
             singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue, brickId);
+
+            // write result back
+            synapseSections[synapseSectionId] = tempSections[localId_x];
         }
 
         // limit ration to 1.0f
         float ratio = synapseTransfers[i].weight / synapseSection->totalWeight;
         ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
 
+        // iterate over all synapses in the section and update the target-nodes
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
         for(__local Synapse* synapse = synapseSection->synapses;
             synapse < end;
@@ -237,10 +253,6 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
         {
             nodes[synapse->targetNodeId].currentState += (synapse->staticWeight + synapse->dynamicWeight) * ratio;
         }
-
-        // write result back
-        synapseSections[synapseSectionId] = tempSections[localId_x];
-        synapseSections[synapseSectionId].sourceBrickId = brickId;
     }
 }
 
@@ -358,7 +370,6 @@ updating(__global UpdateTransfer* updateTransfers,
         tempSectionMem[localId_x] = synapseSections[i];
         __local SynapseSection* synapseSection = &tempSectionMem[localId_x];
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
-
 
         // iterate over all synapses in synapse-section
         for(__local Synapse* synapse = synapseSection->synapses;
