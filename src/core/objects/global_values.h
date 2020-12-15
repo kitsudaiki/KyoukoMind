@@ -11,7 +11,7 @@
 struct GlobalValues
 {
     float memorizingValue = 0.0f;
-    float lerningValue = 0.50f;
+    float lerningValue = 0.00f;
     float gliaValue = 1.0f;
 
     float initialMemorizing = 0.5f;
