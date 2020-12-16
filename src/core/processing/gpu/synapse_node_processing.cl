@@ -158,7 +158,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
 
         // set initial values for the new synapse
         chosenSynapse->targetNodeId = (ushort)(targetNodeIdInBrick + (nodeBrickId * globalValue->numberOfNodesPerBrick));
-        chosenSynapse->memorize = 0.5f;
+        chosenSynapse->memorize = 0.55f;
         chosenSynapse->staticWeight = 0.0f;
         chosenSynapse->dynamicWeight = 0.0f;
     }

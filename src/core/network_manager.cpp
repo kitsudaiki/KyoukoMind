@@ -115,9 +115,15 @@ NetworkManager::calcNewLearningValue()
     float sholdIndex = 0.0f;
     float actualIndex = 0.0f;
 
-    for(uint32_t i = 0; i < m_actualOutput.size(); i++)
+    for(uint32_t i = 0; i < m_should.size(); i++)
     {
-        actualIndex += (m_should.at(i) - m_actualOutput.at(i));
+        float summedOutput = 0.0f;
+        const uint32_t offset = i * 10;
+        for(uint32_t j = offset; j < 10; j++) {
+            summedOutput += m_actualOutput.at(j);
+        }
+
+        actualIndex += (m_should.at(i) - summedOutput);
         sholdIndex += m_should.at(i);
     }
 

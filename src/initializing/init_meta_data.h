@@ -15,7 +15,8 @@ enum BrickTypes
     UNDEFINED_BRICK = 0,
     EMPTY_BRICK = 1,
     EDGE_BRICK = 2,
-    NODE_BRICK = 3
+    NODE_BRICK = 3,
+    OUTPUT_NODE_BRICK = 4,
 };
 
 

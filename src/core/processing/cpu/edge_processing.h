@@ -175,8 +175,8 @@ nextEdgeSectionStep(EdgeSection &section,
     if(positionInSection < 127)
     {
         // prepare pointer
-        Edge* child1 = &section.edges[(positionInSection * 2)];  // i is unequal
-        Edge* child2 = &section.edges[(positionInSection * 2) + 1];  // i is equal
+        Edge* child1 = &section.edges[(positionInSection * 2)];
+        Edge* child2 = &section.edges[(positionInSection * 2) + 1];
 
         // calculate and process ratio
         const float totalWeight = edge->synapseWeight  + child1->edgeWeight + child2->edgeWeight;
@@ -307,20 +307,31 @@ processEdgeSection()
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
-        if(axonTransfers[i].weight == 0.0f) {
+        const AxonTransfer* currentTransfer = &axonTransfers[i];
+        if(currentTransfer->weight == 0.0f) {
             continue;
         }
 
         EdgeSection* currentSection = &edgeSections[i];
-        Brick* brick = &bricks[axonTransfers[i].brickId];
+        Brick* brick = &bricks[currentTransfer->brickId];
         brick->nodeActivity++;
 
-        cleanupEdgeSection(*currentSection);
-        nextEdgeSectionStep(*currentSection,
-                            1,
-                            axonTransfers[i].weight,
-                            currentSection->targetBrickId,
-                            i);
+        //if(brick->isOutputBrick == false)
+        if(currentTransfer->brickId != 60)
+        {
+            cleanupEdgeSection(*currentSection);
+            nextEdgeSectionStep(*currentSection,
+                                1,
+                                currentTransfer->weight,
+                                currentSection->targetBrickId,
+                                i);
+        }
+        else
+        {
+            std::cout<<"poi"<<std::endl;
+            const uint32_t offset = brick->nodePos;
+            brick->setOutputValue(i - offset, currentTransfer->weight);
+        }
 
         count++;
     }
@@ -346,7 +357,7 @@ updateEdgeSection()
     UpdateTransfer* start = getBuffer<UpdateTransfer>(segment->updateTransfers);
     UpdateTransfer* end = start + segment->updateTransfers.itemCapacity;
 
-    for(UpdateTransfer* container = start;
+    for(const UpdateTransfer* container = start;
         container < end;
         container++)
     {

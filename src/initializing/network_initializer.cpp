@@ -6,6 +6,7 @@
 #include "network_initializer.h"
 #include <kyouko_root.h>
 #include <core/objects/segment.h>
+#include <core/objects/node.h>
 #include <core/objects/global_values.h>
 
 #include <initializing/axon_initializer.h>
@@ -95,7 +96,9 @@ NetworkInitializer::getNumberOfNodeBricks()
     {
         for(uint32_t y = 0; y < m_networkMetaStructure[x].size(); y++)
         {
-            if(m_networkMetaStructure[x][y].type == 3) {
+            if(m_networkMetaStructure[x][y].type == NODE_BRICK
+                    || m_networkMetaStructure[x][y].type == OUTPUT_NODE_BRICK)
+            {
                 numberOfNodeBricks++;
             }
         }
@@ -150,6 +153,32 @@ NetworkInitializer::addBricks(Segment &segment)
                     const uint32_t nodePos = numberOfNodeBricks * globalValues->numberOfNodesPerBrick;
                     assert(nodePos < 0x7FFFFFFF);
                     newBrick.nodePos = nodePos;
+
+                    // segment.bricks.addNewItem(newBrick, true);
+                    getBuffer<Brick>(segment.bricks)[numberOfBricks] = newBrick;
+                    Brick* ptr = &getBuffer<Brick>(segment.bricks)[numberOfBricks];
+                    m_networkMetaStructure[x][y].brick = ptr;
+
+                    numberOfBricks++;
+                    numberOfNodeBricks++;
+
+                    break;
+                }
+                case 4:
+                {
+                    //Brick* brick = new Brick(brickId, x, y);
+                    Brick newBrick(brickId, x, y);
+                    newBrick.nodeBrickId = numberOfNodeBricks;
+                    newBrick.isOutputBrick = true;
+
+                    const uint32_t nodePos = numberOfNodeBricks * globalValues->numberOfNodesPerBrick;
+                    assert(nodePos < 0x7FFFFFFF);
+                    newBrick.nodePos = nodePos;
+
+                    Node* array = getBuffer<Node>(segment.nodes);
+                    for(uint32_t i = nodePos; i < globalValues->numberOfNodesPerBrick; i++) {
+                        array[i].border = 0.0f;
+                    }
 
                     // segment.bricks.addNewItem(newBrick, true);
                     getBuffer<Brick>(segment.bricks)[numberOfBricks] = newBrick;

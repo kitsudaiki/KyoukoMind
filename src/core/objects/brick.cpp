@@ -286,19 +286,11 @@ Brick::registerOutput()
     m_outputs.push_back(0.0f);
 
     m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
-    m_should.push_back(0.0f);
 
     const uint32_t listPos = static_cast<uint32_t>(m_outputs.size()) - 1;
     m_should_lock.clear(std::memory_order_release);
     m_output_lock.clear(std::memory_order_release);
+
     return listPos;
 }
 
@@ -311,9 +303,9 @@ void
 Brick::setOutputValue(const uint32_t pos, const float value)
 {
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    //m_outputs[pos] += value;
-    //m_outputs[pos] /= 2.0f;
-    m_outputs[pos] = value;
+    if(pos < m_outputs.size()) {
+        m_outputs[pos] = value;
+    }
     m_output_lock.clear(std::memory_order_release);
 }
 
@@ -352,7 +344,9 @@ void
 Brick::setShouldValue(const uint32_t pos, const float value)
 {
     while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_should[pos] = value;
+    if(pos < m_should.size()) {
+        m_should[pos] = value;
+    }
     m_should_lock.clear(std::memory_order_release);
 }
 
