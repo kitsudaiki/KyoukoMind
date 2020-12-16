@@ -115,11 +115,13 @@ SynapseSection;
 
 typedef struct GlobalValues_struct
 {
-    float memorizingValue;
+    uint numberOfNodesPerBrick;
+
+    float sensitivity;
     float lerningValue;
     float gliaValue;
-
     float initialMemorizing;
+    float memorizingOffset;
 
     float nodeCooldown;
     float actionPotential;
@@ -127,9 +129,6 @@ typedef struct GlobalValues_struct
 
     float newSynapseBorder;
     float deleteSynapseBorder;
-    uint maxSomaDistance;
-
-    uint numberOfNodesPerBrick;
 
     uchar padding[208];
 }
@@ -158,22 +157,13 @@ singleLearningStep(__local SynapseSection* synapseSection,
 
         // set initial values for the new synapse
         chosenSynapse->targetNodeId = (ushort)(targetNodeIdInBrick + (nodeBrickId * globalValue->numberOfNodesPerBrick));
-        chosenSynapse->memorize = 0.55f;
+        chosenSynapse->memorize = globalValue->initialMemorizing;
         chosenSynapse->staticWeight = 0.0f;
         chosenSynapse->dynamicWeight = 0.0f;
     }
 
     // set new weight
-    //synapseSection->synapses[choosePosition].dynamicWeight += weight;
-
-    synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-    const uint negativeValue = randomInts[synapseSection->randomPos] % 42;  // TODO: make value configurable via global-values
-
-    if(negativeValue != 0) {
-        synapseSection->synapses[choosePosition].dynamicWeight += weight;
-    } else {
-        synapseSection->synapses[choosePosition].dynamicWeight -= weight;
-    }
+    synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,7 +392,7 @@ updating(__global UpdateTransfer* updateTransfers,
             synapse->staticWeight += diff;
 
             // update dynamicWeight
-            synapse->dynamicWeight = synapse->dynamicWeight * synapse->memorize;
+            synapse->dynamicWeight = synapse->dynamicWeight * (synapse->memorize + localGlobalValue->memorizingOffset);
 
             const float synapseWeight = fabs(synapse->dynamicWeight + synapse->staticWeight);
 

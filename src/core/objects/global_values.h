@@ -10,11 +10,13 @@
 
 struct GlobalValues
 {
-    float memorizingValue = 0.0f;
-    float lerningValue = 0.00f;
-    float gliaValue = 1.0f;
+    uint32_t numberOfNodesPerBrick = 1000;
 
+    float sensitivity = 0.0f;
+    float lerningValue = 0.0f;
+    float gliaValue = 1.0f;
     float initialMemorizing = 0.5f;
+    float memorizingOffset = 0.0f;
 
     float nodeCooldown = 3.0f;
     float actionPotential = 100.0f;
@@ -22,9 +24,6 @@ struct GlobalValues
 
     float newSynapseBorder = 1.0f;
     float deleteSynapseBorder = 0.1f;
-    uint32_t maxSomaDistance = 5;
-
-    uint32_t numberOfNodesPerBrick = 1000;
 
     uint8_t padding[208];
 };

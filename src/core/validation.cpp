@@ -20,10 +20,13 @@ validateStructSizes()
     assert(sizeof(Brick) < 4096);
 
     assert(sizeof(Synapse) == 16);
-    std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
 
+    std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
     assert(sizeof(SynapseSection) == 256);
+
+    std::cout<<"sizeof(GlobalValues): "<<sizeof(GlobalValues)<<std::endl;
     assert(sizeof(GlobalValues) == 256);
+
     assert(sizeof(EdgeSection) == 4096);
 
     return;
