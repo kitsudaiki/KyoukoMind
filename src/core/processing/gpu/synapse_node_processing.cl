@@ -164,7 +164,16 @@ singleLearningStep(__local SynapseSection* synapseSection,
     }
 
     // set new weight
-    synapseSection->synapses[choosePosition].dynamicWeight += weight;
+    //synapseSection->synapses[choosePosition].dynamicWeight += weight;
+
+    synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
+    const uint negativeValue = randomInts[synapseSection->randomPos] % 42;  // TODO: make value configurable via global-values
+
+    if(negativeValue != 0) {
+        synapseSection->synapses[choosePosition].dynamicWeight += weight;
+    } else {
+        synapseSection->synapses[choosePosition].dynamicWeight -= weight;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -386,8 +395,9 @@ updating(__global UpdateTransfer* updateTransfers,
             }
 
             // update synapse weight
-            const int active = nodes[synapse->targetNodeId].active != 0;
-            const float diff = synapse->dynamicWeight * (float)active * localGlobalValue->lerningValue;
+            //const int active = nodes[synapse->targetNodeId].active != 0;
+            //const float diff = synapse->dynamicWeight * (float)active * localGlobalValue->lerningValue;
+            const float diff = synapse->dynamicWeight * localGlobalValue->lerningValue;
             synapse->dynamicWeight -= diff;
             synapse->staticWeight += diff;
 

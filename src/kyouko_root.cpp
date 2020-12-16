@@ -159,7 +159,7 @@ KyoukoRoot::initSakuraFiles()
 bool
 KyoukoRoot::learn(const std::string &input,
                   const std::string &should,
-                  std::string &errorMessage)
+                  std::string &)
 {
     LOG_WARNING("input: " + input);
     LOG_WARNING("should: " + should);
@@ -167,11 +167,17 @@ KyoukoRoot::learn(const std::string &input,
     Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
 
     const char* inputChar = input.c_str();
-
     for(uint32_t i = 0; i < input.size(); i++)
     {
         const float value = (static_cast<float>(inputChar[i]) - 90.0f) * 10.0f;
         brick[1].setInputValue(i, value);
+    }
+
+    const char* shouldChar = should.c_str();
+    for(uint32_t i = 0; i < should.size(); i++)
+    {
+        const float value = (static_cast<float>(shouldChar[i]) - 90.0f) * 10.0f;
+        brick[60].setShouldValue(i, value);
     }
 
     return true;

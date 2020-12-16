@@ -76,6 +76,9 @@ public:
     uint32_t getNumberOfOutputValues();
     const std::vector<float> getOutputValues();
 
+    void setShouldValue(const uint32_t pos, const float value);
+    const std::vector<float> getShouldValues();
+
 private:
     void initNeighborList();
 
@@ -92,6 +95,9 @@ private:
 
     std::vector<float> m_outputs;
     std::atomic_flag m_output_lock = ATOMIC_FLAG_INIT;
+
+    std::vector<float> m_should;
+    std::atomic_flag m_should_lock = ATOMIC_FLAG_INIT;
 };
 
 #endif // BRICK_H

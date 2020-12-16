@@ -226,7 +226,7 @@ void
 Brick::setInputValue(const uint32_t pos, const float value)
 {
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    LOG_WARNING("input-value: " + std::to_string(value));
+    //LOG_WARNING("input-value: " + std::to_string(value));
     for(uint32_t i = pos * 10; i < (pos * 10) + 10; i++) {
         m_inputs[i] = value;
     }
@@ -267,6 +267,7 @@ uint32_t
 Brick::registerOutput()
 {
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     if(m_outputs.size() >= globalValues->numberOfNodesPerBrick - 1) {
@@ -274,7 +275,29 @@ Brick::registerOutput()
     }
 
     m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+    m_should.push_back(0.0f);
+
     const uint32_t listPos = static_cast<uint32_t>(m_outputs.size()) - 1;
+    m_should_lock.clear(std::memory_order_release);
     m_output_lock.clear(std::memory_order_release);
     return listPos;
 }
@@ -288,8 +311,9 @@ void
 Brick::setOutputValue(const uint32_t pos, const float value)
 {
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_outputs[pos] += value;
-    m_outputs[pos] /= 2.0f;
+    //m_outputs[pos] += value;
+    //m_outputs[pos] /= 2.0f;
+    m_outputs[pos] = value;
     m_output_lock.clear(std::memory_order_release);
 }
 
@@ -316,6 +340,32 @@ Brick::getOutputValues()
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     const std::vector<float> copy = m_outputs;
     m_output_lock.clear(std::memory_order_release);
+    return copy;
+}
+
+/**
+ * @brief Brick::setShouldValue
+ * @param pos
+ * @param value
+ */
+void
+Brick::setShouldValue(const uint32_t pos, const float value)
+{
+    while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    m_should[pos] = value;
+    m_should_lock.clear(std::memory_order_release);
+}
+
+/**
+ * @brief Brick::getShouldValues
+ * @return
+ */
+const std::vector<float>
+Brick::getShouldValues()
+{
+    while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    const std::vector<float> copy = m_should;
+    m_should_lock.clear(std::memory_order_release);
     return copy;
 }
 

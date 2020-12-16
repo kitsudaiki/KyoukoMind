@@ -27,6 +27,7 @@ public:
 
 private:
     bool initNetwork();
+    void calcNewLearningValue();
 
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
     Kitsunemimi::Barrier* m_phase1 = nullptr;
@@ -35,6 +36,10 @@ private:
 
     uint32_t m_numberOfThreads = 0;
     std::string m_testMonitoring = "";
+
+    float m_oldIndex = 0.0f;
+    std::vector<float> m_actualOutput;
+    std::vector<float> m_should;
 };
 
 #endif // NETWORK_MANAGER_H

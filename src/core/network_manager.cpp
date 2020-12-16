@@ -18,6 +18,7 @@
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/objects/brick.h>
 #include <core/objects/segment.h>
+#include <core/objects/global_values.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
@@ -57,6 +58,11 @@ NetworkManager::run()
         }
 
         usleep(PROCESS_INTERVAL);
+
+        // handle learning
+        calcNewLearningValue();
+
+        // run phases of processing
         m_phase1->triggerBarrier();
         synapseStart = std::chrono::system_clock::now();
 
@@ -67,6 +73,7 @@ NetworkManager::run()
         m_phase3->triggerBarrier();
         edgeEnd = std::chrono::system_clock::now();
 
+        // calculate times
         const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
         const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
 
@@ -89,6 +96,51 @@ NetworkManager::run()
         // client-output
         KyoukoRoot::m_clientHandler->sendToClient();
     }
+}
+
+/**
+ * @brief NetworkManager::calcNewLearningValue
+ */
+void
+NetworkManager::calcNewLearningValue()
+{
+    float newLearningValue = 0.0f;
+
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+
+    m_actualOutput = brick[60].getOutputValues();
+    m_should = brick[60].getShouldValues();
+
+    float sholdIndex = 0.0f;
+    float actualIndex = 0.0f;
+
+    for(uint32_t i = 0; i < m_actualOutput.size(); i++)
+    {
+        actualIndex += (m_should.at(i) - m_actualOutput.at(i));
+        sholdIndex += m_should.at(i);
+    }
+
+    LOG_WARNING("-----------------------------------------------");
+    LOG_WARNING("actualIndex: " + std::to_string(actualIndex));
+    LOG_WARNING("sholdIndex: " + std::to_string(sholdIndex));
+    LOG_WARNING("oldIndex: " + std::to_string(m_oldIndex));
+
+    if(actualIndex == 0.0f)
+    {
+        globalValues->lerningValue = 0.0f;
+        return;
+    }
+
+    if(actualIndex > sholdIndex * 0.1f
+            && actualIndex < m_oldIndex)
+    {
+        newLearningValue = 0.01f;
+    }
+
+    LOG_WARNING("set new Learning-value: " + std::to_string(newLearningValue));
+    globalValues->lerningValue = newLearningValue;
+    m_oldIndex = actualIndex;
 }
 
 /**
