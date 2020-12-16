@@ -2,8 +2,12 @@
 - initial_memorizing = ""
 - learning = ""
 - glia_value = ""
+- sensitivity = ""
+- memorizing_offset = ""
 
 set_global_values("set global values")
 - initial_memorizing = initial_memorizing
 - learning = learning
 - glia_value = glia_value
+- sensitivity = sensitivity
+- memorizing_offset = memorizing_offset

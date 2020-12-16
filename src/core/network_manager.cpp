@@ -111,34 +111,44 @@ NetworkManager::calcNewLearningValue()
 
     m_actualOutput = brick[60].getOutputValues();
     m_should = brick[60].getShouldValues();
+    if(m_should.size() == 0) {
+        return;
+    }
 
     float sholdIndex = 0.0f;
     float actualIndex = 0.0f;
 
-    for(uint32_t i = 0; i < m_should.size(); i++)
-    {
-        float summedOutput = 0.0f;
-        const uint32_t offset = i * 10;
-        for(uint32_t j = offset; j < 10; j++) {
-            summedOutput += m_actualOutput.at(j);
-        }
 
-        actualIndex += (m_should.at(i) - summedOutput);
-        sholdIndex += m_should.at(i);
+    float summedOutput = 0.0f;
+    for(uint32_t j = 0; j < 10; j++)
+    {
+        summedOutput += m_actualOutput.at(j);
+        brick[60].setOutputValue(j, 0.0f);
     }
+    summedOutput /= 10.0f;
+
+    m_outBuffer[m_outBufferPos] = summedOutput * 5;
+    m_outBufferPos = (m_outBufferPos + 1) % 10;
+
+    float result = 0.0f;
+    for(uint32_t i = 0; i < 10; i++)
+    {
+        result += m_outBuffer[i];
+    }
+    result /= 10.0f;
+
+
+    actualIndex += (m_should.at(0) - result);
+    sholdIndex += m_should.at(0);
 
     LOG_WARNING("-----------------------------------------------");
     LOG_WARNING("actualIndex: " + std::to_string(actualIndex));
     LOG_WARNING("sholdIndex: " + std::to_string(sholdIndex));
     LOG_WARNING("oldIndex: " + std::to_string(m_oldIndex));
 
-    if(actualIndex == 0.0f)
-    {
-        globalValues->lerningValue = 0.0f;
-        return;
-    }
-
-    if(actualIndex > sholdIndex * 0.1f
+    if(result > 5.0f
+            && actualIndex >= 0.0f
+            && actualIndex < sholdIndex
             && actualIndex < m_oldIndex)
     {
         newLearningValue = 0.01f;

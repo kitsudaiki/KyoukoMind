@@ -300,10 +300,10 @@ processEdgeSection()
     // insert input-values from brick
     const std::vector<float> inputValues = bricks[1].getInputValues();
     for(uint32_t i = 0; i < inputValues.size(); i++) {
-        axonTransfers[i].weight = inputValues.at(i);
+        axonTransfers[i].weight = inputValues.at(i) * static_cast<float>(pow(1.01, static_cast<double>(i % 10)));
     }
     // axonTransfers[1].weight = 1000.0f;
-
+    uint32_t outputCounter = 0;
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
@@ -328,13 +328,16 @@ processEdgeSection()
         }
         else
         {
-            std::cout<<"poi"<<std::endl;
+            outputCounter++;
             const uint32_t offset = brick->nodePos;
-            brick->setOutputValue(i - offset, currentTransfer->weight);
+            const uint32_t max = brick->getNumberOfOutputValues();
+            brick->setOutputValue((i - offset) % max, currentTransfer->weight);
         }
 
         count++;
     }
+
+    std::cout<<"output-counter: "<<outputCounter<<std::endl;
 
     return count;
 }

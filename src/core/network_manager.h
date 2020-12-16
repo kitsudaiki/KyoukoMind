@@ -38,6 +38,10 @@ private:
     std::string m_testMonitoring = "";
 
     float m_oldIndex = 0.0f;
+
+    float m_outBuffer[10];
+    uint8_t m_outBufferPos = 0;
+
     std::vector<float> m_actualOutput;
     std::vector<float> m_should;
 };
