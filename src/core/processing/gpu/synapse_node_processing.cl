@@ -305,46 +305,57 @@ node_processing(__global AxonTransfer* axonTransfers,
         tempNodes[localId_x] = nodes[i];
         __local Node* node = &tempNodes[localId_x];
 
-        if(i >= 41000) {
-            node->border = 0.0f;
-        }
-
-        // set to 255.0f, if value is too high
-        const float cur = node->currentState;
-        node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
-        node->currentState = (cur < 0.000001f) * 0.0f + (cur >= 0.000001f) * cur;
-
-        // check if active
-        if(node->border < node->currentState
-                && node->refractionTime == 0)
+        if(i < 41000) 
         {
-            node->potential = localGlobalValue->actionPotential;
-            node->active = 1;
-            node->refractionTime = localGlobalValue->refractionTime;
+            // set to 255.0f, if value is too high
+            const float cur = node->currentState;
+            node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
+            node->currentState = (cur < 0.000001f) * 0.0f + (cur >= 0.000001f) * cur;
+
+            // check if active
+            if(node->border < node->currentState
+                    && node->refractionTime == 0)
+            {
+                node->potential = localGlobalValue->actionPotential;
+                node->active = 1;
+                node->refractionTime = localGlobalValue->refractionTime;
+            }
+            else if(node->refractionTime == 0)
+            {
+                node->active = 0;
+            }
+
+            // build new axon-transfer-edge, which is send back to the host
+            AxonTransfer newEdge;
+            newEdge.weight = node->active * node->potential * pow(localGlobalValue->gliaValue, node->targetBrickDistance);
+            newEdge.brickId = node->brickId;
+            axonTransfers[i] = newEdge;
+
+            // post-steps
+            node->refractionTime = node->refractionTime >> 1;
+
+            // set to 0.0f, if value is negative
+            const float newCur = node->currentState;
+            node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
+
+            // make cooldown in the node
+            node->potential /= localGlobalValue->nodeCooldown;
+            node->currentState /= localGlobalValue->nodeCooldown;
+
+            nodes[i] = tempNodes[localId_x];
         }
-        else if(node->refractionTime == 0)
+        else
         {
-            node->active = 0;
+            node->border = 1000000.0f;
+
+            // build new axon-transfer-edge, which is send back to the host
+            AxonTransfer newEdge;
+            newEdge.weight = node->currentState;
+            newEdge.brickId = node->brickId;
+            axonTransfers[i] = newEdge;
+
+            node->currentState = 0.0f;
         }
-
-        // build new axon-transfer-edge, which is send back to the host
-        AxonTransfer newEdge;
-        newEdge.weight = node->active * node->potential * pow(localGlobalValue->gliaValue, node->targetBrickDistance);
-        newEdge.brickId = node->brickId;
-        axonTransfers[i] = newEdge;
-
-        // post-steps
-        node->refractionTime = node->refractionTime >> 1;
-
-        // set to 0.0f, if value is negative
-        const float newCur = node->currentState;
-        node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
-
-        // make cooldown in the node
-        node->potential /= localGlobalValue->nodeCooldown;
-        node->currentState /= localGlobalValue->nodeCooldown;
-
-        nodes[i] = tempNodes[localId_x];
     }
 }
 
