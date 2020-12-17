@@ -143,7 +143,8 @@ singleLearningStep(__local SynapseSection* synapseSection,
                    const float weight,
                    __global uint* randomInts,
                    __local GlobalValues* globalValue,
-                   const uint nodeBrickId)
+                   const uint nodeBrickId,
+                   const uint brickId)
 {
     // get random synapse within the current section
     synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
@@ -166,13 +167,20 @@ singleLearningStep(__local SynapseSection* synapseSection,
 
     //synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
 
-    synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-    const uint positiveValue = randomInts[synapseSection->randomPos] % 4;
-    // set new weight
-    if(positiveValue != 0) {
-        synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
-    } else {
-        synapseSection->synapses[choosePosition].dynamicWeight -= weight * globalValue->sensitivity;
+    if(brickId != 60)
+    {
+        synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
+        const uint positiveValue = randomInts[synapseSection->randomPos] % 4;
+        // set new weight
+        if(positiveValue != 0) {
+            synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
+        } else {
+            synapseSection->synapses[choosePosition].dynamicWeight -= weight * globalValue->sensitivity;
+        }
+    }
+    else
+    {
+        synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->outputIndex;
     }
 }
 
@@ -245,9 +253,11 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
         if(weightDiff > 0.0f)
         {
             const uint nodeBrickId = synapseTransfers[i].nodeBrickId;
-            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue, nodeBrickId);
-            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue, nodeBrickId);
-            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue, nodeBrickId);
+            const uint brickId = synapseTransfers[i].brickId;
+
+            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue, nodeBrickId, brickId);
+            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue, nodeBrickId, brickId);
+            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue, nodeBrickId, brickId);
 
             // write result back
             synapseSections[synapseSectionId] = tempSections[localId_x];
@@ -295,9 +305,9 @@ node_processing(__global AxonTransfer* axonTransfers,
         tempNodes[localId_x] = nodes[i];
         __local Node* node = &tempNodes[localId_x];
 
-        /*if(i >= 41000) {
-            node->border = 10.0f;
-        }*/
+        if(i >= 41000) {
+            node->border = 0.0f;
+        }
 
         // set to 255.0f, if value is too high
         const float cur = node->currentState;
@@ -398,18 +408,6 @@ updating(__global UpdateTransfer* updateTransfers,
                 continue;
             }
 
-            // update synapse weight
-            __global Node* currentNode = &nodes[synapse->targetNodeId]; 
-            const int active = currentNode->active != 0;
-            const float diff = synapse->dynamicWeight * (float)active * localGlobalValue->lerningValue;
-            synapse->dynamicWeight -= diff;
-            synapse->staticWeight += diff;
-
-            // update dynamicWeight
-            /*const int tooHeight = currentNode->currentState > (currentNode->border * 1.1f) && synapse->targetNodeId < 41000;
-            const float overHeight = currentNode->currentState - (currentNode->border * 1.1f);
-            synapse->dynamicWeight -= tooHeight * overHeight;*/
-            
             synapse->dynamicWeight = synapse->dynamicWeight * (synapse->memorize + localGlobalValue->memorizingOffset);
 
             const float synapseWeight = fabs(synapse->dynamicWeight + synapse->staticWeight);
@@ -436,5 +434,58 @@ updating(__global UpdateTransfer* updateTransfers,
         synapseSection->status = transferContainer.deleteEdge + 1;
         updateTransfers[i] = transferContainer;
         synapseSections[i] = tempSectionMem[localId_x];
+    }
+}
+
+//==================================================================================================
+
+__kernel void
+learning(__global Node* nodes,
+         const ulong numberOfNodes,
+         __global SynapseSection* synapseSections,
+         const ulong numberOfSynapseSections,
+         __global GlobalValues* globalValue,
+         const ulong numberGlobalValue,
+         __local uchar* localMemory,
+         const ulong localMemorySize)
+{
+    // prepare coordinates
+    const size_t globalId_x = get_global_id(0);
+    const size_t globalSize_x = get_global_size(0);
+    const int localId_x = get_local_id(0);
+
+    // prepare shared memory
+    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
+    localGlobalValue[0] = globalValue[0];
+    __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[256];
+
+    for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
+    {
+        // skip if section is deleted
+        if(synapseSections[i].status == DELETED_SECTION) {
+            continue;
+        }
+
+        // load data into shared memory
+        tempSectionMem[localId_x] = synapseSections[i];
+        __local SynapseSection* synapseSection = &tempSectionMem[localId_x];
+        __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
+
+        // iterate over all synapses in synapse-section
+        for(__local Synapse* synapse = synapseSection->synapses;
+            synapse < end;
+            synapse++)
+        {
+            if(synapse->targetNodeId == UNINIT_STATE_16) {
+                continue;
+            }
+
+            // update synapse weight
+            __global Node* currentNode = &nodes[synapse->targetNodeId]; 
+            const int active = currentNode->active != 0;
+            const float diff = synapse->dynamicWeight * (float)active * localGlobalValue->lerningValue;
+            synapse->dynamicWeight -= diff;
+            synapse->staticWeight += diff;
+        }
     }
 }

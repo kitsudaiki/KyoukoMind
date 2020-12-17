@@ -95,6 +95,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     assert(m_gpuInterface->addKernel("synapse_processing",  processingCode));
     assert(m_gpuInterface->addKernel("node_processing",  processingCode));
     assert(m_gpuInterface->addKernel("updating",  processingCode));
+    assert(m_gpuInterface->addKernel("learning",  processingCode));
 
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 0, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 3, oclData));
@@ -111,11 +112,15 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     assert(m_gpuInterface->bindKernelToBuffer("updating", 4, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 6, oclData));
 
+    assert(m_gpuInterface->bindKernelToBuffer("learning", 3, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("learning", 4, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("learning", 6, oclData));
+
     assert(m_gpuInterface->getLocalMemorySize() == 256*256);
     assert(m_gpuInterface->setLocalMemory("synapse_processing",  256*256));
     assert(m_gpuInterface->setLocalMemory("node_processing",  256*256));
     assert(m_gpuInterface->setLocalMemory("updating",  256*256));
-
+    assert(m_gpuInterface->setLocalMemory("learning",  256*256));
 
     return true;
 }
@@ -146,10 +151,10 @@ GpuProcessingUnit::run()
 
         // run process on gpu
         start = std::chrono::system_clock::now();
-        runOnGpu("updating");
+        runOnGpu("learning");
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
+        //KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
 
         start = std::chrono::system_clock::now();
         runOnGpu("synapse_processing");
@@ -162,6 +167,13 @@ GpuProcessingUnit::run()
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;
+
+        // run process on gpu
+        start = std::chrono::system_clock::now();
+        runOnGpu("updating");
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
 
         // copy result from gpu to host
         start = std::chrono::system_clock::now();
