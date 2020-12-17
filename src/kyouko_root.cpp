@@ -27,6 +27,7 @@
 #include <src/blossoms/metadata_blossom.h>
 #include <src/blossoms/special_blossoms.h>
 #include <src/blossoms/get_node_brick_ids_blossom.h>
+#include <src/blossoms/set_global_values_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -93,6 +94,9 @@ KyoukoRoot::initBlossoms()
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "get_node_brick_ids",
                                                           new GetNodeBrickIds_Blossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "set_global_values",
+                                                          new SetGlobalValues_Blossom()));
 
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "print",
@@ -155,7 +159,7 @@ KyoukoRoot::initSakuraFiles()
 bool
 KyoukoRoot::learn(const std::string &input,
                   const std::string &should,
-                  std::string &errorMessage)
+                  std::string &)
 {
     LOG_WARNING("input: " + input);
     LOG_WARNING("should: " + should);
@@ -163,11 +167,17 @@ KyoukoRoot::learn(const std::string &input,
     Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
 
     const char* inputChar = input.c_str();
-
     for(uint32_t i = 0; i < input.size(); i++)
     {
-        const float value = (static_cast<float>(inputChar[i]) - 80.0f) * 10.0f;
+        const float value = (static_cast<float>(inputChar[i]) - 90.0f) * 10.0f;
         brick[1].setInputValue(i, value);
+    }
+
+    const char* shouldChar = should.c_str();
+    for(uint32_t i = 0; i < should.size(); i++)
+    {
+        const float value = (static_cast<float>(shouldChar[i]) - 90.0f) * 10.0f;
+        brick[60].setShouldValue(i, value);
     }
 
     return true;

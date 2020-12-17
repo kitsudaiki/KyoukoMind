@@ -33,6 +33,7 @@ public:
     // common
     uint32_t brickId = UNINIT_STATE_32;
     uint32_t nodeBrickId = UNINIT_STATE_32;
+    bool isOutputBrick = false;
 
     BrickPos brickPos;
 
@@ -40,7 +41,13 @@ public:
     // 22: the current brick
     uint32_t neighbors[23];
     uint32_t nodePos = UNINIT_STATE_32;
-    uint32_t activity = 0;
+
+    uint32_t nodeActivity = 0;
+    uint32_t synapseActivity = 0;
+    uint32_t edgeCreateActivity = 0;
+    uint32_t edgeDeleteActivity = 0;
+    uint32_t synapseCreateActivity = 0;
+    uint32_t synapseDeleteActivity = 0;
 
     //----------------------------------------------------------------------------------------------
 
@@ -54,7 +61,7 @@ public:
 
     ~Brick();
 
-    uint32_t getRandomNeighbor(const uint32_t location);
+    uint32_t getRandomNeighbor(const uint32_t lastLocation);
 
     bool connectBricks(const uint8_t sourceSide,
                        Brick &targetBrick);
@@ -63,11 +70,15 @@ public:
     uint32_t registerInput();
     void setInputValue(const uint32_t pos, const float value);
     const std::vector<float> getInputValues();
+    void clearInput();
 
     uint32_t registerOutput();
     void setOutputValue(const uint32_t pos, const float value);
     uint32_t getNumberOfOutputValues();
     const std::vector<float> getOutputValues();
+
+    void setShouldValue(const uint32_t pos, const float value);
+    const std::vector<float> getShouldValues();
 
 private:
     void initNeighborList();
@@ -85,6 +96,9 @@ private:
 
     std::vector<float> m_outputs;
     std::atomic_flag m_output_lock = ATOMIC_FLAG_INIT;
+
+    std::vector<float> m_should;
+    std::atomic_flag m_should_lock = ATOMIC_FLAG_INIT;
 };
 
 #endif // BRICK_H

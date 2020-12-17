@@ -50,7 +50,6 @@ createAxons(Segment &segment,
                                                                0,
                                                                lenght,
                                                                networkMetaStructure);
-
                     Brick* targetBrick = networkMetaStructure[target.x][target.y].brick;
                     edges[pos + i].targetBrickId = targetBrick->brickId;
                     nodes[pos + i].brickId = brick->brickId;

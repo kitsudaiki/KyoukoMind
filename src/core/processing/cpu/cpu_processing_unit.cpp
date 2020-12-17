@@ -42,17 +42,21 @@ CpuProcessingUnit::run()
         m_phase1->triggerBarrier();
         m_phase2->triggerBarrier();
 
+        // process update-messages
         start = std::chrono::system_clock::now();
-        updateEdgeSection();
+        const uint32_t numberOfUpdates = updateEdgeSection();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.cpuUpdate = timeValue;
+        KyoukoRoot::monitoringMetaMessage.updateTransfers = numberOfUpdates;
 
+        // process axon-messages
         start = std::chrono::system_clock::now();
-        processEdgeSection();
+        const uint32_t numberOfAxons = processEdgeSection();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.cpuProcessing = timeValue;
+        KyoukoRoot::monitoringMetaMessage.axonTransfers = numberOfAxons;
 
         m_phase3->triggerBarrier();
     }

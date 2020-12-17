@@ -13,18 +13,20 @@
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 #include <core/objects/edges.h>
-#include <core/objects/container_definitions.h>
 
 void
 validateStructSizes()
 {
     assert(sizeof(Brick) < 4096);
 
-    assert(sizeof(Synapse) == 12);
-    std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
+    assert(sizeof(Synapse) == 16);
 
+    std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
     assert(sizeof(SynapseSection) == 256);
+
+    std::cout<<"sizeof(GlobalValues): "<<sizeof(GlobalValues)<<std::endl;
     assert(sizeof(GlobalValues) == 256);
+
     assert(sizeof(EdgeSection) == 4096);
 
     return;

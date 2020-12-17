@@ -53,7 +53,12 @@ Brick::Brick(const Brick &other)
         this->nodeBrickId = other.nodeBrickId;
         this->brickPos = other.brickPos;
         this->nodePos = other.nodePos;
-        this->activity = other.activity;
+        this->nodeActivity = other.nodeActivity;
+        this->synapseActivity = other.synapseActivity;
+        this->edgeCreateActivity = other.edgeCreateActivity;
+        this->edgeDeleteActivity = other.edgeDeleteActivity;
+        this->synapseCreateActivity = other.synapseCreateActivity;
+        this->synapseDeleteActivity = other.synapseDeleteActivity;
 
         for(uint32_t i = 0; i < 23; i++) {
             this->neighbors[i] = other.neighbors[i];
@@ -75,7 +80,12 @@ Brick
         this->nodeBrickId = other.nodeBrickId;
         this->brickPos = other.brickPos;
         this->nodePos = other.nodePos;
-        this->activity = other.activity;
+        this->nodeActivity = other.nodeActivity;
+        this->synapseActivity = other.synapseActivity;
+        this->edgeCreateActivity = other.edgeCreateActivity;
+        this->edgeDeleteActivity = other.edgeDeleteActivity;
+        this->synapseCreateActivity = other.synapseCreateActivity;
+        this->synapseDeleteActivity = other.synapseDeleteActivity;
 
         for(uint32_t i = 0; i < 23; i++) {
             this->neighbors[i] = other.neighbors[i];
@@ -97,23 +107,12 @@ Brick::~Brick() {}
 uint32_t
 Brick::getRandomNeighbor(const uint32_t location)
 {
-    uint8_t inputSide = getInputSide(location);
-    if(inputSide == 0) {
-        inputSide = 9;
-    }
+    const uint8_t inputSide = getInputSide(location);
     const PossibleNext next = getPossibleNext(inputSide);
-
-    // in case of an output
-    if(m_outputs.size() > 0
-            && rand() % 4 == 0)
-    {
-        const uint32_t outputPos = static_cast<uint32_t>(rand() % m_outputs.size());
-        const uint32_t nextLocation = outputPos + (static_cast<uint32_t>(25) << 24);
-        return nextLocation;
-    }
 
     const uint8_t nextSide = next.next[rand() % 3];
     uint32_t nextLocation = neighbors[nextSide];
+
     if(nextLocation != UNINIT_STATE_32) {
         nextLocation += static_cast<uint32_t>(23 - nextSide) << 24;
     }
@@ -227,7 +226,7 @@ void
 Brick::setInputValue(const uint32_t pos, const float value)
 {
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    LOG_WARNING("input-value: " + std::to_string(value));
+    //LOG_WARNING("input-value: " + std::to_string(value));
     for(uint32_t i = pos * 10; i < (pos * 10) + 10; i++) {
         m_inputs[i] = value;
     }
@@ -248,6 +247,19 @@ Brick::getInputValues()
 }
 
 /**
+ * @brief Brick::clearInput
+ */
+void
+Brick::clearInput()
+{
+    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    for(uint32_t i = 0; i < m_inputs.size(); i++) {
+        m_inputs[i] = 0.0f;
+    }
+    m_input_lock.clear(std::memory_order_release);
+}
+
+/**
  * @brief Brick::registerOutput
  * @return
  */
@@ -255,6 +267,7 @@ uint32_t
 Brick::registerOutput()
 {
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     if(m_outputs.size() >= globalValues->numberOfNodesPerBrick - 1) {
@@ -262,8 +275,22 @@ Brick::registerOutput()
     }
 
     m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+    m_outputs.push_back(0.0f);
+
+    m_should.push_back(0.0f);
+
     const uint32_t listPos = static_cast<uint32_t>(m_outputs.size()) - 1;
+    m_should_lock.clear(std::memory_order_release);
     m_output_lock.clear(std::memory_order_release);
+
     return listPos;
 }
 
@@ -276,8 +303,12 @@ void
 Brick::setOutputValue(const uint32_t pos, const float value)
 {
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    m_outputs[pos] += value;
-    m_outputs[pos] /= 2.0f;
+    if(pos < m_outputs.size()) {
+        m_outputs[pos] += value;
+    }
+    if(value == 0.0f) {
+        m_outputs[pos] = value;
+    }
     m_output_lock.clear(std::memory_order_release);
 }
 
@@ -308,6 +339,34 @@ Brick::getOutputValues()
 }
 
 /**
+ * @brief Brick::setShouldValue
+ * @param pos
+ * @param value
+ */
+void
+Brick::setShouldValue(const uint32_t pos, const float value)
+{
+    while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    if(pos < m_should.size()) {
+        m_should[pos] = value;
+    }
+    m_should_lock.clear(std::memory_order_release);
+}
+
+/**
+ * @brief Brick::getShouldValues
+ * @return
+ */
+const std::vector<float>
+Brick::getShouldValues()
+{
+    while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    const std::vector<float> copy = m_should;
+    m_should_lock.clear(std::memory_order_release);
+    return copy;
+}
+
+/**
  * uninitialize a specific neighbor of a brick
  *
  * @return true, if successful, else false
@@ -333,9 +392,18 @@ const Brick::PossibleNext
 Brick::getPossibleNext(const uint8_t inputSide)
 {
     PossibleNext next;
+    std::vector<uint8_t> possibleNext = { 9, 10, 11, 12, 13, 14 };
 
     switch(inputSide)
     {
+        case 0:
+        {
+            next.next[0] = possibleNext[rand() % 6];
+            next.next[1] = possibleNext[rand() % 6];
+            next.next[2] = possibleNext[rand() % 6];
+            break;
+        }
+
         case 9:
         {
             next.next[0] = 11;

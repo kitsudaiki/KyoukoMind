@@ -146,6 +146,12 @@ GpuProcessingUnit::run()
 
         // run process on gpu
         start = std::chrono::system_clock::now();
+        runOnGpu("updating");
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
+
+        start = std::chrono::system_clock::now();
         runOnGpu("synapse_processing");
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
@@ -156,12 +162,6 @@ GpuProcessingUnit::run()
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;
-
-        start = std::chrono::system_clock::now();
-        runOnGpu("updating");
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
 
         // copy result from gpu to host
         start = std::chrono::system_clock::now();

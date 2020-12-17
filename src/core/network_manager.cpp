@@ -17,6 +17,8 @@
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/objects/brick.h>
+#include <core/objects/segment.h>
+#include <core/objects/global_values.h>
 
 #include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
@@ -56,22 +58,35 @@ NetworkManager::run()
         }
 
         usleep(PROCESS_INTERVAL);
-        m_phase1->triggerBarrier();
-        edgeStart = std::chrono::system_clock::now();
 
-        m_phase2->triggerBarrier();
-        edgeEnd = std::chrono::system_clock::now();
+        // handle learning
+        calcNewLearningValue();
+
+        // run phases of processing
+        m_phase1->triggerBarrier();
         synapseStart = std::chrono::system_clock::now();
 
-        m_phase3->triggerBarrier();
+        m_phase2->triggerBarrier();
         synapseEnd = std::chrono::system_clock::now();
+        edgeStart = std::chrono::system_clock::now();
 
+        m_phase3->triggerBarrier();
+        edgeEnd = std::chrono::system_clock::now();
+
+        // calculate times
         const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
         const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
 
+        // total times
         KyoukoRoot::monitoringMetaMessage.edgePhase = edgeTime;
         KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
         KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
+
+        // object-numbers in item-buffer
+        const uint64_t numberOfSynapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
+        KyoukoRoot::monitoringMetaMessage.synapseSections = numberOfSynapseSections;
+        KyoukoRoot::monitoringMetaMessage.nodes = KyoukoRoot::m_segment->nodes.numberOfItems;
+        KyoukoRoot::monitoringMetaMessage.edgeSections = KyoukoRoot::m_segment->edges.numberOfItems;
 
         // monitoring-output
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
@@ -81,6 +96,65 @@ NetworkManager::run()
         // client-output
         KyoukoRoot::m_clientHandler->sendToClient();
     }
+}
+
+/**
+ * @brief NetworkManager::calcNewLearningValue
+ */
+void
+NetworkManager::calcNewLearningValue()
+{
+    float newLearningValue = 0.0f;
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    globalValues->lerningValue = newLearningValue;
+
+    m_actualOutput = brick[60].getOutputValues();
+    m_should = brick[60].getShouldValues();
+    if(m_should.size() == 0) {
+        return;
+    }
+
+    float sholdIndex = 0.0f;
+    float actualIndex = 0.0f;
+    float summedOutput = 0.0f;
+
+    for(uint32_t j = 0; j < 10; j++)
+    {
+        summedOutput += m_actualOutput.at(j);
+        brick[60].setOutputValue(j, 0.0f);
+    }
+    summedOutput /= 10.0f;
+
+    // make result smooth
+    m_outBuffer[m_outBufferPos] = summedOutput;
+    m_outBufferPos = (m_outBufferPos + 1) % 10;
+
+    float result = 0.0f;
+    for(uint32_t i = 0; i < 10; i++) {
+        result += m_outBuffer[i];
+    }
+    result /= 10.0f;
+
+    actualIndex += abs((m_should.at(0) - result));
+    sholdIndex += m_should.at(0);
+
+    LOG_WARNING("-----------------------------------------------");
+    LOG_WARNING("actualIndex: " + std::to_string(actualIndex));
+    LOG_WARNING("sholdIndex: " + std::to_string(sholdIndex));
+    LOG_WARNING("summedOutput: " + std::to_string(summedOutput));
+
+    if(result > 5.0f
+            && actualIndex >= 0.0f
+            && actualIndex < sholdIndex
+            && actualIndex < m_oldIndex)
+    {
+        newLearningValue = 0.05f;
+    }
+
+    LOG_WARNING("set new Learning-value: " + std::to_string(newLearningValue));
+    globalValues->lerningValue = newLearningValue;
+    m_oldIndex = actualIndex;
 }
 
 /**
