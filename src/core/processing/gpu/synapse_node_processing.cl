@@ -130,7 +130,9 @@ typedef struct GlobalValues_struct
     float newSynapseBorder;
     float deleteSynapseBorder;
 
-    uchar padding[208];
+    float outputIndex;
+
+    uchar padding[204];
 }
 GlobalValues;
 
@@ -162,8 +164,10 @@ singleLearningStep(__local SynapseSection* synapseSection,
         chosenSynapse->dynamicWeight = 0.0f;
     }
 
+    //synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
+
     synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-    const uint positiveValue = randomInts[synapseSection->randomPos] % 42;
+    const uint positiveValue = randomInts[synapseSection->randomPos] % 4;
     // set new weight
     if(positiveValue != 0) {
         synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
@@ -291,13 +295,17 @@ node_processing(__global AxonTransfer* axonTransfers,
         tempNodes[localId_x] = nodes[i];
         __local Node* node = &tempNodes[localId_x];
 
+        /*if(i >= 41000) {
+            node->border = 10.0f;
+        }*/
+
         // set to 255.0f, if value is too high
         const float cur = node->currentState;
         node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
         node->currentState = (cur < 0.000001f) * 0.0f + (cur >= 0.000001f) * cur;
 
         // check if active
-        if(node->border <= node->currentState
+        if(node->border < node->currentState
                 && node->refractionTime == 0)
         {
             node->potential = localGlobalValue->actionPotential;
@@ -391,13 +399,17 @@ updating(__global UpdateTransfer* updateTransfers,
             }
 
             // update synapse weight
-            const int active = nodes[synapse->targetNodeId].active != 0;
+            __global Node* currentNode = &nodes[synapse->targetNodeId]; 
+            const int active = currentNode->active != 0;
             const float diff = synapse->dynamicWeight * (float)active * localGlobalValue->lerningValue;
-            //const float diff = synapse->dynamicWeight * localGlobalValue->lerningValue;
             synapse->dynamicWeight -= diff;
             synapse->staticWeight += diff;
 
             // update dynamicWeight
+            /*const int tooHeight = currentNode->currentState > (currentNode->border * 1.1f) && synapse->targetNodeId < 41000;
+            const float overHeight = currentNode->currentState - (currentNode->border * 1.1f);
+            synapse->dynamicWeight -= tooHeight * overHeight;*/
+            
             synapse->dynamicWeight = synapse->dynamicWeight * (synapse->memorize + localGlobalValue->memorizingOffset);
 
             const float synapseWeight = fabs(synapse->dynamicWeight + synapse->staticWeight);

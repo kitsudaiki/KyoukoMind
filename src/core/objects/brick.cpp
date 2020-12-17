@@ -304,6 +304,9 @@ Brick::setOutputValue(const uint32_t pos, const float value)
 {
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     if(pos < m_outputs.size()) {
+        m_outputs[pos] += value;
+    }
+    if(value == 0.0f) {
         m_outputs[pos] = value;
     }
     m_output_lock.clear(std::memory_order_release);
