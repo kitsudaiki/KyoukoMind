@@ -45,7 +45,7 @@ struct EdgeSection
 {
     uint32_t targetBrickId = UNINIT_STATE_32;
     uint16_t randomPos = 0;
-    uint8_t padding1[2];
+    int16_t numberOfUsedSynapseSections = 0;
 
     Edge edges[255];
 

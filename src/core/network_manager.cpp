@@ -132,7 +132,8 @@ NetworkManager::calcNewLearningValue()
 
     float result = 0.0f;
     for(uint32_t i = 0; i < 10; i++) {
-        result += m_outBuffer[i];
+        result += m_outBuffer[i] * 5;
+        std::cout<<(m_outBuffer[i] * 5)<<std::endl;
     }
     result /= 10.0f;
 
@@ -141,15 +142,23 @@ NetworkManager::calcNewLearningValue()
 
     LOG_WARNING("-----------------------------------------------");
     LOG_WARNING("actualIndex: " + std::to_string(actualIndex));
+    LOG_WARNING("oldIndex: " + std::to_string(m_oldIndex));
     LOG_WARNING("sholdIndex: " + std::to_string(sholdIndex));
     LOG_WARNING("summedOutput: " + std::to_string(summedOutput));
 
+    globalValues->outputIndex = 0.5f;
+
+    /*if(actualIndex < 10.0f && actualIndex > 0.1f)
+    {
+        newLearningValue = 1.0f;
+    }*/
+
     if(result > 5.0f
-            && actualIndex >= 0.0f
+            && m_should.at(0) > result
             && actualIndex < sholdIndex
             && actualIndex < m_oldIndex)
     {
-        newLearningValue = 0.05f;
+        newLearningValue = 0.1f;
     }
 
     LOG_WARNING("set new Learning-value: " + std::to_string(newLearningValue));
