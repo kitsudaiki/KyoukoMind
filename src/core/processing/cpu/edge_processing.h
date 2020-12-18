@@ -160,11 +160,6 @@ nextEdgeSectionStep(EdgeSection &section,
         brick->edgeCreateActivity++;
     }
 
-    // handle output
-    // if(edge->brickLocation >> 24 == 25) {
-    //     brick->setOutputValue(edge->brickLocation & 0x00FFFFFF, weight);
-    // }
-
     float ratio = 0.0f;
     const uint32_t idFromEdge = getBrickId(*edge);
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[idFromEdge];
