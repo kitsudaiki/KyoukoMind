@@ -51,10 +51,8 @@ createSynapse(EdgeSection &section,
         // very left bit says if this connection is new
         edge.synapseSectionId = edge.synapseSectionId | 0x80000000;
     }
-    else if(edge.synapseSectionId == UNINIT_STATE_32)
-    {
-        edge.synapseWeight = 0.0f;
-    }
+
+    edge.synapseWeight = (edge.synapseSectionId != UNINIT_STATE_32) * edge.synapseWeight;
 }
 
 /**
@@ -295,8 +293,7 @@ processEdgeSection()
     for(uint32_t i = 0; i < inputValues.size(); i++) {
         axonTransfers[i].weight = inputValues.at(i) * static_cast<float>(pow(1.05, static_cast<double>(i % 10)));
     }
-    // axonTransfers[1].weight = 1000.0f;
-    uint32_t outputCounter = 0;
+
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
@@ -321,7 +318,6 @@ processEdgeSection()
         }
         else
         {
-            outputCounter++;
             const uint32_t offset = brick->nodePos;
             const uint32_t max = brick->getNumberOfOutputValues();
             if(max > 0) {
@@ -331,8 +327,6 @@ processEdgeSection()
 
         count++;
     }
-
-    std::cout<<"output-counter: "<<outputCounter<<std::endl;
 
     return count;
 }
