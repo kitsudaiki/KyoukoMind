@@ -180,7 +180,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
     }
     else
     {
-        synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->outputIndex;
+        synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
     }
 }
 
@@ -259,7 +259,7 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue, nodeBrickId, brickId);
             singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue, nodeBrickId, brickId);
 
-            // write result back
+            // write result back to global memory
             synapseSections[synapseSectionId] = tempSections[localId_x];
         }
 
@@ -341,12 +341,11 @@ node_processing(__global AxonTransfer* axonTransfers,
             // make cooldown in the node
             node->potential /= localGlobalValue->nodeCooldown;
             node->currentState /= localGlobalValue->nodeCooldown;
-
-            nodes[i] = tempNodes[localId_x];
         }
         else
         {
             node->border = 1000000.0f;
+            node->active = 1;
 
             // build new axon-transfer-edge, which is send back to the host
             AxonTransfer newEdge;
@@ -354,8 +353,11 @@ node_processing(__global AxonTransfer* axonTransfers,
             newEdge.brickId = node->brickId;
             axonTransfers[i] = newEdge;
 
-            node->currentState = 0.0f;
+            node->currentState /= localGlobalValue->nodeCooldown;
         }
+
+        // write changes back from shared memory to global memory
+        nodes[i] = tempNodes[localId_x];
     }
 }
 
@@ -396,12 +398,7 @@ updating(__global UpdateTransfer* updateTransfers,
         // skip if section is deleted
         if(synapseSections[i].status == DELETED_SECTION)
         {
-            transferContainer.newWeight = 0.0f;
-            transferContainer.targetId = UNINIT_STATE_32;
-            transferContainer.positionInEdge = UNINIT_STATE_8;
-            transferContainer.deleteEdge = 0;
             updateTransfers[i] = transferContainer;
-
             continue;
         }
 
@@ -415,15 +412,16 @@ updating(__global UpdateTransfer* updateTransfers,
             synapse < end;
             synapse++)
         {
+            // skip unused synapse in section
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 continue;
             }
 
+            // calculate new dynamic weight value
             synapse->dynamicWeight = synapse->dynamicWeight * (synapse->memorize + localGlobalValue->memorizingOffset);
 
-            const float synapseWeight = fabs(synapse->dynamicWeight + synapse->staticWeight);
-
             // check for deletion of the single synapse
+            const float synapseWeight = fabs(synapse->dynamicWeight + synapse->staticWeight);
             if(synapseWeight < localGlobalValue->deleteSynapseBorder) 
             {
                 synapse->dynamicWeight = 0.0f;
@@ -441,8 +439,12 @@ updating(__global UpdateTransfer* updateTransfers,
         transferContainer.positionInEdge = synapseSection->positionInEdge;
         transferContainer.deleteEdge = transferContainer.newWeight <= localGlobalValue->deleteSynapseBorder;
 
-        // delete +1 = DELETED_SECTION
-        synapseSection->status = transferContainer.deleteEdge + 1;
+        // mark section as deleted
+        if(transferContainer.deleteEdge > 0) {
+            synapseSection->status = DELETED_SECTION;
+        }
+
+        // write changes back from shared memory to global memory
         updateTransfers[i] = transferContainer;
         synapseSections[i] = tempSectionMem[localId_x];
     }
@@ -472,7 +474,7 @@ learning(__global Node* nodes,
 
     for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
     {
-        // skip if section is deleted
+        // skip unused section
         if(synapseSections[i].status == DELETED_SECTION) {
             continue;
         }
@@ -487,16 +489,19 @@ learning(__global Node* nodes,
             synapse < end;
             synapse++)
         {
+            // skip unused synapse in section
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 continue;
             }
 
             // update synapse weight
             __global Node* currentNode = &nodes[synapse->targetNodeId]; 
-            const int active = currentNode->active != 0;
-            const float diff = synapse->dynamicWeight * (float)active * localGlobalValue->lerningValue;
+            const float diff = synapse->dynamicWeight * localGlobalValue->lerningValue;
             synapse->dynamicWeight -= diff;
             synapse->staticWeight += diff;
         }
+
+        // write changes back from shared memory to global memory
+        synapseSections[i] = tempSectionMem[localId_x];
     }
 }
