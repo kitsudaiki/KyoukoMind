@@ -142,6 +142,7 @@ inline void
 singleLearningStep(__local SynapseSection* synapseSection,
                    const float weight,
                    __global uint* randomInts,
+                   __global Node* nodes,
                    __local GlobalValues* globalValue,
                    const uint nodeBrickId,
                    const uint brickId)
@@ -165,7 +166,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
         chosenSynapse->dynamicWeight = 0.0f;
     }
 
-    if(brickId != 60)
+    if(nodes[chosenSynapse->targetNodeId].border != -1.0f)
     {
         synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
         const uint positiveValue = randomInts[synapseSection->randomPos] % 4;
@@ -253,9 +254,9 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             const uint nodeBrickId = synapseTransfers[i].nodeBrickId;
             const uint brickId = synapseTransfers[i].brickId;
 
-            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, localGlobalValue, nodeBrickId, brickId);
-            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, localGlobalValue, nodeBrickId, brickId);
-            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, localGlobalValue, nodeBrickId, brickId);
+            singleLearningStep(synapseSection, 0.5f * weightDiff, randomInts, nodes, localGlobalValue, nodeBrickId, brickId);
+            singleLearningStep(synapseSection, 0.3f * weightDiff, randomInts, nodes, localGlobalValue, nodeBrickId, brickId);
+            singleLearningStep(synapseSection, 0.2f * weightDiff, randomInts, nodes, localGlobalValue, nodeBrickId, brickId);
 
             // write result back to global memory
             synapseSections[synapseSectionId] = tempSections[localId_x];
@@ -349,8 +350,8 @@ node_processing(__global AxonTransfer* axonTransfers,
             newEdge.weight = node->currentState;
             newEdge.brickId = node->brickId;
             axonTransfers[i] = newEdge;
-
-            node->currentState /= localGlobalValue->nodeCooldown;
+            node->currentState = 0.0f;
+            //node->currentState /= localGlobalValue->nodeCooldown;
         }
 
         // write changes back from shared memory to global memory
@@ -413,9 +414,12 @@ updating(__global UpdateTransfer* updateTransfers,
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 continue;
             }
-
+            
             // calculate new dynamic weight value
-            synapse->dynamicWeight = synapse->dynamicWeight * (synapse->memorize + localGlobalValue->memorizingOffset);
+            const float add = (float)(nodes[synapse->targetNodeId].active != 0) * 0.5f * (synapse->memorize + localGlobalValue->memorizingOffset);
+            float mem = (synapse->memorize + localGlobalValue->memorizingOffset) + add;
+            mem = (mem >= 0.99f) * 0.99f + (mem < 0.99f) * mem;
+            synapse->dynamicWeight = synapse->dynamicWeight * mem;
 
             // check for deletion of the single synapse
             const float synapseWeight = fabs(synapse->dynamicWeight + synapse->staticWeight);
