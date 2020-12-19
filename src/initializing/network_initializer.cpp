@@ -177,7 +177,7 @@ NetworkInitializer::addBricks(Segment &segment)
 
                     Node* array = getBuffer<Node>(segment.nodes);
                     for(uint32_t i = nodePos; i < globalValues->numberOfNodesPerBrick; i++) {
-                        array[i].border = 0.0f;
+                        array[i].border = -1.0f;
                     }
 
                     // segment.bricks.addNewItem(newBrick, true);

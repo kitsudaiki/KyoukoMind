@@ -165,8 +165,6 @@ singleLearningStep(__local SynapseSection* synapseSection,
         chosenSynapse->dynamicWeight = 0.0f;
     }
 
-    //synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
-
     if(brickId != 60)
     {
         synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
@@ -180,7 +178,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
     }
     else
     {
-        synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->sensitivity;
+        synapseSection->synapses[choosePosition].dynamicWeight += weight * globalValue->outputIndex;
     }
 }
 
@@ -305,7 +303,7 @@ node_processing(__global AxonTransfer* axonTransfers,
         tempNodes[localId_x] = nodes[i];
         __local Node* node = &tempNodes[localId_x];
 
-        if(i < 41000) 
+        if(node->border != -1.0f) 
         {
             // set to 255.0f, if value is too high
             const float cur = node->currentState;
@@ -344,7 +342,6 @@ node_processing(__global AxonTransfer* axonTransfers,
         }
         else
         {
-            node->border = 1000000.0f;
             node->active = 1;
 
             // build new axon-transfer-edge, which is send back to the host

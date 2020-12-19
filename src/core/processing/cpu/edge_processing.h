@@ -34,7 +34,8 @@ createSynapse(EdgeSection &section,
     uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
     section.randomPos = (section.randomPos + 1) % 1024;
 
-    if(edge.synapseSectionId == UNINIT_STATE_32  // no synapse already exist
+    if(brick->isInputBrick == false
+            && edge.synapseSectionId == UNINIT_STATE_32  // no synapse already exist
             && brick->nodeBrickId != UNINIT_STATE_32  // current brick must be a node-brick
             && randValues[section.randomPos] % 5 == 0  // random value to not create every time
             && weight >= 5.0f  // minimal weight for a new synapse-section
