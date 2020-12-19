@@ -37,10 +37,8 @@ private:
     uint32_t m_numberOfThreads = 0;
     std::string m_testMonitoring = "";
 
-    float m_oldIndex = 0.0f;
     float m_outBuffer[10];
     uint8_t m_outBufferPos = 0;
-    bool m_disableLearning = false;
 
     std::vector<float> m_actualOutput;
     std::vector<float> m_should;

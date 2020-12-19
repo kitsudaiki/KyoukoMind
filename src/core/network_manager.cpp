@@ -115,8 +115,6 @@ NetworkManager::calcNewLearningValue()
         return;
     }
 
-    float sholdIndex = 0.0f;
-    float actualIndex = 0.0f;
     float summedOutput = 0.0f;
 
     for(uint32_t j = 0; j < 10; j++)
@@ -137,33 +135,8 @@ NetworkManager::calcNewLearningValue()
     }
     result /= 10.0f;
 
-    actualIndex += abs((m_should.at(0) - result));
-    sholdIndex += m_should.at(0);
-
     LOG_WARNING("-----------------------------------------------");
-    LOG_WARNING("actualIndex: " + std::to_string(actualIndex));
-    LOG_WARNING("oldIndex: " + std::to_string(m_oldIndex));
-    LOG_WARNING("sholdIndex: " + std::to_string(sholdIndex));
-    LOG_WARNING("summedOutput: " + std::to_string(summedOutput));
-
-    globalValues->outputIndex = 0.5f;
-
-    /*if(actualIndex < 10.0f && actualIndex > 0.1f)
-    {
-        newLearningValue = 1.0f;
-    }*/
-
-    if(result > 5.0f
-            && m_should.at(0) > result
-            && actualIndex < sholdIndex
-            && actualIndex < m_oldIndex)
-    {
-        newLearningValue = 0.1f;
-    }
-
-    LOG_WARNING("set new Learning-value: " + std::to_string(newLearningValue));
-    globalValues->lerningValue = newLearningValue;
-    m_oldIndex = actualIndex;
+    LOG_WARNING("output: " + std::to_string(result));
 }
 
 /**
