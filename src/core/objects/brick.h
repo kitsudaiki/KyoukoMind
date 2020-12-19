@@ -75,6 +75,7 @@ public:
 
     uint32_t registerOutput();
     void setOutputValue(const uint32_t pos, const float value);
+    void resetOutputValues();
     uint32_t getNumberOfOutputValues();
     const std::vector<float> getOutputValues();
 
