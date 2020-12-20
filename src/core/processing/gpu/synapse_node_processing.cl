@@ -212,7 +212,7 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
     const Node tempNode = nodes[chosenSynapse->targetNodeId];
     if(tempNode.border != -1.0f)
     {
-        synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
+        /*synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
         const uint positiveValue = randomInts[synapseSection->randomPos] % 3;
         usedWeight = weight * (1.0f - chosenSynapse->harden);
 
@@ -221,12 +221,25 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
             chosenSynapse->dynamicWeight += usedWeight * globalValue->sensitivity;
         } else {
             chosenSynapse->dynamicWeight += -1.0f * usedWeight * globalValue->sensitivity;
+        }*/
+
+        // old version as backup
+        const Node tempNode = nodes[chosenSynapse->targetNodeId];
+        const uint tooHeight = tempNode.border < tempNode.currentState * 1.2f;
+        usedWeight = globalValue->sensitivity * weight * (float)((tooHeight * -2) + 1) * (1.0f - chosenSynapse->harden);
+        // make sure it is not too height
+        if(tempNode.currentState + usedWeight > 1.1f * tempNode.border)
+        {
+            const float diff = (tempNode.currentState + usedWeight) - (1.1f * tempNode.border);
+            usedWeight -= diff;
         }
+
+        chosenSynapse->dynamicWeight += usedWeight;
     }
     else
     {
-        usedWeight = weight * (1.0f - chosenSynapse->harden);
-        chosenSynapse->dynamicWeight += usedWeight * globalValue->outputIndex;
+        usedWeight = weight * (1.0f - chosenSynapse->harden) * globalValue->outputIndex;
+        chosenSynapse->dynamicWeight += usedWeight;
     }
 
     return usedWeight;
