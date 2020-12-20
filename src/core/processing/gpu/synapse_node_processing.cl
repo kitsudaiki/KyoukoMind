@@ -165,7 +165,7 @@ singleLearningStep(__local SynapseSection* synapseSection,
         chosenSynapse->staticWeight = 0.0f;
         chosenSynapse->dynamicWeight = 0.0f;
     }
-
+    
     if(nodes[chosenSynapse->targetNodeId].border != -1.0f)
     {
         synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
@@ -405,6 +405,8 @@ updating(__global UpdateTransfer* updateTransfers,
         __local SynapseSection* synapseSection = &tempSectionMem[localId_x];
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
 
+        synapseSection->totalWeight = 0.0f;
+
         // iterate over all synapses in synapse-section
         for(__local Synapse* synapse = synapseSection->synapses;
             synapse < end;
@@ -422,7 +424,7 @@ updating(__global UpdateTransfer* updateTransfers,
             synapse->dynamicWeight = synapse->dynamicWeight * mem;
 
             // check for deletion of the single synapse
-            const float synapseWeight = fabs(synapse->dynamicWeight + synapse->staticWeight);
+            const float synapseWeight = fabs(synapse->dynamicWeight) + fabs(synapse->staticWeight);
             if(synapseWeight < localGlobalValue->deleteSynapseBorder) 
             {
                 synapse->dynamicWeight = 0.0f;
@@ -431,11 +433,12 @@ updating(__global UpdateTransfer* updateTransfers,
             } 
             else 
             {
-                transferContainer.newWeight += synapseWeight;
+                synapseSection->totalWeight += synapseWeight;
             }
         }
 
         // create update-container for the host
+        transferContainer.newWeight = synapseSection->totalWeight;
         transferContainer.targetId = synapseSection->sourceEdgeId;
         transferContainer.positionInEdge = synapseSection->positionInEdge;
         transferContainer.deleteEdge = transferContainer.newWeight <= localGlobalValue->deleteSynapseBorder;
@@ -496,7 +499,6 @@ learning(__global Node* nodes,
             }
 
             // update synapse weight
-            __global Node* currentNode = &nodes[synapse->targetNodeId]; 
             const float diff = synapse->dynamicWeight * localGlobalValue->lerningValue;
             synapse->dynamicWeight -= diff;
             synapse->staticWeight += diff;
