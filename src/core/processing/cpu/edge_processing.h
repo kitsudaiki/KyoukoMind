@@ -199,10 +199,11 @@ nextEdgeSectionStep(EdgeSection &section,
     else
     {
         // calculate and process ratio
+        edge->synapseWeight = edge->edgeWeight;
+
         ratio = weight / (edge->synapseWeight + 0.0000001f);
         ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
 
-        edge->synapseWeight = edge->edgeWeight;
         createSynapse(section, *edge, edge->synapseWeight, brick);
     }
 
@@ -353,9 +354,6 @@ updateEdgeSection()
             continue;
         }
 
-        float newWeight = container->newWeight;
-        newWeight = (newWeight < 0.0f) * 0.0f + (newWeight >= 0.0f) * newWeight;
-
         EdgeSection* secstion = &edgeSections[container->targetId];
         Edge* edge = &secstion->edges[container->positionInEdge];
         if(container->deleteEdge > 0)
@@ -372,7 +370,7 @@ updateEdgeSection()
         }
         else
         {
-            edge->synapseWeight = newWeight;
+            edge->synapseWeight = container->newWeight;
         }
 
         count++;
