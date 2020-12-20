@@ -26,20 +26,13 @@ ClientConnectionHandler::~ClientConnectionHandler() {}
  * @return
  */
 bool
-ClientConnectionHandler::sendToClient()
+ClientConnectionHandler::sendToClient(const std::string &text)
 {
     bool result = false;
     while(m_clientSession_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    if(m_client != nullptr)
-    {
-        std::string textOutput = "";
-        Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-        const std::vector<float> output = brick[m_outputBrick].getOutputValues();
-        for(uint32_t i = 0; i < output.size(); i++) {
-            textOutput += static_cast<char>(output.at(i));
-        }
-        result = m_client->sendStreamData(textOutput.c_str(), textOutput.size());
+    if(m_client != nullptr) {
+        result = m_client->sendStreamData(text.c_str(), text.size());
     }
 
     m_clientSession_lock.clear(std::memory_order_release);

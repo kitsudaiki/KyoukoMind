@@ -92,9 +92,6 @@ NetworkManager::run()
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
         KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
         KyoukoRoot::m_monitoringHandler->sendToMonitoring();
-
-        // client-output
-        KyoukoRoot::m_clientHandler->sendToClient();
     }
 }
 
@@ -107,21 +104,20 @@ NetworkManager::calcNewLearningValue()
     float newLearningValue = 0.0f;
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    globalValues->lerningValue = newLearningValue;
 
     m_actualOutput = brick[60].getOutputValues();
     m_should = brick[60].getShouldValues();
     if(m_should.size() == 0) {
+        globalValues->lerningValue = newLearningValue;
         return;
     }
 
     float summedOutput = 0.0f;
 
-    for(uint32_t j = 0; j < 10; j++)
-    {
+    for(uint32_t j = 0; j < 10; j++) {
         summedOutput += m_actualOutput.at(j);
-        brick[60].setOutputValue(j, 0.0f);
     }
+    brick[60].resetOutputValues();
     summedOutput /= 10.0f;
 
     // make result smooth
@@ -130,13 +126,22 @@ NetworkManager::calcNewLearningValue()
 
     float result = 0.0f;
     for(uint32_t i = 0; i < 10; i++) {
-        result += m_outBuffer[i] * 5;
-        std::cout<<(m_outBuffer[i] * 5)<<std::endl;
+        result += m_outBuffer[i];
+        std::cout<<m_outBuffer[i]<<std::endl;
     }
     result /= 10.0f;
 
+    KyoukoRoot::m_clientHandler->sendToClient(std::to_string(result));
     LOG_WARNING("-----------------------------------------------");
     LOG_WARNING("output: " + std::to_string(result));
+
+    if(KyoukoRoot::m_freezeState)
+    {
+        newLearningValue = 1.0f;
+        KyoukoRoot::m_freezeState = false;
+    }
+
+    globalValues->lerningValue = newLearningValue;
 }
 
 /**

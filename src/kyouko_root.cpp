@@ -28,12 +28,14 @@
 #include <src/blossoms/special_blossoms.h>
 #include <src/blossoms/get_node_brick_ids_blossom.h>
 #include <src/blossoms/set_global_values_blossom.h>
+#include <src/blossoms/freeze_state_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 Segment* KyoukoRoot::m_segment = nullptr;
+bool KyoukoRoot::m_freezeState = false;
 ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
 MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
 
@@ -49,6 +51,7 @@ KyoukoRoot::KyoukoRoot()
     validateStructSizes();
 
     m_root = this;
+    m_freezeState = false;
     m_segment = new Segment();
     m_clientHandler = new ClientConnectionHandler();
     m_monitoringHandler = new MonitoringConnectionHandler();
@@ -97,6 +100,9 @@ KyoukoRoot::initBlossoms()
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "set_global_values",
                                                           new SetGlobalValues_Blossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "freeze_state",
+                                                          new FreezeStateBlossom()));
 
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "print",

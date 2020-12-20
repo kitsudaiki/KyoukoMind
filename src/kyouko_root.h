@@ -24,6 +24,7 @@ public:
 
     static KyoukoRoot* m_root;
     static Segment* m_segment;
+    static bool m_freezeState;
     static ClientConnectionHandler* m_clientHandler;
     static MonitoringConnectionHandler* m_monitoringHandler;
 

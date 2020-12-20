@@ -22,7 +22,7 @@ public:
     ClientConnectionHandler();
     ~ClientConnectionHandler();
 
-    bool sendToClient();
+    bool sendToClient(const std::string &text);
 
     bool insertInput(const std::string &inputData);
 

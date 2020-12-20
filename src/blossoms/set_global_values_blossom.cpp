@@ -37,6 +37,7 @@ SetGlobalValues_Blossom::SetGlobalValues_Blossom()
     validationMap.emplace("learning", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
     validationMap.emplace("sensitivity", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
     validationMap.emplace("glia_value", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
+    validationMap.emplace("output_index", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
 }
 
 bool
@@ -95,6 +96,16 @@ SetGlobalValues_Blossom::runTask(BlossomLeaf &blossomLeaf,
             globalValues->gliaValue = value->getFloat();
         } else if(value->isIntValue()) {
             globalValues->gliaValue = value->getInt();
+        }
+    }
+
+    if(input->contains("output_index"))
+    {
+        DataValue* value = input->get("output_index")->toValue();
+        if(value->isFloatValue()) {
+            globalValues->outputIndex = value->getFloat();
+        } else if(value->isIntValue()) {
+            globalValues->outputIndex = value->getInt();
         }
     }
 
