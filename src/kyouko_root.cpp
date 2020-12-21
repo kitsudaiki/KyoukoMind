@@ -29,6 +29,7 @@
 #include <src/blossoms/get_node_brick_ids_blossom.h>
 #include <src/blossoms/set_global_values_blossom.h>
 #include <src/blossoms/freeze_state_blossom.h>
+#include <src/blossoms/snapshot_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -103,6 +104,9 @@ KyoukoRoot::initBlossoms()
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "freeze_state",
                                                           new FreezeStateBlossom()));
+    assert(SakuraLangInterface::getInstance()->addBlossom("special",
+                                                          "snapshot",
+                                                          new SnapshotBlossom()));
 
     assert(SakuraLangInterface::getInstance()->addBlossom("special",
                                                           "print",

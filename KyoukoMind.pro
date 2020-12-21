@@ -120,7 +120,8 @@ HEADERS += \
     src/blossoms/get_node_brick_ids_blossom.h \
     src/blossoms/special_blossoms.h \
     src/blossoms/set_global_values_blossom.h \
-    src/blossoms/freeze_state_blossom.h
+    src/blossoms/freeze_state_blossom.h \
+    src/blossoms/snapshot_blossom.h
 
 SOURCES += \
     src/core/objects/brick.cpp \
@@ -146,7 +147,8 @@ SOURCES += \
     src/blossoms/get_node_brick_ids_blossom.cpp \
     src/blossoms/speacal_blossom.cpp \
     src/blossoms/set_global_values_blossom.cpp \
-    src/blossoms/freeze_state_blossom.cpp
+    src/blossoms/freeze_state_blossom.cpp \
+    src/blossoms/snapshot_blossom.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

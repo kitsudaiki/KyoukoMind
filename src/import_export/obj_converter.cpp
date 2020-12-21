@@ -115,7 +115,8 @@ convertBrickToObj(ObjItem &result,
             continue;
         }
 
-        convertNodeToObj(result, brick, brick->brickId * globalValues->numberOfNodesPerBrick + i);
+        const uint32_t nodeId = brick->nodeBrickId * globalValues->numberOfNodesPerBrick + i;
+        convertNodeToObj(result, brick, nodeId);
     }
 }
 
@@ -194,7 +195,7 @@ convertEdgesToObj(ObjItem &result,
                   const uint16_t pos,
                   const uint32_t vectorPos)
 {
-    cleanupEdgeSection(*section);
+    //cleanupEdgeSection(*section);
 
     Edge* edge = &section->edges[pos];
     if(getBrickId(edge->brickLocation) == 0x00FFFFFF) {

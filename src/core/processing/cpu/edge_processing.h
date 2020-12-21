@@ -160,6 +160,7 @@ nextEdgeSectionStep(EdgeSection &section,
         brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge->brickLocation)];
         brick->edgeCreateActivity++;
     }
+    assert(getBrickId(edge->brickLocation) <= 60);
 
     float ratio = 0.0f;
     const uint32_t idFromEdge = getBrickId(*edge);
@@ -382,6 +383,20 @@ updateEdgeSection()
     }
 
     return count;
+}
+
+inline void
+clearAllEdgeSections()
+{
+    // prepare pointer
+    Segment* segment = KyoukoRoot::m_segment;
+    EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
+
+    for(uint32_t i = 0; i < segment->edges.itemCapacity; i++)
+    {
+        EdgeSection* currentSection = &edgeSections[i];
+        cleanupEdgeSection(*currentSection);
+    }
 }
 
 #endif // EDGE_PROCESSING_H

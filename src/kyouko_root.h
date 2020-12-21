@@ -38,8 +38,9 @@ public:
     bool learn(const std::string &input,
                const std::string &should, std::string &);
 
-private:
     NetworkManager* m_networkManager = nullptr;
+
+private:
     uint32_t m_serverId = 0;
 };
 
