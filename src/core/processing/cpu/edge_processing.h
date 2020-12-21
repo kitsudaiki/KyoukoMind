@@ -271,8 +271,7 @@ cleanupEdgeSection(EdgeSection &section)
 
 /**
  * @brief processEdgeSection
- * @param section
- * @param weight
+ * @return
  */
 inline uint32_t
 processEdgeSection()
@@ -287,8 +286,10 @@ processEdgeSection()
 
     // insert input-values from brick
     const std::vector<float> inputValues = bricks[1].getInputValues();
-    for(uint32_t i = 0; i < inputValues.size(); i++) {
-        axonTransfers[i].weight = inputValues.at(i) * static_cast<float>(pow(1.05, static_cast<double>(i % 10)));
+    for(uint32_t i = 0; i < inputValues.size(); i++)
+    {
+        const float multi = static_cast<float>(pow(1.05, static_cast<double>(i % 10)));
+        axonTransfers[i].weight = inputValues.at(i) * multi;
     }
 
     // process axon-messages
@@ -322,6 +323,7 @@ processEdgeSection()
             }
         }
 
+        // increase counter for monitoring-output
         count++;
     }
 
@@ -350,10 +352,12 @@ updateEdgeSection()
         container < end;
         container++)
     {
+        // skip containers without a target
         if(container->targetId == UNINIT_STATE_32) {
             continue;
         }
 
+        // iterade over all update-containers coming from the gpu
         EdgeSection* secstion = &edgeSections[container->targetId];
         Edge* edge = &secstion->edges[container->positionInEdge];
         if(container->deleteEdge > 0)
@@ -373,6 +377,7 @@ updateEdgeSection()
             edge->synapseWeight = container->newWeight;
         }
 
+        // increase counter for monitoring-output
         count++;
     }
 

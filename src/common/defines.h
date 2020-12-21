@@ -5,8 +5,6 @@
 
 #include <common/includes.h>
 
-#define OUTPUT(OUT) std::cout<<(OUT)<<std::endl;
-
 // const predefined values
 #define UNINIT_STATE_64 0xFFFFFFFFFFFFFFFF
 #define UNINIT_STATE_32 0xFFFFFFFF
@@ -15,7 +13,6 @@
 #define UNINIT_STATE_8 0xFF
 
 // network-predefines
-#define EDGES_PER_EDGESECTION 6
 #define SYNAPSES_PER_SYNAPSESECTION 15
 #define MAX_NUMBER_OF_SYNAPSE_SECTIONS 100000
 #define MINIMUM_NODE_BODER 20

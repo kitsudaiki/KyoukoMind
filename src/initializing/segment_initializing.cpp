@@ -8,8 +8,11 @@
 #include <core/objects/global_values.h>
 
 /**
- * @brief NetworkSegment::initBricks
+ * @brief initBricks
+ *
+ * @param segment
  * @param numberOfBricks
+ *
  * @return
  */
 bool

@@ -17,6 +17,11 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 
+/**
+ * @brief constructor
+ *
+ * @param gpuInterface interface-object for handle the connection to the gpu
+ */
 GpuProcessingUnit::GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInterface)
 {
     m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
@@ -26,11 +31,12 @@ GpuProcessingUnit::GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInter
 }
 
 /**
- * @brief initializeGpu
- * @param ocl
- * @param data
- * @param numberOfBricks
- * @return
+ * @brief initialize gpu-kernel and -buffer
+ *
+ * @param segment segment with the buffer
+ * @param numberOfBricks number of bricks to scale the number of working-groups
+ *
+ * @return true, if successfull, else false
  */
 bool
 GpuProcessingUnit::initializeGpu(Segment &segment,
@@ -92,30 +98,36 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 
     assert(m_gpuInterface->initCopyToDevice(oclData));
 
+    // init kernel
     assert(m_gpuInterface->addKernel("synapse_processing",  processingCode));
     assert(m_gpuInterface->addKernel("node_processing",  processingCode));
     assert(m_gpuInterface->addKernel("updating",  processingCode));
     assert(m_gpuInterface->addKernel("learning",  processingCode));
 
+    // bind buffer for synapse_processing kernel
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 0, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 3, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 4, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 5, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 6, oclData));
 
+    // bind buffer for node_processing kernel
     assert(m_gpuInterface->bindKernelToBuffer("node_processing", 1, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("node_processing", 3, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("node_processing", 6, oclData));
 
+    // bind buffer for updating kernel
     assert(m_gpuInterface->bindKernelToBuffer("updating", 2, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 3, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 4, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 6, oclData));
 
+    // bind buffer for learning kernel
     assert(m_gpuInterface->bindKernelToBuffer("learning", 3, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("learning", 4, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("learning", 6, oclData));
 
+    // init local memory for the kernels
     assert(m_gpuInterface->getLocalMemorySize() == 256*256);
     assert(m_gpuInterface->setLocalMemory("synapse_processing",  256*256));
     assert(m_gpuInterface->setLocalMemory("node_processing",  256*256));
@@ -126,7 +138,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 }
 
 /**
- * @brief GpuProcessingUnit::run
+ * @brief run thread to execute gpu-code
  */
 void
 GpuProcessingUnit::run()
@@ -194,11 +206,11 @@ GpuProcessingUnit::run()
 }
 
 /**
- * @brief copyDataToGpu
- * @param segment
- * @param ocl
- * @param data
- * @return
+ * @brief copy synapse transfers from host to gpu
+ *
+ * @param segment segment with the data to copy
+ *
+ * @return true, if successfull, else false
  */
 bool
 GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
@@ -209,9 +221,9 @@ GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
 }
 
 /**
- * @brief GpuInterface::copyGlobalValuesToGpu
- * @param segment
- * @return
+ * @brief copy global values from host to gpu
+ *
+ * @return true, if successfull, else false
  */
 bool
 GpuProcessingUnit::copyGlobalValuesToGpu()
@@ -220,10 +232,11 @@ GpuProcessingUnit::copyGlobalValuesToGpu()
 }
 
 /**
- * @brief runOnGpu
- * @param ocl
- * @param data
- * @return
+ * @brief run kernel
+ *
+ * @param kernelName name of the kernel
+ *
+ * @return true, if successfull, else false
  */
 bool
 GpuProcessingUnit::runOnGpu(const std::string &kernelName)
@@ -232,11 +245,9 @@ GpuProcessingUnit::runOnGpu(const std::string &kernelName)
 }
 
 /**
- * @brief copyDataFromGpu
- * @param segment
- * @param ocl
- * @param data
- * @return
+ * @brief copy axons from gpu to host
+ *
+ * @return true, if successfull, else false
  */
 bool
 GpuProcessingUnit::copyAxonTransfersFromGpu()
@@ -245,10 +256,9 @@ GpuProcessingUnit::copyAxonTransfersFromGpu()
 }
 
 /**
- * @brief closeDevice
- * @param ocl
- * @param data
- * @return
+ * @brief close connection to gpu
+ *
+ * @return true, if successfull, else false
  */
 bool
 GpuProcessingUnit::closeDevice()

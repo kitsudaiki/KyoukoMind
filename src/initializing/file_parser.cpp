@@ -11,10 +11,12 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 /**
- * @brief parse2dTestfile
- * @param fileContent
- * @param result
- * @return
+ * @brief parse file to initialize a new network
+ *
+ * @param fileContent file to parse with the initial information
+ * @param result reference for the result
+ *
+ * @return number of initialized bricks
  */
 uint32_t
 parse2dTestfile(const std::string &fileContent,

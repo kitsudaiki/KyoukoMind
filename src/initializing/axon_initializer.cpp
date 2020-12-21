@@ -12,8 +12,12 @@
 #include <core/objects/node.h>
 
 /**
- * @brief createAxons
- * @return
+ * @brief create new axons
+ *
+ * @param segment segment with the basic data
+ * @param networkMetaStructure reference to resulting meta-structure
+ *
+ * @return true, if successfull, else false
  */
 bool
 createAxons(Segment &segment,
@@ -62,15 +66,16 @@ createAxons(Segment &segment,
     return true;
 }
 
-
 /**
- * @brief AxonInitializer::getNextAxonPathStep
- * @param x
- * @param y
- * @param inputSide
- * @param currentPath
- * @param currentStep
- * @return
+ * @brief make iterative step to create an axon-path
+ *
+ * @param x current x-position
+ * @param y current y-position
+ * @param inputSide current incoming side
+ * @param currentStep current step-count (max 8 steps)
+ * @param networkMetaStructure reference to resulting meta-structure
+ *
+ * @return new axon object
  */
 NewAxon
 getNextAxonPathStep(const uint32_t x,
@@ -128,9 +133,12 @@ getNextAxonPathStep(const uint32_t x,
 }
 
 /**
- * @brief AxonInitializer::chooseNextSide
- * @param neighbors
- * @return
+ * @brief choose next side, which also has a connected neighbor
+ *
+ * @param initialSide incoming side
+ * @param neighbors list of neighbors
+ *
+ * @return choosed side, 0xFF if no available side was found
  */
 uint8_t
 chooseNextSide(const uint8_t initialSide,
@@ -139,6 +147,7 @@ chooseNextSide(const uint8_t initialSide,
     const std::vector<uint8_t> sideOrder = {9,10,11,14,13,12};
     std::vector<uint8_t> availableSides;
 
+    // collect available sides
     for(uint8_t i = 0; i < sideOrder.size(); i++)
     {
         if(neighbors[sideOrder[i]] != UNINIT_STATE_32
@@ -148,6 +157,7 @@ chooseNextSide(const uint8_t initialSide,
         }
     }
 
+    // choose one of the available side
     if(availableSides.size() != 0) {
         return availableSides[static_cast<uint32_t>(rand()) % availableSides.size()];
     }

@@ -50,6 +50,7 @@ main(int argc, char *argv[])
         return 1;
     }
 
+    // initialize server and connections based on the config-file
     std::vector<std::string> groupNames = {};
     if(MessagingController::initializeMessagingController("KyoukoMind",
                                                           groupNames,
@@ -59,6 +60,7 @@ main(int argc, char *argv[])
         return 1;
     }
 
+    // start core
     rootObject->start();
 
     int a = 0;

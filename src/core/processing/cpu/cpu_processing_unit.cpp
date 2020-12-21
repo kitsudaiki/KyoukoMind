@@ -22,13 +22,12 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 /**
- * @brief ProcessingUnit::ProcessingUnit
- * @param brickHandler
+ * @brief constructor
  */
 CpuProcessingUnit::CpuProcessingUnit() {}
 
 /**
- * @brief ProcessingUnit::run
+ * @brief run cpu-unit
  */
 void
 CpuProcessingUnit::run()

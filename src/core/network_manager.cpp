@@ -127,7 +127,6 @@ NetworkManager::calcNewLearningValue()
     float result = 0.0f;
     for(uint32_t i = 0; i < 10; i++) {
         result += m_outBuffer[i];
-        std::cout<<m_outBuffer[i]<<std::endl;
     }
     result /= 10.0f;
 
@@ -145,52 +144,39 @@ NetworkManager::calcNewLearningValue()
 }
 
 /**
- * @brief NetworkManager::initNetwork
+ * @brief initialize new network
+ *
+ * @return true, if successfull, else false
  */
 bool
 NetworkManager::initNetwork()
 {
     bool success = false;
-    const std::string directoryPath = GET_STRING_CONFIG("Storage", "path", success);
-    LOG_INFO("use storage-directory: " + directoryPath);
 
-    std::vector<std::string> brickFiles;
-    Kitsunemimi::Persistence::listFiles(brickFiles, directoryPath, false);
+    LOG_INFO("no files found. Try to create a new cluster");
 
-    if(brickFiles.size() == 0
-            || bfs::exists(directoryPath) == false)
+    const std::string initialFile = GET_STRING_CONFIG("Init", "file", success);
+    if(success == false)
     {
-        LOG_INFO("no files found. Try to create a new cluster");
-
-        const std::string initialFile = GET_STRING_CONFIG("Init", "file", success);
-        if(success == false)
-        {
-            LOG_ERROR("no init-file set in the config-file");
-            return false;
-        }
-        LOG_INFO("use init-file: " + initialFile);
-
-        std::string fileContent = "";
-        std::string errorMessage = "";
-        if(Kitsunemimi::Persistence::readFile(fileContent, initialFile, errorMessage) == false)
-        {
-            LOG_ERROR(errorMessage);
-            return false;
-        }
-
-        NetworkInitializer initializer;
-        success = initializer.createNewNetwork(fileContent);
-        if(success == false)
-        {
-            LOG_ERROR("failed to initialize network");
-            return false;
-        }
+        LOG_ERROR("no init-file set in the config-file");
+        return false;
     }
-    else
+    LOG_INFO("use init-file: " + initialFile);
+
+    std::string fileContent = "";
+    std::string errorMessage = "";
+    if(Kitsunemimi::Persistence::readFile(fileContent, initialFile, errorMessage) == false)
     {
-        for(uint32_t i = 0; i < brickFiles.size(); i++) {
-            // TODO
-        }
+        LOG_ERROR(errorMessage);
+        return false;
+    }
+
+    NetworkInitializer initializer;
+    success = initializer.createNewNetwork(fileContent);
+    if(success == false)
+    {
+        LOG_ERROR("failed to initialize network");
+        return false;
     }
 
     m_processingUnitHandler->initProcessingUnits(m_phase1,

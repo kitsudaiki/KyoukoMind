@@ -21,7 +21,7 @@ public:
     bool createNewNetwork(const std::string &fileContent);
 
 private:
-    std::vector<std::vector<InitMetaDataEntry>> m_networkMetaStructure;
+    std::vector<std::vector<InitMetaDataEntry>> m_netMetaStructure;
 
     void connectAllBricks(Segment &segment);
     void addBricks(Segment &segment);

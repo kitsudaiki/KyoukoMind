@@ -22,8 +22,11 @@ ClientConnectionHandler::~ClientConnectionHandler() {}
 //==================================================================================================
 
 /**
- * @brief ClientHandler::sendToClient
- * @return
+ * @brief send text to client
+ *
+ * @param text text to send
+ *
+ * @return false, if no gateway is connected, or send to gateway failed, else true
  */
 bool
 ClientConnectionHandler::sendToClient(const std::string &text)
