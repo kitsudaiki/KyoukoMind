@@ -28,7 +28,6 @@
 inline void
 createSynapse(EdgeSection &section,
               Edge &edge,
-              const float weight,
               Brick* brick)
 {
     uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
@@ -38,7 +37,7 @@ createSynapse(EdgeSection &section,
             && edge.synapseSectionId == UNINIT_STATE_32  // no synapse already exist
             && brick->nodeBrickId != UNINIT_STATE_32  // current brick must be a node-brick
             && randValues[section.randomPos] % 5 == 0  // random value to not create every time
-            && weight >= 5.0f  // minimal weight for a new synapse-section
+            && edge.synapseWeight >= 5.0f  // minimal weight for a new synapse-section
             && section.numberOfUsedSynapseSections < 32)
     {
         assert(brick->nodeBrickId != UNINIT_STATE_32);
@@ -178,7 +177,7 @@ nextEdgeSectionStep(EdgeSection &section,
         if(ratio > 1.0f)
         {
             reweightEdge(section, *edge, positionInSection, weight - totalWeight);
-            createSynapse(section, *edge, edge->synapseWeight, brick);
+            createSynapse(section, *edge, brick);
         }
 
         // limit ratio to 1.0
@@ -205,7 +204,7 @@ nextEdgeSectionStep(EdgeSection &section,
         ratio = weight / (edge->synapseWeight + 0.0000001f);
         ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
 
-        createSynapse(section, *edge, edge->synapseWeight, brick);
+        createSynapse(section, *edge, brick);
     }
 
     // process connection to synapse
