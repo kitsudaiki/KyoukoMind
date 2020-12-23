@@ -1,4 +1,4 @@
-/**
+﻿/**
  *  @author  Tobias Anker
  *  Contact: tobias.anker@kitsunemimi.moe
  */
@@ -75,9 +75,12 @@ reweightEdge(EdgeSection &section,
     const float randRatio2 = static_cast<float>(randValues[section.randomPos] % 1024) / 1024.0f;
 
     // update synapse-weight
-    const float synapseWeight = weight * randRatio1;
-    weight -= synapseWeight;
-    edge.synapseWeight += synapseWeight;
+    if(edge.synapseSectionId != UNINIT_STATE_32)
+    {
+        const float synapseWeight = weight * randRatio1;
+        weight -= synapseWeight;
+        edge.synapseWeight += synapseWeight;
+    }
 
     // update weight in next edges
     section.edges[positionInSection * 2].edgeWeight += weight * randRatio2;
@@ -158,6 +161,7 @@ nextEdgeSectionStep(EdgeSection &section,
         }
         brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge->brickLocation)];
         brick->edgeCreateActivity++;
+        createSynapse(section, *edge, brick);
     }
     assert(getBrickId(edge->brickLocation) <= 60);
 
@@ -174,10 +178,8 @@ nextEdgeSectionStep(EdgeSection &section,
         // calculate and process ratio
         const float totalWeight = edge->synapseWeight  + child1->edgeWeight + child2->edgeWeight;
         ratio = weight / (totalWeight + 0.0000001f);
-        if(ratio > 1.0f)
-        {
+        if(ratio > 1.0f) {
             reweightEdge(section, *edge, positionInSection, weight - totalWeight);
-            createSynapse(section, *edge, brick);
         }
 
         // limit ratio to 1.0
