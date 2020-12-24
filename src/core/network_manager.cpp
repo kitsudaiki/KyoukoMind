@@ -114,21 +114,21 @@ NetworkManager::calcNewLearningValue()
 
     float summedOutput = 0.0f;
 
-    for(uint32_t j = 0; j < 10; j++) {
+    for(uint32_t j = 0; j < 2; j++) {
         summedOutput += m_actualOutput.at(j);
     }
     brick[60].resetOutputValues();
-    summedOutput /= 10.0f;
+    summedOutput /= 2.0f;
 
     // make result smooth
     m_outBuffer[m_outBufferPos] = summedOutput;
-    m_outBufferPos = (m_outBufferPos + 1) % 10;
+    m_outBufferPos = (m_outBufferPos + 1) % 2;
 
     float result = 0.0f;
-    for(uint32_t i = 0; i < 10; i++) {
+    for(uint32_t i = 0; i < 2; i++) {
         result += m_outBuffer[i];
     }
-    result /= 10.0f;
+    result /= 2.0f;
 
     KyoukoRoot::m_clientHandler->sendToClient(std::to_string(result));
     LOG_WARNING("-----------------------------------------------");

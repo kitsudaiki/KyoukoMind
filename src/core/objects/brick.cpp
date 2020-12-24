@@ -201,16 +201,7 @@ Brick::registerInput()
     }
 
     m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    m_inputs.push_back(0.0f);
-    const uint32_t listPos = static_cast<uint32_t>(m_inputs.size() / 10) - 1;
+    const uint32_t listPos = static_cast<uint32_t>(m_inputs.size()) - 1;
 
     m_input_lock.clear(std::memory_order_release);
 
@@ -226,10 +217,7 @@ void
 Brick::setInputValue(const uint32_t pos, const float value)
 {
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    //LOG_WARNING("input-value: " + std::to_string(value));
-    for(uint32_t i = pos * 10; i < (pos * 10) + 10; i++) {
-        m_inputs[i] = value;
-    }
+    m_inputs[pos] = value;
     m_input_lock.clear(std::memory_order_release);
 }
 

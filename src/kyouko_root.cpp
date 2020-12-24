@@ -179,7 +179,7 @@ KyoukoRoot::learn(const std::string &input,
     const char* inputChar = input.c_str();
     for(uint32_t i = 0; i < input.size(); i++)
     {
-        const float value = (static_cast<float>(inputChar[i]) - 90.0f) * 10.0f;
+        const float value = static_cast<float>(inputChar[i] == 'a');
         brick[1].setInputValue(i, value);
     }
 
