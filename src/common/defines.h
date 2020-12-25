@@ -15,7 +15,7 @@
 // network-predefines
 #define SYNAPSES_PER_SYNAPSESECTION 15
 #define MAX_NUMBER_OF_SYNAPSE_SECTIONS 100000
-#define MINIMUM_NODE_BODER 40
+#define MINIMUM_NODE_BODER 20
 #define MAXIMUM_NODE_BODER 50
 
 // initializing

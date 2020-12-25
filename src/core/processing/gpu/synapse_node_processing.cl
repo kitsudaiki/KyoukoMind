@@ -32,9 +32,9 @@ typedef struct SynapseTransfer_struct
     uint nodeBrickId;
     uint synapseSectionId;
     uint sourceEdgeId;
-    uchar positionInEdge;
+    ushort positionInEdge;
     uchar isNew;
-    uchar padding[2];
+    uchar padding[1];
     float weight;
 } 
 SynapseTransfer;
@@ -198,13 +198,34 @@ hardening(__global SynapseSection* synapseSections,
 
 //==================================================================================================
 
-inline void
+inline uchar
+getFreePosition(__local SynapseSection* synapseSections)
+{
+    for(uchar i = 0; i < SYNAPSES_PER_SYNAPSESECTION - 1; i++)
+    {
+        if(synapseSections->synapses[i].targetNodeId == UNINIT_STATE_16) {
+            return i;
+        }
+    }
+
+    return UNINIT_STATE_8;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+inline uchar
 createSynapse(__local SynapseSection* synapseSection,
-              __local Synapse* synapse,
               __global uint* randomInts,
               __local GlobalValues* globalValue,
               const uint nodeBrickId)
 {
+    const uchar position = getFreePosition(synapseSection);
+    if(position == UNINIT_STATE_8) {
+        return position;
+    }
+
+    __local Synapse* synapse = &synapseSection->synapses[position];
+
     // create new synapse if necessary
     if(synapse->targetNodeId == UNINIT_STATE_16) 
     {
@@ -216,6 +237,8 @@ createSynapse(__local SynapseSection* synapseSection,
         synapse->targetNodeId = (ushort)(targetNodeIdInBrick + (nodeBrickId * globalValue->numberOfNodesPerBrick));
         synapse->harden = 0.0f;
     }
+
+    return position;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,10 +254,10 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
 {
     const Node tempNode = nodes[nodeBrickId * globalValue->numberOfNodesPerBrick];
     float usedWeight = 0.0f;
-    if(tempNode.border != -1.0f)
+    if(nodeBrickId * globalValue->numberOfNodesPerBrick < 41000)
     {
         synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-        const uint positiveValue = randomInts[synapseSection->randomPos] % 2;
+        const uint positiveValue = randomInts[synapseSection->randomPos] % 4;
         usedWeight = weight * (1.0f - chosenSynapse->harden);
 
         // set new weight
@@ -246,13 +269,13 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
     }
     else
     {
-        usedWeight += weight * (1.0f - chosenSynapse->harden) * globalValue->outputIndex;
+        usedWeight = weight * (1.0f - chosenSynapse->harden) * globalValue->outputIndex;
     }
 
     synapseSection->totalWeight += fabs(usedWeight);
     chosenSynapse->dynamicWeight += usedWeight;
 
-    return usedWeight;
+    return fabs(usedWeight);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,18 +308,23 @@ rewightSynapse(__local SynapseSection* synapseSection,
         }
 
         // skip synapses, which are already complete hardend
-        if(synapse->harden > 0.99f) {
+        if(synapse->targetNodeId == UNINIT_STATE_16
+            || synapse->harden > 0.99f) 
+        {
             continue;
         }
 
-        const float usedWeight = updateSynapseWeight(synapseSection, synapse, weight, randomInts, nodes, globalValue, nodeBrickId);
-        if(usedWeight > 0.0f
-            && synapse->targetNodeId == UNINIT_STATE_16) 
-        {
-            createSynapse(synapseSection, synapse, randomInts, globalValue, nodeBrickId);
-        }
+        weight -= updateSynapseWeight(synapseSection, synapse, weight, randomInts, nodes, globalValue, nodeBrickId);
+    }
 
-        weight -= usedWeight;
+    if(weight > 1.0f)
+    {
+        const uchar pos = createSynapse(synapseSection, randomInts, globalValue, nodeBrickId);
+        if(pos != UNINIT_STATE_8)
+        {
+            __local Synapse* synapse = &synapseSection->synapses[pos];
+            weight -= updateSynapseWeight(synapseSection, synapse, weight, randomInts, nodes, globalValue, nodeBrickId);
+        }
     }
 
     return weight;
@@ -364,8 +392,12 @@ synapse_processing(__global SynapseTransfer* synapseTransfers,
         const float weightDiff = synapseTransfers[i].weight - synapseSection->totalWeight;
         if(weightDiff > 0.0f)
         {
-            const uint nodeBrickId = synapseTransfers[i].nodeBrickId;
-            synapseTransfers[i].weight -= rewightSynapse(synapseSection, weightDiff, randomInts, nodes, localGlobalValue, nodeBrickId);
+            synapseTransfers[i].weight -= rewightSynapse(synapseSection, 
+                                                         weightDiff, 
+                                                         randomInts, 
+                                                         nodes, 
+                                                         localGlobalValue, 
+                                                         synapseTransfers[i].nodeBrickId);
             synapseSections[synapseSectionId] = tempSections[localId_x];
         }
 
@@ -581,6 +613,7 @@ updating(__global UpdateTransfer* updateTransfers,
             }
             else
             {
+                synapse->dynamicWeight = synapse->dynamicWeight * 0.95f;
                 synapseSection->totalWeight += fabs(synapse->dynamicWeight) + fabs(synapse->staticWeight);
             }
         }

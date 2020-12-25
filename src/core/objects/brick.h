@@ -62,7 +62,7 @@ public:
 
     ~Brick();
 
-    uint32_t getRandomNeighbor(const uint32_t lastLocation);
+    uint32_t getRandomNeighbor(const uint32_t location);
 
     bool connectBricks(const uint8_t sourceSide,
                        Brick &targetBrick);

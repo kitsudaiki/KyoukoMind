@@ -14,104 +14,18 @@ class Brick;
 
 struct Edge
 {
-    float edgeWeight = 0.0f;
-    uint16_t nextGroup = UNINIT_STATE_16;
-    uint8_t padding[2];
-
-    // total size: 8 Byte
-} __attribute__((packed));
-
-//==================================================================================================
-
-struct EdgeGroup
-{
     float synapseWeight = 0.0f;
     uint32_t synapseSectionId = UNINIT_STATE_32;
 
     uint32_t brickLocation = UNINIT_STATE_32;
+    uint16_t prev = UNINIT_STATE_16;
+    uint16_t next = UNINIT_STATE_16;
 
-    uint16_t prevGroup = UNINIT_STATE_16;
-    uint16_t prevGroupPos = UNINIT_STATE_16;
-
-    Edge edges[4];
-
-
-    void squash()
-    {
-        Edge tempEdges[4];
-        uint count = 0;
-
-        for(uint i = 0; i < 4; i++)
-        {
-            if(edges[i].nextGroup != UNINIT_STATE_16)
-            {
-                tempEdges[count] = edges[i];
-                count++;
-            }
-        }
-
-        for(uint i = 0; i < 4 - 1; i++) {
-            edges[i] = tempEdges[i];
-        }
-    }
-
-    bool isEmpty()
-    {
-        bool result = synapseWeight == 0.0f;
-
-        result |= edges[0].nextGroup != UNINIT_STATE_16;
-        result |= edges[1].nextGroup != UNINIT_STATE_16;
-        result |= edges[2].nextGroup != UNINIT_STATE_16;
-        result |= edges[3].nextGroup != UNINIT_STATE_16;
-
-        return result;
-    }
-
-    float count()
-    {
-        float result = synapseWeight;
-
-        result += (edges[0].nextGroup != UNINIT_STATE_16) * edges[0].edgeWeight;
-        result += (edges[1].nextGroup != UNINIT_STATE_16) * edges[1].edgeWeight;
-        result += (edges[2].nextGroup != UNINIT_STATE_16) * edges[2].edgeWeight;
-        result += (edges[3].nextGroup != UNINIT_STATE_16) * edges[3].edgeWeight;
-
-        return result;
-    }
-
-    void reset()
-    {
-        synapseWeight = 0.0f;
-        synapseSectionId = UNINIT_STATE_32;
-        brickLocation = UNINIT_STATE_32;
-        prevGroup = UNINIT_STATE_16;
-        prevGroupPos = UNINIT_STATE_16;
-
-        Edge emptyEdge;
-
-        edges[0] = emptyEdge;
-        edges[1] = emptyEdge;
-        edges[2] = emptyEdge;
-        edges[3] = emptyEdge;
-    }
-
-    uint32_t getNumberOfUninit()
-    {
-        uint32_t freeEdges = 0;
-
-        freeEdges += edges[0].nextGroup == UNINIT_STATE_16;
-        freeEdges += edges[1].nextGroup == UNINIT_STATE_16;
-        freeEdges += edges[2].nextGroup == UNINIT_STATE_16;
-        freeEdges += edges[3].nextGroup == UNINIT_STATE_16;
-
-        return freeEdges;
-    }
-
-    // total size: 48 Byte
+    // total size: 16 Byte
 } __attribute__((packed));
 
 inline uint32_t
-getBrickId(const EdgeGroup &edge)
+getBrickId(const Edge &edge)
 {
     return edge.brickLocation & 0x00FFFFFF;
 }
@@ -128,6 +42,7 @@ getInputSide(const uint32_t location)
     return location >> 24;
 }
 
+
 //==================================================================================================
 
 struct EdgeSection
@@ -136,29 +51,118 @@ struct EdgeSection
     uint16_t randomPos = 0;
     int16_t numberOfUsedSynapseSections = 0;
 
-    EdgeGroup edgeGroups[85];
+    Edge edges[255];
 
-    uint8_t padding2[8];
+    uint16_t lastPosition = 0;
+    uint8_t padding2[6];
 
     EdgeSection()
     {
-        for(uint16_t i = 0; i < 85; i++)
+        //test();
+        for(uint16_t i = 0; i < 255; i++)
         {
-            EdgeGroup newEdgeGroup;
-            edgeGroups[i] = newEdgeGroup;
+            Edge newEdge;
+            edges[i] = newEdge;
         }
     }
 
-    uint32_t getFreePosition()
+    void test()
     {
-        for(uint32_t i = 0; i < 85; i++)
+        Edge test1;
+        test1.brickLocation = 42;
+
+        Edge test2;
+        test2.brickLocation = 43;
+
+        Edge test3;
+        test3.brickLocation = 44;
+
+        assert(append(test1) == 1);
+        assert(append(test2) == 2);
+        assert(append(test3) == 3);
+
+        assert(edges[0].next == 1);
+        assert(edges[1].next == 2);
+        assert(edges[1].prev == 0);
+        assert(edges[2].next == 3);
+        assert(edges[2].prev == 1);
+        assert(edges[3].next == UNINIT_STATE_16);
+        assert(edges[3].prev == 2);
+
+        assert(remove(2));
+        assert(edges[1].next == 3);
+        assert(edges[3].prev == 1);
+        assert(remove(3));
+        assert(edges[1].next == UNINIT_STATE_16);
+
+        std::cout<<"success"<<std::endl;
+    }
+
+    /**
+     * @brief remove
+     * @param pos
+     * @return
+     */
+    bool remove(const uint16_t pos)
+    {
+        if(pos >= 255
+                || pos == 0)
         {
-            if(edgeGroups[i].prevGroup == UNINIT_STATE_16) {
-                return i;
+            return false;
+        }
+
+        Edge* edge = &edges[pos];
+        assert(edge->brickLocation != UNINIT_STATE_32);
+
+        Edge* prev = &edges[edge->prev];
+
+        if(edge->next != UNINIT_STATE_16)
+        {
+            Edge* next = &edges[edge->next];
+            next->prev = edge->prev;
+            prev->next = edge->next;
+        }
+        else
+        {
+            assert(pos == lastPosition);
+            prev->next = UNINIT_STATE_16;
+            lastPosition = edge->prev;
+        }
+
+        Edge emptyEdge;
+        edges[pos] = emptyEdge;
+
+        return true;
+    }
+
+    /**
+     * @brief append
+     * @param newEdge
+     * @return
+     */
+    uint16_t append(Edge &newEdge)
+    {
+        uint16_t found = UNINIT_STATE_16;
+        for(uint16_t i = 1; i < 255; i++)
+        {
+            if(getBrickId(edges[i].brickLocation) == UNINIT_STATE_24)
+            {
+                found = i;
+                break;
             }
         }
 
-        return UNINIT_STATE_32;
+        if(found != UNINIT_STATE_16)
+        {
+            edges[found] = newEdge;
+            edges[found].prev = lastPosition;
+            edges[lastPosition].next = found;
+            lastPosition = found;
+
+            return found;
+        }
+
+        return UNINIT_STATE_16;
     }
 
     // total size: 4096 Byte

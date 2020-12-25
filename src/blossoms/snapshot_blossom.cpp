@@ -50,7 +50,7 @@ SnapshotBlossom::runTask(BlossomLeaf &,
 
     std::string snapshot = "";
 
-    clearAllEdgeSections();
+    //clearAllEdgeSections();
 
     convertNetworkToString(snapshot);
     const bool ret = Kitsunemimi::Persistence::writeFile("/tmp/snapshot.obj",

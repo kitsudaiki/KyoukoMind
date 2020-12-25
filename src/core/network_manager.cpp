@@ -114,21 +114,21 @@ NetworkManager::calcNewLearningValue()
 
     float summedOutput = 0.0f;
 
-    for(uint32_t j = 0; j < 2; j++) {
+    for(uint32_t j = 0; j < 1; j++) {
         summedOutput += m_actualOutput.at(j);
     }
     brick[60].resetOutputValues();
-    summedOutput /= 2.0f;
+    summedOutput /= 1.0f;
 
     // make result smooth
     m_outBuffer[m_outBufferPos] = summedOutput;
-    m_outBufferPos = (m_outBufferPos + 1) % 2;
+    m_outBufferPos = (m_outBufferPos + 1) % 1;
 
     float result = 0.0f;
-    for(uint32_t i = 0; i < 2; i++) {
+    for(uint32_t i = 0; i < 1; i++) {
         result += m_outBuffer[i];
     }
-    result /= 2.0f;
+    result /= 1.0f;
 
     KyoukoRoot::m_clientHandler->sendToClient(std::to_string(result));
     LOG_WARNING("-----------------------------------------------");
@@ -136,7 +136,7 @@ NetworkManager::calcNewLearningValue()
 
     if(KyoukoRoot::m_freezeState)
     {
-        newLearningValue = 1.0f;
+        newLearningValue = 0.2f;
         KyoukoRoot::m_freezeState = false;
     }
 
