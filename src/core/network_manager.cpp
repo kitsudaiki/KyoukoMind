@@ -114,11 +114,11 @@ NetworkManager::calcNewLearningValue()
 
     float summedOutput = 0.0f;
 
-    for(uint32_t j = 0; j < 1; j++) {
+    for(uint32_t j = 0; j < 10; j++) {
         summedOutput += m_actualOutput.at(j);
     }
     brick[60].resetOutputValues();
-    summedOutput /= 1.0f;
+    summedOutput /= 10.0f;
 
     // make result smooth
     m_outBuffer[m_outBufferPos] = summedOutput;

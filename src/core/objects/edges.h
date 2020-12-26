@@ -20,8 +20,11 @@ struct Edge
     uint32_t brickLocation = UNINIT_STATE_32;
     uint16_t prev = UNINIT_STATE_16;
     uint16_t next = UNINIT_STATE_16;
+    float hardening = 0.0f;
 
-    // total size: 16 Byte
+    uint8_t padding[4];
+
+    // total size: 24 Byte
 } __attribute__((packed));
 
 inline uint32_t
@@ -51,7 +54,7 @@ struct EdgeSection
     uint16_t randomPos = 0;
     int16_t numberOfUsedSynapseSections = 0;
 
-    Edge edges[255];
+    Edge edges[170];
 
     uint16_t lastPosition = 0;
     uint8_t padding2[6];
@@ -59,7 +62,7 @@ struct EdgeSection
     EdgeSection()
     {
         //test();
-        for(uint16_t i = 0; i < 255; i++)
+        for(uint16_t i = 0; i < 170; i++)
         {
             Edge newEdge;
             edges[i] = newEdge;
@@ -105,7 +108,7 @@ struct EdgeSection
      */
     bool remove(const uint16_t pos)
     {
-        if(pos >= 255
+        if(pos >= 170
                 || pos == 0)
         {
             return false;
@@ -143,7 +146,7 @@ struct EdgeSection
     uint16_t append(Edge &newEdge)
     {
         uint16_t found = UNINIT_STATE_16;
-        for(uint16_t i = 1; i < 255; i++)
+        for(uint16_t i = 1; i < 170; i++)
         {
             if(getBrickId(edges[i].brickLocation) == UNINIT_STATE_24)
             {
@@ -163,6 +166,32 @@ struct EdgeSection
         }
 
         return UNINIT_STATE_16;
+    }
+
+    void harden(const float value)
+    {
+        for(uint16_t i = 1; i < 170; i++)
+        {
+            if(getBrickId(edges[i].brickLocation) != UNINIT_STATE_24)
+            {
+                const float newValue = edges[i].hardening + value;
+                edges[i].hardening = (newValue > 1.0f) * 1.0f + (newValue <= 1.0f) * newValue;
+            }
+        }
+    }
+
+    float getTotalWeight()
+    {
+        float totalWeight = 0.0f;
+
+        for(uint16_t i = 1; i < 170; i++)
+        {
+            if(getBrickId(edges[i].brickLocation) != UNINIT_STATE_24) {
+                totalWeight += edges[i].synapseWeight;
+            }
+        }
+
+        return totalWeight;
     }
 
     // total size: 4096 Byte

@@ -29,8 +29,16 @@
 inline bool
 createSynapseSection(EdgeSection &section,
                      Edge &edge,
-                     Brick* brick)
+                     Brick* brick,
+                     Brick* sourceBrick)
 {
+    if(sourceBrick->isInputBrick
+            && brick->isOutputBrick)
+    {
+        std::cout<<"poi"<<std::endl;
+        return false;
+    }
+
     if(brick->isInputBrick == false
             && edge.synapseSectionId == UNINIT_STATE_32  // no synapse already exist
             && brick->nodeBrickId != UNINIT_STATE_32  // current brick must be a node-brick
@@ -54,6 +62,53 @@ createSynapseSection(EdgeSection &section,
     }
 
     return false;
+}
+
+/**
+ * @brief initBrick
+ * @param section
+ * @param edge
+ * @param lastLocation
+ */
+inline uint16_t
+createNewEdge(EdgeSection &section,
+              Edge &oldEdge,
+              Brick* sourceBrick)
+{
+    const uint32_t oldBrickId = getBrickId(oldEdge.brickLocation);
+    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[oldBrickId];
+    uint16_t counter = 0;
+
+    uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
+    section.randomPos = (section.randomPos + 1) % 1024;
+    const uint16_t maxRuns =randValues[section.randomPos] % 10;
+
+    uint32_t possibleNextLoc = oldEdge.brickLocation;
+    while(counter < maxRuns)
+    {
+        possibleNextLoc = brick->getRandomNeighbor(possibleNextLoc);
+        if(possibleNextLoc == UNINIT_STATE_32) {
+            break;
+        }
+        brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(possibleNextLoc)];
+        counter++;
+    }
+
+    if(brick->nodeBrickId == UNINIT_STATE_32
+            || possibleNextLoc == UNINIT_STATE_32)
+    {
+        return UNINIT_STATE_16;
+    }
+
+    Edge newEdge;
+    if(createSynapseSection(section, newEdge, brick, sourceBrick))
+    {
+        newEdge.brickLocation = possibleNextLoc;
+        brick->edgeCreateActivity++;
+        return section.append(newEdge);
+    }
+
+    return UNINIT_STATE_16;
 }
 
 /**
@@ -91,52 +146,6 @@ processSynapseConnection(Edge &edge,
 }
 
 /**
- * @brief initBrick
- * @param section
- * @param edge
- * @param lastLocation
- */
-inline uint16_t
-createNewEdge(EdgeSection &section,
-              Edge &oldEdge)
-{
-    const uint32_t oldBrickId = getBrickId(oldEdge.brickLocation);
-    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[oldBrickId];
-    uint16_t counter = 0;
-
-    uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
-    section.randomPos = (section.randomPos + 1) % 1024;
-    const uint16_t maxRuns =randValues[section.randomPos] % 10;
-
-    uint32_t possibleNextLoc = oldEdge.brickLocation;
-    while(counter < maxRuns)
-    {
-        possibleNextLoc = brick->getRandomNeighbor(possibleNextLoc);
-        if(possibleNextLoc == UNINIT_STATE_32) {
-            break;
-        }
-        brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(possibleNextLoc)];
-        counter++;
-    }
-
-    if(brick->nodeBrickId == UNINIT_STATE_32
-            || possibleNextLoc == UNINIT_STATE_32)
-    {
-        return UNINIT_STATE_16;
-    }
-
-    Edge newEdge;
-    if(createSynapseSection(section, newEdge, brick))
-    {
-        newEdge.brickLocation = possibleNextLoc;
-        brick->edgeCreateActivity++;
-        return section.append(newEdge);
-    }
-
-    return UNINIT_STATE_16;
-}
-
-/**
  * @brief processEdgeGroup
  * @param section
  * @param weight
@@ -146,11 +155,15 @@ inline void
 processEdgeGroup(EdgeSection &section,
                  float weight,
                  const uint32_t brickId,
-                 const uint32_t edgeSectionPos)
+                 const uint32_t edgeSectionPos,
+                 Brick* sourceBrick)
 {
     Edge* currentEdge = &section.edges[0];
     currentEdge->brickLocation = brickId;
     uint16_t currentPos = 0;
+
+    float toLearn = weight - section.getTotalWeight();
+    toLearn = (toLearn < 0.0f) * 0.0f + (toLearn >= 0.0f) * toLearn;
 
     while(currentEdge->next != UNINIT_STATE_16
           && weight > 0.0f)
@@ -160,6 +173,10 @@ processEdgeGroup(EdgeSection &section,
 
         if(currentEdge->synapseSectionId != UNINIT_STATE_32)
         {
+            const float diff = toLearn * (1.0f - currentEdge->hardening);
+            currentEdge->synapseWeight += diff;
+            toLearn -= diff;
+
             if(weight > currentEdge->synapseWeight)
             {
                 processSynapseConnection(*currentEdge,
@@ -180,23 +197,22 @@ processEdgeGroup(EdgeSection &section,
         }
     }
 
-    if(weight <= 0.1f) {
-        return;
-    }
+    if(toLearn > 2.0f)
+    {
+        const uint16_t pos = createNewEdge(section, section.edges[0], sourceBrick);
+        if(pos == UNINIT_STATE_16) {
+            return;
+        }
 
-    const uint16_t pos = createNewEdge(section, section.edges[0]);
-    if(pos == UNINIT_STATE_16) {
-        return;
+        Edge* newEdge = &section.edges[pos];
+        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(newEdge->brickLocation)];
+        assert(brick->nodeBrickId != UNINIT_STATE_32);
+        newEdge->synapseWeight = toLearn;
+        processSynapseConnection(*newEdge,
+                                 toLearn,
+                                 pos,
+                                 edgeSectionPos);
     }
-
-    Edge* newEdge = &section.edges[pos];
-    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(newEdge->brickLocation)];
-    assert(brick->nodeBrickId != UNINIT_STATE_32);
-    newEdge->synapseWeight = weight;
-    processSynapseConnection(*newEdge,
-                             weight,
-                             pos,
-                             edgeSectionPos);
 }
 
 /**
@@ -213,6 +229,7 @@ processEdgeSection()
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
     Brick* bricks = getBuffer<Brick>(segment->bricks);
+    GlobalValues* globalValues = getBuffer<GlobalValues>(segment->globalValues);
 
     // insert input-values from brick
     const std::vector<float> inputValues = bricks[1].getInputValues();
@@ -220,6 +237,7 @@ processEdgeSection()
     {
         const float multi = static_cast<float>(pow(1.05, static_cast<double>(i % 10)));
         axonTransfers[i].weight = inputValues.at(i) * multi;
+        axonTransfers[i].brickId = 1;
     }
 
     // process axon-messages
@@ -231,23 +249,30 @@ processEdgeSection()
         }
 
         EdgeSection* currentSection = &edgeSections[i];
-        Brick* brick = &bricks[currentTransfer->brickId];
-        brick->nodeActivity++;
+        Brick* sourceBrick = &bricks[currentTransfer->brickId];
+        sourceBrick->nodeActivity++;
+
+        // harden section
+        if(globalValues->lerningValue != 0.0f) {
+            currentSection->harden(globalValues->lerningValue);
+        }
 
         //if(brick->isOutputBrick == false)
-        if(brick->brickId != 60)
+        if(sourceBrick->brickId != 60)
         {
             processEdgeGroup(*currentSection,
                              currentTransfer->weight,
                              currentSection->targetBrickId,
-                             i);
+                             i,
+                             sourceBrick);
         }
         else
         {
-            const uint32_t offset = brick->nodePos;
-            const uint32_t max = brick->getNumberOfOutputValues();
+            const uint32_t offset = sourceBrick->nodePos;
+            assert(sourceBrick->nodePos >= 41000);
+            const uint32_t max = sourceBrick->getNumberOfOutputValues();
             if(max > 0) {
-                brick->setOutputValue((i - offset) % max, currentTransfer->weight);
+                sourceBrick->setOutputValue((i - offset) % max, currentTransfer->weight);
             }
         }
 

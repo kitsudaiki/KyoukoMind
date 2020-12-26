@@ -19,11 +19,11 @@ struct GlobalValues
     float memorizingOffset = 0.0f;
 
     float nodeCooldown = 3.0f;
-    float actionPotential = 50.0f;
+    float actionPotential = 150.0f;
     uint64_t refractionTime = 2;
 
     float newSynapseBorder = 1.0f;
-    float deleteSynapseBorder = 0.1f;
+    float deleteSynapseBorder = 1.0f;
 
     float outputIndex = 0.0f;
 

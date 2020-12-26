@@ -194,7 +194,7 @@ uint32_t
 Brick::registerInput()
 {
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-
+    isInputBrick = true;
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     if(m_inputs.size() >= globalValues->numberOfNodesPerBrick - 10) {
         return UNINIT_STATE_32;
@@ -270,6 +270,7 @@ Brick::registerOutput()
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
+    isOutputBrick = true;
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     if(m_outputs.size() >= globalValues->numberOfNodesPerBrick - 1) {
         return UNINIT_STATE_32;
