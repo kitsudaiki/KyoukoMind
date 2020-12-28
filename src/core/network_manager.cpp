@@ -123,7 +123,7 @@ NetworkManager::calcNewLearningValue()
 
     for(uint32_t j = 0; j < m_actualOutput.size(); j++) {
         summedOutput += m_actualOutput.at(j);
-        std::cout<<"output: "<<m_actualOutput.at(j)<<std::endl;
+        //std::cout<<"output: "<<m_actualOutput.at(j)<<std::endl;
     }
     brick[60].resetOutputValues();
     summedOutput /= static_cast<float>(m_actualOutput.size());
@@ -144,7 +144,7 @@ NetworkManager::calcNewLearningValue()
 
     if(KyoukoRoot::m_freezeState)
     {
-        newLearningValue = 1.0f;
+        newLearningValue = 0.2f;
         KyoukoRoot::m_freezeState = false;
     }
 

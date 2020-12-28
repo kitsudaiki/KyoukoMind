@@ -170,7 +170,6 @@ struct EdgeSection
 
     void harden(const float value)
     {
-        std::cout<<"poi"<<std::endl;
         for(uint16_t i = 1; i < 170; i++)
         {
             if(getBrickId(edges[i].brickLocation) != UNINIT_STATE_24)

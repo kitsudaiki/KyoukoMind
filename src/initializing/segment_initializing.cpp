@@ -67,20 +67,21 @@ bool
 initNodeBlocks(Segment &segment,
                const uint32_t &numberOfNodes)
 {
+    const uint32_t numberOfNodesBuffer = numberOfNodes * 256;
     // init
-    if(segment.nodes.initBuffer<Node>(numberOfNodes) == false) {
+    if(segment.nodes.initBuffer<Node>(numberOfNodesBuffer) == false) {
         return false;
     }
 
     // fill array with empty nodes
     Node* array = getBuffer<Node>(segment.nodes);
-    for(uint32_t i = 0; i < numberOfNodes; i++)
+    for(uint32_t i = 0; i < numberOfNodesBuffer; i++)
     {
         Node tempNode;
         tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
         array[i] = tempNode;
     }
-    segment.nodes.numberOfItems = numberOfNodes;
+    segment.nodes.numberOfItems = numberOfNodesBuffer;
 
     return true;
 }

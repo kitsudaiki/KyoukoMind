@@ -19,8 +19,6 @@
 
 #include <core/connection_handler/client_connection_handler.h>
 
-static uint32_t outputCounter = 0;
-
 /**
  * @brief createSynapse
  * @param section
@@ -134,9 +132,6 @@ processSynapseConnection(Edge &edge,
     // prepare
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(edge.brickLocation)];
     assert(brick->nodeBrickId != UNINIT_STATE_32);
-    if(brick->isOutputBrick) {
-        outputCounter++;
-    }
 
     //return usedWeight;
     SynapseTransfer newTransfer;
@@ -264,7 +259,6 @@ processEdgeSection()
         axonTransfers[i].brickId = 1;
     }
 
-    outputCounter = 0;
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
     {
@@ -304,8 +298,6 @@ processEdgeSection()
         // increase counter for monitoring-output
         count++;
     }
-
-    std::cout<<"OUPUTS: "<<outputCounter<<std::endl;
 
     return count;
 }

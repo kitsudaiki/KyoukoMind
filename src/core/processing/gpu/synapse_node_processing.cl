@@ -193,7 +193,7 @@ hardening(__global SynapseSection* synapseSections,
             synapse->harden = (synapse->harden > 1.0f) * 1.0f + (synapse->harden <= 1.0f) * synapse->harden;
 
             // update values
-            const float diff = synapse->dynamicWeight * localGlobalValue->lerningValue;
+            const float diff = synapse->dynamicWeight * synapse->harden;
             synapse->dynamicWeight -= diff;
             synapse->staticWeight += diff;
         }
@@ -238,8 +238,11 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
 {
     const Node tempNode = nodes[nodeBrickId * globalValue->numberOfNodesPerBrick];
     float usedWeight = 0.0f;
+    
     if(tempNode.border != -1.0f)
     {
+        usedWeight = weight * (1.0f - chosenSynapse->harden);
+
         // set type if necessary
         if(chosenSynapse->type == UNDEFINED_SYNAPSE_TYPE) 
         {
@@ -252,20 +255,43 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
             }
         }
 
-        usedWeight = weight * (1.0f - chosenSynapse->harden);
-
         // set new weight
         if(chosenSynapse->type == NEGATIVE_TYPE) {
-            usedWeight = -1.0f * usedWeight;
+            chosenSynapse->dynamicWeight += -1.0f * usedWeight * globalValue->sensitivity;
+        } else {
+            chosenSynapse->dynamicWeight += usedWeight * globalValue->sensitivity;
         }
+
+        synapseSection->totalWeight += usedWeight * globalValue->sensitivity;
     }
     else
     {
-        usedWeight = weight * (1.0f - chosenSynapse->harden) * globalValue->outputIndex;
-    }
+        // set type if necessary
+        if(chosenSynapse->type == UNDEFINED_SYNAPSE_TYPE) 
+        {
+            if(globalValue->outputIndex >= 0.0f) {
+                chosenSynapse->type = POSITIVE_TYPE;
+            } else {
+                chosenSynapse->type = NEGATIVE_TYPE;
+            }
+        }
 
-    synapseSection->totalWeight += fabs(usedWeight * globalValue->sensitivity);
-    chosenSynapse->dynamicWeight += usedWeight * globalValue->sensitivity;
+        if(globalValue->outputIndex >= 0.0f 
+            && chosenSynapse->type == POSITIVE_TYPE) 
+        {
+            usedWeight = weight * (1.0f - chosenSynapse->harden);
+            chosenSynapse->dynamicWeight += usedWeight * globalValue->outputIndex;
+            synapseSection->totalWeight += usedWeight * globalValue->outputIndex;
+        }
+        if(globalValue->outputIndex <= 0.0f 
+            && chosenSynapse->type == NEGATIVE_TYPE) 
+        {
+            usedWeight = weight * (1.0f - chosenSynapse->harden);
+            chosenSynapse->dynamicWeight += usedWeight * globalValue->outputIndex;
+            synapseSection->totalWeight += usedWeight * globalValue->outputIndex;
+        }
+
+    }
 
     return usedWeight;
 }
@@ -294,7 +320,7 @@ rewightSynapse(__local SynapseSection* synapseSection,
             return;
         }
 
-        if(weight < 0.0001f) {
+        if(weight < 0.1f) {
             return;
         }
 
@@ -396,7 +422,7 @@ synapse_processing(__global SynapseTransfer* synapseTransfers,
             synapse < end;
             synapse++)
         {
-            if(weight <= 0.0001f) {
+            if(weight <= 0.001f) {
                 break;
             }
 
@@ -404,18 +430,51 @@ synapse_processing(__global SynapseTransfer* synapseTransfers,
                 continue;
             }
 
+            const ulong nodeBufferPosition = (get_local_id(0) * (numberOfNodes / 256)) + synapse->targetNodeId;
             const float synapseWeight = fabs(synapse->staticWeight) + fabs(synapse->dynamicWeight);
             if(weight > synapseWeight) 
             {
-                nodes[synapse->targetNodeId].currentState += synapse->staticWeight + synapse->dynamicWeight;
+                nodes[nodeBufferPosition].currentState += synapse->staticWeight + synapse->dynamicWeight;
                 weight -= synapseWeight;
             } 
             else 
             {
-                nodes[synapse->targetNodeId].currentState += weight;
+                nodes[nodeBufferPosition].currentState += weight;
                 weight = 0.0f;
             }
         }
+    }
+}
+
+//==================================================================================================
+
+__kernel void 
+sum_nodes(__global Node* nodes,
+          const ulong numberOfNodes,
+          __local uchar* localMemory,
+          const ulong localMemorySize)
+{
+    const size_t globalId_x = get_global_id(0);
+    const size_t globalSize_x = get_global_size(0);
+    const int localId_x = get_local_id(0);
+    const int localSize_x = get_local_size(0);
+
+    // prepare shared memory
+    __local Node* tempNodes = (__local Node*)&localMemory[256];
+
+    for(ulong i = globalId_x; i < numberOfNodes / 256; i = i + globalSize_x)
+    {
+        tempNodes[localId_x] = nodes[i];
+        __local Node* node = &tempNodes[localId_x];
+
+        for(uint pos = 1; pos < 256; pos++)
+        {
+            const ulong nodeBufferPosition = (pos * (numberOfNodes / 256)) + i;
+            tempNodes[localId_x].currentState += nodes[nodeBufferPosition].currentState;
+            nodes[nodeBufferPosition].currentState = 0.0f;
+        }
+
+        nodes[i] = tempNodes[localId_x];
     }
 }
 
@@ -441,7 +500,7 @@ node_processing(__global AxonTransfer* axonTransfers,
     localGlobalValue[0] = globalValue[0];
     __local Node* tempNodes = (__local Node*)&localMemory[256];
 
-    for(ulong i = globalId_x; i < numberOfNodes; i = i + globalSize_x)
+    for(ulong i = globalId_x; i < numberOfNodes / 256; i = i + globalSize_x)
     {
         tempNodes[localId_x] = nodes[i];
         __local Node* node = &tempNodes[localId_x];
@@ -485,15 +544,15 @@ node_processing(__global AxonTransfer* axonTransfers,
         }
         else
         {
-            node->active = 1;
+            node->active = 0;
 
             // build new axon-transfer-edge, which is send back to the host
             AxonTransfer newEdge;
             newEdge.weight = node->currentState;
             newEdge.brickId = node->brickId;
             axonTransfers[i] = newEdge;
-            //node->currentState = 0.0f;
-            node->currentState /= localGlobalValue->nodeCooldown;
+            node->currentState = 0.0f;
+            //node->currentState /= localGlobalValue->nodeCooldown;
         }
 
         // write changes back from shared memory to global memory
@@ -506,11 +565,22 @@ node_processing(__global AxonTransfer* axonTransfers,
 void 
 squash(__local SynapseSection* synapseSections)
 {
-    for(uint i = 0; i < SYNAPSES_PER_SYNAPSESECTION - 1; i++)
+    Synapse tempBuffer[SYNAPSES_PER_SYNAPSESECTION];
+    uint pos = 0;
+
+    for(uint i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++)
     {
-        if(synapseSections->synapses[i].targetNodeId == UNINIT_STATE_16) {
-            synapseSections->synapses[i] = synapseSections->synapses[i + 1];
+        tempBuffer[i].targetNodeId == UNINIT_STATE_16;
+
+        if(synapseSections->synapses[i].targetNodeId != UNINIT_STATE_16) 
+        {
+            tempBuffer[pos] = synapseSections->synapses[i];
+            pos++;
         }
+    }
+
+    for(uint i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++) {
+        synapseSections->synapses[i] = tempBuffer[i];
     }
 }
 
