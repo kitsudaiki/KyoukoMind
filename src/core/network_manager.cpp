@@ -51,13 +51,14 @@ NetworkManager::run()
     std::chrono::high_resolution_clock::time_point synapseStart;
     std::chrono::high_resolution_clock::time_point synapseEnd;
 
+    uint32_t time = PROCESS_INTERVAL;
     while(!m_abort)
     {
         if(m_block) {
             blockThread();
         }
 
-        usleep(PROCESS_INTERVAL);
+        usleep(time);
 
         // handle learning
         calcNewLearningValue();
@@ -76,6 +77,12 @@ NetworkManager::run()
         // calculate times
         const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
         const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
+
+        if(PROCESS_INTERVAL > static_cast<uint32_t>((edgeTime + synapseTime) / 1024.0f)) {
+            time = PROCESS_INTERVAL - static_cast<uint32_t>((edgeTime + synapseTime) / 1024.0f);
+        } else {
+            time = 1000;
+        }
 
         // total times
         KyoukoRoot::monitoringMetaMessage.edgePhase = edgeTime;
@@ -114,21 +121,22 @@ NetworkManager::calcNewLearningValue()
 
     float summedOutput = 0.0f;
 
-    for(uint32_t j = 0; j < 10; j++) {
+    for(uint32_t j = 0; j < m_actualOutput.size(); j++) {
         summedOutput += m_actualOutput.at(j);
+        std::cout<<"output: "<<m_actualOutput.at(j)<<std::endl;
     }
     brick[60].resetOutputValues();
-    summedOutput /= 10.0f;
+    summedOutput /= static_cast<float>(m_actualOutput.size());
 
     // make result smooth
     m_outBuffer[m_outBufferPos] = summedOutput;
-    m_outBufferPos = (m_outBufferPos + 1) % 1;
+    m_outBufferPos = (m_outBufferPos + 1) % 5;
 
     float result = 0.0f;
-    for(uint32_t i = 0; i < 1; i++) {
+    for(uint32_t i = 0; i < 5; i++) {
         result += m_outBuffer[i];
     }
-    result /= 1.0f;
+    result /= 5.0f;
 
     KyoukoRoot::m_clientHandler->sendToClient(std::to_string(result));
     LOG_WARNING("-----------------------------------------------");
@@ -136,7 +144,7 @@ NetworkManager::calcNewLearningValue()
 
     if(KyoukoRoot::m_freezeState)
     {
-        newLearningValue = 0.2f;
+        newLearningValue = 1.0f;
         KyoukoRoot::m_freezeState = false;
     }
 

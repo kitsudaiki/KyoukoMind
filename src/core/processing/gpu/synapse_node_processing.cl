@@ -24,6 +24,13 @@ enum SectionStatus
     DELETED_SECTION = 2,
 };
 
+enum SynapseType
+{
+    UNDEFINED_SYNAPSE_TYPE = 0,
+    POSITIVE_TYPE = 1,
+    NEGATIVE_TYPE = 2,
+};
+
 //==================================================================================================
 
 typedef struct SynapseTransfer_struct
@@ -85,11 +92,10 @@ typedef struct Synapse_struct
 {
     float staticWeight;
     float dynamicWeight;
-    //float weight;
     float harden;
     ushort targetNodeId;
     uchar inProcess;
-    uchar somaDistance;
+    uchar type;
 } 
 Synapse;
 
@@ -216,46 +222,41 @@ createSynapse(__local SynapseSection* synapseSection,
         // set initial values for the new synapse
         synapse->targetNodeId = (ushort)(targetNodeIdInBrick + (nodeBrickId * globalValue->numberOfNodesPerBrick));
         synapse->harden = 0.0f;
-        synapse->staticWeight = 0.0f;
-        synapse->dynamicWeight = 0.0f;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-inline void
+inline float
 updateSynapseWeight(__local SynapseSection* synapseSection,
                     __local Synapse* chosenSynapse,
                     const float weight,
                     __global uint* randomInts,
                     __global Node* nodes,
-                    __local GlobalValues* globalValue)
+                    __local GlobalValues* globalValue,
+                    const uint nodeBrickId)
 {
-    const Node tempNode = nodes[chosenSynapse->targetNodeId];
+    const Node tempNode = nodes[nodeBrickId * globalValue->numberOfNodesPerBrick];
     float usedWeight = 0.0f;
     if(tempNode.border != -1.0f)
     {
-        /*synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-        const uint positiveValue = randomInts[synapseSection->randomPos] % 3;
+        // set type if necessary
+        if(chosenSynapse->type == UNDEFINED_SYNAPSE_TYPE) 
+        {
+            synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
+            const uint positiveValue = randomInts[synapseSection->randomPos] % 2;
+            if(positiveValue == 0) {
+                chosenSynapse->type = POSITIVE_TYPE;
+            } else {
+                chosenSynapse->type = NEGATIVE_TYPE;
+            }
+        }
+
         usedWeight = weight * (1.0f - chosenSynapse->harden);
 
         // set new weight
-        if(positiveValue != 0) {
-            chosenSynapse->dynamicWeight += usedWeight * globalValue->sensitivity;
-        } else {
-            chosenSynapse->dynamicWeight += -1.0f * usedWeight * globalValue->sensitivity;
-        }*/
-
-        // old version as backup
-        const Node tempNode = nodes[chosenSynapse->targetNodeId];
-        const uint tooHeight = tempNode.border < tempNode.currentState * 1.2f;
-        usedWeight = globalValue->sensitivity * weight * (float)((tooHeight * -2) + 1) * (1.0f - chosenSynapse->harden);
-        // make sure it is not too height
-
-        if(tempNode.currentState + usedWeight > 1.1f * tempNode.border)
-        {
-            const float diff = (tempNode.currentState + usedWeight) - (1.1f * tempNode.border);
-            usedWeight -= diff;
+        if(chosenSynapse->type == NEGATIVE_TYPE) {
+            usedWeight = -1.0f * usedWeight;
         }
     }
     else
@@ -263,13 +264,15 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
         usedWeight = weight * (1.0f - chosenSynapse->harden) * globalValue->outputIndex;
     }
 
-    synapseSection->totalWeight += fabs(usedWeight);
-    chosenSynapse->dynamicWeight += usedWeight;
+    synapseSection->totalWeight += fabs(usedWeight * globalValue->sensitivity);
+    chosenSynapse->dynamicWeight += usedWeight * globalValue->sensitivity;
+
+    return usedWeight;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-inline float
+inline void
 rewightSynapse(__local SynapseSection* synapseSection,
                float weight,
                __global uint* randomInts,
@@ -278,7 +281,6 @@ rewightSynapse(__local SynapseSection* synapseSection,
                const uint nodeBrickId)
 {
     uint numberOfActiveSynapses = 0;
-
     __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
 
     // iterate over all synapses in synapse-section
@@ -286,42 +288,39 @@ rewightSynapse(__local SynapseSection* synapseSection,
         synapse < end;
         synapse++)
     {
-        if(synapse->targetNodeId != UNINIT_STATE_16) {
-            numberOfActiveSynapses++;
-        }
-    }
-
-
-    while(weight > 0.0f)
-    {
-        // calculate new value
-        float value = weight;
-
-        if(value > 2.0f) {
-            value /= 2.0f;
-        }
-        weight -= value;
-
-        // choose synapse
-        synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-        uint choosePosition = (randomInts[synapseSection->randomPos] % (numberOfActiveSynapses + 1)) % SYNAPSES_PER_SYNAPSESECTION;
-
-        __local Synapse* synapse = &synapseSection->synapses[choosePosition];
-        createSynapse(synapseSection, synapse, randomInts, globalValue, nodeBrickId);
-
-        // skip synapses, which are already complete hardend
-        if(synapse->harden > 0.99f) {
-            continue;
+        if(globalValue->sensitivity == 0.0f
+            && globalValue->outputIndex == 0.0f)
+        {
+            return;
         }
 
-        updateSynapseWeight(synapseSection, synapse, value, randomInts, nodes, globalValue);
+        if(weight < 0.0001f) {
+            return;
+        }
+
+        if(synapse->targetNodeId == UNINIT_STATE_16) 
+        {
+            createSynapse(synapseSection, 
+                          synapse, 
+                          randomInts, 
+                          globalValue, 
+                          nodeBrickId);
+        }
+
+        weight -= updateSynapseWeight(synapseSection, 
+                                      synapse, 
+                                      weight, 
+                                      randomInts, 
+                                      nodes, 
+                                      globalValue, 
+                                      nodeBrickId);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 
 __kernel void 
-synapse_processing(__global const SynapseTransfer* synapseTransfers,
+synapse_processing(__global SynapseTransfer* synapseTransfers,
                    const ulong numberOfSynapseTransfers,
                    __global Node* nodes,
                    const ulong numberOfNodes,
@@ -376,39 +375,46 @@ synapse_processing(__global const SynapseTransfer* synapseTransfers,
             synapseSections[synapseSectionId] = tempSections[localId_x];
         }
 
-        // check section-state to avoid unnecessary workload
-        if(tempSections[localId_x].status != ACTIVE_SECTION
-            || synapseTransfers[i].weight < 0.001f) 
-        {
-            continue;
-        }
-
         // run lerning-process by creating and updating synapses
         const float weightDiff = synapseTransfers[i].weight - synapseSection->totalWeight;
         if(weightDiff > 0.0f)
         {
             const uint nodeBrickId = synapseTransfers[i].nodeBrickId;
-            rewightSynapse(synapseSection, weightDiff, randomInts, nodes, localGlobalValue, nodeBrickId);
-
-            // write result back to global memory
+            rewightSynapse(synapseSection, 
+                           weightDiff, 
+                           randomInts, 
+                           nodes, 
+                           localGlobalValue, 
+                           nodeBrickId);
             synapseSections[synapseSectionId] = tempSections[localId_x];
         }
 
-        // limit ration to 1.0f
-        float ratio = synapseTransfers[i].weight / (synapseSection->totalWeight + 0.000001f);
-        ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-
         // iterate over all synapses in the section and update the target-nodes
+        float weight = synapseTransfers[i].weight;
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
         for(__local Synapse* synapse = synapseSection->synapses;
             synapse < end;
             synapse++)
         {
+            if(weight <= 0.0001f) {
+                break;
+            }
+
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 continue;
             }
 
-            nodes[synapse->targetNodeId].currentState += (synapse->staticWeight + synapse->dynamicWeight) * ratio;
+            const float synapseWeight = fabs(synapse->staticWeight) + fabs(synapse->dynamicWeight);
+            if(weight > synapseWeight) 
+            {
+                nodes[synapse->targetNodeId].currentState += synapse->staticWeight + synapse->dynamicWeight;
+                weight -= synapseWeight;
+            } 
+            else 
+            {
+                nodes[synapse->targetNodeId].currentState += weight;
+                weight = 0.0f;
+            }
         }
     }
 }
@@ -497,6 +503,19 @@ node_processing(__global AxonTransfer* axonTransfers,
 
 //==================================================================================================
 
+void 
+squash(__local SynapseSection* synapseSections)
+{
+    for(uint i = 0; i < SYNAPSES_PER_SYNAPSESECTION - 1; i++)
+    {
+        if(synapseSections->synapses[i].targetNodeId == UNINIT_STATE_16) {
+            synapseSections->synapses[i] = synapseSections->synapses[i + 1];
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 __kernel void
 updating(__global UpdateTransfer* updateTransfers,
          const ulong numberOfUpdateTransfers,
@@ -543,7 +562,7 @@ updating(__global UpdateTransfer* updateTransfers,
 
         synapseSection->totalWeight = 0.0f;
 
-                // iterate over all synapses in synapse-section
+        // iterate over all synapses in synapse-section
         for(__local Synapse* synapse = synapseSection->synapses;
             synapse < end;
             synapse++)
@@ -552,7 +571,7 @@ updating(__global UpdateTransfer* updateTransfers,
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 continue;
             }
-            
+                                   
             if(nodes[synapse->targetNodeId].active == 0) {
                 synapse->dynamicWeight = synapse->dynamicWeight * (globalValue->initialMemorizing + localGlobalValue->memorizingOffset);
             } else {
@@ -566,12 +585,15 @@ updating(__global UpdateTransfer* updateTransfers,
                 synapse->dynamicWeight = 0.0f;
                 synapse->staticWeight = 0.0f;
                 synapse->targetNodeId = UNINIT_STATE_16;
+                synapse->type = UNDEFINED_SYNAPSE_TYPE;
             } 
             else 
             {
                 synapseSection->totalWeight += synapseWeight;
             }
         }
+
+        squash(synapseSection);
 
         // create update-container for the host
         transferContainer.newWeight = synapseSection->totalWeight;

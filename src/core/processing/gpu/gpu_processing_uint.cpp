@@ -124,7 +124,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     assert(m_gpuInterface->bindKernelToBuffer("updating", 4, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 6, oclData));
 
-    // bind buffer for learning kernel
+    // bind buffer for hardening kernel
     assert(m_gpuInterface->bindKernelToBuffer("hardening", 4, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("hardening", 6, oclData));
 
@@ -162,13 +162,6 @@ GpuProcessingUnit::run()
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.copyToGpu = timeValue;
 
-        // run process on gpu
-        start = std::chrono::system_clock::now();
-        runOnGpu("hardening");
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        //KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
-
         start = std::chrono::system_clock::now();
         runOnGpu("synapse_processing");
         end = std::chrono::system_clock::now();
@@ -180,6 +173,13 @@ GpuProcessingUnit::run()
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;
+
+        // run process on gpu
+        start = std::chrono::system_clock::now();
+        runOnGpu("hardening");
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        //KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
 
         // run process on gpu
         start = std::chrono::system_clock::now();

@@ -466,9 +466,7 @@ Brick::getPossibleNext(const uint8_t inputSide)
 
         default:
         {
-            next.next[0] = UNINIT_STATE_8;
-            next.next[1] = UNINIT_STATE_8;
-            next.next[2] = UNINIT_STATE_8;
+            assert(false);
         }
     }
 

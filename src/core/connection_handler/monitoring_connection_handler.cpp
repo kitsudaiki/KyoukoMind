@@ -50,7 +50,7 @@ MonitoringConnectionHandler::sendToMonitoring()
 
             brick[i].nodeActivity = 0;
             brick[i].synapseActivity = 0;
-            brick[i].edgeCreateActivity = 0;
+            //brick[i].edgeCreateActivity = 0;
             brick[i].edgeDeleteActivity = 0;
             brick[i].synapseCreateActivity = 0;
             brick[i].synapseDeleteActivity = 0;
