@@ -19,8 +19,6 @@ LIBS += -L../libKitsunemimiConfig/src/debug -lKitsunemimiConfig
 LIBS += -L../libKitsunemimiConfig/src/release -lKitsunemimiConfig
 INCLUDEPATH += ../libKitsunemimiConfig/include
 
-INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
-
 LIBS += -L../libKitsunemimiSakuraNetwork/src -lKitsunemimiSakuraNetwork
 LIBS += -L../libKitsunemimiSakuraNetwork/src/debug -lKitsunemimiSakuraNetwork
 LIBS += -L../libKitsunemimiSakuraNetwork/src/release -lKitsunemimiSakuraNetwork
@@ -71,11 +69,6 @@ LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
 
-LIBS += -L../libKitsunemimiKyoukoCommon/src -lKitsunemimiKyoukoCommon
-LIBS += -L../libKitsunemimiKyoukoCommon/src/debug -lKitsunemimiKyoukoCommon
-LIBS += -L../libKitsunemimiKyoukoCommon/src/release -lKitsunemimiKyoukoCommon
-INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
-
 LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL
 
 INCLUDEPATH += $$PWD \
@@ -121,7 +114,8 @@ HEADERS += \
     src/blossoms/special_blossoms.h \
     src/blossoms/set_global_values_blossom.h \
     src/blossoms/freeze_state_blossom.h \
-    src/blossoms/snapshot_blossom.h
+    src/blossoms/snapshot_blossom.h \
+    src/core/objects/monitoring_container.h
 
 SOURCES += \
     src/core/objects/brick.cpp \
@@ -145,10 +139,10 @@ SOURCES += \
     src/core/connection_handler/monitoring_connection_handler.cpp \
     src/core/connection_handler/client_connection_handler.cpp \
     src/blossoms/get_node_brick_ids_blossom.cpp \
-    src/blossoms/speacal_blossom.cpp \
     src/blossoms/set_global_values_blossom.cpp \
     src/blossoms/freeze_state_blossom.cpp \
-    src/blossoms/snapshot_blossom.cpp
+    src/blossoms/snapshot_blossom.cpp \
+    src/blossoms/special_blossoms.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

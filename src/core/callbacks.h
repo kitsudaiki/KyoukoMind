@@ -1,11 +1,11 @@
 /**
- * @file       callbacks.h
+ * @file        kyouko_root.cpp
  *
- * @author     Tobias Anker <tobias.anker@kitsunemimi.moe>
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
- * @copyright  Apache License Version 2.0
+ * @copyright   Apache License Version 2.0
  *
- *      Copyright 2019 Tobias Anker
+ *      Copyright 2018 Tobias Anker
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
