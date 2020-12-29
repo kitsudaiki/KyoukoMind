@@ -197,7 +197,7 @@ convertEdgesToObj(ObjItem &result,
 {
     //cleanupEdgeSection(*section);
 
-    Edge* edge = &section->edges[pos];
+    /*Edge* edge = &section->edges[pos];
     if(getBrickId(edge->brickLocation) == 0x00FFFFFF) {
         return;
     }
@@ -221,7 +221,7 @@ convertEdgesToObj(ObjItem &result,
                           section,
                           (pos * 2) + 1,
                           actualPos);
-    }
+    }*/
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 
 #include <core/network_manager.h>
 #include <core/objects/segment.h>
+#include <core/objects/global_values.h>
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
@@ -175,12 +176,17 @@ KyoukoRoot::learn(const std::string &input,
     LOG_WARNING("should: " + should);
 
     Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     const char* inputChar = input.c_str();
     for(uint32_t i = 0; i < input.size(); i++)
     {
-        const float value = (static_cast<float>(inputChar[i]) - 90.0f) * 10.0f;
-        brick[1].setInputValue(i, value);
+        //const float value = (static_cast<float>(inputChar[i]) - 90.0f) * 10.0f;
+        if(inputChar[i] == 'a') {
+            brick[1].setInputValue(i, globalValues->actionPotential);
+        } else {
+            brick[1].setInputValue(i, 0.0f);
+        }
     }
 
     const char* shouldChar = should.c_str();

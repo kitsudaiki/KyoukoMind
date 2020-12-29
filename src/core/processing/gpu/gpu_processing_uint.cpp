@@ -47,6 +47,8 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 
     // init worker-sizes
     oclData.numberOfWg.x = numberOfBricks;
+    // only 255 threads per group, instead of 256, because 1/256 of the local memory is used for
+    // the global-values object
     oclData.threadsPerWg.x = 255;
 
     // add empty buffer
@@ -100,9 +102,10 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
 
     // init kernel
     assert(m_gpuInterface->addKernel("synapse_processing",  processingCode));
+    assert(m_gpuInterface->addKernel("sum_nodes",  processingCode));
     assert(m_gpuInterface->addKernel("node_processing",  processingCode));
     assert(m_gpuInterface->addKernel("updating",  processingCode));
-    assert(m_gpuInterface->addKernel("learning",  processingCode));
+    assert(m_gpuInterface->addKernel("hardening",  processingCode));
 
     // bind buffer for synapse_processing kernel
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 0, oclData));
@@ -110,6 +113,9 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 4, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 5, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 6, oclData));
+
+    // bind buffer for sum_nodes kernel
+    assert(m_gpuInterface->bindKernelToBuffer("sum_nodes", 3, oclData));
 
     // bind buffer for node_processing kernel
     assert(m_gpuInterface->bindKernelToBuffer("node_processing", 1, oclData));
@@ -122,17 +128,17 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     assert(m_gpuInterface->bindKernelToBuffer("updating", 4, oclData));
     assert(m_gpuInterface->bindKernelToBuffer("updating", 6, oclData));
 
-    // bind buffer for learning kernel
-    assert(m_gpuInterface->bindKernelToBuffer("learning", 3, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("learning", 4, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("learning", 6, oclData));
+    // bind buffer for hardening kernel
+    assert(m_gpuInterface->bindKernelToBuffer("hardening", 4, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer("hardening", 6, oclData));
 
     // init local memory for the kernels
     assert(m_gpuInterface->getLocalMemorySize() == 256*256);
     assert(m_gpuInterface->setLocalMemory("synapse_processing",  256*256));
+    assert(m_gpuInterface->setLocalMemory("sum_nodes",  256*256));
     assert(m_gpuInterface->setLocalMemory("node_processing",  256*256));
     assert(m_gpuInterface->setLocalMemory("updating",  256*256));
-    assert(m_gpuInterface->setLocalMemory("learning",  256*256));
+    assert(m_gpuInterface->setLocalMemory("hardening",  256*256));
 
     return true;
 }
@@ -163,7 +169,7 @@ GpuProcessingUnit::run()
 
         // run process on gpu
         start = std::chrono::system_clock::now();
-        runOnGpu("learning");
+        runOnGpu("hardening");
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
@@ -173,6 +179,12 @@ GpuProcessingUnit::run()
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuSynapse = timeValue;
+
+        start = std::chrono::system_clock::now();
+        runOnGpu("sum_nodes");
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        //KyoukoRoot::monitoringMetaMessage.gpuSynapse = timeValue;
 
         start = std::chrono::system_clock::now();
         runOnGpu("node_processing");
@@ -269,6 +281,9 @@ GpuProcessingUnit::closeDevice()
     oclData.buffer[1].data = nullptr;
     oclData.buffer[2].data = nullptr;
     oclData.buffer[3].data = nullptr;
+    oclData.buffer[4].data = nullptr;
+    oclData.buffer[5].data = nullptr;
+    oclData.buffer[6].data = nullptr;
 
     return m_gpuInterface->closeDevice(oclData);
 }

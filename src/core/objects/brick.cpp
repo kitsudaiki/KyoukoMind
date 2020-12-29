@@ -120,14 +120,14 @@ Brick::getRandomNeighbor(const uint32_t location)
     return nextLocation;
 }
 
+
 /**
  * @brief Brick::initNeighborList
  */
 void
 Brick::initNeighborList()
 {
-    for(uint8_t i = 0; i < 23; i++)
-    {
+    for(uint8_t i = 0; i < 23; i++) {
         neighbors[i] = UNINIT_STATE_32;
     }
 }
@@ -194,7 +194,7 @@ uint32_t
 Brick::registerInput()
 {
     while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-
+    isInputBrick = true;
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     if(m_inputs.size() >= globalValues->numberOfNodesPerBrick - 10) {
         return UNINIT_STATE_32;
@@ -216,6 +216,7 @@ Brick::registerInput()
 
     return listPos;
 }
+
 
 /**
  * @brief Brick::setInputValue
@@ -269,6 +270,7 @@ Brick::registerOutput()
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
+    isOutputBrick = true;
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     if(m_outputs.size() >= globalValues->numberOfNodesPerBrick - 1) {
         return UNINIT_STATE_32;
@@ -464,9 +466,7 @@ Brick::getPossibleNext(const uint8_t inputSide)
 
         default:
         {
-            next.next[0] = UNINIT_STATE_8;
-            next.next[1] = UNINIT_STATE_8;
-            next.next[2] = UNINIT_STATE_8;
+            assert(false);
         }
     }
 

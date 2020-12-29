@@ -171,8 +171,7 @@ ItemBuffer::reserveDynamicItem()
     // calculate size information
     const uint32_t blockSize = buffer.blockSize;
     const uint64_t numberOfBlocks = buffer.numberOfBlocks;
-    const uint64_t newNumberOfBlocks = (((itemCapacity + 1)
-                                         * itemSize) / blockSize) + 1;
+    const uint64_t newNumberOfBlocks = (((itemCapacity + 1) * itemSize) / blockSize) + 1;
 
     // allocate a new block, if necessary
     if(numberOfBlocks < newNumberOfBlocks) {
