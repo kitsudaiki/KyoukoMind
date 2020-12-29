@@ -27,8 +27,7 @@
 #include <core/objects/edges.h>
 #include <core/objects/global_values.h>
 
-#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
-#include <libKitsunemimiKyoukoCommon/communication_structs/mind_container.h>
+#include <core/objects/monitoring_container.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 

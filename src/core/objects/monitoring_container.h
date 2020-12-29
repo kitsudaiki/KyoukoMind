@@ -27,7 +27,13 @@
 #include <stdlib.h>
 #include <string>
 #include <stdio.h>
-#include <libKitsunemimiKyoukoCommon/communication_structs/communication_enums.h>
+
+enum MessageTypes
+{
+    UNDEFINED_TYPE = 0,
+    MONITORING_BRICK_DATA,
+    MONITORING_META_DATA,
+};
 
 struct MonitoringBrick
 {

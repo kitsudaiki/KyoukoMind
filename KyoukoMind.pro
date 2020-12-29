@@ -19,8 +19,6 @@ LIBS += -L../libKitsunemimiConfig/src/debug -lKitsunemimiConfig
 LIBS += -L../libKitsunemimiConfig/src/release -lKitsunemimiConfig
 INCLUDEPATH += ../libKitsunemimiConfig/include
 
-INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
-
 LIBS += -L../libKitsunemimiSakuraNetwork/src -lKitsunemimiSakuraNetwork
 LIBS += -L../libKitsunemimiSakuraNetwork/src/debug -lKitsunemimiSakuraNetwork
 LIBS += -L../libKitsunemimiSakuraNetwork/src/release -lKitsunemimiSakuraNetwork
