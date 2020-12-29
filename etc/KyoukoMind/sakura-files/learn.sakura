@@ -1,0 +1,7 @@
+["learn"]
+- input = ""
+- should = ""
+
+learn("learn input")
+- input = input
+- should = should
