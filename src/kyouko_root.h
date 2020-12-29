@@ -7,7 +7,7 @@
 #define KYOUKO_ROOT_OBJECT_H
 
 #include <common.h>
-#include <libKitsunemimiKyoukoCommon/communication_structs/monitoring_contianer.h>
+#include <core/objects/monitoring_container.h>
 
 class NetworkManager;
 class Segment;
@@ -28,8 +28,8 @@ public:
     static ClientConnectionHandler* m_clientHandler;
     static MonitoringConnectionHandler* m_monitoringHandler;
 
-    static Kitsunemimi::Kyouko::MonitoringBrickMessage monitoringBrickMessage;
-    static Kitsunemimi::Kyouko::MonitoringProcessingTimes monitoringMetaMessage;
+    static MonitoringBrickMessage monitoringBrickMessage;
+    static MonitoringProcessingTimes monitoringMetaMessage;
 
     bool start();
     void initBlossoms();

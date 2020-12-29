@@ -71,11 +71,6 @@ LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
 
-LIBS += -L../libKitsunemimiKyoukoCommon/src -lKitsunemimiKyoukoCommon
-LIBS += -L../libKitsunemimiKyoukoCommon/src/debug -lKitsunemimiKyoukoCommon
-LIBS += -L../libKitsunemimiKyoukoCommon/src/release -lKitsunemimiKyoukoCommon
-INCLUDEPATH += ../libKitsunemimiKyoukoCommon/include
-
 LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL
 
 INCLUDEPATH += $$PWD \
@@ -121,7 +116,8 @@ HEADERS += \
     src/blossoms/special_blossoms.h \
     src/blossoms/set_global_values_blossom.h \
     src/blossoms/freeze_state_blossom.h \
-    src/blossoms/snapshot_blossom.h
+    src/blossoms/snapshot_blossom.h \
+    src/core/objects/monitoring_container.h
 
 SOURCES += \
     src/core/objects/brick.cpp \

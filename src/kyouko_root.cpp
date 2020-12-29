@@ -41,8 +41,8 @@ bool KyoukoRoot::m_freezeState = false;
 ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
 MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
 
-Kitsunemimi::Kyouko::MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
-Kitsunemimi::Kyouko::MonitoringProcessingTimes KyoukoRoot::monitoringMetaMessage;
+MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
+MonitoringProcessingTimes KyoukoRoot::monitoringMetaMessage;
 
 
 /**
