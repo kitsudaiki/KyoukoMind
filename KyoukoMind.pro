@@ -141,10 +141,10 @@ SOURCES += \
     src/core/connection_handler/monitoring_connection_handler.cpp \
     src/core/connection_handler/client_connection_handler.cpp \
     src/blossoms/get_node_brick_ids_blossom.cpp \
-    src/blossoms/speacal_blossom.cpp \
     src/blossoms/set_global_values_blossom.cpp \
     src/blossoms/freeze_state_blossom.cpp \
-    src/blossoms/snapshot_blossom.cpp
+    src/blossoms/snapshot_blossom.cpp \
+    src/blossoms/special_blossoms.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

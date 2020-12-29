@@ -1,11 +1,11 @@
 /**
- * @file        get_node_brick_ids_blossom.cpp
+ * @file        set_global_values_blossom.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
  * @copyright   Apache License Version 2.0
  *
- *      Copyright 2020 Tobias Anker
+ *      Copyright 2018 Tobias Anker
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
