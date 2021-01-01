@@ -35,6 +35,10 @@
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
 #include <libKitsunemimiSakuraMessaging/messaging_client.h>
 
+#include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
+
+using Kitsunemimi::Sakura::SakuraLangInterface;
+
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 Segment* KyoukoRoot::m_segment = nullptr;
@@ -57,6 +61,30 @@ KyoukoRoot::KyoukoRoot()
     m_segment = new Segment();
     m_clientHandler = new ClientConnectionHandler();
     m_monitoringHandler = new MonitoringConnectionHandler();
+}
+
+/**
+ * @brief KyoukoRoot::initializeSakuraFiles
+ * @return
+ */
+bool
+KyoukoRoot::initializeSakuraFiles()
+{
+    bool success = false;
+    const std::string sakuraDir = GET_STRING_CONFIG("DEFAULT", "sakura-file-locaion", success);
+    if(success == false) {
+        return false;
+    }
+
+    std::string errorMessage = "";
+    success = SakuraLangInterface::getInstance()->readFilesInDir(sakuraDir, errorMessage);
+    if(success == false)
+    {
+        LOG_ERROR(errorMessage);
+        return false;
+    }
+
+    return true;
 }
 
 /**

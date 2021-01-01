@@ -49,6 +49,7 @@ public:
     static MonitoringProcessingTimes monitoringMetaMessage;
 
     bool start();
+    bool initializeSakuraFiles();
 
     bool learn(const std::string &input,
                const std::string &should, std::string &);

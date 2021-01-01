@@ -93,44 +93,4 @@ initBlossoms()
     initSnapshotBlossoms();
 }
 
-/**
- * @brief initSakuraFiles
- * @return
- */
-bool
-initSakuraFiles()
-{
-    bool success = false;
-    const std::string sakuraDir = GET_STRING_CONFIG("DEFAULT", "sakura-file-locaion", success);
-    if(success == false) {
-        return false;
-    }
-
-    std::vector<std::string> sakuraFiles;
-    if(Kitsunemimi::Persistence::listFiles(sakuraFiles, sakuraDir) == false)
-    {
-        LOG_ERROR("path with sakura-files doesn't exist: " + sakuraDir);
-        return false;
-    }
-
-    std::string errorMessage = "";
-    for(const std::string &filePath : sakuraFiles)
-    {
-        std::string content = "";
-        if(Kitsunemimi::Persistence::readFile(content, filePath, errorMessage) == false)
-        {
-            LOG_ERROR("reading sakura-files failed with error: " + errorMessage);
-            return false;
-        }
-
-        if(SakuraLangInterface::getInstance()->addTree("", content, errorMessage) == false)
-        {
-            LOG_ERROR("parsing sakura-files failed with error: " + errorMessage);
-            return false;
-        }
-    }
-
-    return true;
-}
-
 #endif // BLOSSOM_INITIALIZING_H

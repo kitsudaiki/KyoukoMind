@@ -63,9 +63,6 @@ main(int argc, char *argv[])
 
     // create server
     initBlossoms();
-    if(initSakuraFiles() == false) {
-        return 1;
-    }
 
     // initialize server and connections based on the config-file
     std::vector<std::string> groupNames = {};
@@ -79,6 +76,9 @@ main(int argc, char *argv[])
 
     // start core
     KyoukoRoot* rootObject = new KyoukoRoot();
+    if(rootObject->initializeSakuraFiles() == false) {
+        return 1;
+    }
     rootObject->start();
 
     int a = 0;

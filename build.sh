@@ -125,7 +125,7 @@ get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.3" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.7.1" 1
+get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
