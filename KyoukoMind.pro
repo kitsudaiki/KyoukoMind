@@ -115,7 +115,8 @@ HEADERS += \
     src/blossoms/set_global_values_blossom.h \
     src/blossoms/freeze_state_blossom.h \
     src/blossoms/snapshot_blossom.h \
-    src/core/objects/monitoring_container.h
+    src/core/objects/monitoring_container.h \
+    src/initializing/blossom_initializing.h
 
 SOURCES += \
     src/core/objects/brick.cpp \

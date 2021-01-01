@@ -26,6 +26,7 @@
 #include <args.h>
 #include <config.h>
 #include <core/callbacks.h>
+#include <initializing/blossom_initializing.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -61,9 +62,8 @@ main(int argc, char *argv[])
     registerConfigs();
 
     // create server
-    KyoukoRoot* rootObject = new KyoukoRoot();
-    rootObject->initBlossoms();
-    if(rootObject->initSakuraFiles() == false) {
+    initBlossoms();
+    if(initSakuraFiles() == false) {
         return 1;
     }
 
@@ -78,6 +78,7 @@ main(int argc, char *argv[])
     }
 
     // start core
+    KyoukoRoot* rootObject = new KyoukoRoot();
     rootObject->start();
 
     int a = 0;
