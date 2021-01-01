@@ -1,5 +1,0 @@
-["get_node_brick_ids"]
-- node_brick_ids = ""
-
-get_node_brick_ids("get node brick ids")
-- node_brick_ids >> node_brick_ids

@@ -14,7 +14,6 @@
 #include <src/blossoms/learn_blossom.h>
 #include <src/blossoms/metadata_blossom.h>
 #include <src/blossoms/special_blossoms.h>
-#include <src/blossoms/get_node_brick_ids_blossom.h>
 #include <src/blossoms/set_global_values_blossom.h>
 #include <src/blossoms/freeze_state_blossom.h>
 #include <src/blossoms/snapshot_blossom.h>
@@ -22,45 +21,76 @@
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 /**
+ * @brief initSpecialBlossoms
+ */
+void
+initSpecialBlossoms()
+{
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+
+    assert(interface->addBlossom("special", "print", new PrintBlossom()));
+    assert(interface->addBlossom("special", "assert", new AssertBlossom()));
+    assert(interface->addBlossom("special", "item_update", new ItemUpdateBlossom()));
+
+    assert(interface->addBlossom("special", "learn", new LearnBlossom()));
+    assert(interface->addBlossom("special", "freeze_state", new FreezeStateBlossom()));
+}
+
+/**
+ * @brief initRegisterBlossoms
+ */
+void
+initRegisterBlossoms()
+{
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+
+    assert(interface->addBlossom("register", "input", new RegisterInputBlossom()));
+    assert(interface->addBlossom("register", "output",  new RegisterOutputBlossom()));
+}
+
+/**
+ * @brief initMetadataBlossoms
+ */
+void
+initMetadataBlossoms()
+{
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+
+    assert(interface->addBlossom("metadata", "get", new MetadataBlossom()));
+}
+
+/**
+ * @brief initGlobalValuesBlossoms
+ */
+void
+initGlobalValuesBlossoms()
+{
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+
+    assert(interface->addBlossom("global_values", "set", new SetGlobalValues_Blossom()));
+}
+
+/**
+ * @brief initSnapshotBlossoms
+ */
+void
+initSnapshotBlossoms()
+{
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+
+    assert(interface->addBlossom("snapshot", "obj", new SnapshotBlossom()));
+}
+/**
  * @brief initBlossoms
  */
 void
 initBlossoms()
 {
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "register_input",
-                                                          new RegisterInputBlossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "register_output",
-                                                          new RegisterOutputBlossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "get_metadata",
-                                                          new MetadataBlossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "learn",
-                                                          new LearnBlossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "get_node_brick_ids",
-                                                          new GetNodeBrickIds_Blossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "set_global_values",
-                                                          new SetGlobalValues_Blossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "freeze_state",
-                                                          new FreezeStateBlossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "snapshot",
-                                                          new SnapshotBlossom()));
-
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "print",
-                                                          new PrintBlossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "assert",
-                                                          new AssertBlossom()));
-    assert(SakuraLangInterface::getInstance()->addBlossom("special",
-                                                          "item_update",
-                                                          new ItemUpdateBlossom()));
+    initSpecialBlossoms();
+    initRegisterBlossoms();
+    initMetadataBlossoms();
+    initGlobalValuesBlossoms();
+    initSnapshotBlossoms();
 }
 
 /**

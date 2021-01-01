@@ -4,7 +4,8 @@
 
 for(i = 0; i < 1; i++)
 {
-	register_output("register output for {{brickId}}")
-	- brickId = brickId
-	- pos >> pos
+    register("register output for {{brickId}}")
+    -> output:
+        - brickId = brickId
+        - pos >> pos
 }

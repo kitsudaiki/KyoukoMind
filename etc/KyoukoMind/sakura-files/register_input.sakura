@@ -4,7 +4,8 @@
 
 for(i = 0; i < 10; i++)
 {
-	register_input("register input for {{brickId}}")
-	- brickId = brickId
-	- pos >> pos
+    register("register input for {{brickId}}")
+    -> input:
+        - brickId = brickId
+        - pos >> pos
 }
