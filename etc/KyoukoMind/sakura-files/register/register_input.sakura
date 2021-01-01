@@ -1,0 +1,11 @@
+["register_input"]
+- brickId = ""
+- pos = ""
+
+for(i = 0; i < 10; i++)
+{
+    register("register input for {{brickId}}")
+    -> input:
+        - brickId = brickId
+        - pos >> pos
+}

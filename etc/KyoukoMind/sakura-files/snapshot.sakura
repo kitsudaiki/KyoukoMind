@@ -1,3 +1,4 @@
 ["snapshot"]
 
 snapshot("make snapshot of the complete network")
+-> obj

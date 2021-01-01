@@ -26,6 +26,7 @@
 #include <args.h>
 #include <config.h>
 #include <core/callbacks.h>
+#include <initializing/blossom_initializing.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -61,11 +62,7 @@ main(int argc, char *argv[])
     registerConfigs();
 
     // create server
-    KyoukoRoot* rootObject = new KyoukoRoot();
-    rootObject->initBlossoms();
-    if(rootObject->initSakuraFiles() == false) {
-        return 1;
-    }
+    initBlossoms();
 
     // initialize server and connections based on the config-file
     std::vector<std::string> groupNames = {};
@@ -78,6 +75,10 @@ main(int argc, char *argv[])
     }
 
     // start core
+    KyoukoRoot* rootObject = new KyoukoRoot();
+    if(rootObject->initializeSakuraFiles() == false) {
+        return 1;
+    }
     rootObject->start();
 
     int a = 0;

@@ -1,0 +1,11 @@
+["register_output"]
+- brickId = ""
+- pos = ""
+
+for(i = 0; i < 1; i++)
+{
+    register("register output for {{brickId}}")
+    -> output:
+        - brickId = brickId
+        - pos >> pos
+}
