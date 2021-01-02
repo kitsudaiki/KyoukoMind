@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include <blossoms/special_blossoms.h>
+#include <blossoms/special/special_blossoms.h>
 
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
 #include <libKitsunemimiCommon/process_execution.h>

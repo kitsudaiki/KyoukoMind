@@ -31,14 +31,18 @@
 #include <libKitsunemimiPersistence/files/text_file.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-#include <src/blossoms/register_input_blossom.h>
-#include <src/blossoms/register_output_blossom.h>
-#include <src/blossoms/learn_blossom.h>
-#include <src/blossoms/metadata_blossom.h>
-#include <src/blossoms/special_blossoms.h>
-#include <src/blossoms/set_global_values_blossom.h>
-#include <src/blossoms/freeze_state_blossom.h>
-#include <src/blossoms/snapshot_blossom.h>
+#include <src/blossoms/register/register_input_blossom.h>
+#include <src/blossoms/register/register_output_blossom.h>
+
+#include <src/blossoms/metadata/metadata_blossom.h>
+
+#include <src/blossoms/global_values/set_global_values_blossom.h>
+
+#include <src/blossoms/snapshot/snapshot_blossom.h>
+
+#include <src/blossoms/special/freeze_state_blossom.h>
+#include <src/blossoms/special/learn_blossom.h>
+#include <src/blossoms/special/special_blossoms.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 

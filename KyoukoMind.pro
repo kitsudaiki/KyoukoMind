@@ -104,16 +104,16 @@ HEADERS += \
     src/config.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
-    src/blossoms/register_input_blossom.h \
-    src/blossoms/register_output_blossom.h \
-    src/blossoms/learn_blossom.h \
-    src/blossoms/metadata_blossom.h \
+    src/blossoms/register/register_input_blossom.h \
+    src/blossoms/register/register_output_blossom.h \
+    src/blossoms/special/learn_blossom.h \
+    src/blossoms/metadata/metadata_blossom.h \
     src/core/connection_handler/monitoring_connection_handler.h \
     src/core/connection_handler/client_connection_handler.h \
-    src/blossoms/special_blossoms.h \
-    src/blossoms/set_global_values_blossom.h \
-    src/blossoms/freeze_state_blossom.h \
-    src/blossoms/snapshot_blossom.h \
+    src/blossoms/special/special_blossoms.h \
+    src/blossoms/global_values/set_global_values_blossom.h \
+    src/blossoms/special/freeze_state_blossom.h \
+    src/blossoms/snapshot/snapshot_blossom.h \
     src/core/objects/monitoring_container.h \
     src/initializing/blossom_initializing.h
 
@@ -132,16 +132,16 @@ SOURCES += \
     src/initializing/segment_initializing.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
-    src/blossoms/register_input_blossom.cpp \
-    src/blossoms/register_output_blossom.cpp \
-    src/blossoms/learn_blossom.cpp \
-    src/blossoms/metadata_blossom.cpp \
+    src/blossoms/register/register_input_blossom.cpp \
+    src/blossoms/register/register_output_blossom.cpp \
+    src/blossoms/special/learn_blossom.cpp \
+    src/blossoms/metadata/metadata_blossom.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \
     src/core/connection_handler/client_connection_handler.cpp \
-    src/blossoms/set_global_values_blossom.cpp \
-    src/blossoms/freeze_state_blossom.cpp \
-    src/blossoms/snapshot_blossom.cpp \
-    src/blossoms/special_blossoms.cpp
+    src/blossoms/global_values/set_global_values_blossom.cpp \
+    src/blossoms/special/freeze_state_blossom.cpp \
+    src/blossoms/snapshot/snapshot_blossom.cpp \
+    src/blossoms/special/special_blossoms.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
