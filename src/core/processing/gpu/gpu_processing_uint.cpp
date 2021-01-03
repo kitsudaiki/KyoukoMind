@@ -68,94 +68,103 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     // the global-values object
     oclData.threadsPerWg.x = 255;
 
-    // add empty buffer
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-    oclData.buffer.push_back(Kitsunemimi::Opencl::WorkerBuffer());
-
-    // fill buffer for edges from host to gpu
-    oclData.buffer[0].data = segment.synapseTransfers.buffer.data;
-    oclData.buffer[0].numberOfBytes = segment.synapseTransfers.buffer.bufferPosition;
-    oclData.buffer[0].numberOfObjects = segment.synapseTransfers.itemCapacity;
-    oclData.buffer[0].useHostPtr = true;
+    // fill buffer for synapses from host to gpu
+    oclData.addBuffer("synapse-transfers",
+                      segment.synapseTransfers.itemCapacity,
+                      segment.synapseTransfers.itemSize,
+                      false,
+                      true,
+                      segment.synapseTransfers.buffer.data);
 
     // fill buffer for axons from gpu to host
-    oclData.buffer[1].data = segment.axonTransfers.buffer.data;
-    oclData.buffer[1].numberOfBytes = segment.axonTransfers.buffer.bufferPosition;
-    oclData.buffer[1].numberOfObjects = segment.axonTransfers.itemCapacity;
-    oclData.buffer[1].isOutput = true;
+    oclData.addBuffer("axons",
+                      segment.axonTransfers.itemCapacity,
+                      segment.axonTransfers.itemSize,
+                      true,
+                      false,
+                      segment.axonTransfers.buffer.data);
 
-    // fill buffer for update-edges from gpu to host
-    oclData.buffer[2].data = segment.updateTransfers.buffer.data;
-    oclData.buffer[2].numberOfBytes = segment.updateTransfers.buffer.bufferPosition;
-    oclData.buffer[2].numberOfObjects = segment.updateTransfers.itemCapacity;
-    oclData.buffer[2].isOutput = true;
+    // fill buffer for update-transfers from gpu to host
+    oclData.addBuffer("update-transfers",
+                      segment.updateTransfers.itemCapacity,
+                      segment.updateTransfers.itemSize,
+                      true,
+                      false,
+                      segment.updateTransfers.buffer.data);
 
     // fill buffer for nodes to map on gpu
-    oclData.buffer[3].data = segment.nodes.buffer.data;
-    oclData.buffer[3].numberOfBytes = segment.nodes.buffer.bufferPosition;
-    oclData.buffer[3].numberOfObjects = segment.nodes.itemCapacity;
+    oclData.addBuffer("nodes",
+                      segment.nodes.itemCapacity,
+                      segment.nodes.itemSize,
+                      false,
+                      false,
+                      segment.nodes.buffer.data);
 
     // fill buffer for synapse-sections to map on gpu
-    oclData.buffer[4].data = segment.synapses.buffer.data;
-    oclData.buffer[4].numberOfBytes = segment.synapses.buffer.bufferPosition;
-    oclData.buffer[4].numberOfObjects = segment.synapses.itemCapacity;
+    oclData.addBuffer("synapses",
+                      segment.synapses.itemCapacity,
+                      segment.synapses.itemSize,
+                      false,
+                      false,
+                      segment.synapses.buffer.data);
 
     // fill buffer for random values to map on gpu
-    oclData.buffer[5].data = segment.randomIntValues.buffer.data;
-    oclData.buffer[5].numberOfBytes = segment.randomIntValues.buffer.bufferPosition;
-    oclData.buffer[5].numberOfObjects = segment.randomIntValues.itemCapacity;
+    oclData.addBuffer("random-values",
+                      segment.randomIntValues.itemCapacity,
+                      segment.randomIntValues.itemSize,
+                      false,
+                      false,
+                      segment.randomIntValues.buffer.data);
 
     // fill buffer for global values to map on gpu
-    oclData.buffer[6].data = segment.globalValues.buffer.data;
-    oclData.buffer[6].numberOfBytes = 256;
-    oclData.buffer[6].numberOfObjects = 1;
+    oclData.addBuffer("global-values",
+                      segment.globalValues.itemCapacity,
+                      segment.globalValues.itemSize,
+                      false,
+                      false,
+                      segment.globalValues.buffer.data);
 
     assert(m_gpuInterface->initCopyToDevice(oclData));
 
     // init kernel
-    assert(m_gpuInterface->addKernel("synapse_processing",  processingCode));
-    assert(m_gpuInterface->addKernel("sum_nodes",  processingCode));
-    assert(m_gpuInterface->addKernel("node_processing",  processingCode));
-    assert(m_gpuInterface->addKernel("updating",  processingCode));
-    assert(m_gpuInterface->addKernel("hardening",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "synapse_processing",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "sum_nodes",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "node_processing",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "updating",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "hardening",  processingCode));
 
     // bind buffer for synapse_processing kernel
-    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 0, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 3, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 4, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 5, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("synapse_processing", 6, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "synapse-transfers"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "nodes"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "synapses"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "random-values"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "global-values"));
 
     // bind buffer for sum_nodes kernel
-    assert(m_gpuInterface->bindKernelToBuffer("sum_nodes", 3, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "sum_nodes", "nodes"));
 
     // bind buffer for node_processing kernel
-    assert(m_gpuInterface->bindKernelToBuffer("node_processing", 1, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("node_processing", 3, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("node_processing", 6, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "axons"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "nodes"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "global-values"));
 
     // bind buffer for updating kernel
-    assert(m_gpuInterface->bindKernelToBuffer("updating", 2, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("updating", 3, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("updating", 4, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("updating", 6, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "updating", "update-transfers"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "updating", "nodes"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "updating", "synapses"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "updating", "global-values"));
 
     // bind buffer for hardening kernel
-    assert(m_gpuInterface->bindKernelToBuffer("hardening", 4, oclData));
-    assert(m_gpuInterface->bindKernelToBuffer("hardening", 6, oclData));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "hardening", "synapses"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "hardening", "global-values"));
 
     // init local memory for the kernels
     assert(m_gpuInterface->getLocalMemorySize() == 256*256);
-    assert(m_gpuInterface->setLocalMemory("synapse_processing",  256*256));
-    assert(m_gpuInterface->setLocalMemory("sum_nodes",  256*256));
-    assert(m_gpuInterface->setLocalMemory("node_processing",  256*256));
-    assert(m_gpuInterface->setLocalMemory("updating",  256*256));
-    assert(m_gpuInterface->setLocalMemory("hardening",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "synapse_processing",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "sum_nodes",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "node_processing",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "updating",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "hardening",  256*256));
 
     return true;
 }
@@ -244,8 +253,9 @@ GpuProcessingUnit::run()
 bool
 GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
 {
-    return m_gpuInterface->updateBufferOnDevice("synapse_processing",
-                                                0,
+    return m_gpuInterface->updateBufferOnDevice(oclData,
+                                                "synapse_processing",
+                                                "synapse-transfers",
                                                 segment.synapseTransfers.numberOfItems);
 }
 
@@ -257,7 +267,7 @@ GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
 bool
 GpuProcessingUnit::copyGlobalValuesToGpu()
 {
-    return m_gpuInterface->updateBufferOnDevice("synapse_processing", 4, 1);
+    return m_gpuInterface->updateBufferOnDevice(oclData, "synapse_processing", "global-values", 1);
 }
 
 /**
@@ -270,7 +280,7 @@ GpuProcessingUnit::copyGlobalValuesToGpu()
 bool
 GpuProcessingUnit::runOnGpu(const std::string &kernelName)
 {
-    return m_gpuInterface->run(kernelName, oclData);
+    return m_gpuInterface->run(oclData, kernelName);
 }
 
 /**
@@ -292,15 +302,5 @@ GpuProcessingUnit::copyAxonTransfersFromGpu()
 bool
 GpuProcessingUnit::closeDevice()
 {
-    // because the memory was allocated at another point, it should not be free by the close-process
-    // of the device
-    oclData.buffer[0].data = nullptr;
-    oclData.buffer[1].data = nullptr;
-    oclData.buffer[2].data = nullptr;
-    oclData.buffer[3].data = nullptr;
-    oclData.buffer[4].data = nullptr;
-    oclData.buffer[5].data = nullptr;
-    oclData.buffer[6].data = nullptr;
-
     return m_gpuInterface->closeDevice(oclData);
 }

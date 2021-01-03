@@ -54,7 +54,7 @@ private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
     Kitsunemimi::Opencl::GpuInterface* m_gpuInterface = nullptr;
 
-    Kitsunemimi::Opencl::OpenClData oclData;
+    Kitsunemimi::Opencl::GpuData oclData;
 
     bool copySynapseTransfersToGpu(Segment &segment);
     bool copyGlobalValuesToGpu();
