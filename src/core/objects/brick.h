@@ -35,7 +35,7 @@ public:
     //----------------------------------------------------------------------------------------------
     struct PossibleNext
     {
-        uint8_t next[3];
+        uint8_t next[5];
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
     struct BrickPos
@@ -43,7 +43,6 @@ public:
         uint32_t x = 0;
         uint32_t y = 0;
         uint32_t z = 0;
-        uint32_t w = 0;
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
 
@@ -57,7 +56,7 @@ public:
 
     // 0 - 21: neighbor-bricks
     // 22: the current brick
-    uint32_t neighbors[23];
+    uint32_t neighbors[12];
     uint32_t nodePos = UNINIT_STATE_32;
 
     uint32_t nodeActivity = 0;

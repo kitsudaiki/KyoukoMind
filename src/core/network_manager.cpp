@@ -37,7 +37,6 @@
 #include <core/objects/segment.h>
 #include <core/objects/global_values.h>
 
-#include <initializing/file_parser.h>
 #include <initializing/network_initializer.h>
 
 using std::chrono::duration_cast;

@@ -9,6 +9,11 @@ LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessagin
 LIBS += -L../libKitsunemimiSakuraMessaging/src/release -lKitsunemimiSakuraMessaging
 INCLUDEPATH += ../libKitsunemimiSakuraMessaging/include
 
+LIBS += -L../libKitsunemimiAiParser/src -lKitsunemimiAiParser
+LIBS += -L../libKitsunemimiAiParser/src/debug -lKitsunemimiAiParser
+LIBS += -L../libKitsunemimiAiParser/src/release -lKitsunemimiAiParser
+INCLUDEPATH += ../libKitsunemimiAiParser/include
+
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/release -lKitsunemimiArgs
@@ -94,9 +99,6 @@ HEADERS += \
     src/core/network_manager.h \
     src/import_export/obj_converter.h \
     src/core/validation.h \
-    src/initializing/axon_initializer.h \
-    src/initializing/file_parser.h \
-    src/initializing/init_meta_data.h \
     src/initializing/network_initializer.h \
     src/initializing/segment_initializing.h \
     src/args.h \
@@ -126,8 +128,6 @@ SOURCES += \
     src/core/network_manager.cpp \
     src/import_export/obj_converter.cpp \
     src/core/validation.cpp \
-    src/initializing/axon_initializer.cpp \
-    src/initializing/file_parser.cpp \
     src/initializing/network_initializer.cpp \
     src/initializing/segment_initializing.cpp \
     src/kyouko_root.cpp \
