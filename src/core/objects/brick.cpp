@@ -76,7 +76,7 @@ Brick::Brick(const Brick &other)
         this->synapseCreateActivity = other.synapseCreateActivity;
         this->synapseDeleteActivity = other.synapseDeleteActivity;
 
-        for(uint32_t i = 0; i < 23; i++) {
+        for(uint32_t i = 0; i < 12; i++) {
             this->neighbors[i] = other.neighbors[i];
         }
     }
@@ -121,10 +121,10 @@ Brick::~Brick() {}
  * @return
  */
 uint32_t
-Brick::getRandomNeighbor(const uint32_t location)
+Brick::getRandomNeighbor(const uint32_t location, const bool random)
 {
     const uint8_t inputSide = getInputSide(location);
-    const PossibleNext next = getPossibleNext(inputSide);
+    const PossibleNext next = getPossibleNext(inputSide, random);
 
     const uint8_t nextSide = next.next[rand() % 5];
     uint32_t nextLocation = neighbors[nextSide];
@@ -143,7 +143,7 @@ Brick::getRandomNeighbor(const uint32_t location)
 void
 Brick::initNeighborList()
 {
-    for(uint8_t i = 0; i < 11; i++) {
+    for(uint8_t i = 0; i < 12; i++) {
         neighbors[i] = UNINIT_STATE_32;
     }
 }
@@ -157,7 +157,7 @@ bool
 Brick::connectBricks(const uint8_t sourceSide,
                      Brick &targetBrick)
 {
-    assert(sourceSide < 11);
+    assert(sourceSide < 12);
 
     // check neighbors
     if(neighbors[sourceSide] != UNINIT_STATE_32
@@ -183,7 +183,7 @@ Brick::connectBricks(const uint8_t sourceSide,
 bool
 Brick::disconnectBricks(const uint8_t sourceSide)
 {
-    assert(sourceSide < 11);
+    assert(sourceSide < 12);
     const uint32_t targetId = neighbors[sourceSide];
 
     Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[targetId];
@@ -417,9 +417,19 @@ Brick::uninitNeighbor(const uint8_t side)
  * @return
  */
 const Brick::PossibleNext
-Brick::getPossibleNext(const uint8_t inputSide)
+Brick::getPossibleNext(const uint8_t inputSide, const bool random)
 {
     PossibleNext next;
+
+    if(random)
+    {
+        next.next[0] = rand() % 12;
+        next.next[1] = rand() % 12;
+        next.next[2] = rand() % 12;
+        next.next[3] = rand() % 12;
+        next.next[4] = rand() % 12;
+        return next;
+    }
 
     switch(inputSide)
     {

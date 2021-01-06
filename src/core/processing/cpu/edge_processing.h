@@ -106,11 +106,20 @@ createNewEdge(EdgeSection &section,
     uint16_t counter = 0;
     while(counter < maxRuns)
     {
-        possibleNextLoc = brick->getRandomNeighbor(possibleNextLoc);
+        if(counter == 0) {
+            possibleNextLoc = brick->getRandomNeighbor(possibleNextLoc, true);
+        } else {
+            possibleNextLoc = brick->getRandomNeighbor(possibleNextLoc, false);
+        }
         if(possibleNextLoc == UNINIT_STATE_32) {
             break;
         }
-        brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(possibleNextLoc)];
+        const uint32_t brickId = getBrickId(possibleNextLoc);
+        Brick* tempBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
+        if(tempBrick->brickId == UNINIT_STATE_32) {
+            break;
+        }
+        brick = tempBrick;
         counter++;
     }
 
@@ -293,8 +302,8 @@ processEdgeSection()
             currentSection->harden(globalValues->lerningValue);
         }
 
-        //if(brick->isOutputBrick == false)
-        if(sourceBrick->brickId != 60)
+        if(sourceBrick->isOutputBrick == false)
+        //if(sourceBrick->brickId != 60)
         {
             processEdgeGroup(*currentSection,
                              currentTransfer->weight,

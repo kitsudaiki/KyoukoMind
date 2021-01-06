@@ -78,7 +78,7 @@ public:
 
     ~Brick();
 
-    uint32_t getRandomNeighbor(const uint32_t location);
+    uint32_t getRandomNeighbor(const uint32_t location, const bool random = false);
 
     bool connectBricks(const uint8_t sourceSide,
                        Brick &targetBrick);
@@ -105,7 +105,7 @@ private:
                       uint32_t targetBrickId);
     bool uninitNeighbor(const uint8_t side);
 
-    const PossibleNext getPossibleNext(const uint8_t inputSide);
+    const PossibleNext getPossibleNext(const uint8_t inputSide, const bool random = false);
     void updateMonitoringMetadata();
 
 

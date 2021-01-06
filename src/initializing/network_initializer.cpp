@@ -163,8 +163,9 @@ NetworkInitializer::addBricks(Segment &segment,
             }
         }
 
+        assert(brick.brickId == i);
         // copy new brick to segment
-        getBuffer<Brick>(segment.bricks)[brick.brickId] = brick;
+        getBuffer<Brick>(segment.bricks)[i] = brick;
     }
 
     return;
@@ -207,18 +208,31 @@ NetworkInitializer::createAxons(Segment &segment)
             uint16_t counter = 0;
             while(counter < maxRuns)
             {
-                possibleNextLoc = targetBrick->getRandomNeighbor(possibleNextLoc);
+                if(counter == 0) {
+                    possibleNextLoc = targetBrick->getRandomNeighbor(possibleNextLoc, true);
+                } else {
+                    possibleNextLoc = targetBrick->getRandomNeighbor(possibleNextLoc, false);
+                }
                 if(possibleNextLoc == UNINIT_STATE_32) {
                     break;
                 }
-                targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[getBrickId(possibleNextLoc)];
+                const uint32_t brickId = getBrickId(possibleNextLoc);
+                Brick* tempBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
+                if(tempBrick->brickId == UNINIT_STATE_32) {
+                    break;
+                }
+                targetBrick = tempBrick;
                 counter++;
             }
 
-            edges[pos + i].targetBrickId = targetBrick->brickId;
+            edges[pos + nodePos].targetBrickId = targetBrick->brickId;
 
-            nodes[pos + i].brickId = sourceBrick->brickId;
-            nodes[pos + i].targetBrickDistance = counter;
+            nodes[pos + nodePos].brickId = sourceBrick->brickId;
+            nodes[pos + nodePos].targetBrickDistance = counter;
+
+            assert(targetBrick->brickId != UNINIT_STATE_32);
+            assert(sourceBrick->brickId != UNINIT_STATE_32);
+
         }
     }
 
