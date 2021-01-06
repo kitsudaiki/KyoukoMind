@@ -93,6 +93,8 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
 
     // init bricks
     initBricks(*segment, numberOfBricks);
+    segment->nodeBricks = new Brick*[parsedContent.numberOfNodeBricks];
+    segment->numberOfNodeBricks = parsedContent.numberOfNodeBricks;
     addBricks(*segment, parsedContent);
 
     // init axons
@@ -137,9 +139,9 @@ NetworkInitializer::addBricks(Segment &segment,
         brick.isInputBrick = metaBase.bricks[i].isInputBrick;
 
         // copy position
-        brick.brickPos.x = metaBase.bricks[i].brickPos.x;
-        brick.brickPos.y = metaBase.bricks[i].brickPos.y;
-        brick.brickPos.z = metaBase.bricks[i].brickPos.z;
+        brick.brickPos.x = static_cast<int32_t>(metaBase.bricks[i].brickPos.x);
+        brick.brickPos.y = static_cast<int32_t>(metaBase.bricks[i].brickPos.y);
+        brick.brickPos.z = static_cast<int32_t>(metaBase.bricks[i].brickPos.z);
 
         // copy neighbors
         for(uint32_t i = 0; i < 12; i++) {
@@ -166,6 +168,13 @@ NetworkInitializer::addBricks(Segment &segment,
         assert(brick.brickId == i);
         // copy new brick to segment
         getBuffer<Brick>(segment.bricks)[i] = brick;
+
+        // link if node-brick
+        if(brick.nodeBrickId != UNINIT_STATE_32)
+        {
+            assert(brick.nodeBrickId < segment.numberOfNodeBricks);
+            segment.nodeBricks[brick.nodeBrickId] = &getBuffer<Brick>(segment.bricks)[i];
+        }
     }
 
     return;
@@ -200,39 +209,27 @@ NetworkInitializer::createAxons(Segment &segment)
         // iterate over all nodes of the brick and create an axon for each node
         for(uint32_t nodePos = 0; nodePos < globalValues->numberOfNodesPerBrick; nodePos++)
         {
-            Brick* targetBrick = sourceBrick;
+            // get random brick as target for the axon
+            const uint32_t randPos = static_cast<uint32_t>(rand()) % segment.bricks.numberOfItems;
+            Brick* targetBrick = &bricks[randPos];
 
-            // iterate to a random new brick
-            const uint16_t maxRuns = rand() % 10 + 1;
-            uint32_t possibleNextLoc = i;
-            uint16_t counter = 0;
-            while(counter < maxRuns)
-            {
-                if(counter == 0) {
-                    possibleNextLoc = targetBrick->getRandomNeighbor(possibleNextLoc, true);
-                } else {
-                    possibleNextLoc = targetBrick->getRandomNeighbor(possibleNextLoc, false);
-                }
-                if(possibleNextLoc == UNINIT_STATE_32) {
-                    break;
-                }
-                const uint32_t brickId = getBrickId(possibleNextLoc);
-                Brick* tempBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
-                if(tempBrick->brickId == UNINIT_STATE_32) {
-                    break;
-                }
-                targetBrick = tempBrick;
-                counter++;
-            }
+            // calculate distance with pythagoras
+            int32_t x = targetBrick->brickPos.x - sourceBrick->brickPos.x;
+            int32_t y = targetBrick->brickPos.y - sourceBrick->brickPos.y;
+            int32_t z = targetBrick->brickPos.z - sourceBrick->brickPos.z;
+            x = x * x;
+            y = y * y;
+            z = z * z;
+            const double dist = std::sqrt(x + y + z);
 
+            // set source and target in related nodes and edges
             edges[pos + nodePos].targetBrickId = targetBrick->brickId;
-
             nodes[pos + nodePos].brickId = sourceBrick->brickId;
-            nodes[pos + nodePos].targetBrickDistance = counter;
+            nodes[pos + nodePos].targetBrickDistance = static_cast<uint32_t>(dist);
 
+            // post-check
             assert(targetBrick->brickId != UNINIT_STATE_32);
             assert(sourceBrick->brickId != UNINIT_STATE_32);
-
         }
     }
 

@@ -96,45 +96,17 @@ createNewEdge(EdgeSection &section,
     const uint32_t oldBrickId = getBrickId(oldEdge.brickLocation);
     Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[oldBrickId];
 
-    // get limiter for new run
+    // get random brick as target for the axon
     uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
     section.randomPos = (section.randomPos + 1) % 1024;
-    const uint16_t maxRuns = randValues[section.randomPos] % 10;
-
-    // iterate to a random new brick
-    uint32_t possibleNextLoc = oldEdge.brickLocation;
-    uint16_t counter = 0;
-    while(counter < maxRuns)
-    {
-        if(counter == 0) {
-            possibleNextLoc = brick->getRandomNeighbor(possibleNextLoc, true);
-        } else {
-            possibleNextLoc = brick->getRandomNeighbor(possibleNextLoc, false);
-        }
-        if(possibleNextLoc == UNINIT_STATE_32) {
-            break;
-        }
-        const uint32_t brickId = getBrickId(possibleNextLoc);
-        Brick* tempBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
-        if(tempBrick->brickId == UNINIT_STATE_32) {
-            break;
-        }
-        brick = tempBrick;
-        counter++;
-    }
-
-    // check if found brick is valid
-    if(brick->nodeBrickId == UNINIT_STATE_32
-            || possibleNextLoc == UNINIT_STATE_32)
-    {
-        return UNINIT_STATE_16;
-    }
+    const uint32_t pos = randValues[section.randomPos] % KyoukoRoot::m_segment->numberOfNodeBricks;
+    Brick* targetBrick = KyoukoRoot::m_segment->nodeBricks[pos];
 
     // create new edge
     Edge newEdge;
     if(createSynapseSection(section, newEdge, brick, sourceBrick))
     {
-        newEdge.brickLocation = possibleNextLoc;
+        newEdge.brickLocation = targetBrick->brickId;
         brick->edgeCreateActivity++;
         return section.append(newEdge);
     }
