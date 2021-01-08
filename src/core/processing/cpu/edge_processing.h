@@ -186,23 +186,10 @@ processEdgeGroup(EdgeSection &section,
         toLearn -= diff;
 
         // trigger synapse
-        if(weight > currentEdge->synapseWeight)
-        {
-            processSynapseConnection(*currentEdge,
-                                     currentEdge->synapseWeight,
-                                     currentPos,
-                                     edgeSectionPos);
-            weight -= currentEdge->synapseWeight;
-        }
-        else
-        {
-            processSynapseConnection(*currentEdge,
-                                     weight,
-                                     currentPos,
-                                     edgeSectionPos);
-            weight = 0.0f;
-            return;
-        }
+        const float newWeight = (weight > currentEdge->synapseWeight) * currentEdge->synapseWeight
+                                + (weight <= currentEdge->synapseWeight) * weight;
+        processSynapseConnection(*currentEdge, newWeight, currentPos, edgeSectionPos);
+        weight -= newWeight;
     }
 
     // if not everything of the new weight was shared, then create a new edge for the remaining
@@ -219,10 +206,6 @@ processEdgeGroup(EdgeSection &section,
         const uint32_t brickId = newEdge->brickId;
         Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
         assert(brick->nodeBrickId != UNINIT_STATE_32);
-
-        if(brick->isOutputBrick) {
-            std::cout<<"create output from source: "<<sourceBrick->brickId<<" : "<<toLearn<<std::endl;
-        }
 
         newEdge->synapseWeight = toLearn;
         processSynapseConnection(*newEdge,
@@ -338,8 +321,8 @@ updateEdgeSection()
             Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
             brick->synapseDeleteActivity++;
             brick->edgeDeleteActivity++;
+            assert(section->numberOfUsedSynapseSections > 0);
             section->numberOfUsedSynapseSections--;
-            assert(section->numberOfUsedSynapseSections >= 0);
             //section->numberOfUsedSynapseSections = (numSyn < 0) * 0 + (numSyn >= 0) * numSyn;
 
             section->remove(container->positionInEdge);
