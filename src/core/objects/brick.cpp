@@ -123,7 +123,7 @@ Brick::~Brick() {}
 uint32_t
 Brick::getRandomNeighbor(const uint32_t location, const bool random)
 {
-    const uint8_t inputSide = getInputSide(location);
+    const uint8_t inputSide = location;
     const PossibleNext next = getPossibleNext(inputSide, random);
 
     const uint8_t nextSide = next.next[rand() % 5];

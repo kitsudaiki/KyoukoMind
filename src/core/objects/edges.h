@@ -34,7 +34,7 @@ struct Edge
     float synapseWeight = 0.0f;
     uint32_t synapseSectionId = UNINIT_STATE_32;
 
-    uint32_t brickLocation = UNINIT_STATE_32;
+    uint32_t brickId = UNINIT_STATE_32;
     uint16_t prev = UNINIT_STATE_16;
     uint16_t next = UNINIT_STATE_16;
     float hardening = 0.0f;
@@ -43,25 +43,6 @@ struct Edge
 
     // total size: 24 Byte
 } __attribute__((packed));
-
-inline uint32_t
-getBrickId(const Edge &edge)
-{
-    return edge.brickLocation & 0x00FFFFFF;
-}
-
-inline uint32_t
-getBrickId(const uint32_t location)
-{
-    return location & 0x00FFFFFF;
-}
-
-inline uint8_t
-getInputSide(const uint32_t location)
-{
-    return location >> 24;
-}
-
 
 //==================================================================================================
 
@@ -89,13 +70,13 @@ struct EdgeSection
     void test()
     {
         Edge test1;
-        test1.brickLocation = 42;
+        test1.brickId = 42;
 
         Edge test2;
-        test2.brickLocation = 43;
+        test2.brickId = 43;
 
         Edge test3;
-        test3.brickLocation = 44;
+        test3.brickId = 44;
 
         assert(append(test1) == 1);
         assert(append(test2) == 2);
@@ -132,7 +113,7 @@ struct EdgeSection
         }
 
         Edge* edge = &edges[pos];
-        assert(edge->brickLocation != UNINIT_STATE_32);
+        assert(edge->brickId != UNINIT_STATE_32);
 
         Edge* prev = &edges[edge->prev];
 
@@ -165,7 +146,7 @@ struct EdgeSection
         uint16_t found = UNINIT_STATE_16;
         for(uint16_t i = 1; i < 170; i++)
         {
-            if(getBrickId(edges[i].brickLocation) == UNINIT_STATE_24)
+            if(edges[i].brickId == UNINIT_STATE_32)
             {
                 found = i;
                 break;
@@ -189,7 +170,7 @@ struct EdgeSection
     {
         for(uint16_t i = 1; i < 170; i++)
         {
-            if(getBrickId(edges[i].brickLocation) != UNINIT_STATE_24)
+            if(edges[i].brickId != UNINIT_STATE_32)
             {
                 const float newValue = edges[i].hardening + value;
                 edges[i].hardening = (newValue > 1.0f) * 1.0f + (newValue <= 1.0f) * newValue;
@@ -203,7 +184,7 @@ struct EdgeSection
 
         for(uint16_t i = 1; i < 170; i++)
         {
-            if(getBrickId(edges[i].brickLocation) != UNINIT_STATE_24) {
+            if(edges[i].brickId != UNINIT_STATE_32) {
                 totalWeight += edges[i].synapseWeight;
             }
         }
