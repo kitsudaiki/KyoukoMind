@@ -35,15 +35,14 @@ public:
     //----------------------------------------------------------------------------------------------
     struct PossibleNext
     {
-        uint8_t next[3];
+        uint8_t next[5];
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
     struct BrickPos
     {
-        uint32_t x = 0;
-        uint32_t y = 0;
-        uint32_t z = 0;
-        uint32_t w = 0;
+        int32_t x = 0;
+        int32_t y = 0;
+        int32_t z = 0;
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
 
@@ -57,7 +56,7 @@ public:
 
     // 0 - 21: neighbor-bricks
     // 22: the current brick
-    uint32_t neighbors[23];
+    uint32_t neighbors[12];
     uint32_t nodePos = UNINIT_STATE_32;
 
     uint32_t nodeActivity = 0;
@@ -79,7 +78,7 @@ public:
 
     ~Brick();
 
-    uint32_t getRandomNeighbor(const uint32_t location);
+    uint32_t getRandomNeighbor(const uint32_t location, const bool random = false);
 
     bool connectBricks(const uint8_t sourceSide,
                        Brick &targetBrick);
@@ -106,7 +105,7 @@ private:
                       uint32_t targetBrickId);
     bool uninitNeighbor(const uint8_t side);
 
-    const PossibleNext getPossibleNext(const uint8_t inputSide);
+    const PossibleNext getPossibleNext(const uint8_t inputSide, const bool random = false);
     void updateMonitoringMetadata();
 
 

@@ -133,6 +133,10 @@ get_required_private_repo_github "libKitsunemimiSakuraMessaging" "v0.4.0" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
+get_required_private_repo_gitlab "libKitsunemimiAiParser" "v0.1.0" 1
+echo ""
+echo "###########################################################################################################"
+echo ""
 #-----------------------------------------------------------------------------------------------------------------
 
 # create build directory for KyoukoMind and go into this directory

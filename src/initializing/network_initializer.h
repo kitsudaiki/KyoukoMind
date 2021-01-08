@@ -24,10 +24,15 @@
 #define NETWORK_INITIALIZER_H
 
 #include <common.h>
-#include "init_meta_data.h"
 
 class BrickQueue;
 class Segment;
+
+namespace Kitsunemimi {
+namespace Ai {
+struct AiBaseMeta;
+}
+}
 
 class NetworkInitializer
 {
@@ -38,21 +43,10 @@ public:
     bool createNewNetwork(const std::string &fileContent);
 
 private:
-    std::vector<std::vector<InitMetaDataEntry>> m_netMetaStructure;
+    void addBricks(Segment &segment,
+                   const Kitsunemimi::Ai::AiBaseMeta &metaBase);
 
-    void connectAllBricks(Segment &segment);
-    void addBricks(Segment &segment);
-
-    uint32_t getNumberOfNodeBricks();
-
-    std::pair<uint32_t, uint32_t> getNext(const uint32_t x,
-                                          const uint32_t y,
-                                          const uint8_t side);
-
-    uint32_t getDistantToNextNodeBrick(const uint32_t x,
-                                       const uint32_t y,
-                                       const uint8_t side);
-
+    bool createAxons(Segment &segment);
 };
 
 #endif // NETWORK_INITIALIZER_H

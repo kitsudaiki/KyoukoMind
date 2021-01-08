@@ -76,7 +76,7 @@ Brick::Brick(const Brick &other)
         this->synapseCreateActivity = other.synapseCreateActivity;
         this->synapseDeleteActivity = other.synapseDeleteActivity;
 
-        for(uint32_t i = 0; i < 23; i++) {
+        for(uint32_t i = 0; i < 12; i++) {
             this->neighbors[i] = other.neighbors[i];
         }
     }
@@ -103,7 +103,7 @@ Brick
         this->synapseCreateActivity = other.synapseCreateActivity;
         this->synapseDeleteActivity = other.synapseDeleteActivity;
 
-        for(uint32_t i = 0; i < 23; i++) {
+        for(uint32_t i = 0; i < 12; i++) {
             this->neighbors[i] = other.neighbors[i];
         }
     }
@@ -121,16 +121,16 @@ Brick::~Brick() {}
  * @return
  */
 uint32_t
-Brick::getRandomNeighbor(const uint32_t location)
+Brick::getRandomNeighbor(const uint32_t location, const bool random)
 {
-    const uint8_t inputSide = getInputSide(location);
-    const PossibleNext next = getPossibleNext(inputSide);
+    const uint8_t inputSide = location;
+    const PossibleNext next = getPossibleNext(inputSide, random);
 
-    const uint8_t nextSide = next.next[rand() % 3];
+    const uint8_t nextSide = next.next[rand() % 5];
     uint32_t nextLocation = neighbors[nextSide];
 
     if(nextLocation != UNINIT_STATE_32) {
-        nextLocation += static_cast<uint32_t>(23 - nextSide) << 24;
+        nextLocation += static_cast<uint32_t>(11 - nextSide) << 24;
     }
 
     return nextLocation;
@@ -143,7 +143,7 @@ Brick::getRandomNeighbor(const uint32_t location)
 void
 Brick::initNeighborList()
 {
-    for(uint8_t i = 0; i < 23; i++) {
+    for(uint8_t i = 0; i < 12; i++) {
         neighbors[i] = UNINIT_STATE_32;
     }
 }
@@ -157,11 +157,11 @@ bool
 Brick::connectBricks(const uint8_t sourceSide,
                      Brick &targetBrick)
 {
-    assert(sourceSide < 23);
+    assert(sourceSide < 12);
 
     // check neighbors
     if(neighbors[sourceSide] != UNINIT_STATE_32
-            || targetBrick.neighbors[23-sourceSide] != UNINIT_STATE_32)
+            || targetBrick.neighbors[11 - sourceSide] != UNINIT_STATE_32)
     {
         return false;
     }
@@ -169,7 +169,7 @@ Brick::connectBricks(const uint8_t sourceSide,
     // init the new neighbors
     this->initNeighbor(sourceSide,
                        targetBrick.brickId);
-    targetBrick.initNeighbor(23 - sourceSide,
+    targetBrick.initNeighbor(11 - sourceSide,
                              this->brickId);
 
     return true;
@@ -183,21 +183,21 @@ Brick::connectBricks(const uint8_t sourceSide,
 bool
 Brick::disconnectBricks(const uint8_t sourceSide)
 {
-    assert(sourceSide < 23);
+    assert(sourceSide < 12);
     const uint32_t targetId = neighbors[sourceSide];
 
     Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[targetId];
 
     // check neighbors
     if(neighbors[sourceSide] == UNINIT_STATE_32
-            || targetBrick->neighbors[23-sourceSide] == UNINIT_STATE_32)
+            || targetBrick->neighbors[11 - sourceSide] == UNINIT_STATE_32)
     {
         return false;
     }
 
     // add the new neighbor
     this->uninitNeighbor(sourceSide);
-    targetBrick->uninitNeighbor(23 - sourceSide);
+    targetBrick->uninitNeighbor(11 - sourceSide);
 
     return true;
 }
@@ -417,66 +417,131 @@ Brick::uninitNeighbor(const uint8_t side)
  * @return
  */
 const Brick::PossibleNext
-Brick::getPossibleNext(const uint8_t inputSide)
+Brick::getPossibleNext(const uint8_t inputSide, const bool random)
 {
     PossibleNext next;
-    std::vector<uint8_t> possibleNext = { 9, 10, 11, 12, 13, 14 };
+
+    if(random)
+    {
+        next.next[0] = rand() % 12;
+        next.next[1] = rand() % 12;
+        next.next[2] = rand() % 12;
+        next.next[3] = rand() % 12;
+        next.next[4] = rand() % 12;
+        return next;
+    }
 
     switch(inputSide)
     {
         case 0:
         {
-            next.next[0] = possibleNext[rand() % 6];
-            next.next[1] = possibleNext[rand() % 6];
-            next.next[2] = possibleNext[rand() % 6];
+            next.next[0] = 4;
+            next.next[1] = 5;
+            next.next[2] = 7;
+            next.next[3] = 8;
+            next.next[4] = 11;
             break;
         }
 
+        case 1:
+        {
+            next.next[0] = 5;
+            next.next[1] = 6;
+            next.next[2] = 7;
+            next.next[3] = 8;
+            next.next[4] = 10;
+            break;
+        }
+
+        case 2:
+        {
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 5;
+            next.next[3] = 6;
+            next.next[4] = 9;
+            break;
+        }
+
+        case 3:
+        {
+            next.next[0] = 5;
+            next.next[1] = 7;
+            next.next[2] = 8;
+            next.next[3] = 2;
+            next.next[4] = 11;
+            break;
+        }
+        case 4:
+        {
+            next.next[0] = 6;
+            next.next[1] = 7;
+            next.next[2] = 8;
+            next.next[3] = 2;
+            next.next[4] = 10;
+            break;
+        }
+        case 5:
+        {
+            next.next[0] = 3;
+            next.next[1] = 6;
+            next.next[2] = 7;
+            next.next[3] = 0;
+            next.next[4] = 10;
+            break;
+        }
+        case 6:
+        {
+            next.next[0] = 4;
+            next.next[1] = 5;
+            next.next[2] = 8;
+            next.next[3] = 1;
+            next.next[4] = 11;
+            break;
+        }
+        case 7:
+        {
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 5;
+            next.next[3] = 1;
+            next.next[4] = 9;
+            break;
+        }
+        case 8:
+        {
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 6;
+            next.next[3] = 0;
+            next.next[4] = 9;
+            break;
+        }
         case 9:
         {
-            next.next[0] = 11;
-            next.next[1] = 13;
-            next.next[2] = 14;
+            next.next[0] = 5;
+            next.next[1] = 6;
+            next.next[2] = 7;
+            next.next[3] = 8;
+            next.next[4] = 2;
             break;
         }
-
         case 10:
         {
-            next.next[0] = 12;
-            next.next[1] = 13;
-            next.next[2] = 14;
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 5;
+            next.next[3] = 8;
+            next.next[4] = 1;
             break;
         }
-
         case 11:
         {
-            next.next[0] = 9;
-            next.next[1] = 12;
-            next.next[2] = 13;
-            break;
-        }
-
-        case 12:
-        {
-            next.next[0] = 10;
-            next.next[1] = 11;
-            next.next[2] = 14;
-            break;
-        }
-
-        case 13:
-        {
-            next.next[0] = 9;
-            next.next[1] = 10;
-            next.next[2] = 11;
-            break;
-        }
-
-        case 14:
-        {
-            next.next[0] = 9;
-            next.next[1] = 10;
-            next.next[2] = 12;
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 6;
+            next.next[3] = 7;
+            next.next[4] = 0;
             break;
         }
 
