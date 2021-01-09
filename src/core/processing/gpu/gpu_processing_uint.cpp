@@ -209,11 +209,11 @@ GpuProcessingUnit::run()
 
         start = std::chrono::system_clock::now();
         runOnGpu("sum_nodes");
-        end = std::chrono::system_clock::now();
+        //end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //KyoukoRoot::monitoringMetaMessage.gpuSynapse = timeValue;
 
-        start = std::chrono::system_clock::now();
+        //start = std::chrono::system_clock::now();
         runOnGpu("node_processing");
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
