@@ -94,6 +94,8 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     // init bricks
     initBricks(*segment, numberOfBricks);
     segment->nodeBricks = new Brick*[parsedContent.numberOfNodeBricks];
+    segment->inputBricks = new Brick*[parsedContent.numberOfNodeBricks];
+    segment->outputBricks = new Brick*[parsedContent.numberOfNodeBricks];
     segment->numberOfNodeBricks = parsedContent.numberOfNodeBricks;
     addBricks(*segment, parsedContent);
 
@@ -174,6 +176,22 @@ NetworkInitializer::addBricks(Segment &segment,
         {
             assert(brick.nodeBrickId < segment.numberOfNodeBricks);
             segment.nodeBricks[brick.nodeBrickId] = &getBuffer<Brick>(segment.bricks)[i];
+        }
+
+        // link output-brick
+        if(brick.isOutputBrick)
+        {
+            Brick* outputBrickPtr = &getBuffer<Brick>(segment.bricks)[i];
+            segment.outputBricks[segment.numberOfOutputBricks] = outputBrickPtr;
+            segment.numberOfOutputBricks++;
+        }
+
+        // link input-brick
+        if(brick.isInputBrick)
+        {
+            Brick* inputBrickPtr = &getBuffer<Brick>(segment.bricks)[i];
+            segment.inputBricks[segment.numberOfInputBricks] = inputBrickPtr;
+            segment.numberOfInputBricks++;
         }
     }
 

@@ -67,8 +67,13 @@ Brick::Brick(const Brick &other)
     {
         this->brickId = other.brickId;
         this->nodeBrickId = other.nodeBrickId;
+
+        this->isInputBrick = other.isInputBrick;
+        this->isOutputBrick = other.isOutputBrick;
+
         this->brickPos = other.brickPos;
         this->nodePos = other.nodePos;
+
         this->nodeActivity = other.nodeActivity;
         this->synapseActivity = other.synapseActivity;
         this->edgeCreateActivity = other.edgeCreateActivity;
@@ -94,8 +99,13 @@ Brick
     {
         this->brickId = other.brickId;
         this->nodeBrickId = other.nodeBrickId;
+
+        this->isInputBrick = other.isInputBrick;
+        this->isOutputBrick = other.isOutputBrick;
+
         this->brickPos = other.brickPos;
         this->nodePos = other.nodePos;
+
         this->nodeActivity = other.nodeActivity;
         this->synapseActivity = other.synapseActivity;
         this->edgeCreateActivity = other.edgeCreateActivity;
@@ -286,7 +296,6 @@ Brick::registerOutput()
     while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
     while(m_should_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    isOutputBrick = true;
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     if(m_outputs.size() >= globalValues->numberOfNodesPerBrick - 1) {
         return UNINIT_STATE_32;
