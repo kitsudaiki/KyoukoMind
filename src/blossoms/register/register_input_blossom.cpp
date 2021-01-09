@@ -25,6 +25,7 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <core/objects/segment.h>
 #include <kyouko_root.h>
+#include <core/processing/input_output_processing.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -40,15 +41,8 @@ RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("register input");
 
-    Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
-    const uint32_t pos = inputBrick->registerInput();
-    if(pos == UNINIT_STATE_32)
-    {
-        errorMessage = "brick " + std::to_string(inputBrick->brickId) + " is already full";
-        return false;
-    }
-
-    blossomLeaf.output.insert("pos", new DataValue(static_cast<int>(pos)));
+    KyoukoRoot::m_ioHandler->registerInput(6, 10);
+    blossomLeaf.output.insert("pos", new DataValue(static_cast<int>(0)));
 
     return true;
 }

@@ -84,20 +84,6 @@ public:
                        Brick &targetBrick);
     bool disconnectBricks(const uint8_t sourceSide);
 
-    uint32_t registerInput();
-    void setInputValue(const uint32_t pos, const float value);
-    const std::vector<float> getInputValues();
-    void clearInput();
-
-    uint32_t registerOutput();
-    void setOutputValue(const uint32_t pos, const float value);
-    void resetOutputValues();
-    uint32_t getNumberOfOutputValues();
-    const std::vector<float> getOutputValues();
-
-    void setShouldValue(const uint32_t pos, const float value);
-    const std::vector<float> getShouldValues();
-
 private:
     void initNeighborList();
 
@@ -107,16 +93,6 @@ private:
 
     const PossibleNext getPossibleNext(const uint8_t inputSide, const bool random = false);
     void updateMonitoringMetadata();
-
-
-    std::vector<float> m_inputs;
-    std::atomic_flag m_input_lock = ATOMIC_FLAG_INIT;
-
-    std::vector<float> m_outputs;
-    std::atomic_flag m_output_lock = ATOMIC_FLAG_INIT;
-
-    std::vector<float> m_should;
-    std::atomic_flag m_should_lock = ATOMIC_FLAG_INIT;
 };
 
 #endif // BRICK_H

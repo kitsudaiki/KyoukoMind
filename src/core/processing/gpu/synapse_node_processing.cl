@@ -569,6 +569,9 @@ node_processing(__global AxonTransfer* axonTransfers,
             newEdge.brickId = node->brickId;
             axonTransfers[i] = newEdge;
             node->currentState = 0.0f;
+            if(newEdge.weight != 0.0f) {
+                printf("%f\n", newEdge.weight);
+            }
             //node->currentState /= localGlobalValue->nodeCooldown;
         }
 

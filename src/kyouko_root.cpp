@@ -26,6 +26,7 @@
 #include <core/objects/segment.h>
 #include <core/objects/global_values.h>
 #include <core/validation.h>
+#include <core/processing/input_output_processing.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 
@@ -45,6 +46,7 @@ Segment* KyoukoRoot::m_segment = nullptr;
 bool KyoukoRoot::m_freezeState = false;
 ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
 MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
+InputOutputProcessing* KyoukoRoot::m_ioHandler = nullptr;
 
 MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
 MonitoringProcessingTimes KyoukoRoot::monitoringMetaMessage;
@@ -59,6 +61,7 @@ KyoukoRoot::KyoukoRoot()
     m_root = this;
     m_freezeState = false;
     m_segment = new Segment();
+    m_ioHandler = new InputOutputProcessing();
     m_clientHandler = new ClientConnectionHandler();
     m_monitoringHandler = new MonitoringConnectionHandler();
 }
@@ -121,27 +124,7 @@ KyoukoRoot::learn(const std::string &input,
     LOG_WARNING("input: " + input);
     LOG_WARNING("should: " + should);
 
-    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
-    Brick* outputBrick = KyoukoRoot::m_segment->outputBricks[0];
-
-    const char* inputChar = input.c_str();
-    for(uint32_t i = 0; i < input.size(); i++)
-    {
-        //const float value = (static_cast<float>(inputChar[i]) - 90.0f) * 10.0f;
-        if(inputChar[i] == 'a') {
-            inputBrick->setInputValue(i, globalValues->actionPotential);
-        } else {
-            inputBrick->setInputValue(i, 0.0f);
-        }
-    }
-
-    const char* shouldChar = should.c_str();
-    for(uint32_t i = 0; i < should.size(); i++)
-    {
-        const float value = (static_cast<float>(shouldChar[i]) - 90.0f) * 10.0f;
-        outputBrick->setShouldValue(i, value);
-    }
+    KyoukoRoot::m_ioHandler->setInput(input);
 
     return true;
 }

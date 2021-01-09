@@ -229,17 +229,6 @@ processEdgeSection()
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
     Brick* bricks = getBuffer<Brick>(segment->bricks);
-    GlobalValues* globalValues = getBuffer<GlobalValues>(segment->globalValues);
-
-    // insert input-values from brick
-    Brick* inputBrick = segment->inputBricks[0];
-    const std::vector<float> inputValues = inputBrick->getInputValues();
-    for(uint32_t i = 0; i < inputValues.size(); i++)
-    {
-        const float multi = static_cast<float>(pow(1.05, static_cast<double>(i % 10)));
-        axonTransfers[i].weight = inputValues.at(i) * multi;
-        axonTransfers[i].brickId = 1;
-    }
 
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
@@ -260,14 +249,6 @@ processEdgeSection()
                              currentSection->targetBrickId,
                              i,
                              sourceBrick);
-        }
-        else
-        {
-            const uint32_t offset = sourceBrick->nodePos;
-            const uint32_t max = sourceBrick->getNumberOfOutputValues();
-            if(max > 0) {
-                sourceBrick->setOutputValue((i - offset) % max, currentTransfer->weight);
-            }
         }
 
         // increase counter for monitoring-output

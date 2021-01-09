@@ -30,6 +30,7 @@
 #include <libKitsunemimiPersistence/files/file_methods.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
 
+#include <core/processing/input_output_processing.h>
 #include <core/processing/processing_unit_handler.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
@@ -61,6 +62,8 @@ NetworkManager::NetworkManager()
 void
 NetworkManager::run()
 {
+    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+
     std::chrono::high_resolution_clock::time_point edgeStart;
     std::chrono::high_resolution_clock::time_point edgeEnd;
 
@@ -77,10 +80,20 @@ NetworkManager::run()
         usleep(time);
 
         // handle learning
-        calcNewLearningValue();
+        float newLearningValue = 0.0f;
+        if(KyoukoRoot::m_freezeState)
+        {
+            newLearningValue = 0.2f;
+            KyoukoRoot::m_freezeState = false;
+        }
+        globalValues->lerningValue = newLearningValue;
+
+        KyoukoRoot::m_ioHandler->processInputMapping();
+        KyoukoRoot::m_ioHandler->processOutputMapping();
 
         // run phases of processing
         m_phase1->triggerBarrier();
+
         synapseStart = std::chrono::system_clock::now();
 
         m_phase2->triggerBarrier();
@@ -89,6 +102,7 @@ NetworkManager::run()
 
         m_phase3->triggerBarrier();
         edgeEnd = std::chrono::system_clock::now();
+
 
         // calculate times
         const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
@@ -116,55 +130,6 @@ NetworkManager::run()
         KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
         KyoukoRoot::m_monitoringHandler->sendToMonitoring();
     }
-}
-
-/**
- * @brief NetworkManager::calcNewLearningValue
- */
-void
-NetworkManager::calcNewLearningValue()
-{
-    float newLearningValue = 0.0f;
-    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Brick* outputBrick = KyoukoRoot::m_segment->outputBricks[0];
-
-    m_actualOutput = outputBrick->getOutputValues();
-    m_should = outputBrick->getShouldValues();
-    if(m_should.size() == 0) {
-        globalValues->lerningValue = newLearningValue;
-        return;
-    }
-
-    float summedOutput = 0.0f;
-
-    for(uint32_t j = 0; j < m_actualOutput.size(); j++) {
-        summedOutput += m_actualOutput.at(j);
-        //std::cout<<"output: "<<m_actualOutput.at(j)<<std::endl;
-    }
-    outputBrick->resetOutputValues();
-    summedOutput /= static_cast<float>(m_actualOutput.size());
-
-    // make result smooth
-    m_outBuffer[m_outBufferPos] = summedOutput;
-    m_outBufferPos = (m_outBufferPos + 1) % 5;
-
-    float result = 0.0f;
-    for(uint32_t i = 0; i < 5; i++) {
-        result += m_outBuffer[i];
-    }
-    result /= 5.0f;
-
-    KyoukoRoot::m_clientHandler->sendToClient(std::to_string(result));
-    LOG_WARNING("-----------------------------------------------");
-    LOG_WARNING("output: " + std::to_string(result));
-
-    if(KyoukoRoot::m_freezeState)
-    {
-        newLearningValue = 0.2f;
-        KyoukoRoot::m_freezeState = false;
-    }
-
-    globalValues->lerningValue = newLearningValue;
 }
 
 /**

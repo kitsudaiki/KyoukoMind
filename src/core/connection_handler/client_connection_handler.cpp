@@ -87,32 +87,6 @@ ClientConnectionHandler::getClientSession()
     return session;
 }
 
-/**
- * @brief ClientConnectionHandler::registerInput
- * @param brickId
- * @return
- */
-uint32_t
-ClientConnectionHandler::registerInput(const uint32_t brickId)
-{
-    m_inputBrick = brickId;
-    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    return brick[brickId].registerInput();
-}
-
-/**
- * @brief ClientConnectionHandler::registerOutput
- * @param brickId
- * @return
- */
-uint32_t
-ClientConnectionHandler::registerOutput(const uint32_t brickId)
-{
-    m_outputBrick = brickId;
-    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    return brick[brickId].registerOutput();
-}
-
 //==================================================================================================
 
 /**
@@ -134,7 +108,7 @@ ClientConnectionHandler::insertInput(const std::string &inputData)
     DataArray* array = jsonItem.getItemContent()->toArray();
     Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
     for(uint32_t i = 0; i < array->size(); i++) {
-        brick[m_inputBrick].setInputValue(i, array->get(i)->getFloat());
+        //brick[m_inputBrick].setInputValue(i, array->get(i)->getFloat());
     }
 
     return true;
