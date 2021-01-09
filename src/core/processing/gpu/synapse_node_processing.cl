@@ -81,6 +81,7 @@ typedef struct UpdateTransfer_struct
     uchar deleteEdge;
     uchar padding[2];
     float newWeight;
+    float hardening;
 } 
 UpdateTransfer;
 
@@ -647,6 +648,7 @@ updating(__global UpdateTransfer* updateTransfers,
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
 
         synapseSection->totalWeight = 0.0f;
+        float hardening = 0.0f;
 
         // iterate over all synapses in synapse-section
         for(__local Synapse* synapse = synapseSection->synapses;
@@ -676,6 +678,7 @@ updating(__global UpdateTransfer* updateTransfers,
             else 
             {
                 synapseSection->totalWeight += synapseWeight;
+                hardening += synapse->harden;
             }
         }
 
@@ -686,6 +689,7 @@ updating(__global UpdateTransfer* updateTransfers,
         transferContainer.targetId = synapseSection->sourceEdgeId;
         transferContainer.positionInEdge = synapseSection->positionInEdge;
         transferContainer.deleteEdge = transferContainer.newWeight <= localGlobalValue->deleteSynapseBorder;
+        transferContainer.hardening = hardening / (float)SYNAPSES_PER_SYNAPSESECTION;
 
         // mark section as deleted
         if(transferContainer.deleteEdge > 0) {
