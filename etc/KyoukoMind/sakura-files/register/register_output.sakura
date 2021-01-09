@@ -3,7 +3,7 @@
 
 for(i = 0; i < 1; i++)
 {
-    register("register output for {{brickId}}")
+    register("register output")
     -> output:
         - pos >> pos
 }

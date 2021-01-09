@@ -3,7 +3,7 @@
 
 for(i = 0; i < 10; i++)
 {
-    register("register input for {{brickId}}")
+    register("register input")
     -> input:
         - pos >> pos
 }
