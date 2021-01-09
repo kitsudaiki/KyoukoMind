@@ -58,7 +58,8 @@ struct UpdateTransfer
     uint8_t deleteEdge = 0;
     uint8_t padding[2];
     float newWeight = 0.0f;
-    // total size: 12 Byte
+    float hardening = 0.0f;
+    // total size: 16 Byte
 };
 
 

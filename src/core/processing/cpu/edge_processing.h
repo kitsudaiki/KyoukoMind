@@ -253,11 +253,6 @@ processEdgeSection()
         Brick* sourceBrick = &bricks[currentTransfer->brickId];
         sourceBrick->nodeActivity++;
 
-        // harden section
-        if(globalValues->lerningValue != 0.0f) {
-            currentSection->harden(globalValues->lerningValue);
-        }
-
         if(sourceBrick->isOutputBrick == false)
         {
             processEdgeGroup(*currentSection,
@@ -329,6 +324,7 @@ updateEdgeSection()
         else
         {
             edge->synapseWeight = container->newWeight;
+            edge->hardening = container->hardening;
         }
 
         // increase counter for monitoring-output

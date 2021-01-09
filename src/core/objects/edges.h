@@ -166,18 +166,6 @@ struct EdgeSection
         return UNINIT_STATE_16;
     }
 
-    void harden(const float value)
-    {
-        for(uint16_t i = 1; i < 170; i++)
-        {
-            if(edges[i].brickId != UNINIT_STATE_32)
-            {
-                const float newValue = edges[i].hardening + value;
-                edges[i].hardening = (newValue > 1.0f) * 1.0f + (newValue <= 1.0f) * newValue;
-            }
-        }
-    }
-
     float getTotalWeight()
     {
         float totalWeight = 0.0f;
