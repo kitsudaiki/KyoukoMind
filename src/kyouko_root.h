@@ -29,6 +29,7 @@
 class NetworkManager;
 class Segment;
 class Brick;
+class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
 
@@ -44,6 +45,7 @@ public:
     static bool m_freezeState;
     static ClientConnectionHandler* m_clientHandler;
     static MonitoringConnectionHandler* m_monitoringHandler;
+    static InputOutputProcessing* m_ioHandler;
 
     static MonitoringBrickMessage monitoringBrickMessage;
     static MonitoringProcessingTimes monitoringMetaMessage;

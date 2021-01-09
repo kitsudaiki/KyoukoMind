@@ -56,7 +56,6 @@ CpuProcessingUnit::run()
     while(m_abort == false)
     {
         m_phase1->triggerBarrier();
-        m_phase2->triggerBarrier();
 
         // process update-messages
         start = std::chrono::system_clock::now();
@@ -73,6 +72,8 @@ CpuProcessingUnit::run()
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.cpuProcessing = timeValue;
         KyoukoRoot::monitoringMetaMessage.axonTransfers = numberOfAxons;
+
+        m_phase2->triggerBarrier();
 
         m_phase3->triggerBarrier();
     }

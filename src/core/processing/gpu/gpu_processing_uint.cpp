@@ -184,6 +184,7 @@ GpuProcessingUnit::run()
     while(!m_abort)
     {
         m_phase1->triggerBarrier();
+        m_phase2->triggerBarrier();
 
         // copy transfer-edges to gpu
         start = std::chrono::system_clock::now();
@@ -237,8 +238,6 @@ GpuProcessingUnit::run()
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.cleanup = timeValue;
-
-        m_phase2->triggerBarrier();
         m_phase3->triggerBarrier();
     }
 }

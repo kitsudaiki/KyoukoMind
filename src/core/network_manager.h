@@ -44,7 +44,6 @@ public:
 
 private:
     bool initNetwork();
-    void calcNewLearningValue();
 
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
     Kitsunemimi::Barrier* m_phase1 = nullptr;

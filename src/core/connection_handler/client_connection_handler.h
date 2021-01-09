@@ -46,9 +46,6 @@ public:
     void setClientSession(MessagingClient* session);
     MessagingClient* getClientSession();
 
-    uint32_t registerInput(const uint32_t brickId);
-    uint32_t registerOutput(const uint32_t brickId);
-
 private:
     std::atomic_flag m_clientSession_lock = ATOMIC_FLAG_INIT;
     MessagingClient* m_client = nullptr;
