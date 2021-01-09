@@ -121,17 +121,18 @@ KyoukoRoot::learn(const std::string &input,
     LOG_WARNING("input: " + input);
     LOG_WARNING("should: " + should);
 
-    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
+    Brick* outputBrick = KyoukoRoot::m_segment->outputBricks[0];
 
     const char* inputChar = input.c_str();
     for(uint32_t i = 0; i < input.size(); i++)
     {
         //const float value = (static_cast<float>(inputChar[i]) - 90.0f) * 10.0f;
         if(inputChar[i] == 'a') {
-            brick[1].setInputValue(i, globalValues->actionPotential);
+            inputBrick->setInputValue(i, globalValues->actionPotential);
         } else {
-            brick[1].setInputValue(i, 0.0f);
+            inputBrick->setInputValue(i, 0.0f);
         }
     }
 
@@ -139,7 +140,7 @@ KyoukoRoot::learn(const std::string &input,
     for(uint32_t i = 0; i < should.size(); i++)
     {
         const float value = (static_cast<float>(shouldChar[i]) - 90.0f) * 10.0f;
-        brick[60].setShouldValue(i, value);
+        outputBrick->setShouldValue(i, value);
     }
 
     return true;

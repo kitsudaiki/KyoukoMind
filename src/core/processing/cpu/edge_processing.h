@@ -232,7 +232,8 @@ processEdgeSection()
     GlobalValues* globalValues = getBuffer<GlobalValues>(segment->globalValues);
 
     // insert input-values from brick
-    const std::vector<float> inputValues = bricks[1].getInputValues();
+    Brick* inputBrick = segment->inputBricks[0];
+    const std::vector<float> inputValues = inputBrick->getInputValues();
     for(uint32_t i = 0; i < inputValues.size(); i++)
     {
         const float multi = static_cast<float>(pow(1.05, static_cast<double>(i % 10)));
@@ -258,7 +259,6 @@ processEdgeSection()
         }
 
         if(sourceBrick->isOutputBrick == false)
-        //if(sourceBrick->brickId != 60)
         {
             processEdgeGroup(*currentSection,
                              currentTransfer->weight,
@@ -269,7 +269,6 @@ processEdgeSection()
         else
         {
             const uint32_t offset = sourceBrick->nodePos;
-            assert(sourceBrick->nodePos >= 41000);
             const uint32_t max = sourceBrick->getNumberOfOutputValues();
             if(max > 0) {
                 sourceBrick->setOutputValue((i - offset) % max, currentTransfer->weight);

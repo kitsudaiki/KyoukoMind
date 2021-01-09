@@ -126,10 +126,10 @@ NetworkManager::calcNewLearningValue()
 {
     float newLearningValue = 0.0f;
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    Brick* outputBrick = KyoukoRoot::m_segment->outputBricks[0];
 
-    m_actualOutput = brick[60].getOutputValues();
-    m_should = brick[60].getShouldValues();
+    m_actualOutput = outputBrick->getOutputValues();
+    m_should = outputBrick->getShouldValues();
     if(m_should.size() == 0) {
         globalValues->lerningValue = newLearningValue;
         return;
@@ -141,7 +141,7 @@ NetworkManager::calcNewLearningValue()
         summedOutput += m_actualOutput.at(j);
         //std::cout<<"output: "<<m_actualOutput.at(j)<<std::endl;
     }
-    brick[60].resetOutputValues();
+    outputBrick->resetOutputValues();
     summedOutput /= static_cast<float>(m_actualOutput.size());
 
     // make result smooth

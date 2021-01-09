@@ -31,8 +31,6 @@ using namespace Kitsunemimi::Sakura;
 RegisterInputBlossom::RegisterInputBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
-    validationMap.emplace("brickId", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
-
     validationMap.emplace("pos", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
 }
 
@@ -42,20 +40,11 @@ RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("register input");
 
-    Kitsunemimi::DataMap* input = &blossomLeaf.input;
-    const uint32_t brickId = static_cast<uint32_t>(input->get("brickId")->toValue()->getInt());
-
-    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    if(brickId >= KyoukoRoot::m_segment->bricks.numberOfItems)
-    {
-        errorMessage = "brickId " + std::to_string(brickId) + " is too high";
-        return false;
-    }
-
-    const uint32_t pos = brick[brickId].registerInput();
+    Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
+    const uint32_t pos = inputBrick->registerInput();
     if(pos == UNINIT_STATE_32)
     {
-        errorMessage = "brick " + std::to_string(brickId) + " is already full";
+        errorMessage = "brick " + std::to_string(inputBrick->brickId) + " is already full";
         return false;
     }
 

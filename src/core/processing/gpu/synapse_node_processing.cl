@@ -307,7 +307,6 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
             chosenSynapse->dynamicWeight += usedWeight * globalValue->outputIndex;
             synapseSection->totalWeight += usedWeight * globalValue->outputIndex;
         }
-
     }
 
     return usedWeight;

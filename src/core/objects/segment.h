@@ -32,8 +32,13 @@ class Segment
 {
 public:
     ItemBuffer bricks;
+
     Brick** nodeBricks = nullptr;
     uint32_t numberOfNodeBricks = 0;
+    Brick** inputBricks = nullptr;
+    uint32_t numberOfInputBricks = 0;
+    Brick** outputBricks = nullptr;
+    uint32_t numberOfOutputBricks = 0;
 
     // host-representation of permanent gpu-data
     ItemBuffer nodes;
