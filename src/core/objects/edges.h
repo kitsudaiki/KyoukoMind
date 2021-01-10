@@ -48,7 +48,7 @@ struct Edge
 
 struct EdgeSection
 {
-    uint32_t targetBrickId = UNINIT_STATE_32;
+    uint32_t axonBrickId = UNINIT_STATE_32;
     uint16_t randomPos = 0;
     uint16_t numberOfUsedSynapseSections = 0;
 

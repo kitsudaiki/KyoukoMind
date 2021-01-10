@@ -284,30 +284,9 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
     }
     else
     {
-        // set type if necessary
-        if(chosenSynapse->type == UNDEFINED_SYNAPSE_TYPE) 
-        {
-            if(globalValue->outputIndex >= 0.0f) {
-                chosenSynapse->type = POSITIVE_TYPE;
-            } else {
-                chosenSynapse->type = NEGATIVE_TYPE;
-            }
-        }
-
-        if(globalValue->outputIndex >= 0.0f 
-            && chosenSynapse->type == POSITIVE_TYPE) 
-        {
-            usedWeight = weight * (1.0f - chosenSynapse->harden);
-            chosenSynapse->dynamicWeight += usedWeight * globalValue->outputIndex;
-            synapseSection->totalWeight += usedWeight * globalValue->outputIndex;
-        }
-        if(globalValue->outputIndex <= 0.0f 
-            && chosenSynapse->type == NEGATIVE_TYPE) 
-        {
-            usedWeight = weight * (1.0f - chosenSynapse->harden);
-            chosenSynapse->dynamicWeight += usedWeight * globalValue->outputIndex;
-            synapseSection->totalWeight += usedWeight * globalValue->outputIndex;
-        }
+        usedWeight = weight * (1.0f - chosenSynapse->harden);
+        chosenSynapse->dynamicWeight += usedWeight * globalValue->outputIndex;
+        synapseSection->totalWeight += usedWeight * globalValue->outputIndex;
     }
 
     return usedWeight;
@@ -349,7 +328,7 @@ rewightSynapse(__local SynapseSection* synapseSection,
                           globalValue, 
                           nodeBrickId);
         }
-
+        
         weight -= updateSynapseWeight(synapseSection, 
                                       synapse, 
                                       weight, 
@@ -651,7 +630,7 @@ updating(__global UpdateTransfer* updateTransfers,
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
 
         synapseSection->totalWeight = 0.0f;
-        float hardening = 0.0f;
+        float hardening = 1.0f;
 
         // iterate over all synapses in synapse-section
         for(__local Synapse* synapse = synapseSection->synapses;
@@ -662,7 +641,8 @@ updating(__global UpdateTransfer* updateTransfers,
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 continue;
             }
-                                   
+                              
+            // update dynamic-weight-value of the synapse     
             if(nodes[synapse->targetNodeId].active == 0) {
                 synapse->dynamicWeight = synapse->dynamicWeight * (globalValue->initialMemorizing + localGlobalValue->memorizingOffset);
             } else {
