@@ -155,7 +155,7 @@ processEdgeGroup(EdgeSection &section,
         assert(currentEdge->synapseSectionId != UNINIT_STATE_32);
 
         // share learning-weight
-        const float diff = toLearn * (1.0f - currentEdge->hardening) * 0.6f;
+        const float diff = toLearn * (1.0f - currentEdge->hardening);
         currentEdge->synapseWeight += diff;
         toLearn -= diff;
 

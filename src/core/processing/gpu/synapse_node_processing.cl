@@ -316,7 +316,7 @@ rewightSynapse(__local SynapseSection* synapseSection,
             return;
         }
 
-        if(weight < 0.1f) {
+        if(weight < 1.0f) {
             return;
         }
 
@@ -630,7 +630,7 @@ updating(__global UpdateTransfer* updateTransfers,
         __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
 
         synapseSection->totalWeight = 0.0f;
-        float hardening = 1.0f;
+        float hardening = 0.0f;
 
         // iterate over all synapses in synapse-section
         for(__local Synapse* synapse = synapseSection->synapses;
