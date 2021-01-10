@@ -229,24 +229,24 @@ NetworkInitializer::createAxons(Segment &segment)
         {
             // get random brick as target for the axon
             const uint32_t randPos = static_cast<uint32_t>(rand()) % segment.bricks.numberOfItems;
-            Brick* targetBrick = &bricks[randPos];
+            Brick* axonBrick = &bricks[randPos];
 
             // calculate distance with pythagoras
-            int32_t x = targetBrick->brickPos.x - sourceBrick->brickPos.x;
-            int32_t y = targetBrick->brickPos.y - sourceBrick->brickPos.y;
-            int32_t z = targetBrick->brickPos.z - sourceBrick->brickPos.z;
+            int32_t x = axonBrick->brickPos.x - sourceBrick->brickPos.x;
+            int32_t y = axonBrick->brickPos.y - sourceBrick->brickPos.y;
+            int32_t z = axonBrick->brickPos.z - sourceBrick->brickPos.z;
             x = x * x;
             y = y * y;
             z = z * z;
             const double dist = std::sqrt(x + y + z);
 
             // set source and target in related nodes and edges
-            edges[pos + nodePos].targetBrickId = targetBrick->brickId;
+            edges[pos + nodePos].axonBrickId = axonBrick->brickId;
             nodes[pos + nodePos].brickId = sourceBrick->brickId;
             nodes[pos + nodePos].targetBrickDistance = static_cast<uint32_t>(dist);
 
             // post-check
-            assert(targetBrick->brickId != UNINIT_STATE_32);
+            assert(axonBrick->brickId != UNINIT_STATE_32);
             assert(sourceBrick->brickId != UNINIT_STATE_32);
         }
     }

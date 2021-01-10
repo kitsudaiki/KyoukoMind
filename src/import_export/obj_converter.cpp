@@ -184,7 +184,7 @@ convertNodeToObj(ObjItem &result,
     // get data
     Segment* segment = KyoukoRoot::m_segment;
     EdgeSection* edgeSection = &getBuffer<EdgeSection>(segment->edges)[nodeId];
-    Brick* targetBrick = &getBuffer<Brick>(segment->bricks)[edgeSection->targetBrickId];
+    Brick* targetBrick = &getBuffer<Brick>(segment->bricks)[edgeSection->axonBrickId];
 
     // set vertizes
     result.vertizes.push_back(convertPos(brick->brickPos));
