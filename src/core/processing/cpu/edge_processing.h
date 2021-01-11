@@ -197,6 +197,7 @@ processEdgeSection()
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
     Brick* bricks = getBuffer<Brick>(segment->bricks);
+    GlobalValues* globalValues = getBuffer<GlobalValues>(segment->globalValues);
 
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
@@ -211,6 +212,14 @@ processEdgeSection()
         Brick* sourceBrick = &bricks[currentTransfer->brickId];
         sourceBrick->nodeActivity++;
         count++;
+
+        // harden section
+        if(globalValues->lerningValue != 0.0f)
+        {
+            EdgeSection* currentSection = &edgeSections[i];
+            currentSection->harden(globalValues->lerningValue / 2.0f);
+        }
+
 
         // skip output-bricks, because the are handle in another stage
         if(sourceBrick->isOutputBrick) {
@@ -276,7 +285,7 @@ updateEdgeSection()
         else
         {
             edge->synapseWeight = container->newWeight;
-            edge->hardening = container->hardening;
+            //edge->hardening = container->hardening;
         }
 
         // increase counter for monitoring-output
