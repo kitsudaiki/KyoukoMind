@@ -104,7 +104,7 @@ createNewEdge(EdgeSection &section,
 inline void
 processSynapseConnection(Edge &edge,
                          const float weight,
-                         const uint16_t positionInSection,
+                         const uint8_t positionInSection,
                          const uint32_t edgeSectionPos)
 {
     // prepare
@@ -144,7 +144,7 @@ processEdgeGroup(EdgeSection &section,
 {
     // prepare
     Edge* currentEdge = &section.edges[0];
-    uint16_t currentPos = 0;
+    uint8_t currentPos = 0;
 
     // init learning
     float toLearn = weight - section.getTotalWeight();
@@ -154,7 +154,7 @@ processEdgeGroup(EdgeSection &section,
     while(currentEdge->next != UNINIT_STATE_16
           && weight > 0.0f)
     {
-        currentPos = currentEdge->next;
+        currentPos = static_cast<uint8_t>(currentEdge->next);
         currentEdge = &section.edges[currentEdge->next];
         assert(currentEdge->synapseSectionId != UNINIT_STATE_32);
 

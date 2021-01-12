@@ -102,13 +102,6 @@ CpuProcessingUnit::run()
 
         // run process on gpu
         start = std::chrono::system_clock::now();
-        hardening();
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        //KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
-
-        // run process on gpu
-        start = std::chrono::system_clock::now();
         updating();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
@@ -124,6 +117,8 @@ CpuProcessingUnit::run()
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.cleanup = timeValue;
+
+        KyoukoRoot::m_segment->synapseTransfers.deleteAll();
 
         m_phase3->triggerBarrier();
     }

@@ -80,6 +80,7 @@ InputOutputProcessing::processOutputMapping()
 
         for(uint32_t pos = mapper->start; pos < mapper->end; pos++) {
             summedOutput += axonTransfers[pos].weight;
+            //std::cout<<"pos: "<<pos<<std::endl;
         }
 
         // make result smooth
