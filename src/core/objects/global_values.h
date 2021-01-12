@@ -37,7 +37,8 @@ struct GlobalValues
 
     float nodeCooldown = 3.0f;
     float actionPotential = 150.0f;
-    uint64_t refractionTime = 4;
+    uint8_t refractionTime = 2;
+    uint8_t padding2[7];
 
     float newSynapseBorder = 1.0f;
     float deleteSynapseBorder = 1.0f;

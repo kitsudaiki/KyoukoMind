@@ -60,6 +60,10 @@ createNewEdge(EdgeSection &section,
         return UNINIT_STATE_16;
     }
 
+    if(targetBrick->isInputBrick) {
+        return UNINIT_STATE_16;
+    }
+
     // init new synapse-section and register it inside the edge
     if(targetBrick->isInputBrick == false
             && section.numberOfUsedSynapseSections < 32)
@@ -217,7 +221,7 @@ processEdgeSection()
         if(globalValues->lerningValue != 0.0f)
         {
             EdgeSection* currentSection = &edgeSections[i];
-            currentSection->harden(globalValues->lerningValue / 2.0f);
+            currentSection->harden(globalValues->lerningValue);
         }
 
 

@@ -184,7 +184,7 @@ hardening(__global SynapseSection* synapseSections,
         return;
     }
 
-    for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
+    for(ulong i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
     {
         // skip unused section
         if(synapseSections[i].status == DELETED_SECTION) {
@@ -260,8 +260,8 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
     }
     else
     {
-        usedWeight = weight * (1.0f - chosenSynapse->harden);
-        chosenSynapse->dynamicWeight += usedWeight * globalValue->outputIndex;
+        usedWeight = weight * (1.0f - chosenSynapse->harden) * globalValue->outputIndex;
+        chosenSynapse->dynamicWeight += usedWeight;
     }
 
     return fabs(usedWeight);
@@ -542,7 +542,7 @@ squash(__local SynapseSection* synapseSections)
 
     for(uint i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++)
     {
-        tempBuffer[i].targetNodeId == UNINIT_STATE_16;
+        tempBuffer[i].targetNodeId = UNINIT_STATE_16;
 
         if(synapseSections->synapses[i].targetNodeId != UNINIT_STATE_16) 
         {
@@ -580,11 +580,10 @@ updating(__global UpdateTransfer* updateTransfers,
     localGlobalValue[0] = globalValue[0];
     __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[256];
 
-    for(uint i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
+    for(ulong i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
     {
         // prepare new container
         UpdateTransfer transferContainer;
-        transferContainer = transferContainer;
         transferContainer.newWeight = 0.0f;
         transferContainer.targetId = UNINIT_STATE_32;
         transferContainer.positionInEdge = UNINIT_STATE_8;

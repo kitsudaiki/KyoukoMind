@@ -39,7 +39,7 @@ struct Synapse
 {
     float staticWeight = 0.0;
     float dynamicWeight = 0.0;
-    float memorize = 0.90f;
+    float harden = 0.0f;
     uint16_t targetNodeId = UNINIT_STATE_16;
     uint8_t inProcess = 0;
     uint8_t type = SynapseType::UNDEFINED_SYNAPSE_TYPE;
