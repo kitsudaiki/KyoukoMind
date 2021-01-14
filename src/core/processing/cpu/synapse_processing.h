@@ -126,7 +126,6 @@ synapse_processing()
                               toLearn,
                               synapseTransfers[i].nodeBrickId,
                               nodes);
-                hardeningSynapse(synapse, globalValue);
                 toLearn = 0.0f;
             }
             else
@@ -135,9 +134,13 @@ synapse_processing()
                 const float diff = toLearn * (1.0f - synapse->hardening);
                 synapse->dynamicWeight += diff;
                 toLearn -= diff;
-
-                hardeningSynapse(synapse, globalValue);
             }
+
+            if(nodes[synapse->targetNodeId].border < 0.0f) {
+                synapse->dynamicWeight *= fabs(globalValue->outputIndex);
+            }
+
+            hardeningSynapse(synapse, globalValue);
 
             // 1 because only one thread at the moment
             const ulong nodeBufferPosition = (1 * (numberOfNodes / 256)) + synapse->targetNodeId;
