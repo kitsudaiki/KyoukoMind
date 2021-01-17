@@ -80,17 +80,18 @@ InputOutputProcessing::processOutputMapping()
 
         for(uint32_t pos = mapper->start; pos < mapper->end; pos++) {
             summedOutput += axonTransfers[pos].weight;
+            //std::cout<<"pos: "<<pos<<std::endl;
         }
 
         // make result smooth
         mapper->outBuffer[mapper->outBufferPos] = summedOutput;
-        mapper->outBufferPos = (mapper->outBufferPos + 1) % 5;
+        mapper->outBufferPos = (mapper->outBufferPos + 1) % 2;
 
         float result = 0.0f;
-        for(uint32_t x = 0; x < 5; x++) {
+        for(uint32_t x = 0; x < 2; x++) {
             result += mapper->outBuffer[x];
         }
-        result /= 5.0f;
+        result /= 2.0f;
 
         KyoukoRoot::m_clientHandler->sendToClient(std::to_string(result));
         LOG_WARNING("-----------------------------------------------");

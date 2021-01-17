@@ -60,6 +60,10 @@ createNewEdge(EdgeSection &section,
         return UNINIT_STATE_16;
     }
 
+    if(targetBrick->isInputBrick) {
+        return UNINIT_STATE_16;
+    }
+
     // init new synapse-section and register it inside the edge
     if(targetBrick->isInputBrick == false
             && section.numberOfUsedSynapseSections < 32)
@@ -100,7 +104,7 @@ createNewEdge(EdgeSection &section,
 inline void
 processSynapseConnection(Edge &edge,
                          const float weight,
-                         const uint16_t positionInSection,
+                         const uint8_t positionInSection,
                          const uint32_t edgeSectionPos)
 {
     // prepare
@@ -140,7 +144,7 @@ processEdgeGroup(EdgeSection &section,
 {
     // prepare
     Edge* currentEdge = &section.edges[0];
-    uint16_t currentPos = 0;
+    uint8_t currentPos = 0;
 
     // init learning
     float toLearn = weight - section.getTotalWeight();
@@ -150,7 +154,7 @@ processEdgeGroup(EdgeSection &section,
     while(currentEdge->next != UNINIT_STATE_16
           && weight > 0.0f)
     {
-        currentPos = currentEdge->next;
+        currentPos = static_cast<uint8_t>(currentEdge->next);
         currentEdge = &section.edges[currentEdge->next];
         assert(currentEdge->synapseSectionId != UNINIT_STATE_32);
 
@@ -197,6 +201,7 @@ processEdgeSection()
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
     AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
     Brick* bricks = getBuffer<Brick>(segment->bricks);
+    GlobalValues* globalValues = getBuffer<GlobalValues>(segment->globalValues);
 
     // process axon-messages
     for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
@@ -211,6 +216,14 @@ processEdgeSection()
         Brick* sourceBrick = &bricks[currentTransfer->brickId];
         sourceBrick->nodeActivity++;
         count++;
+
+        // harden section
+        if(globalValues->lerningValue != 0.0f)
+        {
+            EdgeSection* currentSection = &edgeSections[i];
+            currentSection->harden(globalValues->lerningValue);
+        }
+
 
         // skip output-bricks, because the are handle in another stage
         if(sourceBrick->isOutputBrick) {
@@ -276,7 +289,7 @@ updateEdgeSection()
         else
         {
             edge->synapseWeight = container->newWeight;
-            edge->hardening = container->hardening;
+            //edge->hardening = container->hardening;
         }
 
         // increase counter for monitoring-output
