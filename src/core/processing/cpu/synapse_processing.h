@@ -15,22 +15,6 @@
 
 //==================================================================================================
 
-void
-hardeningSynapse(Synapse* synapse,
-                 GlobalValues* globalValue)
-{
-    // set new synapse hardening value
-    synapse->hardening += globalValue->lerningValue;
-    synapse->hardening = (synapse->hardening > 1.0f) * 1.0f + (synapse->hardening <= 1.0f) * synapse->hardening;
-
-    // update static weight value
-    const float diff = synapse->dynamicWeight * globalValue->lerningValue;
-    synapse->dynamicWeight -= diff;
-    synapse->staticWeight += diff;
-}
-
-//--------------------------------------------------------------------------------------------------
-
 inline void
 createSynapse(SynapseSection* synapseSection,
               Synapse* synapse,
@@ -139,8 +123,6 @@ synapse_processing()
             if(nodes[synapse->targetNodeId].border < 0.0f) {
                 synapse->dynamicWeight *= fabs(globalValue->outputIndex);
             }
-
-            hardeningSynapse(synapse, globalValue);
 
             // 1 because only one thread at the moment
             const ulong nodeBufferPosition = (1 * (numberOfNodes / 256)) + synapse->targetNodeId;
@@ -324,6 +306,16 @@ updating()
             }
             else
             {
+                // set new synapse hardening value
+                synapse->hardening += globalValue->lerningValue;
+                synapse->hardening = (synapse->hardening > 1.0f) * 1.0f
+                                     + (synapse->hardening <= 1.0f) * synapse->hardening;
+
+                // update static weight value
+                const float diff = synapse->dynamicWeight * globalValue->lerningValue;
+                synapse->dynamicWeight -= diff;
+                synapse->staticWeight += diff;
+
                 synapseSection->totalWeight += synapseWeight;
                 hardening += synapse->hardening;
             }
