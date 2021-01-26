@@ -106,10 +106,8 @@ synapse_processing()
             // createe new, if nessecary
             if(synapse->targetNodeId == UNINIT_STATE_16)
             {
-                createSynapse(synapseSection,
-                              synapse,
-                              toLearn,
-                              synapseTransfers[i].nodeBrickId);
+                const uint32_t nodeBrickId = synapseTransfers[i].nodeBrickId;
+                createSynapse(synapseSection, synapse, toLearn, nodeBrickId);
                 toLearn = 0.0f;
             }
             else
@@ -238,6 +236,46 @@ squash(SynapseSection* synapseSections)
 
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * @brief harden
+ * @param value
+ */
+inline void
+hardenSynpaseSection(SynapseSection* section, const float value)
+{
+    float updateValue = value;
+
+    for(uint16_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++)
+    {
+        // skip unused synapse in section
+        if(section->synapses[i].targetNodeId == UNINIT_STATE_16
+                || section->synapses[i].hardening == 1.0f)
+        {
+            continue;
+        }
+
+        Synapse* synapse = &section->synapses[i];
+
+        if(updateValue <= 0.05f
+                && synapse->dynamicWeight + synapse->staticWeight > 1.0f)
+        {
+            break;
+        }
+
+        const float newValue = synapse->hardening + updateValue;
+        synapse->hardening = (newValue > 1.0f) * 1.0f + (newValue <= 1.0f) * newValue;
+
+        // update static weight value
+        const float diff = synapse->dynamicWeight * updateValue;
+        synapse->dynamicWeight -= diff;
+        synapse->staticWeight += diff;
+
+        updateValue /= 2.0f;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void
 updating()
 {
@@ -322,11 +360,12 @@ updating()
                 synapse->hardening = (synapse->hardening > 1.0f) * 1.0f
                                      + (synapse->hardening <= 1.0f) * synapse->hardening;
 
-
                 // update static weight value
                 const float diff = synapse->dynamicWeight * globalValue->lerningValue;
                 synapse->dynamicWeight -= diff;
                 synapse->staticWeight += diff;
+
+                //hardenSynpaseSection(synapseSection, globalValue->lerningValue);
 
                 const float synapseWeight = synapse->dynamicWeight + synapse->staticWeight;
                 synapseSection->totalWeight += synapseWeight;
