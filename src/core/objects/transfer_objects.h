@@ -35,7 +35,8 @@ struct SynapseTransfer
     uint32_t sourceEdgeId = UNINIT_STATE_32;
     uint8_t positionInEdge = UNINIT_STATE_8;
     uint8_t isNew = 0;
-    uint8_t padding[2];
+    uint8_t isOutput = 0;
+    uint8_t padding[1];
     float weight = 0.0f;
     // total size: 24 Byte
 };

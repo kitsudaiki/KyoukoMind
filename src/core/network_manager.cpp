@@ -83,7 +83,7 @@ NetworkManager::run()
         float newLearningValue = 0.0f;
         if(KyoukoRoot::m_freezeState)
         {
-            newLearningValue = 1.0f;
+            newLearningValue = 0.2f;
             KyoukoRoot::m_freezeState = false;
         }
         globalValues->lerningValue = newLearningValue;

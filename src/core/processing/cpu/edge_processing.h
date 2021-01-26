@@ -120,6 +120,7 @@ processSynapseConnection(Edge &edge,
     newTransfer.nodeBrickId = brick->nodeBrickId;
     newTransfer.positionInEdge = positionInSection;
     newTransfer.sourceEdgeId = edgeSectionPos;
+    newTransfer.isOutput = brick->isOutputBrick;
 
     KyoukoRoot::m_segment->synapseTransfers.addNewItem(newTransfer);
     brick->synapseActivity++;
