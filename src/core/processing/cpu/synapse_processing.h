@@ -15,7 +15,7 @@
 
 //==================================================================================================
 
-inline void
+inline float
 createSynapse(SynapseSection* synapseSection,
               Synapse* synapse,
               float weight,
@@ -49,6 +49,8 @@ createSynapse(SynapseSection* synapseSection,
             synapse->sign = 1;
         }
     }
+
+    return synapse->dynamicWeight;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,24 +105,34 @@ synapse_processing()
                 break;
             }
 
-            // createe new, if nessecary
-            if(synapse->targetNodeId == UNINIT_STATE_16)
-            {
-                const uint32_t nodeBrickId = synapseTransfers[i].nodeBrickId;
-                createSynapse(synapseSection, synapse, toLearn, nodeBrickId);
-                toLearn = 0.0f;
+            const float random = (rand() % 1024) / 1024.0f;
+            float usedLearn = toLearn * random;
+            if(toLearn < 5.0f) {
+                usedLearn = toLearn;
             }
-            else
+            if(usedLearn > 1.0f)
             {
-                // share learning-weight
-                const float diff = toLearn * (1.0f - synapse->hardening);
-                synapse->dynamicWeight += diff;
-                toLearn -= diff;
+                std::cout<<"learn synaspse: "<<usedLearn<<std::endl;
+                // createe new, if nessecary
+                if(synapse->targetNodeId == UNINIT_STATE_16)
+                {
+                    const uint32_t nodeBrickId = synapseTransfers[i].nodeBrickId;
+                    createSynapse(synapseSection, synapse, usedLearn, nodeBrickId);
+                    toLearn -= usedLearn;
+                }
+                else
+                {
+                    // share learning-weight
+                    const float diff = usedLearn * (1.0f - synapse->hardening);
+                    synapse->dynamicWeight += diff;
+                    toLearn -= diff;
+                }
+
             }
 
-            if(nodes[synapse->targetNodeId].border < 0.0f) {
+            /*if(nodes[synapse->targetNodeId].border < 0.0f) {
                 synapse->dynamicWeight *= fabs(globalValue->outputIndex);
-            }
+            }*/
 
             // 1 because only one thread at the moment
             const ulong nodeBufferPosition = (1 * (numberOfNodes / 256)) + synapse->targetNodeId;

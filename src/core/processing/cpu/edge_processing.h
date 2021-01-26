@@ -159,10 +159,20 @@ processEdgeGroup(EdgeSection &section,
         currentEdge = &section.edges[currentEdge->next];
         assert(currentEdge->synapseSectionId != UNINIT_STATE_32);
 
-        // share learning-weight
-        const float diff = toLearn * (1.0f - currentEdge->hardening);
-        currentEdge->synapseWeight += diff;
-        toLearn -= diff;
+        const float random = (rand() % 1024) / 1024.0f;
+        float usedLearn = toLearn * random;
+        if(toLearn < 5.0f) {
+            usedLearn = toLearn;
+        }
+
+        if(usedLearn > 2.0f)
+        {
+            std::cout<<"learn edge1: "<<usedLearn<<std::endl;
+            // share learning-weight
+            const float diff = usedLearn * (1.0f - currentEdge->hardening);
+            currentEdge->synapseWeight += diff;
+            toLearn -= diff;
+        }
 
         // trigger synapse
         const float newWeight = (weight > currentEdge->synapseWeight) * currentEdge->synapseWeight
@@ -172,19 +182,30 @@ processEdgeGroup(EdgeSection &section,
     }
 
     // if not everything of the new weight was shared, then create a new edge for the remaining
-    if(toLearn > 2.0f)
+    while(toLearn > 2.0f)
     {
+
         // try to create new edge
         const uint16_t pos = createNewEdge(section, toLearn, sourceBrick);
         if(pos == UNINIT_STATE_16) {
             return;
         }
 
+        const float random = (rand() % 1024) / 1024.0f;
+        float usedLearn = toLearn * random;
+        if(toLearn < 5.0f) {
+            usedLearn = toLearn;
+        }
+
+        if(usedLearn > 0.0f) std::cout<<"learn edge2: "<<usedLearn<<std::endl;
+
         // process the new created edge
         processSynapseConnection(section.edges[pos],
-                                 toLearn,
-                                 pos,
+                                 usedLearn,
+                                 static_cast<uint8_t>(pos),
                                  edgeSectionPos);
+
+        toLearn -= usedLearn;
     }
 }
 
