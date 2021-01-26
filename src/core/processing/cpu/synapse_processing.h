@@ -139,9 +139,11 @@ synapse_processing()
 //==================================================================================================
 
 void
-sum_nodes()
+node_processing()
 {
+    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
+    AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(KyoukoRoot::m_segment->axonTransfers);
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
 
     for(uint64_t i = 0; i < numberOfNodes / 256; i++)
@@ -154,17 +156,6 @@ sum_nodes()
             nodes[nodeBufferPosition].currentState = 0.0f;
         }
     }
-}
-
-//==================================================================================================
-
-void
-node_processing()
-{
-    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
-    AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(KyoukoRoot::m_segment->axonTransfers);
-    const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
 
     for(uint64_t i = 0; i < numberOfNodes / 256; i++)
     {
