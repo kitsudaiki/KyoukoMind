@@ -24,9 +24,10 @@ createSynapse(SynapseSection* synapseSection,
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     // get random node-id as target
-    uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
+    /*uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
     synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-    const uint targetNodeIdInBrick = randValues[synapseSection->randomPos] % globalValue->numberOfNodesPerBrick;
+    const uint targetNodeIdInBrick = randValues[synapseSection->randomPos] % globalValue->numberOfNodesPerBrick;*/
+    const uint targetNodeIdInBrick = static_cast<uint32_t>(rand()) % globalValue->numberOfNodesPerBrick;
 
     // set initial values for the new synapse
     const uint32_t nodeOffset = nodeBrickId * globalValue->numberOfNodesPerBrick;
@@ -34,8 +35,9 @@ createSynapse(SynapseSection* synapseSection,
     synapse->hardening = 0.0f;
 
     // make to blocking synapse by random
-    synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-    if(randValues[synapseSection->randomPos] % 2 == 0) {
+    //synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
+    //if(randValues[synapseSection->randomPos] % 2 == 0) {
+    if(rand() % 2 == 0) {
         synapse->sign = -1;
     }
 
@@ -74,7 +76,7 @@ learnSynapse(SynapseSection* synapseSection,
         }
 
         const float random = (rand() % 1024) / 1024.0f;
-        float usedLearn = weight * random;
+        float usedLearn = (weight * random) + 1.0f;
         if(weight < 5.0f) {
             usedLearn = weight;
         }
@@ -121,6 +123,7 @@ synapse_processing()
 
         SynapseSection* synapseSection = &synapseSections[synapseSectionId];
         synapseSection->isActive = 1;
+        //std::cout<<"active synapseSectionId: "<<synapseSectionId<<std::endl;
 
         // run lerning-process by creating and updating synapses
         float toLearn = synapseTransfers[i].weight - synapseSection->totalWeight;
@@ -138,6 +141,19 @@ synapse_processing()
             synapse < end;
             synapse++)
         {
+            if(globalValue->lerningValue > 0.0f)
+            {
+                // set new synapse hardening value
+                synapse->hardening += globalValue->lerningValue;
+                synapse->hardening = (synapse->hardening > 1.0f) * 1.0f
+                                     + (synapse->hardening <= 1.0f) * synapse->hardening;
+
+                // update static weight value
+                const float diff = synapse->dynamicWeight * globalValue->lerningValue;
+                synapse->dynamicWeight -= diff;
+                synapse->staticWeight += diff;
+            }
+
             // 1 because only one thread at the moment
             const ulong nodeBufferPosition = (1 * (numberOfNodes / 256)) + synapse->targetNodeId;
             const float synapseWeight = synapse->staticWeight + synapse->dynamicWeight;
@@ -320,14 +336,14 @@ updating()
         // load data into shared memory
         SynapseSection* synapseSection = &synapseSections[i];
         synapseSection->totalWeight = 0.0f;
-        float hardening = 0.0f;
 
-        if(globalValue->lerningValue > 0.0f) {
+        /*if(globalValue->lerningValue > 0.0f) {
             hardenSynpaseSection(synapseSection, globalValue->lerningValue);
-        }
+        }*/
 
         if(synapseSection->isActive == 0)
         {
+            //std::cout<<"update synapseSectionId: "<<i<<std::endl;
             // iterate over all synapses in synapse-section
             Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
             for(Synapse* synapse = synapseSection->synapses;
@@ -358,7 +374,6 @@ updating()
                 else
                 {
                     synapseSection->totalWeight += synapseWeight;
-                    hardening += synapse->hardening;
                 }
             }
         }
@@ -375,20 +390,8 @@ updating()
                     continue;
                 }
 
-                // set new synapse hardening value
-                /*synapse->hardening += globalValue->lerningValue;
-                synapse->hardening = (synapse->hardening > 1.0f) * 1.0f
-                                     + (synapse->hardening <= 1.0f) * synapse->hardening;
-
-                // update static weight value
-                const float diff = synapse->dynamicWeight * globalValue->lerningValue;
-                synapse->dynamicWeight -= diff;
-                synapse->staticWeight += diff;*/
-
-
                 const float synapseWeight = synapse->dynamicWeight + synapse->staticWeight;
                 synapseSection->totalWeight += synapseWeight;
-                hardening += synapse->hardening;
             }
         }
 

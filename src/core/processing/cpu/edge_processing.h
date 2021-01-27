@@ -134,7 +134,7 @@ learnEdge(EdgeSection &section,
     while(weight > 10.0f)
     {
         const float random = (rand() % 1024) / 1024.0f;
-        float usedLearn = weight * random;
+        float usedLearn = (weight * random) + 10.0f;
         if(weight < 10.0f) {
             usedLearn = weight;
         }
