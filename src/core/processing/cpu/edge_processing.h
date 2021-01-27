@@ -48,10 +48,10 @@ createNewEdge(EdgeSection &section,
               Brick* sourceBrick)
 {
     // get random brick as target
-    uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
+    /*uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
     section.randomPos = (section.randomPos + 1) % 1024;
-    const uint32_t pos = randValues[section.randomPos] % KyoukoRoot::m_segment->numberOfNodeBricks;
-    //const uint32_t pos = static_cast<uint32_t>(rand()) % KyoukoRoot::m_segment->numberOfNodeBricks;
+    const uint32_t pos = randValues[section.randomPos] % KyoukoRoot::m_segment->numberOfNodeBricks;*/
+    const uint32_t pos = static_cast<uint32_t>(rand()) % KyoukoRoot::m_segment->numberOfNodeBricks;
     Brick* targetBrick = KyoukoRoot::m_segment->nodeBricks[pos];
 
     // input-brick are never allowed to directly connect to the output-brick
@@ -119,6 +119,39 @@ processSynapseConnection(Edge &edge,
 }
 
 /**
+ * @brief learn
+ * @param section
+ * @param weight
+ * @param edgeSectionPos
+ * @param sourceBrick
+ */
+inline void
+learnEdge(EdgeSection &section,
+          float weight,
+          Brick* sourceBrick)
+{
+    // iterate over the linked list of edges
+    while(weight > 10.0f)
+    {
+        const float random = (rand() % 1024) / 1024.0f;
+        float usedLearn = weight * random;
+        if(weight < 10.0f) {
+            usedLearn = weight;
+        }
+
+        //std::cout<<"learn edge2: "<<usedLearn<<std::endl;
+
+        // try to create new edge
+        const uint16_t pos = createNewEdge(section, usedLearn, sourceBrick);
+        if(pos == UNINIT_STATE_16) {
+            return;
+        }
+
+        weight -= usedLearn;
+    }
+}
+
+/**
  * @brief processEdgeGroup
  * @param section
  * @param weight
@@ -130,7 +163,8 @@ inline void
 processEdgeGroup(EdgeSection &section,
                  float weight,
                  const uint32_t edgeSectionPos,
-                 Brick* sourceBrick)
+                 Brick* sourceBrick,
+                 GlobalValues* globalValues)
 {
     // prepare
     Edge* currentEdge = &section.edges[0];
@@ -139,6 +173,9 @@ processEdgeGroup(EdgeSection &section,
     // init learning
     float toLearn = weight - section.getTotalWeight();
     toLearn = (toLearn < 0.0f) * 0.0f + (toLearn >= 0.0f) * toLearn;
+    if(globalValues->sensitivity > 0.0f) {
+        learnEdge(section, toLearn, sourceBrick);
+    }
 
     // iterate over the linked list of edges
     while(currentEdge->next != UNINIT_STATE_16
@@ -148,51 +185,11 @@ processEdgeGroup(EdgeSection &section,
         currentEdge = &section.edges[currentEdge->next];
         assert(currentEdge->synapseSectionId != UNINIT_STATE_32);
 
-        const float random = (rand() % 1024) / 1024.0f;
-        float usedLearn = toLearn * random;
-        if(toLearn < 5.0f) {
-            usedLearn = toLearn;
-        }
-
-        if(usedLearn > 2.0f)
-        {
-            std::cout<<"learn edge1: "<<usedLearn<<std::endl;
-            // share learning-weight
-            const float diff = usedLearn * (1.0f - currentEdge->hardening);
-            currentEdge->synapseWeight += diff;
-            toLearn -= diff;
-        }
-
         // trigger synapse
         const float newWeight = (weight > currentEdge->synapseWeight) * currentEdge->synapseWeight
                                 + (weight <= currentEdge->synapseWeight) * weight;
         processSynapseConnection(*currentEdge, newWeight, currentPos, edgeSectionPos);
         weight -= newWeight;
-    }
-
-    // if not everything of the new weight was shared, then create a new edge for the remaining
-    while(toLearn > 2.0f)
-    {
-
-        // try to create new edge
-        const uint16_t pos = createNewEdge(section, toLearn, sourceBrick);
-        if(pos == UNINIT_STATE_16) {
-            return;
-        }
-
-        const float random = (rand() % 1024) / 1024.0f;
-        float usedLearn = toLearn * random;
-        if(toLearn < 5.0f) {
-            usedLearn = toLearn;
-        }
-
-        if(usedLearn > 0.0f) {
-            std::cout<<"learn edge2: "<<usedLearn<<std::endl;
-        }
-
-        // process the new created edge
-        processSynapseConnection(section.edges[pos], usedLearn, pos, edgeSectionPos);
-        toLearn -= usedLearn;
     }
 }
 
@@ -242,7 +239,8 @@ processEdgeSection()
         processEdgeGroup(*currentSection,
                          currentTransfer->weight,
                          sectionId,
-                         sourceBrick);
+                         sourceBrick,
+                         globalValues);
         count++;
     }
 
