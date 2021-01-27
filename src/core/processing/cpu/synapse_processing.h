@@ -127,12 +127,7 @@ synapse_processing()
                     synapse->dynamicWeight += diff;
                     toLearn -= diff;
                 }
-
             }
-
-            /*if(nodes[synapse->targetNodeId].border < 0.0f) {
-                synapse->dynamicWeight *= fabs(globalValue->outputIndex);
-            }*/
 
             // 1 because only one thread at the moment
             const ulong nodeBufferPosition = (1 * (numberOfNodes / 256)) + synapse->targetNodeId;
@@ -394,7 +389,6 @@ updating()
         transferContainer.targetId = synapseSection->sourceEdgeId;
         transferContainer.positionInEdge = synapseSection->sourcePositionInSection;
         transferContainer.deleteEdge = transferContainer.newWeight <= globalValue->deleteSynapseBorder;
-        transferContainer.hardening = hardening / static_cast<float>(SYNAPSES_PER_SYNAPSESECTION);
 
         updateTransfers[i] = transferContainer;
     }

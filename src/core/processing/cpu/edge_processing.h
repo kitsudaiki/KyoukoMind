@@ -51,6 +51,7 @@ createNewEdge(EdgeSection &section,
     uint32_t* randValues = getBuffer<uint32_t>(KyoukoRoot::m_segment->randomIntValues);
     section.randomPos = (section.randomPos + 1) % 1024;
     const uint32_t pos = randValues[section.randomPos] % KyoukoRoot::m_segment->numberOfNodeBricks;
+    //const uint32_t pos = static_cast<uint32_t>(rand()) % KyoukoRoot::m_segment->numberOfNodeBricks;
     Brick* targetBrick = KyoukoRoot::m_segment->nodeBricks[pos];
 
     // input-brick are never allowed to directly connect to the output-brick
@@ -64,34 +65,22 @@ createNewEdge(EdgeSection &section,
         return UNINIT_STATE_16;
     }
 
-    // init new synapse-section and register it inside the edge
-    if(targetBrick->isInputBrick == false
-            && section.numberOfUsedSynapseSections < 32)
-    {
-        // try to place a new empty section in the buffer
-        SynapseSection newSection;
-        const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
-        if(newPos == UNINIT_STATE_64) {
-            return UNINIT_STATE_16;
-        }
-
-        // update counter for monitoring
-        targetBrick->synapseCreateActivity++;
-        targetBrick->edgeCreateActivity++;
-        section.numberOfUsedSynapseSections++;
-
-        // create new edge
-        Edge newEdge;
-        newEdge.synapseSectionId = static_cast<uint32_t>(newPos);
-        newEdge.synapseSectionId = newEdge.synapseSectionId | 0x80000000;
-        newEdge.synapseWeight = 0.0f;
-        newEdge.brickId = targetBrick->brickId;
-        newEdge.synapseWeight = weight;
-
-        return section.append(newEdge);
+    // try to place a new empty section in the buffer
+    SynapseSection newSection;
+    const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
+    if(newPos == UNINIT_STATE_64) {
+        return UNINIT_STATE_16;
     }
 
-    return UNINIT_STATE_16;
+    // create new edge
+    Edge newEdge;
+    newEdge.synapseSectionId = static_cast<uint32_t>(newPos);
+    newEdge.synapseSectionId = newEdge.synapseSectionId | 0x80000000;
+    newEdge.synapseWeight = 0.0f;
+    newEdge.brickId = targetBrick->brickId;
+    newEdge.synapseWeight = weight;
+
+    return section.append(newEdge);
 }
 
 /**
@@ -104,7 +93,7 @@ createNewEdge(EdgeSection &section,
 inline void
 processSynapseConnection(Edge &edge,
                          const float weight,
-                         const uint8_t positionInSection,
+                         const uint16_t positionInSection,
                          const uint32_t edgeSectionPos)
 {
     // prepare
@@ -197,14 +186,12 @@ processEdgeGroup(EdgeSection &section,
             usedLearn = toLearn;
         }
 
-        if(usedLearn > 0.0f) std::cout<<"learn edge2: "<<usedLearn<<std::endl;
+        if(usedLearn > 0.0f) {
+            std::cout<<"learn edge2: "<<usedLearn<<std::endl;
+        }
 
         // process the new created edge
-        processSynapseConnection(section.edges[pos],
-                                 usedLearn,
-                                 static_cast<uint8_t>(pos),
-                                 edgeSectionPos);
-
+        processSynapseConnection(section.edges[pos], usedLearn, pos, edgeSectionPos);
         toLearn -= usedLearn;
     }
 }
@@ -226,39 +213,37 @@ processEdgeSection()
     GlobalValues* globalValues = getBuffer<GlobalValues>(segment->globalValues);
 
     // process axon-messages
-    for(uint32_t i = 0; i < segment->axonTransfers.itemCapacity; i++)
+    for(uint32_t sectionId = 0; sectionId < segment->axonTransfers.itemCapacity; sectionId++)
     {
         // precheck transfer-message
-        const AxonTransfer* currentTransfer = &axonTransfers[i];
+        const AxonTransfer* currentTransfer = &axonTransfers[sectionId];
         if(currentTransfer->weight == 0.0f) {
             continue;
         }
 
-        // update counter
-        Brick* sourceBrick = &bricks[currentTransfer->brickId];
-        sourceBrick->nodeActivity++;
-        count++;
-
         // harden section
         if(globalValues->lerningValue != 0.0f)
         {
-            EdgeSection* currentSection = &edgeSections[i];
+            EdgeSection* currentSection = &edgeSections[sectionId];
             currentSection->harden(globalValues->lerningValue);
         }
 
-
         // skip output-bricks, because the are handle in another stage
+        Brick* sourceBrick = &bricks[currentTransfer->brickId];
         if(sourceBrick->isOutputBrick) {
             continue;
         }
 
+        // update counter
+        sourceBrick->nodeActivity++;
+
         // process axon-transfer-message
-        EdgeSection* currentSection = &edgeSections[i];
+        EdgeSection* currentSection = &edgeSections[sectionId];
         processEdgeGroup(*currentSection,
                          currentTransfer->weight,
-                         i,
+                         sectionId,
                          sourceBrick);
-
+        count++;
     }
 
     return count;
@@ -277,11 +262,9 @@ updateEdgeSection()
     Segment* segment = KyoukoRoot::m_segment;
     EdgeSection* edgeSections = getBuffer<EdgeSection>(segment->edges);
 
-    // prepare border for iterator
+    // iterade over all update-containers coming from the gpu
     UpdateTransfer* start = getBuffer<UpdateTransfer>(segment->updateTransfers);
     UpdateTransfer* end = start + segment->updateTransfers.itemCapacity;
-
-    // iterade over all update-containers coming from the gpu
     for(const UpdateTransfer* container = start;
         container < end;
         container++)
@@ -299,19 +282,11 @@ updateEdgeSection()
         if(container->deleteEdge > 0)
         {
             KyoukoRoot::m_segment->synapses.deleteDynamicItem(edge->synapseSectionId);
-
-            // update counter
-            Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[edge->brickId];
-            brick->synapseDeleteActivity++;
-            brick->edgeDeleteActivity++;
-            section->numberOfUsedSynapseSections--;
-
             section->remove(container->positionInEdge);
         }
         else
         {
             edge->synapseWeight = container->newWeight;
-            //edge->hardening = container->hardening;
         }
 
         // increase counter for monitoring-output
