@@ -42,19 +42,17 @@ struct Synapse
 
 struct SynapseSection
 {
-    uint8_t status = ACTIVE_SECTION;
+    uint16_t status = ACTIVE_SECTION;
     uint16_t randomPos = UNINIT_STATE_16;
 
-    uint8_t sourcePositionInSection = UNINIT_STATE_8;
-    uint32_t sourceEdgeId = UNINIT_STATE_32;
-    uint32_t sourceBrickId = UNINIT_STATE_32;
-
-    float totalWeight = 0.0f;
+    uint32_t nodeBrickId = UNINIT_STATE_32;
+    uint32_t prev = UNINIT_STATE_16;
+    uint32_t next = UNINIT_STATE_16;
 
     uint8_t isOutput = 0;
     uint8_t isActive = 0;
 
-    uint8_t padding[10];
+    uint8_t padding[14];
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
