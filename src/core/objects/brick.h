@@ -26,8 +26,6 @@
 #include <common.h>
 #include <kyouko_root.h>
 
-#include <core/objects/edges.h>
-
 class Brick
 {
 

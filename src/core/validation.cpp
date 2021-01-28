@@ -29,7 +29,6 @@
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
-#include <core/objects/edges.h>
 
 void
 validateStructSizes()
@@ -43,8 +42,6 @@ validateStructSizes()
 
     std::cout<<"sizeof(GlobalValues): "<<sizeof(GlobalValues)<<std::endl;
     assert(sizeof(GlobalValues) == 256);
-
-    assert(sizeof(EdgeSection) == 4096);
 
     return;
 }

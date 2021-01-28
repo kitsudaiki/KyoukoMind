@@ -4,8 +4,6 @@
 #include <common.h>
 
 #include <kyouko_root.h>
-#include <core/objects/edges.h>
-#include <core/objects/transfer_objects.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/segment.h>

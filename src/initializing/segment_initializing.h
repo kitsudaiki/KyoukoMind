@@ -33,8 +33,6 @@ bool initGlobalValues(Segment &segment);
 bool initNodeBlocks(Segment &segment,
                     const uint32_t &numberOfNodes);
 bool initRandomValues(Segment &segment);
-bool initEdgeSectionBlocks(Segment &segment,
-                           const uint32_t numberOfEdgeSections);
 bool initSynapseSectionBlocks(Segment &segment,
                               const uint32_t numberOfSynapseSections);
 bool initTransferBlocks(Segment &segment,

@@ -90,7 +90,6 @@ HEADERS += \
     src/core/objects/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/gpu/gpu_processing_uint.h \
-    src/core/objects/edges.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
     src/core/objects/transfer_objects.h \

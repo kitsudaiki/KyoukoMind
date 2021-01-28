@@ -43,7 +43,6 @@ public:
     // host-representation of permanent gpu-data
     ItemBuffer nodes;
     ItemBuffer synapses;
-    ItemBuffer edges;
 
     // transfer-buffer for gpu-interaction
     ItemBuffer axonTransfers;

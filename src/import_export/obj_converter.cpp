@@ -26,7 +26,6 @@
 
 #include <core/objects/global_values.h>
 #include <core/objects/brick.h>
-#include <core/objects/edges.h>
 #include <core/objects/node.h>
 
 #include <core/objects/item_buffer.h>
@@ -182,19 +181,19 @@ convertNodeToObj(ObjItem &result,
 {
     // get data
     Segment* segment = KyoukoRoot::m_segment;
-    EdgeSection* edgeSection = &getBuffer<EdgeSection>(segment->edges)[nodeId];
-    Brick* targetBrick = &getBuffer<Brick>(segment->bricks)[edgeSection->axonBrickId];
+    //EdgeSection* edgeSection = &getBuffer<EdgeSection>(segment->edges)[nodeId];
+    //Brick* targetBrick = &getBuffer<Brick>(segment->bricks)[edgeSection->axonBrickId];
 
     // set vertizes
-    result.vertizes.push_back(convertPos(brick->brickPos));
-    result.vertizes.push_back(convertPos(targetBrick->brickPos));
+    //result.vertizes.push_back(convertPos(brick->brickPos));
+    //result.vertizes.push_back(convertPos(targetBrick->brickPos));
 
     // create line
     const uint32_t actualPos = static_cast<uint32_t>(result.vertizes.size());
     result.lines.push_back({actualPos - 1, actualPos});
 
     // convert edges
-    convertEdgesToObj(result, edgeSection, 1, actualPos);
+    //convertEdgesToObj(result, edgeSection, 1, actualPos);
 }
 
 //--------------------------------------------------------------------------------------------------

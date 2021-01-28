@@ -123,7 +123,6 @@ NetworkManager::run()
         const uint64_t numberOfSynapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
         KyoukoRoot::monitoringMetaMessage.synapseSections = numberOfSynapseSections;
         KyoukoRoot::monitoringMetaMessage.nodes = KyoukoRoot::m_segment->nodes.numberOfItems;
-        KyoukoRoot::monitoringMetaMessage.edgeSections = KyoukoRoot::m_segment->edges.numberOfItems;
 
         // monitoring-output
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();

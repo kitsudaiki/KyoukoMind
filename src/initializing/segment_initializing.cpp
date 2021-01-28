@@ -126,33 +126,6 @@ initRandomValues(Segment &segment)
 }
 
 /**
- * initialize forward-edge-block
- *
- * @return true if success, else false
- */
-bool
-initEdgeSectionBlocks(Segment &segment,
-                      const uint32_t numberOfEdgeSections)
-{
-    // init
-    if(segment.edges.initBuffer<EdgeSection>(numberOfEdgeSections) == false) {
-        return false;
-    }
-
-    // fill array with empty forward-edge-sections
-    EdgeSection* array = getBuffer<EdgeSection>(segment.edges);
-    for(uint32_t i = 0; i < numberOfEdgeSections; i++)
-    {
-        EdgeSection tempEdge;
-        tempEdge.randomPos = i % 1024;
-        array[i] = tempEdge;
-    }
-    segment.edges.numberOfItems = numberOfEdgeSections;
-
-    return true;
-}
-
-/**
  * init the edge-sections of thebrick
  *
  * @return false, if already initialized, else true

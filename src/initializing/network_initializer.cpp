@@ -87,10 +87,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    if(initEdgeSectionBlocks(*segment, totalNumberOfNodes) == false) {
-        return false;
-    }
-
     // init bricks
     initBricks(*segment, numberOfBricks);
     segment->nodeBricks = new Brick*[parsedContent.numberOfNodeBricks];
@@ -211,7 +207,6 @@ NetworkInitializer::createAxons(Segment &segment)
 {
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Brick* bricks = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    EdgeSection* edges = getBuffer<EdgeSection>(KyoukoRoot::m_segment->edges);
     Node* nodes = getBuffer<Node>(segment.nodes);
 
     // calculate number of axons per brick
@@ -241,7 +236,7 @@ NetworkInitializer::createAxons(Segment &segment)
             const double dist = std::sqrt(x + y + z);
 
             // set source and target in related nodes and edges
-            edges[pos + nodePos].axonBrickId = axonBrick->brickId;
+            //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
             nodes[pos + nodePos].brickId = sourceBrick->brickId;
             nodes[pos + nodePos].targetBrickDistance = static_cast<uint32_t>(dist);
 

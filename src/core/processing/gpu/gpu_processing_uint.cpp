@@ -76,14 +76,6 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
                       true,
                       segment.synapseTransfers.buffer.data);
 
-    // fill buffer for axons from gpu to host
-    oclData.addBuffer("axons",
-                      segment.axonTransfers.itemCapacity,
-                      segment.axonTransfers.itemSize,
-                      true,
-                      false,
-                      segment.axonTransfers.buffer.data);
-
     // fill buffer for update-transfers from gpu to host
     oclData.addBuffer("update-transfers",
                       segment.updateTransfers.itemCapacity,
