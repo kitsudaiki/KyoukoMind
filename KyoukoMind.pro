@@ -89,7 +89,6 @@ HEADERS += \
     src/core/objects/item_buffer.h \
     src/core/objects/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
-    src/core/processing/cpu/edge_processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/edges.h \
     src/core/objects/node.h \

@@ -43,7 +43,7 @@ InputOutputProcessing::processInputMapping()
 {
     // prepare pointer
     Segment* segment = KyoukoRoot::m_segment;
-    AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
+    //AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
     Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
 
     // insert input-values from brick
@@ -55,8 +55,8 @@ InputOutputProcessing::processInputMapping()
         {
             uint32_t index = pos - mapper.start;
             const float multi = static_cast<float>(pow(1.05, static_cast<double>(index % 10)));
-            axonTransfers[pos].weight = mapper.value * multi;
-            axonTransfers[pos].brickId = inputBrick->brickId;
+            //axonTransfers[pos].weight = mapper.value * multi;
+            //axonTransfers[pos].brickId = inputBrick->brickId;
         }
     }
 }
@@ -69,7 +69,7 @@ InputOutputProcessing::processOutputMapping()
 {
     // prepare pointer
     Segment* segment = KyoukoRoot::m_segment;
-    AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
+    //AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
 
     // insert input-values from brick
     for(uint32_t i = 0; i < m_outputMapper.size(); i++)
@@ -79,7 +79,7 @@ InputOutputProcessing::processOutputMapping()
         float summedOutput = 0.0f;
 
         for(uint32_t pos = mapper->start; pos < mapper->end; pos++) {
-            summedOutput += axonTransfers[pos].weight;
+            //summedOutput += axonTransfers[pos].weight;
             //std::cout<<"pos: "<<pos<<std::endl;
         }
 

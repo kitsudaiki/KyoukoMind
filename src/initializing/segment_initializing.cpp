@@ -195,22 +195,6 @@ initTransferBlocks(Segment &segment,
 {
     //----------------------------------------------------------------------------------------------
 
-    // init device-to-host-buffer
-    if(segment.axonTransfers.initBuffer<AxonTransfer>(totalNumberOfAxons) == false) {
-        return false;
-    }
-
-    // fill array with empty values
-    AxonTransfer* axonArray = getBuffer<AxonTransfer>(segment.axonTransfers);
-    for(uint32_t i = 0; i < totalNumberOfAxons; i++)
-    {
-        AxonTransfer newEdge;
-        axonArray[i] = newEdge;
-    }
-    segment.axonTransfers.numberOfItems = totalNumberOfAxons;
-
-    //----------------------------------------------------------------------------------------------
-
     // init host-to-device-buffer
     if(segment.synapseTransfers.initBuffer<SynapseTransfer>(maxNumberOySynapseSections) == false) {
         return false;

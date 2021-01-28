@@ -28,7 +28,6 @@
 #include <core/objects/brick.h>
 #include <core/objects/edges.h>
 #include <core/objects/node.h>
-#include <core/processing/cpu/edge_processing.h>
 
 #include <core/objects/item_buffer.h>
 #include <core/objects/segment.h>
@@ -127,10 +126,10 @@ convertBrickToObj(ObjItem &result,
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++)
     {
-        AxonTransfer* axons = getBuffer<AxonTransfer>(KyoukoRoot::m_segment->axonTransfers);
+        /*AxonTransfer* axons = getBuffer<AxonTransfer>(KyoukoRoot::m_segment->axonTransfers);
         if(axons[brick->nodeBrickId * globalValues->numberOfNodesPerBrick + i].weight <= 0.0f) {
             continue;
-        }
+        }*/
 
         const uint32_t nodeId = brick->nodeBrickId * globalValues->numberOfNodesPerBrick + i;
         convertNodeToObj(result, brick, nodeId);

@@ -33,7 +33,6 @@
 #include <core/objects/brick.h>
 #include <core/objects/transfer_objects.h>
 
-#include <core/processing/cpu/edge_processing.h>
 #include <core/processing/cpu/synapse_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
@@ -58,59 +57,13 @@ CpuProcessingUnit::run()
     {
         m_phase1->triggerBarrier();
 
-        // process update-messages
-        start = std::chrono::system_clock::now();
-        const uint32_t numberOfUpdates = updateEdgeSection();
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.cpuUpdate = timeValue;
-        KyoukoRoot::monitoringMetaMessage.updateTransfers = numberOfUpdates;
-
-        // process axon-messages
-        start = std::chrono::system_clock::now();
-        const uint32_t numberOfAxons = processEdgeSection();
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.cpuProcessing = timeValue;
-        KyoukoRoot::monitoringMetaMessage.axonTransfers = numberOfAxons;
-
         m_phase2->triggerBarrier();
-
-        // copy transfer-edges to gpu
-        start = std::chrono::system_clock::now();
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.copyToGpu = timeValue;
-
-        start = std::chrono::system_clock::now();
-        synapse_processing();
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.gpuSynapse = timeValue;
 
         start = std::chrono::system_clock::now();
         node_processing();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;
-
-        // run process on gpu
-        start = std::chrono::system_clock::now();
-        updating();
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.gpuUpdate = timeValue;
-
-        // copy result from gpu to host
-        start = std::chrono::system_clock::now();
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.copyFromGpu = timeValue;
-
-        start = std::chrono::system_clock::now();
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.cleanup = timeValue;
 
         KyoukoRoot::m_segment->synapseTransfers.deleteAll();
 

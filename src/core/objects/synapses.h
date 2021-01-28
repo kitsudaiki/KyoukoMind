@@ -49,10 +49,12 @@ struct SynapseSection
     uint32_t prev = UNINIT_STATE_16;
     uint32_t next = UNINIT_STATE_16;
 
+    float totalWeight = 0.0f;
+
     uint8_t isOutput = 0;
     uint8_t isActive = 0;
 
-    uint8_t padding[14];
+    uint8_t padding[10];
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
