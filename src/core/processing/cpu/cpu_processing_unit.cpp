@@ -89,12 +89,6 @@ CpuProcessingUnit::run()
         KyoukoRoot::monitoringMetaMessage.gpuSynapse = timeValue;
 
         start = std::chrono::system_clock::now();
-        sum_nodes();
-        //end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        //KyoukoRoot::monitoringMetaMessage.gpuSynapse = timeValue;
-
-        //start = std::chrono::system_clock::now();
         node_processing();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();

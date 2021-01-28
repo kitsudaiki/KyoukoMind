@@ -33,9 +33,9 @@ struct SynapseTransfer
     uint32_t nodeBrickId = UNINIT_STATE_32;
     uint32_t synapseSectionId = UNINIT_STATE_32;
     uint32_t sourceEdgeId = UNINIT_STATE_32;
-    uint8_t positionInEdge = UNINIT_STATE_8;
+    uint16_t positionInEdge = UNINIT_STATE_8;
     uint8_t isNew = 0;
-    uint8_t padding[2];
+    uint8_t isOutput = 0;
     float weight = 0.0f;
     // total size: 24 Byte
 };
@@ -56,9 +56,8 @@ struct UpdateTransfer
     uint32_t targetId = UNINIT_STATE_32;
     uint8_t positionInEdge = UNINIT_STATE_8;
     uint8_t deleteEdge = 0;
-    uint8_t padding[2];
+    uint8_t padding[6];
     float newWeight = 0.0f;
-    float hardening = 0.0f;
     // total size: 16 Byte
 };
 
