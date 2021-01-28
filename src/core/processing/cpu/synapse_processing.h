@@ -15,11 +15,66 @@
 
 //==================================================================================================
 
+bool
+findNewSectioin(const uint32_t oldSectionId)
+{
+    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
+    const uint64_t numberOfSections = KyoukoRoot::m_segment->synapses.itemCapacity;
+
+    for(uint32_t i = 0; i < numberOfSections; i++)
+    {
+        if(synapseSections[i].status == DELETED_SECTION)
+        {
+            // check if section is new and schould be created
+            SynapseSection newSection;
+            newSection.status = ACTIVE_SECTION;
+            newSection.randomPos = rand() % 1024;
+            synapseSections[i]= newSection;
+
+            synapseSections[i].prev = oldSectionId;
+            synapseSections[oldSectionId].next = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @brief remove
+ * @param pos
+ * @return
+ */
 void
-synapseProcessing(SynapseSection* synapseSection,
+removeSection(const uint32_t pos)
+{
+    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
+
+    SynapseSection* section = &synapseSections[pos];
+    SynapseSection* prev = &synapseSections[section->prev];
+
+    if(section->next != UNINIT_STATE_16)
+    {
+        SynapseSection* next = &synapseSections[section->next];
+        next->prev = section->prev;
+    }
+
+    prev->next = section->next;
+
+    SynapseSection emptyEdge;
+    synapseSections[pos] = emptyEdge;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+inline void
+synapseProcessing(const uint32_t sectionPos,
                   float weight,
                   float hardening)
 {
+    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
+    SynapseSection* section = &synapseSections[sectionPos];
+
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
@@ -30,7 +85,7 @@ synapseProcessing(SynapseSection* synapseSection,
     while(pos < SYNAPSES_PER_SYNAPSESECTION
           && weight > 2.0f)
     {
-        Synapse* synapse = &synapseSection->synapses[pos];
+        Synapse* synapse = &section->synapses[pos];
 
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             break;
@@ -60,9 +115,9 @@ synapseProcessing(SynapseSection* synapseSection,
 
     if(weight > 2.0f)
     {
-        for(uint32_t i = pos; i < SYNAPSES_PER_SYNAPSESECTION; i++)
+        while(pos < SYNAPSES_PER_SYNAPSESECTION)
         {
-            Synapse* synapse = &synapseSection->synapses[pos];
+            Synapse* synapse = &section->synapses[pos];
 
             const float random = (rand() % 1024) / 1024.0f;
             float usedLearn = (weight * random) + 1.0f;
@@ -74,7 +129,7 @@ synapseProcessing(SynapseSection* synapseSection,
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand()) % globalValue->numberOfNodesPerBrick;
 
             // set initial values for the new synapse
-            const uint32_t nodeOffset = synapseSection->nodeBrickId * globalValue->numberOfNodesPerBrick;
+            const uint32_t nodeOffset = section->nodeBrickId * globalValue->numberOfNodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
             synapse->hardening = 0.0f;
 
@@ -85,52 +140,37 @@ synapseProcessing(SynapseSection* synapseSection,
 
             synapse->dynamicWeight = usedLearn;
             weight -= usedLearn;
+            pos++;
         }
     }
-}
 
-//==================================================================================================
-
-void
-synapseCreateProcessing()
-{
-    SynapseTransfer* synapseTransfers = getBuffer<SynapseTransfer>(KyoukoRoot::m_segment->synapseTransfers);
-    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
-    const uint64_t numberOfSynapseTransfers = KyoukoRoot::m_segment->synapseTransfers.numberOfItems;
-
-    for(uint64_t i = 0; i < numberOfSynapseTransfers; i++)
+    if(pos == SYNAPSES_PER_SYNAPSESECTION
+            && section->next == UNINIT_STATE_32)
     {
-        const uint32_t nextSynapseSectionId = synapseTransfers[i].nextSynapseSectionId;
-        if(nextSynapseSectionId == UNINIT_STATE_32) {
-            continue;
-        }
+        findNewSectioin(sectionPos);
+    }
 
-        // check if section is new and schould be created
-        SynapseSection newSection;
-        newSection.status = ACTIVE_SECTION;
-        newSection.randomPos = rand() % 1024;
-        newSection.isOutput = synapseTransfers[i].isOutput;
-        synapseSections[nextSynapseSectionId] = newSection;
-
-        synapseSections[nextSynapseSectionId].prev = synapseTransfers[i].prevSynapseSectionId;
-        synapseSections[synapseTransfers[i].nextSynapseSectionId].next = nextSynapseSectionId;
+    if(weight > 2.0f) {
+        synapseProcessing(section->next, weight, hardening);
     }
 }
 
 //==================================================================================================
 
-void
-updating(SynapseSection* synapseSection)
+inline void
+updating(const uint32_t sectionPos)
 {
+    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
+    SynapseSection* section = &synapseSections[sectionPos];
+
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
-    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
 
     // iterate over all synapses in synapse-section
     uint32_t currentPos = 0;
     for(uint32_t lastPos = 0; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
     {
-        Synapse* synapse = &synapseSection->synapses[lastPos];
+        Synapse* synapse = &section->synapses[lastPos];
         // skip unused synapse in section
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             continue;
@@ -154,13 +194,18 @@ updating(SynapseSection* synapseSection)
         }
         else
         {
-            synapseSection->synapses[currentPos] = synapseSection->synapses[lastPos];
+            section->synapses[currentPos] = section->synapses[lastPos];
             currentPos++;
         }
     }
 
-    if(synapseSection->next != UNINIT_STATE_32) {
-        updating(&synapseSections[synapseSection->next]);
+    if(section->next != UNINIT_STATE_32) {
+        updating(section->next);
+    }
+
+    // delete if sections is empty
+    if(currentPos == 0) {
+        removeSection(sectionPos);
     }
 }
 
@@ -172,7 +217,6 @@ node_processing()
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
-    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
 
     for(uint64_t i = 0; i < numberOfNodes / 256; i++)
     {
@@ -185,7 +229,7 @@ node_processing()
         }
     }
 
-    for(uint64_t i = 0; i < numberOfNodes / 256; i++)
+    for(uint32_t i = 0; i < numberOfNodes / 256; i++)
     {
         Node* node = &nodes[i];
         if(node->border > 0.0f)
@@ -210,12 +254,12 @@ node_processing()
                 const float up = static_cast<float>(pow(globalValue->gliaValue,
                                                         node->targetBrickDistance));
                 const float weight = node->potential * up;
-                synapseProcessing(&synapseSections[i], weight, globalValue->lerningValue);
+                synapseProcessing(i, weight, globalValue->lerningValue);
             }
             else
             {
                 node->active = 0;
-                updating(&synapseSections[i]);
+                updating(i);
             }
 
             // post-steps
