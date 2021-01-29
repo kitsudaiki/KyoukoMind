@@ -92,7 +92,6 @@ HEADERS += \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
-    src/core/objects/transfer_objects.h \
     src/core/processing/processing_unit_handler.h \
     src/core/network_manager.h \
     src/import_export/obj_converter.h \

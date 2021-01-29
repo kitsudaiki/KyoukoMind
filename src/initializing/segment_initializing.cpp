@@ -23,8 +23,6 @@
 #include "segment_initializing.h"
 
 #include <core/objects/segment.h>
-
-#include <core/objects/transfer_objects.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
@@ -137,7 +135,7 @@ initSynapseSectionBlocks(Segment &segment,
     assert(numberOfSynapseSections > 0);
 
     // init
-    segment.synapses.dynamic = true;
+    // segment.synapses.dynamic = true;
     if(segment.synapses.initBuffer<SynapseSection>(numberOfSynapseSections) == false) {
         return false;
     }
@@ -154,51 +152,3 @@ initSynapseSectionBlocks(Segment &segment,
     return true;
 }
 
-/**
- * @brief initTransferBlocks
- * @param segment
- * @param totalNumberOfAxons
- * @param maxNumberOySynapseSections
- * @return
- */
-bool
-initTransferBlocks(Segment &segment,
-                   const uint32_t totalNumberOfAxons,
-                   const uint64_t maxNumberOySynapseSections)
-{
-    //----------------------------------------------------------------------------------------------
-
-    // init host-to-device-buffer
-    if(segment.synapseTransfers.initBuffer<SynapseTransfer>(maxNumberOySynapseSections) == false) {
-        return false;
-    }
-
-    // fill array with empty values
-    SynapseTransfer* synapseArray = getBuffer<SynapseTransfer>(segment.synapseTransfers);
-    for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
-    {
-        SynapseTransfer newSynapseTransfer;
-        synapseArray[i] = newSynapseTransfer;
-    }
-    segment.synapseTransfers.numberOfItems = maxNumberOySynapseSections;
-
-    //----------------------------------------------------------------------------------------------
-
-    // init host-to-device-buffer
-    if(segment.updateTransfers.initBuffer<UpdateTransfer>(maxNumberOySynapseSections) == false) {
-        return false;
-    }
-
-    // fill array with empty values
-    UpdateTransfer* updateArray = getBuffer<UpdateTransfer>(segment.updateTransfers);
-    for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
-    {
-        UpdateTransfer newUpdateTransfer;
-        updateArray[i] = newUpdateTransfer;
-    }
-    segment.updateTransfers.numberOfItems = maxNumberOySynapseSections;
-
-    //----------------------------------------------------------------------------------------------
-
-    return true;
-}

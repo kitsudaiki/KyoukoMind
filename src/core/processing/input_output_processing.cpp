@@ -25,7 +25,6 @@
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
 #include <core/objects/global_values.h>
-#include <core/objects/transfer_objects.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <core/connection_handler/client_connection_handler.h>

@@ -51,7 +51,7 @@ removeSection(const uint32_t pos)
     SynapseSection* section = &synapseSections[pos];
     SynapseSection* prev = &synapseSections[section->prev];
 
-    if(section->next != UNINIT_STATE_16)
+    if(section->next != UNINIT_STATE_32)
     {
         SynapseSection* next = &synapseSections[section->next];
         next->prev = section->prev;
@@ -84,7 +84,6 @@ synapseProcessing(const uint32_t sectionPos,
           && weight > 2.0f)
     {
         Synapse* synapse = &section->synapses[pos];
-
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             break;
         }
@@ -202,7 +201,9 @@ updating(const uint32_t sectionPos)
     }
 
     // delete if sections is empty
-    if(currentPos == 0) {
+    if(currentPos == 0
+            && section->prev != UNINIT_STATE_32)
+    {
         removeSection(sectionPos);
     }
 }

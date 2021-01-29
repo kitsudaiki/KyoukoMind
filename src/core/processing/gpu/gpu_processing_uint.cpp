@@ -26,9 +26,7 @@
 #include <libKitsunemimiOpencl/gpu_interface.h>
 #include <libKitsunemimiCommon/threading/barrier.h>
 
-#include <core/objects/transfer_objects.h>
 #include <core/objects/node.h>
-
 #include <core/objects/segment.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -67,22 +65,6 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     // only 255 threads per group, instead of 256, because 1/256 of the local memory is used for
     // the global-values object
     oclData.threadsPerWg.x = 255;
-
-    // fill buffer for synapses from host to gpu
-    oclData.addBuffer("synapse-transfers",
-                      segment.synapseTransfers.itemCapacity,
-                      segment.synapseTransfers.itemSize,
-                      false,
-                      true,
-                      segment.synapseTransfers.buffer.data);
-
-    // fill buffer for update-transfers from gpu to host
-    oclData.addBuffer("update-transfers",
-                      segment.updateTransfers.itemCapacity,
-                      segment.updateTransfers.itemSize,
-                      true,
-                      false,
-                      segment.updateTransfers.buffer.data);
 
     // fill buffer for nodes to map on gpu
     oclData.addBuffer("nodes",
@@ -249,7 +231,7 @@ GpuProcessingUnit::copySynapseTransfersToGpu(Segment &segment)
     return m_gpuInterface->updateBufferOnDevice(oclData,
                                                 "synapse_processing",
                                                 "synapse-transfers",
-                                                segment.synapseTransfers.numberOfItems);
+                                                0);
 }
 
 /**

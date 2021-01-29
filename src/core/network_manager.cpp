@@ -47,9 +47,9 @@ using std::chrono::duration_cast;
  */
 NetworkManager::NetworkManager()
 {
-    m_phase1 = new Kitsunemimi::Barrier(3);
-    m_phase2 = new Kitsunemimi::Barrier(3);
-    m_phase3 = new Kitsunemimi::Barrier(3);
+    m_phase1 = new Kitsunemimi::Barrier(2);
+    m_phase2 = new Kitsunemimi::Barrier(2);
+    m_phase3 = new Kitsunemimi::Barrier(2);
 
     m_processingUnitHandler = new ProcessingUnitHandler();
 

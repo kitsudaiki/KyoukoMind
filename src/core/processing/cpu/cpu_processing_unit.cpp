@@ -31,7 +31,6 @@
 
 #include <core/objects/global_values.h>
 #include <core/objects/brick.h>
-#include <core/objects/transfer_objects.h>
 
 #include <core/processing/cpu/synapse_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
@@ -64,8 +63,6 @@ CpuProcessingUnit::run()
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;
-
-        KyoukoRoot::m_segment->synapseTransfers.deleteAll();
 
         m_phase3->triggerBarrier();
     }

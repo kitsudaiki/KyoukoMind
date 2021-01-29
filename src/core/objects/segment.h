@@ -44,11 +44,6 @@ public:
     ItemBuffer nodes;
     ItemBuffer synapses;
 
-    // transfer-buffer for gpu-interaction
-    ItemBuffer axonTransfers;
-    ItemBuffer updateTransfers;
-    ItemBuffer synapseTransfers;
-
     // other
     ItemBuffer randomIntValues;
     ItemBuffer globalValues;

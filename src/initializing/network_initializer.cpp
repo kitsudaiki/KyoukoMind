@@ -108,11 +108,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    // init buffer for data-transfer between host and gpu
-    if(initTransferBlocks(*segment, totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
-        return false;
-    }
-
     return true;
 }
 /**

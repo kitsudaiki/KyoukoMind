@@ -22,7 +22,6 @@
 
 #include "segment.h"
 
-#include <core/objects/transfer_objects.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>

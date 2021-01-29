@@ -46,8 +46,8 @@ struct SynapseSection
     uint16_t randomPos = UNINIT_STATE_16;
 
     uint32_t nodeBrickId = UNINIT_STATE_32;
-    uint32_t prev = UNINIT_STATE_16;
-    uint32_t next = UNINIT_STATE_16;
+    uint32_t prev = UNINIT_STATE_32;
+    uint32_t next = UNINIT_STATE_32;
 
     float totalWeight = 0.0f;
 
