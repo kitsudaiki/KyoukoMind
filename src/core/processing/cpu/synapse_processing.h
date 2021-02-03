@@ -13,10 +13,9 @@
 
 //==================================================================================================
 
-bool
-findNewSectioin(const uint32_t oldSectionId)
+inline bool
+findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
 {
-    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     const uint64_t numberOfSections = KyoukoRoot::m_segment->synapses.itemCapacity;
 
     for(uint32_t i = 0; i < numberOfSections; i++)
@@ -43,11 +42,9 @@ findNewSectioin(const uint32_t oldSectionId)
  * @param pos
  * @return
  */
-void
-removeSection(const uint32_t pos)
+inline void
+removeSection(SynapseSection* synapseSections, const uint32_t pos)
 {
-    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
-
     SynapseSection* section = &synapseSections[pos];
     SynapseSection* prev = &synapseSections[section->prev];
 
@@ -84,8 +81,25 @@ synapseProcessing(const uint32_t sectionPos,
           && weight > 2.0f)
     {
         Synapse* synapse = &section->synapses[pos];
-        if(synapse->targetNodeId == UNINIT_STATE_16) {
-            break;
+        if(synapse->targetNodeId == UNINIT_STATE_16)
+        {
+            const float random = (rand() % 1024) / 1024.0f;
+            const float usedLearn = (weight < 5.0f) * weight
+                                    + (weight >= 5.0f) * ((weight * random) + 1.0f);
+
+            // get random node-id as target
+            const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
+                                                 % globalValue->numberOfNodesPerBrick;
+            const uint32_t nodeOffset = section->nodeBrickId * globalValue->numberOfNodesPerBrick;
+            synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
+            synapse->hardening = 0.0f;
+
+            // make to blocking synapse by random
+            if(rand() % 2 == 0) {
+                synapse->sign = -1;
+            }
+
+            synapse->dynamicWeight = usedLearn;
         }
 
         const float newHardening = synapse->hardening + hardening;
@@ -110,41 +124,10 @@ synapseProcessing(const uint32_t sectionPos,
         pos++;
     }
 
-    if(weight > 2.0f)
-    {
-        while(pos < SYNAPSES_PER_SYNAPSESECTION)
-        {
-            Synapse* synapse = &section->synapses[pos];
-
-            const float random = (rand() % 1024) / 1024.0f;
-            float usedLearn = (weight * random) + 1.0f;
-            if(weight < 5.0f) {
-                usedLearn = weight;
-            }
-
-            // get random node-id as target
-            const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand()) % globalValue->numberOfNodesPerBrick;
-
-            // set initial values for the new synapse
-            const uint32_t nodeOffset = section->nodeBrickId * globalValue->numberOfNodesPerBrick;
-            synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
-            synapse->hardening = 0.0f;
-
-            // make to blocking synapse by random
-            if(rand() % 2 == 0) {
-                synapse->sign = -1;
-            }
-
-            synapse->dynamicWeight = usedLearn;
-            weight -= usedLearn;
-            pos++;
-        }
-    }
-
     if(pos == SYNAPSES_PER_SYNAPSESECTION
             && section->next == UNINIT_STATE_32)
     {
-        findNewSectioin(sectionPos);
+        findNewSectioin(synapseSections, sectionPos);
     }
 
     if(weight > 2.0f) {
@@ -170,7 +153,7 @@ updating(const uint32_t sectionPos)
         Synapse* synapse = &section->synapses[lastPos];
         // skip unused synapse in section
         if(synapse->targetNodeId == UNINIT_STATE_16) {
-            continue;
+            break;
         }
 
         // update dynamic-weight-value of the synapse
@@ -204,7 +187,7 @@ updating(const uint32_t sectionPos)
     if(currentPos == 0
             && section->prev != UNINIT_STATE_32)
     {
-        removeSection(sectionPos);
+        removeSection(synapseSections, sectionPos);
     }
 }
 
