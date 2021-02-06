@@ -11,8 +11,12 @@
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
 
-//==================================================================================================
-
+/**
+ * @brief findNewSectioin
+ * @param synapseSections
+ * @param oldSectionId
+ * @return
+ */
 inline bool
 findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
 {
@@ -38,9 +42,9 @@ findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
 }
 
 /**
- * @brief remove
+ * @brief removeSection
+ * @param synapseSections
  * @param pos
- * @return
  */
 inline void
 removeSection(SynapseSection* synapseSections, const uint32_t pos)
@@ -60,8 +64,12 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
     synapseSections[pos] = emptyEdge;
 }
 
-//--------------------------------------------------------------------------------------------------
-
+/**
+ * @brief synapseProcessing
+ * @param sectionPos
+ * @param weight
+ * @param hardening
+ */
 inline void
 synapseProcessing(const uint32_t sectionPos,
                   float weight,
@@ -83,23 +91,22 @@ synapseProcessing(const uint32_t sectionPos,
         Synapse* synapse = &section->synapses[pos];
         if(synapse->targetNodeId == UNINIT_STATE_16)
         {
+            synapse->hardening = 0.0f;
+
+            // set new weight
             const float random = (rand() % 1024) / 1024.0f;
             const float usedLearn = (weight < 5.0f) * weight
                                     + (weight >= 5.0f) * ((weight * random) + 1.0f);
+            synapse->dynamicWeight = usedLearn;
 
             // get random node-id as target
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
                                                  % globalValue->numberOfNodesPerBrick;
             const uint32_t nodeOffset = section->nodeBrickId * globalValue->numberOfNodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
-            synapse->hardening = 0.0f;
 
-            // make to blocking synapse by random
-            if(rand() % 2 == 0) {
-                synapse->sign = -1;
-            }
-
-            synapse->dynamicWeight = usedLearn;
+            // sign be random 1 or -1
+            synapse->sign = 1 - (rand() % 2) * 2;
         }
 
         const float newHardening = synapse->hardening + hardening;
@@ -111,8 +118,6 @@ synapseProcessing(const uint32_t sectionPos,
         synapse->dynamicWeight -= diff;
         synapse->staticWeight += diff;
 
-        hardening /= 2.0f;
-
         // 1 because only one thread at the moment
         const ulong nodeBufferPosition = (1 * (numberOfNodes / 256)) + synapse->targetNodeId;
         const float synapseWeight = synapse->staticWeight + synapse->dynamicWeight;
@@ -120,6 +125,8 @@ synapseProcessing(const uint32_t sectionPos,
                                   + (weight <= synapseWeight) * weight;
 
         nodes[nodeBufferPosition].currentState += shareWeight * static_cast<float>(synapse->sign);
+
+        hardening /= 2.0f;
         weight -= shareWeight;
         pos++;
     }
@@ -135,8 +142,10 @@ synapseProcessing(const uint32_t sectionPos,
     }
 }
 
-//==================================================================================================
-
+/**
+ * @brief updating
+ * @param sectionPos
+ */
 inline void
 updating(const uint32_t sectionPos)
 {
@@ -191,8 +200,9 @@ updating(const uint32_t sectionPos)
     }
 }
 
-//==================================================================================================
-
+/**
+ * @brief node_processing
+ */
 void
 node_processing()
 {

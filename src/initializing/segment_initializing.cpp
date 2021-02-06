@@ -22,6 +22,8 @@
 
 #include "segment_initializing.h"
 
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
+
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
@@ -79,6 +81,28 @@ initGlobalValues(Segment &segment)
 }
 
 /**
+ * @brief initNodeBuffer
+ * @param nodeBuffer
+ * @param numberOfItems
+ * @return
+ */
+bool
+initNodeBuffer(ItemBuffer &nodeBuffer, const uint32_t numberOfItems)
+{
+    if(nodeBuffer.initBuffer<float>(numberOfItems) == false) {
+        return false;
+    }
+
+    float* nodeProcessingBuffer = getBuffer<float>(nodeBuffer);
+    for(uint32_t i = 0; i < numberOfItems; i++) {
+        nodeProcessingBuffer[i] = 0.0f;
+    }
+    nodeBuffer.numberOfItems = numberOfItems;
+
+    return true;
+}
+
+/**
  * initialize the node-list of the brick
  *
  * @return false if nodes are already initialized, esle true
@@ -87,21 +111,25 @@ bool
 initNodeBlocks(Segment &segment,
                const uint32_t &numberOfNodes)
 {
-    const uint32_t numberOfNodesBuffer = numberOfNodes * 256;
-    // init
-    if(segment.nodes.initBuffer<Node>(numberOfNodesBuffer) == false) {
+    // init nodes itself
+    if(segment.nodes.initBuffer<Node>(numberOfNodes) == false) {
         return false;
     }
 
     // fill array with empty nodes
     Node* array = getBuffer<Node>(segment.nodes);
-    for(uint32_t i = 0; i < numberOfNodesBuffer; i++)
+    for(uint32_t i = 0; i < numberOfNodes; i++)
     {
         Node tempNode;
         tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
         array[i] = tempNode;
     }
-    segment.nodes.numberOfItems = numberOfNodesBuffer;
+    segment.nodes.numberOfItems = numberOfNodes;
+
+    // init node-buffer
+    assert(initNodeBuffer(segment.nodeProcessingBuffer, numberOfNodes * 255));
+    assert(initNodeBuffer(segment.nodeInputBuffer, numberOfNodes));
+    assert(initNodeBuffer(segment.nodeOutputBuffer, numberOfNodes));
 
     return true;
 }
@@ -109,16 +137,16 @@ initNodeBlocks(Segment &segment,
 bool
 initRandomValues(Segment &segment)
 {
-    if(segment.randomIntValues.initBuffer<uint32_t>(1024) == false) {
+    const uint32_t numberOfRandValues = 1024;
+    if(segment.randomIntValues.initBuffer<uint32_t>(numberOfRandValues) == false) {
         return false;
     }
 
     uint32_t* randValue = getBuffer<uint32_t>(segment.randomIntValues);
-    for(uint32_t i = 0; i < 1024; i++)
-    {
+    for(uint32_t i = 0; i < numberOfRandValues; i++) {
         randValue[i] = static_cast<uint32_t>(rand());
     }
-    segment.randomIntValues.numberOfItems = 1024;
+    segment.randomIntValues.numberOfItems = numberOfRandValues;
 
     return true;
 }

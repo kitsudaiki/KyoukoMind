@@ -44,6 +44,10 @@ public:
     ItemBuffer nodes;
     ItemBuffer synapses;
 
+    ItemBuffer nodeProcessingBuffer;
+    ItemBuffer nodeInputBuffer;
+    ItemBuffer nodeOutputBuffer;
+
     // other
     ItemBuffer randomIntValues;
     ItemBuffer globalValues;
