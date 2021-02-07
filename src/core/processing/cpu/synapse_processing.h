@@ -21,6 +21,7 @@ inline bool
 findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
 {
     const uint64_t numberOfSections = KyoukoRoot::m_segment->synapses.itemCapacity;
+    Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
 
     for(uint32_t i = 0; i < numberOfSections; i++)
     {
@@ -34,6 +35,11 @@ findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
 
             synapseSections[i].prev = oldSectionId;
             synapseSections[oldSectionId].next = i;
+
+            const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
+            synapseSections->nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
+
+            std::cout<<"create"<<std::endl;
             return true;
         }
     }
@@ -62,6 +68,8 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
 
     SynapseSection emptyEdge;
     synapseSections[pos] = emptyEdge;
+
+    std::cout<<"delete"<<std::endl;
 }
 
 /**
@@ -77,9 +85,9 @@ synapseProcessing(const uint32_t sectionPos,
 {
     SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
+    float* nodeProcessingBuffer = getBuffer<float>(KyoukoRoot::m_segment->nodeProcessingBuffer);
 
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
-    Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     uint32_t pos = 0;
@@ -118,13 +126,13 @@ synapseProcessing(const uint32_t sectionPos,
         synapse->dynamicWeight -= diff;
         synapse->staticWeight += diff;
 
-        // 1 because only one thread at the moment
-        const ulong nodeBufferPosition = (1 * (numberOfNodes / 256)) + synapse->targetNodeId;
+        // 0 because only one thread at the moment
+        const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
         const float synapseWeight = synapse->staticWeight + synapse->dynamicWeight;
         const float shareWeight = (weight > synapseWeight) * synapseWeight
                                   + (weight <= synapseWeight) * weight;
 
-        nodes[nodeBufferPosition].currentState += shareWeight * static_cast<float>(synapse->sign);
+        nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
 
         hardening /= 2.0f;
         weight -= shareWeight;
@@ -208,20 +216,24 @@ node_processing()
 {
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
+    float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+    float* outputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
+    float* nodeProcessingBuffer = getBuffer<float>(KyoukoRoot::m_segment->nodeProcessingBuffer);
+
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
 
-    for(uint64_t i = 0; i < numberOfNodes / 256; i++)
+    for(uint64_t i = 0; i < numberOfNodes; i++)
     {
         // TODO: when port to gpu: change 2 to 256 again
-        for(uint pos = 1; pos < 2; pos++)
+        for(uint pos = 0; pos < 1; pos++)
         {
-            const ulong nodeBufferPosition = (pos * (numberOfNodes / 256)) + i;
-            nodes[i].currentState += nodes[nodeBufferPosition].currentState;
-            nodes[nodeBufferPosition].currentState = 0.0f;
+            const ulong nodeBufferPosition = (pos * (numberOfNodes)) + i;
+            nodes[i].currentState += nodeProcessingBuffer[nodeBufferPosition];
+            nodeProcessingBuffer[nodeBufferPosition] = 0.0f;
         }
     }
 
-    for(uint32_t i = 0; i < numberOfNodes / 256; i++)
+    for(uint32_t i = 0; i < numberOfNodes; i++)
     {
         Node* node = &nodes[i];
         if(node->border > 0.0f)
@@ -264,6 +276,32 @@ node_processing()
             // make cooldown in the node
             node->potential /= globalValue->nodeCooldown;
             node->currentState /= globalValue->nodeCooldown;
+        }
+        else if(node->border == 0.0f)
+        {
+            node->potential = inputNodes[i];
+            if(node->potential > 10.0f)
+            {
+                node->active = 1;
+                // build new axon-transfer-edge, which is send back to the host
+                const float up = static_cast<float>(pow(globalValue->gliaValue,
+                                                        node->targetBrickDistance));
+                const float weight = node->potential * up;
+                synapseProcessing(i, weight, globalValue->lerningValue);
+            }
+            else
+            {
+                node->active = 0;
+                updating(i);
+            }
+        }
+        else
+        {
+            if(node->currentState != 0.0f) {
+                std::cout<<"poi "<<node->currentState<<std::endl;
+            }
+            outputNodes[i] = node->currentState;
+            node->currentState = 0.0f;
         }
     }
 }

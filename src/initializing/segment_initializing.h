@@ -34,6 +34,7 @@ bool initNodeBlocks(Segment &segment,
                     const uint32_t &numberOfNodes);
 bool initRandomValues(Segment &segment);
 bool initSynapseSectionBlocks(Segment &segment,
-                              const uint32_t numberOfSynapseSections);
+                              const uint32_t numberOfSynapseSections,
+                              const uint32_t numberOfNodes);
 
 #endif // SEGMENT_INITIALIZING_H

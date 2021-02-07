@@ -158,7 +158,8 @@ initRandomValues(Segment &segment)
  */
 bool
 initSynapseSectionBlocks(Segment &segment,
-                         const uint32_t numberOfSynapseSections)
+                         const uint32_t numberOfSynapseSections,
+                         const uint32_t numberOfNodes)
 {
     assert(numberOfSynapseSections > 0);
 
@@ -176,6 +177,15 @@ initSynapseSectionBlocks(Segment &segment,
         array[i] = newSection;
     }
     segment.synapses.numberOfItems = numberOfSynapseSections;
+
+    Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
+    for(uint32_t i = 0; i < numberOfNodes; i++)
+    {
+        array[i].status = ACTIVE_SECTION;
+        array[i].randomPos = rand() % 1024;
+        const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
+        array[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
+    }
 
     return true;
 }

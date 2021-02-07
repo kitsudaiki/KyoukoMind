@@ -99,7 +99,10 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     createAxons(*segment);
 
     // init synapses
-    if(initSynapseSectionBlocks(*segment, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+    if(initSynapseSectionBlocks(*segment,
+                                MAX_NUMBER_OF_SYNAPSE_SECTIONS,
+                                totalNumberOfNodes) == false)
+    {
         return false;
     }
 
@@ -154,6 +157,15 @@ NetworkInitializer::addBricks(Segment &segment,
                 Node* array = getBuffer<Node>(segment.nodes);
                 for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
                     array[i + nodePos].border = -1.0f;
+                }
+            }
+
+            // handle input-brick
+            if(brick.isInputBrick)
+            {
+                Node* array = getBuffer<Node>(segment.nodes);
+                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
+                    array[i + nodePos].border = 0.0f;
                 }
             }
         }

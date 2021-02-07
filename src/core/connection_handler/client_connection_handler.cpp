@@ -106,10 +106,12 @@ ClientConnectionHandler::insertInput(const std::string &inputData)
     }
 
     DataArray* array = jsonItem.getItemContent()->toArray();
-    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
     for(uint32_t i = 0; i < array->size(); i++) {
-        //brick[m_inputBrick].setInputValue(i, array->get(i)->getFloat());
+        inputNodes[i] = array->get(i)->getFloat();
     }
+    KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
 
     return true;
 }

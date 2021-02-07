@@ -48,6 +48,8 @@ public:
     ItemBuffer nodeInputBuffer;
     ItemBuffer nodeOutputBuffer;
 
+    std::atomic_flag input_lock = ATOMIC_FLAG_INIT;
+
     // other
     ItemBuffer randomIntValues;
     ItemBuffer globalValues;
