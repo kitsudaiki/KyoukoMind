@@ -209,6 +209,33 @@ updating(const uint32_t sectionPos)
 }
 
 /**
+ * @brief triggerSynapseSesction
+ * @param node
+ * @param i
+ * @param globalValue
+ */
+inline void
+triggerSynapseSesction(Node* node,
+                       const uint32_t i,
+                       GlobalValues* globalValue)
+{
+    if(node->potential > 10.0f)
+    {
+        node->active = 1;
+        // build new axon-transfer-edge, which is send back to the host
+        const float up = static_cast<float>(pow(globalValue->gliaValue,
+                                                node->targetBrickDistance));
+        const float weight = node->potential * up;
+        synapseProcessing(i, weight, globalValue->lerningValue);
+    }
+    else
+    {
+        node->active = 0;
+        updating(i);
+    }
+}
+
+/**
  * @brief node_processing
  */
 void
@@ -244,27 +271,13 @@ node_processing()
             node->currentState = (cur < 0.0f) * 0.0f + (cur >= 0.0f) * cur;
 
             // check if active
-            if(node->border < node->currentState
-                    && node->refractionTime == 0)
-            {
-                node->potential = globalValue->actionPotential;
-                node->refractionTime = globalValue->refractionTime;
-            }
+            const bool reset = node->border < node->currentState && node->refractionTime == 0;
+            node->potential = reset * globalValue->actionPotential
+                              + (reset == false) * node->potential;
+            node->refractionTime = reset * globalValue->refractionTime
+                                   + (reset == false) * node->refractionTime;
 
-            if(node->potential > 10.0f)
-            {
-                node->active = 1;
-                // build new axon-transfer-edge, which is send back to the host
-                const float up = static_cast<float>(pow(globalValue->gliaValue,
-                                                        node->targetBrickDistance));
-                const float weight = node->potential * up;
-                synapseProcessing(i, weight, globalValue->lerningValue);
-            }
-            else
-            {
-                node->active = 0;
-                updating(i);
-            }
+            triggerSynapseSesction(node, i, globalValue);
 
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
@@ -280,26 +293,10 @@ node_processing()
         else if(node->border == 0.0f)
         {
             node->potential = inputNodes[i];
-            if(node->potential > 10.0f)
-            {
-                node->active = 1;
-                // build new axon-transfer-edge, which is send back to the host
-                const float up = static_cast<float>(pow(globalValue->gliaValue,
-                                                        node->targetBrickDistance));
-                const float weight = node->potential * up;
-                synapseProcessing(i, weight, globalValue->lerningValue);
-            }
-            else
-            {
-                node->active = 0;
-                updating(i);
-            }
+            triggerSynapseSesction(node, i, globalValue);
         }
         else
         {
-            if(node->currentState != 0.0f) {
-                std::cout<<"poi "<<node->currentState<<std::endl;
-            }
             outputNodes[i] = node->currentState;
             node->currentState = 0.0f;
         }
