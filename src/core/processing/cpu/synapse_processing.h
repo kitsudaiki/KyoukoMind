@@ -117,14 +117,16 @@ synapseProcessing(const uint32_t sectionPos,
             synapse->sign = 1 - (rand() % 2) * 2;
         }
 
-        const float newHardening = synapse->hardening + hardening;
-        synapse->hardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
+        float newHardening = synapse->hardening + hardening;
+        newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
+        hardening -= newHardening - synapse->hardening;
 
         // update static weight value
         const float hardeningDiff = newHardening - synapse->hardening;
         const float diff = synapse->dynamicWeight * hardeningDiff;
         synapse->dynamicWeight -= diff;
         synapse->staticWeight += diff;
+        synapse->hardening = newHardening;
 
         // 0 because only one thread at the moment
         const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
@@ -134,7 +136,6 @@ synapseProcessing(const uint32_t sectionPos,
 
         nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
 
-        hardening /= 2.0f;
         weight -= shareWeight;
         pos++;
     }
@@ -168,9 +169,8 @@ updating(const uint32_t sectionPos)
     for(uint32_t lastPos = 0; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
     {
         Synapse* synapse = &section->synapses[lastPos];
-        // skip unused synapse in section
         if(synapse->targetNodeId == UNINIT_STATE_16) {
-            break;
+            continue;
         }
 
         // update dynamic-weight-value of the synapse
@@ -187,11 +187,14 @@ updating(const uint32_t sectionPos)
             synapse->dynamicWeight = 0.0f;
             synapse->staticWeight = 0.0f;
             synapse->targetNodeId = UNINIT_STATE_16;
+            synapse->hardening = 0.0f;
             synapse->sign = 1;
         }
         else
         {
+            const Synapse currentSyn = section->synapses[currentPos];
             section->synapses[currentPos] = section->synapses[lastPos];
+            section->synapses[lastPos] = currentSyn;
             currentPos++;
         }
     }
@@ -223,8 +226,7 @@ triggerSynapseSesction(Node* node,
     {
         node->active = 1;
         // build new axon-transfer-edge, which is send back to the host
-        const float up = static_cast<float>(pow(globalValue->gliaValue,
-                                                node->targetBrickDistance));
+        const float up = static_cast<float>(pow(globalValue->gliaValue, node->targetBrickDistance));
         const float weight = node->potential * up;
         synapseProcessing(i, weight, globalValue->lerningValue);
     }
@@ -271,7 +273,8 @@ node_processing()
             node->currentState = (cur < 0.0f) * 0.0f + (cur >= 0.0f) * cur;
 
             // check if active
-            const bool reset = node->border < node->currentState && node->refractionTime == 0;
+            const bool reset = node->border < node->currentState
+                               && node->refractionTime == 0;
             node->potential = reset * globalValue->actionPotential
                               + (reset == false) * node->potential;
             node->refractionTime = reset * globalValue->refractionTime
