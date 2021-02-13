@@ -11,8 +11,6 @@
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
 
-#include "output_synapse_processing.h"
-
 /**
  * @brief findNewSectioin
  * @param synapseSections
@@ -300,7 +298,7 @@ node_processing()
         }
         else
         {
-            outputNodes[i] = node->currentState;
+            outputNodes[i % globalValue->numberOfNodesPerBrick] = node->currentState;
             node->currentState = 0.0f;
         }
     }

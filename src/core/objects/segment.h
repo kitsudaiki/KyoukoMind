@@ -49,6 +49,10 @@ public:
     ItemBuffer nodeInputBuffer;
     ItemBuffer nodeOutputBuffer;
 
+    float outputValue = 0.0f;
+    float shouldValue = 0.0f;
+    bool doLearn = false;
+
     std::atomic_flag input_lock = ATOMIC_FLAG_INIT;
 
     // other

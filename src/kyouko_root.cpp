@@ -125,6 +125,8 @@ KyoukoRoot::learn(const std::string &input,
     LOG_WARNING("should: " + should);
 
     KyoukoRoot::m_ioHandler->setInput(input);
+    KyoukoRoot::m_segment->shouldValue = 100.0f;
+    KyoukoRoot::m_segment->doLearn = true;
 
     return true;
 }

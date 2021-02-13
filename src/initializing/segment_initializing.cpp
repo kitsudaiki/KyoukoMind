@@ -188,7 +188,7 @@ initSynapseSectionBlocks(Segment &segment,
     }
 
 
-    const uint32_t outputSynSec = KyoukoRoot::m_segment->numberOfNodeBricks;
+    const uint32_t outputSynSec = numberOfNodes / KyoukoRoot::m_segment->numberOfNodeBricks;
     if(segment.outputSynapses.initBuffer<OutputSynapseSection>(outputSynSec) == false) {
         return false;
     }

@@ -33,6 +33,7 @@
 #include <core/objects/brick.h>
 
 #include <core/processing/cpu/synapse_processing.h>
+#include <core/processing/cpu/output_synapse_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -59,7 +60,9 @@ CpuProcessingUnit::run()
         m_phase2->triggerBarrier();
 
         start = std::chrono::system_clock::now();
+        KyoukoRoot::m_segment->outputValue = 0.0f;
         node_processing();
+        output_node_processing();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;

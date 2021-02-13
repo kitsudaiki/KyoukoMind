@@ -61,34 +61,10 @@ InputOutputProcessing::processInputMapping()
 void
 InputOutputProcessing::processOutputMapping()
 {
-    // prepare pointer
-    float* outputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
-
-    // insert input-values from brick
-    for(uint32_t i = 0; i < m_outputMapper.size(); i++)
-    {
-        OutputMapper* mapper = &m_outputMapper[i];
-
-        float summedOutput = 0.0f;
-
-        for(uint32_t pos = mapper->start; pos < mapper->end; pos++) {
-            summedOutput += outputNodes[pos];
-        }
-
-        // make result smooth
-        mapper->outBuffer[mapper->outBufferPos] = summedOutput;
-        mapper->outBufferPos = (mapper->outBufferPos + 1) % 2;
-
-        float result = 0.0f;
-        for(uint32_t x = 0; x < 2; x++) {
-            result += mapper->outBuffer[x];
-        }
-        result /= 2.0f;
-
-        KyoukoRoot::m_clientHandler->sendToClient(std::to_string(result));
-        LOG_WARNING("-----------------------------------------------");
-        LOG_WARNING("output: " + std::to_string(result));
-    }
+    KyoukoRoot::m_clientHandler->sendToClient(std::to_string(KyoukoRoot::m_segment->outputValue));
+    LOG_WARNING("-----------------------------------------------");
+    LOG_WARNING("should: " + std::to_string(KyoukoRoot::m_segment->shouldValue));
+    LOG_WARNING("output: " + std::to_string(KyoukoRoot::m_segment->outputValue));
 }
 
 /**
