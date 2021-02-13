@@ -247,6 +247,7 @@ node_processing()
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
     float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
     float* nodeProcessingBuffer = getBuffer<float>(KyoukoRoot::m_segment->nodeProcessingBuffer);
+    float* outputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
 
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
 
@@ -299,9 +300,8 @@ node_processing()
         }
         else
         {
-            node->potential = node->currentState;
-            const uint32_t pos = i % globalValue->numberOfNodesPerBrick;
-            outputSynapseProcessing(pos, node->potential);
+            outputNodes[i] = node->currentState;
+            node->currentState = 0.0f;
         }
     }
 }
