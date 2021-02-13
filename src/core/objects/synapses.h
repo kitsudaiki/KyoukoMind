@@ -34,7 +34,7 @@ struct Synapse
     float hardening = 0.0f;
     uint16_t targetNodeId = UNINIT_STATE_16;
     int8_t sign = 1;
-    uint8_t padding[1];
+    int8_t multiplicator;
     // total size: 16 Byte
 };
 
@@ -49,13 +49,6 @@ struct SynapseSection
     uint32_t prev = UNINIT_STATE_32;
     uint32_t next = UNINIT_STATE_32;
 
-    float totalWeight = 0.0f;
-
-    uint8_t isOutput = 0;
-    uint8_t isActive = 0;
-
-    uint8_t padding[10];
-
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
 
@@ -68,6 +61,42 @@ struct SynapseSection
         }
     }
     // total size: 256 Byte
+};
+
+//==================================================================================================
+
+struct OutputSynapse
+{
+    float weightOut = 0.0;
+    float weightIn = 0.0;
+    float hardening = 0.0f;
+    uint16_t targetNodeId = UNINIT_STATE_16;
+    int8_t sign = 1;
+    int8_t multiplicator;
+    // total size: 16 Byte
+};
+
+//==================================================================================================
+
+struct OutputSynapseSection
+{
+    uint16_t status = ACTIVE_SECTION;
+    uint16_t randomPos = UNINIT_STATE_16;
+
+    uint8_t padding[12];
+
+    OutputSynapse synapses[255];
+
+
+    OutputSynapseSection()
+    {
+        for(uint32_t i = 0; i < 255; i++)
+        {
+            OutputSynapse newSynapse;
+            synapses[i] = newSynapse;
+        }
+    }
+    // total size: 4096 Byte
 };
 
 //==================================================================================================

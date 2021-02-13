@@ -187,6 +187,20 @@ initSynapseSectionBlocks(Segment &segment,
         array[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
     }
 
+
+    const uint32_t outputSynSec = KyoukoRoot::m_segment->numberOfNodeBricks;
+    if(segment.outputSynapses.initBuffer<OutputSynapseSection>(outputSynSec) == false) {
+        return false;
+    }
+
+    // fill array with empty synapsesections
+    OutputSynapseSection* outarray = getBuffer<OutputSynapseSection>(segment.outputSynapses);
+    for(uint32_t i = 0; i < outputSynSec; i++)
+    {
+        OutputSynapseSection newSection;
+        outarray[i] = newSection;
+    }
+
     return true;
 }
 

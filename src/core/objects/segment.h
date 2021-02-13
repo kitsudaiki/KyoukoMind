@@ -43,6 +43,7 @@ public:
     // host-representation of permanent gpu-data
     ItemBuffer nodes;
     ItemBuffer synapses;
+    ItemBuffer outputSynapses;
 
     ItemBuffer nodeProcessingBuffer;
     ItemBuffer nodeInputBuffer;

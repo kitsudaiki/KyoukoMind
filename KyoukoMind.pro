@@ -116,7 +116,8 @@ HEADERS += \
     src/core/objects/monitoring_container.h \
     src/initializing/blossom_initializing.h \
     src/core/processing/input_output_processing.h \
-    src/core/processing/cpu/synapse_processing.h
+    src/core/processing/cpu/synapse_processing.h \
+    src/core/processing/cpu/output_synapse_processing.h
 
 SOURCES += \
     src/core/objects/brick.cpp \

@@ -48,6 +48,7 @@ public:
     uint32_t brickId = UNINIT_STATE_32;
     uint32_t nodeBrickId = UNINIT_STATE_32;
     bool isOutputBrick = false;
+    bool isMidBrick = false;
     bool isInputBrick = false;
 
     BrickPos brickPos;
