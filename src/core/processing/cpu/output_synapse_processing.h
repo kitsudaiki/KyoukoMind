@@ -35,7 +35,6 @@ outputSynapseProcessing(const uint32_t sectionPos,
         weight -= synapse->weightIn;
         pos++;
     }
-
 }
 
 

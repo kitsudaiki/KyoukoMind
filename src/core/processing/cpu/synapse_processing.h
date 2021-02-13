@@ -82,8 +82,7 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
  */
 inline void
 synapseProcessing(const uint32_t sectionPos,
-                  float weight,
-                  float hardening)
+                  float weight)
 {
     SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
@@ -119,9 +118,8 @@ synapseProcessing(const uint32_t sectionPos,
             synapse->sign = 1 - (rand() % 2) * 2;
         }
 
-        float newHardening = synapse->hardening + hardening;
+        float newHardening = synapse->hardening + globalValue->lerningValue;
         newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
-        hardening -= newHardening - synapse->hardening;
 
         // update static weight value
         const float hardeningDiff = newHardening - synapse->hardening;
@@ -149,7 +147,7 @@ synapseProcessing(const uint32_t sectionPos,
     }
 
     if(weight > 2.0f) {
-        synapseProcessing(section->next, weight, hardening);
+        synapseProcessing(section->next, weight);
     }
 }
 
@@ -230,7 +228,7 @@ triggerSynapseSesction(Node* node,
         // build new axon-transfer-edge, which is send back to the host
         const float up = static_cast<float>(pow(globalValue->gliaValue, node->targetBrickDistance));
         const float weight = node->potential * up;
-        synapseProcessing(i, weight, globalValue->lerningValue);
+        synapseProcessing(i, weight);
     }
     else
     {
@@ -248,7 +246,6 @@ node_processing()
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
     float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
-    float* outputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
     float* nodeProcessingBuffer = getBuffer<float>(KyoukoRoot::m_segment->nodeProcessingBuffer);
 
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
