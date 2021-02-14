@@ -61,10 +61,14 @@ InputOutputProcessing::processInputMapping()
 void
 InputOutputProcessing::processOutputMapping()
 {
-    KyoukoRoot::m_clientHandler->sendToClient(std::to_string(KyoukoRoot::m_segment->outputValue));
+    //KyoukoRoot::m_clientHandler->sendToClient(std::to_string(KyoukoRoot::m_segment->outputValue));
     LOG_WARNING("-----------------------------------------------");
-    LOG_WARNING("should: " + std::to_string(KyoukoRoot::m_segment->shouldValue));
-    LOG_WARNING("output: " + std::to_string(KyoukoRoot::m_segment->outputValue));
+    LOG_WARNING("should0: " + std::to_string(KyoukoRoot::m_segment->shouldValue[0]));
+    LOG_WARNING("output0: " + std::to_string(KyoukoRoot::m_segment->outputValue[0]));
+    LOG_WARNING("should1: " + std::to_string(KyoukoRoot::m_segment->shouldValue[1]));
+    LOG_WARNING("output1: " + std::to_string(KyoukoRoot::m_segment->outputValue[1]));
+    LOG_WARNING("should2: " + std::to_string(KyoukoRoot::m_segment->shouldValue[2]));
+    LOG_WARNING("output2: " + std::to_string(KyoukoRoot::m_segment->outputValue[2]));
 }
 
 /**

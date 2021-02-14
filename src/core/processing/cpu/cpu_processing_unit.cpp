@@ -60,7 +60,9 @@ CpuProcessingUnit::run()
         m_phase2->triggerBarrier();
 
         start = std::chrono::system_clock::now();
-        KyoukoRoot::m_segment->outputValue = 0.0f;
+        KyoukoRoot::m_segment->outputValue[0] = 0.0f;
+        KyoukoRoot::m_segment->outputValue[1] = 0.0f;
+        KyoukoRoot::m_segment->outputValue[2] = 0.0f;
         node_processing();
         output_node_processing();
         end = std::chrono::system_clock::now();
