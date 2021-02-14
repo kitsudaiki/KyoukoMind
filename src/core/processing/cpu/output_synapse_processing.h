@@ -20,7 +20,7 @@
 inline void
 outputSynapseProcessing(const uint32_t sectionPos,
                         float weight,
-                        uint64_t* activeOnes)
+                        uint64_t* newOnes)
 {
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
@@ -46,7 +46,7 @@ outputSynapseProcessing(const uint32_t sectionPos,
         }
 
         if(synapse->newOne == 1) {
-            activeOnes[synapse->targetNodeId]++;
+            newOnes[synapse->targetNodeId]++;
         }
 
         float newHardening = synapse->hardening + globalValue->lerningValue;
@@ -68,14 +68,13 @@ outputSynapseProcessing(const uint32_t sectionPos,
  * @param diff
  * @return
  */
-inline uint64_t
+inline void
 outputSynapseLearn(const uint32_t sectionPos,
                    float* diff,
                    float weight)
 {
     ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
     OutputSynapseSection* synapseSections = &getBuffer<OutputSynapseSection>(*buf)[sectionPos];
-    uint64_t activeOnes = 0;
     uint32_t pos = 0;
 
     // iterate over all synapses in the section and update the target-nodes
@@ -91,8 +90,6 @@ outputSynapseLearn(const uint32_t sectionPos,
         weight -= synapse->weightIn;
         pos++;
     }
-
-    return activeOnes;
 }
 
 /**
@@ -103,18 +100,22 @@ output_node_processing()
 {
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     float* outputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
-    uint64_t activeOnes[3] = {0, 0, 0};
+    uint64_t newOnes[3] = {0, 0, 0};
 
     for(uint32_t i = 0; i < globalValue->numberOfNodesPerBrick; i++) {
-        outputSynapseProcessing(i, outputNodes[i], activeOnes);
+        outputSynapseProcessing(i, outputNodes[i], newOnes);
     }
 
     if(KyoukoRoot::m_segment->doLearn)
     {
         float diff[3];
-        for(uint64_t i = 0; i < 3; i++) {
+        float totalDiff = 0.0f;
+        for(uint64_t i = 0; i < 3; i++)
+        {
             diff[i] = KyoukoRoot::m_segment->shouldValue[i] - KyoukoRoot::m_segment->outputValue[i];
-            diff[i] /= static_cast<float>(activeOnes[i]);
+            diff[i] /= static_cast<float>(newOnes[i]);
+
+            totalDiff += fabs(diff[i]);
         }
 
         std::cout<<"diff_0: "<<diff[0]<<std::endl;
@@ -123,9 +124,13 @@ output_node_processing()
         for(uint32_t i = 0; i < globalValue->numberOfNodesPerBrick; i++) {
             outputSynapseLearn(i, diff, outputNodes[i]);
         }
+
+        if(totalDiff < 0.001f) {
+            return true;
+        }
     }
 
-    return true;
+    return false;
 }
 
 #endif // OUTPUT_SYNAPSE_PROCESSING_H
