@@ -11,6 +11,12 @@
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
 
+/**
+ * @brief outputSynapseProcessing
+ * @param sectionPos
+ * @param weight
+ * @return
+ */
 inline uint64_t
 outputSynapseProcessing(const uint32_t sectionPos,
                         float weight)
@@ -31,11 +37,8 @@ outputSynapseProcessing(const uint32_t sectionPos,
             synapse->hardening = 0.0f;
 
             // set new weight
-            const float random = (rand() % 1024) / 1024.0f;
-            const float usedLearn = (weight < 5.0f) * weight
-                                    + (weight >= 5.0f) * ((weight * random) + 1.0f);
-            synapse->weightIn = usedLearn;
-            synapse->weightOut = usedLearn;
+            synapse->weightIn = 2.0f;
+            synapse->weightOut = 2.0f;
             synapse->weightOut *= static_cast<float>(1 - (rand() % 2) * 2);
             synapse->targetNodeId = 1;
         }
@@ -55,9 +58,16 @@ outputSynapseProcessing(const uint32_t sectionPos,
     return activeOnes;
 }
 
+/**
+ * @brief outputSynapseLearn
+ * @param sectionPos
+ * @param diff
+ * @return
+ */
 inline uint64_t
 outputSynapseLearn(const uint32_t sectionPos,
-                   float diff)
+                   float diff,
+                   float weight)
 {
     ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
     OutputSynapseSection* synapseSections = &getBuffer<OutputSynapseSection>(*buf)[sectionPos];
@@ -65,16 +75,16 @@ outputSynapseLearn(const uint32_t sectionPos,
     uint32_t pos = 0;
 
     // iterate over all synapses in the section and update the target-nodes
-    while(pos < 255)
+    while(pos < 255
+          && weight > 0.0f)
     {
         OutputSynapse* synapse = &synapseSections->synapses[pos];
 
-        if(synapse->newOne == 1)
-        {
+        if(synapse->newOne == 1) {
             synapse->weightOut += diff;
-            synapse->newOne = 0;
         }
 
+        weight -= synapse->weightIn;
         pos++;
     }
 
@@ -84,7 +94,7 @@ outputSynapseLearn(const uint32_t sectionPos,
 /**
  * @brief node_processing
  */
-void
+bool
 output_node_processing()
 {
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
@@ -95,17 +105,22 @@ output_node_processing()
         activeOnes += outputSynapseProcessing(i, outputNodes[i]);
     }
 
-    if(KyoukoRoot::m_segment->doLearn
-            && activeOnes >= 1)
+    if(KyoukoRoot::m_segment->doLearn)
     {
+        if(activeOnes == 0) {
+            return false;
+        }
+
         float diff = KyoukoRoot::m_segment->shouldValue - KyoukoRoot::m_segment->outputValue;
         diff /= static_cast<float>(activeOnes);
 
         std::cout<<"diff: "<<diff<<std::endl;
         for(uint32_t i = 0; i < globalValue->numberOfNodesPerBrick; i++) {
-            activeOnes = outputSynapseLearn(i, diff);
+            activeOnes = outputSynapseLearn(i, diff, outputNodes[i]);
         }
     }
+
+    return true;
 }
 
 #endif // OUTPUT_SYNAPSE_PROCESSING_H
