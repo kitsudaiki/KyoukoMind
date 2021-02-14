@@ -22,9 +22,9 @@
 
 #include "segment_initializing.h"
 
-#include <core/objects/segment.h>
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
 
-#include <core/objects/transfer_objects.h>
+#include <core/objects/segment.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
@@ -81,6 +81,28 @@ initGlobalValues(Segment &segment)
 }
 
 /**
+ * @brief initNodeBuffer
+ * @param nodeBuffer
+ * @param numberOfItems
+ * @return
+ */
+bool
+initNodeBuffer(ItemBuffer &nodeBuffer, const uint32_t numberOfItems)
+{
+    if(nodeBuffer.initBuffer<float>(numberOfItems) == false) {
+        return false;
+    }
+
+    float* nodeProcessingBuffer = getBuffer<float>(nodeBuffer);
+    for(uint32_t i = 0; i < numberOfItems; i++) {
+        nodeProcessingBuffer[i] = 0.0f;
+    }
+    nodeBuffer.numberOfItems = numberOfItems;
+
+    return true;
+}
+
+/**
  * initialize the node-list of the brick
  *
  * @return false if nodes are already initialized, esle true
@@ -89,21 +111,25 @@ bool
 initNodeBlocks(Segment &segment,
                const uint32_t &numberOfNodes)
 {
-    const uint32_t numberOfNodesBuffer = numberOfNodes * 256;
-    // init
-    if(segment.nodes.initBuffer<Node>(numberOfNodesBuffer) == false) {
+    // init nodes itself
+    if(segment.nodes.initBuffer<Node>(numberOfNodes) == false) {
         return false;
     }
 
     // fill array with empty nodes
     Node* array = getBuffer<Node>(segment.nodes);
-    for(uint32_t i = 0; i < numberOfNodesBuffer; i++)
+    for(uint32_t i = 0; i < numberOfNodes; i++)
     {
         Node tempNode;
         tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
         array[i] = tempNode;
     }
-    segment.nodes.numberOfItems = numberOfNodesBuffer;
+    segment.nodes.numberOfItems = numberOfNodes;
+
+    // init node-buffer
+    assert(initNodeBuffer(segment.nodeProcessingBuffer, numberOfNodes * 255));
+    assert(initNodeBuffer(segment.nodeInputBuffer, numberOfNodes));
+    assert(initNodeBuffer(segment.nodeOutputBuffer, numberOfNodes));
 
     return true;
 }
@@ -111,43 +137,16 @@ initNodeBlocks(Segment &segment,
 bool
 initRandomValues(Segment &segment)
 {
-    if(segment.randomIntValues.initBuffer<uint32_t>(1024) == false) {
+    const uint32_t numberOfRandValues = 1024;
+    if(segment.randomIntValues.initBuffer<uint32_t>(numberOfRandValues) == false) {
         return false;
     }
 
     uint32_t* randValue = getBuffer<uint32_t>(segment.randomIntValues);
-    for(uint32_t i = 0; i < 1024; i++)
-    {
+    for(uint32_t i = 0; i < numberOfRandValues; i++) {
         randValue[i] = static_cast<uint32_t>(rand());
     }
-    segment.randomIntValues.numberOfItems = 1024;
-
-    return true;
-}
-
-/**
- * initialize forward-edge-block
- *
- * @return true if success, else false
- */
-bool
-initEdgeSectionBlocks(Segment &segment,
-                      const uint32_t numberOfEdgeSections)
-{
-    // init
-    if(segment.edges.initBuffer<EdgeSection>(numberOfEdgeSections) == false) {
-        return false;
-    }
-
-    // fill array with empty forward-edge-sections
-    EdgeSection* array = getBuffer<EdgeSection>(segment.edges);
-    for(uint32_t i = 0; i < numberOfEdgeSections; i++)
-    {
-        EdgeSection tempEdge;
-        tempEdge.randomPos = i % 1024;
-        array[i] = tempEdge;
-    }
-    segment.edges.numberOfItems = numberOfEdgeSections;
+    segment.randomIntValues.numberOfItems = numberOfRandValues;
 
     return true;
 }
@@ -159,12 +158,13 @@ initEdgeSectionBlocks(Segment &segment,
  */
 bool
 initSynapseSectionBlocks(Segment &segment,
-                         const uint32_t numberOfSynapseSections)
+                         const uint32_t numberOfSynapseSections,
+                         const uint32_t numberOfNodes)
 {
     assert(numberOfSynapseSections > 0);
 
     // init
-    segment.synapses.dynamic = true;
+    // segment.synapses.dynamic = true;
     if(segment.synapses.initBuffer<SynapseSection>(numberOfSynapseSections) == false) {
         return false;
     }
@@ -178,70 +178,29 @@ initSynapseSectionBlocks(Segment &segment,
     }
     segment.synapses.numberOfItems = numberOfSynapseSections;
 
+    Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
+    for(uint32_t i = 0; i < numberOfNodes; i++)
+    {
+        array[i].status = ACTIVE_SECTION;
+        array[i].randomPos = rand() % 1024;
+        const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
+        array[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
+    }
+
+
+    const uint32_t outputSynSec = numberOfNodes / KyoukoRoot::m_segment->numberOfNodeBricks;
+    if(segment.outputSynapses.initBuffer<OutputSynapseSection>(outputSynSec) == false) {
+        return false;
+    }
+
+    // fill array with empty synapsesections
+    OutputSynapseSection* outarray = getBuffer<OutputSynapseSection>(segment.outputSynapses);
+    for(uint32_t i = 0; i < outputSynSec; i++)
+    {
+        OutputSynapseSection newSection;
+        outarray[i] = newSection;
+    }
+
     return true;
 }
 
-/**
- * @brief initTransferBlocks
- * @param segment
- * @param totalNumberOfAxons
- * @param maxNumberOySynapseSections
- * @return
- */
-bool
-initTransferBlocks(Segment &segment,
-                   const uint32_t totalNumberOfAxons,
-                   const uint64_t maxNumberOySynapseSections)
-{
-    //----------------------------------------------------------------------------------------------
-
-    // init device-to-host-buffer
-    if(segment.axonTransfers.initBuffer<AxonTransfer>(totalNumberOfAxons) == false) {
-        return false;
-    }
-
-    // fill array with empty values
-    AxonTransfer* axonArray = getBuffer<AxonTransfer>(segment.axonTransfers);
-    for(uint32_t i = 0; i < totalNumberOfAxons; i++)
-    {
-        AxonTransfer newEdge;
-        axonArray[i] = newEdge;
-    }
-    segment.axonTransfers.numberOfItems = totalNumberOfAxons;
-
-    //----------------------------------------------------------------------------------------------
-
-    // init host-to-device-buffer
-    if(segment.synapseTransfers.initBuffer<SynapseTransfer>(maxNumberOySynapseSections) == false) {
-        return false;
-    }
-
-    // fill array with empty values
-    SynapseTransfer* synapseArray = getBuffer<SynapseTransfer>(segment.synapseTransfers);
-    for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
-    {
-        SynapseTransfer newSynapseTransfer;
-        synapseArray[i] = newSynapseTransfer;
-    }
-    segment.synapseTransfers.numberOfItems = maxNumberOySynapseSections;
-
-    //----------------------------------------------------------------------------------------------
-
-    // init host-to-device-buffer
-    if(segment.updateTransfers.initBuffer<UpdateTransfer>(maxNumberOySynapseSections) == false) {
-        return false;
-    }
-
-    // fill array with empty values
-    UpdateTransfer* updateArray = getBuffer<UpdateTransfer>(segment.updateTransfers);
-    for(uint32_t i = 0; i < maxNumberOySynapseSections; i++)
-    {
-        UpdateTransfer newUpdateTransfer;
-        updateArray[i] = newUpdateTransfer;
-    }
-    segment.updateTransfers.numberOfItems = maxNumberOySynapseSections;
-
-    //----------------------------------------------------------------------------------------------
-
-    return true;
-}

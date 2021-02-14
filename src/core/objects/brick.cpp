@@ -24,7 +24,6 @@
 
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
-#include <core/objects/edges.h>
 #include <core/objects/global_values.h>
 
 #include <core/objects/monitoring_container.h>

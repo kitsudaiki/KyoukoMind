@@ -33,12 +33,8 @@ bool initGlobalValues(Segment &segment);
 bool initNodeBlocks(Segment &segment,
                     const uint32_t &numberOfNodes);
 bool initRandomValues(Segment &segment);
-bool initEdgeSectionBlocks(Segment &segment,
-                           const uint32_t numberOfEdgeSections);
 bool initSynapseSectionBlocks(Segment &segment,
-                              const uint32_t numberOfSynapseSections);
-bool initTransferBlocks(Segment &segment,
-                        const uint32_t totalNumberOfAxons,
-                        const uint64_t maxNumberOySynapseSections);
+                              const uint32_t numberOfSynapseSections,
+                              const uint32_t numberOfNodes);
 
 #endif // SEGMENT_INITIALIZING_H

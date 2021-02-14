@@ -25,7 +25,6 @@
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
 #include <core/objects/global_values.h>
-#include <core/objects/transfer_objects.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <core/connection_handler/client_connection_handler.h>
@@ -41,24 +40,19 @@ InputOutputProcessing::InputOutputProcessing()
 void
 InputOutputProcessing::processInputMapping()
 {
-    // prepare pointer
-    Segment* segment = KyoukoRoot::m_segment;
-    AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
-    Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
+    while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
 
     // insert input-values from brick
     for(uint32_t i = 0; i < m_inputMapper.size(); i++)
     {
         InpuMapper mapper = m_inputMapper[i];
-
-        for(uint32_t pos = mapper.start; pos < mapper.end; pos++)
-        {
-            uint32_t index = pos - mapper.start;
-            const float multi = static_cast<float>(pow(1.05, static_cast<double>(index % 10)));
-            axonTransfers[pos].weight = mapper.value * multi;
-            axonTransfers[pos].brickId = inputBrick->brickId;
+        for(uint32_t pos = mapper.start; pos < mapper.end; pos++) {
+            inputNodes[pos] = mapper.value;
         }
     }
+
+    KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
 }
 
 /**
@@ -67,36 +61,14 @@ InputOutputProcessing::processInputMapping()
 void
 InputOutputProcessing::processOutputMapping()
 {
-    // prepare pointer
-    Segment* segment = KyoukoRoot::m_segment;
-    AxonTransfer* axonTransfers = getBuffer<AxonTransfer>(segment->axonTransfers);
-
-    // insert input-values from brick
-    for(uint32_t i = 0; i < m_outputMapper.size(); i++)
-    {
-        OutputMapper* mapper = &m_outputMapper[i];
-
-        float summedOutput = 0.0f;
-
-        for(uint32_t pos = mapper->start; pos < mapper->end; pos++) {
-            summedOutput += axonTransfers[pos].weight;
-            //std::cout<<"pos: "<<pos<<std::endl;
-        }
-
-        // make result smooth
-        mapper->outBuffer[mapper->outBufferPos] = summedOutput;
-        mapper->outBufferPos = (mapper->outBufferPos + 1) % 2;
-
-        float result = 0.0f;
-        for(uint32_t x = 0; x < 2; x++) {
-            result += mapper->outBuffer[x];
-        }
-        result /= 2.0f;
-
-        KyoukoRoot::m_clientHandler->sendToClient(std::to_string(result));
-        LOG_WARNING("-----------------------------------------------");
-        LOG_WARNING("output: " + std::to_string(result));
-    }
+    //KyoukoRoot::m_clientHandler->sendToClient(std::to_string(KyoukoRoot::m_segment->outputValue));
+    LOG_WARNING("-----------------------------------------------");
+    LOG_WARNING("should0: " + std::to_string(KyoukoRoot::m_segment->shouldValue[0]));
+    LOG_WARNING("output0: " + std::to_string(KyoukoRoot::m_segment->outputValue[0]));
+    LOG_WARNING("should1: " + std::to_string(KyoukoRoot::m_segment->shouldValue[1]));
+    LOG_WARNING("output1: " + std::to_string(KyoukoRoot::m_segment->outputValue[1]));
+    LOG_WARNING("should2: " + std::to_string(KyoukoRoot::m_segment->shouldValue[2]));
+    LOG_WARNING("output2: " + std::to_string(KyoukoRoot::m_segment->outputValue[2]));
 }
 
 /**
@@ -108,6 +80,8 @@ InputOutputProcessing::setInput(const std::string &input)
 {
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
+    while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
     const char* inputChar = input.c_str();
     for(uint32_t i = 0; i < input.size(); i++)
     {
@@ -118,6 +92,8 @@ InputOutputProcessing::setInput(const std::string &input)
             m_inputMapper[i].value = 0.0f;
         }
     }
+
+    KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
 }
 
 /**

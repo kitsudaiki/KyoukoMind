@@ -89,12 +89,9 @@ HEADERS += \
     src/core/objects/item_buffer.h \
     src/core/objects/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
-    src/core/processing/cpu/edge_processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
-    src/core/objects/edges.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
-    src/core/objects/transfer_objects.h \
     src/core/processing/processing_unit_handler.h \
     src/core/network_manager.h \
     src/import_export/obj_converter.h \
@@ -119,7 +116,8 @@ HEADERS += \
     src/core/objects/monitoring_container.h \
     src/initializing/blossom_initializing.h \
     src/core/processing/input_output_processing.h \
-    src/core/processing/cpu/synapse_processing.h
+    src/core/processing/cpu/synapse_processing.h \
+    src/core/processing/cpu/output_synapse_processing.h
 
 SOURCES += \
     src/core/objects/brick.cpp \

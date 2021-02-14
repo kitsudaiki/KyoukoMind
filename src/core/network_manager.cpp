@@ -47,9 +47,9 @@ using std::chrono::duration_cast;
  */
 NetworkManager::NetworkManager()
 {
-    m_phase1 = new Kitsunemimi::Barrier(3);
-    m_phase2 = new Kitsunemimi::Barrier(3);
-    m_phase3 = new Kitsunemimi::Barrier(3);
+    m_phase1 = new Kitsunemimi::Barrier(2);
+    m_phase2 = new Kitsunemimi::Barrier(2);
+    m_phase3 = new Kitsunemimi::Barrier(2);
 
     m_processingUnitHandler = new ProcessingUnitHandler();
 
@@ -70,6 +70,12 @@ NetworkManager::run()
     std::chrono::high_resolution_clock::time_point synapseStart;
     std::chrono::high_resolution_clock::time_point synapseEnd;
 
+    KyoukoRoot::m_ioHandler->registerInput(6, 10);
+    KyoukoRoot::m_ioHandler->registerOutput(1, 1000);
+    std::string errorMessage = "";
+    KyoukoRoot::m_root->learn("aaaaaxx", "", errorMessage);
+
+
     uint32_t time = PROCESS_INTERVAL;
     while(!m_abort)
     {
@@ -83,7 +89,7 @@ NetworkManager::run()
         float newLearningValue = 0.0f;
         if(KyoukoRoot::m_freezeState)
         {
-            newLearningValue = 0.5f;
+            newLearningValue = 5.0f;
             KyoukoRoot::m_freezeState = false;
         }
         globalValues->lerningValue = newLearningValue;
@@ -123,7 +129,6 @@ NetworkManager::run()
         const uint64_t numberOfSynapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
         KyoukoRoot::monitoringMetaMessage.synapseSections = numberOfSynapseSections;
         KyoukoRoot::monitoringMetaMessage.nodes = KyoukoRoot::m_segment->nodes.numberOfItems;
-        KyoukoRoot::monitoringMetaMessage.edgeSections = KyoukoRoot::m_segment->edges.numberOfItems;
 
         // monitoring-output
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();

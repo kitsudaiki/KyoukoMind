@@ -75,7 +75,7 @@ ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* phase1,
     }
 
     // init gpu
-    m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
+    /*m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
     for(uint16_t i = 0; i < m_gpuHandler->m_interfaces.size(); i++)
     {
         GpuProcessingUnit* newUnit = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(i));
@@ -93,7 +93,7 @@ ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* phase1,
         newUnit->m_phase3 = phase3;
 
         newUnit->startThread();
-    }
+    }*/
 
     return true;
 }

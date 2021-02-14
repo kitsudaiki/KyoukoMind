@@ -43,12 +43,17 @@ public:
     // host-representation of permanent gpu-data
     ItemBuffer nodes;
     ItemBuffer synapses;
-    ItemBuffer edges;
+    ItemBuffer outputSynapses;
 
-    // transfer-buffer for gpu-interaction
-    ItemBuffer axonTransfers;
-    ItemBuffer updateTransfers;
-    ItemBuffer synapseTransfers;
+    ItemBuffer nodeProcessingBuffer;
+    ItemBuffer nodeInputBuffer;
+    ItemBuffer nodeOutputBuffer;
+
+    float outputValue[3] = {0.0f, 0.0f, 0.0f};
+    float shouldValue[3] = {0.0f, 0.0f, 0.0f};
+    bool doLearn = false;
+
+    std::atomic_flag input_lock = ATOMIC_FLAG_INIT;
 
     // other
     ItemBuffer randomIntValues;

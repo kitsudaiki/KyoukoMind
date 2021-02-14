@@ -87,10 +87,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    if(initEdgeSectionBlocks(*segment, totalNumberOfNodes) == false) {
-        return false;
-    }
-
     // init bricks
     initBricks(*segment, numberOfBricks);
     segment->nodeBricks = new Brick*[parsedContent.numberOfNodeBricks];
@@ -103,17 +99,15 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     createAxons(*segment);
 
     // init synapses
-    if(initSynapseSectionBlocks(*segment, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
+    if(initSynapseSectionBlocks(*segment,
+                                MAX_NUMBER_OF_SYNAPSE_SECTIONS,
+                                totalNumberOfNodes) == false)
+    {
         return false;
     }
 
     // mark all synapses als delted to make them usable
     if(segment->synapses.deleteAll() == false) {
-        return false;
-    }
-
-    // init buffer for data-transfer between host and gpu
-    if(initTransferBlocks(*segment, totalNumberOfNodes, MAX_NUMBER_OF_SYNAPSE_SECTIONS) == false) {
         return false;
     }
 
@@ -138,6 +132,7 @@ NetworkInitializer::addBricks(Segment &segment,
         brick.brickId = metaBase.bricks[i].brickId;
         brick.nodeBrickId = metaBase.bricks[i].nodeBrickId;
         brick.isOutputBrick = metaBase.bricks[i].isOutputBrick;
+        brick.isMidBrick = metaBase.bricks[i].isMidBrick;
         brick.isInputBrick = metaBase.bricks[i].isInputBrick;
 
         // copy position
@@ -162,7 +157,25 @@ NetworkInitializer::addBricks(Segment &segment,
             {
                 Node* array = getBuffer<Node>(segment.nodes);
                 for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
+                    array[i + nodePos].border = -2.0f;
+                }
+            }
+
+            // handle mid-brick
+            if(brick.isMidBrick)
+            {
+                Node* array = getBuffer<Node>(segment.nodes);
+                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
                     array[i + nodePos].border = -1.0f;
+                }
+            }
+
+            // handle input-brick
+            if(brick.isInputBrick)
+            {
+                Node* array = getBuffer<Node>(segment.nodes);
+                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
+                    array[i + nodePos].border = 0.0f;
                 }
             }
         }
@@ -211,7 +224,6 @@ NetworkInitializer::createAxons(Segment &segment)
 {
     GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Brick* bricks = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    EdgeSection* edges = getBuffer<EdgeSection>(KyoukoRoot::m_segment->edges);
     Node* nodes = getBuffer<Node>(segment.nodes);
 
     // calculate number of axons per brick
@@ -241,7 +253,7 @@ NetworkInitializer::createAxons(Segment &segment)
             const double dist = std::sqrt(x + y + z);
 
             // set source and target in related nodes and edges
-            edges[pos + nodePos].axonBrickId = axonBrick->brickId;
+            //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
             nodes[pos + nodePos].brickId = sourceBrick->brickId;
             nodes[pos + nodePos].targetBrickDistance = static_cast<uint32_t>(dist);
 
