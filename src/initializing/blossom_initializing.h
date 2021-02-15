@@ -40,7 +40,7 @@
 
 #include <src/blossoms/snapshot/snapshot_blossom.h>
 
-#include <src/blossoms/special/freeze_state_blossom.h>
+#include <src/blossoms/special/set_input_blossom.h>
 #include <src/blossoms/special/learn_blossom.h>
 #include <src/blossoms/special/special_blossoms.h>
 
@@ -59,7 +59,7 @@ initSpecialBlossoms()
     assert(interface->addBlossom("special", "item_update", new ItemUpdateBlossom()));
 
     assert(interface->addBlossom("special", "learn", new LearnBlossom()));
-    assert(interface->addBlossom("special", "freeze_state", new FreezeStateBlossom()));
+    assert(interface->addBlossom("special", "set_input", new SetInputBlossom()));
 }
 
 /**

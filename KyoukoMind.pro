@@ -111,13 +111,13 @@ HEADERS += \
     src/core/connection_handler/client_connection_handler.h \
     src/blossoms/special/special_blossoms.h \
     src/blossoms/global_values/set_global_values_blossom.h \
-    src/blossoms/special/freeze_state_blossom.h \
     src/blossoms/snapshot/snapshot_blossom.h \
     src/core/objects/monitoring_container.h \
     src/initializing/blossom_initializing.h \
     src/core/processing/input_output_processing.h \
     src/core/processing/cpu/synapse_processing.h \
-    src/core/processing/cpu/output_synapse_processing.h
+    src/core/processing/cpu/output_synapse_processing.h \
+    src/blossoms/special/set_input_blossom.h
 
 SOURCES += \
     src/core/objects/brick.cpp \
@@ -139,10 +139,10 @@ SOURCES += \
     src/core/connection_handler/monitoring_connection_handler.cpp \
     src/core/connection_handler/client_connection_handler.cpp \
     src/blossoms/global_values/set_global_values_blossom.cpp \
-    src/blossoms/special/freeze_state_blossom.cpp \
     src/blossoms/snapshot/snapshot_blossom.cpp \
     src/blossoms/special/special_blossoms.cpp \
-    src/core/processing/input_output_processing.cpp
+    src/core/processing/input_output_processing.cpp \
+    src/blossoms/special/set_input_blossom.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

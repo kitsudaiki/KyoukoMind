@@ -53,6 +53,7 @@ CpuProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
     bool learnSuccess = false;
+    uint32_t learnCounter = 0;
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     while(m_abort == false)
@@ -60,8 +61,10 @@ CpuProcessingUnit::run()
         m_phase1->triggerBarrier();
 
         m_phase2->triggerBarrier();
-        if(learnSuccess) {
+        if(learnSuccess)
+        {
             globalValue->lerningValue = 100.0f;
+            learnCounter = 5;
         }
 
         start = std::chrono::system_clock::now();
@@ -70,7 +73,12 @@ CpuProcessingUnit::run()
         KyoukoRoot::m_segment->outputValue[2] = 0.0f;
         node_processing();
         learnSuccess = output_node_processing();
-        globalValue->lerningValue = 0.0f;
+
+        if(learnCounter > 0) {
+            learnCounter--;
+        } else {
+            globalValue->lerningValue = 0.0f;
+        }
         if(learnSuccess)
         {
             KyoukoRoot::m_segment->shouldValue[0] = 0.0f;
