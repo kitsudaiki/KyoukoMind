@@ -1,3 +1,25 @@
+﻿/**
+ * @file        synapse_processing.h
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 #ifndef SYNAPSE_PROCESSING_H
 #define SYNAPSE_PROCESSING_H
 
@@ -37,9 +59,11 @@ findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
             synapseSections[oldSectionId].next = i;
 
             const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
-            synapseSections->nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
+            synapseSections[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
 
-            std::cout<<"create"<<std::endl;
+            assert(synapseSections->nodeBrickId != UNINIT_STATE_32);
+
+            //std::cout<<"create"<<std::endl;
             return true;
         }
     }
@@ -68,8 +92,6 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
 
     SynapseSection emptyEdge;
     synapseSections[pos] = emptyEdge;
-
-    std::cout<<"delete"<<std::endl;
 }
 
 /**
@@ -102,8 +124,9 @@ synapseProcessing(const uint32_t sectionPos,
 
             // set new weight
             const float random = (rand() % 1024) / 1024.0f;
-            const float usedLearn = (weight < 5.0f) * weight
+            float usedLearn = (weight < 5.0f) * weight
                                     + (weight >= 5.0f) * ((weight * random) + 1.0f);
+            usedLearn = fmod(usedLearn, 10.0f);
             synapse->dynamicWeight = usedLearn;
 
             // get random node-id as target
