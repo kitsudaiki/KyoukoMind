@@ -52,6 +52,9 @@ outputSynapseProcessing(const uint32_t sectionPos,
         float newHardening = synapse->hardening + globalValue->lerningValue;
         newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
         synapse->hardening = newHardening;
+        if(synapse->hardening == 1.0f) {
+            synapse->newOne = 0;
+        }
 
         float ratio = weight / synapse->weightIn;
         ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;

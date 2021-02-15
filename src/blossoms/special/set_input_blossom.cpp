@@ -1,5 +1,5 @@
 /**
- * @file        freeze_state_blossom.cpp
+ * @file        set_input_blossom.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,26 +20,29 @@
  *      limitations under the License.
  */
 
-#include "freeze_state_blossom.h"
+#include "set_input_blossom.h"
 
 #include <libKitsunemimiPersistence/logger/logger.h>
-
-#include <core/objects/segment.h>
 #include <kyouko_root.h>
+#include <core/processing/input_output_processing.h>
 
 using namespace Kitsunemimi::Sakura;
 
-FreezeStateBlossom::FreezeStateBlossom()
+SetInputBlossom::SetInputBlossom()
+    : Kitsunemimi::Sakura::Blossom()
 {
+    validationMap.emplace("input", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
 }
 
 bool
-FreezeStateBlossom::runTask(BlossomLeaf &,
-                            std::string &)
+SetInputBlossom::runTask(BlossomLeaf &blossomLeaf,
+                         std::string &errorMessage)
 {
-    LOG_DEBUG("freeze current state");
+    LOG_DEBUG("set input");
 
-    KyoukoRoot::m_freezeState = true;
+    const std::string input = blossomLeaf.input.get("input")->toValue()->getString();
+
+    KyoukoRoot::m_ioHandler->setInput(input);
 
     return true;
 }

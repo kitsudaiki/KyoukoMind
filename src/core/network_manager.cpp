@@ -71,10 +71,8 @@ NetworkManager::run()
     std::chrono::high_resolution_clock::time_point synapseEnd;
 
     KyoukoRoot::m_ioHandler->registerInput(6, 10);
-    KyoukoRoot::m_ioHandler->registerOutput(1, 1000);
+    KyoukoRoot::m_ioHandler->registerOutput(3, 100);
     std::string errorMessage = "";
-    KyoukoRoot::m_root->learn("aaaaaxx", "", errorMessage);
-
 
     uint32_t time = PROCESS_INTERVAL;
     while(!m_abort)

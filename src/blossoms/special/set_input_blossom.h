@@ -1,5 +1,5 @@
 /**
- * @file        freeze_state_blossom.h
+ * @file        set_input_blossom.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,20 +20,20 @@
  *      limitations under the License.
  */
 
-#ifndef FREEZE_STATE_BLOSSOM_H
-#define FREEZE_STATE_BLOSSOM_H
+#ifndef SET_INPUT_BLOSSOM_H
+#define SET_INPUT_BLOSSOM_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class FreezeStateBlossom
+class SetInputBlossom
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    FreezeStateBlossom();
+    SetInputBlossom();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &,
-                 std::string &);
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
+                 std::string &errorMessage);
 };
 
-#endif // FREEZE_STATE_BLOSSOM_H
+#endif // SET_INPUT_BLOSSOM_H
