@@ -150,6 +150,9 @@ output_node_processing()
             outputSynapseLearn(i, diff, outputNodes[i]);
         }
 
+        // IMPORTANT: if this value is too high, the learning is too fast and produce incomplete
+        //            learnings, which results in bad results
+        // TODO: one diff for each lane instead of an complete diff
         if(totalDiff < 0.001f) {
             return true;
         }

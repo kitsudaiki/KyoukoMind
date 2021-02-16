@@ -132,6 +132,11 @@ NetworkManager::run()
         const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
         KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
         KyoukoRoot::m_monitoringHandler->sendToMonitoring();
+
+        const std::string output = std::to_string(KyoukoRoot::m_segment->outputValue[0])
+                                   + " | " + std::to_string(KyoukoRoot::m_segment->outputValue[1])
+                                   + " | " + std::to_string(KyoukoRoot::m_segment->outputValue[2]);
+        KyoukoRoot::m_clientHandler->sendToClient(output);
     }
 }
 

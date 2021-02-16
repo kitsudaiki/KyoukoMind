@@ -126,7 +126,9 @@ synapseProcessing(const uint32_t sectionPos,
             const float random = (rand() % 1024) / 1024.0f;
             float usedLearn = (weight < 5.0f) * weight
                                     + (weight >= 5.0f) * ((weight * random) + 1.0f);
-            usedLearn = fmod(usedLearn, 10.0f);
+            // TODO: test with changed learn-value. there seems to be something broken
+            // in the section overflow
+            // usedLearn = fmod(usedLearn, 10.0f);
             synapse->dynamicWeight = usedLearn;
 
             // get random node-id as target
