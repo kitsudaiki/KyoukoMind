@@ -239,9 +239,15 @@ NetworkInitializer::createAxons(Segment &segment)
         // iterate over all nodes of the brick and create an axon for each node
         for(uint32_t nodePos = 0; nodePos < globalValues->numberOfNodesPerBrick; nodePos++)
         {
-            // get random brick as target for the axon
-            const uint32_t randPos = static_cast<uint32_t>(rand()) % segment.bricks.numberOfItems;
-            Brick* axonBrick = &bricks[randPos];
+            Brick* axonBrick = nullptr;
+
+            do {
+                // get random brick as target for the axon
+                const uint32_t randPos = static_cast<uint32_t>(rand()) % segment.bricks.numberOfItems;
+                axonBrick = &bricks[randPos];
+            }
+            while(sourceBrick->isInputBrick
+                  && axonBrick->isOutputBrick);
 
             // calculate distance with pythagoras
             int32_t x = axonBrick->brickPos.x - sourceBrick->brickPos.x;
