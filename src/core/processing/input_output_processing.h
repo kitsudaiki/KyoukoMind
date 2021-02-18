@@ -35,35 +35,11 @@ public:
 
     void setInput(const std::string& input);
 
-    void registerInput(const uint32_t numberOfInput, const uint32_t inputSize);
-    void registerOutput(const uint32_t numberOfOutputs, const uint32_t outputSize);
+    void registerInput(const uint32_t numberOfInput);
+    void registerOutput(const uint32_t numberOfOutputs);
 
 private:
-    struct InpuMapper
-    {
-        float value = 0.0f;
-        uint32_t start = 0;
-        uint32_t end = 0;
-    };
-
-    struct OutputMapper
-    {
-        float outBuffer[10];
-        uint8_t outBufferPos = 0;
-
-        uint32_t start = 0;
-        uint32_t end = 0;
-    };
-
-    std::vector<InpuMapper> m_inputMapper;
-    std::vector<OutputMapper> m_outputMapper;
-
-
-    std::vector<float> m_inputs;
-    std::atomic_flag m_input_lock = ATOMIC_FLAG_INIT;
-
-    std::vector<float> m_outputs;
-    std::atomic_flag m_output_lock = ATOMIC_FLAG_INIT;
+    std::vector<float> m_inputMapper;
 };
 
 #endif // INPUT_OUTPUT_PROCESSING_H

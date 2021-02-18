@@ -41,7 +41,7 @@ RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("register input");
 
-    KyoukoRoot::m_ioHandler->registerInput(6, 10);
+    KyoukoRoot::m_ioHandler->registerInput(6);
     blossomLeaf.output.insert("pos", new DataValue(static_cast<int>(0)));
 
     return true;
