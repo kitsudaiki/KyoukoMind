@@ -132,7 +132,6 @@ NetworkInitializer::addBricks(Segment &segment,
         brick.brickId = metaBase.bricks[i].brickId;
         brick.nodeBrickId = metaBase.bricks[i].nodeBrickId;
         brick.isOutputBrick = metaBase.bricks[i].isOutputBrick;
-        brick.isMidBrick = metaBase.bricks[i].isMidBrick;
         brick.isInputBrick = metaBase.bricks[i].isInputBrick;
 
         // copy position
@@ -158,15 +157,6 @@ NetworkInitializer::addBricks(Segment &segment,
                 Node* array = getBuffer<Node>(segment.nodes);
                 for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
                     array[i + nodePos].border = -2.0f;
-                }
-            }
-
-            // handle mid-brick
-            if(brick.isMidBrick)
-            {
-                Node* array = getBuffer<Node>(segment.nodes);
-                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
-                    array[i + nodePos].border = -1.0f;
                 }
             }
 

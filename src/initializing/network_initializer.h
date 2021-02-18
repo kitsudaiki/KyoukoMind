@@ -25,7 +25,6 @@
 
 #include <common.h>
 
-class BrickQueue;
 class Segment;
 
 namespace Kitsunemimi {
