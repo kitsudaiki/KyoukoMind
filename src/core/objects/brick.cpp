@@ -74,11 +74,6 @@ Brick::Brick(const Brick &other)
         this->nodePos = other.nodePos;
 
         this->nodeActivity = other.nodeActivity;
-        this->synapseActivity = other.synapseActivity;
-        this->edgeCreateActivity = other.edgeCreateActivity;
-        this->edgeDeleteActivity = other.edgeDeleteActivity;
-        this->synapseCreateActivity = other.synapseCreateActivity;
-        this->synapseDeleteActivity = other.synapseDeleteActivity;
 
         for(uint32_t i = 0; i < 12; i++) {
             this->neighbors[i] = other.neighbors[i];
@@ -106,11 +101,6 @@ Brick
         this->nodePos = other.nodePos;
 
         this->nodeActivity = other.nodeActivity;
-        this->synapseActivity = other.synapseActivity;
-        this->edgeCreateActivity = other.edgeCreateActivity;
-        this->edgeDeleteActivity = other.edgeDeleteActivity;
-        this->synapseCreateActivity = other.synapseCreateActivity;
-        this->synapseDeleteActivity = other.synapseDeleteActivity;
 
         for(uint32_t i = 0; i < 12; i++) {
             this->neighbors[i] = other.neighbors[i];

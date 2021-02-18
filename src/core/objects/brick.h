@@ -59,11 +59,6 @@ public:
     uint32_t nodePos = UNINIT_STATE_32;
 
     uint32_t nodeActivity = 0;
-    uint32_t synapseActivity = 0;
-    uint32_t edgeCreateActivity = 0;
-    uint32_t edgeDeleteActivity = 0;
-    uint32_t synapseCreateActivity = 0;
-    uint32_t synapseDeleteActivity = 0;
 
     //----------------------------------------------------------------------------------------------
 

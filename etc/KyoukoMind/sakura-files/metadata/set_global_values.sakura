@@ -4,7 +4,6 @@
 - glia_value = ""
 - sensitivity = ""
 - memorizing_offset = ""
-- output_index = ""
 
 global_values("set global values")
 -> set:
@@ -13,4 +12,3 @@ global_values("set global values")
     - glia_value = glia_value
     - sensitivity = sensitivity
     - memorizing_offset = memorizing_offset
-    - output_index = output_index
