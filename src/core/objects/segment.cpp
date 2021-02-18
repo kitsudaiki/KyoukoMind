@@ -62,33 +62,3 @@ Segment::getMetadata()
 
     return result;
 }
-
-/**
- * @brief BrickHandler::connect
- * @param sourceBrickId
- * @param sourceSide
- * @param targetBrickId
- * @return
- */
-bool
-Segment::connectBricks(const uint32_t sourceBrickId,
-                              const uint8_t sourceSide,
-                              const uint32_t targetBrickId)
-{
-    Brick* sourceBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[sourceBrickId];
-    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[targetBrickId];
-    return sourceBrick->connectBricks(sourceSide, *targetBrick);
-}
-
-/**
- * disconnect two bricks from the handler from each other
- *
- * @return result of the sub-call
- */
-bool
-Segment::disconnectBricks(const uint32_t sourceBrickId,
-                                 const uint8_t sourceSide)
-{
-    Brick* sourceBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[sourceBrickId];
-    return sourceBrick->disconnectBricks(sourceSide);
-}

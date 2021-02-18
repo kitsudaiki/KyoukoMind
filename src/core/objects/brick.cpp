@@ -158,78 +158,6 @@ Brick::initNeighborList()
 }
 
 /**
- * connect two bricks by initialing the neighbors betweens the two bricks
- *
- * @return true, if successful, else false
- */
-bool
-Brick::connectBricks(const uint8_t sourceSide,
-                     Brick &targetBrick)
-{
-    assert(sourceSide < 12);
-
-    // check neighbors
-    if(neighbors[sourceSide] != UNINIT_STATE_32
-            || targetBrick.neighbors[11 - sourceSide] != UNINIT_STATE_32)
-    {
-        return false;
-    }
-
-    // init the new neighbors
-    this->initNeighbor(sourceSide,
-                       targetBrick.brickId);
-    targetBrick.initNeighbor(11 - sourceSide,
-                             this->brickId);
-
-    return true;
-}
-
-/**
- * remove the connection between two neighbors
- *
- * @return true, if successful, else false
- */
-bool
-Brick::disconnectBricks(const uint8_t sourceSide)
-{
-    assert(sourceSide < 12);
-    const uint32_t targetId = neighbors[sourceSide];
-
-    Brick* targetBrick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[targetId];
-
-    // check neighbors
-    if(neighbors[sourceSide] == UNINIT_STATE_32
-            || targetBrick->neighbors[11 - sourceSide] == UNINIT_STATE_32)
-    {
-        return false;
-    }
-
-    // add the new neighbor
-    this->uninitNeighbor(sourceSide);
-    targetBrick->uninitNeighbor(11 - sourceSide);
-
-    return true;
-}
-
-
-/**
- * uninitialize a specific neighbor of a brick
- *
- * @return true, if successful, else false
- */
-bool
-Brick::uninitNeighbor(const uint8_t side)
-{
-    if(neighbors[side] == UNINIT_STATE_32) {
-        return false;
-    }
-
-    neighbors[side] = UNINIT_STATE_32;
-
-    return true;
-}
-
-/**
  * @brief Brick::getPossibleNext
  * @param inputSide
  * @return
@@ -381,17 +309,4 @@ Brick::updateMonitoringMetadata()
     KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].xPos = brickPos.x;
     KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].yPos = brickPos.y;
     KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].brickId = brickId;
-}
-
-/**
- * @brief Brick::initNeighbor
- * @param neighbor
- * @param targetBrick
- * @param targetNeighbor
- */
-void
-Brick::initNeighbor(const uint8_t side,
-                    uint32_t targetBrickId)
-{
-    neighbors[side] = targetBrickId;
 }
