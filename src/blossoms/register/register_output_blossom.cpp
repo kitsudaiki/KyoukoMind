@@ -41,7 +41,7 @@ RegisterOutputBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("register output");
 
-    KyoukoRoot::m_ioHandler->registerOutput(1, 1000);
+    KyoukoRoot::m_ioHandler->registerOutput(1);
     blossomLeaf.output.insert("pos", new DataValue(static_cast<int>(0)));
 
     return true;

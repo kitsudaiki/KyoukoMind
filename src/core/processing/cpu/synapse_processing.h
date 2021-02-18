@@ -271,6 +271,7 @@ node_processing()
     float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
     float* nodeProcessingBuffer = getBuffer<float>(KyoukoRoot::m_segment->nodeProcessingBuffer);
     float* outputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
+    Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
 
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
 
@@ -290,6 +291,8 @@ node_processing()
         Node* node = &nodes[i];
         if(node->border > 0.0f)
         {
+            nodeBricks[node->nodeBrickId]->nodeActivity++;
+
             // set to 255.0f, if value is too high
             const float cur = node->currentState;
             node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
@@ -323,6 +326,7 @@ node_processing()
         }
         else
         {
+            nodeBricks[node->nodeBrickId]->nodeActivity++;
             outputNodes[i % globalValue->numberOfNodesPerBrick] = node->currentState;
             node->currentState = 0.0f;
         }

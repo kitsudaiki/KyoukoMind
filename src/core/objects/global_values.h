@@ -43,9 +43,7 @@ struct GlobalValues
     float newSynapseBorder = 1.0f;
     float deleteSynapseBorder = 1.0f;
 
-    float outputIndex = 0.0f;
-
-    uint8_t padding[204];
+    uint8_t padding[208];
 };
 
 #endif // GLOBAL_VALUES_HANDLER_H

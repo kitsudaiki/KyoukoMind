@@ -29,10 +29,7 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <core/connection_handler/client_connection_handler.h>
 
-InputOutputProcessing::InputOutputProcessing()
-{
-
-}
+InputOutputProcessing::InputOutputProcessing() {}
 
 /**
  * @brief InputOutputProcessing::processInputMapping
@@ -41,15 +38,12 @@ void
 InputOutputProcessing::processInputMapping()
 {
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+    Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
 
     // insert input-values from brick
-    for(uint32_t i = 0; i < m_inputMapper.size(); i++)
-    {
-        InpuMapper mapper = m_inputMapper[i];
-        for(uint32_t pos = mapper.start; pos < mapper.end; pos++) {
-            inputNodes[pos] = mapper.value;
-        }
+    float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+    for(uint32_t i = 0; i < m_inputMapper.size(); i++) {
+        inputNodes[i + inputBrick->nodePos] = m_inputMapper[i];
     }
 
     KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
@@ -78,18 +72,19 @@ InputOutputProcessing::processOutputMapping()
 void
 InputOutputProcessing::setInput(const std::string &input)
 {
-    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
     const char* inputChar = input.c_str();
-    for(uint32_t i = 0; i < input.size(); i++)
+    for(uint32_t i = 0; i < input.size(); i = i + 2)
     {
-        //const float value = (static_cast<float>(inputChar[i]) - 90.0f) * 10.0f;
-        if(inputChar[i] == 'a') {
-            m_inputMapper[i].value = globalValues->actionPotential;
-        } else {
-            m_inputMapper[i].value = 0.0f;
+        for(uint32_t j = 0; j < 10; j++)
+        {
+            const uint32_t pos = j + i * 10;
+            if(inputChar[i] == '0') {
+                m_inputMapper[pos] = 0;
+            } else {
+                m_inputMapper[pos] = (static_cast<float>(inputChar[i])) * 5.0f;
+            }
         }
     }
 
@@ -102,23 +97,15 @@ InputOutputProcessing::setInput(const std::string &input)
  * @param inputSize
  */
 void
-InputOutputProcessing::registerInput(const uint32_t numberOfInput, const uint32_t inputSize)
+InputOutputProcessing::registerInput(const uint32_t numberOfInput)
 {
-    while(m_input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+    while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
-
-    for(uint32_t i = 0; i < numberOfInput; i++)
-    {
-        const uint32_t pos = i * inputSize + inputBrick->nodePos;
-        InpuMapper mapper;
-        mapper.start = pos;
-        mapper.end = pos + inputSize;
-
-        m_inputMapper.push_back(mapper);
+    for(uint32_t i = 0; i < numberOfInput * 20; i++) {
+        m_inputMapper.push_back(0.0f);
     }
 
-    m_input_lock.clear(std::memory_order_release);
+    KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
 }
 
 /**
@@ -127,23 +114,9 @@ InputOutputProcessing::registerInput(const uint32_t numberOfInput, const uint32_
  * @param outputSize
  */
 void
-InputOutputProcessing::registerOutput(const uint32_t numberOfOutputs, const uint32_t outputSize)
+InputOutputProcessing::registerOutput(const uint32_t numberOfOutputs)
 {
-    while(m_output_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-
     Brick* outputBrick = KyoukoRoot::m_segment->outputBricks[0];
 
-    for(uint32_t i = 0; i < numberOfOutputs; i++)
-    {
-        const uint32_t pos = i * outputSize + outputBrick->nodePos;
-
-        OutputMapper mapper;
-        mapper.start = pos;
-        mapper.end = pos + outputSize;
-
-        m_outputMapper.push_back(mapper);
-    }
-
-    m_output_lock.clear(std::memory_order_release);
 }
 

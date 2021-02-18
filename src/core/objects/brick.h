@@ -59,11 +59,6 @@ public:
     uint32_t nodePos = UNINIT_STATE_32;
 
     uint32_t nodeActivity = 0;
-    uint32_t synapseActivity = 0;
-    uint32_t edgeCreateActivity = 0;
-    uint32_t edgeDeleteActivity = 0;
-    uint32_t synapseCreateActivity = 0;
-    uint32_t synapseDeleteActivity = 0;
 
     //----------------------------------------------------------------------------------------------
 
@@ -79,16 +74,8 @@ public:
 
     uint32_t getRandomNeighbor(const uint32_t location, const bool random = false);
 
-    bool connectBricks(const uint8_t sourceSide,
-                       Brick &targetBrick);
-    bool disconnectBricks(const uint8_t sourceSide);
-
 private:
     void initNeighborList();
-
-    void initNeighbor(const uint8_t side,
-                      uint32_t targetBrickId);
-    bool uninitNeighbor(const uint8_t side);
 
     const PossibleNext getPossibleNext(const uint8_t inputSide, const bool random = false);
     void updateMonitoringMetadata();
