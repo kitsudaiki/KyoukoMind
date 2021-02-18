@@ -250,7 +250,7 @@ NetworkInitializer::createAxons(Segment &segment)
 
             // set source and target in related nodes and edges
             //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
-            nodes[pos + nodePos].brickId = sourceBrick->brickId;
+            nodes[pos + nodePos].nodeBrickId = sourceBrick->nodeBrickId;
             nodes[pos + nodePos].targetBrickDistance = static_cast<uint32_t>(dist);
 
             // post-check
