@@ -83,7 +83,7 @@ InputOutputProcessing::setInput(const std::string &input)
             if(inputChar[i] == '0') {
                 m_inputMapper[pos] = 0;
             } else {
-                m_inputMapper[pos] = (static_cast<float>(inputChar[i])) * 5.0f;
+                m_inputMapper[pos] = (static_cast<float>(inputChar[i])) * 10.0f;
             }
         }
     }
