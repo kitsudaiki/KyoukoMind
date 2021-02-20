@@ -61,7 +61,7 @@ findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
             const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
             synapseSections[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
 
-            assert(synapseSections->nodeBrickId != UNINIT_STATE_32);
+            assert(synapseSections[i].nodeBrickId != UNINIT_STATE_32);
 
             //std::cout<<"create"<<std::endl;
             return true;
@@ -112,6 +112,7 @@ synapseProcessing(const uint32_t sectionPos,
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     uint32_t pos = 0;
+    section->hardening += globalValue->lerningValue;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -120,40 +121,22 @@ synapseProcessing(const uint32_t sectionPos,
         Synapse* synapse = &section->synapses[pos];
         if(synapse->targetNodeId == UNINIT_STATE_16)
         {
-            synapse->hardening = 0.0f;
-
             // set new weight
-            const float random = (rand() % 1024) / 1024.0f;
-            float usedLearn = (weight < 5.0f) * weight
-                                    + (weight >= 5.0f) * ((weight * random) + 1.0f);
-            // TODO: test with changed learn-value. there seems to be something broken
-            // in the section overflow
-            // usedLearn = fmod(usedLearn, 10.0f);
-            synapse->dynamicWeight = usedLearn;
+            const float maxValue = 20.0f;
+            const float random = ((rand() % 1024) / 1024.0f) * maxValue;
+            synapse->weight = fmod(weight, random);
+            synapse->sign = 1 - (rand() % 2) * 2;
 
             // get random node-id as target
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
                                                  % globalValue->numberOfNodesPerBrick;
             const uint32_t nodeOffset = section->nodeBrickId * globalValue->numberOfNodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
-
-            // sign be random 1 or -1
-            synapse->sign = 1 - (rand() % 2) * 2;
         }
-
-        float newHardening = synapse->hardening + globalValue->lerningValue;
-        newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
-
-        // update static weight value
-        const float hardeningDiff = newHardening - synapse->hardening;
-        const float diff = synapse->dynamicWeight * hardeningDiff;
-        synapse->dynamicWeight -= diff;
-        synapse->staticWeight += diff;
-        synapse->hardening = newHardening;
 
         // 0 because only one thread at the moment
         const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
-        const float synapseWeight = synapse->staticWeight + synapse->dynamicWeight;
+        const float synapseWeight = synapse->weight;
         const float shareWeight = (weight > synapseWeight) * synapseWeight
                                   + (weight <= synapseWeight) * weight;
 
@@ -179,11 +162,11 @@ synapseProcessing(const uint32_t sectionPos,
  * @param sectionPos
  */
 inline void
-updating(const uint32_t sectionPos)
+updating(const uint32_t sectionPos,
+         float hardening)
 {
     SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
-
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
 
@@ -196,34 +179,36 @@ updating(const uint32_t sectionPos)
             continue;
         }
 
-        // update dynamic-weight-value of the synapse
-        if(nodes[synapse->targetNodeId].active == 0) {
-            synapse->dynamicWeight = synapse->dynamicWeight * globalValue->initialMemorizing;
-        } else {
-            synapse->dynamicWeight = synapse->dynamicWeight * 0.95f;
+        if(hardening <= 0.0f)
+        {
+            // update dynamic-weight-value of the synapse
+            if(nodes[synapse->targetNodeId].active == 0) {
+                synapse->weight = synapse->weight * globalValue->initialMemorizing;
+            } else {
+                synapse->weight = synapse->weight * 0.95f;
+            }
+
+            // check for deletion of the single synapse
+            if(synapse->weight < globalValue->deleteSynapseBorder)
+            {
+                synapse->weight = 0.0f;
+                synapse->targetNodeId = UNINIT_STATE_16;
+                synapse->sign = 1;
+            }
+            else
+            {
+                const Synapse currentSyn = section->synapses[currentPos];
+                section->synapses[currentPos] = section->synapses[lastPos];
+                section->synapses[lastPos] = currentSyn;
+                currentPos++;
+            }
         }
 
-        // check for deletion of the single synapse
-        const float synapseWeight = synapse->dynamicWeight + synapse->staticWeight;
-        if(synapseWeight < globalValue->deleteSynapseBorder)
-        {
-            synapse->dynamicWeight = 0.0f;
-            synapse->staticWeight = 0.0f;
-            synapse->targetNodeId = UNINIT_STATE_16;
-            synapse->hardening = 0.0f;
-            synapse->sign = 1;
-        }
-        else
-        {
-            const Synapse currentSyn = section->synapses[currentPos];
-            section->synapses[currentPos] = section->synapses[lastPos];
-            section->synapses[lastPos] = currentSyn;
-            currentPos++;
-        }
+        hardening -= 1.0f;
     }
 
     if(section->next != UNINIT_STATE_32) {
-        updating(section->next);
+        updating(section->next, hardening);
     }
 
     // delete if sections is empty
@@ -255,8 +240,9 @@ triggerSynapseSesction(Node* node,
     }
     else
     {
+        SynapseSection* section = &getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses)[i];
         node->active = 0;
-        updating(i);
+        updating(i, section->hardening);
     }
 }
 
