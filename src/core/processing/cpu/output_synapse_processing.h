@@ -143,12 +143,13 @@ output_node_processing()
     if(globalValue->doLearn != 0)
     {
         float totalDiff = 0.0f;
+        std::cout<<"learn"<<std::endl;
 
         for(uint64_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
         {
             outputs[i].diff = outputs[i].shouldValue - outputs[i].outputValue;
-            outputs[i].diff /= static_cast<float>(outputs[i].newOnes) + 0.0000001f;
             totalDiff += fabs(outputs[i].diff);
+            outputs[i].diff /= static_cast<float>(outputs[i].newOnes) + 0.0000001f;
         }
 
         for(uint32_t i = 0; i < KyoukoRoot::m_segment->nodeOutputBuffer.numberOfItems; i++) {
@@ -158,10 +159,10 @@ output_node_processing()
         for(uint64_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
         {
             outputs[i].diff = outputs[i].shouldValue - outputs[i].outputValue;
-            outputs[i].diff /= static_cast<float>(outputs[i].newOnes) + 0.0000001f;
-            std::cout<<"diff: "<<outputs[i].diff<<std::endl;
-            std::cout<<"new ones: "<<outputs[i].newOnes<<std::endl;
+            // std::cout<<"diff: "<<outputs[i].diff<<std::endl;
+            // std::cout<<"new ones: "<<outputs[i].newOnes<<std::endl;
             totalDiff += fabs(outputs[i].diff);
+            outputs[i].diff /= static_cast<float>(outputs[i].newOnes) + 0.0000001f;
         }
 
         // IMPORTANT: if this value is too high, the learning is too fast and produce incomplete

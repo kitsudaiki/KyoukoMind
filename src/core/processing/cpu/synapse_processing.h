@@ -63,7 +63,7 @@ findNewSectioin(SynapseSection* synapseSections,
             synapseSections[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
             assert(synapseSections[i].nodeBrickId != UNINIT_STATE_32);
 
-            std::cout<<"create"<<std::endl;
+            //std::cout<<"create"<<std::endl;
             return true;
         }
     }
@@ -89,7 +89,7 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
     }
 
     prev->next = section->next;
-    std::cout<<"delete"<<std::endl;
+    //std::cout<<"delete"<<std::endl;
 
     SynapseSection emptyEdge;
     synapseSections[pos] = emptyEdge;
