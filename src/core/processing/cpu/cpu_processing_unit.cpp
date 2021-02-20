@@ -68,9 +68,6 @@ CpuProcessingUnit::run()
         }
 
         start = std::chrono::system_clock::now();
-        KyoukoRoot::m_segment->outputValue[0] = 0.0f;
-        KyoukoRoot::m_segment->outputValue[1] = 0.0f;
-        KyoukoRoot::m_segment->outputValue[2] = 0.0f;
         node_processing();
         learnSuccess = output_node_processing();
 
@@ -79,13 +76,16 @@ CpuProcessingUnit::run()
         } else {
             globalValue->lerningValue = 0.0f;
         }
+
         if(learnSuccess)
         {
-            KyoukoRoot::m_segment->shouldValue[0] = 0.0f;
-            KyoukoRoot::m_segment->shouldValue[1] = 0.0f;
-            KyoukoRoot::m_segment->shouldValue[2] = 0.0f;
-            KyoukoRoot::m_segment->doLearn = false;
+            Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+            for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++) {
+                outputs[i].shouldValue = 0.0f;
+            }
+            globalValue->doLearn = 0;
         }
+
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;

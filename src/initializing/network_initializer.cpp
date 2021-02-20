@@ -78,6 +78,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     const uint32_t numberOfNodeBricks = parsedContent.numberOfNodeBricks;
     GlobalValues* globalValues = getBuffer<GlobalValues>(segment->globalValues);
     const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValues->numberOfNodesPerBrick;
+    segment->numberOfNodesPerBrick = globalValues->numberOfNodesPerBrick;
 
     if(initNodeBlocks(*segment, totalNumberOfNodes) == false) {
         return false;
@@ -102,6 +103,13 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     if(initSynapseSectionBlocks(*segment,
                                 MAX_NUMBER_OF_SYNAPSE_SECTIONS,
                                 totalNumberOfNodes) == false)
+    {
+        return false;
+    }
+
+    if(initOutputSynapses(*segment,
+                          parsedContent.numberOfOutputBricks,
+                          3) == false)
     {
         return false;
     }

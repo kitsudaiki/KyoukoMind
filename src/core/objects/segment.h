@@ -44,14 +44,14 @@ public:
     ItemBuffer nodes;
     ItemBuffer synapses;
     ItemBuffer outputSynapses;
+    ItemBuffer outputs;
 
     ItemBuffer nodeProcessingBuffer;
     ItemBuffer nodeInputBuffer;
     ItemBuffer nodeOutputBuffer;
 
-    float outputValue[3] = {0.0f, 0.0f, 0.0f};
-    float shouldValue[3] = {0.0f, 0.0f, 0.0f};
-    bool doLearn = false;
+
+    uint32_t numberOfNodesPerBrick = 0;
 
     std::atomic_flag input_lock = ATOMIC_FLAG_INIT;
 

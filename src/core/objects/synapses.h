@@ -41,7 +41,7 @@ struct Synapse
 
 struct SynapseSection
 {
-    uint16_t status = ACTIVE_SECTION;
+    uint16_t status = DELETED_SECTION;
     uint16_t randomPos = UNINIT_STATE_16;
 
     uint32_t nodeBrickId = UNINIT_STATE_32;
@@ -74,7 +74,7 @@ struct OutputSynapse
     float hardening = 0.0f;
     uint16_t targetNodeId = UNINIT_STATE_16;
     int8_t sign = 1;
-    int8_t newOne = 1;
+    int8_t newOne = 0;
     // total size: 16 Byte
 };
 

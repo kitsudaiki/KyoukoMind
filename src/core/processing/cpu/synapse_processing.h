@@ -40,7 +40,8 @@
  * @return
  */
 inline bool
-findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
+findNewSectioin(SynapseSection* synapseSections,
+                const uint32_t oldSectionId)
 {
     const uint64_t numberOfSections = KyoukoRoot::m_segment->synapses.itemCapacity;
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
@@ -60,10 +61,9 @@ findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
 
             const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
             synapseSections[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
-
             assert(synapseSections[i].nodeBrickId != UNINIT_STATE_32);
 
-            //std::cout<<"create"<<std::endl;
+            std::cout<<"create"<<std::endl;
             return true;
         }
     }
@@ -89,6 +89,7 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
     }
 
     prev->next = section->next;
+    std::cout<<"delete"<<std::endl;
 
     SynapseSection emptyEdge;
     synapseSections[pos] = emptyEdge;
@@ -151,8 +152,9 @@ synapseProcessing(const uint32_t sectionPos,
         pos++;
     }
 
-    if(globalValue->lerningValue > 0.0f) {
-        if(section->hardening < pos) {
+    if(globalValue->lerningValue > 0.0f)
+    {
+        if(pos > section->hardening) {
             section->hardening = pos;
         }
     }

@@ -25,6 +25,7 @@
 #include <core/network_manager.h>
 #include <core/objects/segment.h>
 #include <core/objects/global_values.h>
+#include <core/objects/output.h>
 #include <core/validation.h>
 #include <core/processing/input_output_processing.h>
 #include <core/connection_handler/client_connection_handler.h>
@@ -125,10 +126,14 @@ KyoukoRoot::learn(const std::string &input,
     LOG_WARNING("should: " + should);
 
     KyoukoRoot::m_ioHandler->setInput(input);
-    KyoukoRoot::m_segment->shouldValue[0] = (static_cast<float>(should[0]) - 90.0f) * 10.0f;
-    KyoukoRoot::m_segment->shouldValue[1] = (static_cast<float>(should[1]) - 90.0f) * 10.0f;
-    KyoukoRoot::m_segment->shouldValue[2] = (static_cast<float>(should[2]) - 90.0f) * 10.0f;
-    KyoukoRoot::m_segment->doLearn = true;
+    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+
+    for(uint32_t i = 0; i < should.size(); i++)
+    {
+        outputs[i].shouldValue = (static_cast<float>(should[i]) - 90.0f) * 10.0f;
+    }
+    globalValue->doLearn = 1;
 
     return true;
 }

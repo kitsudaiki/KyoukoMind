@@ -20,31 +20,22 @@
  *      limitations under the License.
  */
 
-#ifndef GLOBAL_VALUES_HANDLER_H
-#define GLOBAL_VALUES_HANDLER_H
+#ifndef OUTPUT_ITEM_H
+#define OUTPUT_ITEM_H
 
 #include <common.h>
 
-struct GlobalValues
+//==================================================================================================
+
+struct Output
 {
-    uint32_t numberOfNodesPerBrick = 1000;
-
-    float sensitivity = 0.0f;
-    float lerningValue = 0.0f;
-    float gliaValue = 1.0f;
-    float initialMemorizing = 0.5f;
-    float memorizingOffset = 0.0f;
-
-    float nodeCooldown = 3.0f;
-    float actionPotential = 150.0f;
-    uint8_t refractionTime = 2;
-    uint8_t doLearn = 0;
-    uint8_t padding2[6];
-
-    float newSynapseBorder = 1.0f;
-    float deleteSynapseBorder = 1.0f;
-
-    uint8_t padding[208];
+    float outputValue = 0.0;
+    float shouldValue = 0.0f;
+    float diff = 0.0f;
+    uint32_t newOnes = 0;
+    // total size: 16 Byte
 };
 
-#endif // GLOBAL_VALUES_HANDLER_H
+//==================================================================================================
+
+#endif // OUTPUT_ITEM_H
