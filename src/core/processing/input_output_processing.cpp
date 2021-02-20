@@ -76,15 +76,20 @@ InputOutputProcessing::setInput(const std::string &input)
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
     const char* inputChar = input.c_str();
-    for(uint32_t i = 0; i < input.size(); i = i + 2)
+    for(uint32_t i = 0; i < input.size(); i++)
     {
-        for(uint32_t j = 0; j < 10; j++)
+        for(uint32_t j = 0; j < 10; j = j + 2)
         {
             const uint32_t pos = j + i * 10;
-            if(inputChar[i] == '0') {
-                m_inputMapper[pos] = 0;
-            } else {
+            if(inputChar[i] == '0')
+            {
+                m_inputMapper[pos] = 0.0f;
+                m_inputMapper[pos + 1] = 0.0f;
+            }
+            else
+            {
                 m_inputMapper[pos] = (static_cast<float>(inputChar[i])) * 10.0f;
+                m_inputMapper[pos + 1] = (255.0f - (static_cast<float>(inputChar[i]))) * 10.0f;
             }
         }
     }
