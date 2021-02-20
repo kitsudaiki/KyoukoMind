@@ -112,7 +112,6 @@ synapseProcessing(const uint32_t sectionPos,
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     uint32_t pos = 0;
-    section->hardening += globalValue->lerningValue;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -122,9 +121,15 @@ synapseProcessing(const uint32_t sectionPos,
         if(synapse->targetNodeId == UNINIT_STATE_16)
         {
             // set new weight
-            const float maxValue = 20.0f;
+            /*const float maxValue = 1000.0f;
             const float random = ((rand() % 1024) / 1024.0f) * maxValue;
             synapse->weight = fmod(weight, random);
+            synapse->sign = 1 - (rand() % 2) * 2;*/
+
+            const float random = (rand() % 1024) / 1024.0f;
+            float usedLearn = (weight < 5.0f) * weight
+                              + (weight >= 5.0f) * ((weight * random) + 1.0f);
+            synapse->weight = usedLearn;
             synapse->sign = 1 - (rand() % 2) * 2;
 
             // get random node-id as target
@@ -144,6 +149,12 @@ synapseProcessing(const uint32_t sectionPos,
 
         weight -= shareWeight;
         pos++;
+    }
+
+    if(globalValue->lerningValue > 0.0f) {
+        if(section->hardening < pos) {
+            section->hardening = pos;
+        }
     }
 
     if(pos == SYNAPSES_PER_SYNAPSESECTION

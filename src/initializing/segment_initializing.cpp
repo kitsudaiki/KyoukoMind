@@ -185,8 +185,8 @@ initSynapseSectionBlocks(Segment &segment,
         array[i].randomPos = rand() % 1024;
         const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
         array[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
+        assert(array[i].nodeBrickId < KyoukoRoot::m_segment->numberOfNodeBricks);
     }
-
 
     const uint32_t outputSynSec = numberOfNodes / KyoukoRoot::m_segment->numberOfNodeBricks;
     if(segment.outputSynapses.initBuffer<OutputSynapseSection>(outputSynSec) == false) {
