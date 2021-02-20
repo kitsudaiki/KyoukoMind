@@ -37,7 +37,7 @@ struct GlobalValues
 
     float nodeCooldown = 3.0f;
     float actionPotential = 150.0f;
-    uint8_t refractionTime = 2;
+    uint8_t refractionTime = 1;
     uint8_t doLearn = 0;
     uint8_t padding2[6];
 
