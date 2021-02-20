@@ -200,21 +200,21 @@ updating(const uint32_t sectionPos,
             } else {
                 synapse->weight = synapse->weight * 0.95f;
             }
+        }
 
-            // check for deletion of the single synapse
-            if(synapse->weight < globalValue->deleteSynapseBorder)
-            {
-                synapse->weight = 0.0f;
-                synapse->targetNodeId = UNINIT_STATE_16;
-                synapse->sign = 1;
-            }
-            else
-            {
-                const Synapse currentSyn = section->synapses[currentPos];
-                section->synapses[currentPos] = section->synapses[lastPos];
-                section->synapses[lastPos] = currentSyn;
-                currentPos++;
-            }
+        // check for deletion of the single synapse
+        if(synapse->weight < globalValue->deleteSynapseBorder)
+        {
+            synapse->weight = 0.0f;
+            synapse->targetNodeId = UNINIT_STATE_16;
+            synapse->sign = 1;
+        }
+        else
+        {
+            const Synapse currentSyn = section->synapses[currentPos];
+            section->synapses[currentPos] = section->synapses[lastPos];
+            section->synapses[lastPos] = currentSyn;
+            currentPos++;
         }
 
         hardening -= 1.0f;
