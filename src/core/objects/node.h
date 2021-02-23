@@ -33,7 +33,7 @@ struct Node
     float border = 100.0f;
     float potential = 0.0f;
 
-    uint8_t refractionTime = 0;
+    uint8_t refractionTime = 1;
     uint8_t active = 0;
     uint8_t padding[2];
 

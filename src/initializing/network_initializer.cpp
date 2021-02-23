@@ -114,11 +114,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
         return false;
     }
 
-    // mark all synapses als delted to make them usable
-    if(segment->synapses.deleteAll() == false) {
-        return false;
-    }
-
     return true;
 }
 /**

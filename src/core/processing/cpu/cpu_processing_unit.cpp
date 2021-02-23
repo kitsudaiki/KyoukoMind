@@ -52,40 +52,16 @@ CpuProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
-    bool learnSuccess = false;
-    uint32_t learnCounter = 0;
-    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     while(m_abort == false)
     {
         m_phase1->triggerBarrier();
 
         m_phase2->triggerBarrier();
-        if(learnSuccess)
-        {
-            globalValue->lerningValue = 100.0f;
-            learnCounter = 5;
-        }
 
         start = std::chrono::system_clock::now();
         node_processing();
-        learnSuccess = output_node_processing();
-
-        if(learnCounter > 0) {
-            learnCounter--;
-        } else {
-            globalValue->lerningValue = 0.0f;
-        }
-
-        if(learnSuccess)
-        {
-            Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
-            for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++) {
-                outputs[i].shouldValue = 0.0f;
-            }
-            globalValue->doLearn = 0;
-        }
-
+        output_node_processing();
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;

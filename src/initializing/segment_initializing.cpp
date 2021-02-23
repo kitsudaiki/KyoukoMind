@@ -129,8 +129,9 @@ initNodeBlocks(Segment &segment,
 
     // init node-buffer
     assert(initNodeBuffer(segment.nodeProcessingBuffer, numberOfNodes * 255));
-    assert(initNodeBuffer(segment.nodeInputBuffer, numberOfNodes));
-    assert(initNodeBuffer(segment.nodeOutputBuffer, numberOfNodes));
+    // TODO: correct number
+    assert(initNodeBuffer(segment.nodeInputBuffer, KyoukoRoot::m_segment->numberOfNodesPerBrick));
+    assert(initNodeBuffer(segment.nodeOutputBuffer, KyoukoRoot::m_segment->numberOfNodesPerBrick));
 
     return true;
 }
@@ -178,6 +179,11 @@ initSynapseSectionBlocks(Segment &segment,
         array[i] = newSection;
     }
     segment.synapses.numberOfItems = numberOfSynapseSections;
+
+    // mark all synapses als delted to make them usable
+    if(segment.synapses.deleteAll() == false) {
+        return false;
+    }
 
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
     for(uint32_t i = 0; i < numberOfNodes; i++)

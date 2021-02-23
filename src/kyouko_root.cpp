@@ -129,11 +129,20 @@ KyoukoRoot::learn(const std::string &input,
     Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
-    for(uint32_t i = 0; i < should.size(); i++)
+    if(globalValue->doLearn == 0)
     {
-        outputs[i].shouldValue = (static_cast<float>(should[i]) - 90.0f) * 10.0f;
+        for(uint32_t i = 0; i < should.size(); i++) {
+            outputs[i].shouldValue = (static_cast<float>(should[i]) - 90.0f) * 10.0f;
+        }
+        globalValue->doLearn = 1;
     }
-    globalValue->doLearn = 1;
+    else
+    {
+        for(uint32_t i = 0; i < should.size(); i++) {
+            outputs[i].shouldValue = 0.0f;
+        }
+        globalValue->doLearn = 0;
+    }
 
     return true;
 }

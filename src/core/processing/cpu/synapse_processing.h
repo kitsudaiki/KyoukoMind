@@ -121,15 +121,16 @@ synapseProcessing(const uint32_t sectionPos,
         Synapse* synapse = &section->synapses[pos];
         if(synapse->targetNodeId == UNINIT_STATE_16)
         {
-            // set new weight
-            /*const float maxValue = 1000.0f;
-            const float random = ((rand() % 1024) / 1024.0f) * maxValue;
-            synapse->weight = fmod(weight, random);
-            synapse->sign = 1 - (rand() % 2) * 2;*/
+            if(globalValue->doLearn == 0) {
+                return;
+            }
 
+            // set new weight
+            const float maxValue = 30.0f;
             const float random = (rand() % 1024) / 1024.0f;
             float usedLearn = (weight < 5.0f) * weight
                               + (weight >= 5.0f) * ((weight * random) + 1.0f);
+            usedLearn = fmod(usedLearn, maxValue);
             synapse->weight = usedLearn;
             synapse->sign = 1 - (rand() % 2) * 2;
 
@@ -239,7 +240,8 @@ updating(const uint32_t sectionPos,
  * @param globalValue
  */
 inline void
-triggerSynapseSesction(Node* node,
+triggerSynapseSesction(Brick* brick,
+                       Node* node,
                        const uint32_t i,
                        GlobalValues* globalValue)
 {
@@ -249,6 +251,7 @@ triggerSynapseSesction(Node* node,
         // build new axon-transfer-edge, which is send back to the host
         const float up = static_cast<float>(pow(globalValue->gliaValue, node->targetBrickDistance));
         const float weight = node->potential * up;
+        brick->nodeActivity++;
         synapseProcessing(i, weight);
     }
     else
@@ -283,6 +286,7 @@ node_processing()
             nodes[i].currentState += nodeProcessingBuffer[nodeBufferPosition];
             nodeProcessingBuffer[nodeBufferPosition] = 0.0f;
         }
+        nodeBricks[nodes[i].nodeBrickId]->nodeActivity = 0;
     }
 
     for(uint32_t i = 0; i < numberOfNodes; i++)
@@ -290,8 +294,6 @@ node_processing()
         Node* node = &nodes[i];
         if(node->border > 0.0f)
         {
-            nodeBricks[node->nodeBrickId]->nodeActivity++;
-
             // set to 255.0f, if value is too high
             const float cur = node->currentState;
             node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
@@ -305,7 +307,7 @@ node_processing()
             node->refractionTime = reset * globalValue->refractionTime
                                    + (reset == false) * node->refractionTime;
 
-            triggerSynapseSesction(node, i, globalValue);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue);
 
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
@@ -321,7 +323,7 @@ node_processing()
         else if(node->border == 0.0f)
         {
             node->potential = inputNodes[i];
-            triggerSynapseSesction(node, i, globalValue);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue);
         }
         else
         {
