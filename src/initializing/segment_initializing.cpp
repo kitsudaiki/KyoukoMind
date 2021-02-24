@@ -47,16 +47,6 @@ initBricks(Segment &segment,
         return false;
     }
 
-    segment.bricks.numberOfItems = numberOfBricks;
-
-    // fill array with empty nodes
-    Brick* array = getBuffer<Brick>(segment.bricks);
-    for(uint32_t i = 0; i < numberOfBricks; i++)
-    {
-        Brick tempBrick;
-        array[i] = tempBrick;
-    }
-
     return true;
 }
 
@@ -71,12 +61,6 @@ initGlobalValues(Segment &segment)
     if(segment.globalValues.initBuffer<GlobalValues>(1) == false) {
         return false;
     }
-
-    // fill array with empty nodes
-    GlobalValues* array = getBuffer<GlobalValues>(segment.globalValues);
-    GlobalValues tempValues;
-    array[0] = tempValues;
-    segment.globalValues.numberOfItems = 1;
 
     return true;
 }
@@ -98,7 +82,6 @@ initNodeBuffer(ItemBuffer &nodeBuffer, const uint32_t numberOfItems)
     for(uint32_t i = 0; i < numberOfItems; i++) {
         nodeProcessingBuffer[i] = 0.0f;
     }
-    nodeBuffer.numberOfItems = numberOfItems;
 
     return true;
 }
@@ -119,13 +102,9 @@ initNodeBlocks(Segment &segment,
 
     // fill array with empty nodes
     Node* array = getBuffer<Node>(segment.nodes);
-    for(uint32_t i = 0; i < numberOfNodes; i++)
-    {
-        Node tempNode;
-        tempNode.border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
-        array[i] = tempNode;
+    for(uint32_t i = 0; i < numberOfNodes; i++) {
+        array[i].border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
     }
-    segment.nodes.numberOfItems = numberOfNodes;
 
     // init node-buffer
     assert(initNodeBuffer(segment.nodeProcessingBuffer, numberOfNodes * 255));
@@ -143,12 +122,6 @@ initRandomValues(Segment &segment)
     if(segment.randomIntValues.initBuffer<uint32_t>(numberOfRandValues) == false) {
         return false;
     }
-
-    uint32_t* randValue = getBuffer<uint32_t>(segment.randomIntValues);
-    for(uint32_t i = 0; i < numberOfRandValues; i++) {
-        randValue[i] = static_cast<uint32_t>(rand());
-    }
-    segment.randomIntValues.numberOfItems = numberOfRandValues;
 
     return true;
 }
@@ -171,20 +144,12 @@ initSynapseSectionBlocks(Segment &segment,
         return false;
     }
 
-    // fill array with empty synapsesections
-    SynapseSection* array = getBuffer<SynapseSection>(segment.synapses);
-    for(uint32_t i = 0; i < numberOfSynapseSections; i++)
-    {
-        SynapseSection newSection;
-        array[i] = newSection;
-    }
-    segment.synapses.numberOfItems = numberOfSynapseSections;
-
     // mark all synapses als delted to make them usable
     if(segment.synapses.deleteAll() == false) {
         return false;
     }
 
+    SynapseSection* array = getBuffer<SynapseSection>(segment.synapses);
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
     for(uint32_t i = 0; i < numberOfNodes; i++)
     {
@@ -215,27 +180,9 @@ initOutputSynapses(Segment &segment,
         return false;
     }
 
-    // fill array with empty output-sections
-    OutputSynapseSection* outarray = getBuffer<OutputSynapseSection>(segment.outputSynapses);
-    for(uint32_t i = 0; i < outNodes; i++)
-    {
-        OutputSynapseSection newSection;
-        outarray[i] = newSection;
-    }
-    segment.outputSynapses.numberOfItems = outNodes;
-
     if(segment.outputs.initBuffer<Output>(numberOfOutputs) == false) {
         return false;
     }
-
-    // fill array with empty output
-    Output* outputArray = getBuffer<Output>(segment.outputs);
-    for(uint32_t i = 0; i < numberOfOutputs; i++)
-    {
-        Output newSection;
-        outputArray[i] = newSection;
-    }
-    segment.outputs.numberOfItems = numberOfOutputs;
 
     return true;
 }
