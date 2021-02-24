@@ -82,7 +82,20 @@ public:
     template<typename T>
     bool initBuffer(const uint64_t numberOfItems)
     {
-        return initDataBlocks(numberOfItems, sizeof(T));
+        bool ret = initDataBlocks(numberOfItems, sizeof(T));
+        if(ret == false) {
+            return false;
+        }
+
+        T* items = static_cast<T*>(buffer.data);
+        for(uint32_t i = 0; i < numberOfItems; i++)
+        {
+            T newItem;
+            items[i] = newItem;
+        }
+        this->numberOfItems = numberOfItems;
+
+        return true;
     }
 
     bool deleteAll();
