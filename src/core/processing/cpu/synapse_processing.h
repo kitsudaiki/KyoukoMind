@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file        synapse_processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -176,13 +176,13 @@ synapseProcessing(const uint32_t sectionPos,
  * @param sectionPos
  */
 inline void
-updating(const uint32_t sectionPos,
-         float hardening)
+updating(const uint32_t sectionPos)
 {
     SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
+    float hardening = section->hardening;
 
     // iterate over all synapses in synapse-section
     uint32_t currentPos = 0;
@@ -222,7 +222,7 @@ updating(const uint32_t sectionPos,
     }
 
     if(section->next != UNINIT_STATE_32) {
-        updating(section->next, hardening);
+        updating(section->next);
     }
 
     // delete if sections is empty
@@ -256,9 +256,8 @@ triggerSynapseSesction(Brick* brick,
     }
     else
     {
-        SynapseSection* section = &getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses)[i];
         node->active = 0;
-        updating(i, section->hardening);
+        updating(i);
     }
 }
 
