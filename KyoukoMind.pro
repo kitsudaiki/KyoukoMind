@@ -117,7 +117,8 @@ HEADERS += \
     src/core/processing/input_output_processing.h \
     src/core/processing/cpu/synapse_processing.h \
     src/core/processing/cpu/output_synapse_processing.h \
-    src/blossoms/special/set_input_blossom.h
+    src/blossoms/special/set_input_blossom.h \
+    src/core/objects/output.h
 
 SOURCES += \
     src/core/objects/brick.cpp \

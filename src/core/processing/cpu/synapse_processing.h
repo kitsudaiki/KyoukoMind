@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file        synapse_processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -40,7 +40,8 @@
  * @return
  */
 inline bool
-findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
+findNewSectioin(SynapseSection* synapseSections,
+                const uint32_t oldSectionId)
 {
     const uint64_t numberOfSections = KyoukoRoot::m_segment->synapses.itemCapacity;
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
@@ -60,7 +61,6 @@ findNewSectioin(SynapseSection* synapseSections, const uint32_t oldSectionId)
 
             const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
             synapseSections[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
-
             assert(synapseSections[i].nodeBrickId != UNINIT_STATE_32);
 
             //std::cout<<"create"<<std::endl;
@@ -89,6 +89,7 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
     }
 
     prev->next = section->next;
+    //std::cout<<"delete"<<std::endl;
 
     SynapseSection emptyEdge;
     synapseSections[pos] = emptyEdge;
@@ -120,15 +121,16 @@ synapseProcessing(const uint32_t sectionPos,
         Synapse* synapse = &section->synapses[pos];
         if(synapse->targetNodeId == UNINIT_STATE_16)
         {
-            // set new weight
-            /*const float maxValue = 1000.0f;
-            const float random = ((rand() % 1024) / 1024.0f) * maxValue;
-            synapse->weight = fmod(weight, random);
-            synapse->sign = 1 - (rand() % 2) * 2;*/
+            if(globalValue->doLearn == 0) {
+                return;
+            }
 
+            // set new weight
+            const float maxValue = 30.0f;
             const float random = (rand() % 1024) / 1024.0f;
             float usedLearn = (weight < 5.0f) * weight
                               + (weight >= 5.0f) * ((weight * random) + 1.0f);
+            usedLearn = fmod(usedLearn, maxValue);
             synapse->weight = usedLearn;
             synapse->sign = 1 - (rand() % 2) * 2;
 
@@ -151,8 +153,9 @@ synapseProcessing(const uint32_t sectionPos,
         pos++;
     }
 
-    if(globalValue->lerningValue > 0.0f) {
-        if(section->hardening < pos) {
+    if(globalValue->lerningValue > 0.0f)
+    {
+        if(pos > section->hardening) {
             section->hardening = pos;
         }
     }
@@ -173,13 +176,13 @@ synapseProcessing(const uint32_t sectionPos,
  * @param sectionPos
  */
 inline void
-updating(const uint32_t sectionPos,
-         float hardening)
+updating(const uint32_t sectionPos)
 {
     SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
+    float hardening = section->hardening;
 
     // iterate over all synapses in synapse-section
     uint32_t currentPos = 0;
@@ -198,28 +201,28 @@ updating(const uint32_t sectionPos,
             } else {
                 synapse->weight = synapse->weight * 0.95f;
             }
+        }
 
-            // check for deletion of the single synapse
-            if(synapse->weight < globalValue->deleteSynapseBorder)
-            {
-                synapse->weight = 0.0f;
-                synapse->targetNodeId = UNINIT_STATE_16;
-                synapse->sign = 1;
-            }
-            else
-            {
-                const Synapse currentSyn = section->synapses[currentPos];
-                section->synapses[currentPos] = section->synapses[lastPos];
-                section->synapses[lastPos] = currentSyn;
-                currentPos++;
-            }
+        // check for deletion of the single synapse
+        if(synapse->weight < globalValue->deleteSynapseBorder)
+        {
+            synapse->weight = 0.0f;
+            synapse->targetNodeId = UNINIT_STATE_16;
+            synapse->sign = 1;
+        }
+        else
+        {
+            const Synapse currentSyn = section->synapses[currentPos];
+            section->synapses[currentPos] = section->synapses[lastPos];
+            section->synapses[lastPos] = currentSyn;
+            currentPos++;
         }
 
         hardening -= 1.0f;
     }
 
     if(section->next != UNINIT_STATE_32) {
-        updating(section->next, hardening);
+        updating(section->next);
     }
 
     // delete if sections is empty
@@ -237,7 +240,8 @@ updating(const uint32_t sectionPos,
  * @param globalValue
  */
 inline void
-triggerSynapseSesction(Node* node,
+triggerSynapseSesction(Brick* brick,
+                       Node* node,
                        const uint32_t i,
                        GlobalValues* globalValue)
 {
@@ -247,13 +251,13 @@ triggerSynapseSesction(Node* node,
         // build new axon-transfer-edge, which is send back to the host
         const float up = static_cast<float>(pow(globalValue->gliaValue, node->targetBrickDistance));
         const float weight = node->potential * up;
+        brick->nodeActivity++;
         synapseProcessing(i, weight);
     }
     else
     {
-        SynapseSection* section = &getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses)[i];
         node->active = 0;
-        updating(i, section->hardening);
+        updating(i);
     }
 }
 
@@ -281,6 +285,7 @@ node_processing()
             nodes[i].currentState += nodeProcessingBuffer[nodeBufferPosition];
             nodeProcessingBuffer[nodeBufferPosition] = 0.0f;
         }
+        nodeBricks[nodes[i].nodeBrickId]->nodeActivity = 0;
     }
 
     for(uint32_t i = 0; i < numberOfNodes; i++)
@@ -288,8 +293,6 @@ node_processing()
         Node* node = &nodes[i];
         if(node->border > 0.0f)
         {
-            nodeBricks[node->nodeBrickId]->nodeActivity++;
-
             // set to 255.0f, if value is too high
             const float cur = node->currentState;
             node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
@@ -303,7 +306,7 @@ node_processing()
             node->refractionTime = reset * globalValue->refractionTime
                                    + (reset == false) * node->refractionTime;
 
-            triggerSynapseSesction(node, i, globalValue);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue);
 
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
@@ -319,7 +322,7 @@ node_processing()
         else if(node->border == 0.0f)
         {
             node->potential = inputNodes[i];
-            triggerSynapseSesction(node, i, globalValue);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue);
         }
         else
         {

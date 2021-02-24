@@ -25,6 +25,7 @@
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
 #include <core/objects/global_values.h>
+#include <core/objects/output.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <core/connection_handler/client_connection_handler.h>
@@ -55,14 +56,14 @@ InputOutputProcessing::processInputMapping()
 void
 InputOutputProcessing::processOutputMapping()
 {
-    //KyoukoRoot::m_clientHandler->sendToClient(std::to_string(KyoukoRoot::m_segment->outputValue));
+    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     LOG_WARNING("-----------------------------------------------");
-    LOG_WARNING("should0: " + std::to_string(KyoukoRoot::m_segment->shouldValue[0]));
-    LOG_WARNING("output0: " + std::to_string(KyoukoRoot::m_segment->outputValue[0]));
-    LOG_WARNING("should1: " + std::to_string(KyoukoRoot::m_segment->shouldValue[1]));
-    LOG_WARNING("output1: " + std::to_string(KyoukoRoot::m_segment->outputValue[1]));
-    LOG_WARNING("should2: " + std::to_string(KyoukoRoot::m_segment->shouldValue[2]));
-    LOG_WARNING("output2: " + std::to_string(KyoukoRoot::m_segment->outputValue[2]));
+    for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
+    {
+        LOG_WARNING("should" + std::to_string(i) + ": " + std::to_string(outputs[i].shouldValue));
+        LOG_WARNING("output" + std::to_string(i) + ": " + std::to_string(outputs[i].outputValue));
+    }
+    //KyoukoRoot::m_clientHandler->sendToClient(std::to_string(KyoukoRoot::m_segment->outputValue));
 }
 
 /**
@@ -75,15 +76,20 @@ InputOutputProcessing::setInput(const std::string &input)
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
     const char* inputChar = input.c_str();
-    for(uint32_t i = 0; i < input.size(); i = i + 2)
+    for(uint32_t i = 0; i < input.size(); i++)
     {
-        for(uint32_t j = 0; j < 10; j++)
+        for(uint32_t j = 0; j < 10; j = j + 2)
         {
             const uint32_t pos = j + i * 10;
-            if(inputChar[i] == '0') {
-                m_inputMapper[pos] = 0;
-            } else {
+            if(inputChar[i] == '0')
+            {
+                m_inputMapper[pos] = 0.0f;
+                m_inputMapper[pos + 1] = 0.0f;
+            }
+            else
+            {
                 m_inputMapper[pos] = (static_cast<float>(inputChar[i])) * 10.0f;
+                m_inputMapper[pos + 1] = (255.0f - (static_cast<float>(inputChar[i]))) * 10.0f;
             }
         }
     }

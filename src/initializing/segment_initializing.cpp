@@ -26,6 +26,7 @@
 
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
+#include <core/objects/output.h>
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
 
@@ -128,8 +129,9 @@ initNodeBlocks(Segment &segment,
 
     // init node-buffer
     assert(initNodeBuffer(segment.nodeProcessingBuffer, numberOfNodes * 255));
-    assert(initNodeBuffer(segment.nodeInputBuffer, numberOfNodes));
-    assert(initNodeBuffer(segment.nodeOutputBuffer, numberOfNodes));
+    // TODO: correct number
+    assert(initNodeBuffer(segment.nodeInputBuffer, KyoukoRoot::m_segment->numberOfNodesPerBrick));
+    assert(initNodeBuffer(segment.nodeOutputBuffer, KyoukoRoot::m_segment->numberOfNodesPerBrick));
 
     return true;
 }
@@ -178,6 +180,11 @@ initSynapseSectionBlocks(Segment &segment,
     }
     segment.synapses.numberOfItems = numberOfSynapseSections;
 
+    // mark all synapses als delted to make them usable
+    if(segment.synapses.deleteAll() == false) {
+        return false;
+    }
+
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
     for(uint32_t i = 0; i < numberOfNodes; i++)
     {
@@ -188,19 +195,47 @@ initSynapseSectionBlocks(Segment &segment,
         assert(array[i].nodeBrickId < KyoukoRoot::m_segment->numberOfNodeBricks);
     }
 
-    const uint32_t outputSynSec = numberOfNodes / KyoukoRoot::m_segment->numberOfNodeBricks;
-    if(segment.outputSynapses.initBuffer<OutputSynapseSection>(outputSynSec) == false) {
+    return true;
+}
+
+/**
+ * @brief initOutputSynapses
+ * @param segment
+ * @param numberOfOutputBricks
+ * @param numberOfOutputs
+ * @return
+ */
+bool
+initOutputSynapses(Segment &segment,
+                   const uint32_t numberOfOutputBricks,
+                   const uint32_t numberOfOutputs)
+{
+    const uint32_t outNodes = numberOfOutputBricks * KyoukoRoot::m_segment->numberOfNodesPerBrick;
+    if(segment.outputSynapses.initBuffer<OutputSynapseSection>(outNodes) == false) {
         return false;
     }
 
-    // fill array with empty synapsesections
+    // fill array with empty output-sections
     OutputSynapseSection* outarray = getBuffer<OutputSynapseSection>(segment.outputSynapses);
-    for(uint32_t i = 0; i < outputSynSec; i++)
+    for(uint32_t i = 0; i < outNodes; i++)
     {
         OutputSynapseSection newSection;
         outarray[i] = newSection;
     }
+    segment.outputSynapses.numberOfItems = outNodes;
+
+    if(segment.outputs.initBuffer<Output>(numberOfOutputs) == false) {
+        return false;
+    }
+
+    // fill array with empty output
+    Output* outputArray = getBuffer<Output>(segment.outputs);
+    for(uint32_t i = 0; i < numberOfOutputs; i++)
+    {
+        Output newSection;
+        outputArray[i] = newSection;
+    }
+    segment.outputs.numberOfItems = numberOfOutputs;
 
     return true;
 }
-

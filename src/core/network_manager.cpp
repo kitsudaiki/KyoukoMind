@@ -35,6 +35,7 @@
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/objects/brick.h>
+#include <core/objects/output.h>
 #include <core/objects/segment.h>
 #include <core/objects/global_values.h>
 
@@ -84,13 +85,12 @@ NetworkManager::run()
         usleep(time);
 
         // handle learning
-        float newLearningValue = 0.0f;
+        globalValues->lerningValue  = 0.0f;
         if(KyoukoRoot::m_freezeState)
         {
-            newLearningValue = 5.0f;
+            globalValues->lerningValue  = 1000.0f;
             KyoukoRoot::m_freezeState = false;
         }
-        globalValues->lerningValue = newLearningValue;
 
         KyoukoRoot::m_ioHandler->processInputMapping();
         KyoukoRoot::m_ioHandler->processOutputMapping();
@@ -133,9 +133,19 @@ NetworkManager::run()
         KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
         KyoukoRoot::m_monitoringHandler->sendToMonitoring();
 
-        const std::string output = std::to_string(KyoukoRoot::m_segment->outputValue[0])
-                                   + " | " + std::to_string(KyoukoRoot::m_segment->outputValue[1])
-                                   + " | " + std::to_string(KyoukoRoot::m_segment->outputValue[2]);
+
+        Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+        std::string output = "";
+        for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
+        {
+            if(i != 0) {
+                output += " | ";
+            }
+            output += std::to_string(outputs[i].outputValue);
+        }
+
+        globalValues->lerningValue = 0.0f;
+
         KyoukoRoot::m_clientHandler->sendToClient(output);
     }
 }
