@@ -81,7 +81,7 @@ outputSynapseProcessing(const uint32_t sectionPos,
         float newHardening = synapse->hardening + globalValue->lerningValue;
         newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
         synapse->hardening = newHardening;
-        if(synapse->hardening == 1.0f) {
+        if(synapse->hardening >= 0.99f) {
             synapse->newOne = 0;
         }
 
@@ -118,10 +118,8 @@ outputSynapseLearn(const uint32_t sectionPos,
         if(synapse->newOne == 1
                 && synapse->targetNodeId != UNINIT_STATE_16)
         {
-            if(outputs[synapse->targetNodeId].newOnes > 0)
-            {
+            if(outputs[synapse->targetNodeId].newOnes > 0) {
                 synapse->weightOut += outputs[synapse->targetNodeId].diff;
-                synapse->newOne = 0;
             }
         }
 
@@ -130,27 +128,29 @@ outputSynapseLearn(const uint32_t sectionPos,
     }
 }
 
-/**
- * @brief outputSynapseReset
- * @param sectionPos
- */
 inline void
-outputSynapseReset(const uint32_t sectionPos)
+calculateLearnings(float &totalDiff,
+                   uint32_t &newOnes,
+                   const bool resetOutput)
 {
-    ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
-    OutputSynapseSection* synapseSections = &getBuffer<OutputSynapseSection>(*buf)[sectionPos];
+    totalDiff = 0.0f;
+    newOnes = 0;
 
-    uint32_t pos = 0;
+    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    const uint64_t outputsSize = KyoukoRoot::m_segment->outputs.numberOfItems;
 
-    // iterate over all synapses in the section and update the target-nodes
-    while(pos < 255)
+    for(uint64_t o = 0; o < outputsSize; o++)
     {
-        OutputSynapse* synapse = &synapseSections->synapses[pos];
-        synapse->newOne = 0.0f;
-        pos++;
+        outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
+        totalDiff += fabs(outputs[o].diff);
+        newOnes += outputs[o].newOnes;
+        outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
+
+        if(resetOutput) {
+            outputs[o].outputValue = 0.0f;
+        }
     }
 }
-
 
 /**
  * @brief node_processing
@@ -166,43 +166,27 @@ output_node_processing()
     const uint64_t outputsSize = KyoukoRoot::m_segment->outputs.numberOfItems;
 
     // reset output-values
-    for(uint64_t i = 0; i < outputsSize; i++)
+    for(uint64_t o = 0; o < outputsSize; o++)
     {
-        outputs[i].outputValue = 0.0f;
-        outputs[i].newOnes = 0;
+        outputs[o].outputValue = 0.0f;
+        outputs[o].newOnes = 0;
     }
-
-    float total = 0.0f;
-    float totalAbs = 0.0f;
 
     // process output
     for(uint32_t i = 0; i < outputBufferSize; i++) {
+        /*if(outputNodes[i] > 0.0f) {
+            std::cout<<"outputNodes[i]: "<<outputNodes[i]<<std::endl;
+        }*/
         outputSynapseProcessing(i, outputNodes[i]);
-        total += outputNodes[i];
-        totalAbs += fabs(outputNodes[i]);
     }
-
-    std::cout<<"total: "<<total<<std::endl;
-    std::cout<<"totalAbs: "<<totalAbs<<std::endl;
 
     if(globalValue->doLearn != 0)
     {
         float totalDiff = 0.0f;
         uint32_t newOnes = 0;
         std::cout<<"learn"<<std::endl;
-        Output tempOutput[3];
 
-        // calc values for learning
-        for(uint64_t i = 0; i < outputsSize; i++)
-        {
-            outputs[i].diff = outputs[i].shouldValue - outputs[i].outputValue;
-            totalDiff += fabs(outputs[i].diff);
-            newOnes += outputs[i].newOnes;
-            outputs[i].diff /= static_cast<float>(outputs[i].newOnes) + 0.0000001f;
-            tempOutput[i] = outputs[i];
-            outputs[i].outputValue = 0.0f;
-        }
-
+        calculateLearnings(totalDiff, newOnes, true);
 
         std::cout<<"totalDiff1: "<<totalDiff<<std::endl;
         std::cout<<"newOnes1: "<<newOnes<<std::endl;
@@ -214,24 +198,10 @@ output_node_processing()
             outputSynapseProcessing(i, outputNodes[i]);
         }
 
-        // calc values again after lerning
-        totalDiff = 0.0f;
-        newOnes = 0;
-        for(uint64_t i = 0; i < outputsSize; i++)
-        {
-            outputs[i].diff = outputs[i].shouldValue - outputs[i].outputValue;
-            totalDiff += fabs(outputs[i].diff);
-            outputs[i].diff /= static_cast<float>(outputs[i].newOnes) + 0.0000001f;
-            tempOutput[i] = outputs[i];
+        calculateLearnings(totalDiff, newOnes, false);
 
-            newOnes += outputs[i].newOnes;
-        }
         std::cout<<"totalDiff2: "<<totalDiff<<std::endl;
         std::cout<<"newOnes2: "<<newOnes<<std::endl;
-    }
-
-    for(uint32_t i = 0; i < outputBufferSize; i++) {
-        outputSynapseReset(i);
     }
 }
 

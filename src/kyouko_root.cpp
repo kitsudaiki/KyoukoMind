@@ -126,6 +126,7 @@ KyoukoRoot::learn(const std::string &input,
     LOG_WARNING("should: " + should);
 
     KyoukoRoot::m_ioHandler->setInput(input);
+
     Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
@@ -141,6 +142,7 @@ KyoukoRoot::learn(const std::string &input,
         for(uint32_t i = 0; i < should.size(); i++) {
             outputs[i].shouldValue = 0.0f;
         }
+        KyoukoRoot::m_freezeState = true;
         globalValue->doLearn = 0;
     }
 

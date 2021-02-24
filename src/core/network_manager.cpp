@@ -85,13 +85,12 @@ NetworkManager::run()
         usleep(time);
 
         // handle learning
-        float newLearningValue = 0.0f;
+        globalValues->lerningValue  = 0.0f;
         if(KyoukoRoot::m_freezeState)
         {
-            newLearningValue = 5.0f;
+            globalValues->lerningValue  = 1000.0f;
             KyoukoRoot::m_freezeState = false;
         }
-        globalValues->lerningValue = newLearningValue;
 
         KyoukoRoot::m_ioHandler->processInputMapping();
         KyoukoRoot::m_ioHandler->processOutputMapping();
@@ -144,6 +143,8 @@ NetworkManager::run()
             }
             output += std::to_string(outputs[i].outputValue);
         }
+
+        globalValues->lerningValue = 0.0f;
 
         KyoukoRoot::m_clientHandler->sendToClient(output);
     }
