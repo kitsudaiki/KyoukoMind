@@ -97,7 +97,6 @@ HEADERS += \
     src/import_export/obj_converter.h \
     src/core/validation.h \
     src/initializing/network_initializer.h \
-    src/initializing/segment_initializing.h \
     src/args.h \
     src/common.h \
     src/config.h \
@@ -130,7 +129,6 @@ SOURCES += \
     src/import_export/obj_converter.cpp \
     src/core/validation.cpp \
     src/initializing/network_initializer.cpp \
-    src/initializing/segment_initializing.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/blossoms/register/register_input_blossom.cpp \

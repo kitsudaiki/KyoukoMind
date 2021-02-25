@@ -22,13 +22,14 @@
 
 #include "network_initializer.h"
 #include <kyouko_root.h>
+
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
+#include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
-#include <initializing/segment_initializing.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -76,41 +77,44 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     // init segment
     Segment* segment = KyoukoRoot::m_segment;
     const uint32_t numberOfNodeBricks = parsedContent.numberOfNodeBricks;
-    GlobalValues* globalValues = getBuffer<GlobalValues>(segment->globalValues);
-    const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValues->numberOfNodesPerBrick;
-    segment->numberOfNodesPerBrick = globalValues->numberOfNodesPerBrick;
+    GlobalValues globalValues;
+    const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValues.numberOfNodesPerBrick;
+    segment->numberOfNodesPerBrick = globalValues.numberOfNodesPerBrick;
 
-    if(initNodeBlocks(*segment, totalNumberOfNodes) == false) {
+    // init segment
+    if(segment->initializeBuffer(numberOfBricks,
+                                 parsedContent.numberOfNodeBricks,
+                                 totalNumberOfNodes,
+                                 MAX_NUMBER_OF_SYNAPSE_SECTIONS,
+                                 parsedContent.numberOfOutputBricks,
+                                 3,
+                                 1024) == false)
+    {
         return false;
     }
 
-    if(initRandomValues(*segment) == false) {
-        return false;
+
+    // fill array with empty nodes
+    Node* array = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
+    for(uint32_t i = 0; i < totalNumberOfNodes; i++) {
+        array[i].border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
     }
 
-    // init bricks
-    initBricks(*segment, numberOfBricks);
-    segment->nodeBricks = new Brick*[parsedContent.numberOfNodeBricks];
-    segment->inputBricks = new Brick*[parsedContent.numberOfNodeBricks];
-    segment->outputBricks = new Brick*[parsedContent.numberOfNodeBricks];
-    segment->numberOfNodeBricks = parsedContent.numberOfNodeBricks;
     addBricks(*segment, parsedContent);
 
-    // init axons
-    createAxons(*segment);
-
-    // init synapses
-    if(initSynapseSectionBlocks(*segment,
-                                MAX_NUMBER_OF_SYNAPSE_SECTIONS,
-                                totalNumberOfNodes) == false)
+    SynapseSection* section = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
+    Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
+    for(uint32_t i = 0; i < totalNumberOfNodes; i++)
     {
-        return false;
+        section[i].status = ACTIVE_SECTION;
+        section[i].randomPos = rand() % 1024;
+        const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
+        section[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
+        assert(section[i].nodeBrickId < KyoukoRoot::m_segment->numberOfNodeBricks);
     }
 
-    if(initOutputSynapses(*segment,
-                          parsedContent.numberOfOutputBricks,
-                          3) == false)
-    {
+    // init axons
+    if(createAxons(*segment) == false) {
         return false;
     }
 
