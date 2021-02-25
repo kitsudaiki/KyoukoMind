@@ -36,25 +36,15 @@ public:
         uint8_t next[5];
     } __attribute__((packed));
     //----------------------------------------------------------------------------------------------
-    struct BrickPos
-    {
-        int32_t x = 0;
-        int32_t y = 0;
-        int32_t z = 0;
-    } __attribute__((packed));
-    //----------------------------------------------------------------------------------------------
 
     // common
     uint32_t brickId = UNINIT_STATE_32;
     uint32_t nodeBrickId = UNINIT_STATE_32;
     bool isOutputBrick = false;
-    bool isMidBrick = false;
     bool isInputBrick = false;
 
-    BrickPos brickPos;
+    Position brickPos;
 
-    // 0 - 21: neighbor-bricks
-    // 22: the current brick
     uint32_t neighbors[12];
     uint32_t nodePos = UNINIT_STATE_32;
 
@@ -63,10 +53,6 @@ public:
     //----------------------------------------------------------------------------------------------
 
     Brick();
-    Brick(const uint32_t &brickId,
-          const uint32_t x,
-          const uint32_t y);
-
     Brick(const Brick &other);
     Brick& operator=(const Brick &other);
 
@@ -75,10 +61,7 @@ public:
     uint32_t getRandomNeighbor(const uint32_t location, const bool random = false);
 
 private:
-    void initNeighborList();
-
     const PossibleNext getPossibleNext(const uint8_t inputSide, const bool random = false);
-    void updateMonitoringMetadata();
 };
 
 #endif // BRICK_H

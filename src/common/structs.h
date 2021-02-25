@@ -1,5 +1,5 @@
 /**
- * @file        common.h
+ * @file        structs.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,13 +20,17 @@
  *      limitations under the License.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef STRUCTS_H
+#define STRUCTS_H
 
-#include <common/enums.h>
-#include <common/includes.h>
-#include <common/typedefs.h>
-#include <common/defines.h>
-#include <common/structs.h>
+#include <stdint.h>
 
-#endif // COMMON_H
+struct Position
+{
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t z = 0;
+    int32_t w = 0;
+};
+
+#endif // STRUCTS_H

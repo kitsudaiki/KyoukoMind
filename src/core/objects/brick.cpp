@@ -35,25 +35,9 @@
  */
 Brick::Brick()
 {
-    initNeighborList();
-}
-
-/**
- * @brief Brick::Brick
- * @param brickId
- * @param x
- * @param y
- */
-Brick::Brick(const uint32_t &brickId,
-             const uint32_t x,
-             const uint32_t y)
-{
-    this->brickId = brickId;
-    this->brickPos.x = x;
-    this->brickPos.y = y;
-
-    updateMonitoringMetadata();
-    initNeighborList();
+    for(uint8_t i = 0; i < 12; i++) {
+        neighbors[i] = UNINIT_STATE_32;
+    }
 }
 
 /**
@@ -133,18 +117,6 @@ Brick::getRandomNeighbor(const uint32_t location, const bool random)
     }
 
     return nextLocation;
-}
-
-
-/**
- * @brief Brick::initNeighborList
- */
-void
-Brick::initNeighborList()
-{
-    for(uint8_t i = 0; i < 12; i++) {
-        neighbors[i] = UNINIT_STATE_32;
-    }
 }
 
 /**
@@ -288,15 +260,4 @@ Brick::getPossibleNext(const uint8_t inputSide, const bool random)
     }
 
     return next;
-}
-
-/**
- * @brief Brick::updateMonitoringMetadata
- */
-void
-Brick::updateMonitoringMetadata()
-{
-    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].xPos = brickPos.x;
-    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].yPos = brickPos.y;
-    KyoukoRoot::monitoringBrickMessage.brickInfos[brickId].brickId = brickId;
 }
