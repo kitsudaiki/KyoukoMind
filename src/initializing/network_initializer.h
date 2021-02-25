@@ -35,6 +35,10 @@ struct AiBaseMeta;
 
 class NetworkInitializer
 {
+    struct PossibleNext
+    {
+        uint8_t next[5];
+    } __attribute__((packed));
 
 public:
     NetworkInitializer();
@@ -46,6 +50,11 @@ private:
                    const Kitsunemimi::Ai::AiBaseMeta &metaBase);
 
     bool createAxons(Segment &segment);
+
+    bool initTargetBrickList(Segment &segment);
+
+    const PossibleNext getPossibleNext(const uint8_t inputSide, const bool random = false);
+
 };
 
 #endif // NETWORK_INITIALIZER_H

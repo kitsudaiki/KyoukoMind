@@ -31,10 +31,7 @@ class Brick
 
 public:
     //----------------------------------------------------------------------------------------------
-    struct PossibleNext
-    {
-        uint8_t next[5];
-    } __attribute__((packed));
+
     //----------------------------------------------------------------------------------------------
 
     // common
@@ -46,6 +43,7 @@ public:
     Position brickPos;
 
     uint32_t neighbors[12];
+    uint32_t possibleTargetNodeBrickIds[1024];
     uint32_t nodePos = UNINIT_STATE_32;
 
     uint32_t nodeActivity = 0;
@@ -57,11 +55,6 @@ public:
     Brick& operator=(const Brick &other);
 
     ~Brick();
-
-    uint32_t getRandomNeighbor(const uint32_t location, const bool random = false);
-
-private:
-    const PossibleNext getPossibleNext(const uint8_t inputSide, const bool random = false);
 };
 
 #endif // BRICK_H

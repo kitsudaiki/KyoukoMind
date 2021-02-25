@@ -269,3 +269,164 @@ NetworkInitializer::createAxons(Segment &segment)
     return true;
 }
 
+/**
+ * @brief NetworkInitializer::initTargetBrickList
+ * @param segment
+ * @return
+ */
+bool
+NetworkInitializer::initTargetBrickList(Segment &segment)
+{
+    Brick* bricks = getBuffer<Brick>(segment.bricks);
+    for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
+    {
+
+    }
+
+    return true;
+}
+
+
+/**
+ * @brief Brick::getPossibleNext
+ * @param inputSide
+ * @return
+ */
+const NetworkInitializer::PossibleNext
+NetworkInitializer::getPossibleNext(const uint8_t inputSide, const bool random)
+{
+    PossibleNext next;
+
+    if(random)
+    {
+        next.next[0] = rand() % 12;
+        next.next[1] = rand() % 12;
+        next.next[2] = rand() % 12;
+        next.next[3] = rand() % 12;
+        next.next[4] = rand() % 12;
+        return next;
+    }
+
+    switch(inputSide)
+    {
+        case 0:
+        {
+            next.next[0] = 4;
+            next.next[1] = 5;
+            next.next[2] = 7;
+            next.next[3] = 8;
+            next.next[4] = 11;
+            break;
+        }
+
+        case 1:
+        {
+            next.next[0] = 5;
+            next.next[1] = 6;
+            next.next[2] = 7;
+            next.next[3] = 8;
+            next.next[4] = 10;
+            break;
+        }
+
+        case 2:
+        {
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 5;
+            next.next[3] = 6;
+            next.next[4] = 9;
+            break;
+        }
+
+        case 3:
+        {
+            next.next[0] = 5;
+            next.next[1] = 7;
+            next.next[2] = 8;
+            next.next[3] = 2;
+            next.next[4] = 11;
+            break;
+        }
+        case 4:
+        {
+            next.next[0] = 6;
+            next.next[1] = 7;
+            next.next[2] = 8;
+            next.next[3] = 2;
+            next.next[4] = 10;
+            break;
+        }
+        case 5:
+        {
+            next.next[0] = 3;
+            next.next[1] = 6;
+            next.next[2] = 7;
+            next.next[3] = 0;
+            next.next[4] = 10;
+            break;
+        }
+        case 6:
+        {
+            next.next[0] = 4;
+            next.next[1] = 5;
+            next.next[2] = 8;
+            next.next[3] = 1;
+            next.next[4] = 11;
+            break;
+        }
+        case 7:
+        {
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 5;
+            next.next[3] = 1;
+            next.next[4] = 9;
+            break;
+        }
+        case 8:
+        {
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 6;
+            next.next[3] = 0;
+            next.next[4] = 9;
+            break;
+        }
+        case 9:
+        {
+            next.next[0] = 5;
+            next.next[1] = 6;
+            next.next[2] = 7;
+            next.next[3] = 8;
+            next.next[4] = 2;
+            break;
+        }
+        case 10:
+        {
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 5;
+            next.next[3] = 8;
+            next.next[4] = 1;
+            break;
+        }
+        case 11:
+        {
+            next.next[0] = 3;
+            next.next[1] = 4;
+            next.next[2] = 6;
+            next.next[3] = 7;
+            next.next[4] = 0;
+            break;
+        }
+
+        default:
+        {
+            assert(false);
+        }
+    }
+
+    return next;
+}
+
