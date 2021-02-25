@@ -25,12 +25,107 @@
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
+#include <core/objects/synapses.h>
+#include <core/objects/output.h>
 
-#include <initializing/segment_initializing.h>
 
-Segment::Segment()
+Segment::Segment() {}
+
+/**
+ * @brief initNodeBuffer
+ * @param nodeBuffer
+ * @param numberOfItems
+ * @return
+ */
+bool
+Segment::initNodeBuffer(ItemBuffer &nodeBuffer, const uint32_t numberOfItems)
 {
-    initGlobalValues(*this);
+    if(nodeBuffer.initBuffer<float>(numberOfItems) == false) {
+        return false;
+    }
+
+    float* nodeProcessingBuffer = getBuffer<float>(nodeBuffer);
+    for(uint32_t i = 0; i < numberOfItems; i++) {
+        nodeProcessingBuffer[i] = 0.0f;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Segment::initializeBuffer
+ * @param numberOfBricks
+ * @param numberOfNodeBricks
+ * @param numberOfNodes
+ * @param numberOfSynapseSections
+ * @param numberOfOutputBricks
+ * @param numberOfOutputs
+ * @param numberOfRandValues
+ * @return
+ */
+bool
+Segment::initializeBuffer(const uint32_t numberOfBricks,
+                          const uint32_t numberOfNodeBricks,
+                          const uint32_t numberOfNodes,
+                          const uint32_t numberOfSynapseSections,
+                          const uint32_t numberOfOutputBricks,
+                          const uint32_t numberOfOutputs,
+                          const uint32_t numberOfRandValues)
+{
+    this->numberOfNodeBricks = numberOfNodeBricks;
+    nodeBricks = new Brick*[numberOfNodeBricks];
+    inputBricks = new Brick*[numberOfNodeBricks];
+    outputBricks = new Brick*[numberOfNodeBricks];
+
+    if(globalValues.initBuffer<GlobalValues>(1) == false) {
+        return false;
+    }
+
+    if(bricks.initBuffer<Brick>(numberOfBricks) == false) {
+        return false;
+    }
+
+    if(nodes.initBuffer<Node>(numberOfNodes) == false) {
+        return false;
+    }
+
+    // init node-buffer
+    // 255 == maximum number of threads on cpu or threads per block on gpu
+    if(initNodeBuffer(nodeProcessingBuffer, numberOfNodes * 255) == false) {
+        return false;
+    }
+    // TODO: correct number
+    if(initNodeBuffer(nodeInputBuffer, numberOfNodesPerBrick) == false) {
+        return false;
+    }
+    if(initNodeBuffer(nodeOutputBuffer, numberOfNodesPerBrick) == false) {
+        return false;
+    }
+
+    if(randomIntValues.initBuffer<uint32_t>(numberOfRandValues) == false) {
+        return false;
+    }
+
+    // segment.synapses.dynamic = true;
+    if(synapses.initBuffer<SynapseSection>(numberOfSynapseSections) == false) {
+        return false;
+    }
+
+    // mark all synapses als delted to make them usable
+    if(synapses.deleteAll() == false) {
+        return false;
+    }
+
+    const uint32_t outNodes = numberOfOutputBricks * numberOfNodesPerBrick;
+    if(outputSynapses.initBuffer<OutputSynapseSection>(outNodes) == false) {
+        return false;
+    }
+
+    if(outputs.initBuffer<Output>(numberOfOutputs) == false) {
+        return false;
+    }
+
+    return true;
 }
 
 /**

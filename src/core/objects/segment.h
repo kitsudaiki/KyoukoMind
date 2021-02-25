@@ -61,6 +61,14 @@ public:
 
     Segment();
 
+    bool initializeBuffer(const uint32_t numberOfBricks,
+                          const uint32_t numberOfNodeBricks,
+                          const uint32_t numberOfNodes,
+                          const uint32_t numberOfSynapseSections,
+                          const uint32_t numberOfOutputBricks,
+                          const uint32_t numberOfOutputs,
+                          const uint32_t numberOfRandValues);
+
     DataItem* getMetadata();
 
     bool connectBricks(const uint32_t sourceBrickId,
@@ -69,6 +77,9 @@ public:
     bool disconnectBricks(const uint32_t sourceBrickId,
                           const uint8_t sourceSide);
 
+private:
+    bool initNodeBuffer(ItemBuffer &nodeBuffer,
+                        const uint32_t numberOfItems);
 };
 
 #endif // NETWORK_SEGMENT_H
