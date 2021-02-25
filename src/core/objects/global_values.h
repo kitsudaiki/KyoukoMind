@@ -1,5 +1,5 @@
 /**
- * @file        kyouko_root.cpp
+ * @file        global_values.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *

@@ -1,5 +1,5 @@
 /**
- * @file        kyouko_root.cpp
+ * @file        output.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
