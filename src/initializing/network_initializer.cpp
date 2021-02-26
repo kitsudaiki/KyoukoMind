@@ -101,6 +101,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     }
 
     addBricks(*segment, parsedContent);
+    initTargetBrickList(*segment);
 
     SynapseSection* section = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
@@ -147,8 +148,8 @@ NetworkInitializer::addBricks(Segment &segment,
         brick.brickPos.z = static_cast<int32_t>(metaBase.bricks[i].brickPos.z);
 
         // copy neighbors
-        for(uint32_t i = 0; i < 12; i++) {
-            brick.neighbors[i] = metaBase.bricks[i].neighbors[i];
+        for(uint32_t j = 0; j < 12; j++) {
+            brick.neighbors[j] = metaBase.bricks[i].neighbors[j];
         }
 
         // handle node-brick
@@ -162,8 +163,8 @@ NetworkInitializer::addBricks(Segment &segment,
             if(brick.isOutputBrick)
             {
                 Node* array = getBuffer<Node>(segment.nodes);
-                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
-                    array[i + nodePos].border = -2.0f;
+                for(uint32_t j = 0; j < globalValues->numberOfNodesPerBrick; j++) {
+                    array[j + nodePos].border = -2.0f;
                 }
             }
 
@@ -171,8 +172,8 @@ NetworkInitializer::addBricks(Segment &segment,
             if(brick.isInputBrick)
             {
                 Node* array = getBuffer<Node>(segment.nodes);
-                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
-                    array[i + nodePos].border = 0.0f;
+                for(uint32_t j = 0; j < globalValues->numberOfNodesPerBrick; j++) {
+                    array[j + nodePos].border = 0.0f;
                 }
             }
         }
@@ -267,5 +268,181 @@ NetworkInitializer::createAxons(Segment &segment)
     }
 
     return true;
+}
+
+/**
+ * @brief NetworkInitializer::initTargetBrickList
+ * @param segment
+ * @return
+ */
+bool
+NetworkInitializer::initTargetBrickList(Segment &segment)
+{
+    Brick* bricks = getBuffer<Brick>(segment.bricks);
+    // iterate over all bricks
+    for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
+    {
+        Brick* baseBrick = &bricks[i];
+
+        // get 1024 samples
+        for(uint32_t j = 0; j < 1002; j++)
+        {
+            Brick* jumpBrick = baseBrick;
+
+            // try to go a specific distance
+            const uint32_t maxDist = 10;
+            uint8_t nextSide = 42;
+            for(uint32_t k = 0; k < maxDist; k++)
+            {
+                nextSide = getPossibleNext(nextSide);
+                const uint32_t nextBrickId = jumpBrick->neighbors[nextSide];
+                if(nextBrickId != UNINIT_STATE_32)
+                {
+                    jumpBrick = &bricks[nextBrickId];
+                    baseBrick->possibleTargetNodeBrickIds[j] = nextBrickId;
+                    nextSide = 11 - nextSide;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief Brick::getPossibleNext
+ * @param inputSide
+ * @return
+ */
+uint8_t
+NetworkInitializer::getPossibleNext(const uint8_t inputSide)
+{
+    uint8_t possibleNext[5];
+
+    switch(inputSide)
+    {
+        case 0:
+        {
+            possibleNext[0] = 4;
+            possibleNext[1] = 5;
+            possibleNext[2] = 7;
+            possibleNext[3] = 8;
+            possibleNext[4] = 11;
+            break;
+        }
+
+        case 1:
+        {
+            possibleNext[0] = 5;
+            possibleNext[1] = 6;
+            possibleNext[2] = 7;
+            possibleNext[3] = 8;
+            possibleNext[4] = 10;
+            break;
+        }
+
+        case 2:
+        {
+            possibleNext[0] = 3;
+            possibleNext[1] = 4;
+            possibleNext[2] = 5;
+            possibleNext[3] = 6;
+            possibleNext[4] = 9;
+            break;
+        }
+
+        case 3:
+        {
+            possibleNext[0] = 5;
+            possibleNext[1] = 7;
+            possibleNext[2] = 8;
+            possibleNext[3] = 2;
+            possibleNext[4] = 11;
+            break;
+        }
+        case 4:
+        {
+            possibleNext[0] = 6;
+            possibleNext[1] = 7;
+            possibleNext[2] = 8;
+            possibleNext[3] = 2;
+            possibleNext[4] = 10;
+            break;
+        }
+        case 5:
+        {
+            possibleNext[0] = 3;
+            possibleNext[1] = 6;
+            possibleNext[2] = 7;
+            possibleNext[3] = 0;
+            possibleNext[4] = 10;
+            break;
+        }
+        case 6:
+        {
+            possibleNext[0] = 4;
+            possibleNext[1] = 5;
+            possibleNext[2] = 8;
+            possibleNext[3] = 1;
+            possibleNext[4] = 11;
+            break;
+        }
+        case 7:
+        {
+            possibleNext[0] = 3;
+            possibleNext[1] = 4;
+            possibleNext[2] = 5;
+            possibleNext[3] = 1;
+            possibleNext[4] = 9;
+            break;
+        }
+        case 8:
+        {
+            possibleNext[0] = 3;
+            possibleNext[1] = 4;
+            possibleNext[2] = 6;
+            possibleNext[3] = 0;
+            possibleNext[4] = 9;
+            break;
+        }
+        case 9:
+        {
+            possibleNext[0] = 5;
+            possibleNext[1] = 6;
+            possibleNext[2] = 7;
+            possibleNext[3] = 8;
+            possibleNext[4] = 2;
+            break;
+        }
+        case 10:
+        {
+            possibleNext[0] = 3;
+            possibleNext[1] = 4;
+            possibleNext[2] = 5;
+            possibleNext[3] = 8;
+            possibleNext[4] = 1;
+            break;
+        }
+        case 11:
+        {
+            possibleNext[0] = 3;
+            possibleNext[1] = 4;
+            possibleNext[2] = 6;
+            possibleNext[3] = 7;
+            possibleNext[4] = 0;
+            break;
+        }
+
+        default:
+        {
+            return rand() % 12;
+        }
+    }
+
+    return possibleNext[rand() % 5];
 }
 

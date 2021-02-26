@@ -41,7 +41,8 @@
  */
 inline bool
 findNewSectioin(SynapseSection* synapseSections,
-                const uint32_t oldSectionId)
+                const uint32_t oldSectionId,
+                const uint32_t sourceNodeBrickId)
 {
     const uint64_t numberOfSections = KyoukoRoot::m_segment->synapses.itemCapacity;
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
@@ -59,8 +60,9 @@ findNewSectioin(SynapseSection* synapseSections,
             synapseSections[i].prev = oldSectionId;
             synapseSections[oldSectionId].next = i;
 
-            const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
-            synapseSections[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
+            Brick* sourceBrick = nodeBricks[sourceNodeBrickId];
+            const uint32_t pos = rand() % 1008;
+            synapseSections[i].nodeBrickId = sourceBrick->possibleTargetNodeBrickIds[pos];
             assert(synapseSections[i].nodeBrickId != UNINIT_STATE_32);
 
             //std::cout<<"create"<<std::endl;
@@ -103,7 +105,8 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
  */
 inline void
 synapseProcessing(const uint32_t sectionPos,
-                  float weight)
+                  float weight,
+                  const uint32_t sourceNodeBrickId)
 {
     SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
@@ -163,11 +166,11 @@ synapseProcessing(const uint32_t sectionPos,
     if(pos == SYNAPSES_PER_SYNAPSESECTION
             && section->next == UNINIT_STATE_32)
     {
-        findNewSectioin(synapseSections, sectionPos);
+        findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
     }
 
     if(weight > 2.0f) {
-        synapseProcessing(section->next, weight);
+        synapseProcessing(section->next, weight, sourceNodeBrickId);
     }
 }
 
@@ -252,7 +255,7 @@ triggerSynapseSesction(Brick* brick,
         const float up = static_cast<float>(pow(globalValue->gliaValue, node->targetBrickDistance));
         const float weight = node->potential * up;
         brick->nodeActivity++;
-        synapseProcessing(i, weight);
+        synapseProcessing(i, weight, brick->nodeBrickId);
     }
     else
     {

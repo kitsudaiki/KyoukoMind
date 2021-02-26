@@ -27,5 +27,6 @@
 #include <common/includes.h>
 #include <common/typedefs.h>
 #include <common/defines.h>
+#include <common/structs.h>
 
 #endif // COMMON_H

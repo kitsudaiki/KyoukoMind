@@ -33,7 +33,7 @@
 void
 validateStructSizes()
 {
-    assert(sizeof(Brick) < 4096);
+    assert(sizeof(Brick) == 4096);
 
     assert(sizeof(Synapse) == 16);
 

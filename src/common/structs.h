@@ -1,5 +1,5 @@
 /**
- * @file        network_initializer.h
+ * @file        structs.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,36 +20,17 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORK_INITIALIZER_H
-#define NETWORK_INITIALIZER_H
+#ifndef STRUCTS_H
+#define STRUCTS_H
 
-#include <common.h>
+#include <stdint.h>
 
-class Segment;
-
-namespace Kitsunemimi {
-namespace Ai {
-struct AiBaseMeta;
-}
-}
-
-class NetworkInitializer
+struct Position
 {
-public:
-    NetworkInitializer();
-
-    bool createNewNetwork(const std::string &fileContent);
-
-private:
-    void addBricks(Segment &segment,
-                   const Kitsunemimi::Ai::AiBaseMeta &metaBase);
-
-    bool createAxons(Segment &segment);
-
-    bool initTargetBrickList(Segment &segment);
-
-    uint8_t getPossibleNext(const uint8_t inputSide);
-
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t z = 0;
+    int32_t w = 0;
 };
 
-#endif // NETWORK_INITIALIZER_H
+#endif // STRUCTS_H

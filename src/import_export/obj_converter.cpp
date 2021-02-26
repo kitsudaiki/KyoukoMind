@@ -37,7 +37,7 @@
  * @return
  */
 Vec4
-convertPos(const Brick::BrickPos pos)
+convertPos(const Position pos)
 {
     Kitsunemimi::Obj::Vec4 vec;
 
