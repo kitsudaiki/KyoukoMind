@@ -35,11 +35,6 @@ struct AiBaseMeta;
 
 class NetworkInitializer
 {
-    struct PossibleNext
-    {
-        uint8_t next[5];
-    } __attribute__((packed));
-
 public:
     NetworkInitializer();
 
@@ -53,7 +48,7 @@ private:
 
     bool initTargetBrickList(Segment &segment);
 
-    const PossibleNext getPossibleNext(const uint8_t inputSide, const bool random = false);
+    uint8_t getPossibleNext(const uint8_t inputSide);
 
 };
 
