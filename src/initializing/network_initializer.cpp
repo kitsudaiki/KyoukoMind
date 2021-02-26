@@ -148,8 +148,8 @@ NetworkInitializer::addBricks(Segment &segment,
         brick.brickPos.z = static_cast<int32_t>(metaBase.bricks[i].brickPos.z);
 
         // copy neighbors
-        for(uint32_t i = 0; i < 12; i++) {
-            brick.neighbors[i] = metaBase.bricks[i].neighbors[i];
+        for(uint32_t j = 0; j < 12; j++) {
+            brick.neighbors[j] = metaBase.bricks[i].neighbors[j];
         }
 
         // handle node-brick
@@ -163,8 +163,8 @@ NetworkInitializer::addBricks(Segment &segment,
             if(brick.isOutputBrick)
             {
                 Node* array = getBuffer<Node>(segment.nodes);
-                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
-                    array[i + nodePos].border = -2.0f;
+                for(uint32_t j = 0; j < globalValues->numberOfNodesPerBrick; j++) {
+                    array[j + nodePos].border = -2.0f;
                 }
             }
 
@@ -172,8 +172,8 @@ NetworkInitializer::addBricks(Segment &segment,
             if(brick.isInputBrick)
             {
                 Node* array = getBuffer<Node>(segment.nodes);
-                for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++) {
-                    array[i + nodePos].border = 0.0f;
+                for(uint32_t j = 0; j < globalValues->numberOfNodesPerBrick; j++) {
+                    array[j + nodePos].border = 0.0f;
                 }
             }
         }
@@ -300,6 +300,7 @@ NetworkInitializer::initTargetBrickList(Segment &segment)
                 {
                     jumpBrick = &bricks[nextBrickId];
                     baseBrick->possibleTargetNodeBrickIds[j] = nextBrickId;
+                    nextSide = 11 - nextSide;
                 }
                 else
                 {
