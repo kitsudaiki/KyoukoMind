@@ -201,6 +201,14 @@ output_node_processing()
 
         calculateLearnings(totalDiff, newOnes, false);
 
+        if(totalDiff < 0.0001f)
+        {
+            for(uint32_t i = 0; i < 3; i++) {
+                outputs[i].shouldValue = 0.0f;
+            }
+            KyoukoRoot::m_freezeState = true;
+            globalValue->doLearn = 0;
+        }
         std::cout<<"totalDiff2: "<<totalDiff<<std::endl;
         std::cout<<"newOnes2: "<<newOnes<<std::endl;
     }
