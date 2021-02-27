@@ -32,63 +32,10 @@
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
 
+#include "section_handling.h"
+
 #include <libKitsunemimiCommon/buffer/item_buffer.h>
 
-/**
- * @brief findNewSectioin
- * @param synapseSections
- * @param oldSectionId
- * @return
- */
-inline bool
-findNewSectioin(SynapseSection* synapseSections,
-                const uint64_t oldSectionId,
-                const uint32_t sourceNodeBrickId)
-{
-    Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
-
-    // check if section is new and schould be created
-    SynapseSection newSection;
-    newSection.status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-    newSection.randomPos = rand() % 1024;
-
-    const uint64_t pos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
-    if(pos == UNINIT_STATE_64) {
-        return false;
-    }
-
-    synapseSections[pos].prev = oldSectionId;
-    synapseSections[oldSectionId].next = pos;
-
-    Brick* sourceBrick = nodeBricks[sourceNodeBrickId];
-    synapseSections[pos].nodeBrickId = sourceBrick->possibleTargetNodeBrickIds[rand() % 1000];
-    assert(synapseSections[pos].nodeBrickId != UNINIT_STATE_32);
-
-    return true;
-}
-
-/**
- * @brief removeSection
- * @param synapseSections
- * @param pos
- */
-inline void
-removeSection(SynapseSection* synapseSections, const uint32_t pos)
-{
-    SynapseSection* section = &synapseSections[pos];
-    SynapseSection* prev = &synapseSections[section->prev];
-
-    if(section->next != UNINIT_STATE_32)
-    {
-        SynapseSection* next = &synapseSections[section->next];
-        next->prev = section->prev;
-    }
-
-    prev->next = section->next;
-    //std::cout<<"delete"<<std::endl;
-
-    assert(KyoukoRoot::m_segment->synapses.deleteItem(pos));
-}
 
 /**
  * @brief synapseProcessing
@@ -113,7 +60,7 @@ synapseProcessing(const uint64_t sectionPos,
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
-          && weight > 2.0f)
+          && weight > 0.0f)
     {
         Synapse* synapse = &section->synapses[pos];
         if(synapse->targetNodeId == UNINIT_STATE_16)
@@ -123,10 +70,10 @@ synapseProcessing(const uint64_t sectionPos,
             }
 
             // set new weight
-            const float maxValue = 30.0f;
+            const float maxValue = 50.0f;
             const float random = (rand() % 1024) / 1024.0f;
-            float usedLearn = (weight < 5.0f) * weight
-                              + (weight >= 5.0f) * ((weight * random) + 1.0f);
+            float usedLearn = (weight < 2.0f) * weight
+                              + (weight >= 2.0f) * ((weight * random) + 1.0f);
             usedLearn = fmod(usedLearn, maxValue);
             synapse->weight = usedLearn;
             synapse->sign = 1 - (rand() % 2) * 2;
@@ -158,12 +105,12 @@ synapseProcessing(const uint64_t sectionPos,
     }
 
     if(pos == SYNAPSES_PER_SYNAPSESECTION
-            && section->next == UNINIT_STATE_32)
+            && section->next == UNINIT_STATE_64)
     {
         findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
     }
 
-    if(weight > 2.0f) {
+    if(weight > 1.0f) {
         synapseProcessing(section->next, weight, sourceNodeBrickId);
     }
 }
@@ -173,7 +120,7 @@ synapseProcessing(const uint64_t sectionPos,
  * @param sectionPos
  */
 inline void
-updating(const uint32_t sectionPos)
+updating(const uint64_t sectionPos)
 {
     SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
@@ -218,13 +165,13 @@ updating(const uint32_t sectionPos)
         hardening -= 1.0f;
     }
 
-    if(section->next != UNINIT_STATE_32) {
+    if(section->next != UNINIT_STATE_64) {
         updating(section->next);
     }
 
     // delete if sections is empty
     if(currentPos == 0
-            && section->prev != UNINIT_STATE_32)
+            && section->prev != UNINIT_STATE_64)
     {
         removeSection(synapseSections, sectionPos);
     }

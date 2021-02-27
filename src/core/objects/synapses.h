@@ -47,8 +47,8 @@ struct SynapseSection
     uint16_t randomPos = UNINIT_STATE_16;
 
     uint32_t nodeBrickId = UNINIT_STATE_32;
-    uint64_t prev = UNINIT_STATE_32;
-    uint64_t next = UNINIT_STATE_32;
+    uint64_t prev = UNINIT_STATE_64;
+    uint64_t next = UNINIT_STATE_64;
 
     float hardening = 0.0f;
     uint8_t padding[4];

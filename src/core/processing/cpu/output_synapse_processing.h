@@ -189,9 +189,6 @@ output_node_processing()
 
         calculateLearnings(totalDiff, newOnes, true);
 
-        std::cout<<"totalDiff1: "<<totalDiff<<std::endl;
-        std::cout<<"newOnes1: "<<newOnes<<std::endl;
-
         // learn and rerun output-processing
         for(uint32_t i = 0; i < outputBufferSize; i++)
         {

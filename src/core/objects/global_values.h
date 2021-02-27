@@ -27,7 +27,7 @@
 
 struct GlobalValues
 {
-    uint32_t numberOfNodesPerBrick = 1000;
+    uint32_t numberOfNodesPerBrick = 100;
 
     float sensitivity = 0.0f;
     float lerningValue = 0.0f;
