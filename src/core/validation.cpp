@@ -22,9 +22,7 @@
 
 #include "validation.h"
 
-#include <core/objects/item_buffer.h>
 #include <core/objects/segment.h>
-
 #include <core/objects/global_values.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>

@@ -30,9 +30,10 @@
 #include <core/objects/node.h>
 #include <core/objects/output.h>
 #include <core/objects/segment.h>
-#include <core/objects/item_buffer.h>
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
+
+#include <libKitsunemimiCommon/buffer/item_buffer.h>
 
 /**
  * @brief outputSynapseProcessing
@@ -44,10 +45,10 @@ inline void
 outputSynapseProcessing(const uint32_t sectionPos,
                         float weight)
 {
-    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
-    OutputSynapseSection* synapseSections = &getBuffer<OutputSynapseSection>(*buf)[sectionPos];
-    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
+    OutputSynapseSection* synapseSections = &Kitsunemimi::getBuffer<OutputSynapseSection>(*buf)[sectionPos];
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
 
     uint32_t pos = 0;
 
@@ -104,9 +105,9 @@ inline void
 outputSynapseLearn(const uint32_t sectionPos,
                    float weight)
 {
-    ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
-    OutputSynapseSection* synapseSections = &getBuffer<OutputSynapseSection>(*buf)[sectionPos];
-    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
+    OutputSynapseSection* synapseSections = &Kitsunemimi::getBuffer<OutputSynapseSection>(*buf)[sectionPos];
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     uint32_t pos = 0;
 
     // iterate over all synapses in the section and update the target-nodes
@@ -136,7 +137,7 @@ calculateLearnings(float &totalDiff,
     totalDiff = 0.0f;
     newOnes = 0;
 
-    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     const uint64_t outputsSize = KyoukoRoot::m_segment->outputs.numberOfItems;
 
     for(uint64_t o = 0; o < outputsSize; o++)
@@ -158,9 +159,9 @@ calculateLearnings(float &totalDiff,
 void
 output_node_processing()
 {
-    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    float* outputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
-    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    float* outputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
 
     const uint64_t outputBufferSize = KyoukoRoot::m_segment->nodeOutputBuffer.numberOfItems;
     const uint64_t outputsSize = KyoukoRoot::m_segment->outputs.numberOfItems;

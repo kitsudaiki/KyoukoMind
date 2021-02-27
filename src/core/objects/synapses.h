@@ -25,6 +25,8 @@
 
 #include <common.h>
 
+#include <libKitsunemimiCommon/buffer/item_buffer.h>
+
 //==================================================================================================
 
 struct Synapse
@@ -41,7 +43,7 @@ struct Synapse
 
 struct SynapseSection
 {
-    uint16_t status = DELETED_SECTION;
+    uint16_t status = Kitsunemimi::ItemBuffer::DELETED_SECTION;
     uint16_t randomPos = UNINIT_STATE_16;
 
     uint32_t nodeBrickId = UNINIT_STATE_32;
@@ -82,7 +84,7 @@ struct OutputSynapse
 
 struct OutputSynapseSection
 {
-    uint16_t status = ACTIVE_SECTION;
+    uint16_t status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
     uint16_t randomPos = UNINIT_STATE_16;
 
     uint8_t padding[12];

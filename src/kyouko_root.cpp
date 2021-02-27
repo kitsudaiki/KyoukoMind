@@ -127,8 +127,8 @@ KyoukoRoot::learn(const std::string &input,
 
     KyoukoRoot::m_ioHandler->setInput(input);
 
-    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
-    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     if(globalValue->doLearn == 0)
     {

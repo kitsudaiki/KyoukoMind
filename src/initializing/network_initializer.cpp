@@ -95,7 +95,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
 
 
     // fill array with empty nodes
-    Node* array = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
+    Node* array = Kitsunemimi::getBuffer<Node>(KyoukoRoot::m_segment->nodes);
     for(uint32_t i = 0; i < totalNumberOfNodes; i++) {
         array[i].border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
     }
@@ -103,11 +103,11 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent)
     addBricks(*segment, parsedContent);
     initTargetBrickList(*segment);
 
-    SynapseSection* section = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
+    SynapseSection* section = Kitsunemimi::getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
     for(uint32_t i = 0; i < totalNumberOfNodes; i++)
     {
-        section[i].status = ACTIVE_SECTION;
+        section[i].status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
         section[i].randomPos = rand() % 1024;
         const uint32_t nodeBrickPos = rand() % KyoukoRoot::m_segment->numberOfNodeBricks;
         section[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
@@ -130,7 +130,7 @@ void
 NetworkInitializer::addBricks(Segment &segment,
                               const Kitsunemimi::Ai::AiBaseMeta& metaBase)
 {
-    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     for(uint32_t i = 0; i < metaBase.bricks.size(); i++)
     {
@@ -162,7 +162,7 @@ NetworkInitializer::addBricks(Segment &segment,
             // handle output-brick
             if(brick.isOutputBrick)
             {
-                Node* array = getBuffer<Node>(segment.nodes);
+                Node* array = Kitsunemimi::getBuffer<Node>(segment.nodes);
                 for(uint32_t j = 0; j < globalValues->numberOfNodesPerBrick; j++) {
                     array[j + nodePos].border = -2.0f;
                 }
@@ -171,7 +171,7 @@ NetworkInitializer::addBricks(Segment &segment,
             // handle input-brick
             if(brick.isInputBrick)
             {
-                Node* array = getBuffer<Node>(segment.nodes);
+                Node* array = Kitsunemimi::getBuffer<Node>(segment.nodes);
                 for(uint32_t j = 0; j < globalValues->numberOfNodesPerBrick; j++) {
                     array[j + nodePos].border = 0.0f;
                 }
@@ -180,19 +180,19 @@ NetworkInitializer::addBricks(Segment &segment,
 
         assert(brick.brickId == i);
         // copy new brick to segment
-        getBuffer<Brick>(segment.bricks)[i] = brick;
+        Kitsunemimi::getBuffer<Brick>(segment.bricks)[i] = brick;
 
         // link if node-brick
         if(brick.nodeBrickId != UNINIT_STATE_32)
         {
             assert(brick.nodeBrickId < segment.numberOfNodeBricks);
-            segment.nodeBricks[brick.nodeBrickId] = &getBuffer<Brick>(segment.bricks)[i];
+            segment.nodeBricks[brick.nodeBrickId] = &Kitsunemimi::getBuffer<Brick>(segment.bricks)[i];
         }
 
         // link output-brick
         if(brick.isOutputBrick)
         {
-            Brick* outputBrickPtr = &getBuffer<Brick>(segment.bricks)[i];
+            Brick* outputBrickPtr = &Kitsunemimi::getBuffer<Brick>(segment.bricks)[i];
             segment.outputBricks[segment.numberOfOutputBricks] = outputBrickPtr;
             segment.numberOfOutputBricks++;
         }
@@ -200,7 +200,7 @@ NetworkInitializer::addBricks(Segment &segment,
         // link input-brick
         if(brick.isInputBrick)
         {
-            Brick* inputBrickPtr = &getBuffer<Brick>(segment.bricks)[i];
+            Brick* inputBrickPtr = &Kitsunemimi::getBuffer<Brick>(segment.bricks)[i];
             segment.inputBricks[segment.numberOfInputBricks] = inputBrickPtr;
             segment.numberOfInputBricks++;
         }
@@ -220,9 +220,9 @@ NetworkInitializer::addBricks(Segment &segment,
 bool
 NetworkInitializer::createAxons(Segment &segment)
 {
-    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Brick* bricks = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
-    Node* nodes = getBuffer<Node>(segment.nodes);
+    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Brick* bricks = Kitsunemimi::getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    Node* nodes = Kitsunemimi::getBuffer<Node>(segment.nodes);
 
     // calculate number of axons per brick
     for(uint32_t i = 0; i < KyoukoRoot::m_segment->bricks.numberOfItems; i++)
@@ -278,7 +278,7 @@ NetworkInitializer::createAxons(Segment &segment)
 bool
 NetworkInitializer::initTargetBrickList(Segment &segment)
 {
-    Brick* bricks = getBuffer<Brick>(segment.bricks);
+    Brick* bricks = Kitsunemimi::getBuffer<Brick>(segment.bricks);
     // iterate over all bricks
     for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
     {

@@ -46,7 +46,7 @@ bool
 MonitoringConnectionHandler::sendToMonitoring()
 {
     std::string monitoringOutput = "{\"bricks\": [";
-    Brick* brick = getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    Brick* brick = Kitsunemimi::getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
 
     bool found = false;
     for(uint32_t i = 0; i < KyoukoRoot::m_segment->bricks.numberOfItems; i++)

@@ -29,9 +29,10 @@
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/segment.h>
-#include <core/objects/item_buffer.h>
 #include <core/objects/synapses.h>
 #include <core/objects/global_values.h>
+
+#include <libKitsunemimiCommon/buffer/item_buffer.h>
 
 /**
  * @brief findNewSectioin
@@ -49,11 +50,11 @@ findNewSectioin(SynapseSection* synapseSections,
 
     for(uint32_t i = 0; i < numberOfSections; i++)
     {
-        if(synapseSections[i].status == DELETED_SECTION)
+        if(synapseSections[i].status == Kitsunemimi::ItemBuffer::DELETED_SECTION)
         {
             // check if section is new and schould be created
             SynapseSection newSection;
-            newSection.status = ACTIVE_SECTION;
+            newSection.status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
             newSection.randomPos = rand() % 1024;
             synapseSections[i]= newSection;
 
@@ -108,12 +109,13 @@ synapseProcessing(const uint32_t sectionPos,
                   float weight,
                   const uint32_t sourceNodeBrickId)
 {
-    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
+    Segment* set = KyoukoRoot::m_segment;
+    SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(set->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
-    float* nodeProcessingBuffer = getBuffer<float>(KyoukoRoot::m_segment->nodeProcessingBuffer);
+    float* nodeProcessingBuffer = Kitsunemimi::getBuffer<float>(set->nodeProcessingBuffer);
 
-    const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;
-    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    const uint64_t numberOfNodes = set->nodes.numberOfItems;
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(set->globalValues);
 
     uint32_t pos = 0;
 
@@ -181,10 +183,10 @@ synapseProcessing(const uint32_t sectionPos,
 inline void
 updating(const uint32_t sectionPos)
 {
-    SynapseSection* synapseSections = getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
+    SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(KyoukoRoot::m_segment->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
-    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Node* nodes = Kitsunemimi::getBuffer<Node>(KyoukoRoot::m_segment->nodes);
     float hardening = section->hardening;
 
     // iterate over all synapses in synapse-section
@@ -270,11 +272,11 @@ triggerSynapseSesction(Brick* brick,
 void
 node_processing()
 {
-    GlobalValues* globalValue = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Node* nodes = getBuffer<Node>(KyoukoRoot::m_segment->nodes);
-    float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
-    float* nodeProcessingBuffer = getBuffer<float>(KyoukoRoot::m_segment->nodeProcessingBuffer);
-    float* outputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Node* nodes = Kitsunemimi::getBuffer<Node>(KyoukoRoot::m_segment->nodes);
+    float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+    float* nodeProcessingBuffer = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeProcessingBuffer);
+    float* outputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
 
     const uint64_t numberOfNodes = KyoukoRoot::m_segment->nodes.numberOfItems;

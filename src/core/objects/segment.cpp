@@ -38,13 +38,13 @@ Segment::Segment() {}
  * @return
  */
 bool
-Segment::initNodeBuffer(ItemBuffer &nodeBuffer, const uint32_t numberOfItems)
+Segment::initNodeBuffer(Kitsunemimi::ItemBuffer &nodeBuffer, const uint32_t numberOfItems)
 {
     if(nodeBuffer.initBuffer<float>(numberOfItems) == false) {
         return false;
     }
 
-    float* nodeProcessingBuffer = getBuffer<float>(nodeBuffer);
+    float* nodeProcessingBuffer = Kitsunemimi::getBuffer<float>(nodeBuffer);
     for(uint32_t i = 0; i < numberOfItems; i++) {
         nodeProcessingBuffer[i] = 0.0f;
     }
@@ -112,9 +112,7 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
     }
 
     // mark all synapses als delted to make them usable
-    if(synapses.deleteAll() == false) {
-        return false;
-    }
+    synapses.deleteAll();
 
     const uint32_t outNodes = numberOfOutputBricks * numberOfNodesPerBrick;
     if(outputSynapses.initBuffer<OutputSynapseSection>(outNodes) == false) {
@@ -141,7 +139,7 @@ Segment::getMetadata()
     // collect data
     for(uint32_t i = 0; i < bricks.itemCapacity; i++)
     {
-        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[i];
+        Brick* brick = &Kitsunemimi::getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[i];
 
         if(brick->nodePos != UNINIT_STATE_32) {
             nodes->append(new DataValue(static_cast<long>(brick->brickId)));
