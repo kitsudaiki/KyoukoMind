@@ -43,7 +43,7 @@ struct Synapse
 
 struct SynapseSection
 {
-    uint16_t status = Kitsunemimi::ItemBuffer::DELETED_SECTION;
+    uint16_t status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
     uint16_t randomPos = UNINIT_STATE_16;
 
     uint32_t nodeBrickId = UNINIT_STATE_32;

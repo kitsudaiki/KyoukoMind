@@ -42,7 +42,7 @@
  */
 inline bool
 findNewSectioin(SynapseSection* synapseSections,
-                const uint32_t oldSectionId,
+                const uint64_t oldSectionId,
                 const uint32_t sourceNodeBrickId)
 {
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
@@ -97,7 +97,7 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
  * @param hardening
  */
 inline void
-synapseProcessing(const uint32_t sectionPos,
+synapseProcessing(const uint64_t sectionPos,
                   float weight,
                   const uint32_t sourceNodeBrickId)
 {

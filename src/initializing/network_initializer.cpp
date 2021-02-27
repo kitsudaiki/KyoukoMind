@@ -282,12 +282,17 @@ NetworkInitializer::initTargetBrickList(Segment &segment)
     // iterate over all bricks
     for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
     {
+        if(bricks[i].nodeBrickId == UNINIT_STATE_32) {
+            continue;
+        }
+
         Brick* baseBrick = &bricks[i];
 
-        // get 1024 samples
-        for(uint32_t j = 0; j < 1000; j++)
+        // get 1000 samples
+        uint32_t counter = 0;
+        while(counter < 1000)
         {
-            Brick* jumpBrick = baseBrick;
+            Brick jumpBrick = *baseBrick;
 
             // try to go a specific distance
             const uint32_t maxDist = 10;
@@ -295,11 +300,19 @@ NetworkInitializer::initTargetBrickList(Segment &segment)
             for(uint32_t k = 0; k < maxDist; k++)
             {
                 nextSide = getPossibleNext(nextSide);
-                const uint32_t nextBrickId = jumpBrick->neighbors[nextSide];
+                const uint32_t nextBrickId = jumpBrick.neighbors[nextSide];
                 if(nextBrickId != UNINIT_STATE_32)
                 {
-                    jumpBrick = &bricks[nextBrickId];
-                    baseBrick->possibleTargetNodeBrickIds[j] = nextBrickId;
+                    jumpBrick = bricks[nextBrickId];
+                    if(jumpBrick.nodeBrickId != UNINIT_STATE_32)
+                    {
+                        baseBrick->possibleTargetNodeBrickIds[counter] = jumpBrick.nodeBrickId;
+                        // update and check counter
+                        counter++;
+                        if(counter >= 1000) {
+                            break;
+                        }
+                    }
                     nextSide = 11 - nextSide;
                 }
                 else
