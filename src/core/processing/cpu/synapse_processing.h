@@ -67,12 +67,11 @@ synapseProcessing(const uint64_t sectionPos,
           && weight > 0.0f)
     {
         Synapse* synapse = &section->synapses[pos];
-        if(synapse->targetNodeId == UNINIT_STATE_16)
-        {
-            if(globalValue->doLearn == 0) {
-                break;
-            }
 
+        // create new synapse
+        if(synapse->targetNodeId == UNINIT_STATE_16
+                && globalValue->doLearn > 0)
+        {
             // set new weight
             const float maxValue = 30.0f;
             const float random = (rand() % 1024) / 1024.0f;
@@ -89,22 +88,24 @@ synapseProcessing(const uint64_t sectionPos,
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
         }
 
-        if(synapse->targetNodeId == UNINIT_STATE_16) {
-            continue;
+        // process synapse
+        if(synapse->targetNodeId != UNINIT_STATE_16)
+        {
+            // 0 because only one thread at the moment
+            const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
+            const float synapseWeight = synapse->weight;
+            const float shareWeight = (weight > synapseWeight) * synapseWeight
+                                      + (weight <= synapseWeight) * weight;
+
+            nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
+
+            weight -= shareWeight;
         }
 
-        // 0 because only one thread at the moment
-        const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
-        const float synapseWeight = synapse->weight;
-        const float shareWeight = (weight > synapseWeight) * synapseWeight
-                                  + (weight <= synapseWeight) * weight;
-
-        nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
-
-        weight -= shareWeight;
         pos++;
     }
 
+    // harden synapse-section
     if(globalValue->lerningValue > 0.0f)
     {
         if(pos > section->hardening) {
@@ -112,17 +113,16 @@ synapseProcessing(const uint64_t sectionPos,
         }
     }
 
-    if(weight > 0.1f)
+    // create new section if necessary
+    if(globalValue->doLearn > 0
+            && section->next == UNINIT_STATE_64
+            && weight > 1.0f)
     {
-        if(globalValue->doLearn > 0
-                && section->next == UNINIT_STATE_64
-                && weight > 1.0f)
-        {
-            findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
-        }
-
-        synapseProcessing(section->next, weight, sourceNodeBrickId);
+        findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
     }
+
+    // process next section
+    synapseProcessing(section->next, weight, sourceNodeBrickId);
 }
 
 /**
@@ -136,25 +136,23 @@ updating(const uint64_t sectionPos)
     SynapseSection* section = &synapseSections[sectionPos];
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Node* nodes = Kitsunemimi::getBuffer<Node>(KyoukoRoot::m_segment->nodes);
-    float hardening = section->hardening;
+    const uint32_t hardening = section->hardening;
 
     // iterate over all synapses in synapse-section
-    uint32_t currentPos = 0;
-    for(uint32_t lastPos = 0; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
+    uint32_t currentPos = hardening;
+    for(uint32_t lastPos = hardening; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
     {
         Synapse* synapse = &section->synapses[lastPos];
+
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             continue;
         }
 
-        if(hardening <= 0.0f)
-        {
-            // update dynamic-weight-value of the synapse
-            if(nodes[synapse->targetNodeId].active == 0) {
-                synapse->weight = synapse->weight * globalValue->initialMemorizing;
-            } else {
-                synapse->weight = synapse->weight * 0.95f;
-            }
+        // update dynamic-weight-value of the synapse
+        if(nodes[synapse->targetNodeId].active == 0) {
+            synapse->weight = synapse->weight * globalValue->initialMemorizing;
+        } else {
+            synapse->weight = synapse->weight * 0.95f;
         }
 
         // check for deletion of the single synapse
@@ -171,8 +169,6 @@ updating(const uint64_t sectionPos)
             section->synapses[lastPos] = currentSyn;
             currentPos++;
         }
-
-        hardening -= 1.0f;
     }
 
     if(section->next != UNINIT_STATE_64) {

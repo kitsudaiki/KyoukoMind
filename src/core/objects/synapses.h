@@ -50,7 +50,7 @@ struct SynapseSection
     uint64_t prev = UNINIT_STATE_64;
     uint64_t next = UNINIT_STATE_64;
 
-    float hardening = 0.0f;
+    uint32_t hardening = 0;
     uint8_t padding[4];
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
