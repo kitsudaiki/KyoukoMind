@@ -27,9 +27,9 @@
 #include <core/objects/global_values.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-
-#include <core/objects/item_buffer.h>
 #include <core/objects/segment.h>
+
+#include <libKitsunemimiCommon/buffer/item_buffer.h>
 
 /**
  * @brief convertPos
@@ -75,7 +75,7 @@ convertNetworkToObj(ObjItem &result)
 
     for(uint64_t i = 0; i < numberOfBricks; i++)
     {
-        Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[i];
+        Brick* brick = &Kitsunemimi::getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[i];
         convertBrickToObj(result, brick);
     }
 }
@@ -105,7 +105,7 @@ void
 convertBrickToObj(ObjItem &result,
                   const uint32_t brickId)
 {
-    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
+    Brick* brick = &Kitsunemimi::getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
     convertBrickToObj(result, brick);
 }
 
@@ -122,7 +122,7 @@ convertBrickToObj(ObjItem &result,
         return;
     }
 
-    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++)
     {
         /*AxonTransfer* axons = getBuffer<AxonTransfer>(KyoukoRoot::m_segment->axonTransfers);
@@ -164,7 +164,7 @@ convertNodeToObj(ObjItem &result,
                  const uint32_t brickId,
                  const uint32_t nodeId)
 {
-    Brick* brick = &getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
+    Brick* brick = &Kitsunemimi::getBuffer<Brick>(KyoukoRoot::m_segment->bricks)[brickId];
     convertNodeToObj(result, brick, nodeId);
 }
 

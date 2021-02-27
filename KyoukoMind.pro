@@ -86,7 +86,6 @@ HEADERS += \
     src/common/typedefs.h \
     src/core/objects/brick.h \
     src/core/objects/global_values.h \
-    src/core/objects/item_buffer.h \
     src/core/objects/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/gpu/gpu_processing_uint.h \
@@ -121,7 +120,6 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
-    src/core/objects/item_buffer.cpp \
     src/core/objects/segment.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \

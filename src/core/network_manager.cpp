@@ -63,7 +63,7 @@ NetworkManager::NetworkManager()
 void
 NetworkManager::run()
 {
-    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     std::chrono::high_resolution_clock::time_point edgeStart;
     std::chrono::high_resolution_clock::time_point edgeEnd;
@@ -134,7 +134,7 @@ NetworkManager::run()
         KyoukoRoot::m_monitoringHandler->sendToMonitoring();
 
 
-        Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+        Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
         std::string output = "";
         for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
         {

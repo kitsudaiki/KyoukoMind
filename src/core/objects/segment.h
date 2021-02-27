@@ -25,13 +25,13 @@
 
 #include <common.h>
 
-#include <core/objects/item_buffer.h>
+#include <libKitsunemimiCommon/buffer/item_buffer.h>
 #include <core/objects/brick.h>
 
 class Segment
 {
 public:
-    ItemBuffer bricks;
+    Kitsunemimi::ItemBuffer bricks;
 
     Brick** nodeBricks = nullptr;
     uint32_t numberOfNodeBricks = 0;
@@ -41,14 +41,14 @@ public:
     uint32_t numberOfOutputBricks = 0;
 
     // host-representation of permanent gpu-data
-    ItemBuffer nodes;
-    ItemBuffer synapses;
-    ItemBuffer outputSynapses;
-    ItemBuffer outputs;
+    Kitsunemimi::ItemBuffer nodes;
+    Kitsunemimi::ItemBuffer synapses;
+    Kitsunemimi::ItemBuffer outputSynapses;
+    Kitsunemimi::ItemBuffer outputs;
 
-    ItemBuffer nodeProcessingBuffer;
-    ItemBuffer nodeInputBuffer;
-    ItemBuffer nodeOutputBuffer;
+    Kitsunemimi::ItemBuffer nodeProcessingBuffer;
+    Kitsunemimi::ItemBuffer nodeInputBuffer;
+    Kitsunemimi::ItemBuffer nodeOutputBuffer;
 
 
     uint32_t numberOfNodesPerBrick = 0;
@@ -56,8 +56,8 @@ public:
     std::atomic_flag input_lock = ATOMIC_FLAG_INIT;
 
     // other
-    ItemBuffer randomIntValues;
-    ItemBuffer globalValues;
+    Kitsunemimi::ItemBuffer randomIntValues;
+    Kitsunemimi::ItemBuffer globalValues;
 
     Segment();
 
@@ -78,7 +78,7 @@ public:
                           const uint8_t sourceSide);
 
 private:
-    bool initNodeBuffer(ItemBuffer &nodeBuffer,
+    bool initNodeBuffer(Kitsunemimi::ItemBuffer &nodeBuffer,
                         const uint32_t numberOfItems);
 };
 

@@ -45,7 +45,7 @@ SetGlobalValues_Blossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("update global-values");
 
-    GlobalValues* globalValues = getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Kitsunemimi::DataMap* input = &blossomLeaf.input;
 
     if(input->contains("initial_memorizing"))

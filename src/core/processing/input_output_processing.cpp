@@ -42,7 +42,7 @@ InputOutputProcessing::processInputMapping()
     Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
 
     // insert input-values from brick
-    float* inputNodes = getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+    float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
     for(uint32_t i = 0; i < m_inputMapper.size(); i++) {
         inputNodes[i + inputBrick->nodePos] = m_inputMapper[i];
     }
@@ -56,7 +56,7 @@ InputOutputProcessing::processInputMapping()
 void
 InputOutputProcessing::processOutputMapping()
 {
-    Output* outputs = getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     LOG_WARNING("-----------------------------------------------");
     for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
     {
