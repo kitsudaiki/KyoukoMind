@@ -26,10 +26,8 @@
 #include <common.h>
 #include <kyouko_root.h>
 
-class Brick
+struct Brick
 {
-
-public:
     // common
     uint32_t brickId = UNINIT_STATE_32;
     uint32_t nodeBrickId = UNINIT_STATE_32;
@@ -44,14 +42,7 @@ public:
     uint32_t nodePos = UNINIT_STATE_32;
 
     uint32_t nodeActivity = 0;
-
-    //----------------------------------------------------------------------------------------------
-
-    Brick();
-    Brick(const Brick &other);
-    Brick& operator=(const Brick &other);
-
-    ~Brick();
+    // total size: 4096 Bytes
 };
 
 #endif // BRICK_H
