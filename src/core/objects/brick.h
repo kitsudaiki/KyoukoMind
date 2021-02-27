@@ -35,12 +35,12 @@ public:
     uint32_t nodeBrickId = UNINIT_STATE_32;
     bool isOutputBrick = false;
     bool isInputBrick = false;
-    uint8_t padding[6];
+    uint8_t padding[14];
 
     Position brickPos;
 
     uint32_t neighbors[12];
-    uint32_t possibleTargetNodeBrickIds[1002];
+    uint32_t possibleTargetNodeBrickIds[1000];
     uint32_t nodePos = UNINIT_STATE_32;
 
     uint32_t nodeActivity = 0;

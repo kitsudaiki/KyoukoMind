@@ -61,7 +61,7 @@ findNewSectioin(SynapseSection* synapseSections,
             synapseSections[oldSectionId].next = i;
 
             Brick* sourceBrick = nodeBricks[sourceNodeBrickId];
-            const uint32_t pos = rand() % 1008;
+            const uint32_t pos = rand() % 1000;
             synapseSections[i].nodeBrickId = sourceBrick->possibleTargetNodeBrickIds[pos];
             assert(synapseSections[i].nodeBrickId != UNINIT_STATE_32);
 

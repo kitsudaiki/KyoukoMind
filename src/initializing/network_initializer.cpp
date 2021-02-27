@@ -285,7 +285,7 @@ NetworkInitializer::initTargetBrickList(Segment &segment)
         Brick* baseBrick = &bricks[i];
 
         // get 1024 samples
-        for(uint32_t j = 0; j < 1002; j++)
+        for(uint32_t j = 0; j < 1000; j++)
         {
             Brick* jumpBrick = baseBrick;
 
