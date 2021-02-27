@@ -48,6 +48,10 @@ synapseProcessing(const uint64_t sectionPos,
                   float weight,
                   const uint32_t sourceNodeBrickId)
 {
+    if(sectionPos == UNINIT_STATE_64) {
+        return;
+    }
+
     Segment* set = KyoukoRoot::m_segment;
     SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(set->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
@@ -66,11 +70,11 @@ synapseProcessing(const uint64_t sectionPos,
         if(synapse->targetNodeId == UNINIT_STATE_16)
         {
             if(globalValue->doLearn == 0) {
-                return;
+                break;
             }
 
             // set new weight
-            const float maxValue = 50.0f;
+            const float maxValue = 30.0f;
             const float random = (rand() % 1024) / 1024.0f;
             float usedLearn = (weight < 2.0f) * weight
                               + (weight >= 2.0f) * ((weight * random) + 1.0f);
@@ -83,6 +87,10 @@ synapseProcessing(const uint64_t sectionPos,
                                                  % globalValue->numberOfNodesPerBrick;
             const uint32_t nodeOffset = section->nodeBrickId * globalValue->numberOfNodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
+        }
+
+        if(synapse->targetNodeId == UNINIT_STATE_16) {
+            continue;
         }
 
         // 0 because only one thread at the moment
@@ -104,13 +112,15 @@ synapseProcessing(const uint64_t sectionPos,
         }
     }
 
-    if(pos == SYNAPSES_PER_SYNAPSESECTION
-            && section->next == UNINIT_STATE_64)
+    if(weight > 0.1f)
     {
-        findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
-    }
+        if(globalValue->doLearn > 0
+                && section->next == UNINIT_STATE_64
+                && weight > 1.0f)
+        {
+            findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
+        }
 
-    if(weight > 1.0f) {
         synapseProcessing(section->next, weight, sourceNodeBrickId);
     }
 }
