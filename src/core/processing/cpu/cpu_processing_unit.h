@@ -32,7 +32,7 @@ class Barrier;
 
 class GlobalValuesHandler;
 class Segment;
-class Brick;
+struct Brick;
 
 class CpuProcessingUnit
         : public Kitsunemimi::Thread

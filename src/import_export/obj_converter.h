@@ -29,7 +29,7 @@
 using Kitsunemimi::Obj::Vec4;
 using Kitsunemimi::Obj::ObjItem;
 
-class Brick;
+struct Brick;
 struct Node;
 struct EdgeSection;
 

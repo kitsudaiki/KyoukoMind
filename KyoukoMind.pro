@@ -121,7 +121,6 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
-    src/core/objects/brick.cpp \
     src/core/objects/item_buffer.cpp \
     src/core/objects/segment.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \

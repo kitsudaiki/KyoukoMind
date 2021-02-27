@@ -28,7 +28,6 @@
 
 class NetworkManager;
 class Segment;
-class Brick;
 class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
