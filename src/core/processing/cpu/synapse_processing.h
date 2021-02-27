@@ -178,7 +178,8 @@ updating(const uint64_t sectionPos)
 
     // delete if sections is empty
     if(currentPos == 0
-            && section->prev != UNINIT_STATE_64)
+            && section->prev != UNINIT_STATE_64
+            && hardening == 0)
     {
         removeSection(synapseSections, sectionPos);
     }
