@@ -45,33 +45,26 @@ findNewSectioin(SynapseSection* synapseSections,
                 const uint32_t oldSectionId,
                 const uint32_t sourceNodeBrickId)
 {
-    const uint64_t numberOfSections = KyoukoRoot::m_segment->synapses.itemCapacity;
     Brick** nodeBricks = KyoukoRoot::m_segment->nodeBricks;
 
-    for(uint32_t i = 0; i < numberOfSections; i++)
-    {
-        if(synapseSections[i].status == Kitsunemimi::ItemBuffer::DELETED_SECTION)
-        {
-            // check if section is new and schould be created
-            SynapseSection newSection;
-            newSection.status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-            newSection.randomPos = rand() % 1024;
-            synapseSections[i]= newSection;
+    // check if section is new and schould be created
+    SynapseSection newSection;
+    newSection.status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+    newSection.randomPos = rand() % 1024;
 
-            synapseSections[i].prev = oldSectionId;
-            synapseSections[oldSectionId].next = i;
-
-            Brick* sourceBrick = nodeBricks[sourceNodeBrickId];
-            const uint32_t pos = rand() % 1000;
-            synapseSections[i].nodeBrickId = sourceBrick->possibleTargetNodeBrickIds[pos];
-            assert(synapseSections[i].nodeBrickId != UNINIT_STATE_32);
-
-            //std::cout<<"create"<<std::endl;
-            return true;
-        }
+    const uint64_t pos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
+    if(pos == UNINIT_STATE_64) {
+        return false;
     }
 
-    return false;
+    synapseSections[pos].prev = oldSectionId;
+    synapseSections[oldSectionId].next = pos;
+
+    Brick* sourceBrick = nodeBricks[sourceNodeBrickId];
+    synapseSections[pos].nodeBrickId = sourceBrick->possibleTargetNodeBrickIds[rand() % 1000];
+    assert(synapseSections[pos].nodeBrickId != UNINIT_STATE_32);
+
+    return true;
 }
 
 /**
@@ -94,8 +87,7 @@ removeSection(SynapseSection* synapseSections, const uint32_t pos)
     prev->next = section->next;
     //std::cout<<"delete"<<std::endl;
 
-    SynapseSection emptyEdge;
-    synapseSections[pos] = emptyEdge;
+    assert(KyoukoRoot::m_segment->synapses.deleteItem(pos));
 }
 
 /**

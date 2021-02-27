@@ -112,7 +112,9 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
     }
 
     // mark all synapses als delted to make them usable
-    synapses.deleteAll();
+    for(uint64_t i = numberOfNodes; i < synapses.itemCapacity; i++) {
+        synapses.deleteItem(i);
+    }
 
     const uint32_t outNodes = numberOfOutputBricks * numberOfNodesPerBrick;
     if(outputSynapses.initBuffer<OutputSynapseSection>(outNodes) == false) {
