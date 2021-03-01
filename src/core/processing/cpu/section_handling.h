@@ -29,8 +29,8 @@ findNewSectioin(SynapseSection* synapseSections,
     SynapseSection newSection;
     newSection.randomPos = rand() % 1024;
 
-    const uint64_t pos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
-    if(pos == UNINIT_STATE_64)
+    const uint64_t newPos = KyoukoRoot::m_segment->synapses.addNewItem(newSection);
+    if(newPos == UNINIT_STATE_64)
     {
         // not allowed in while testing
         // TODO: remove assert again
@@ -38,12 +38,13 @@ findNewSectioin(SynapseSection* synapseSections,
         return false;
     }
 
-    synapseSections[pos].prev = oldSectionId;
-    synapseSections[oldSectionId].next = pos;
+    synapseSections[newPos].prev = oldSectionId;
+    synapseSections[oldSectionId].next = newPos;
+    assert(newPos >= 4200);
 
     Brick* sourceBrick = nodeBricks[sourceNodeBrickId];
-    synapseSections[pos].nodeBrickId = sourceBrick->possibleTargetNodeBrickIds[rand() % 1000];
-    assert(synapseSections[pos].nodeBrickId != UNINIT_STATE_32);
+    synapseSections[newPos].nodeBrickId = sourceBrick->possibleTargetNodeBrickIds[rand() % 1000];
+    assert(synapseSections[newPos].nodeBrickId != UNINIT_STATE_32);
 
     return true;
 }
@@ -54,20 +55,22 @@ findNewSectioin(SynapseSection* synapseSections,
  * @param pos
  */
 inline void
-removeSection(SynapseSection* synapseSections, const uint64_t pos)
+removeSection(SynapseSection* synapseSections, const uint64_t deletePos)
 {
-    SynapseSection* section = &synapseSections[pos];
-    SynapseSection* prev = &synapseSections[section->prev];
+    assert(deletePos >= 4200);
 
-    if(section->next != UNINIT_STATE_64)
+    SynapseSection* deleteSection = &synapseSections[deletePos];
+    SynapseSection* prev = &synapseSections[deleteSection->prev];
+
+    if(deleteSection->next != UNINIT_STATE_64)
     {
-        SynapseSection* next = &synapseSections[section->next];
-        next->prev = section->prev;
+        SynapseSection* next = &synapseSections[deleteSection->next];
+        next->prev = deleteSection->prev;
     }
 
-    prev->next = section->next;
+    prev->next = deleteSection->next;
 
-    assert(KyoukoRoot::m_segment->synapses.deleteItem(pos));
+    assert(KyoukoRoot::m_segment->synapses.deleteItem(deletePos));
 }
 
 #endif // SECTION_HANDLING_H

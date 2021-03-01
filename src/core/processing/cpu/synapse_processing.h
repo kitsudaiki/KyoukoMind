@@ -45,40 +45,38 @@
  */
 inline void
 synapseProcessing(const uint64_t sectionPos,
-                  float weight,
+                  const float weightIn,
                   const uint32_t sourceNodeBrickId)
 {
-    if(sectionPos == UNINIT_STATE_64) {
-        return;
-    }
+    const float sectionWeight = 100.0f;
 
     Segment* seg = KyoukoRoot::m_segment;
     SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(seg->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
     float* nodeProcessingBuffer = Kitsunemimi::getBuffer<float>(seg->nodeProcessingBuffer);
-
     const uint64_t numberOfNodes = seg->nodes.numberOfItems;
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
 
     uint32_t pos = 0;
+    float weight = (weightIn < sectionWeight) * weightIn
+                   + (weightIn >= sectionWeight) * sectionWeight;
 
     // iterate over all synapses in the section and update the target-nodes
-    while(pos < SYNAPSES_PER_SYNAPSESECTION
-          && weight > 0.0f)
+    while(pos < SYNAPSES_PER_SYNAPSESECTION)
     {
         Synapse* synapse = &section->synapses[pos];
 
         // create new synapse
         if(synapse->targetNodeId == UNINIT_STATE_16
-                && globalValue->doLearn > 0)
+                && globalValue->doLearn > 0
+                && section->next == UNINIT_STATE_64)
         {
             // set new weight
-            const float maxValue = 30.0f;
+            const float maxValue = 50.0f;
             const float random = (rand() % 1024) / 1024.0f;
-            float usedLearn = (weight < 2.0f) * weight
-                              + (weight >= 2.0f) * ((weight * random) + 1.0f);
-            usedLearn = fmod(usedLearn, maxValue);
-            synapse->weight = usedLearn;
+            const float usedLearn = (weight < 2.0f) * weight
+                                    + (weight >= 2.0f) * ((weight * random) + 1.0f);
+            synapse->weight = fmod(usedLearn, maxValue);
             synapse->sign = 1 - (rand() % 2) * 2;
 
             // get random node-id as target
@@ -89,19 +87,19 @@ synapseProcessing(const uint64_t sectionPos,
         }
 
         // process synapse
-        if(synapse->targetNodeId != UNINIT_STATE_16)
-        {
-            // 0 because only one thread at the moment
-            const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
-            const float synapseWeight = synapse->weight;
-            const float shareWeight = (weight > synapseWeight) * synapseWeight
-                                      + (weight <= synapseWeight) * weight;
-
-            nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
-
-            weight -= shareWeight;
+        if(synapse->targetNodeId == UNINIT_STATE_16) {
+            break;
         }
 
+        // 0 because only one thread at the moment
+        const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
+        const float synapseWeight = synapse->weight;
+        const float shareWeight = (weight > synapseWeight) * synapseWeight
+                                  + (weight <= synapseWeight) * weight;
+
+        nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
+
+        weight -= shareWeight;
         pos++;
     }
 
@@ -113,16 +111,21 @@ synapseProcessing(const uint64_t sectionPos,
         }
     }
 
-    // create new section if necessary
-    if(globalValue->doLearn > 0
-            && section->next == UNINIT_STATE_64
-            && weight > 1.0f)
+    // go to next section
+    if(weightIn - sectionWeight > 1.0f)
     {
-        findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
-    }
+        // create new section if necessary
+        if(globalValue->doLearn > 0
+                && section->next == UNINIT_STATE_64)
+        {
+            findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
+        }
 
-    // process next section
-    synapseProcessing(section->next, weight, sourceNodeBrickId);
+        // process next section
+        if(section->next != UNINIT_STATE_64) {
+            synapseProcessing(section->next, weightIn - sectionWeight, sourceNodeBrickId);
+        }
+    }
 }
 
 /**
@@ -134,14 +137,18 @@ updating(const uint64_t sectionPos)
 {
     Segment* seg = KyoukoRoot::m_segment;
     SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(seg->synapses);
-    SynapseSection* section = &synapseSections[sectionPos];
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
     Node* nodes = Kitsunemimi::getBuffer<Node>(seg->nodes);
-    const uint32_t hardening = section->hardening;
+    SynapseSection* section = &synapseSections[sectionPos];
+
+    // update next-section
+    if(section->next != UNINIT_STATE_64) {
+        updating(section->next);
+    }
 
     // iterate over all synapses in synapse-section
-    uint32_t currentPos = hardening;
-    for(uint32_t lastPos = hardening; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
+    uint32_t currentPos = section->hardening;
+    for(uint32_t lastPos = section->hardening; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
     {
         Synapse* synapse = &section->synapses[lastPos];
 
@@ -172,14 +179,10 @@ updating(const uint64_t sectionPos)
         }
     }
 
-    if(section->next != UNINIT_STATE_64) {
-        updating(section->next);
-    }
-
     // delete if sections is empty
-    if(currentPos == 0
+    if(section->hardening == 0
             && section->prev != UNINIT_STATE_64
-            && hardening == 0)
+            && currentPos == 0)
     {
         removeSection(synapseSections, sectionPos);
     }
