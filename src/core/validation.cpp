@@ -33,7 +33,7 @@ validateStructSizes()
 {
     assert(sizeof(Brick) == 4096);
 
-    assert(sizeof(Synapse) == 16);
+    assert(sizeof(Synapse) == 8);
 
     std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
     assert(sizeof(SynapseSection) == 256);

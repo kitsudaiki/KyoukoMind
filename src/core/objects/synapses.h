@@ -35,8 +35,7 @@ struct Synapse
     uint16_t targetNodeId = UNINIT_STATE_16;
     int8_t sign = 1;
     int8_t multiplicator;
-    uint8_t padding[8];
-    // total size: 16 Byte
+    // total size: 8 Byte
 };
 
 //==================================================================================================
