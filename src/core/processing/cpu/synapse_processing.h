@@ -58,6 +58,7 @@ synapseProcessing(const uint64_t sectionPos,
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
 
     uint32_t pos = 0;
+    uint32_t counter = 0;
     float weight = (weightIn < sectionWeight) * weightIn
                    + (weightIn >= sectionWeight) * sectionWeight;
 
@@ -86,28 +87,29 @@ synapseProcessing(const uint64_t sectionPos,
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
         }
 
-        // process synapse
-        if(synapse->targetNodeId == UNINIT_STATE_16) {
-            break;
-        }
-
-        // 0 because only one thread at the moment
-        const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
-        const float synapseWeight = synapse->weight;
-        const float shareWeight = (weight > synapseWeight) * synapseWeight
-                                  + (weight <= synapseWeight) * weight;
-
-        nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
-
-        weight -= shareWeight;
         pos++;
+
+        // process synapse
+        if(synapse->targetNodeId != UNINIT_STATE_16)
+        {
+            // 0 because only one thread at the moment
+            const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
+            const float synapseWeight = synapse->weight;
+            const float shareWeight = (weight > synapseWeight) * synapseWeight
+                                      + (weight <= synapseWeight) * weight;
+
+            nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
+
+            weight -= shareWeight;
+            counter = pos;
+        }
     }
 
     // harden synapse-section
     if(globalValue->lerningValue > 0.0f)
     {
-        if(pos > section->hardening) {
-            section->hardening = pos;
+        if(counter > section->hardening) {
+            section->hardening = counter;
         }
     }
 
