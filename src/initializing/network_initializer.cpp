@@ -70,17 +70,30 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
         return false;
     }
 
+    Segment* segment = KyoukoRoot::m_segment;
     const uint32_t numberOfBricks = static_cast<uint32_t>(parsedContent.bricks.size());
+
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(segment->globalValues);
+    globalValue->nodesPerBrick = parsedContent.initializingMeta.nodesPerBrick;
+    globalValue->maxBrickDistance = parsedContent.initializingMeta.maxBrickDistance;
+    globalValue->nodeLowerBorder = parsedContent.initializingMeta.nodeLowerBorder;
+    globalValue->nodeUpperBorder = parsedContent.initializingMeta.nodeUpperBorder;
+    globalValue->maxSynapseSections = parsedContent.initializingMeta.maxSynapseSections;
+
+    globalValue->synapseDeleteBorder = parsedContent.processingMeta.synapseDeleteBorder;
+    globalValue->actionPotential = parsedContent.processingMeta.actionPotential;
+    globalValue->nodeCooldown = parsedContent.processingMeta.nodeCooldown;
+    globalValue->memorizing = parsedContent.processingMeta.memorizing;
+    globalValue->gliaValue = parsedContent.processingMeta.gliaValue;
+    globalValue->refractionTime = parsedContent.processingMeta.refractionTime;
 
     // update message for the monitoring
     KyoukoRoot::monitoringBrickMessage.numberOfInfos = numberOfBricks;
 
     // init segment
-    Segment* segment = KyoukoRoot::m_segment;
     const uint32_t numberOfNodeBricks = parsedContent.numberOfNodeBricks;
-    GlobalValues globalValues;
-    const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValues.nodesPerBrick;
-    segment->nodesPerBrick = globalValues.nodesPerBrick;
+    const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValue->nodesPerBrick;
+    segment->nodesPerBrick = globalValue->nodesPerBrick;
 
     // init segment
     if(segment->initializeBuffer(numberOfBricks,
