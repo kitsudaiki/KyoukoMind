@@ -157,7 +157,7 @@ updating(const uint64_t sectionPos)
 
         // update dynamic-weight-value of the synapse
         if(nodes[synapse->targetNodeId].active == 0) {
-            synapse->weight = synapse->weight * globalValue->initialMemorizing;
+            synapse->weight = synapse->weight * globalValue->memorizing;
         } else {
             synapse->weight = synapse->weight * 0.95f;
         }

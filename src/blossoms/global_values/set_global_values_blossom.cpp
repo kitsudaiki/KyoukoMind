@@ -32,10 +32,8 @@ using namespace Kitsunemimi::Sakura;
 
 SetGlobalValues_Blossom::SetGlobalValues_Blossom()
 {
-    validationMap.emplace("initial_memorizing", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
-    validationMap.emplace("memorizing_offset", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
+    validationMap.emplace("memorizing", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
     validationMap.emplace("learning", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
-    validationMap.emplace("sensitivity", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
     validationMap.emplace("glia_value", BlossomValidDef(IO_ValueType::INPUT_TYPE, false));
 }
 
@@ -48,33 +46,13 @@ SetGlobalValues_Blossom::runTask(BlossomLeaf &blossomLeaf,
     GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Kitsunemimi::DataMap* input = &blossomLeaf.input;
 
-    if(input->contains("initial_memorizing"))
+    if(input->contains("memorizing"))
     {
-        DataValue* value = input->get("initial_memorizing")->toValue();
+        DataValue* value = input->get("memorizing")->toValue();
         if(value->isFloatValue()) {
-            globalValues->initialMemorizing = value->getFloat();
+            globalValues->memorizing = value->getFloat();
         } else if(value->isIntValue()) {
-            globalValues->initialMemorizing = value->getInt();
-        }
-    }
-
-    if(input->contains("memorizing_offset"))
-    {
-        DataValue* value = input->get("memorizing_offset")->toValue();
-        if(value->isFloatValue()) {
-            globalValues->memorizingOffset = value->getFloat();
-        } else if(value->isIntValue()) {
-            globalValues->memorizingOffset = value->getInt();
-        }
-    }
-
-    if(input->contains("sensitivity"))
-    {
-        DataValue* value = input->get("sensitivity")->toValue();
-        if(value->isFloatValue()) {
-            globalValues->sensitivity = value->getFloat();
-        } else if(value->isIntValue()) {
-            globalValues->sensitivity = value->getInt();
+            globalValues->memorizing = value->getInt();
         }
     }
 

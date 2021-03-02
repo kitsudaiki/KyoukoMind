@@ -29,22 +29,19 @@ struct GlobalValues
 {
     uint32_t numberOfNodesPerBrick = 100;
 
-    float sensitivity = 0.0f;
     float lerningValue = 0.0f;
     float gliaValue = 1.0f;
-    float initialMemorizing = 0.5f;
-    float memorizingOffset = 0.0f;
+    float memorizing = 0.5f;
 
     float nodeCooldown = 3.0f;
-    float actionPotential = 150.0f;
+    float actionPotential = 250.0f;
     uint8_t refractionTime = 1;
     uint8_t doLearn = 0;
     uint8_t padding2[6];
 
-    float newSynapseBorder = 1.0f;
     float deleteSynapseBorder = 1.0f;
 
-    uint8_t padding[208];
+    uint8_t padding[220];
 };
 
 #endif // GLOBAL_VALUES_HANDLER_H
