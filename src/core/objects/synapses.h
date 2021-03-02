@@ -35,8 +35,7 @@ struct Synapse
     uint16_t targetNodeId = UNINIT_STATE_16;
     int8_t sign = 1;
     int8_t multiplicator;
-    uint8_t padding[8];
-    // total size: 16 Byte
+    // total size: 8 Byte
 };
 
 //==================================================================================================
@@ -47,10 +46,10 @@ struct SynapseSection
     uint16_t randomPos = UNINIT_STATE_16;
 
     uint32_t nodeBrickId = UNINIT_STATE_32;
-    uint64_t prev = UNINIT_STATE_32;
-    uint64_t next = UNINIT_STATE_32;
+    uint64_t prev = UNINIT_STATE_64;
+    uint64_t next = UNINIT_STATE_64;
 
-    float hardening = 0.0f;
+    uint32_t hardening = 0;
     uint8_t padding[4];
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];

@@ -117,7 +117,8 @@ HEADERS += \
     src/core/processing/cpu/output_synapse_processing.h \
     src/blossoms/special/set_input_blossom.h \
     src/core/objects/output.h \
-    src/common/structs.h
+    src/common/structs.h \
+    src/core/processing/cpu/section_handling.h
 
 SOURCES += \
     src/core/objects/segment.cpp \

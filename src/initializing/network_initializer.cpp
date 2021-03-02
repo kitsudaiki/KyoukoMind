@@ -295,7 +295,7 @@ NetworkInitializer::initTargetBrickList(Segment &segment)
             Brick jumpBrick = *baseBrick;
 
             // try to go a specific distance
-            const uint32_t maxDist = 10;
+            const uint32_t maxDist = 2;
             uint8_t nextSide = 42;
             for(uint32_t k = 0; k < maxDist; k++)
             {
@@ -310,6 +310,10 @@ NetworkInitializer::initTargetBrickList(Segment &segment)
                         if(jumpBrick.isOutputBrick != 0
                                 && baseBrick->isInputBrick != 0)
                         {
+                            continue;
+                        }
+
+                        if(jumpBrick.isInputBrick != 0) {
                             continue;
                         }
 
