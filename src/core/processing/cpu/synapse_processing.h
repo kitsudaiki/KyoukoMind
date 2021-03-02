@@ -48,19 +48,16 @@ synapseProcessing(const uint64_t sectionPos,
                   const float weightIn,
                   const uint32_t sourceNodeBrickId)
 {
-    const float sectionWeight = 100.0f;
-
     Segment* seg = KyoukoRoot::m_segment;
     SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(seg->synapses);
     SynapseSection* section = &synapseSections[sectionPos];
-    float* nodeProcessingBuffer = Kitsunemimi::getBuffer<float>(seg->nodeProcessingBuffer);
+    float* nodeBuffer = Kitsunemimi::getBuffer<float>(seg->nodeProcessingBuffer);
     const uint64_t numberOfNodes = seg->nodes.numberOfItems;
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
 
     uint32_t pos = 0;
     uint32_t counter = 0;
-    float weight = (weightIn < sectionWeight) * weightIn
-                   + (weightIn >= sectionWeight) * sectionWeight;
+    float weight = weightIn;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION)
@@ -73,7 +70,7 @@ synapseProcessing(const uint64_t sectionPos,
                 && section->next == UNINIT_STATE_64)
         {
             // set new weight
-            const float maxValue = 50.0f;
+            const float maxValue = 20.0f;
             const float random = (rand() % 1024) / 1024.0f;
             const float usedLearn = (weight < 2.0f) * weight
                                     + (weight >= 2.0f) * ((weight * random) + 1.0f);
@@ -98,7 +95,7 @@ synapseProcessing(const uint64_t sectionPos,
             const float shareWeight = (weight > synapseWeight) * synapseWeight
                                       + (weight <= synapseWeight) * weight;
 
-            nodeProcessingBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
+            nodeBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
 
             weight -= shareWeight;
             counter = pos;
@@ -114,7 +111,7 @@ synapseProcessing(const uint64_t sectionPos,
     }
 
     // go to next section
-    if(weightIn - sectionWeight > 1.0f)
+    if(weight > 1.0f)
     {
         // create new section if necessary
         if(globalValue->doLearn > 0
@@ -125,7 +122,7 @@ synapseProcessing(const uint64_t sectionPos,
 
         // process next section
         if(section->next != UNINIT_STATE_64) {
-            synapseProcessing(section->next, weightIn - sectionWeight, sourceNodeBrickId);
+            synapseProcessing(section->next, weight, sourceNodeBrickId);
         }
     }
 }
