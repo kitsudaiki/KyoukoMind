@@ -133,7 +133,7 @@ get_required_private_repo_github "libKitsunemimiSakuraMessaging" "v0.4.0" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_gitlab "libKitsunemimiAiParser" "master" 1
+get_required_private_repo_gitlab "libKitsunemimiAiParser" "add-metadata-parsing" 1
 echo ""
 echo "###########################################################################################################"
 echo ""

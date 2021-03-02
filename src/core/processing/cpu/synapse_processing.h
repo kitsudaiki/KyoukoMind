@@ -79,8 +79,8 @@ synapseProcessing(const uint64_t sectionPos,
 
             // get random node-id as target
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
-                                                 % globalValue->numberOfNodesPerBrick;
-            const uint32_t nodeOffset = section->nodeBrickId * globalValue->numberOfNodesPerBrick;
+                                                 % globalValue->nodesPerBrick;
+            const uint32_t nodeOffset = section->nodeBrickId * globalValue->nodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
         }
 
@@ -163,7 +163,7 @@ updating(const uint64_t sectionPos)
         }
 
         // check for deletion of the single synapse
-        if(synapse->weight < globalValue->deleteSynapseBorder)
+        if(synapse->weight < globalValue->synapseDeleteBorder)
         {
             synapse->weight = 0.0f;
             synapse->targetNodeId = UNINIT_STATE_16;
@@ -281,7 +281,7 @@ node_processing()
         else
         {
             nodeBricks[node->nodeBrickId]->nodeActivity++;
-            outputNodes[i % globalValue->numberOfNodesPerBrick] = node->currentState;
+            outputNodes[i % globalValue->nodesPerBrick] = node->currentState;
             node->currentState = 0.0f;
         }
     }

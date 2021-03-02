@@ -51,7 +51,7 @@ public:
     Kitsunemimi::ItemBuffer nodeOutputBuffer;
 
 
-    uint32_t numberOfNodesPerBrick = 0;
+    uint32_t nodesPerBrick = 0;
 
     std::atomic_flag input_lock = ATOMIC_FLAG_INIT;
 

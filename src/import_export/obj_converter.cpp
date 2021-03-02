@@ -123,14 +123,14 @@ convertBrickToObj(ObjItem &result,
     }
 
     GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    for(uint32_t i = 0; i < globalValues->numberOfNodesPerBrick; i++)
+    for(uint32_t i = 0; i < globalValues->nodesPerBrick; i++)
     {
         /*AxonTransfer* axons = getBuffer<AxonTransfer>(KyoukoRoot::m_segment->axonTransfers);
-        if(axons[brick->nodeBrickId * globalValues->numberOfNodesPerBrick + i].weight <= 0.0f) {
+        if(axons[brick->nodeBrickId * globalValues->nodesPerBrick + i].weight <= 0.0f) {
             continue;
         }*/
 
-        const uint32_t nodeId = brick->nodeBrickId * globalValues->numberOfNodesPerBrick + i;
+        const uint32_t nodeId = brick->nodeBrickId * globalValues->nodesPerBrick + i;
         convertNodeToObj(result, brick, nodeId);
     }
 }

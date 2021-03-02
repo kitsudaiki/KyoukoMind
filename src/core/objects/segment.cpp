@@ -95,10 +95,10 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
         return false;
     }
     // TODO: correct number
-    if(initNodeBuffer(nodeInputBuffer, numberOfNodesPerBrick) == false) {
+    if(initNodeBuffer(nodeInputBuffer, nodesPerBrick) == false) {
         return false;
     }
-    if(initNodeBuffer(nodeOutputBuffer, numberOfNodesPerBrick) == false) {
+    if(initNodeBuffer(nodeOutputBuffer, nodesPerBrick) == false) {
         return false;
     }
 
@@ -116,7 +116,7 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
         synapses.deleteItem(i);
     }
 
-    const uint32_t outNodes = numberOfOutputBricks * numberOfNodesPerBrick;
+    const uint32_t outNodes = numberOfOutputBricks * nodesPerBrick;
     if(outputSynapses.initBuffer<OutputSynapseSection>(outNodes) == false) {
         return false;
     }

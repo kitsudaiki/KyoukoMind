@@ -24,24 +24,31 @@
 #define GLOBAL_VALUES_HANDLER_H
 
 #include <common.h>
+#include <libKitsunemimiCommon/buffer/item_buffer.h>
 
 struct GlobalValues
 {
-    uint32_t numberOfNodesPerBrick = 100;
+    uint32_t status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
 
+    // init
+    uint16_t nodesPerBrick = 0;
+    uint16_t maxBrickDistance = 0;
+    float nodeLowerBorder = 0.0f;
+    float nodeUpperBorder = 0.0f;
+    uint64_t maxSynapseSections = 0;
+
+    // processing
     float lerningValue = 0.0f;
-    float gliaValue = 1.0f;
-    float memorizing = 0.5f;
+    float synapseDeleteBorder = 0.0;
+    float actionPotential = 0.0;
+    float nodeCooldown = 0.0;
+    float memorizing = 0.0;
+    float gliaValue = 0.0;
+    uint8_t refractionTime = 0;
 
-    float nodeCooldown = 3.0f;
-    float actionPotential = 250.0f;
-    uint8_t refractionTime = 1;
     uint8_t doLearn = 0;
-    uint8_t padding2[6];
 
-    float deleteSynapseBorder = 1.0f;
-
-    uint8_t padding[220];
+    uint8_t padding[206];
 };
 
 #endif // GLOBAL_VALUES_HANDLER_H
