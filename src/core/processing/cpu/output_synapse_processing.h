@@ -53,44 +53,54 @@ outputSynapseProcessing(const uint32_t sectionPos,
     uint32_t pos = 0;
 
     // iterate over all synapses in the section and update the target-nodes
-    while(pos < 255
-          && weight > 0.0f)
+    while(pos < 255)
     {
         OutputSynapse* synapse = &synapseSections->synapses[pos];
 
-        if(synapse->targetNodeId == UNINIT_STATE_16)
+        if(weight > 0.0f)
         {
-            if(globalValue->doLearn == 0) {
-                return;
+            if(synapse->targetNodeId == UNINIT_STATE_16
+                    && globalValue->doLearn > 0)
+            {
+                synapse->hardening = 0.0f;
+                synapse->weightIn = 10.0f;
+                synapse->weightOut = 0.0f;
+                synapse->newOne = 1;
+                synapse->weightOut *= static_cast<float>(1 - (rand() % 2) * 2);
+                synapse->targetNodeId = static_cast<uint16_t>(rand() % 0xFFFF)
+                                        % KyoukoRoot::m_segment->outputs.numberOfItems;
             }
 
-            synapse->hardening = 0.0f;
+            if(synapse->targetNodeId != UNINIT_STATE_16)
+            {
+                if(synapse->newOne == 1) {
+                    outputs[synapse->targetNodeId].newOnes++;
+                }
 
-            // set new weight
-            synapse->weightIn = 10.0f;
-            synapse->weightOut = 0.0f;
-            synapse->weightOut *= static_cast<float>(1 - (rand() % 2) * 2);
-            synapse->targetNodeId = static_cast<uint16_t>(rand() % 0xFFFF)
-                                    % KyoukoRoot::m_segment->outputs.numberOfItems;
-            synapse->newOne = 1;
+                float newHardening = synapse->hardening + globalValue->lerningValue;
+                newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
+                synapse->hardening = newHardening;
+                if(synapse->hardening >= 0.99f) {
+                    synapse->newOne = 0;
+                }
+
+                float ratio = weight / synapse->weightIn;
+                ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+                outputs[synapse->targetNodeId].outputValue += ratio * synapse->weightOut;
+
+                weight -= synapse->weightIn;
+            }
+        }
+        else
+        {
+            if(synapse->newOne == 1)
+            {
+                synapse->targetNodeId = UNINIT_STATE_16;
+                synapse->weightOut = 0.0f;
+                synapse->newOne = 0;
+            }
         }
 
-        if(synapse->newOne == 1) {
-            outputs[synapse->targetNodeId].newOnes++;
-        }
-
-        float newHardening = synapse->hardening + globalValue->lerningValue;
-        newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
-        synapse->hardening = newHardening;
-        if(synapse->hardening >= 0.99f) {
-            synapse->newOne = 0;
-        }
-
-        float ratio = weight / synapse->weightIn;
-        ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-        outputs[synapse->targetNodeId].outputValue += ratio * synapse->weightOut;
-
-        weight -= synapse->weightIn;
         pos++;
     }
 }
@@ -187,6 +197,9 @@ output_node_processing()
         uint32_t newOnes = 0;
         std::cout<<"learn"<<std::endl;
 
+        std::cout<<"totalDiff1: "<<totalDiff<<std::endl;
+        std::cout<<"newOnes1: "<<newOnes<<std::endl;
+
         calculateLearnings(totalDiff, newOnes, true);
 
         // learn and rerun output-processing
@@ -198,7 +211,7 @@ output_node_processing()
 
         calculateLearnings(totalDiff, newOnes, false);
 
-        if(totalDiff < 0.0001f)
+        if(totalDiff < 0.1f)
         {
             for(uint32_t i = 0; i < 3; i++) {
                 outputs[i].shouldValue = 0.0f;
