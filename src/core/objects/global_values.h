@@ -49,7 +49,7 @@ struct GlobalValues
 
     uint8_t doLearn = 0;
 
-    uint8_t padding[206];
+    uint8_t padding[202];
 };
 
 #endif // GLOBAL_VALUES_HANDLER_H
