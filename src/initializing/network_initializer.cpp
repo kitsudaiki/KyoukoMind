@@ -84,6 +84,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     globalValues.nodeCooldown = parsedContent.processingMeta.nodeCooldown;
     globalValues.memorizing = parsedContent.processingMeta.memorizing;
     globalValues.gliaValue = parsedContent.processingMeta.gliaValue;
+    globalValues.maxSynapseWeight = parsedContent.processingMeta.maxSynapseWeight;
     globalValues.refractionTime = parsedContent.processingMeta.refractionTime;
 
     // update message for the monitoring

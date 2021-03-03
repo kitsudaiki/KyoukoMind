@@ -44,6 +44,7 @@ struct GlobalValues
     float nodeCooldown = 0.0;
     float memorizing = 0.0;
     float gliaValue = 0.0;
+    float maxSynapseWeight = 0.0f;
     uint8_t refractionTime = 0;
 
     uint8_t doLearn = 0;

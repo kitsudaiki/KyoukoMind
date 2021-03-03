@@ -71,11 +71,10 @@ synapseProcessing(const uint64_t sectionPos,
                 && section->next == UNINIT_STATE_64)
         {
             // set new weight
-            const float maxValue = 20.0f;
             const float random = (rand() % 1024) / 1024.0f;
             const float usedLearn = (weight < 2.0f) * weight
                                     + (weight >= 2.0f) * ((weight * random) + 1.0f);
-            synapse->weight = fmod(usedLearn, maxValue);
+            synapse->weight = fmod(usedLearn, globalValue->maxSynapseWeight);
             synapse->sign = 1 - (rand() % 2) * 2;
 
             // get random node-id as target
