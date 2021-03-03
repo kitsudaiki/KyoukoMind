@@ -72,17 +72,24 @@ synapseProcessing(const uint64_t sectionPos,
                 && section->next == UNINIT_STATE_64)
         {
             // set new weight
-            const float random = (rand() % 1024) / 1024.0f;
-            const float usedLearn = (weight < 2.0f) * weight
-                                    + (weight >= 2.0f) * ((weight * random) + 1.0f);
-            synapse->weight = fmod(usedLearn, globalValue->maxSynapseWeight);
-            synapse->sign = 1 - (rand() % 2) * 2;
+            if(pos % 2 == 0)
+            {
+                const float random = (rand() % 1024) / 1024.0f;
+                const float usedLearn = (weight < 2.0f) * weight
+                                        + (weight >= 2.0f) * ((weight * random) + 1.0f);
+                synapse->weight = fmod(usedLearn, globalValue->maxSynapseWeight);
+            }
+            else
+            {
+                synapse->weight = globalValue->maxSynapseWeight - section->synapses[pos - 1].weight;
+            }
 
             // get random node-id as target
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
                                                  % globalValue->nodesPerBrick;
             const uint32_t nodeOffset = section->nodeBrickId * globalValue->nodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
+            synapse->sign = 1 - (rand() % 2) * 2;
         }
 
         pos++;
