@@ -60,7 +60,8 @@ synapseProcessing(const uint64_t sectionPos,
     float weight = weightIn;
 
     // iterate over all synapses in the section and update the target-nodes
-    while(pos < SYNAPSES_PER_SYNAPSESECTION)
+    while(pos < SYNAPSES_PER_SYNAPSESECTION
+          && weight > 0.0f)
     {
         Synapse* synapse = &section->synapses[pos];
 
