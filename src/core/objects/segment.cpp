@@ -67,7 +67,7 @@ bool
 Segment::initializeBuffer(const uint32_t numberOfBricks,
                           const uint32_t numberOfNodeBricks,
                           const uint32_t numberOfNodes,
-                          const uint32_t numberOfSynapseSections,
+                          const uint64_t numberOfSynapseSections,
                           const uint32_t numberOfOutputBricks,
                           const uint32_t numberOfOutputs,
                           const uint32_t numberOfRandValues)

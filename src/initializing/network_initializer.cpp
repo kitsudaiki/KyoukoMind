@@ -70,36 +70,36 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
         return false;
     }
 
-    Segment* segment = KyoukoRoot::m_segment;
     const uint32_t numberOfBricks = static_cast<uint32_t>(parsedContent.bricks.size());
 
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(segment->globalValues);
-    globalValue->nodesPerBrick = parsedContent.initializingMeta.nodesPerBrick;
-    globalValue->maxBrickDistance = parsedContent.initializingMeta.maxBrickDistance;
-    globalValue->nodeLowerBorder = parsedContent.initializingMeta.nodeLowerBorder;
-    globalValue->nodeUpperBorder = parsedContent.initializingMeta.nodeUpperBorder;
-    globalValue->maxSynapseSections = parsedContent.initializingMeta.maxSynapseSections;
+    GlobalValues globalValues;
+    globalValues.nodesPerBrick = parsedContent.initializingMeta.nodesPerBrick;
+    globalValues.maxBrickDistance = parsedContent.initializingMeta.maxBrickDistance;
+    globalValues.nodeLowerBorder = parsedContent.initializingMeta.nodeLowerBorder;
+    globalValues.nodeUpperBorder = parsedContent.initializingMeta.nodeUpperBorder;
+    globalValues.maxSynapseSections = parsedContent.initializingMeta.maxSynapseSections;
 
-    globalValue->synapseDeleteBorder = parsedContent.processingMeta.synapseDeleteBorder;
-    globalValue->actionPotential = parsedContent.processingMeta.actionPotential;
-    globalValue->nodeCooldown = parsedContent.processingMeta.nodeCooldown;
-    globalValue->memorizing = parsedContent.processingMeta.memorizing;
-    globalValue->gliaValue = parsedContent.processingMeta.gliaValue;
-    globalValue->refractionTime = parsedContent.processingMeta.refractionTime;
+    globalValues.synapseDeleteBorder = parsedContent.processingMeta.synapseDeleteBorder;
+    globalValues.actionPotential = parsedContent.processingMeta.actionPotential;
+    globalValues.nodeCooldown = parsedContent.processingMeta.nodeCooldown;
+    globalValues.memorizing = parsedContent.processingMeta.memorizing;
+    globalValues.gliaValue = parsedContent.processingMeta.gliaValue;
+    globalValues.refractionTime = parsedContent.processingMeta.refractionTime;
 
     // update message for the monitoring
     KyoukoRoot::monitoringBrickMessage.numberOfInfos = numberOfBricks;
 
     // init segment
     const uint32_t numberOfNodeBricks = parsedContent.numberOfNodeBricks;
-    const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValue->nodesPerBrick;
-    segment->nodesPerBrick = globalValue->nodesPerBrick;
+    const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValues.nodesPerBrick;
 
     // init segment
+    Segment* segment = KyoukoRoot::m_segment;
+    segment->nodesPerBrick = globalValues.nodesPerBrick;
     if(segment->initializeBuffer(numberOfBricks,
                                  parsedContent.numberOfNodeBricks,
                                  totalNumberOfNodes,
-                                 MAX_NUMBER_OF_SYNAPSE_SECTIONS,
+                                 globalValues.maxSynapseSections,
                                  parsedContent.numberOfOutputBricks,
                                  3,
                                  1024) == false)
@@ -107,11 +107,13 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
         return false;
     }
 
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(segment->globalValues);
+    *globalValue = globalValues;
 
     // fill array with empty nodes
     Node* array = Kitsunemimi::getBuffer<Node>(segment->nodes);
     for(uint32_t i = 0; i < totalNumberOfNodes; i++) {
-        array[i].border = (rand() % (MAXIMUM_NODE_BODER - MINIMUM_NODE_BODER)) + MINIMUM_NODE_BODER;
+        array[i].border = fmod((float)rand(), (globalValue->nodeUpperBorder - globalValue->nodeLowerBorder)) + globalValue->nodeLowerBorder;
     }
 
     addBricks(*segment, parsedContent);
@@ -293,6 +295,8 @@ bool
 NetworkInitializer::initTargetBrickList(Segment &segment)
 {
     Brick* bricks = Kitsunemimi::getBuffer<Brick>(segment.bricks);
+    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(segment.globalValues);
+
     // iterate over all bricks
     for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
     {
@@ -309,9 +313,8 @@ NetworkInitializer::initTargetBrickList(Segment &segment)
             Brick jumpBrick = *baseBrick;
 
             // try to go a specific distance
-            const uint32_t maxDist = 2;
             uint8_t nextSide = 42;
-            for(uint32_t k = 0; k < maxDist; k++)
+            for(uint32_t k = 0; k < globalValues->maxBrickDistance; k++)
             {
                 nextSide = getPossibleNext(nextSide);
                 const uint32_t nextBrickId = jumpBrick.neighbors[nextSide];
@@ -347,6 +350,7 @@ NetworkInitializer::initTargetBrickList(Segment &segment)
                 }
             }
         }
+        assert(counter == 1000);
     }
 
     return true;

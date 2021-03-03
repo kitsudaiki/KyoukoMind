@@ -66,6 +66,7 @@ synapseProcessing(const uint64_t sectionPos,
 
         // create new synapse
         if(synapse->targetNodeId == UNINIT_STATE_16
+                && pos >= section->hardening
                 && globalValue->doLearn > 0
                 && section->next == UNINIT_STATE_64)
         {
