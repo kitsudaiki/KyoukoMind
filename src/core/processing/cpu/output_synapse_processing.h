@@ -211,7 +211,7 @@ output_node_processing()
 
         calculateLearnings(totalDiff, newOnes, false);
 
-        if(totalDiff < 0.1f)
+        if(totalDiff < 0.01f)
         {
             for(uint32_t i = 0; i < 3; i++) {
                 outputs[i].shouldValue = 0.0f;

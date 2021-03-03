@@ -31,6 +31,9 @@ registerConfigs()
     REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", "/etc/KyoukoMind/sakura-files");
 
     REGISTER_STRING_CONFIG("Init", "file", "/tmp/KyoukoMind_init");
+
+    REGISTER_STRING_CONFIG("Init", "config", "/tmp/KyoukoMind_config");
+
 }
 
 #endif // KYOUKOMIND_CONFIG_H

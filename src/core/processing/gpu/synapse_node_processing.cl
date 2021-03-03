@@ -139,7 +139,7 @@ SynapseSection;
 
 typedef struct GlobalValues_struct
 {
-    uint numberOfNodesPerBrick;
+    uint nodesPerBrick;
 
     float sensitivity;
     float lerningValue;
@@ -232,7 +232,7 @@ updateSynapseWeight(__local SynapseSection* synapseSection,
                     __local GlobalValues* globalValue,
                     const uint nodeBrickId)
 {
-    const Node tempNode = nodes[nodeBrickId * globalValue->numberOfNodesPerBrick];
+    const Node tempNode = nodes[nodeBrickId * globalValue->nodesPerBrick];
     float usedWeight = 0.0f;
     
     if(tempNode.border != -1.0f)
@@ -299,10 +299,10 @@ rewightSynapse(__local SynapseSection* synapseSection,
         {
             // get random node-id as target
             synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-            const uint targetNodeIdInBrick = randomInts[synapseSection->randomPos] % globalValue->numberOfNodesPerBrick;
+            const uint targetNodeIdInBrick = randomInts[synapseSection->randomPos] % globalValue->nodesPerBrick;
 
             // set initial values for the new synapse
-            synapse->targetNodeId = (ushort)(targetNodeIdInBrick + (nodeBrickId * globalValue->numberOfNodesPerBrick));
+            synapse->targetNodeId = (ushort)(targetNodeIdInBrick + (nodeBrickId * globalValue->nodesPerBrick));
             synapse->harden = 0.0f;
         }
         
@@ -337,7 +337,7 @@ synapse_processing(__global SynapseTransfer* synapseTransfers,
     const size_t globalSize_x = get_global_size(0);
     const int localId_x = get_local_id(0);
     const int localSize_x = get_local_size(0);
-    const uint numberOfBricks = numberOfNodes / globalValue->numberOfNodesPerBrick;
+    const uint numberOfBricks = numberOfNodes / globalValue->nodesPerBrick;
     const uint brickId = globalId_x / localSize_x; 
 
     // prepare shared memory

@@ -38,7 +38,8 @@ class NetworkInitializer
 public:
     NetworkInitializer();
 
-    bool createNewNetwork(const std::string &fileContent);
+    bool createNewNetwork(const std::string &fileContent,
+                          const std::string &configFileContent);
 
 private:
     void addBricks(Segment &segment,

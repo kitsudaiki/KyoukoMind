@@ -66,21 +66,21 @@ synapseProcessing(const uint64_t sectionPos,
 
         // create new synapse
         if(synapse->targetNodeId == UNINIT_STATE_16
+                && pos >= section->hardening
                 && globalValue->doLearn > 0
                 && section->next == UNINIT_STATE_64)
         {
             // set new weight
-            const float maxValue = 20.0f;
             const float random = (rand() % 1024) / 1024.0f;
             const float usedLearn = (weight < 2.0f) * weight
                                     + (weight >= 2.0f) * ((weight * random) + 1.0f);
-            synapse->weight = fmod(usedLearn, maxValue);
+            synapse->weight = fmod(usedLearn, globalValue->maxSynapseWeight);
             synapse->sign = 1 - (rand() % 2) * 2;
 
             // get random node-id as target
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
-                                                 % globalValue->numberOfNodesPerBrick;
-            const uint32_t nodeOffset = section->nodeBrickId * globalValue->numberOfNodesPerBrick;
+                                                 % globalValue->nodesPerBrick;
+            const uint32_t nodeOffset = section->nodeBrickId * globalValue->nodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
         }
 
@@ -163,7 +163,7 @@ updating(const uint64_t sectionPos)
         }
 
         // check for deletion of the single synapse
-        if(synapse->weight < globalValue->deleteSynapseBorder)
+        if(synapse->weight < globalValue->synapseDeleteBorder)
         {
             synapse->weight = 0.0f;
             synapse->targetNodeId = UNINIT_STATE_16;
@@ -281,7 +281,7 @@ node_processing()
         else
         {
             nodeBricks[node->nodeBrickId]->nodeActivity++;
-            outputNodes[i % globalValue->numberOfNodesPerBrick] = node->currentState;
+            outputNodes[i % globalValue->nodesPerBrick] = node->currentState;
             node->currentState = 0.0f;
         }
     }

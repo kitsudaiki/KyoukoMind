@@ -51,7 +51,7 @@ public:
     Kitsunemimi::ItemBuffer nodeOutputBuffer;
 
 
-    uint32_t numberOfNodesPerBrick = 0;
+    uint32_t nodesPerBrick = 0;
 
     std::atomic_flag input_lock = ATOMIC_FLAG_INIT;
 
@@ -64,7 +64,7 @@ public:
     bool initializeBuffer(const uint32_t numberOfBricks,
                           const uint32_t numberOfNodeBricks,
                           const uint32_t numberOfNodes,
-                          const uint32_t numberOfSynapseSections,
+                          const uint64_t numberOfSynapseSections,
                           const uint32_t numberOfOutputBricks,
                           const uint32_t numberOfOutputs,
                           const uint32_t numberOfRandValues);

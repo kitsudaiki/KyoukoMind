@@ -170,16 +170,34 @@ NetworkManager::initNetwork()
     }
     LOG_INFO("use init-file: " + initialFile);
 
-    std::string fileContent = "";
+    std::string initFileContent = "";
     std::string errorMessage = "";
-    if(Kitsunemimi::Persistence::readFile(fileContent, initialFile, errorMessage) == false)
+    if(Kitsunemimi::Persistence::readFile(initFileContent, initialFile, errorMessage) == false)
     {
         LOG_ERROR(errorMessage);
         return false;
     }
 
+
+
+    const std::string configFile = GET_STRING_CONFIG("Init", "config", success);
+    if(success == false)
+    {
+        LOG_ERROR("no init-file set in the config-file");
+        return false;
+    }
+    LOG_INFO("use init-file: " + configFile);
+
+    std::string configFileContent = "";
+    if(Kitsunemimi::Persistence::readFile(configFileContent, configFile, errorMessage) == false)
+    {
+        LOG_ERROR(errorMessage);
+        return false;
+    }
+
+
     NetworkInitializer initializer;
-    success = initializer.createNewNetwork(fileContent);
+    success = initializer.createNewNetwork(initFileContent, configFileContent);
     if(success == false)
     {
         LOG_ERROR("failed to initialize network");
