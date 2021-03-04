@@ -236,7 +236,11 @@ NetworkInitializer::addBricks(Segment &segment,
             }
             else if(brick.nodeBrickId != UNINIT_STATE_32)
             {
-                brickPtr->layerId = (brickPtr->brickPos.x % (globalValues->layer - 1)) + 1;
+                if(globalValues->layer == 1) {
+                    brickPtr->layerId = 1;
+                } else {
+                    brickPtr->layerId = (brickPtr->brickPos.x % (globalValues->layer - 1)) + 1;
+                }
                 m_layer[brickPtr->layerId].push_back(brickPtr);
             }
         }
