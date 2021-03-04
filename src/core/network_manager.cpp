@@ -75,7 +75,7 @@ NetworkManager::run()
     KyoukoRoot::m_ioHandler->registerOutput(3);
     std::string errorMessage = "";
 
-    uint32_t time = PROCESS_INTERVAL;
+    uint32_t time = globalValues->cycleTime;
     while(!m_abort)
     {
         if(m_block) {
@@ -111,9 +111,10 @@ NetworkManager::run()
         // calculate times
         const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
         const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
+        const uint32_t usedTime = static_cast<uint32_t>((edgeTime + synapseTime) / 1024.0f);
 
-        if(PROCESS_INTERVAL > static_cast<uint32_t>((edgeTime + synapseTime) / 1024.0f)) {
-            time = PROCESS_INTERVAL - static_cast<uint32_t>((edgeTime + synapseTime) / 1024.0f);
+        if(globalValues->cycleTime > usedTime) {
+            time = globalValues->cycleTime - usedTime;
         } else {
             time = 1000;
         }

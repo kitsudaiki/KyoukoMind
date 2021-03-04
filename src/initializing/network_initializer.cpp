@@ -38,12 +38,7 @@
 /**
  * @brief constructor
  */
-NetworkInitializer::NetworkInitializer()
-{
-    for(uint32_t i = 0; i < 5; i++) {
-        m_layer.push_back(std::vector<Brick*>());
-    }
-}
+NetworkInitializer::NetworkInitializer() {}
 
 /**
  * @brief create blank new network
@@ -95,6 +90,11 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     globalValues.cycleTime = parsedContent.processingMeta.cycleTime;
     globalValues.inputFlowGradiant = parsedContent.processingMeta.inputFlowGradiant;
     globalValues.nodeFlowGradiant = parsedContent.processingMeta.nodeFlowGradiant;
+
+    // init layer-buffer
+    for(uint32_t i = 0; i < globalValues.layer + 1; i++) {
+        m_layer.push_back(std::vector<Brick*>());
+    }
 
     // update message for the monitoring
     KyoukoRoot::monitoringBrickMessage.numberOfInfos = numberOfBricks;
@@ -221,21 +221,24 @@ NetworkInitializer::addBricks(Segment &segment,
         }
 
         // add to layer
-        Brick* brickPtr = &Kitsunemimi::getBuffer<Brick>(segment.bricks)[i];
-        if(brick.isInputBrick)
+        if(globalValues->layer > 0)
         {
-            brickPtr->layerId = 0;
-            m_layer[brickPtr->layerId].push_back(brickPtr);
-        }
-        else if(brick.isOutputBrick)
-        {
-            brickPtr->layerId = 4;
-            m_layer[brickPtr->layerId].push_back(brickPtr);
-        }
-        else if(brick.nodeBrickId != UNINIT_STATE_32)
-        {
-            brickPtr->layerId = (brickPtr->brickPos.x % 3) + 1;
-            m_layer[brickPtr->layerId].push_back(brickPtr);
+            Brick* brickPtr = &Kitsunemimi::getBuffer<Brick>(segment.bricks)[i];
+            if(brick.isInputBrick)
+            {
+                brickPtr->layerId = 0;
+                m_layer[brickPtr->layerId].push_back(brickPtr);
+            }
+            else if(brick.isOutputBrick)
+            {
+                brickPtr->layerId = globalValues->layer;
+                m_layer[brickPtr->layerId].push_back(brickPtr);
+            }
+            else if(brick.nodeBrickId != UNINIT_STATE_32)
+            {
+                brickPtr->layerId = (brickPtr->brickPos.x % (globalValues->layer - 1)) + 1;
+                m_layer[brickPtr->layerId].push_back(brickPtr);
+            }
         }
     }
 
@@ -284,7 +287,8 @@ NetworkInitializer::createAxons(Segment &segment)
             {
                 do {
                     // get random brick as target for the axon
-                    const uint32_t randPos = static_cast<uint32_t>(rand()) % segment.numberOfNodeBricks;
+                    const uint32_t numberNodeBricks = segment.numberOfNodeBricks;
+                    const uint32_t randPos = static_cast<uint32_t>(rand()) % numberNodeBricks;
                     axonBrick = segment.nodeBricks[randPos];
                 }
                 while(sourceBrick->isInputBrick
@@ -293,7 +297,8 @@ NetworkInitializer::createAxons(Segment &segment)
             else
             {
                 const uint32_t sourceLayerId = sourceBrick->layerId;
-                const uint32_t nextPos = static_cast<uint32_t>(rand()) % m_layer[sourceLayerId + 1].size();
+                const uint32_t nextPos = static_cast<uint32_t>(rand())
+                                         % m_layer[sourceLayerId + 1].size();
                 axonBrick = m_layer[sourceLayerId + 1][nextPos];
             }
 
@@ -338,80 +343,85 @@ NetworkInitializer::createAxons(Segment &segment)
 bool
 NetworkInitializer::initTargetBrickList(Segment &segment)
 {
-    for(uint32_t i = 0; i < m_layer.size() - 1; i++)
-    {
-        for(uint32_t j = 0; j < m_layer[i].size(); j++)
-        {
-            Brick* baseBrick = m_layer[i][j];
+    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(segment.globalValues);
 
-            for(uint32_t k = 0; k < 1000; k++)
+    if(globalValues->layer > 0)
+    {
+        for(uint32_t i = 0; i < m_layer.size() - 1; i++)
+        {
+            for(uint32_t j = 0; j < m_layer[i].size(); j++)
             {
-                const uint32_t nextPos = static_cast<uint32_t>(rand()) % m_layer[i + 1].size();
-                Brick* targetBrick = m_layer[i + 1][nextPos];
-                baseBrick->possibleTargetNodeBrickIds[k] = targetBrick->nodeBrickId;
+                Brick* baseBrick = m_layer[i][j];
+
+                for(uint32_t k = 0; k < 1000; k++)
+                {
+                    const uint32_t nextPos = static_cast<uint32_t>(rand()) % m_layer[i + 1].size();
+                    Brick* targetBrick = m_layer[i + 1][nextPos];
+                    baseBrick->possibleTargetNodeBrickIds[k] = targetBrick->nodeBrickId;
+                }
             }
         }
     }
-
-    /*
-    Brick* bricks = Kitsunemimi::getBuffer<Brick>(segment.bricks);
-    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(segment.globalValues);
-
-    // iterate over all bricks
-    for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
+    else
     {
-        if(bricks[i].nodeBrickId == UNINIT_STATE_32) {
-            continue;
-        }
+        Brick* bricks = Kitsunemimi::getBuffer<Brick>(segment.bricks);
 
-        Brick* baseBrick = &bricks[i];
-
-        // get 1000 samples
-        uint32_t counter = 0;
-        while(counter < 1000)
+        // iterate over all bricks
+        for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
         {
-            Brick jumpBrick = *baseBrick;
+            if(bricks[i].nodeBrickId == UNINIT_STATE_32) {
+                continue;
+            }
 
-            // try to go a specific distance
-            uint8_t nextSide = 42;
-            for(uint32_t k = 0; k < globalValues->maxBrickDistance; k++)
+            Brick* baseBrick = &bricks[i];
+
+            // get 1000 samples
+            uint32_t counter = 0;
+            while(counter < 1000)
             {
-                nextSide = getPossibleNext(nextSide);
-                const uint32_t nextBrickId = jumpBrick.neighbors[nextSide];
-                if(nextBrickId != UNINIT_STATE_32)
+                Brick jumpBrick = *baseBrick;
+
+                // try to go a specific distance
+                uint8_t nextSide = 42;
+                for(uint32_t k = 0; k < globalValues->maxBrickDistance; k++)
                 {
-                    jumpBrick = bricks[nextBrickId];
-                    if(jumpBrick.nodeBrickId != UNINIT_STATE_32)
+                    nextSide = getPossibleNext(nextSide);
+                    const uint32_t nextBrickId = jumpBrick.neighbors[nextSide];
+                    if(nextBrickId != UNINIT_STATE_32)
                     {
-                        // reject direct connections between input and output
-                        if(jumpBrick.isOutputBrick != 0
-                                && baseBrick->isInputBrick != 0)
+                        jumpBrick = bricks[nextBrickId];
+                        if(jumpBrick.nodeBrickId != UNINIT_STATE_32)
                         {
-                            continue;
-                        }
+                            // reject direct connections between input and output
+                            if(jumpBrick.isOutputBrick != 0
+                                    && baseBrick->isInputBrick != 0)
+                            {
+                                continue;
+                            }
 
-                        if(jumpBrick.isInputBrick != 0) {
-                            continue;
-                        }
+                            if(jumpBrick.isInputBrick != 0) {
+                                continue;
+                            }
 
-                        baseBrick->possibleTargetNodeBrickIds[counter] = jumpBrick.nodeBrickId;
+                            baseBrick->possibleTargetNodeBrickIds[counter] = jumpBrick.nodeBrickId;
 
-                        // update and check counter
-                        counter++;
-                        if(counter >= 1000) {
-                            break;
+                            // update and check counter
+                            counter++;
+                            if(counter >= 1000) {
+                                break;
+                            }
                         }
+                        nextSide = 11 - nextSide;
                     }
-                    nextSide = 11 - nextSide;
-                }
-                else
-                {
-                    break;
+                    else
+                    {
+                        break;
+                    }
                 }
             }
+            assert(counter == 1000);
         }
-        assert(counter == 1000);
-    }*/
+    }
 
     return true;
 }
