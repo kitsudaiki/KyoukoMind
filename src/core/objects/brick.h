@@ -31,9 +31,10 @@ struct Brick
     // common
     uint32_t brickId = UNINIT_STATE_32;
     uint32_t nodeBrickId = UNINIT_STATE_32;
+    uint32_t layerId = UNINIT_STATE_32;
     bool isOutputBrick = false;
     bool isInputBrick = false;
-    uint8_t padding[14];
+    uint8_t padding[10];
 
     Position brickPos;
 

@@ -33,6 +33,8 @@ struct AiBaseMeta;
 }
 }
 
+struct Brick;
+
 class NetworkInitializer
 {
 public:
@@ -50,6 +52,8 @@ private:
     bool initTargetBrickList(Segment &segment);
 
     uint8_t getPossibleNext(const uint8_t inputSide);
+
+    std::vector<std::vector<Brick*>> m_layer;
 
 };
 
