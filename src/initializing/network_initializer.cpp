@@ -218,13 +218,18 @@ NetworkInitializer::addBricks(Segment &segment,
 
         // add to layer
         Brick* brickPtr = &Kitsunemimi::getBuffer<Brick>(segment.bricks)[i];
-        if(brick.isInputBrick) {
+        if(brick.isInputBrick)
+        {
             brickPtr->layerId = 0;
             m_layer[brickPtr->layerId].push_back(brickPtr);
-        } else if(brick.isOutputBrick) {
+        }
+        else if(brick.isOutputBrick)
+        {
             brickPtr->layerId = 4;
             m_layer[brickPtr->layerId].push_back(brickPtr);
-        } else if(brick.nodeBrickId != UNINIT_STATE_32) {
+        }
+        else if(brick.nodeBrickId != UNINIT_STATE_32)
+        {
             brickPtr->layerId = (brickPtr->brickPos.x % 3) + 1;
             m_layer[brickPtr->layerId].push_back(brickPtr);
         }

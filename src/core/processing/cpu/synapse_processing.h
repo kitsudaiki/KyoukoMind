@@ -281,7 +281,6 @@ node_processing()
         }
         else
         {
-            nodeBricks[node->nodeBrickId]->nodeActivity++;
             outputNodes[i % globalValue->nodesPerBrick] = node->currentState;
             node->currentState = 0.0f;
         }
