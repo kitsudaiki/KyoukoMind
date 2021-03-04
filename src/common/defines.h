@@ -35,4 +35,3 @@
 
 // processing
 #define NUMBER_OF_PROCESSING_UNITS 1
-#define PROCESS_INTERVAL 100000 // usec

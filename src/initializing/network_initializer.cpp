@@ -78,6 +78,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     globalValues.nodeLowerBorder = parsedContent.initializingMeta.nodeLowerBorder;
     globalValues.nodeUpperBorder = parsedContent.initializingMeta.nodeUpperBorder;
     globalValues.maxSynapseSections = parsedContent.initializingMeta.maxSynapseSections;
+    globalValues.layer = parsedContent.initializingMeta.layer;
 
     globalValues.synapseDeleteBorder = parsedContent.processingMeta.synapseDeleteBorder;
     globalValues.actionPotential = parsedContent.processingMeta.actionPotential;
@@ -86,6 +87,14 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     globalValues.gliaValue = parsedContent.processingMeta.gliaValue;
     globalValues.maxSynapseWeight = parsedContent.processingMeta.maxSynapseWeight;
     globalValues.refractionTime = parsedContent.processingMeta.refractionTime;
+    globalValues.cycleTime = parsedContent.processingMeta.cycleTime;
+    globalValues.inputFlowGradiant = parsedContent.processingMeta.inputFlowGradiant;
+    globalValues.nodeFlowGradiant = parsedContent.processingMeta.nodeFlowGradiant;
+
+    // init layer-buffer
+    for(uint32_t i = 0; i < globalValues.layer + 1; i++) {
+        m_layer.push_back(std::vector<Brick*>());
+    }
 
     // update message for the monitoring
     KyoukoRoot::monitoringBrickMessage.numberOfInfos = numberOfBricks;
@@ -119,17 +128,6 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
 
     addBricks(*segment, parsedContent);
     initTargetBrickList(*segment);
-
-    SynapseSection* section = Kitsunemimi::getBuffer<SynapseSection>(segment->synapses);
-    Brick** nodeBricks = segment->nodeBricks;
-    for(uint32_t i = 0; i < totalNumberOfNodes; i++)
-    {
-        section[i].status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-        section[i].randomPos = rand() % 1024;
-        const uint32_t nodeBrickPos = rand() % segment->numberOfNodeBricks;
-        section[i].nodeBrickId = nodeBricks[nodeBrickPos]->nodeBrickId;
-        assert(section[i].nodeBrickId < segment->numberOfNodeBricks);
-    }
 
     // init axons
     if(createAxons(*segment) == false) {
@@ -221,6 +219,31 @@ NetworkInitializer::addBricks(Segment &segment,
             segment.inputBricks[segment.numberOfInputBricks] = inputBrickPtr;
             segment.numberOfInputBricks++;
         }
+
+        // add to layer
+        if(globalValues->layer > 0)
+        {
+            Brick* brickPtr = &Kitsunemimi::getBuffer<Brick>(segment.bricks)[i];
+            if(brick.isInputBrick)
+            {
+                brickPtr->layerId = 0;
+                m_layer[brickPtr->layerId].push_back(brickPtr);
+            }
+            else if(brick.isOutputBrick)
+            {
+                brickPtr->layerId = globalValues->layer;
+                m_layer[brickPtr->layerId].push_back(brickPtr);
+            }
+            else if(brick.nodeBrickId != UNINIT_STATE_32)
+            {
+                if(globalValues->layer == 1) {
+                    brickPtr->layerId = 1;
+                } else {
+                    brickPtr->layerId = (brickPtr->brickPos.x % (globalValues->layer - 1)) + 1;
+                }
+                m_layer[brickPtr->layerId].push_back(brickPtr);
+            }
+        }
     }
 
     return;
@@ -240,6 +263,9 @@ NetworkInitializer::createAxons(Segment &segment)
     GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(segment.globalValues);
     Brick* bricks = Kitsunemimi::getBuffer<Brick>(segment.bricks);
     Node* nodes = Kitsunemimi::getBuffer<Node>(segment.nodes);
+    SynapseSection* section = Kitsunemimi::getBuffer<SynapseSection>(segment.synapses);
+
+    uint32_t nodeCounter = 0;
 
     // calculate number of axons per brick
     for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
@@ -248,21 +274,39 @@ NetworkInitializer::createAxons(Segment &segment)
             continue;
         }
 
+        if(bricks[i].isOutputBrick == 1)
+        {
+            nodeCounter += segment.nodesPerBrick;
+            continue;
+        }
+
         Brick* sourceBrick = &bricks[i];
-        const uint32_t pos = sourceBrick->nodeBrickId * globalValues->nodesPerBrick;
 
         // iterate over all nodes of the brick and create an axon for each node
         for(uint32_t nodePos = 0; nodePos < globalValues->nodesPerBrick; nodePos++)
         {
             Brick* axonBrick = nullptr;
 
-            do {
-                // get random brick as target for the axon
-                const uint32_t randPos = static_cast<uint32_t>(rand()) % segment.bricks.numberOfItems;
-                axonBrick = &bricks[randPos];
+            if(sourceBrick->layerId == UNINIT_STATE_32)
+            {
+                do {
+                    // get random brick as target for the axon
+                    const uint32_t numberNodeBricks = segment.numberOfNodeBricks;
+                    const uint32_t randPos = static_cast<uint32_t>(rand()) % numberNodeBricks;
+                    axonBrick = segment.nodeBricks[randPos];
+                }
+                while(sourceBrick->isInputBrick
+                      && axonBrick->isOutputBrick);
             }
-            while(sourceBrick->isInputBrick
-                  && axonBrick->isOutputBrick);
+            else
+            {
+                const uint32_t sourceLayerId = sourceBrick->layerId;
+                const uint32_t nextPos = static_cast<uint32_t>(rand())
+                                         % m_layer[sourceLayerId + 1].size();
+                axonBrick = m_layer[sourceLayerId + 1][nextPos];
+            }
+
+            assert(axonBrick->nodeBrickId <= 100);
 
             // calculate distance with pythagoras
             int32_t x = axonBrick->brickPos.x - sourceBrick->brickPos.x;
@@ -275,14 +319,22 @@ NetworkInitializer::createAxons(Segment &segment)
 
             // set source and target in related nodes and edges
             //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
-            nodes[pos + nodePos].nodeBrickId = sourceBrick->nodeBrickId;
-            nodes[pos + nodePos].targetBrickDistance = static_cast<uint32_t>(dist);
+            nodes[nodeCounter].nodeBrickId = sourceBrick->nodeBrickId;
+            nodes[nodeCounter].targetBrickDistance = static_cast<uint32_t>(dist);
+
+            section[nodeCounter].status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+            section[nodeCounter].randomPos = rand() % 1024;
+            section[nodeCounter].nodeBrickId = axonBrick->nodeBrickId;
 
             // post-check
-            assert(axonBrick->brickId != UNINIT_STATE_32);
+            assert(axonBrick->nodeBrickId != UNINIT_STATE_32);
             assert(sourceBrick->brickId != UNINIT_STATE_32);
+
+            nodeCounter++;
         }
     }
+
+    assert(nodeCounter == segment.nodes.numberOfItems);
 
     return true;
 }
@@ -295,63 +347,84 @@ NetworkInitializer::createAxons(Segment &segment)
 bool
 NetworkInitializer::initTargetBrickList(Segment &segment)
 {
-    Brick* bricks = Kitsunemimi::getBuffer<Brick>(segment.bricks);
     GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(segment.globalValues);
 
-    // iterate over all bricks
-    for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
+    if(globalValues->layer > 0)
     {
-        if(bricks[i].nodeBrickId == UNINIT_STATE_32) {
-            continue;
-        }
-
-        Brick* baseBrick = &bricks[i];
-
-        // get 1000 samples
-        uint32_t counter = 0;
-        while(counter < 1000)
+        for(uint32_t i = 0; i < m_layer.size() - 1; i++)
         {
-            Brick jumpBrick = *baseBrick;
-
-            // try to go a specific distance
-            uint8_t nextSide = 42;
-            for(uint32_t k = 0; k < globalValues->maxBrickDistance; k++)
+            for(uint32_t j = 0; j < m_layer[i].size(); j++)
             {
-                nextSide = getPossibleNext(nextSide);
-                const uint32_t nextBrickId = jumpBrick.neighbors[nextSide];
-                if(nextBrickId != UNINIT_STATE_32)
+                Brick* baseBrick = m_layer[i][j];
+
+                for(uint32_t k = 0; k < 1000; k++)
                 {
-                    jumpBrick = bricks[nextBrickId];
-                    if(jumpBrick.nodeBrickId != UNINIT_STATE_32)
-                    {
-                        // reject direct connections between input and output
-                        if(jumpBrick.isOutputBrick != 0
-                                && baseBrick->isInputBrick != 0)
-                        {
-                            continue;
-                        }
-
-                        if(jumpBrick.isInputBrick != 0) {
-                            continue;
-                        }
-
-                        baseBrick->possibleTargetNodeBrickIds[counter] = jumpBrick.nodeBrickId;
-
-                        // update and check counter
-                        counter++;
-                        if(counter >= 1000) {
-                            break;
-                        }
-                    }
-                    nextSide = 11 - nextSide;
-                }
-                else
-                {
-                    break;
+                    const uint32_t nextPos = static_cast<uint32_t>(rand()) % m_layer[i + 1].size();
+                    Brick* targetBrick = m_layer[i + 1][nextPos];
+                    baseBrick->possibleTargetNodeBrickIds[k] = targetBrick->nodeBrickId;
                 }
             }
         }
-        assert(counter == 1000);
+    }
+    else
+    {
+        Brick* bricks = Kitsunemimi::getBuffer<Brick>(segment.bricks);
+
+        // iterate over all bricks
+        for(uint32_t i = 0; i < segment.bricks.numberOfItems; i++)
+        {
+            if(bricks[i].nodeBrickId == UNINIT_STATE_32) {
+                continue;
+            }
+
+            Brick* baseBrick = &bricks[i];
+
+            // get 1000 samples
+            uint32_t counter = 0;
+            while(counter < 1000)
+            {
+                Brick jumpBrick = *baseBrick;
+
+                // try to go a specific distance
+                uint8_t nextSide = 42;
+                for(uint32_t k = 0; k < globalValues->maxBrickDistance; k++)
+                {
+                    nextSide = getPossibleNext(nextSide);
+                    const uint32_t nextBrickId = jumpBrick.neighbors[nextSide];
+                    if(nextBrickId != UNINIT_STATE_32)
+                    {
+                        jumpBrick = bricks[nextBrickId];
+                        if(jumpBrick.nodeBrickId != UNINIT_STATE_32)
+                        {
+                            // reject direct connections between input and output
+                            if(jumpBrick.isOutputBrick != 0
+                                    && baseBrick->isInputBrick != 0)
+                            {
+                                continue;
+                            }
+
+                            if(jumpBrick.isInputBrick != 0) {
+                                continue;
+                            }
+
+                            baseBrick->possibleTargetNodeBrickIds[counter] = jumpBrick.nodeBrickId;
+
+                            // update and check counter
+                            counter++;
+                            if(counter >= 1000) {
+                                break;
+                            }
+                        }
+                        nextSide = 11 - nextSide;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            assert(counter == 1000);
+        }
     }
 
     return true;

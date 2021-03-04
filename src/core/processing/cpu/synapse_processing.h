@@ -47,8 +47,9 @@ inline void
 synapseProcessing(const uint64_t sectionPos,
                   const float weightIn,
                   const uint32_t sourceNodeBrickId,
-                  const float initialStepCount,
-                  float currentStep)
+                  const float maxSteps,
+                  float currentStep,
+                  const float gradiant)
 {
     Segment* seg = KyoukoRoot::m_segment;
     SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(seg->synapses);
@@ -106,7 +107,7 @@ synapseProcessing(const uint64_t sectionPos,
             const float shareWeight = (weight > synapseWeight) * synapseWeight
                                       + (weight <= synapseWeight) * weight;
             currentStep += 1.0f;
-            const float additionalWeight = (currentStep / initialStepCount) * maxWeight * 0.1f;
+            const float additionalWeight = (currentStep / maxSteps) * maxWeight * gradiant;
 
             nodeBuffer[nodeBufferPosition] += (shareWeight * static_cast<float>(synapse->sign))
                                               + additionalWeight;
@@ -142,8 +143,9 @@ synapseProcessing(const uint64_t sectionPos,
             synapseProcessing(section->next,
                               weight,
                               sourceNodeBrickId,
-                              initialStepCount,
-                              currentStep);
+                              maxSteps,
+                              currentStep,
+                              gradiant);
         }
     }
 }
@@ -219,7 +221,7 @@ triggerSynapseSesction(Brick* brick,
                        Node* node,
                        const uint32_t i,
                        GlobalValues* globalValue,
-                       const float multi)
+                       const float gradiant)
 {
     if(node->potential > 10.0f)
     {
@@ -228,8 +230,8 @@ triggerSynapseSesction(Brick* brick,
         const float up = static_cast<float>(pow(globalValue->gliaValue, node->targetBrickDistance));
         const float weight = node->potential * up;
         brick->nodeActivity++;
-        const float steps = (weight / globalValue->maxSynapseWeight) * multi;
-        synapseProcessing(i, weight, brick->nodeBrickId, steps, 0.0f);
+        const float maxSteps = weight / globalValue->maxSynapseWeight;
+        synapseProcessing(i, weight, brick->nodeBrickId, maxSteps, 0.0f, gradiant);
     }
     else
     {
@@ -251,6 +253,9 @@ node_processing()
     float* nodeProcessingBuffer = Kitsunemimi::getBuffer<float>(seg->nodeProcessingBuffer);
     float* outputNodes = Kitsunemimi::getBuffer<float>(seg->nodeOutputBuffer);
     Brick** nodeBricks = seg->nodeBricks;
+
+    const float inputFlowGradiant = globalValue->inputFlowGradiant;
+    const float nodeFlowGradiant = globalValue->nodeFlowGradiant;
 
     const uint64_t numberOfNodes = seg->nodes.numberOfItems;
 
@@ -283,7 +288,11 @@ node_processing()
             node->refractionTime = reset * globalValue->refractionTime
                                    + (reset == false) * node->refractionTime;
 
-            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue, 4000.0f);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId],
+                                   node,
+                                   i,
+                                   globalValue,
+                                   nodeFlowGradiant);
 
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
@@ -299,11 +308,14 @@ node_processing()
         else if(node->border == 0.0f)
         {
             node->potential = inputNodes[i];
-            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue, 0.25f);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId],
+                                   node,
+                                   i,
+                                   globalValue,
+                                   inputFlowGradiant);
         }
         else
         {
-            nodeBricks[node->nodeBrickId]->nodeActivity++;
             outputNodes[i % globalValue->nodesPerBrick] = node->currentState;
             node->currentState = 0.0f;
         }
