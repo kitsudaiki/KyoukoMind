@@ -83,6 +83,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     globalValues.nodeLowerBorder = parsedContent.initializingMeta.nodeLowerBorder;
     globalValues.nodeUpperBorder = parsedContent.initializingMeta.nodeUpperBorder;
     globalValues.maxSynapseSections = parsedContent.initializingMeta.maxSynapseSections;
+    globalValues.layer = parsedContent.initializingMeta.layer;
 
     globalValues.synapseDeleteBorder = parsedContent.processingMeta.synapseDeleteBorder;
     globalValues.actionPotential = parsedContent.processingMeta.actionPotential;
@@ -91,6 +92,9 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     globalValues.gliaValue = parsedContent.processingMeta.gliaValue;
     globalValues.maxSynapseWeight = parsedContent.processingMeta.maxSynapseWeight;
     globalValues.refractionTime = parsedContent.processingMeta.refractionTime;
+    globalValues.cycleTime = parsedContent.processingMeta.cycleTime;
+    globalValues.inputFlowGradiant = parsedContent.processingMeta.inputFlowGradiant;
+    globalValues.nodeFlowGradiant = parsedContent.processingMeta.nodeFlowGradiant;
 
     // update message for the monitoring
     KyoukoRoot::monitoringBrickMessage.numberOfInfos = numberOfBricks;

@@ -254,6 +254,9 @@ node_processing()
     float* outputNodes = Kitsunemimi::getBuffer<float>(seg->nodeOutputBuffer);
     Brick** nodeBricks = seg->nodeBricks;
 
+    const float inputFlowGradiant = globalValue->inputFlowGradiant;
+    const float nodeFlowGradiant = globalValue->nodeFlowGradiant;
+
     const uint64_t numberOfNodes = seg->nodes.numberOfItems;
 
     for(uint64_t i = 0; i < numberOfNodes; i++)
@@ -285,7 +288,11 @@ node_processing()
             node->refractionTime = reset * globalValue->refractionTime
                                    + (reset == false) * node->refractionTime;
 
-            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue, 0.0001f);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId],
+                                   node,
+                                   i,
+                                   globalValue,
+                                   nodeFlowGradiant);
 
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
@@ -301,7 +308,11 @@ node_processing()
         else if(node->border == 0.0f)
         {
             node->potential = inputNodes[i];
-            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue, 0.1f);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId],
+                                   node,
+                                   i,
+                                   globalValue,
+                                   inputFlowGradiant);
         }
         else
         {
