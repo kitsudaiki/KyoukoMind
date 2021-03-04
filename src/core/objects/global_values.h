@@ -37,6 +37,8 @@ struct GlobalValues
     float nodeUpperBorder = 0.0f;
     uint64_t maxSynapseSections = 0;
 
+    uint32_t layer = 0;
+
     // processing
     float lerningValue = 0.0f;
     float synapseDeleteBorder = 0.0;
@@ -45,11 +47,12 @@ struct GlobalValues
     float memorizing = 0.0;
     float gliaValue = 0.0;
     float maxSynapseWeight = 0.0f;
+    uint32_t cycleTime = 1000000;
     uint8_t refractionTime = 0;
 
     uint8_t doLearn = 0;
 
-    uint8_t padding[202];
+    uint8_t padding[194];
 };
 
 #endif // GLOBAL_VALUES_HANDLER_H
