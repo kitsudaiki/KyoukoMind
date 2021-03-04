@@ -78,18 +78,13 @@ InputOutputProcessing::setInput(const std::string &input)
     const char* inputChar = input.c_str();
     for(uint32_t i = 0; i < input.size(); i++)
     {
-        for(uint32_t j = 0; j < 10; j = j + 2)
+        for(uint32_t j = 0; j < 10; j++)
         {
             const uint32_t pos = j + i * 10;
-            if(inputChar[i] == '0')
-            {
+            if(inputChar[i] == '0') {
                 m_inputMapper[pos] = 0.0f;
-                m_inputMapper[pos + 1] = 0.0f;
-            }
-            else
-            {
+            } else {
                 m_inputMapper[pos] = (static_cast<float>(inputChar[i])) * 10.0f;
-                m_inputMapper[pos + 1] = (255.0f - (static_cast<float>(inputChar[i]))) * 10.0f;
             }
         }
     }
@@ -107,7 +102,7 @@ InputOutputProcessing::registerInput(const uint32_t numberOfInput)
 {
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    for(uint32_t i = 0; i < numberOfInput * 20; i++) {
+    for(uint32_t i = 0; i < numberOfInput * 10; i++) {
         m_inputMapper.push_back(0.0f);
     }
 

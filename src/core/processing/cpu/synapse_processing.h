@@ -46,7 +46,9 @@
 inline void
 synapseProcessing(const uint64_t sectionPos,
                   const float weightIn,
-                  const uint32_t sourceNodeBrickId)
+                  const uint32_t sourceNodeBrickId,
+                  const float initialStepCount,
+                  float currentStep)
 {
     Segment* seg = KyoukoRoot::m_segment;
     SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(seg->synapses);
@@ -58,6 +60,7 @@ synapseProcessing(const uint64_t sectionPos,
     uint32_t pos = 0;
     uint32_t counter = 0;
     float weight = weightIn;
+    const float maxWeight = globalValue->maxSynapseWeight;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -72,17 +75,24 @@ synapseProcessing(const uint64_t sectionPos,
                 && section->next == UNINIT_STATE_64)
         {
             // set new weight
-            const float random = (rand() % 1024) / 1024.0f;
-            const float usedLearn = (weight < 2.0f) * weight
-                                    + (weight >= 2.0f) * ((weight * random) + 1.0f);
-            synapse->weight = fmod(usedLearn, globalValue->maxSynapseWeight);
-            synapse->sign = 1 - (rand() % 2) * 2;
+            if(pos % 2 == 0)
+            {
+                const float random = (rand() % 1024) / 1024.0f;
+                const float usedLearn = (weight < 2.0f) * weight
+                                        + (weight >= 2.0f) * ((weight * random) + 1.0f);
+                synapse->weight = fmod(usedLearn, maxWeight);
+            }
+            else
+            {
+                synapse->weight = maxWeight - section->synapses[pos - 1].weight;
+            }
 
             // get random node-id as target
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
                                                  % globalValue->nodesPerBrick;
             const uint32_t nodeOffset = section->nodeBrickId * globalValue->nodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
+            synapse->sign = 1 - (rand() % 2) * 2;
         }
 
         pos++;
@@ -95,8 +105,11 @@ synapseProcessing(const uint64_t sectionPos,
             const float synapseWeight = synapse->weight;
             const float shareWeight = (weight > synapseWeight) * synapseWeight
                                       + (weight <= synapseWeight) * weight;
+            currentStep += 1.0f;
+            const float additionalWeight = (currentStep / initialStepCount) * maxWeight * 0.1f;
 
-            nodeBuffer[nodeBufferPosition] += shareWeight * static_cast<float>(synapse->sign);
+            nodeBuffer[nodeBufferPosition] += (shareWeight * static_cast<float>(synapse->sign))
+                                              + additionalWeight;
 
             weight -= shareWeight;
             counter = pos;
@@ -118,12 +131,19 @@ synapseProcessing(const uint64_t sectionPos,
         if(globalValue->doLearn > 0
                 && section->next == UNINIT_STATE_64)
         {
-            findNewSectioin(synapseSections, sectionPos, sourceNodeBrickId);
+            findNewSectioin(synapseSections,
+                            sectionPos,
+                            sourceNodeBrickId);
         }
 
         // process next section
-        if(section->next != UNINIT_STATE_64) {
-            synapseProcessing(section->next, weight, sourceNodeBrickId);
+        if(section->next != UNINIT_STATE_64)
+        {
+            synapseProcessing(section->next,
+                              weight,
+                              sourceNodeBrickId,
+                              initialStepCount,
+                              currentStep);
         }
     }
 }
@@ -198,7 +218,8 @@ inline void
 triggerSynapseSesction(Brick* brick,
                        Node* node,
                        const uint32_t i,
-                       GlobalValues* globalValue)
+                       GlobalValues* globalValue,
+                       const float multi)
 {
     if(node->potential > 10.0f)
     {
@@ -207,7 +228,8 @@ triggerSynapseSesction(Brick* brick,
         const float up = static_cast<float>(pow(globalValue->gliaValue, node->targetBrickDistance));
         const float weight = node->potential * up;
         brick->nodeActivity++;
-        synapseProcessing(i, weight, brick->nodeBrickId);
+        const float steps = (weight / globalValue->maxSynapseWeight) * multi;
+        synapseProcessing(i, weight, brick->nodeBrickId, steps, 0.0f);
     }
     else
     {
@@ -261,7 +283,7 @@ node_processing()
             node->refractionTime = reset * globalValue->refractionTime
                                    + (reset == false) * node->refractionTime;
 
-            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue, 4000.0f);
 
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
@@ -277,7 +299,7 @@ node_processing()
         else if(node->border == 0.0f)
         {
             node->potential = inputNodes[i];
-            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue);
+            triggerSynapseSesction(nodeBricks[node->nodeBrickId], node, i, globalValue, 0.25f);
         }
         else
         {
