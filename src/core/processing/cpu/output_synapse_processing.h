@@ -157,40 +157,13 @@ calculateLearnings()
     return totalDiff;
 }
 
-float
-output_learn_step()
-{
-    const uint64_t outputBufferSize = KyoukoRoot::m_segment->nodeOutputBuffer.numberOfItems;
-    float* outputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
-
-    const float totalDiff = calculateLearnings();
-
-    // learn and rerun output-processing
-    for(uint32_t i = 0; i < outputBufferSize; i++) {
-        outputSynapseLearn(i, outputNodes[i]);
-    }
-
-    if(totalDiff < 0.001f)
-    {
-        for(uint32_t i = 0; i < 3; i++) {
-            outputs[i].shouldValue = 0.0f;
-        }
-        KyoukoRoot::m_freezeState = true;
-        globalValue->doLearn = 0;
-    }
-
-    return totalDiff;
-}
 
 /**
  * @brief node_processing
  */
-void
+inline void
 output_node_processing()
 {
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     float* outputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
 
@@ -206,15 +179,26 @@ output_node_processing()
 
     // process output
     for(uint32_t i = 0; i < outputBufferSize; i++) {
-        /*if(outputNodes[i] > 0.0f) {
-            std::cout<<"outputNodes[i]: "<<outputNodes[i]<<std::endl;
-        }*/
         outputSynapseProcessing(i, outputNodes[i]);
     }
+}
 
-    if(globalValue->doLearn != 0) {
-        output_learn_step();
+inline float
+output_learn_step()
+{
+    const uint64_t outputBufferSize = KyoukoRoot::m_segment->nodeOutputBuffer.numberOfItems;
+    float* outputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
+
+    output_node_processing();
+
+    const float totalDiff = calculateLearnings();
+
+    // learn and rerun output-processing
+    for(uint32_t i = 0; i < outputBufferSize; i++) {
+        outputSynapseLearn(i, outputNodes[i]);
     }
+
+    return totalDiff;
 }
 
 #endif // OUTPUT_SYNAPSE_PROCESSING_H

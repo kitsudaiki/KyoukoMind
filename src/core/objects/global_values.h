@@ -39,7 +39,7 @@ struct GlobalValues
     uint32_t layer = 0;
 
     // processing
-    float lerningValue = 1.0f;
+    float lerningValue = 0.0f;
     float synapseDeleteBorder = 1.0;
     float actionPotential = 100.0;
     float nodeCooldown = 100.0;

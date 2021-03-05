@@ -102,8 +102,6 @@ NetworkManager::executeStep()
 void
 NetworkManager::run()
 {
-    KyoukoRoot::m_ioHandler->registerInput(10);
-    KyoukoRoot::m_ioHandler->registerOutput(3);
     std::string errorMessage = "";
     GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 

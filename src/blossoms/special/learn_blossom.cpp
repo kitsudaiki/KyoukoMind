@@ -28,6 +28,8 @@
 #include <core/objects/global_values.h>
 #include <core/objects/output.h>
 #include <core/objects/segment.h>
+#include <core/network_manager.h>
+#include <core/processing/cpu/output_synapse_processing.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -46,10 +48,14 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("start learning");
 
+    KyoukoRoot::m_ioHandler->registerInput(10);
+    KyoukoRoot::m_ioHandler->registerOutput(3);
+
     const std::string input = blossomLeaf.input.get("input")->toValue()->getString();
     const std::string should = blossomLeaf.input.get("should")->toValue()->getString();
 
     KyoukoRoot::m_ioHandler->setInput(input);
+    KyoukoRoot::m_ioHandler->processInputMapping();
 
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
@@ -59,6 +65,35 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     }
 
     globalValue->doLearn = 1;
+
+    const uint32_t runCount = globalValue->layer + 1;
+    for(uint32_t i = 0; i < runCount; i++) {
+        KyoukoRoot::m_root->m_networkManager->executeStep();
+    }
+
+    float totalDiff = 0.0f;
+
+    do {
+        totalDiff = output_learn_step();
+    } while(totalDiff >= 0.001f);
+
+    if(totalDiff < 0.001f)
+    {
+        for(uint32_t i = 0; i < 3; i++) {
+            outputs[i].shouldValue = 0.0f;
+        }
+        KyoukoRoot::m_freezeState = true;
+        globalValue->doLearn = 0;
+    }
+    Kitsunemimi::DataArray outputArray;
+
+    LOG_WARNING("-----------------------------------------------");
+    for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
+    {
+        outputArray.append(new DataValue(outputs[i].outputValue));
+        LOG_WARNING("should" + std::to_string(i) + ": " + std::to_string(outputs[i].shouldValue));
+        LOG_WARNING("output" + std::to_string(i) + ": " + std::to_string(outputs[i].outputValue));
+    }
 
     return true;
 }

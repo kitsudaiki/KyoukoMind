@@ -104,10 +104,9 @@ KyoukoRoot::start()
 {
     // network-manager
     m_networkManager = new NetworkManager();
-    m_networkManager->startThread();
+    //m_networkManager->startThread();
 
     return true;
-    //return initServer();
 }
 
 
