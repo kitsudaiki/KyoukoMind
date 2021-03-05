@@ -57,13 +57,17 @@ void
 InputOutputProcessing::processOutputMapping()
 {
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    Kitsunemimi::DataArray outputArray;
+
     LOG_WARNING("-----------------------------------------------");
     for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
     {
+        outputArray.append(new DataValue(outputs[i].outputValue));
         LOG_WARNING("should" + std::to_string(i) + ": " + std::to_string(outputs[i].shouldValue));
         LOG_WARNING("output" + std::to_string(i) + ": " + std::to_string(outputs[i].outputValue));
     }
-    //KyoukoRoot::m_clientHandler->sendToClient(std::to_string(KyoukoRoot::m_segment->outputValue));
+
+    KyoukoRoot::m_clientHandler->sendToClient(outputArray.toString());
 }
 
 /**
