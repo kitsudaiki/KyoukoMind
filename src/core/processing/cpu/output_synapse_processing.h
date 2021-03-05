@@ -139,13 +139,10 @@ outputSynapseLearn(const uint32_t sectionPos,
     }
 }
 
-inline void
-calculateLearnings(float &totalDiff,
-                   uint32_t &newOnes,
-                   const bool resetOutput)
+inline float
+calculateLearnings()
 {
-    totalDiff = 0.0f;
-    newOnes = 0;
+    float totalDiff = 0.0f;
 
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     const uint64_t outputsSize = KyoukoRoot::m_segment->outputs.numberOfItems;
@@ -154,13 +151,37 @@ calculateLearnings(float &totalDiff,
     {
         outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
         totalDiff += fabs(outputs[o].diff);
-        newOnes += outputs[o].newOnes;
         outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
-
-        if(resetOutput) {
-            outputs[o].outputValue = 0.0f;
-        }
     }
+
+    return totalDiff;
+}
+
+float
+output_learn_step()
+{
+    const uint64_t outputBufferSize = KyoukoRoot::m_segment->nodeOutputBuffer.numberOfItems;
+    float* outputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeOutputBuffer);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+
+    const float totalDiff = calculateLearnings();
+
+    // learn and rerun output-processing
+    for(uint32_t i = 0; i < outputBufferSize; i++) {
+        outputSynapseLearn(i, outputNodes[i]);
+    }
+
+    if(totalDiff < 0.001f)
+    {
+        for(uint32_t i = 0; i < 3; i++) {
+            outputs[i].shouldValue = 0.0f;
+        }
+        KyoukoRoot::m_freezeState = true;
+        globalValue->doLearn = 0;
+    }
+
+    return totalDiff;
 }
 
 /**
@@ -191,36 +212,8 @@ output_node_processing()
         outputSynapseProcessing(i, outputNodes[i]);
     }
 
-    if(globalValue->doLearn != 0)
-    {
-        float totalDiff = 0.0f;
-        uint32_t newOnes = 0;
-        std::cout<<"learn"<<std::endl;
-
-        std::cout<<"totalDiff1: "<<totalDiff<<std::endl;
-        std::cout<<"newOnes1: "<<newOnes<<std::endl;
-
-        calculateLearnings(totalDiff, newOnes, true);
-
-        // learn and rerun output-processing
-        for(uint32_t i = 0; i < outputBufferSize; i++)
-        {
-            outputSynapseLearn(i, outputNodes[i]);
-            outputSynapseProcessing(i, outputNodes[i]);
-        }
-
-        calculateLearnings(totalDiff, newOnes, false);
-
-        if(totalDiff < 0.001f)
-        {
-            for(uint32_t i = 0; i < 3; i++) {
-                outputs[i].shouldValue = 0.0f;
-            }
-            KyoukoRoot::m_freezeState = true;
-            globalValue->doLearn = 0;
-        }
-        std::cout<<"totalDiff2: "<<totalDiff<<std::endl;
-        std::cout<<"newOnes2: "<<newOnes<<std::endl;
+    if(globalValue->doLearn != 0) {
+        output_learn_step();
     }
 }
 
