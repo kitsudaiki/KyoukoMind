@@ -22,8 +22,14 @@
 
 #include "learn_blossom.h"
 
-#include <libKitsunemimiPersistence/logger/logger.h>
 #include <kyouko_root.h>
+#include <core/processing/input_output_processing.h>
+
+#include <core/objects/global_values.h>
+#include <core/objects/output.h>
+#include <core/objects/segment.h>
+
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -43,5 +49,16 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     const std::string input = blossomLeaf.input.get("input")->toValue()->getString();
     const std::string should = blossomLeaf.input.get("should")->toValue()->getString();
 
-    return KyoukoRoot::m_root->learn(input, should, errorMessage);
+    KyoukoRoot::m_ioHandler->setInput(input);
+
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+
+    for(uint32_t i = 0; i < should.size(); i++) {
+        outputs[i].shouldValue = (static_cast<float>(should[i]) - 90.0f) * 10.0f;
+    }
+
+    globalValue->doLearn = 1;
+
+    return true;
 }
