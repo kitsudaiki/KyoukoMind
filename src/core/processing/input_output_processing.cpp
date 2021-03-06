@@ -57,13 +57,17 @@ void
 InputOutputProcessing::processOutputMapping()
 {
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    Kitsunemimi::DataArray outputArray;
+
     LOG_WARNING("-----------------------------------------------");
     for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
     {
+        outputArray.append(new DataValue(outputs[i].outputValue));
         LOG_WARNING("should" + std::to_string(i) + ": " + std::to_string(outputs[i].shouldValue));
         LOG_WARNING("output" + std::to_string(i) + ": " + std::to_string(outputs[i].outputValue));
     }
-    //KyoukoRoot::m_clientHandler->sendToClient(std::to_string(KyoukoRoot::m_segment->outputValue));
+
+    KyoukoRoot::m_clientHandler->sendToClient(outputArray.toString());
 }
 
 /**
@@ -97,8 +101,7 @@ InputOutputProcessing::setInput(const std::string &input)
  * @param numberOfInput
  * @param inputSize
  */
-void
-InputOutputProcessing::registerInput(const uint32_t numberOfInput)
+bool InputOutputProcessing::registerInput(const uint32_t numberOfInput)
 {
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
@@ -107,6 +110,8 @@ InputOutputProcessing::registerInput(const uint32_t numberOfInput)
     }
 
     KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
+
+    return true;
 }
 
 /**
@@ -114,10 +119,9 @@ InputOutputProcessing::registerInput(const uint32_t numberOfInput)
  * @param numberOfOutputs
  * @param outputSize
  */
-void
+bool
 InputOutputProcessing::registerOutput(const uint32_t numberOfOutputs)
 {
-    Brick* outputBrick = KyoukoRoot::m_segment->outputBricks[0];
-
+    return KyoukoRoot::m_segment->outputs.initBuffer<Output>(numberOfOutputs);
 }
 

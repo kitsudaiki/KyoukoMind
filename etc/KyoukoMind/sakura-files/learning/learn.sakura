@@ -1,7 +1,9 @@
 ["learn"]
 - input = ""
 - should = ""
+- result = ""
 
 learn("learn input")
 - input = input
 - should = should
+- result >> result

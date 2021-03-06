@@ -104,47 +104,7 @@ KyoukoRoot::start()
 {
     // network-manager
     m_networkManager = new NetworkManager();
-    m_networkManager->startThread();
-
-    return true;
-    //return initServer();
-}
-
-/**
- * @brief KyoukoRoot::learn
- * @param input
- * @param should
- * @param errorMessage
- * @return
- */
-bool
-KyoukoRoot::learn(const std::string &input,
-                  const std::string &should,
-                  std::string &)
-{
-    LOG_WARNING("input: " + input);
-    LOG_WARNING("should: " + should);
-
-    KyoukoRoot::m_ioHandler->setInput(input);
-
-    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-
-    if(globalValue->doLearn == 0)
-    {
-        for(uint32_t i = 0; i < should.size(); i++) {
-            outputs[i].shouldValue = (static_cast<float>(should[i]) - 90.0f) * 10.0f;
-        }
-        globalValue->doLearn = 1;
-    }
-    else
-    {
-        for(uint32_t i = 0; i < should.size(); i++) {
-            outputs[i].shouldValue = 0.0f;
-        }
-        KyoukoRoot::m_freezeState = true;
-        globalValue->doLearn = 0;
-    }
+    //m_networkManager->startThread();
 
     return true;
 }

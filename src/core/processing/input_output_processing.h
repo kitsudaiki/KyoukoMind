@@ -35,8 +35,8 @@ public:
 
     void setInput(const std::string& input);
 
-    void registerInput(const uint32_t numberOfInput);
-    void registerOutput(const uint32_t numberOfOutputs);
+    bool registerInput(const uint32_t numberOfInput);
+    bool registerOutput(const uint32_t numberOfOutputs);
 
 private:
     std::vector<float> m_inputMapper;

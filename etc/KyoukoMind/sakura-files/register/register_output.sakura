@@ -1,9 +1,6 @@
 ["register_output"]
-- pos = ""
+- size = ""
 
-for(i = 0; i < 1; i++)
-{
-    register("register output")
-    -> output:
-        - pos >> pos
-}
+register("register output")
+-> output:
+    - size = size

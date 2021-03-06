@@ -1,5 +1,7 @@
 ["set_input"]
 - input = ""
+- output = ""
 
 set_input("set input-values")
 - input = input
+- output >> output

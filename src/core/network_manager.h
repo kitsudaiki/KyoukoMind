@@ -40,6 +40,8 @@ class NetworkManager
 public:
     NetworkManager();
 
+    uint32_t executeStep();
+
     void run();
 
 private:
@@ -50,14 +52,11 @@ private:
     Kitsunemimi::Barrier* m_phase2 = nullptr;
     Kitsunemimi::Barrier* m_phase3 = nullptr;
 
-    uint32_t m_numberOfThreads = 0;
-    std::string m_testMonitoring = "";
+    std::chrono::high_resolution_clock::time_point m_edgeStart;
+    std::chrono::high_resolution_clock::time_point m_edgeEnd;
 
-    float m_outBuffer[10];
-    uint8_t m_outBufferPos = 0;
-
-    std::vector<float> m_actualOutput;
-    std::vector<float> m_should;
+    std::chrono::high_resolution_clock::time_point m_synapseStart;
+    std::chrono::high_resolution_clock::time_point m_synapseEnd;
 };
 
 #endif // NETWORK_MANAGER_H

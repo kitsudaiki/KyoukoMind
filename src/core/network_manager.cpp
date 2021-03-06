@@ -57,23 +57,53 @@ NetworkManager::NetworkManager()
     initNetwork();
 }
 
+uint32_t
+NetworkManager::executeStep()
+{
+    // run phases of processing
+    m_phase1->triggerBarrier();
+
+    m_edgeStart = std::chrono::system_clock::now();
+
+    m_phase2->triggerBarrier();
+    m_edgeEnd = std::chrono::system_clock::now();
+    m_synapseStart = std::chrono::system_clock::now();
+
+    m_phase3->triggerBarrier();
+    m_synapseEnd = std::chrono::system_clock::now();
+
+
+    // calculate times
+    const float edgeTime = duration_cast<chronoNanoSec>(m_edgeEnd - m_edgeStart).count();
+    const float synapseTime = duration_cast<chronoNanoSec>(m_synapseEnd - m_synapseStart).count();
+    const uint32_t usedTime = static_cast<uint32_t>((edgeTime + synapseTime) / 1024.0f);
+
+    // total times
+    KyoukoRoot::monitoringMetaMessage.edgePhase = edgeTime;
+    KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
+    KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
+
+    // object-numbers in item-buffer
+    const uint64_t numberOfSynapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
+    KyoukoRoot::monitoringMetaMessage.synapseSections = numberOfSynapseSections;
+    KyoukoRoot::monitoringMetaMessage.nodes = KyoukoRoot::m_segment->nodes.numberOfItems;
+
+    // monitoring-output
+    const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
+    KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
+    KyoukoRoot::m_monitoringHandler->sendToMonitoring();
+
+    return usedTime;
+}
+
 /**
  * @brief NetworkManager::run
  */
 void
 NetworkManager::run()
 {
-    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-
-    std::chrono::high_resolution_clock::time_point edgeStart;
-    std::chrono::high_resolution_clock::time_point edgeEnd;
-
-    std::chrono::high_resolution_clock::time_point synapseStart;
-    std::chrono::high_resolution_clock::time_point synapseEnd;
-
-    KyoukoRoot::m_ioHandler->registerInput(10);
-    KyoukoRoot::m_ioHandler->registerOutput(3);
     std::string errorMessage = "";
+    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     uint32_t time = globalValues->cycleTime;
     while(!m_abort)
@@ -93,61 +123,17 @@ NetworkManager::run()
         }
 
         KyoukoRoot::m_ioHandler->processInputMapping();
-        KyoukoRoot::m_ioHandler->processOutputMapping();
 
-        // run phases of processing
-        m_phase1->triggerBarrier();
-
-        edgeStart = std::chrono::system_clock::now();
-
-        m_phase2->triggerBarrier();
-        edgeEnd = std::chrono::system_clock::now();
-        synapseStart = std::chrono::system_clock::now();
-
-        m_phase3->triggerBarrier();
-        synapseEnd = std::chrono::system_clock::now();
-
-
-        // calculate times
-        const float edgeTime = duration_cast<chronoNanoSec>(edgeEnd - edgeStart).count();
-        const float synapseTime = duration_cast<chronoNanoSec>(synapseEnd - synapseStart).count();
-        const uint32_t usedTime = static_cast<uint32_t>((edgeTime + synapseTime) / 1024.0f);
-
+        const uint32_t usedTime = executeStep();
         if(globalValues->cycleTime > usedTime) {
             time = globalValues->cycleTime - usedTime;
         } else {
             time = 1000;
         }
 
-        // total times
-        KyoukoRoot::monitoringMetaMessage.edgePhase = edgeTime;
-        KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
-        KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
-
-        // object-numbers in item-buffer
-        const uint64_t numberOfSynapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
-        KyoukoRoot::monitoringMetaMessage.synapseSections = numberOfSynapseSections;
-        KyoukoRoot::monitoringMetaMessage.nodes = KyoukoRoot::m_segment->nodes.numberOfItems;
-
-        // monitoring-output
-        const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
-        KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
-        KyoukoRoot::m_monitoringHandler->sendToMonitoring();
-
-
-        Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
-        std::string output = "";
-        for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
-        {
-            if(i != 0) {
-                output += " | ";
-            }
-            output += std::to_string(outputs[i].outputValue);
-        }
+        KyoukoRoot::m_ioHandler->processOutputMapping();
 
         globalValues->lerningValue = 0.0f;
-
-        KyoukoRoot::m_clientHandler->sendToClient(output);
     }
 }
 
@@ -179,8 +165,6 @@ NetworkManager::initNetwork()
         return false;
     }
 
-
-
     const std::string configFile = GET_STRING_CONFIG("Init", "config", success);
     if(success == false)
     {
@@ -195,7 +179,6 @@ NetworkManager::initNetwork()
         LOG_ERROR(errorMessage);
         return false;
     }
-
 
     NetworkInitializer initializer;
     success = initializer.createNewNetwork(initFileContent, configFileContent);
