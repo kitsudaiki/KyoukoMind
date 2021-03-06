@@ -37,6 +37,7 @@ SetInputBlossom::SetInputBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
     validationMap.emplace("input", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+    validationMap.emplace("type", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
     validationMap.emplace("output", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
 }
 
@@ -46,10 +47,14 @@ SetInputBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("set input");
 
-    const std::string input = blossomLeaf.input.get("input")->toValue()->getString();
+    const std::string type = blossomLeaf.input.get("type")->toValue()->getString();
 
-    KyoukoRoot::m_ioHandler->setInput(input);
-    KyoukoRoot::m_ioHandler->processInputMapping();
+    if(type == "array")
+    {
+        DataArray* input = blossomLeaf.input.get("input")->toArray();
+        KyoukoRoot::m_ioHandler->setInput(input);
+        KyoukoRoot::m_ioHandler->processInputMapping();
+    }
 
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);

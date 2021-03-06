@@ -38,6 +38,7 @@ using namespace Kitsunemimi::Sakura;
 LearnBlossom::LearnBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
+    validationMap.emplace("type", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
     validationMap.emplace("input", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
     validationMap.emplace("should", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
     validationMap.emplace("result", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
@@ -49,18 +50,24 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("start learning");
 
-    const std::string input = blossomLeaf.input.get("input")->toValue()->getString();
-    const std::string should = blossomLeaf.input.get("should")->toValue()->getString();
+    Segment* seg = KyoukoRoot::m_segment;
+    Output* outputs = Kitsunemimi::getBuffer<Output>(seg->outputs);
+    const uint64_t numberOfOutputs = seg->outputs.numberOfItems;
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
 
-    KyoukoRoot::m_ioHandler->setInput(input);
-    KyoukoRoot::m_ioHandler->processInputMapping();
+    const std::string type = blossomLeaf.input.get("type")->toValue()->getString();
 
-    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
-    const uint64_t numberOfOutputs = KyoukoRoot::m_segment->outputs.numberOfItems;
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    if(type == "array")
+    {
+        DataArray* input = blossomLeaf.input.get("input")->toArray();
+        DataArray* should = blossomLeaf.input.get("should")->toArray();
 
-    for(uint32_t i = 0; i < should.size(); i++) {
-        outputs[i].shouldValue = (static_cast<float>(should[i]) - 90.0f) * 10.0f;
+        for(uint32_t i = 0; i < should->size(); i++) {
+            outputs[i].shouldValue = should->get(i)->toValue()->getFloat();
+        }
+
+        KyoukoRoot::m_ioHandler->setInput(input);
+        KyoukoRoot::m_ioHandler->processInputMapping();
     }
 
     globalValue->doLearn = 1;
@@ -79,13 +86,13 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
         totalDiff = output_learn_step();
         timeout--;
     }
-    while(totalDiff >= 0.001f
+    while(totalDiff >= 0.01f
           && timeout > 0);
 
     bool result = false;
 
     // if desired state was reached, than freeze lerned state
-    if(totalDiff < 0.001f)
+    if(totalDiff < 0.01f)
     {
         result = true;
         KyoukoRoot::m_freezeState = true;
