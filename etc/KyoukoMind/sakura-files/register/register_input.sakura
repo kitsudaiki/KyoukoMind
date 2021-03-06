@@ -1,9 +1,7 @@
 ["register_input"]
-- pos = ""
+- size = ""
 
-for(i = 0; i < 1; i++)
-{
-    register("register input")
-    -> input:
-        - pos >> pos
-}
+register("register input")
+-> input:
+    - size = size
+

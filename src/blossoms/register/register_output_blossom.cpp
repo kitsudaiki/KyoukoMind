@@ -32,7 +32,7 @@ using namespace Kitsunemimi::Sakura;
 RegisterOutputBlossom::RegisterOutputBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
-    validationMap.emplace("pos", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
+    validationMap.emplace("size", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
 }
 
 bool
@@ -41,8 +41,15 @@ RegisterOutputBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("register output");
 
-    KyoukoRoot::m_ioHandler->registerOutput(1);
-    blossomLeaf.output.insert("pos", new DataValue(static_cast<int>(0)));
+    const int size = blossomLeaf.input.get("size")->toValue()->getInt();
+
+    if(size < 0)
+    {
+        errorMessage = "number of outputs to register must be a positive value";
+        return false;
+    }
+
+    KyoukoRoot::m_ioHandler->registerOutput(static_cast<uint32_t>(size));
 
     return true;
 }

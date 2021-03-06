@@ -49,9 +49,6 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("start learning");
 
-    KyoukoRoot::m_ioHandler->registerInput(10);
-    KyoukoRoot::m_ioHandler->registerOutput(3);
-
     const std::string input = blossomLeaf.input.get("input")->toValue()->getString();
     const std::string should = blossomLeaf.input.get("should")->toValue()->getString();
 
