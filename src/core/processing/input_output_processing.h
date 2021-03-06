@@ -34,6 +34,7 @@ public:
     void processOutputMapping();
 
     void setInput(Kitsunemimi::DataArray* input);
+    void resetInput();
 
     bool registerInput(const uint32_t numberOfInput);
     bool registerOutput(const uint32_t numberOfOutputs);

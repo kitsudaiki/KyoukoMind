@@ -275,18 +275,19 @@ node_processing()
         Node* node = &nodes[i];
         if(node->border > 0.0f)
         {
+            // check if active
+            const bool reset = node->border < node->currentState
+                               && node->refractionTime == 0;
+            if(reset)
+            {
+                node->potential = globalValue->actionPotential + 0.3f * node->currentState;
+                node->refractionTime = globalValue->refractionTime;
+            }
+
             // set to 255.0f, if value is too high
             const float cur = node->currentState;
             node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
             node->currentState = (cur < 0.0f) * 0.0f + (cur >= 0.0f) * cur;
-
-            // check if active
-            const bool reset = node->border < node->currentState
-                               && node->refractionTime == 0;
-            node->potential = reset * globalValue->actionPotential
-                              + (reset == false) * node->potential;
-            node->refractionTime = reset * globalValue->refractionTime
-                                   + (reset == false) * node->refractionTime;
 
             triggerSynapseSesction(nodeBricks[node->nodeBrickId],
                                    node,

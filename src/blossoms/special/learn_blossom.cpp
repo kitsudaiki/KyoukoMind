@@ -52,8 +52,6 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 
     Segment* seg = KyoukoRoot::m_segment;
     Output* outputs = Kitsunemimi::getBuffer<Output>(seg->outputs);
-    const uint64_t numberOfOutputs = seg->outputs.numberOfItems;
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
 
     const std::string type = blossomLeaf.input.get("type")->toValue()->getString();
 
@@ -69,6 +67,22 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
         KyoukoRoot::m_ioHandler->setInput(input);
         KyoukoRoot::m_ioHandler->processInputMapping();
     }
+
+    const bool result = learnStep();
+
+    blossomLeaf.output.insert("result", new DataValue(result));
+    Kitsunemimi::DataArray outputArray;
+
+    return true;
+}
+
+bool
+LearnBlossom::learnStep()
+{
+    Segment* seg = KyoukoRoot::m_segment;
+    Output* outputs = Kitsunemimi::getBuffer<Output>(seg->outputs);
+    const uint64_t numberOfOutputs = seg->outputs.numberOfItems;
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
 
     globalValue->doLearn = 1;
 
@@ -86,13 +100,14 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
         totalDiff = output_learn_step();
         timeout--;
     }
-    while(totalDiff >= 0.01f
+    while(totalDiff >= 0.001f
           && timeout > 0);
+    std::cout<<"###################################################: "<<totalDiff<<std::endl;
 
     bool result = false;
 
     // if desired state was reached, than freeze lerned state
-    if(totalDiff < 0.01f)
+    if(totalDiff < 0.001f)
     {
         result = true;
         KyoukoRoot::m_freezeState = true;
@@ -104,13 +119,18 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
         KyoukoRoot::m_freezeState = false;
     }
 
+    // reset network
+    KyoukoRoot::m_ioHandler->resetInput();
+    KyoukoRoot::m_ioHandler->processInputMapping();
+    for(uint32_t i = 0; i < runCount; i++) {
+        KyoukoRoot::m_root->m_networkManager->executeStep();
+    }
+    output_node_processing();
+
     // resett desired should-output
     for(uint64_t i = 0; i < numberOfOutputs; i++) {
         outputs[i].shouldValue = 0.0f;
     }
 
-    blossomLeaf.output.insert("result", new DataValue(result));
-    Kitsunemimi::DataArray outputArray;
-
-    return true;
+    return result;
 }

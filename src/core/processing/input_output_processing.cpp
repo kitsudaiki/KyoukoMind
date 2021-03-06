@@ -42,7 +42,8 @@ InputOutputProcessing::processInputMapping()
     Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
 
     // insert input-values from brick
-    float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+    Segment* seg = KyoukoRoot::m_segment;
+    float* inputNodes = Kitsunemimi::getBuffer<float>(seg->nodeInputBuffer);
     for(uint32_t i = 0; i < m_inputMapper.size(); i++) {
         inputNodes[i + inputBrick->nodePos] = m_inputMapper[i];
     }
@@ -76,11 +77,23 @@ InputOutputProcessing::setInput(DataArray* input)
 
     for(uint32_t i = 0; i < input->size(); i++)
     {
-        for(uint32_t j = 0; j < 10; j++)
+        for(uint32_t j = 0; j < 1; j++)
         {
-            const uint32_t pos = j + i * 10;
+            const uint32_t pos = j + i * 1;
             m_inputMapper[pos] = input->get(i)->toValue()->getFloat();
         }
+    }
+
+    KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
+}
+
+void
+InputOutputProcessing::resetInput()
+{
+    while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
+
+    for(uint32_t i = 0; i < m_inputMapper.size(); i++) {
+        m_inputMapper[i] = 0.0f;
     }
 
     KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
@@ -95,7 +108,7 @@ bool InputOutputProcessing::registerInput(const uint32_t numberOfInput)
 {
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    for(uint32_t i = 0; i < numberOfInput * 10; i++) {
+    for(uint32_t i = 0; i < numberOfInput * 1; i++) {
         m_inputMapper.push_back(0.0f);
     }
 
