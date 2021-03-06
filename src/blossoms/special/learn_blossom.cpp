@@ -56,6 +56,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     KyoukoRoot::m_ioHandler->processInputMapping();
 
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    const uint64_t numberOfOutputs = KyoukoRoot::m_segment->outputs.numberOfItems;
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
     for(uint32_t i = 0; i < should.size(); i++) {
@@ -97,7 +98,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // resett desired should-output
-    for(uint32_t i = 0; i < 3; i++) {
+    for(uint64_t i = 0; i < numberOfOutputs; i++) {
         outputs[i].shouldValue = 0.0f;
     }
 

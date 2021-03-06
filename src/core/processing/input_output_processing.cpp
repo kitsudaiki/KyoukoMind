@@ -101,8 +101,7 @@ InputOutputProcessing::setInput(const std::string &input)
  * @param numberOfInput
  * @param inputSize
  */
-void
-InputOutputProcessing::registerInput(const uint32_t numberOfInput)
+bool InputOutputProcessing::registerInput(const uint32_t numberOfInput)
 {
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
@@ -111,6 +110,8 @@ InputOutputProcessing::registerInput(const uint32_t numberOfInput)
     }
 
     KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
+
+    return true;
 }
 
 /**
@@ -118,10 +119,9 @@ InputOutputProcessing::registerInput(const uint32_t numberOfInput)
  * @param numberOfOutputs
  * @param outputSize
  */
-void
+bool
 InputOutputProcessing::registerOutput(const uint32_t numberOfOutputs)
 {
-    Brick* outputBrick = KyoukoRoot::m_segment->outputBricks[0];
-
+    return KyoukoRoot::m_segment->outputs.initBuffer<Output>(numberOfOutputs);
 }
 
