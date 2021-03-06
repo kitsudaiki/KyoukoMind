@@ -40,6 +40,7 @@ LearnBlossom::LearnBlossom()
 {
     validationMap.emplace("input", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
     validationMap.emplace("should", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+    validationMap.emplace("result", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
 }
 
 bool
@@ -66,34 +67,45 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 
     globalValue->doLearn = 1;
 
+    // learn until output-section
     const uint32_t runCount = globalValue->layer + 1;
     for(uint32_t i = 0; i < runCount; i++) {
         KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 
+    // learn current state
+    uint32_t timeout = 200;
     float totalDiff = 0.0f;
-
-    do {
+    do
+    {
         totalDiff = output_learn_step();
-    } while(totalDiff >= 0.001f);
+        timeout--;
+    }
+    while(totalDiff >= 0.001f
+          && timeout > 0);
 
+    bool result = false;
+
+    // if desired state was reached, than freeze lerned state
     if(totalDiff < 0.001f)
     {
-        for(uint32_t i = 0; i < 3; i++) {
-            outputs[i].shouldValue = 0.0f;
-        }
+        result = true;
         KyoukoRoot::m_freezeState = true;
+        globalValue->lerningValue = 100000.0f;
+        KyoukoRoot::m_root->m_networkManager->executeStep();
+        output_node_processing();
         globalValue->doLearn = 0;
+        globalValue->lerningValue = 0.0f;
+        KyoukoRoot::m_freezeState = false;
     }
-    Kitsunemimi::DataArray outputArray;
 
-    LOG_WARNING("-----------------------------------------------");
-    for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
-    {
-        outputArray.append(new DataValue(outputs[i].outputValue));
-        LOG_WARNING("should" + std::to_string(i) + ": " + std::to_string(outputs[i].shouldValue));
-        LOG_WARNING("output" + std::to_string(i) + ": " + std::to_string(outputs[i].outputValue));
+    // resett desired should-output
+    for(uint32_t i = 0; i < 3; i++) {
+        outputs[i].shouldValue = 0.0f;
     }
+
+    blossomLeaf.output.insert("result", new DataValue(result));
+    Kitsunemimi::DataArray outputArray;
 
     return true;
 }
