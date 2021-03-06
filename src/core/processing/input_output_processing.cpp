@@ -58,13 +58,8 @@ InputOutputProcessing::processOutputMapping()
 {
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     Kitsunemimi::DataArray outputArray;
-
-    LOG_WARNING("-----------------------------------------------");
-    for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
-    {
+    for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++) {
         outputArray.append(new DataValue(outputs[i].outputValue));
-        LOG_WARNING("should" + std::to_string(i) + ": " + std::to_string(outputs[i].shouldValue));
-        LOG_WARNING("output" + std::to_string(i) + ": " + std::to_string(outputs[i].outputValue));
     }
 
     KyoukoRoot::m_clientHandler->sendToClient(outputArray.toString());
@@ -75,21 +70,16 @@ InputOutputProcessing::processOutputMapping()
  * @param input
  */
 void
-InputOutputProcessing::setInput(const std::string &input)
+InputOutputProcessing::setInput(DataArray* input)
 {
     while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
 
-    const char* inputChar = input.c_str();
-    for(uint32_t i = 0; i < input.size(); i++)
+    for(uint32_t i = 0; i < input->size(); i++)
     {
         for(uint32_t j = 0; j < 10; j++)
         {
             const uint32_t pos = j + i * 10;
-            if(inputChar[i] == '0') {
-                m_inputMapper[pos] = 0.0f;
-            } else {
-                m_inputMapper[pos] = (static_cast<float>(inputChar[i])) * 10.0f;
-            }
+            m_inputMapper[pos] = input->get(i)->toValue()->getFloat();
         }
     }
 

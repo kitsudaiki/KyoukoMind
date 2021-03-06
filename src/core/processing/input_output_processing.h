@@ -33,7 +33,7 @@ public:
     void processInputMapping();
     void processOutputMapping();
 
-    void setInput(const std::string& input);
+    void setInput(Kitsunemimi::DataArray* input);
 
     bool registerInput(const uint32_t numberOfInput);
     bool registerOutput(const uint32_t numberOfOutputs);
