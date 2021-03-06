@@ -65,13 +65,13 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     globalValue->doLearn = 1;
 
     // learn until output-section
-    const uint32_t runCount = globalValue->layer + 1;
+    const uint32_t runCount = globalValue->layer + 2;
     for(uint32_t i = 0; i < runCount; i++) {
         KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 
     // learn current state
-    uint32_t timeout = 200;
+    uint32_t timeout = 1000;
     float totalDiff = 0.0f;
     do
     {

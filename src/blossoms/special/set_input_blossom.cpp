@@ -25,6 +25,11 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <kyouko_root.h>
 #include <core/processing/input_output_processing.h>
+#include <core/objects/global_values.h>
+#include <core/objects/segment.h>
+#include <core/objects/output.h>
+#include <core/processing/cpu/output_synapse_processing.h>
+#include <core/network_manager.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -32,6 +37,7 @@ SetInputBlossom::SetInputBlossom()
     : Kitsunemimi::Sakura::Blossom()
 {
     validationMap.emplace("input", BlossomValidDef(IO_ValueType::INPUT_TYPE, true));
+    validationMap.emplace("output", BlossomValidDef(IO_ValueType::OUTPUT_TYPE, true));
 }
 
 bool
@@ -43,6 +49,26 @@ SetInputBlossom::runTask(BlossomLeaf &blossomLeaf,
     const std::string input = blossomLeaf.input.get("input")->toValue()->getString();
 
     KyoukoRoot::m_ioHandler->setInput(input);
+    KyoukoRoot::m_ioHandler->processInputMapping();
+
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+
+    // learn until output-section
+    const uint32_t runCount = globalValue->layer + 2;
+    for(uint32_t i = 0; i < runCount; i++) {
+        KyoukoRoot::m_root->m_networkManager->executeStep();
+    }
+
+    output_node_processing();
+    output_node_processing();
+
+    Kitsunemimi::DataArray* outputArray = new Kitsunemimi::DataArray();
+    for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++) {
+        outputArray->append(new DataValue(outputs[i].outputValue));
+    }
+
+    blossomLeaf.output.insert("output", outputArray);
 
     return true;
 }
