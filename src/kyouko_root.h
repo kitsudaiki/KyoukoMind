@@ -52,8 +52,9 @@ public:
     bool start();
     bool initializeSakuraFiles();
 
-    bool learn(const std::string &input,
-               const std::string &should, std::string &);
+    bool learnStep();
+    void executeStep();
+    void learnTestData();
 
     NetworkManager* m_networkManager = nullptr;
 

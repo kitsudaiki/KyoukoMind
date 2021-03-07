@@ -36,6 +36,9 @@ public:
     void setInput(Kitsunemimi::DataArray* input);
     void resetInput();
 
+    void setShouldValues(Kitsunemimi::DataArray* should);
+    void resetShouldValues();
+
     bool registerInput(const uint32_t numberOfInput);
     bool registerOutput(const uint32_t numberOfOutputs);
 

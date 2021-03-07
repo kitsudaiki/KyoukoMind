@@ -35,7 +35,6 @@ protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  std::string &errorMessage);
 
-    bool learnStep();
 };
 
 #endif // LEARN_BLOSSOM_H

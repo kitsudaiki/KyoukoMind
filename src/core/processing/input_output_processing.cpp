@@ -100,6 +100,35 @@ InputOutputProcessing::resetInput()
 }
 
 /**
+ * @brief InputOutputProcessing::setShouldValues
+ * @param should
+ */
+void
+InputOutputProcessing::setShouldValues(Kitsunemimi::DataArray* should)
+{
+    Segment* seg = KyoukoRoot::m_segment;
+    Output* outputs = Kitsunemimi::getBuffer<Output>(seg->outputs);
+
+    for(uint32_t i = 0; i < should->size(); i++) {
+        outputs[i].shouldValue = should->get(i)->toValue()->getFloat();
+    }
+}
+
+/**
+ * @brief InputOutputProcessing::resetShouldValues
+ */
+void
+InputOutputProcessing::resetShouldValues()
+{
+    Segment* seg = KyoukoRoot::m_segment;
+    Output* outputs = Kitsunemimi::getBuffer<Output>(seg->outputs);
+
+    for(uint32_t i = 0; i < seg->outputs.numberOfItems; i++) {
+        outputs[i].shouldValue = 0.0f;
+    }
+}
+
+/**
  * @brief InputOutputProcessing::registerInput
  * @param numberOfInput
  * @param inputSize
