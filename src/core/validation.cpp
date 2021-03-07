@@ -39,7 +39,7 @@ validateStructSizes()
     assert(sizeof(SynapseSection) == 256);
 
     std::cout<<"sizeof(GlobalValues): "<<sizeof(GlobalValues)<<std::endl;
-    assert(sizeof(GlobalValues) == 256);
+    assert(sizeof(GlobalValues) <= 256);
 
     return;
 }

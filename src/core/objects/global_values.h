@@ -40,11 +40,13 @@ struct GlobalValues
 
     // processing
     float lerningValue = 0.0f;
-    float synapseDeleteBorder = 1.0;
-    float actionPotential = 100.0;
-    float nodeCooldown = 100.0;
-    float memorizing = 0.5;
-    float gliaValue = 1.0;
+    float synapseDeleteBorder = 1.0f;
+    float actionPotential = 100.0f;
+    float nodeCooldown = 100.0f;
+    float memorizing = 0.1f;
+    float gliaValue = 1.0f;
+    float signNeg = 0.6f;
+    float potentialOverflow = 20.0f;
     float maxSynapseWeight = 30.0f;
     uint32_t cycleTime = 1000000;
     float inputFlowGradiant = 0.1f;
@@ -52,8 +54,6 @@ struct GlobalValues
     uint8_t refractionTime = 1;
 
     uint8_t doLearn = 0;
-
-    uint8_t padding[186];
 };
 
 #endif // GLOBAL_VALUES_HANDLER_H
