@@ -93,7 +93,11 @@ synapseProcessing(const uint64_t sectionPos,
                                                  % globalValue->nodesPerBrick;
             const uint32_t nodeOffset = section->nodeBrickId * globalValue->nodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
-            synapse->sign = 1 - (rand() % 2) * 2;
+            //synapse->sign = 1 - (rand() % 2) * 2;
+
+            const uint32_t signRand = rand() % 1000;
+            const float signNeg = globalValue->signNeg;
+            synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
         }
 
         pos++;
@@ -154,9 +158,11 @@ synapseProcessing(const uint64_t sectionPos,
  * @brief updating
  * @param sectionPos
  */
-inline void
+inline bool
 updating(const uint64_t sectionPos)
 {
+    bool upToData = true;
+
     Segment* seg = KyoukoRoot::m_segment;
     SynapseSection* synapseSections = Kitsunemimi::getBuffer<SynapseSection>(seg->synapses);
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
@@ -165,7 +171,9 @@ updating(const uint64_t sectionPos)
 
     // update next-section
     if(section->next != UNINIT_STATE_64) {
-        updating(section->next);
+        if(updating(section->next) == false) {
+            upToData = false;
+        }
     }
 
     // iterate over all synapses in synapse-section
@@ -177,6 +185,8 @@ updating(const uint64_t sectionPos)
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             continue;
         }
+
+        upToData = false;
 
         // update dynamic-weight-value of the synapse
         if(nodes[synapse->targetNodeId].active == 0) {
@@ -207,7 +217,10 @@ updating(const uint64_t sectionPos)
             && currentPos == 0)
     {
         removeSection(synapseSections, sectionPos);
+        upToData = false;
     }
+
+    return upToData;
 }
 
 /**
@@ -226,6 +239,7 @@ triggerSynapseSesction(Brick* brick,
     if(node->potential > 10.0f)
     {
         node->active = 1;
+        node->upToDate = 0;
         // build new axon-transfer-edge, which is send back to the host
         const float up = static_cast<float>(pow(globalValue->gliaValue, node->targetBrickDistance));
         const float weight = node->potential * up;
@@ -236,7 +250,9 @@ triggerSynapseSesction(Brick* brick,
     else
     {
         node->active = 0;
-        updating(i);
+        if(node->upToDate == 0) {
+            node->upToDate = updating(i);
+        }
     }
 }
 
@@ -280,14 +296,15 @@ node_processing()
                                && node->refractionTime == 0;
             if(reset)
             {
-                node->potential = globalValue->actionPotential + 0.3f * node->currentState;
+                node->potential = globalValue->actionPotential +
+                                  globalValue->potentialOverflow * node->currentState;
                 node->refractionTime = globalValue->refractionTime;
             }
 
             // set to 255.0f, if value is too high
-            const float cur = node->currentState;
-            node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
-            node->currentState = (cur < 0.0f) * 0.0f + (cur >= 0.0f) * cur;
+            //const float cur = node->currentState;
+            //node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
+            //node->currentState = (cur < 0.0f) * 0.0f + (cur >= 0.0f) * cur;
 
             triggerSynapseSesction(nodeBricks[node->nodeBrickId],
                                    node,
@@ -299,8 +316,8 @@ node_processing()
             node->refractionTime = node->refractionTime >> 1;
 
             // set to 0.0f, if value is negative
-            const float newCur = node->currentState;
-            node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
+            //const float newCur = node->currentState;
+            //node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
 
             // make cooldown in the node
             node->potential /= globalValue->nodeCooldown;

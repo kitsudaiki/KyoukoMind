@@ -88,12 +88,12 @@ struct OutputSynapseSection
 
     uint8_t padding[12];
 
-    OutputSynapse synapses[255];
+    OutputSynapse synapses[511];
 
 
     OutputSynapseSection()
     {
-        for(uint32_t i = 0; i < 255; i++)
+        for(uint32_t i = 0; i < 511; i++)
         {
             OutputSynapse newSynapse;
             synapses[i] = newSynapse;
