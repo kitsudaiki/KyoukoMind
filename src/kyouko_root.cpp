@@ -128,21 +128,21 @@ KyoukoRoot::learnStep()
     }
 
     // learn current state
-    uint32_t timeout = 100;
+    uint32_t timeout = 50;
     float totalDiff = 0.0f;
     do
     {
         totalDiff = output_learn_step();
         timeout--;
     }
-    while(totalDiff >= 0.1f
+    while(totalDiff >= 0.5f
           && timeout > 0);
     std::cout<<"###################################################: "<<totalDiff<<std::endl;
 
     bool result = false;
 
     // if desired state was reached, than freeze lerned state
-    if(totalDiff < 0.1f)
+    if(totalDiff < 0.5f)
     {
         result = true;
         KyoukoRoot::m_freezeState = true;
@@ -157,15 +157,11 @@ KyoukoRoot::learnStep()
     // reset network
     KyoukoRoot::m_ioHandler->resetInput();
     KyoukoRoot::m_ioHandler->processInputMapping();
+    KyoukoRoot::m_ioHandler->resetShouldValues();
     for(uint32_t i = 0; i < runCount; i++) {
         KyoukoRoot::m_root->m_networkManager->executeStep();
     }
     output_node_processing();
-
-    // resett desired should-output
-    for(uint64_t i = 0; i < numberOfOutputs; i++) {
-        outputs[i].shouldValue = 0.0f;
-    }
 
     return result;
 }
@@ -195,6 +191,11 @@ void KyoukoRoot::learnTestData()
     // register
     KyoukoRoot::m_ioHandler->registerInput(static_cast<uint32_t>(768));
     KyoukoRoot::m_ioHandler->registerOutput(static_cast<uint32_t>(10));
+
+
+    //==============================================================================================
+    // learn
+    //==============================================================================================
 
     // read train-data
     Kitsunemimi::Persistence::BinaryFile trainData(trainDataPath);
@@ -237,27 +238,20 @@ void KyoukoRoot::learnTestData()
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
     // get pictures
-    const std::string baseLearn = "curl -s --header \\\"Content-Type: application/json\\\" "
-                                  "--request POST  --data '{\\\"input\\\" : ";
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
 
     std::cout<<"learn"<<std::endl;
-    for(uint32_t pic = 0; pic < 20; pic++)
+    for(uint32_t pic = 0; pic < 1000; pic++)
     {
         std::cout<<"picture: "<<pic<<std::endl;
 
-        Segment* seg = KyoukoRoot::m_segment;
-        Output* outputs = Kitsunemimi::getBuffer<Output>(seg->outputs);
+        Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
         for(uint32_t i = 0; i < 10; i++) {
             outputs[i].shouldValue = 0.0f;
         }
 
         const uint32_t label = labelBufferPtr[pic + 8];
         outputs[label].shouldValue = 255.0f;
-
-        /*Kitsunemimi::DataArray output;
-        const uint32_t label = labelBufferPtr[pic + 8];
-        ouput.append(new Kitsunemimi::DataValue((float)label * 10.0f));*/
 
         DataArray inputArray;
         for(uint32_t i = 0; i < pictureSize; i++)
@@ -266,11 +260,22 @@ void KyoukoRoot::learnTestData()
             inputArray.append(new DataValue((static_cast<float>(dataBufferPtr[pos]) * 5.0f) + 100.0f));
         }
 
-        KyoukoRoot::m_ioHandler->setInput(&inputArray);
-        KyoukoRoot::m_ioHandler->processInputMapping();
-        KyoukoRoot::m_root->learnStep();
+        uint16_t tryCount = 5;
+        bool result = false;
+        while(tryCount > 0
+              && result == false)
+        {
+            KyoukoRoot::m_ioHandler->setInput(&inputArray);
+            KyoukoRoot::m_ioHandler->processInputMapping();
+            result = KyoukoRoot::m_root->learnStep();
+            tryCount--;
+        }
     }
 
+
+    //==============================================================================================
+    // test
+    //==============================================================================================
 
     // read train-data
     Kitsunemimi::Persistence::BinaryFile testData(testDataPath);
@@ -286,16 +291,34 @@ void KyoukoRoot::learnTestData()
     uint8_t* testLabelBufferPtr = static_cast<uint8_t*>(testLabelBuffer.data);
 
     std::cout<<"test"<<std::endl;
-    for(uint32_t pic = 0; pic < 20; pic++)
+    uint32_t match = 0;
+    uint32_t total = 1000;
+    for(uint32_t pic = 0; pic < total; pic++)
     {
+        //std::cout<<pic<<" should: "<<(int)labelBufferPtr[pic + 8]<<"   is: ";
         std::cout<<pic<<" should: "<<(int)testLabelBufferPtr[pic + 8]<<"   is: ";
 
         DataArray inputArray;
         for(uint32_t i = 0; i < pictureSize; i++)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
+            //inputArray.append(new DataValue((static_cast<float>(dataBufferPtr[pos]) * 5.0f) + 100.0f));
             inputArray.append(new DataValue((static_cast<float>(testDataBufferPtr[pos]) * 5.0f) + 100.0f));
         }
+
+        /*for(uint32_t x = 0; x < 28; x++)
+        {
+            for(uint32_t y = 0; y < 28; y++)
+            {
+                const uint32_t pos = x * 28 + y + pic * pictureSize + 16;
+                if(testDataBufferPtr[pos] > 150) {
+                    std::cout<<" x";
+                } else {
+                    std::cout<<"  ";
+                }
+            }
+            std::cout<<std::endl;
+        }*/
 
         KyoukoRoot::m_ioHandler->setInput(&inputArray);
         KyoukoRoot::m_ioHandler->processInputMapping();
@@ -321,6 +344,14 @@ void KyoukoRoot::learnTestData()
         }
         outString += "]";
         std::cout<<pos<<"   complete: "<<outString<<std::endl;
+
+        if(testLabelBufferPtr[pic + 8] == pos) {
+            match++;
+        }
     }
+
+    std::cout<<"======================================================================="<<std::endl;
+    std::cout<<"corrct: "<<match<<"/"<<total<<std::endl;
+    std::cout<<"======================================================================="<<std::endl;
 }
 

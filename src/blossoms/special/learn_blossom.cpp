@@ -48,9 +48,6 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("start learning");
 
-    Segment* seg = KyoukoRoot::m_segment;
-    Output* outputs = Kitsunemimi::getBuffer<Output>(seg->outputs);
-
     const std::string type = blossomLeaf.input.get("type")->toValue()->getString();
 
     if(type == "array")
