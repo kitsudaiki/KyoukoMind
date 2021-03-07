@@ -63,7 +63,7 @@ outputSynapseProcessing(const uint32_t sectionPos,
                     && globalValue->doLearn > 0)
             {
                 synapse->hardening = 0.0f;
-                synapse->weightIn = 5.0f;
+                synapse->weightIn = 2.0f;
                 synapse->weightOut = 0.0f;
                 synapse->newOne = 1;
                 synapse->weightOut *= static_cast<float>(1 - (rand() % 2) * 2);
