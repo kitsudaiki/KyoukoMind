@@ -326,7 +326,7 @@ void KyoukoRoot::learnTestData()
                 outString += " | ";
             }
             const float read = outputs[i].outputValue;
-            outString += std::to_string(read);
+            outString += std::to_string((int)read) + "\t";
             if(read > biggest)
             {
                 biggest = read;

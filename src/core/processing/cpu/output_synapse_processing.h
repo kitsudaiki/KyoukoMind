@@ -149,9 +149,36 @@ calculateLearnings()
 
     for(uint64_t o = 0; o < outputsSize; o++)
     {
-        outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
-        totalDiff += fabs(outputs[o].diff);
-        outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
+        outputs[o].diff = 0.0f;
+
+        if(outputs[o].shouldValue <= 0.0f)
+        {
+            if(outputs[o].outputValue > outputs[o].shouldValue)
+            {
+                outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
+                totalDiff += fabs(outputs[o].diff);
+                outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
+            }
+            else
+            {
+                outputs[o].newOnes = 0;
+                outputs[o].diff = 0.0f;
+            }
+        }
+        else
+        {
+            if(outputs[o].outputValue < outputs[o].shouldValue)
+            {
+                outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
+                totalDiff += fabs(outputs[o].diff);
+                outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
+            }
+            else
+            {
+                outputs[o].newOnes = 0;
+                outputs[o].diff = 0.0f;
+            }
+        }
     }
 
     return totalDiff;
