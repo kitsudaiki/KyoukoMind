@@ -302,14 +302,14 @@ void KyoukoRoot::learnTestData()
     for(uint32_t pic = 0; pic < total; pic++)
     {
         //std::cout<<pic<<" should: "<<(int)labelBufferPtr[pic + 8]<<"   is: ";
-        std::cout<<pic<<" should: "<<(int)testLabelBufferPtr[pic + 8]<<"   is: ";
+        std::cout<<pic<<" should: "<<(int)labelBufferPtr[pic + 8]<<"   is: ";
 
         Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
         float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
         for(uint32_t i = 0; i < pictureSize; i = i + 2)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
-            uint32_t total = testDataBufferPtr[pos] * 5 + testDataBufferPtr[pos + 1] * 5;
+            uint32_t total = dataBufferPtr[pos] * 5 + dataBufferPtr[pos + 1] * 5;
             inputNodes[(i / 2) + inputBrick->nodePos] = (static_cast<float>(total)) + 255.0f;
         }
 
@@ -336,7 +336,7 @@ void KyoukoRoot::learnTestData()
         outString += "]";
         std::cout<<pos<<"   complete: "<<outString<<std::endl;
 
-        if(testLabelBufferPtr[pic + 8] == pos) {
+        if(labelBufferPtr[pic + 8] == pos) {
             match++;
         }
     }

@@ -49,6 +49,7 @@ outputSynapseProcessing(const uint32_t sectionPos,
     Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
     OutputSynapseSection* synapseSections = &Kitsunemimi::getBuffer<OutputSynapseSection>(*buf)[sectionPos];
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    const uint64_t numOutputs = KyoukoRoot::m_segment->outputs.numberOfItems;
 
     uint32_t pos = 0;
 
@@ -66,16 +67,12 @@ outputSynapseProcessing(const uint32_t sectionPos,
                 synapse->weightIn = 2.0f;
                 synapse->weightOut = 0.0f;
                 synapse->newOne = 1;
-                synapse->weightOut *= static_cast<float>(1 - (rand() % 2) * 2);
-                synapse->targetNodeId = static_cast<uint16_t>(rand())
-                                        % KyoukoRoot::m_segment->outputs.numberOfItems;
+                synapse->targetNodeId = static_cast<uint16_t>(rand()) % numOutputs;
             }
 
             if(synapse->targetNodeId != UNINIT_STATE_16)
             {
-                if(synapse->newOne == 1) {
-                    outputs[synapse->targetNodeId].newOnes++;
-                }
+                outputs[synapse->targetNodeId].newOnes += synapse->newOne;
 
                 float newHardening = synapse->hardening + globalValue->lerningValue;
                 newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
@@ -139,6 +136,10 @@ outputSynapseLearn(const uint32_t sectionPos,
     }
 }
 
+/**
+ * @brief calculateLearnings
+ * @return
+ */
 inline float
 calculateLearnings()
 {
@@ -149,41 +150,13 @@ calculateLearnings()
 
     for(uint64_t o = 0; o < outputsSize; o++)
     {
-        outputs[o].diff = 0.0f;
-
-        if(outputs[o].shouldValue <= 0.0f)
-        {
-            if(outputs[o].outputValue > outputs[o].shouldValue)
-            {
-                outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
-                totalDiff += fabs(outputs[o].diff);
-                outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
-            }
-            else
-            {
-                outputs[o].newOnes = 0;
-                outputs[o].diff = 0.0f;
-            }
-        }
-        else
-        {
-            if(outputs[o].outputValue < outputs[o].shouldValue)
-            {
-                outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
-                totalDiff += fabs(outputs[o].diff);
-                outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
-            }
-            else
-            {
-                outputs[o].newOnes = 0;
-                outputs[o].diff = 0.0f;
-            }
-        }
+        outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
+        totalDiff += fabs(outputs[o].diff);
+        outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
     }
 
     return totalDiff;
 }
-
 
 /**
  * @brief node_processing
