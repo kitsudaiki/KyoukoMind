@@ -72,7 +72,10 @@ outputSynapseProcessing(const uint32_t sectionPos,
 
             if(synapse->targetNodeId != UNINIT_STATE_16)
             {
-                outputs[synapse->targetNodeId].newOnes += synapse->newOne;
+                Output* out = &outputs[synapse->targetNodeId];
+
+                out->newOnes += synapse->newOne * pos;
+                out->total += pos;
 
                 float newHardening = synapse->hardening + globalValue->lerningValue;
                 newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
@@ -83,7 +86,8 @@ outputSynapseProcessing(const uint32_t sectionPos,
 
                 float ratio = weight / synapse->weightIn;
                 ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-                outputs[synapse->targetNodeId].outputValue += ratio * synapse->weightOut;
+
+                out->outputValue += ratio * synapse->weightOut;
 
                 weight -= synapse->weightIn;
             }
@@ -123,11 +127,14 @@ outputSynapseLearn(const uint32_t sectionPos,
     {
         OutputSynapse* synapse = &synapseSections->synapses[pos];
 
-        if(synapse->newOne == 1
-                && synapse->targetNodeId != UNINIT_STATE_16)
+        if(synapse->targetNodeId != UNINIT_STATE_16)
         {
-            if(outputs[synapse->targetNodeId].newOnes > 0) {
-                synapse->weightOut += outputs[synapse->targetNodeId].diff;
+            if(synapse->newOne == 1) {
+                synapse->weightOut += outputs[synapse->targetNodeId].diffNew * pos;
+            }
+
+            if(outputs[synapse->targetNodeId].newOnes == 0) {
+                synapse->weightOut += outputs[synapse->targetNodeId].diffTotal * pos;
             }
         }
 
@@ -150,9 +157,13 @@ calculateLearnings()
 
     for(uint64_t o = 0; o < outputsSize; o++)
     {
-        outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
-        totalDiff += fabs(outputs[o].diff);
-        outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
+        outputs[o].diffNew = outputs[o].shouldValue - outputs[o].outputValue;
+        outputs[o].diffTotal = outputs[o].shouldValue - outputs[o].outputValue;
+
+        totalDiff += fabs(outputs[o].diffNew);
+
+        outputs[o].diffNew /= static_cast<float>(outputs[o].newOnes + 1);
+        outputs[o].diffTotal /= static_cast<float>(outputs[o].total + 1);
     }
 
     return totalDiff;
@@ -175,6 +186,7 @@ output_node_processing()
     {
         outputs[o].outputValue = 0.0f;
         outputs[o].newOnes = 0;
+        outputs[o].total = 0;
     }
 
     // process output

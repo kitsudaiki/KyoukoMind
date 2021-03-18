@@ -302,9 +302,9 @@ node_processing()
             }
 
             // set to 255.0f, if value is too high
-            //const float cur = node->currentState;
+            const float cur = node->currentState;
             //node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
-            //node->currentState = (cur < 0.0f) * 0.0f + (cur >= 0.0f) * cur;
+            node->currentState = (cur < 0.0f) * 0.0f + (cur >= 0.0f) * cur;
 
             triggerSynapseSesction(nodeBricks[node->nodeBrickId],
                                    node,
@@ -316,8 +316,8 @@ node_processing()
             node->refractionTime = node->refractionTime >> 1;
 
             // set to 0.0f, if value is negative
-            //const float newCur = node->currentState;
-            //node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
+            const float newCur = node->currentState;
+            node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
 
             // make cooldown in the node
             node->potential /= globalValue->nodeCooldown;
