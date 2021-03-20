@@ -49,11 +49,12 @@ outputSynapseProcessing(const uint32_t sectionPos,
     Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
     OutputSynapseSection* synapseSections = &Kitsunemimi::getBuffer<OutputSynapseSection>(*buf)[sectionPos];
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    const uint64_t numOutputs = KyoukoRoot::m_segment->outputs.numberOfItems;
 
     uint32_t pos = 0;
 
     // iterate over all synapses in the section and update the target-nodes
-    while(pos < 255)
+    while(pos < 511)
     {
         OutputSynapse* synapse = &synapseSections->synapses[pos];
 
@@ -63,19 +64,18 @@ outputSynapseProcessing(const uint32_t sectionPos,
                     && globalValue->doLearn > 0)
             {
                 synapse->hardening = 0.0f;
-                synapse->weightIn = 10.0f;
+                synapse->weightIn = 2.0f;
                 synapse->weightOut = 0.0f;
                 synapse->newOne = 1;
-                synapse->weightOut *= static_cast<float>(1 - (rand() % 2) * 2);
-                synapse->targetNodeId = static_cast<uint16_t>(rand() % 0xFFFF)
-                                        % KyoukoRoot::m_segment->outputs.numberOfItems;
+                synapse->targetNodeId = static_cast<uint16_t>(rand()) % numOutputs;
             }
 
             if(synapse->targetNodeId != UNINIT_STATE_16)
             {
-                if(synapse->newOne == 1) {
-                    outputs[synapse->targetNodeId].newOnes++;
-                }
+                Output* out = &outputs[synapse->targetNodeId];
+
+                out->newOnes += synapse->newOne * pos;
+                out->total += pos;
 
                 float newHardening = synapse->hardening + globalValue->lerningValue;
                 newHardening = (newHardening > 1.0f) * 1.0f + (newHardening <= 1.0f) * newHardening;
@@ -86,7 +86,8 @@ outputSynapseProcessing(const uint32_t sectionPos,
 
                 float ratio = weight / synapse->weightIn;
                 ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-                outputs[synapse->targetNodeId].outputValue += ratio * synapse->weightOut;
+
+                out->outputValue += ratio * synapse->weightOut;
 
                 weight -= synapse->weightIn;
             }
@@ -121,16 +122,19 @@ outputSynapseLearn(const uint32_t sectionPos,
     uint32_t pos = 0;
 
     // iterate over all synapses in the section and update the target-nodes
-    while(pos < 255
+    while(pos < 511
           && weight > 0.0f)
     {
         OutputSynapse* synapse = &synapseSections->synapses[pos];
 
-        if(synapse->newOne == 1
-                && synapse->targetNodeId != UNINIT_STATE_16)
+        if(synapse->targetNodeId != UNINIT_STATE_16)
         {
-            if(outputs[synapse->targetNodeId].newOnes > 0) {
-                synapse->weightOut += outputs[synapse->targetNodeId].diff;
+            if(synapse->newOne == 1) {
+                synapse->weightOut += outputs[synapse->targetNodeId].diffNew * pos;
+            }
+
+            if(outputs[synapse->targetNodeId].newOnes == 0) {
+                synapse->weightOut += outputs[synapse->targetNodeId].diffTotal * pos;
             }
         }
 
@@ -139,6 +143,10 @@ outputSynapseLearn(const uint32_t sectionPos,
     }
 }
 
+/**
+ * @brief calculateLearnings
+ * @return
+ */
 inline float
 calculateLearnings()
 {
@@ -149,14 +157,17 @@ calculateLearnings()
 
     for(uint64_t o = 0; o < outputsSize; o++)
     {
-        outputs[o].diff = outputs[o].shouldValue - outputs[o].outputValue;
-        totalDiff += fabs(outputs[o].diff);
-        outputs[o].diff /= static_cast<float>(outputs[o].newOnes);
+        outputs[o].diffNew = outputs[o].shouldValue - outputs[o].outputValue;
+        outputs[o].diffTotal = outputs[o].shouldValue - outputs[o].outputValue;
+
+        totalDiff += fabs(outputs[o].diffNew);
+
+        outputs[o].diffNew /= static_cast<float>(outputs[o].newOnes + 1);
+        outputs[o].diffTotal /= static_cast<float>(outputs[o].total + 1);
     }
 
     return totalDiff;
 }
-
 
 /**
  * @brief node_processing
@@ -175,6 +186,7 @@ output_node_processing()
     {
         outputs[o].outputValue = 0.0f;
         outputs[o].newOnes = 0;
+        outputs[o].total = 0;
     }
 
     // process output

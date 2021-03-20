@@ -40,7 +40,6 @@ findNewSectioin(SynapseSection* synapseSections,
 
     synapseSections[newPos].prev = oldSectionId;
     synapseSections[oldSectionId].next = newPos;
-    assert(newPos >= 4200);
 
     Brick* sourceBrick = nodeBricks[sourceNodeBrickId];
     synapseSections[newPos].nodeBrickId = sourceBrick->possibleTargetNodeBrickIds[rand() % 1000];
@@ -57,8 +56,6 @@ findNewSectioin(SynapseSection* synapseSections,
 inline void
 removeSection(SynapseSection* synapseSections, const uint64_t deletePos)
 {
-    assert(deletePos >= 4200);
-
     SynapseSection* deleteSection = &synapseSections[deletePos];
     SynapseSection* prev = &synapseSections[deleteSection->prev];
 

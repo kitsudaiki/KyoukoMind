@@ -75,7 +75,7 @@ struct OutputSynapse
     float hardening = 0.0f;
     uint16_t targetNodeId = UNINIT_STATE_16;
     int8_t sign = 1;
-    int8_t newOne = 0;
+    uint8_t newOne = 0;
     // total size: 16 Byte
 };
 
@@ -88,12 +88,12 @@ struct OutputSynapseSection
 
     uint8_t padding[12];
 
-    OutputSynapse synapses[255];
+    OutputSynapse synapses[511];
 
 
     OutputSynapseSection()
     {
-        for(uint32_t i = 0; i < 255; i++)
+        for(uint32_t i = 0; i < 511; i++)
         {
             OutputSynapse newSynapse;
             synapses[i] = newSynapse;

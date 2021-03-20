@@ -80,6 +80,7 @@ main(int argc, char *argv[])
         return 1;
     }
     rootObject->start();
+    rootObject->learnTestData();
 
     int a = 0;
     std::cin >> a;

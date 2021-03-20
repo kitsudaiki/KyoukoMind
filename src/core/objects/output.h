@@ -31,9 +31,11 @@ struct Output
 {
     float outputValue = 0.0;
     float shouldValue = 0.0f;
-    float diff = 0.0f;
+    float diffNew = 0.0f;
+    float diffTotal = 0.0f;
     uint32_t newOnes = 0;
-    // total size: 16 Byte
+    uint32_t total = 0;
+    // total size: 24 Byte
 };
 
 //==================================================================================================

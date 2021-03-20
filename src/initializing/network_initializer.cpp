@@ -90,6 +90,8 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     globalValues.cycleTime = parsedContent.processingMeta.cycleTime;
     globalValues.inputFlowGradiant = parsedContent.processingMeta.inputFlowGradiant;
     globalValues.nodeFlowGradiant = parsedContent.processingMeta.nodeFlowGradiant;
+    globalValues.signNeg = parsedContent.processingMeta.signNeg;
+    globalValues.potentialOverflow = parsedContent.processingMeta.potentialOverflow;
 
     // init layer-buffer
     for(uint32_t i = 0; i < globalValues.layer + 1; i++) {
@@ -111,7 +113,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
                                  totalNumberOfNodes,
                                  globalValues.maxSynapseSections,
                                  parsedContent.numberOfOutputBricks,
-                                 3,
+                                 10,
                                  1024) == false)
     {
         return false;

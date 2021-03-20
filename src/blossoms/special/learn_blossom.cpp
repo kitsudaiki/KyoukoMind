@@ -26,10 +26,8 @@
 #include <core/processing/input_output_processing.h>
 
 #include <core/objects/global_values.h>
-#include <core/objects/output.h>
 #include <core/objects/segment.h>
-#include <core/network_manager.h>
-#include <core/processing/cpu/output_synapse_processing.h>
+#include <core/objects/output.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -50,11 +48,6 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("start learning");
 
-    Segment* seg = KyoukoRoot::m_segment;
-    Output* outputs = Kitsunemimi::getBuffer<Output>(seg->outputs);
-    const uint64_t numberOfOutputs = seg->outputs.numberOfItems;
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
-
     const std::string type = blossomLeaf.input.get("type")->toValue()->getString();
 
     if(type == "array")
@@ -62,55 +55,16 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
         DataArray* input = blossomLeaf.input.get("input")->toArray();
         DataArray* should = blossomLeaf.input.get("should")->toArray();
 
-        for(uint32_t i = 0; i < should->size(); i++) {
-            outputs[i].shouldValue = should->get(i)->toValue()->getFloat();
-        }
-
+        KyoukoRoot::m_ioHandler->setShouldValues(should);
         KyoukoRoot::m_ioHandler->setInput(input);
         KyoukoRoot::m_ioHandler->processInputMapping();
     }
 
-    globalValue->doLearn = 1;
-
-    // learn until output-section
-    const uint32_t runCount = globalValue->layer + 2;
-    for(uint32_t i = 0; i < runCount; i++) {
-        KyoukoRoot::m_root->m_networkManager->executeStep();
-    }
-
-    // learn current state
-    uint32_t timeout = 1000;
-    float totalDiff = 0.0f;
-    do
-    {
-        totalDiff = output_learn_step();
-        timeout--;
-    }
-    while(totalDiff >= 0.01f
-          && timeout > 0);
-
-    bool result = false;
-
-    // if desired state was reached, than freeze lerned state
-    if(totalDiff < 0.01f)
-    {
-        result = true;
-        KyoukoRoot::m_freezeState = true;
-        globalValue->lerningValue = 100000.0f;
-        KyoukoRoot::m_root->m_networkManager->executeStep();
-        output_node_processing();
-        globalValue->doLearn = 0;
-        globalValue->lerningValue = 0.0f;
-        KyoukoRoot::m_freezeState = false;
-    }
-
-    // resett desired should-output
-    for(uint64_t i = 0; i < numberOfOutputs; i++) {
-        outputs[i].shouldValue = 0.0f;
-    }
+    const bool result = KyoukoRoot::m_root->learnStep();
 
     blossomLeaf.output.insert("result", new DataValue(result));
     Kitsunemimi::DataArray outputArray;
 
     return true;
 }
+
