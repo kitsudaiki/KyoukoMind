@@ -124,22 +124,21 @@ KyoukoRoot::learnStep()
 
     // learn current state
     uint32_t timeout = 50;
-    float totalDiff = 0.0f;
-    do
-    {
-        totalDiff = output_learn_step();
-        timeout--;
-    }
-    while(totalDiff >= 1.0f
-          && timeout > 0);
-    std::cout<<"###################################################: "<<totalDiff<<std::endl;
-
     bool result = false;
 
-    // if desired state was reached, than freeze lerned state
-    if(totalDiff < 1.0f)
+    do
     {
-        result = true;
+        result = output_node_processing();
+        timeout--;
+    }
+    while(result == false
+          && timeout > 0);
+    std::cout<<"###################################################: "<<result<<std::endl;
+
+
+    // if desired state was reached, than freeze lerned state
+    if(result)
+    {
         KyoukoRoot::m_freezeState = true;
         globalValue->lerningValue = 100000.0f;
         executeStep();
@@ -233,7 +232,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t pic = 0; pic < 200; pic++)
+    for(uint32_t pic = 0; pic < 5; pic++)
     {
         const uint32_t label = labelBufferPtr[pic + 8];
         std::cout<<"picture: "<<pic<<std::endl;
@@ -277,7 +276,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"test"<<std::endl;
     uint32_t match = 0;
-    uint32_t total = 200;
+    uint32_t total = 5;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {

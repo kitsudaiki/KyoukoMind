@@ -68,40 +68,4 @@ struct SynapseSection
 
 //==================================================================================================
 
-struct OutputSynapse
-{
-    float weightOut = 0.0;
-    float weightIn = 0.0;
-    float hardening = 0.0f;
-    uint16_t targetNodeId = UNINIT_STATE_16;
-    int8_t sign = 1;
-    uint8_t newOne = 0;
-    // total size: 16 Byte
-};
-
-//==================================================================================================
-
-struct OutputSynapseSection
-{
-    uint16_t status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-    uint16_t randomPos = UNINIT_STATE_16;
-
-    uint8_t padding[12];
-
-    OutputSynapse synapses[511];
-
-
-    OutputSynapseSection()
-    {
-        for(uint32_t i = 0; i < 511; i++)
-        {
-            OutputSynapse newSynapse;
-            synapses[i] = newSynapse;
-        }
-    }
-    // total size: 4096 Byte
-};
-
-//==================================================================================================
-
 #endif // SYNAPSES_H

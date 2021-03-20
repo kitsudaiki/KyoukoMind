@@ -37,7 +37,7 @@ public:
     uint32_t numberOfNodeBricks = 0;
     Brick** inputBricks = nullptr;
     uint32_t numberOfInputBricks = 0;
-    Brick** outputBricks = nullptr;
+    Brick** transferBricks = nullptr;
     uint32_t numberOfOutputBricks = 0;
 
     // host-representation of permanent gpu-data
@@ -48,7 +48,7 @@ public:
 
     Kitsunemimi::ItemBuffer nodeProcessingBuffer;
     Kitsunemimi::ItemBuffer nodeInputBuffer;
-    Kitsunemimi::ItemBuffer nodeOutputBuffer;
+    Kitsunemimi::ItemBuffer transferNodeBuffer;
 
 
     uint32_t nodesPerBrick = 0;
@@ -65,7 +65,7 @@ public:
                           const uint32_t numberOfNodeBricks,
                           const uint32_t numberOfNodes,
                           const uint64_t numberOfSynapseSections,
-                          const uint32_t numberOfOutputBricks,
+                          const uint32_t numberOfTransferBricks,
                           const uint32_t numberOfOutputs,
                           const uint32_t numberOfRandValues);
 

@@ -24,18 +24,55 @@
 #define OUTPUT_ITEM_H
 
 #include <common.h>
+#include <libKitsunemimiCommon/buffer/item_buffer.h>
+
+//==================================================================================================
+
+struct OutputSynapse
+{
+    float border = 0.0;
+    float weight = 0.0;
+    uint32_t targetId = UNINIT_STATE_32;
+    uint8_t newOnw = 0;
+    uint8_t padding[3];
+    // total size: 16 Byte
+};
+
+//==================================================================================================
+
+struct OutputSynapseSection
+{
+    uint16_t status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+    uint16_t randomPos = UNINIT_STATE_16;
+
+    uint64_t prev = UNINIT_STATE_64;
+    uint64_t next = UNINIT_STATE_64;
+
+    uint32_t hardening = 0;
+    uint32_t positionInSection = 0;
+    uint8_t padding[4];
+
+    OutputSynapse synapses[254];
+
+
+    OutputSynapseSection()
+    {
+        for(uint32_t i = 0; i < 254; i++)
+        {
+            OutputSynapse newSynapse;
+            synapses[i] = newSynapse;
+        }
+    }
+
+    // total size: 4096 Byte
+};
 
 //==================================================================================================
 
 struct Output
 {
-    float outputValue = 0.0;
+    float outputValue = 0.0f;
     float shouldValue = 0.0f;
-    float diffNew = 0.0f;
-    float diffTotal = 0.0f;
-    uint32_t newOnes = 0;
-    uint32_t total = 0;
-    // total size: 24 Byte
 };
 
 //==================================================================================================

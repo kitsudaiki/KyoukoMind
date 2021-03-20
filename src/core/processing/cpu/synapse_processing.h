@@ -267,7 +267,7 @@ node_processing()
     Node* nodes = Kitsunemimi::getBuffer<Node>(seg->nodes);
     float* inputNodes = Kitsunemimi::getBuffer<float>(seg->nodeInputBuffer);
     float* nodeProcessingBuffer = Kitsunemimi::getBuffer<float>(seg->nodeProcessingBuffer);
-    float* outputNodes = Kitsunemimi::getBuffer<float>(seg->nodeOutputBuffer);
+    float* outputNodes = Kitsunemimi::getBuffer<float>(seg->transferNodeBuffer);
     Brick** nodeBricks = seg->nodeBricks;
 
     const float inputFlowGradiant = globalValue->inputFlowGradiant;
@@ -334,7 +334,10 @@ node_processing()
         }
         else
         {
-            outputNodes[i % globalValue->nodesPerBrick] = node->currentState;
+            const float newCur = node->currentState;
+            node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
+            const float pot = globalValue->potentialOverflow * node->currentState;
+            outputNodes[i % globalValue->nodesPerBrick] = pot;
             node->currentState = 0.0f;
         }
     }

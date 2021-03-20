@@ -58,7 +58,7 @@ Segment::initNodeBuffer(Kitsunemimi::ItemBuffer &nodeBuffer, const uint32_t numb
  * @param numberOfNodeBricks
  * @param numberOfNodes
  * @param numberOfSynapseSections
- * @param numberOfOutputBricks
+ * @param numberOfTransferBricks
  * @param numberOfOutputs
  * @param numberOfRandValues
  * @return
@@ -68,14 +68,14 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
                           const uint32_t numberOfNodeBricks,
                           const uint32_t numberOfNodes,
                           const uint64_t numberOfSynapseSections,
-                          const uint32_t numberOfOutputBricks,
+                          const uint32_t numberOfTransferBricks,
                           const uint32_t numberOfOutputs,
                           const uint32_t numberOfRandValues)
 {
     this->numberOfNodeBricks = numberOfNodeBricks;
     nodeBricks = new Brick*[numberOfNodeBricks];
     inputBricks = new Brick*[numberOfNodeBricks];
-    outputBricks = new Brick*[numberOfNodeBricks];
+    transferBricks = new Brick*[numberOfNodeBricks];
 
     if(globalValues.initBuffer<GlobalValues>(1) == false) {
         return false;
@@ -98,7 +98,9 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
     if(initNodeBuffer(nodeInputBuffer, numberOfNodes) == false) {
         return false;
     }
-    if(initNodeBuffer(nodeOutputBuffer, nodesPerBrick) == false) {
+
+    const uint32_t transferNodes = numberOfTransferBricks * nodesPerBrick;
+    if(initNodeBuffer(transferNodeBuffer, transferNodes) == false) {
         return false;
     }
 
@@ -116,8 +118,7 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
         synapses.deleteItem(i);
     }
 
-    const uint32_t outNodes = numberOfOutputBricks * nodesPerBrick;
-    if(outputSynapses.initBuffer<OutputSynapseSection>(outNodes) == false) {
+    if(outputSynapses.initBuffer<OutputSynapseSection>(numberOfOutputs) == false) {
         return false;
     }
 
