@@ -128,7 +128,7 @@ KyoukoRoot::learnStep()
 
     do
     {
-        result = output_node_processing();
+        result = output_learn_step();
         timeout--;
     }
     while(result == false
@@ -232,7 +232,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t pic = 0; pic < 5; pic++)
+    for(uint32_t pic = 0; pic < 50; pic++)
     {
         const uint32_t label = labelBufferPtr[pic + 8];
         std::cout<<"picture: "<<pic<<std::endl;
@@ -276,7 +276,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"test"<<std::endl;
     uint32_t match = 0;
-    uint32_t total = 5;
+    uint32_t total = 50;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {

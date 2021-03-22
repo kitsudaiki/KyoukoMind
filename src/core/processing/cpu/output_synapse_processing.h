@@ -92,15 +92,22 @@ outputSynapseLearn(OutputSynapseSection* outputSection,
         OutputSynapse* synapse = &outputSection->synapses[rand() % 224];
         if(synapse->targetId == UNINIT_STATE_32)
         {
-            synapse->targetId = rand() % globalValue->nodesPerBrick;
-            synapse->border = transferNodes[synapse->targetId];
+            const uint32_t possibleTargetId = rand() % globalValue->nodesPerBrick;
+            if(transferNodes[possibleTargetId] > 0.0f)
+            {
+                synapse->targetId = possibleTargetId;
+                synapse->border = transferNodes[possibleTargetId];
+            }
         }
 
         // update weight
-        if(outputDiff < 0.0f) {
-            synapse->weight += -1.0f * partWeight;
-        } else {
-            synapse->weight += partWeight;
+        if(synapse->targetId != UNINIT_STATE_32)
+        {
+            if(outputDiff < 0.0f) {
+                synapse->weight += -1.0f * partWeight;
+            } else {
+                synapse->weight += partWeight;
+            }
         }
 
         learnWeight -= partWeight;
@@ -116,7 +123,6 @@ inline bool
 output_node_processing()
 {
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
     Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
     OutputSynapseSection* outputSection = Kitsunemimi::getBuffer<OutputSynapseSection>(*buf);
 
@@ -127,20 +133,26 @@ output_node_processing()
         outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
     }
 
-    // learn new
-    if(globalValue->doLearn > 0)
-    {
-        bool result = false;
-        for(uint32_t o = 0; o < numberOutputs; o++)
-        {
-            const float diff = outputs[o].shouldValue - outputs[o].outputValue;
-            result |= outputSynapseLearn(&outputSection[o], diff);
-            outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
-        }
-        return result;
-    }
-
     return true;
+}
+
+inline bool
+output_learn_step()
+{
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+    Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
+    OutputSynapseSection* outputSection = Kitsunemimi::getBuffer<OutputSynapseSection>(*buf);
+
+    const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
+
+    bool result = false;
+    for(uint32_t o = 0; o < numberOutputs; o++)
+    {
+        const float diff = outputs[o].shouldValue - outputs[o].outputValue;
+        result |= outputSynapseLearn(&outputSection[o], diff);
+        outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
+    }
+    return result;
 }
 
 #endif // OUTPUT_SYNAPSE_PROCESSING_H
