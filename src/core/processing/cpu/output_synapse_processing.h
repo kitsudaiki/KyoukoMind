@@ -37,27 +37,66 @@
 
 /**
  * @brief outputSynapseProcessing
- * @param sectionPos
- * @param weight
+ * @param outputSection
+ * @param outSectionPos
  * @return
  */
 inline float
-outputSynapseProcessing(OutputSynapseSection* outputSection)
+outputSynapseProcessing(OutputSynapseSection* outputSection,
+                        const uint32_t outSectionPos)
 {
-    uint32_t pos = 0;
     float outputWeight = 0.0f;
     float* transferNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->transferNodeBuffer);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
+    uint16_t newCounter = 0;
+
+    outputSection->newOnes = 0;
+    outputSection->total = 0;
+
+    uint32_t pos = 0;
     while(pos < 224)
     {
         OutputSynapse* synapse = &outputSection->synapses[pos];
-        const uint32_t targetId = synapse->targetId;
 
+        if(newCounter == 10
+                && synapse->newOne == 1)
+        {
+            OutputSynapse newSynapse;
+            outputSection->synapses[pos] = newSynapse;
+        }
+
+        if(synapse->targetId == UNINIT_STATE_32
+                && globalValue->doLearn > 0
+                && newCounter < 10)
+        {
+            const uint32_t possibleTargetId = rand() % globalValue->nodesPerBrick;
+            if(transferNodes[possibleTargetId] > 0.0f)
+            {
+                synapse->targetId = possibleTargetId;
+                synapse->border = transferNodes[possibleTargetId];
+                synapse->weight = 0.0f;
+                synapse->newOne = 1;
+            }
+        }
+
+        if(synapse->newOne == 1)
+        {
+            outputSection->newOnes++;
+            newCounter++;
+        }
+
+        if(globalValue->lerningValue > 0.0f) {
+            synapse->newOne = 0;
+        }
+
+        const uint32_t targetId = synapse->targetId;
         if(targetId != UNINIT_STATE_32)
         {
-            const float weight = transferNodes[targetId];
-            const uint32_t active = weight >= synapse->border;
-            outputWeight += synapse->weight * static_cast<float>(active);
+            synapse->active = synapse->border > transferNodes[targetId] * 0.9f
+                              && synapse->border < transferNodes[targetId] * 1.1f;
+            outputWeight += synapse->weight * static_cast<float>(synapse->active);
+            outputSection->total += synapse->active;
         }
 
         pos++;
@@ -68,91 +107,125 @@ outputSynapseProcessing(OutputSynapseSection* outputSection)
 
 /**
  * @brief outputSynapseLearn
- * @param sectionPos
- * @param diff
+ * @param outputSection
  * @return
  */
-inline bool
-outputSynapseLearn(OutputSynapseSection* outputSection,
-                   const float outputDiff)
+inline void
+outputSynapseLearn(OutputSynapseSection* outputSection)
 {
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    float* transferNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->transferNodeBuffer);
-
-    float learnWeight = fabs(outputDiff);
-
-    while(learnWeight > 0.0f)
+    uint32_t pos = 0;
+    while(pos < 224)
     {
-        float partWeight = 10.0f;
-        if(learnWeight < partWeight) {
-            partWeight = learnWeight;
-        }
-
         // update target
-        OutputSynapse* synapse = &outputSection->synapses[rand() % 224];
-        if(synapse->targetId == UNINIT_STATE_32)
-        {
-            const uint32_t possibleTargetId = rand() % globalValue->nodesPerBrick;
-            if(transferNodes[possibleTargetId] > 0.0f)
-            {
-                synapse->targetId = possibleTargetId;
-                synapse->border = transferNodes[possibleTargetId];
-            }
-        }
-
-        // update weight
+        OutputSynapse* synapse = &outputSection->synapses[pos];
         if(synapse->targetId != UNINIT_STATE_32)
         {
-            if(outputDiff < 0.0f) {
-                synapse->weight += -1.0f * partWeight;
-            } else {
-                synapse->weight += partWeight;
+            if(synapse->newOne == 1) {
+                synapse->weight += outputSection->diffNew;
+            }
+
+            if(outputSection->newOnes == 0
+                    && synapse->active > 0)
+            {
+                //synapse->weight += outputSection->diffTotal;
             }
         }
 
-        learnWeight -= partWeight;
+        pos++;
     }
+}
 
-    return false;
+/**
+ * @brief calculateLearnings
+ * @param outputSection
+ * @param out
+ * @return
+ */
+inline float
+calculateLearnings(OutputSynapseSection* outputSection,
+                   Output* out)
+{
+    outputSection->diffNew = out->shouldValue - out->outputValue;
+    outputSection->diffTotal = out->shouldValue - out->outputValue;
+
+    const float totalDiff = fabs(outputSection->diffNew);
+
+    outputSection->diffNew /= static_cast<float>(outputSection->newOnes + 1);
+    outputSection->diffTotal /= static_cast<float>(outputSection->total + 1);
+
+    return totalDiff;
 }
 
 /**
  * @brief node_processing
  */
-inline bool
+inline void
 output_node_processing()
 {
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
     OutputSynapseSection* outputSection = Kitsunemimi::getBuffer<OutputSynapseSection>(*buf);
 
-    const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
-
     // process output
-    for(uint32_t o = 0; o < numberOutputs; o++) {
-        outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
+    const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
+    for(uint32_t o = 0; o < numberOutputs; o++)
+    {
+        const float outputWeight = outputSynapseProcessing(&outputSection[o], o);
+        outputs[o].outputValue = outputWeight;
     }
-
-    return true;
 }
 
-inline bool
+/**
+ * @brief output_learn_step
+ * @return
+ */
+inline float
 output_learn_step()
 {
     Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
     Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
     OutputSynapseSection* outputSection = Kitsunemimi::getBuffer<OutputSynapseSection>(*buf);
 
-    const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
+    output_node_processing();
+    float totalDiff = 0.0f;
 
-    bool result = false;
+    const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
     for(uint32_t o = 0; o < numberOutputs; o++)
     {
-        const float diff = outputs[o].shouldValue - outputs[o].outputValue;
-        result |= outputSynapseLearn(&outputSection[o], diff);
-        outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
+        totalDiff += calculateLearnings(&outputSection[o], &outputs[o]);
+        outputSynapseLearn(&outputSection[o]);
+        outputs[o].outputValue = outputSynapseProcessing(&outputSection[o], o);
     }
-    return result;
+
+    return totalDiff;
+}
+
+/**
+ * @brief resetNewOnes
+ */
+inline void
+resetNewOnes()
+{
+    Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
+    OutputSynapseSection* outputSection = Kitsunemimi::getBuffer<OutputSynapseSection>(*buf);
+
+    const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
+    for(uint32_t o = 0; o < numberOutputs; o++)
+    {
+        uint32_t pos = 0;
+        while(pos < 224)
+        {
+            // update target
+            OutputSynapse* synapse = &outputSection->synapses[pos];
+            if(synapse->newOne == 1)
+            {
+                OutputSynapse newSynapse;
+                outputSection->synapses[pos] = newSynapse;
+            }
+
+            pos++;
+        }
+    }
 }
 
 #endif // OUTPUT_SYNAPSE_PROCESSING_H

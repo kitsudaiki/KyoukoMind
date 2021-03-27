@@ -124,24 +124,29 @@ KyoukoRoot::learnStep()
 
     // learn current state
     uint32_t timeout = 50;
-    bool result = false;
-
+    float totalDiff = 0.0f;
     do
     {
-        result = output_learn_step();
+        totalDiff = output_learn_step();
         timeout--;
     }
-    while(result == false
+    while(totalDiff >= 1.0f
           && timeout > 0);
-    std::cout<<"###################################################: "<<result<<std::endl;
+    std::cout<<"###################################################: "<<totalDiff<<std::endl;
 
+    bool result = false;
 
     // if desired state was reached, than freeze lerned state
-    if(result)
+    if(totalDiff < 1.0f)
     {
+        result = true;
         KyoukoRoot::m_freezeState = true;
         globalValue->lerningValue = 100000.0f;
         executeStep();
+    }
+    else
+    {
+        resetNewOnes();
     }
 
     globalValue->doLearn = 0;
@@ -153,6 +158,7 @@ KyoukoRoot::learnStep()
     KyoukoRoot::m_ioHandler->processInputMapping();
     KyoukoRoot::m_ioHandler->resetShouldValues();
     executeStep();
+
 
     return result;
 }
