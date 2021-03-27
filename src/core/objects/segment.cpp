@@ -94,7 +94,7 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
     if(initNodeBuffer(nodeProcessingBuffer, numberOfNodes * 255) == false) {
         return false;
     }
-    // TODO: correct number
+
     if(initNodeBuffer(nodeInputBuffer, numberOfNodes) == false) {
         return false;
     }

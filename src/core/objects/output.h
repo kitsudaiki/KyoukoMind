@@ -56,15 +56,13 @@ struct OutputSynapseSection
     float diffNew = 0.0f;
     float diffTotal = 0.0f;
 
-    OutputSynapse synapses[254];
+    OutputSynapse synapses[OUTPUT_SYNAPSES_PER_SECTION];
 
 
     OutputSynapseSection()
     {
-        for(uint32_t i = 0; i < 254; i++)
-        {
-            OutputSynapse newSynapse;
-            synapses[i] = newSynapse;
+        for(uint32_t i = 0; i < OUTPUT_SYNAPSES_PER_SECTION; i++) {
+            synapses[i] = OutputSynapse();
         }
     }
 

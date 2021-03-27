@@ -186,7 +186,7 @@ void KyoukoRoot::learnTestData()
 
     // register
     KyoukoRoot::m_ioHandler->registerInput(static_cast<uint32_t>(800));
-    KyoukoRoot::m_ioHandler->registerOutput(static_cast<uint32_t>(10));
+    //KyoukoRoot::m_ioHandler->registerOutput(static_cast<uint32_t>(10));
 
 
     //==============================================================================================
@@ -238,7 +238,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t pic = 0; pic < 50; pic++)
+    for(uint32_t pic = 0; pic < 6; pic++)
     {
         const uint32_t label = labelBufferPtr[pic + 8];
         std::cout<<"picture: "<<pic<<std::endl;
@@ -282,7 +282,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"test"<<std::endl;
     uint32_t match = 0;
-    uint32_t total = 50;
+    uint32_t total = 6;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {

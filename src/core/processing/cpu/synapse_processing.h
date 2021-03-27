@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file        synapse_processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -267,7 +267,7 @@ node_processing()
     Node* nodes = Kitsunemimi::getBuffer<Node>(seg->nodes);
     float* inputNodes = Kitsunemimi::getBuffer<float>(seg->nodeInputBuffer);
     float* nodeProcessingBuffer = Kitsunemimi::getBuffer<float>(seg->nodeProcessingBuffer);
-    float* outputNodes = Kitsunemimi::getBuffer<float>(seg->transferNodeBuffer);
+    float* transferNodes = Kitsunemimi::getBuffer<float>(seg->transferNodeBuffer);
     Brick** nodeBricks = seg->nodeBricks;
 
     const float inputFlowGradiant = globalValue->inputFlowGradiant;
@@ -336,11 +336,8 @@ node_processing()
         {
             const float newCur = node->currentState;
             node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
-            if(newCur > 0.0f) {
-                //std::cout<<node->currentState<<std::endl;
-            }
             const float pot = globalValue->potentialOverflow * node->currentState;
-            outputNodes[i % globalValue->nodesPerBrick] = pot;
+            transferNodes[i % globalValue->nodesPerBrick] = pot;
             node->currentState = 0.0f;
         }
     }

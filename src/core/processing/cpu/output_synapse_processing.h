@@ -42,49 +42,18 @@
  * @return
  */
 inline float
-outputSynapseProcessing(OutputSynapseSection* outputSection,
-                        const uint32_t outSectionPos)
+outputSynapseProcessing(OutputSynapseSection* outputSection)
 {
     float outputWeight = 0.0f;
     float* transferNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->transferNodeBuffer);
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
-    uint16_t newCounter = 0;
-
-    outputSection->newOnes = 0;
     outputSection->total = 0;
 
     uint32_t pos = 0;
-    while(pos < 224)
+    while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
         OutputSynapse* synapse = &outputSection->synapses[pos];
-
-        if(newCounter == 10
-                && synapse->newOne == 1)
-        {
-            OutputSynapse newSynapse;
-            outputSection->synapses[pos] = newSynapse;
-        }
-
-        if(synapse->targetId == UNINIT_STATE_32
-                && globalValue->doLearn > 0
-                && newCounter < 10)
-        {
-            const uint32_t possibleTargetId = rand() % globalValue->nodesPerBrick;
-            if(transferNodes[possibleTargetId] > 0.0f)
-            {
-                synapse->targetId = possibleTargetId;
-                synapse->border = transferNodes[possibleTargetId];
-                synapse->weight = 0.0f;
-                synapse->newOne = 1;
-            }
-        }
-
-        if(synapse->newOne == 1)
-        {
-            outputSection->newOnes++;
-            newCounter++;
-        }
 
         if(globalValue->lerningValue > 0.0f) {
             synapse->newOne = 0;
@@ -93,8 +62,9 @@ outputSynapseProcessing(OutputSynapseSection* outputSection,
         const uint32_t targetId = synapse->targetId;
         if(targetId != UNINIT_STATE_32)
         {
-            synapse->active = synapse->border > transferNodes[targetId] * 0.9f
-                              && synapse->border < transferNodes[targetId] * 1.1f;
+            assert(targetId < globalValue->nodesPerBrick);
+            synapse->active = transferNodes[targetId] >=  1.0f * synapse->border
+                              && transferNodes[targetId] <= 2.0f * synapse->border;
             outputWeight += synapse->weight * static_cast<float>(synapse->active);
             outputSection->total += synapse->active;
         }
@@ -106,6 +76,51 @@ outputSynapseProcessing(OutputSynapseSection* outputSection,
 }
 
 /**
+ * @brief learNewOutput
+ * @param outputSection
+ * @return
+ */
+inline void
+learNewOutput(OutputSynapseSection* outputSection)
+{
+    float* transferNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->transferNodeBuffer);
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+
+    outputSection->newOnes = 0;
+
+    uint32_t pos = 0;
+    while(pos < OUTPUT_SYNAPSES_PER_SECTION)
+    {
+        OutputSynapse* synapse = &outputSection->synapses[pos];
+
+        if(synapse->targetId == UNINIT_STATE_32
+                && globalValue->doLearn > 0)
+        {
+            const uint32_t possibleTargetId = rand() % globalValue->nodesPerBrick;
+            if(transferNodes[possibleTargetId] > 0.0f)
+            {
+                synapse->targetId = possibleTargetId;
+                synapse->border = transferNodes[possibleTargetId];
+                synapse->weight = 0.0f;
+                synapse->newOne = 1;
+            }
+        }
+
+        if(outputSection->newOnes == 10
+                && synapse->newOne == 1)
+        {
+            outputSection->synapses[pos] = OutputSynapse();
+        }
+
+        if(synapse->newOne == 1) {
+            outputSection->newOnes++;
+        }
+
+        pos++;
+    }
+}
+
+/**
  * @brief outputSynapseLearn
  * @param outputSection
  * @return
@@ -114,7 +129,7 @@ inline void
 outputSynapseLearn(OutputSynapseSection* outputSection)
 {
     uint32_t pos = 0;
-    while(pos < 224)
+    while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
         // update target
         OutputSynapse* synapse = &outputSection->synapses[pos];
@@ -127,7 +142,7 @@ outputSynapseLearn(OutputSynapseSection* outputSection)
             if(outputSection->newOnes == 0
                     && synapse->active > 0)
             {
-                //synapse->weight += outputSection->diffTotal;
+                synapse->weight += outputSection->diffTotal;
             }
         }
 
@@ -168,10 +183,8 @@ output_node_processing()
 
     // process output
     const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
-    for(uint32_t o = 0; o < numberOutputs; o++)
-    {
-        const float outputWeight = outputSynapseProcessing(&outputSection[o], o);
-        outputs[o].outputValue = outputWeight;
+    for(uint32_t o = 0; o < numberOutputs; o++) {
+        outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
     }
 }
 
@@ -192,9 +205,10 @@ output_learn_step()
     const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
     for(uint32_t o = 0; o < numberOutputs; o++)
     {
+        learNewOutput(&outputSection[o]);
         totalDiff += calculateLearnings(&outputSection[o], &outputs[o]);
         outputSynapseLearn(&outputSection[o]);
-        outputs[o].outputValue = outputSynapseProcessing(&outputSection[o], o);
+        outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
     }
 
     return totalDiff;
@@ -212,18 +226,11 @@ resetNewOnes()
     const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
     for(uint32_t o = 0; o < numberOutputs; o++)
     {
-        uint32_t pos = 0;
-        while(pos < 224)
+        for(uint32_t i = 0; i < OUTPUT_SYNAPSES_PER_SECTION; i++)
         {
-            // update target
-            OutputSynapse* synapse = &outputSection->synapses[pos];
-            if(synapse->newOne == 1)
-            {
-                OutputSynapse newSynapse;
-                outputSection->synapses[pos] = newSynapse;
+            if(outputSection->synapses[i].newOne == 1) {
+                outputSection->synapses[i] = OutputSynapse();
             }
-
-            pos++;
         }
     }
 }
