@@ -210,7 +210,7 @@ NetworkInitializer::addBricks(Segment &segment,
         if(brick.isOutputBrick)
         {
             Brick* outputBrickPtr = &Kitsunemimi::getBuffer<Brick>(segment.bricks)[i];
-            segment.outputBricks[segment.numberOfOutputBricks] = outputBrickPtr;
+            segment.transferBricks[segment.numberOfOutputBricks] = outputBrickPtr;
             segment.numberOfOutputBricks++;
         }
 

@@ -32,6 +32,7 @@
 // network-predefines
 #define SYNAPSES_PER_SYNAPSESECTION 28
 #define POSSIBLE_NEXT_AXON_STEP 80
+#define OUTPUT_SYNAPSES_PER_SECTION 1022
 
 // processing
 #define NUMBER_OF_PROCESSING_UNITS 1
