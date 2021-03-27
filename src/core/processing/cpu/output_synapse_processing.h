@@ -199,7 +199,6 @@ output_learn_step()
     Kitsunemimi::ItemBuffer* buf = &KyoukoRoot::m_segment->outputSynapses;
     OutputSynapseSection* outputSection = Kitsunemimi::getBuffer<OutputSynapseSection>(*buf);
 
-    output_node_processing();
     float totalDiff = 0.0f;
 
     const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
