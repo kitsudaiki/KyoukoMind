@@ -55,8 +55,15 @@ outputSynapseProcessing(OutputSynapseSection* outputSection)
     {
         OutputSynapse* synapse = &outputSection->synapses[pos];
 
-        if(globalValue->lerningValue > 0.0f) {
+        if(globalValue->lerningValue > 0.0f)
+        {
             synapse->newOne = 0;
+            if(synapse->weight == 0.0f)
+            {
+                outputSection->synapses[pos] = OutputSynapse();
+                pos++;
+                continue;
+            }
         }
 
         const uint32_t targetId = synapse->targetId;
@@ -162,6 +169,20 @@ calculateLearnings(OutputSynapseSection* outputSection,
 {
     outputSection->diffNew = out->shouldValue - out->outputValue;
     outputSection->diffTotal = out->shouldValue - out->outputValue;
+
+    if(out->shouldValue == 0.0f
+            && out->outputValue <= out->shouldValue)
+    {
+        outputSection->diffNew = 0.0f;
+        outputSection->diffTotal = 0.0f;
+    }
+
+    if(out->shouldValue > 0.0f
+            && out->outputValue >= out->shouldValue)
+    {
+        outputSection->diffNew = 0.0f;
+        outputSection->diffTotal = 0.0f;
+    }
 
     const float totalDiff = fabs(outputSection->diffNew);
 
