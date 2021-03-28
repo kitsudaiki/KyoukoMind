@@ -48,7 +48,6 @@ private:
     bool initNetwork();
 
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
-    Kitsunemimi::Barrier* m_phase1 = nullptr;
     Kitsunemimi::Barrier* m_phase2 = nullptr;
     Kitsunemimi::Barrier* m_phase3 = nullptr;
 

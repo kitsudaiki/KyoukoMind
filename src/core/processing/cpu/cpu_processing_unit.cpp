@@ -55,8 +55,6 @@ CpuProcessingUnit::run()
 
     while(m_abort == false)
     {
-        m_phase1->triggerBarrier();
-
         m_phase2->triggerBarrier();
 
         start = std::chrono::system_clock::now();

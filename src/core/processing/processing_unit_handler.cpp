@@ -56,8 +56,7 @@ ProcessingUnitHandler::~ProcessingUnitHandler()
  * @return
  */
 bool
-ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* phase1,
-                                           Kitsunemimi::Barrier* phase2,
+ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* phase2,
                                            Kitsunemimi::Barrier* phase3,
                                            const uint16_t numberOfThreads)
 {
@@ -67,7 +66,6 @@ ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* phase1,
         CpuProcessingUnit* newUnit = new CpuProcessingUnit();
         m_cpuProcessingUnits.push_back(newUnit);
 
-        newUnit->m_phase1 = phase1;
         newUnit->m_phase2 = phase2;
         newUnit->m_phase3 = phase3;
 

@@ -48,7 +48,6 @@ using std::chrono::duration_cast;
  */
 NetworkManager::NetworkManager()
 {
-    m_phase1 = new Kitsunemimi::Barrier(2);
     m_phase2 = new Kitsunemimi::Barrier(2);
     m_phase3 = new Kitsunemimi::Barrier(2);
 
@@ -61,8 +60,6 @@ uint32_t
 NetworkManager::executeStep()
 {
     // run phases of processing
-    m_phase1->triggerBarrier();
-
     m_edgeStart = std::chrono::system_clock::now();
 
     m_phase2->triggerBarrier();
@@ -188,8 +185,7 @@ NetworkManager::initNetwork()
         return false;
     }
 
-    m_processingUnitHandler->initProcessingUnits(m_phase1,
-                                                 m_phase2,
+    m_processingUnitHandler->initProcessingUnits(m_phase2,
                                                  m_phase3,
                                                  NUMBER_OF_PROCESSING_UNITS);
 
