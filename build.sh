@@ -81,7 +81,7 @@ function get_required_private_repo_github () {
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "master" 4
+get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.18.0" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -125,7 +125,7 @@ get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.3" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
+get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.7.2" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -133,7 +133,7 @@ get_required_private_repo_github "libKitsunemimiSakuraMessaging" "v0.4.0" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_gitlab "libKitsunemimiAiParser" "master" 1
+get_required_private_repo_gitlab "libKitsunemimiAiParser" "v0.2.0" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
