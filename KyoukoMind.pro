@@ -167,3 +167,7 @@ gpu_processing.CONFIG += target_predeps no_link
 
 QMAKE_EXTRA_COMPILERS += gpu_processing
 
+
+unix {
+    INCLUDEPATH += /usr/lib/gcc/x86_64-linux-gnu/9/include
+}

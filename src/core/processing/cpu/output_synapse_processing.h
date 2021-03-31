@@ -235,6 +235,39 @@ output_learn_step()
 }
 
 /**
+ * @brief output_precheck
+ * @return
+ */
+inline uint32_t
+output_precheck()
+{
+    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+
+    uint32_t updateVals = 0;
+
+    const uint64_t numberOutputs = KyoukoRoot::m_segment->outputSynapses.numberOfItems;
+    for(uint32_t o = 0; o < numberOutputs; o++)
+    {
+        Output* out = &outputs[o];
+        if(out->shouldValue == 0.0f
+                && out->outputValue <= out->shouldValue)
+        {
+            continue;
+        }
+
+        if(out->shouldValue > 0.0f
+                && out->outputValue >= out->shouldValue)
+        {
+            continue;
+        }
+
+        updateVals++;
+    }
+
+    return updateVals;
+}
+
+/**
  * @brief resetNewOnes
  */
 inline void

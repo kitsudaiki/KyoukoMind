@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file        kyouko_root.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -116,14 +116,49 @@ KyoukoRoot::learnStep()
 {
     Segment* seg = KyoukoRoot::m_segment;
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
+    uint32_t timeout = 50;
 
     globalValue->doLearn = 1;
 
-    // learn until output-section
-    executeStep();
+    //----------------------------------------------------------------------------------------------
+    // learn phase 1
+    timeout = 5;
+    uint32_t updateVals = 0;
+    do
+    {
+        KyoukoRoot::m_ioHandler->resetInput();
+        KyoukoRoot::m_ioHandler->processInputMapping();
+        executeStep();
 
-    // learn current state
-    uint32_t timeout = 50;
+        Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
+        float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+        for(uint32_t i = 0; i < 768; i++) {
+            inputNodes[i + inputBrick->nodePos] = m_inputBuffer[i];
+        }
+
+        executeStep();
+        updateVals = output_precheck();
+        timeout--;
+    }
+    while(updateVals != 0
+          && timeout > 0);
+
+    std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<updateVals<<std::endl;
+
+    if(updateVals == 0)
+    {
+        KyoukoRoot::m_freezeState = true;
+        globalValue->lerningValue = 100000.0f;
+        executeStep();
+
+        finishStep();
+
+        return true;
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // learn phase 2
+    timeout = 50;
     float totalDiff = 0.0f;
     do
     {
@@ -134,33 +169,19 @@ KyoukoRoot::learnStep()
           && timeout > 0);
     std::cout<<"###################################################: "<<totalDiff<<std::endl;
 
-    bool result = false;
-
     // if desired state was reached, than freeze lerned state
     if(totalDiff < 1.0f)
     {
-        result = true;
         KyoukoRoot::m_freezeState = true;
         globalValue->lerningValue = 100000.0f;
         executeStep();
     }
-    else
-    {
-        resetNewOnes();
-    }
 
-    globalValue->doLearn = 0;
-    globalValue->lerningValue = 0.0f;
-    KyoukoRoot::m_freezeState = false;
+    //----------------------------------------------------------------------------------------------
 
-    // reset network
-    KyoukoRoot::m_ioHandler->resetInput();
-    KyoukoRoot::m_ioHandler->processInputMapping();
-    KyoukoRoot::m_ioHandler->resetShouldValues();
-    executeStep();
+    finishStep();
 
-
-    return result;
+    return true;
 }
 
 void KyoukoRoot::executeStep()
@@ -174,6 +195,21 @@ void KyoukoRoot::executeStep()
     }
 
     output_node_processing();
+}
+
+void KyoukoRoot::finishStep()
+{
+    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+
+    globalValue->doLearn = 0;
+    globalValue->lerningValue = 0.0f;
+    KyoukoRoot::m_freezeState = false;
+
+    // reset network
+    KyoukoRoot::m_ioHandler->resetInput();
+    KyoukoRoot::m_ioHandler->processInputMapping();
+    KyoukoRoot::m_ioHandler->resetShouldValues();
+    executeStep();
 }
 
 void KyoukoRoot::learnTestData()
@@ -238,9 +274,9 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 3; poi++)
+    for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 60000; pic++)
+        for(uint32_t pic = 0; pic < 100; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -253,13 +289,11 @@ void KyoukoRoot::learnTestData()
             outputs[label].shouldValue = 255.0f;
             std::cout<<"label: "<<label<<std::endl;
 
-            Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
-            float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 uint32_t total = dataBufferPtr[pos] * 5;
-                inputNodes[i + inputBrick->nodePos] = (static_cast<float>(total));
+                m_inputBuffer[i] = (static_cast<float>(total));
             }
 
             KyoukoRoot::m_root->learnStep();
@@ -285,7 +319,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"test"<<std::endl;
     uint32_t match = 0;
-    uint32_t total = 10000;
+    uint32_t total = 100;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
