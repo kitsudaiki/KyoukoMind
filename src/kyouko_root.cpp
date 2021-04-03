@@ -31,6 +31,7 @@
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/processing/cpu/output_synapse_processing.h>
+#include <core/processing/cpu/synapse_processing.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
@@ -122,8 +123,9 @@ KyoukoRoot::learnStep()
 
     //----------------------------------------------------------------------------------------------
     // learn phase 1
-    timeout = 5;
+    timeout = 3;
     uint32_t updateVals = 0;
+    uint32_t tempVal = 0;
     do
     {
         KyoukoRoot::m_ioHandler->resetInput();
@@ -137,13 +139,21 @@ KyoukoRoot::learnStep()
         }
 
         executeStep();
-        updateVals = output_precheck();
+        tempVal = output_precheck();
+        std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
+
+        if(tempVal < updateVals)
+        {
+            updateVals = tempVal;
+            break;
+        }
+        updateVals = tempVal;
+
         timeout--;
     }
     while(updateVals != 0
           && timeout > 0);
 
-    std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<updateVals<<std::endl;
 
     if(updateVals == 0)
     {
@@ -191,7 +201,8 @@ void KyoukoRoot::executeStep()
     // learn until output-section
     const uint32_t runCount = globalValue->layer + 2;
     for(uint32_t i = 0; i < runCount; i++) {
-        KyoukoRoot::m_root->m_networkManager->executeStep();
+        node_processing();
+        //KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 
     output_node_processing();
@@ -274,9 +285,9 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 1; poi++)
+    for(uint32_t poi = 0; poi < 3; poi++)
     {
-        for(uint32_t pic = 0; pic < 100; pic++)
+        for(uint32_t pic = 0; pic < 60000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -319,7 +330,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"test"<<std::endl;
     uint32_t match = 0;
-    uint32_t total = 100;
+    uint32_t total = 10000;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {

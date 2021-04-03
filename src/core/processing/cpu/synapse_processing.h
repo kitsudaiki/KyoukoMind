@@ -76,25 +76,18 @@ synapseProcessing(const uint64_t sectionPos,
                 && section->next == UNINIT_STATE_64)
         {
             // set new weight
-            if(pos % 2 == 0)
-            {
-                const float random = (rand() % 1024) / 1024.0f;
-                const float usedLearn = (weight < 2.0f) * weight
-                                        + (weight >= 2.0f) * ((weight * random) + 1.0f);
-                synapse->weight = fmod(usedLearn, maxWeight);
-            }
-            else
-            {
-                synapse->weight = maxWeight - section->synapses[pos - 1].weight;
-            }
+            const float random = (rand() % 1024) / 1024.0f;
+            const float usedLearn = static_cast<float>(weight < 2.0f) * weight
+                                    + static_cast<float>(weight >= 2.0f) * (weight * random);
+            synapse->weight = fmod(usedLearn, maxWeight);
 
             // get random node-id as target
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
                                                  % globalValue->nodesPerBrick;
             const uint32_t nodeOffset = section->nodeBrickId * globalValue->nodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
-            //synapse->sign = 1 - (rand() % 2) * 2;
 
+            // set sign
             const uint32_t signRand = rand() % 1000;
             const float signNeg = globalValue->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
@@ -190,9 +183,9 @@ updating(const uint64_t sectionPos)
 
         // update dynamic-weight-value of the synapse
         if(nodes[synapse->targetNodeId].active == 0) {
-            synapse->weight = synapse->weight * globalValue->memorizing;
+            synapse->weight = synapse->weight * 0.0f;
         } else {
-            synapse->weight = synapse->weight * 0.95f;
+            synapse->weight = synapse->weight * 0.0f;
         }
 
         // check for deletion of the single synapse
@@ -259,7 +252,7 @@ triggerSynapseSesction(Brick* brick,
 /**
  * @brief node_processing
  */
-void
+inline void
 node_processing()
 {
     Segment* seg = KyoukoRoot::m_segment;
