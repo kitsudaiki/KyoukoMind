@@ -134,7 +134,7 @@ KyoukoRoot::learnStep()
 
         Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
         float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
-        for(uint32_t i = 0; i < 768; i++) {
+        for(uint32_t i = 0; i < 784; i++) {
             inputNodes[i + inputBrick->nodePos] = m_inputBuffer[i];
         }
 
@@ -330,7 +330,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"test"<<std::endl;
     uint32_t match = 0;
-    uint32_t total = 100;
+    uint32_t total = 10000;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
