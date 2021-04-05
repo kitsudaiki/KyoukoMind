@@ -227,8 +227,11 @@ output_learn_step()
     {
         learNewOutput(&outputSection[o]);
         totalDiff += calculateLearnings(&outputSection[o], &outputs[o]);
-        outputSynapseLearn(&outputSection[o]);
-        outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
+        if(outputSection[o].diffTotal != 0.0f)
+        {
+            outputSynapseLearn(&outputSection[o]);
+            outputs[o].outputValue = outputSynapseProcessing(&outputSection[o]);
+        }
     }
 
     return totalDiff;

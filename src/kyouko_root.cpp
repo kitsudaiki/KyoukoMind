@@ -123,7 +123,7 @@ KyoukoRoot::learnStep()
 
     //----------------------------------------------------------------------------------------------
     // learn phase 1
-    timeout = 3;
+    timeout = 5;
     uint32_t updateVals = 0;
     uint32_t tempVal = 0;
     do
@@ -285,9 +285,9 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 3; poi++)
+    for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 60000; pic++)
+        for(uint32_t pic = 0; pic < 10000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -330,7 +330,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"test"<<std::endl;
     uint32_t match = 0;
-    uint32_t total = 10000;
+    uint32_t total = 100;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
