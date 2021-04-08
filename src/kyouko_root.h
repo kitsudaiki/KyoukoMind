@@ -54,12 +54,15 @@ public:
 
     bool learnStep();
     void executeStep();
+    void finishStep();
     void learnTestData();
 
     NetworkManager* m_networkManager = nullptr;
 
 private:
     uint32_t m_serverId = 0;
+
+    float m_inputBuffer[800];
 };
 
 #endif //KYOUKO_ROOT_OBJECT_H

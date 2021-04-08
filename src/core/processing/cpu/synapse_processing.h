@@ -76,25 +76,18 @@ synapseProcessing(const uint64_t sectionPos,
                 && section->next == UNINIT_STATE_64)
         {
             // set new weight
-            if(pos % 2 == 0)
-            {
-                const float random = (rand() % 1024) / 1024.0f;
-                const float usedLearn = (weight < 2.0f) * weight
-                                        + (weight >= 2.0f) * ((weight * random) + 1.0f);
-                synapse->weight = fmod(usedLearn, maxWeight);
-            }
-            else
-            {
-                synapse->weight = maxWeight - section->synapses[pos - 1].weight;
-            }
+            const float random = (rand() % 1024) / 1024.0f;
+            const float tooLearn = maxWeight * random;
+            synapse->weight = static_cast<float>(weight < tooLearn) * weight
+                                    + static_cast<float>(weight >= tooLearn) * tooLearn;
 
             // get random node-id as target
             const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
                                                  % globalValue->nodesPerBrick;
             const uint32_t nodeOffset = section->nodeBrickId * globalValue->nodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
-            //synapse->sign = 1 - (rand() % 2) * 2;
 
+            // set sign
             const uint32_t signRand = rand() % 1000;
             const float signNeg = globalValue->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
@@ -108,8 +101,8 @@ synapseProcessing(const uint64_t sectionPos,
             // 0 because only one thread at the moment
             const ulong nodeBufferPosition = (0 * numberOfNodes) + synapse->targetNodeId;
             const float synapseWeight = synapse->weight;
-            const float shareWeight = (weight > synapseWeight) * synapseWeight
-                                      + (weight <= synapseWeight) * weight;
+            const float shareWeight = static_cast<float>(weight > synapseWeight) * synapseWeight
+                                      + static_cast<float>(weight <= synapseWeight) * weight;
             currentStep += 1.0f;
             const float additionalWeight = (currentStep / maxSteps) * maxWeight * gradiant;
 
@@ -190,9 +183,9 @@ updating(const uint64_t sectionPos)
 
         // update dynamic-weight-value of the synapse
         if(nodes[synapse->targetNodeId].active == 0) {
-            synapse->weight = synapse->weight * globalValue->memorizing;
+            synapse->weight = synapse->weight * 0.0f;
         } else {
-            synapse->weight = synapse->weight * 0.95f;
+            synapse->weight = synapse->weight * 0.0f;
         }
 
         // check for deletion of the single synapse
@@ -259,7 +252,7 @@ triggerSynapseSesction(Brick* brick,
 /**
  * @brief node_processing
  */
-void
+inline void
 node_processing()
 {
     Segment* seg = KyoukoRoot::m_segment;
@@ -304,7 +297,8 @@ node_processing()
             // set to 255.0f, if value is too high
             const float cur = node->currentState;
             //node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
-            node->currentState = (cur < 0.0f) * 0.0f + (cur >= 0.0f) * cur;
+            node->currentState = static_cast<float>(cur < 0.0f) * 0.0f
+                                 + static_cast<float>(cur >= 0.0f) * cur;
 
             triggerSynapseSesction(nodeBricks[node->nodeBrickId],
                                    node,
@@ -317,7 +311,8 @@ node_processing()
 
             // set to 0.0f, if value is negative
             const float newCur = node->currentState;
-            node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
+            node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f
+                                 + static_cast<float>(newCur >= 0.0f) * newCur;
 
             // make cooldown in the node
             node->potential /= globalValue->nodeCooldown;
@@ -335,7 +330,8 @@ node_processing()
         else
         {
             const float newCur = node->currentState;
-            node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
+            node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f
+                                 + static_cast<float>(newCur >= 0.0f) * newCur;
             const float pot = globalValue->potentialOverflow * node->currentState;
             transferNodes[i % globalValue->nodesPerBrick] = pot;
             node->currentState = 0.0f;
