@@ -197,11 +197,26 @@ KyoukoRoot::learnStep()
 void KyoukoRoot::executeStep()
 {
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+    float timeValue = 0.0f;
 
     // learn until output-section
     const uint32_t runCount = globalValue->layer + 2;
-    for(uint32_t i = 0; i < runCount; i++) {
+    for(uint32_t i = 0; i < runCount; i++)
+    {
+        start = std::chrono::system_clock::now();
         node_processing();
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        //std::cout<<"node-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
+
+        start = std::chrono::system_clock::now();
+        synapse_processing();
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        //std::cout<<"synapse-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
+
         //KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 

@@ -41,7 +41,11 @@ struct Node
     uint32_t nodeBrickId = 0;
     uint32_t targetBrickDistance = 0;
 
-    // total size: 24 Byte
+    uint32_t targetSectionId = 0;
+    uint8_t padding2[4];
+
+
+    // total size: 32 Byte
 };
 
 //==================================================================================================

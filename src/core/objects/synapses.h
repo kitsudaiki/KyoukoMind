@@ -29,6 +29,35 @@
 
 //==================================================================================================
 
+struct SynapseBufferEntry
+{
+    float weigth = 0.0f;
+    uint32_t nodeId = UNINIT_STATE_16;
+    // total size: 8 Byte
+};
+
+//==================================================================================================
+
+struct SynapseBuffer
+{
+    uint8_t process = 0;
+    uint8_t upToDate = 1;
+    uint8_t padding[6];
+
+    SynapseBufferEntry buffer[8];
+
+    SynapseBuffer()
+    {
+        for(uint32_t i = 0; i < 8; i++) {
+            buffer[i] = SynapseBufferEntry();
+        }
+    }
+
+    // total size: 64 Byte
+};
+
+//==================================================================================================
+
 struct Synapse
 {
     float weight = 0.0;
@@ -42,10 +71,10 @@ struct Synapse
 
 struct SynapseSection
 {
-    uint16_t status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+    uint16_t active = 0;
     uint16_t randomPos = UNINIT_STATE_16;
 
-    uint32_t nodeBrickId = UNINIT_STATE_32;
+    uint32_t brickBufferPos = UNINIT_STATE_32;
     uint64_t prev = UNINIT_STATE_64;
     uint64_t next = UNINIT_STATE_64;
 

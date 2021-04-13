@@ -49,7 +49,7 @@ public:
     Kitsunemimi::ItemBuffer nodeProcessingBuffer;
     Kitsunemimi::ItemBuffer nodeInputBuffer;
     Kitsunemimi::ItemBuffer transferNodeBuffer;
-
+    Kitsunemimi::ItemBuffer synapseBuffer;
 
     uint32_t nodesPerBrick = 0;
 
