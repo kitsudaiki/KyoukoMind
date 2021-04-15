@@ -302,7 +302,7 @@ void KyoukoRoot::learnTestData()
 
     for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 10000; pic++)
+        for(uint32_t pic = 0; pic < 20000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -366,7 +366,7 @@ void KyoukoRoot::learnTestData()
         executeStep();
 
         // print result
-        float biggest = -10000.0;
+        float biggest = -100000.0f;
         uint32_t pos = 0;
         Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
         std::string outString = "[";
@@ -386,13 +386,15 @@ void KyoukoRoot::learnTestData()
         outString += "]";
         std::cout<<pos<<"   complete: "<<outString<<std::endl;
 
-        if(testLabelBufferPtr[pic + 8] == pos) {
+        if(testLabelBufferPtr[pic + 8] == pos
+                && biggest != 0.0f)
+        {
             match++;
         }
     }
 
     std::cout<<"======================================================================="<<std::endl;
-    std::cout<<"corrct: "<<match<<"/"<<total<<std::endl;
+    std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
 }
 

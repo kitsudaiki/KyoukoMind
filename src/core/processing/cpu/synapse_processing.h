@@ -59,6 +59,7 @@ synapseProcessing(SynapseSection* section,
     uint32_t pos = 0;
     uint32_t counter = 0;
     float weight = weightIn;
+    bool processed = false;
     const float maxWeight = globalValue->maxSynapseWeight;
     Node* node = &nodes[nodeId];
 
@@ -116,6 +117,7 @@ synapseProcessing(SynapseSection* section,
 
             weight -= shareWeight;
             counter = pos;
+            processed = true;
         }
     }
 
@@ -128,7 +130,8 @@ synapseProcessing(SynapseSection* section,
     }
 
     // go to next section
-    if(weight > 1.0f)
+    if(weight > 1.0f
+            && processed)
     {
         uint32_t nextLayer = layer + 1;
         nextLayer = (nextLayer > 7) * 7  + (nextLayer <= 7) * nextLayer;
@@ -215,7 +218,15 @@ synapse_processing()
     for(uint32_t i = 0; i < numberOfSynapses; i++)
     {
         SynapseBuffer* synapseBuffer = &synapseBuffers[i];
-        bool update = true;
+
+        if(synapseBuffer->process == 0)
+        {
+            if(synapseBuffer->upToDate == 0) {
+                synapseBuffer->upToDate = updating(&sections[i]);
+            }
+            continue;
+        }
+
         for(uint8_t layer = 0; layer < 8; layer++)
         {
             SynapseBufferEntry* entry = &synapseBuffer->buffer[layer];
@@ -224,17 +235,10 @@ synapse_processing()
             {
                 synapseProcessing(&sections[i], entry->nodeId, entry->weigth, layer);
                 synapseBuffer->upToDate = 0;
-                update = false;
             }
 
             entry->weigth = 0.0f;
             entry->nodeId = UNINIT_STATE_32;
-        }
-
-        if(update
-                && synapseBuffer->upToDate == 0)
-        {
-            synapseBuffer->upToDate = updating(&sections[i]);
         }
     }
 }
@@ -288,7 +292,7 @@ node_processing()
 
             synapseBuffer[i].buffer[0].weigth = node->potential;
             synapseBuffer[i].buffer[0].nodeId = i;
-            synapseBuffer[i].process = 1;
+            synapseBuffer[i].process = node->potential > 5.0f;
 
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
@@ -307,7 +311,7 @@ node_processing()
             node->potential = inputNodes[i];
             synapseBuffer[i].buffer[0].weigth = node->potential;
             synapseBuffer[i].buffer[0].nodeId = i;
-            synapseBuffer[i].process = 1;
+            synapseBuffer[i].process = node->potential > 5.0f;
         }
         else
         {
