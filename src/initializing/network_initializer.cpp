@@ -248,6 +248,11 @@ NetworkInitializer::addBricks(Segment &segment,
         }
     }
 
+
+    for(uint32_t i = 0; i < m_layer.size(); i++) {
+        std::cout<<"layer "<<i<<": "<<m_layer[i].size()<<std::endl;
+    }
+
     return;
 }
 
