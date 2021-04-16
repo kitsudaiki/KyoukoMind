@@ -248,6 +248,11 @@ NetworkInitializer::addBricks(Segment &segment,
         }
     }
 
+
+    for(uint32_t i = 0; i < m_layer.size(); i++) {
+        std::cout<<"layer "<<i<<": "<<m_layer[i].size()<<std::endl;
+    }
+
     return;
 }
 
@@ -323,10 +328,9 @@ NetworkInitializer::createAxons(Segment &segment)
             //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
             nodes[nodeCounter].nodeBrickId = sourceBrick->nodeBrickId;
             nodes[nodeCounter].targetBrickDistance = static_cast<uint32_t>(dist);
+            nodes[nodeCounter].targetSectionId = nodeCounter;
 
-            section[nodeCounter].status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
             section[nodeCounter].randomPos = rand() % 1024;
-            section[nodeCounter].nodeBrickId = axonBrick->nodeBrickId;
 
             // post-check
             assert(axonBrick->nodeBrickId != UNINIT_STATE_32);

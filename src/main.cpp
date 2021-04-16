@@ -62,23 +62,23 @@ main(int argc, char *argv[])
     registerConfigs();
 
     // create server
-    initBlossoms();
+    //initBlossoms();
 
     // initialize server and connections based on the config-file
-    std::vector<std::string> groupNames = {};
+    /*std::vector<std::string> groupNames = {};
     if(MessagingController::initializeMessagingController("KyoukoMind",
                                                           groupNames,
                                                           &sessionCreateCallback,
                                                           &sessionCloseCallback) == false)
     {
         return 1;
-    }
+    }*/
 
     // start core
     KyoukoRoot* rootObject = new KyoukoRoot();
-    if(rootObject->initializeSakuraFiles() == false) {
+    /*if(rootObject->initializeSakuraFiles() == false) {
         return 1;
-    }
+    }*/
     rootObject->start();
     rootObject->learnTestData();
 

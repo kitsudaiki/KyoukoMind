@@ -134,7 +134,7 @@ KyoukoRoot::learnStep()
 
         Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
         float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
-        for(uint32_t i = 0; i < 784; i++) {
+        for(uint32_t i = 0; i < 800; i++) {
             inputNodes[i + inputBrick->nodePos] = m_inputBuffer[i];
         }
 
@@ -197,11 +197,26 @@ KyoukoRoot::learnStep()
 void KyoukoRoot::executeStep()
 {
     GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+    float timeValue = 0.0f;
 
     // learn until output-section
     const uint32_t runCount = globalValue->layer + 2;
-    for(uint32_t i = 0; i < runCount; i++) {
+    for(uint32_t i = 0; i < runCount; i++)
+    {
+        start = std::chrono::system_clock::now();
         node_processing();
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        //std::cout<<"node-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
+
+        start = std::chrono::system_clock::now();
+        synapse_processing();
+        end = std::chrono::system_clock::now();
+        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
+        //std::cout<<"synapse-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
+
         //KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 
@@ -283,11 +298,15 @@ void KyoukoRoot::learnTestData()
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
 
+    for(uint32_t i = 0; i < 800; i++) {
+        m_inputBuffer[i] = 0.0f;
+    }
+
     std::cout<<"learn"<<std::endl;
 
     for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 10000; pic++)
+        for(uint32_t pic = 0; pic < 60000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -303,9 +322,30 @@ void KyoukoRoot::learnTestData()
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
-                uint32_t total = dataBufferPtr[pos] * 5;
+                int32_t total = dataBufferPtr[pos] * 2;
                 m_inputBuffer[i] = (static_cast<float>(total));
             }
+
+            /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
+            {
+                const uint32_t pos = pic * pictureSize + i + 16;
+                int32_t total = dataBufferPtr[pos] * 5 + dataBufferPtr[pos + 1] * 5;
+                m_inputBuffer[i/2] = (static_cast<float>(total));
+            }
+
+            for(uint32_t x = 4; x < 20; x++)
+            {
+                for(uint32_t y = 4; y < 20; y = y + 2)
+                {
+                    const uint32_t pixelPos = x * 28 + y;
+                    const uint32_t pos = pic * pictureSize + pixelPos + 16;
+                    int32_t total = (255 - dataBufferPtr[pos]) * 5 + (255 - dataBufferPtr[pos + 1]) * 5;
+                    if(total < 0) {
+                        total = 0;
+                    }
+                    m_inputBuffer[(pictureSize / 2) + (pixelPos/2)] = (static_cast<float>(total));
+                }
+            }*/
 
             KyoukoRoot::m_root->learnStep();
         }
@@ -332,6 +372,12 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
+    float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+    for(uint32_t i = 0; i < 800; i = i + 2)  {
+        inputNodes[i] = 0.0f;
+    }
+
+
     for(uint32_t pic = 0; pic < total; pic++)
     {
         uint32_t label = testLabelBufferPtr[pic + 8];
@@ -344,14 +390,35 @@ void KyoukoRoot::learnTestData()
         for(uint32_t i = 0; i < pictureSize; i++)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
-            uint32_t total = testDataBufferPtr[pos] * 5;
+            int32_t total = testDataBufferPtr[pos] * 2;
             inputNodes[i + inputBrick->nodePos] = (static_cast<float>(total));
         }
+
+        /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
+        {
+            const uint32_t pos = pic * pictureSize + i + 16;
+            int32_t total = testDataBufferPtr[pos] * 5 +  testDataBufferPtr[pos + 1] * 5;
+            inputNodes[(i/2) + inputBrick->nodePos] = (static_cast<float>(total));
+        }
+
+        for(uint32_t x = 4; x < 20; x++)
+        {
+            for(uint32_t y = 4; y < 20; y = y + 2)
+            {
+                const uint32_t pixelPos = x * 28 + y;
+                const uint32_t pos = pic * pictureSize + pixelPos + 16;
+                int32_t total = (255 - testDataBufferPtr[pos]) * 5 + (255 - testDataBufferPtr[pos + 1]) * 5;
+                if(total < 0) {
+                    total = 0;
+                }
+                inputNodes[(pictureSize / 2) + (pixelPos/2) + inputBrick->nodePos] = (static_cast<float>(total));
+            }
+        }*/
 
         executeStep();
 
         // print result
-        float biggest = -10000.0;
+        float biggest = -100000.0f;
         uint32_t pos = 0;
         Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
         std::string outString = "[";
@@ -371,13 +438,15 @@ void KyoukoRoot::learnTestData()
         outString += "]";
         std::cout<<pos<<"   complete: "<<outString<<std::endl;
 
-        if(testLabelBufferPtr[pic + 8] == pos) {
+        if(testLabelBufferPtr[pic + 8] == pos
+                && biggest != 0.0f)
+        {
             match++;
         }
     }
 
     std::cout<<"======================================================================="<<std::endl;
-    std::cout<<"corrct: "<<match<<"/"<<total<<std::endl;
+    std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
 }
 

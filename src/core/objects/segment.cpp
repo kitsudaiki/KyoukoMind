@@ -104,6 +104,10 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
         return false;
     }
 
+    if(synapseBuffer.initBuffer<SynapseBuffer>(numberOfSynapseSections) == false) {
+        return false;
+    }
+
     if(randomIntValues.initBuffer<uint32_t>(numberOfRandValues) == false) {
         return false;
     }
@@ -111,11 +115,6 @@ Segment::initializeBuffer(const uint32_t numberOfBricks,
     // segment.synapses.dynamic = true;
     if(synapses.initBuffer<SynapseSection>(numberOfSynapseSections) == false) {
         return false;
-    }
-
-    // mark all synapses als delted to make them usable
-    for(uint64_t i = numberOfNodes; i < synapses.itemCapacity; i++) {
-        synapses.deleteItem(i);
     }
 
     if(outputSynapses.initBuffer<OutputSynapseSection>(numberOfOutputs) == false) {
