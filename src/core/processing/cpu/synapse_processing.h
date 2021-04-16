@@ -100,6 +100,8 @@ synapseProcessing(SynapseSection* section,
             const uint32_t signRand = rand() % 1000;
             const float signNeg = globalValue->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
+
+            synapse->multiplicator = (rand() % 5) + 1;
         }
 
         pos++;
@@ -113,7 +115,7 @@ synapseProcessing(SynapseSection* section,
             const float shareWeight = static_cast<float>(weight > synapseWeight) * synapseWeight
                                       + static_cast<float>(weight <= synapseWeight) * weight;
 
-            nodeBuffer[nodeBufferPosition] += (shareWeight * static_cast<float>(synapse->sign));
+            nodeBuffer[nodeBufferPosition] += (shareWeight * static_cast<float>(synapse->sign) * static_cast<float>(synapse->multiplicator));
 
             weight -= shareWeight;
             counter = pos;
