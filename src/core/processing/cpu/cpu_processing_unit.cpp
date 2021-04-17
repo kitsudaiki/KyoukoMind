@@ -23,8 +23,6 @@
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <kyouko_root.h>
 
-#include <import_export/obj_converter.h>
-
 #include <libKitsunemimiCommon/threading/barrier.h>
 
 #include <core/objects/segment.h>
@@ -58,8 +56,8 @@ CpuProcessingUnit::run()
         m_phase2->triggerBarrier();
 
         start = std::chrono::system_clock::now();
-        node_processing();
-        output_node_processing();
+        node_processing(KyoukoRoot::m_synapseSegment, KyoukoRoot::m_outputSegment);
+        output_node_processing(KyoukoRoot::m_outputSegment);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;

@@ -23,7 +23,6 @@
 #include "learn_blossom.h"
 
 #include <kyouko_root.h>
-#include <core/processing/input_output_processing.h>
 
 #include <core/objects/global_values.h>
 #include <core/objects/segment.h>
@@ -55,9 +54,6 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
         DataArray* input = blossomLeaf.input.get("input")->toArray();
         DataArray* should = blossomLeaf.input.get("should")->toArray();
 
-        KyoukoRoot::m_ioHandler->setShouldValues(should);
-        KyoukoRoot::m_ioHandler->setInput(input);
-        KyoukoRoot::m_ioHandler->processInputMapping();
     }
 
     const bool result = KyoukoRoot::m_root->learnStep();

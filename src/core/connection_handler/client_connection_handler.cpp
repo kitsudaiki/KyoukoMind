@@ -106,12 +106,6 @@ ClientConnectionHandler::insertInput(const std::string &inputData)
     }
 
     DataArray* array = jsonItem.getItemContent()->toArray();
-    while(KyoukoRoot::m_segment->input_lock.test_and_set(std::memory_order_acquire)) { asm(""); }
-    float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
-    for(uint32_t i = 0; i < array->size(); i++) {
-        inputNodes[i] = array->get(i)->getFloat();
-    }
-    KyoukoRoot::m_segment->input_lock.clear(std::memory_order_release);
 
     return true;
 }

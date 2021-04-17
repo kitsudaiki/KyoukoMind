@@ -43,38 +43,5 @@ SetGlobalValues_Blossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("update global-values");
 
-    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Kitsunemimi::DataMap* input = &blossomLeaf.input;
-
-    if(input->contains("memorizing"))
-    {
-        DataValue* value = input->get("memorizing")->toValue();
-        if(value->isFloatValue()) {
-            globalValues->memorizing = value->getFloat();
-        } else if(value->isIntValue()) {
-            globalValues->memorizing = value->getInt();
-        }
-    }
-
-    if(input->contains("learning"))
-    {
-        DataValue* value = input->get("learning")->toValue();
-        if(value->isFloatValue()) {
-            globalValues->lerningValue = value->getFloat();
-        } else if(value->isIntValue()) {
-            globalValues->lerningValue = value->getInt();
-        }
-    }
-
-    if(input->contains("glia_value"))
-    {
-        DataValue* value = input->get("glia_value")->toValue();
-        if(value->isFloatValue()) {
-            globalValues->gliaValue = value->getFloat();
-        } else if(value->isIntValue()) {
-            globalValues->gliaValue = value->getInt();
-        }
-    }
-
     return true;
 }

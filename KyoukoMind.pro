@@ -93,12 +93,15 @@ HEADERS += \
     src/core/objects/synapses.h \
     src/core/processing/processing_unit_handler.h \
     src/core/network_manager.h \
-    src/import_export/obj_converter.h \
     src/core/validation.h \
+    src/initializing/brick_initializer.h \
+    src/initializing/layered_brick_initializier.h \
     src/initializing/network_initializer.h \
     src/args.h \
     src/common.h \
     src/config.h \
+    src/initializing/random_brick_initializer.h \
+    src/initializing/segment_initailzing.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
     src/blossoms/register/register_input_blossom.h \
@@ -112,7 +115,6 @@ HEADERS += \
     src/blossoms/snapshot/snapshot_blossom.h \
     src/core/objects/monitoring_container.h \
     src/initializing/blossom_initializing.h \
-    src/core/processing/input_output_processing.h \
     src/core/processing/cpu/synapse_processing.h \
     src/core/processing/cpu/output_synapse_processing.h \
     src/blossoms/special/set_input_blossom.h \
@@ -120,13 +122,15 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
-    src/core/objects/segment.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/network_manager.cpp \
-    src/import_export/obj_converter.cpp \
     src/core/validation.cpp \
+    src/initializing/brick_initializer.cpp \
+    src/initializing/layered_brick_initializier.cpp \
     src/initializing/network_initializer.cpp \
+    src/initializing/random_brick_initializer.cpp \
+    src/initializing/segment_initailzing.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/blossoms/register/register_input_blossom.cpp \
@@ -138,7 +142,6 @@ SOURCES += \
     src/blossoms/global_values/set_global_values_blossom.cpp \
     src/blossoms/snapshot/snapshot_blossom.cpp \
     src/blossoms/special/special_blossoms.cpp \
-    src/core/processing/input_output_processing.cpp \
     src/blossoms/special/set_input_blossom.cpp
 
 CONFIG(run_tests) {

@@ -1,5 +1,5 @@
 /**
- * @file        network_initializer.h
+ * @file        segment_initailzing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,12 +20,12 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORK_INITIALIZER_H
-#define NETWORK_INITIALIZER_H
+#ifndef SEGMENT_INITAILZING_H
+#define SEGMENT_INITAILZING_H
 
 #include <common.h>
 
-struct Segment;
+#include <core/objects/segment.h>
 
 namespace Kitsunemimi {
 namespace Ai {
@@ -33,19 +33,21 @@ struct AiBaseMeta;
 }
 }
 
-struct Brick;
-class BrickInitializer;
+Segment* initSynapseSegment(const uint32_t numberOfNodeBricks,
+                            const uint32_t numberOfNodes,
+                            const uint64_t numberOfSynapseSections,
+                            const uint32_t numberOfInputs,
+                            const uint32_t numberOfRandValues);
 
-class NetworkInitializer
-{
-public:
-    NetworkInitializer();
+Segment* initOutputSegment(const uint32_t numberOfOutputs,
+                           const uint32_t numberOfInputs,
+                           const uint32_t numberOfRandValues);
 
-    bool createNewNetwork(const std::string &fileContent,
-                          const std::string &configFileContent);
+bool initLayer(Segment &segment);
 
-private:
-    BrickInitializer* m_brickInitializer = nullptr;
-};
+bool initializeNodes(Segment &segment);
 
-#endif // NETWORK_INITIALIZER_H
+void addBricksToSegment(Segment &segment,
+                        const Kitsunemimi::Ai::AiBaseMeta& metaBase);
+
+#endif // SEGMENT_INITAILZING_H

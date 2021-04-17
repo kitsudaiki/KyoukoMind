@@ -46,10 +46,10 @@ bool
 MonitoringConnectionHandler::sendToMonitoring()
 {
     std::string monitoringOutput = "{\"bricks\": [";
-    Brick* brick = Kitsunemimi::getBuffer<Brick>(KyoukoRoot::m_segment->bricks);
+    Brick* brick = KyoukoRoot::m_synapseSegment->nodeBricks;
 
     bool found = false;
-    for(uint32_t i = 0; i < KyoukoRoot::m_segment->bricks.numberOfItems; i++)
+    for(uint32_t i = 0; i < KyoukoRoot::m_synapseSegment->segmentMeta->numberOfNodeBricks; i++)
     {
         if(brick[i].brickId != UNINIT_STATE_32)
         {

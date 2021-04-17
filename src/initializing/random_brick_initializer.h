@@ -1,5 +1,5 @@
 /**
- * @file        node.h
+ * @file        random_brick_initializer.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,40 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef NODES_H
-#define NODES_H
+#ifndef RANDOMBRICKINITIALIZER_H
+#define RANDOMBRICKINITIALIZER_H
 
 #include <common.h>
 
-struct InputNode
+#include <initializing/brick_initializer.h>
+
+class RandomBrickInitializer
+        : public BrickInitializer
 {
-    float weight = 0.0f;
-    uint32_t targetNode = 0;
+public:
+    RandomBrickInitializer();
+
+    Brick* getAxonBrick(Segment &segment, Brick* sourceBrick);
+    bool initTargetBrickList(Segment &segment);
+
+private:
+    uint8_t getPossibleNext(const uint8_t inputSide);
 };
 
-//==================================================================================================
-
-struct Node
-{
-    float currentState = 0.0f;
-    float border = 100.0f;
-    float potential = 0.0f;
-
-    uint8_t refractionTime = 1;
-    uint8_t active = 0;
-    uint8_t upToDate = 0;
-    uint8_t external = 0;
-
-    uint32_t nodeBrickId = 0;
-    uint32_t targetBrickDistance = 0;
-
-    uint32_t targetSectionId = 0;
-    uint8_t padding2[4];
-
-
-    // total size: 32 Byte
-};
-
-//==================================================================================================
-
-#endif // NODES_H
+#endif // RANDOMBRICKINITIALIZER_H
