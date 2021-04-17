@@ -1,5 +1,5 @@
 /**
- * @file        random_brick_initializer.h
+ * @file        network_cluster.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,24 +20,25 @@
  *      limitations under the License.
  */
 
-#ifndef RANDOMBRICKINITIALIZER_H
-#define RANDOMBRICKINITIALIZER_H
+#ifndef NETWORK_CLUSTER_H
+#define NETWORK_CLUSTER_H
 
 #include <common.h>
 
-#include <initializing/brick_initializer.h>
+#include <core/objects/segment.h>
+#include <libKitsunemimiAiCommon/metadata.h>
 
-class RandomBrickInitializer
-        : public BrickInitializer
+//==================================================================================================
+
+struct NetworkCluster
 {
-public:
-    RandomBrickInitializer();
+    Kitsunemimi::Ai::NetworkMetaData networkMetaData;
+    Kitsunemimi::Ai::InitMeataData initMetaData;
 
-    Brick* getAxonBrick(Segment &segment, Brick* sourceBrick);
-    bool initTargetBrickList(Segment &segment, Kitsunemimi::Ai::InitMeataData *initMetaData);
-
-private:
-    uint8_t getPossibleNext(const uint8_t inputSide);
+    Segment* synapseSegment = nullptr;
+    Segment* outputSegment = nullptr;
 };
 
-#endif // RANDOMBRICKINITIALIZER_H
+//==================================================================================================
+
+#endif // NETWORK_CLUSTER_H

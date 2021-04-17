@@ -24,7 +24,7 @@
 
 #include <core/network_manager.h>
 #include <core/objects/segment.h>
-#include <core/objects/global_values.h>
+#include <core/objects/network_cluster.h>
 #include <core/objects/output.h>
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
@@ -44,15 +44,11 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
-Segment* KyoukoRoot::m_synapseSegment = nullptr;
-Segment* KyoukoRoot::m_outputSegment = nullptr;
+NetworkCluster* KyoukoRoot::m_networkCluster = nullptr;
 bool KyoukoRoot::m_freezeState = false;
 ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
 MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
 InputOutputProcessing* KyoukoRoot::m_ioHandler = nullptr;
-
-MonitoringBrickMessage KyoukoRoot::monitoringBrickMessage;
-MonitoringProcessingTimes KyoukoRoot::monitoringMetaMessage;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
@@ -113,14 +109,10 @@ KyoukoRoot::start()
 bool
 KyoukoRoot::learnStep()
 {
-    Segment* seg = KyoukoRoot::m_synapseSegment;
-    GlobalValues* globalValue = seg->globalValues;
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     uint32_t timeout = 50;
 
-    globalValue->doLearn = 1;
-
-    m_synapseSegment->globalValues->doLearn = 1;
-    m_outputSegment->globalValues->doLearn = 1;
+    cluster->networkMetaData.doLearn = 1;
 
     //----------------------------------------------------------------------------------------------
     // learn phase 1
@@ -131,13 +123,13 @@ KyoukoRoot::learnStep()
     {
         executeStep();
 
-        InputNode* inputNodes = m_synapseSegment->inputNodes;
+        InputNode* inputNodes = cluster->synapseSegment->inputNodes;
         for(uint32_t i = 0; i < 800; i++) {
             inputNodes[i].weight = m_inputBuffer[i];
         }
 
         executeStep();
-        tempVal = output_precheck(m_outputSegment);
+        tempVal = output_precheck(cluster->outputSegment);
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
 
         if(tempVal < updateVals)
@@ -156,8 +148,7 @@ KyoukoRoot::learnStep()
     if(updateVals == 0)
     {
         KyoukoRoot::m_freezeState = true;
-        m_synapseSegment->globalValues->lerningValue = 100000.0f;
-        m_outputSegment->globalValues->lerningValue = 100000.0f;
+        cluster->networkMetaData.lerningValue = 100000.0f;
 
         executeStep();
 
@@ -172,7 +163,7 @@ KyoukoRoot::learnStep()
     float totalDiff = 0.0f;
     do
     {
-        totalDiff = output_learn_step(m_outputSegment);
+        totalDiff = output_learn_step(cluster->outputSegment, &cluster->networkMetaData);
         timeout--;
     }
     while(totalDiff >= 1.0f
@@ -183,7 +174,7 @@ KyoukoRoot::learnStep()
     if(totalDiff < 1.0f)
     {
         KyoukoRoot::m_freezeState = true;
-        globalValue->lerningValue = 100000.0f;
+        cluster->networkMetaData.lerningValue = 100000.0f;
         executeStep();
     }
 
@@ -196,23 +187,24 @@ KyoukoRoot::learnStep()
 
 void KyoukoRoot::executeStep()
 {
-    GlobalValues* globalValue = m_synapseSegment->globalValues;
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
 
     // learn until output-section
-    const uint32_t runCount = globalValue->layer + 2;
+    const uint32_t runCount = cluster->initMetaData.layer + 2;
     for(uint32_t i = 0; i < runCount; i++)
     {
         start = std::chrono::system_clock::now();
-        node_processing(m_synapseSegment, KyoukoRoot::m_outputSegment);
+        node_processing(cluster->synapseSegment, cluster->outputSegment);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //std::cout<<"node-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
 
         start = std::chrono::system_clock::now();
-        synapse_processing(m_synapseSegment);
+        synapse_processing(cluster->synapseSegment, &cluster->networkMetaData);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //std::cout<<"synapse-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
@@ -220,21 +212,19 @@ void KyoukoRoot::executeStep()
         //KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 
-    output_node_processing(m_outputSegment);
+    output_node_processing(cluster->outputSegment, &cluster->networkMetaData);
 }
 
 void KyoukoRoot::finishStep()
 {
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
 
-    m_synapseSegment->globalValues->doLearn = 0;
-    m_synapseSegment->globalValues->lerningValue = 0.0f;
-
-    m_outputSegment->globalValues->doLearn = 0;
-    m_outputSegment->globalValues->lerningValue = 0.0f;
+    cluster->networkMetaData.doLearn = 0;
+    cluster->networkMetaData.lerningValue = 0.0f;
 
     KyoukoRoot::m_freezeState = false;
 
-    InputNode* inputNodes = m_synapseSegment->inputNodes;
+    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
     for(uint32_t i = 0; i < 800; i++) {
         inputNodes[i].weight = 0.0f;
     }
@@ -245,6 +235,8 @@ void KyoukoRoot::finishStep()
 
 void KyoukoRoot::learnTestData()
 {
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+
     const std::string trainDataPath = "/home/neptune/Schreibtisch/mnist/train-images.idx3-ubyte";
     const std::string trainLabelPath = "/home/neptune/Schreibtisch/mnist/train-labels.idx1-ubyte";
     const std::string testDataPath = "/home/neptune/Schreibtisch/mnist/t10k-images.idx3-ubyte";
@@ -310,7 +302,7 @@ void KyoukoRoot::learnTestData()
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
 
-            Output* outputs = m_outputSegment->outputs;
+            Output* outputs = cluster->outputSegment->outputs;
             for(uint32_t i = 0; i < 10; i++) {
                 outputs[i].shouldValue = 0.0f;
             }
@@ -371,7 +363,7 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    InputNode* inputNodes = m_synapseSegment->inputNodes;
+    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
     for(uint32_t i = 0; i < 800; i = i + 2)  {
         inputNodes[i].weight = 0.0f;
     }
@@ -384,7 +376,6 @@ void KyoukoRoot::learnTestData()
         //std::cout<<pic<<" should: "<<(int)labelBufferPtr[pic + 8]<<"   is: ";
         std::cout<<pic<<" should: "<<label<<"   is: ";
 
-        InputNode* inputNodes = m_synapseSegment->inputNodes;
         for(uint32_t i = 0; i < pictureSize; i++)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
@@ -418,9 +409,9 @@ void KyoukoRoot::learnTestData()
         // print result
         float biggest = -100000.0f;
         uint32_t pos = 0;
-        Output* outputs = m_outputSegment->outputs;
+        Output* outputs = cluster->outputSegment->outputs;
         std::string outString = "[";
-        for(uint32_t i = 0; i < m_outputSegment->segmentMeta->numberOfOutputs; i++)
+        for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfOutputs; i++)
         {
             if(i > 0) {
                 outString += " | ";

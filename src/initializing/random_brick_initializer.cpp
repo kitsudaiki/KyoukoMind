@@ -57,10 +57,9 @@ RandomBrickInitializer::getAxonBrick(Segment &segment, Brick *sourceBrick)
  * @return
  */
 bool
-RandomBrickInitializer::initTargetBrickList(Segment &segment)
+RandomBrickInitializer::initTargetBrickList(Segment &segment,
+                                            Kitsunemimi::Ai::InitMeataData* initMetaData)
 {
-    GlobalValues* globalValues = segment.globalValues;
-
     Brick* bricks = segment.nodeBricks;
 
     // iterate over all bricks
@@ -76,7 +75,7 @@ RandomBrickInitializer::initTargetBrickList(Segment &segment)
 
             // try to go a specific distance
             uint8_t nextSide = 42;
-            for(uint32_t k = 0; k < globalValues->maxBrickDistance; k++)
+            for(uint32_t k = 0; k < initMetaData->maxBrickDistance; k++)
             {
                 nextSide = getPossibleNext(nextSide);
                 const uint32_t nextBrickId = jumpBrick.neighbors[nextSide];

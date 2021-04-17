@@ -48,7 +48,7 @@ bool BrickInitializer::initializeAxons(Segment &segment)
         Brick* sourceBrick = &segment.nodeBricks[i];
 
         // iterate over all nodes of the brick and create an axon for each node
-        for(uint32_t nodePos = 0; nodePos < segment.globalValues->nodesPerBrick; nodePos++)
+        for(uint32_t nodePos = 0; nodePos < segment.segmentMeta->numberOfNodesPerBrick; nodePos++)
         {
             Brick* axonBrick = getAxonBrick(segment, sourceBrick);
             assert(axonBrick->nodeBrickId <= 100);

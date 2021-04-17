@@ -35,7 +35,8 @@ public:
     bool initializeAxons(Segment &segment);
 
     virtual Brick* getAxonBrick(Segment &segment, Brick* sourceBrick) = 0;
-    virtual bool initTargetBrickList(Segment &segment) = 0;
+    virtual bool initTargetBrickList(Segment &segment,
+                                     Kitsunemimi::Ai::InitMeataData* initMetaData) = 0;
 };
 
 #endif // BRICKINITIALIZER_H

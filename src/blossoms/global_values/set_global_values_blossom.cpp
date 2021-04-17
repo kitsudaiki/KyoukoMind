@@ -26,7 +26,6 @@
 
 #include <core/objects/segment.h>
 #include <kyouko_root.h>
-#include <core/objects/global_values.h>
 
 using namespace Kitsunemimi::Sakura;
 

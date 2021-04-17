@@ -43,11 +43,13 @@ Segment* initOutputSegment(const uint32_t numberOfOutputs,
                            const uint32_t numberOfInputs,
                            const uint32_t numberOfRandValues);
 
-bool initLayer(Segment &segment);
+bool initLayer(Segment &segment,
+               Kitsunemimi::Ai::InitMeataData *initMetaData);
 
-bool initializeNodes(Segment &segment);
+bool initializeNodes(Segment &segment,
+                     Kitsunemimi::Ai::InitMeataData* initMetaData);
 
-void addBricksToSegment(Segment &segment,
+void addBricksToSegment(Segment &segment, Kitsunemimi::Ai::InitMeataData *initMetaData,
                         const Kitsunemimi::Ai::AiBaseMeta& metaBase);
 
 #endif // SEGMENT_INITAILZING_H

@@ -26,8 +26,7 @@
 #include <libKitsunemimiCommon/threading/barrier.h>
 
 #include <core/objects/segment.h>
-
-#include <core/objects/global_values.h>
+#include <core/objects/network_cluster.h>
 #include <core/objects/brick.h>
 
 #include <core/processing/cpu/synapse_processing.h>
@@ -56,11 +55,11 @@ CpuProcessingUnit::run()
         m_phase2->triggerBarrier();
 
         start = std::chrono::system_clock::now();
-        node_processing(KyoukoRoot::m_synapseSegment, KyoukoRoot::m_outputSegment);
-        output_node_processing(KyoukoRoot::m_outputSegment);
+        node_processing(KyoukoRoot::m_networkCluster->synapseSegment, KyoukoRoot::m_networkCluster->outputSegment);
+        output_node_processing(KyoukoRoot::m_networkCluster->outputSegment,
+                               &KyoukoRoot::m_networkCluster->networkMetaData);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        KyoukoRoot::monitoringMetaMessage.gpuNode = timeValue;
 
         m_phase3->triggerBarrier();
     }

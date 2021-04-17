@@ -23,6 +23,7 @@
 #include "segment_initailzing.h"
 
 #include <libKitsunemimiAiParser/ai_parser_input.h>
+#include <libKitsunemimiAiCommon/metadata.h>
 
 /**
  * @brief Segment::initOutputSegment
@@ -40,7 +41,7 @@ initOutputSegment(const uint32_t numberOfOutputs,
     // get total buffer-size for the new segment
     uint32_t totalSize = 0;
     totalSize += 1 * sizeof(SegmentMeta);
-    totalSize += 1 * sizeof(GlobalValues);
+    totalSize += 1 * sizeof(Kitsunemimi::Ai::OutputMetaData);
     totalSize += numberOfRandValues * sizeof(uint32_t);
     totalSize += numberOfOutputs * sizeof(OutputSynapseSection);
     totalSize += numberOfOutputs * sizeof(Output);
@@ -63,9 +64,9 @@ initOutputSegment(const uint32_t numberOfOutputs,
     newSegment->segmentMeta->numberOfInputs = numberOfInputs;
 
     // init global values
-    newSegment->globalValues = reinterpret_cast<GlobalValues*>(data + bufferPos);
-    bufferPos += 1 * sizeof(GlobalValues);
-    newSegment->globalValues[0] = GlobalValues();
+    newSegment->outputMetaData = reinterpret_cast<Kitsunemimi::Ai::OutputMetaData*>(data + bufferPos);
+    bufferPos += 1 * sizeof(Kitsunemimi::Ai::OutputMetaData);
+    newSegment->outputMetaData[0] = Kitsunemimi::Ai::OutputMetaData();
 
     // init random values
     newSegment->randomValues = reinterpret_cast<uint32_t*>(data + bufferPos);
@@ -118,7 +119,7 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     // get total buffer-size for the new segment
     uint32_t totalSize = 0;
     totalSize += 1 * sizeof(SegmentMeta);
-    totalSize += 1 * sizeof(GlobalValues);
+    totalSize += 1 * sizeof(Kitsunemimi::Ai::SynapseMetaData);
     totalSize += numberOfRandValues * sizeof(uint32_t);
     totalSize += numberOfNodeBricks * sizeof(Brick);
     totalSize += numberOfNodes * sizeof(Node);
@@ -147,9 +148,9 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     newSegment->segmentMeta->numberOfNodes = numberOfNodes;
 
     // init global values
-    newSegment->globalValues = reinterpret_cast<GlobalValues*>(data + bufferPos);
-    bufferPos += 1 * sizeof(GlobalValues);
-    newSegment->globalValues[0] = GlobalValues();
+    newSegment->synapseMetaData = reinterpret_cast<Kitsunemimi::Ai::SynapseMetaData*>(data + bufferPos);
+    bufferPos += 1 * sizeof(Kitsunemimi::Ai::SynapseMetaData);
+    newSegment->synapseMetaData[0] = Kitsunemimi::Ai::SynapseMetaData();
 
     // init random values
     newSegment->randomValues = reinterpret_cast<uint32_t*>(data + bufferPos);
@@ -209,10 +210,11 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
  * @return
  */
 bool
-initLayer(Segment &segment)
+initLayer(Segment &segment,
+          Kitsunemimi::Ai::InitMeataData* initMetaData)
 {
     // init layer-buffer
-    for(uint32_t i = 0; i < segment.globalValues->layer + 1; i++) {
+    for(uint32_t i = 0; i < initMetaData->layer + 1; i++) {
         segment.layer.push_back(std::vector<Brick*>());
     }
 
@@ -227,15 +229,15 @@ initLayer(Segment &segment)
         }
         else if(brickPtr->isOutputBrick)
         {
-            brickPtr->layerId = segment.globalValues->layer;
+            brickPtr->layerId = initMetaData->layer;
             segment.layer[brickPtr->layerId].push_back(brickPtr);
         }
         else if(brickPtr->nodeBrickId != UNINIT_STATE_32)
         {
-            if(segment.globalValues->layer == 1) {
+            if(initMetaData->layer == 1) {
                 brickPtr->layerId = 1;
             } else {
-                brickPtr->layerId = (brickPtr->brickPos.x % (segment.globalValues->layer - 1)) + 1;
+                brickPtr->layerId = (brickPtr->brickPos.x % (initMetaData->layer - 1)) + 1;
             }
             segment.layer[brickPtr->layerId].push_back(brickPtr);
         }
@@ -249,17 +251,18 @@ initLayer(Segment &segment)
 }
 
 bool
-initializeNodes(Segment &segment)
+initializeNodes(Segment &segment,
+                Kitsunemimi::Ai::InitMeataData* initMetaData)
 {
     const uint32_t numberOfNodes = segment.segmentMeta->numberOfNodeBricks
                                    * segment.segmentMeta->numberOfNodesPerBrick;
-    const float range = segment.globalValues->nodeUpperBorder
-                        - segment.globalValues->nodeLowerBorder;
+    const float range = initMetaData->nodeUpperBorder
+                        - initMetaData->nodeLowerBorder;
 
     for(uint32_t i = 0; i < numberOfNodes; i++)
     {
         segment.nodes[i].border = fmod(static_cast<float>(rand()), range);
-        segment.nodes[i].border += segment.globalValues->nodeLowerBorder;
+        segment.nodes[i].border += initMetaData->nodeLowerBorder;
     }
 
     return true;
@@ -271,6 +274,7 @@ initializeNodes(Segment &segment)
  * @param segment segment where to add a new brick
  */
 void addBricksToSegment(Segment &segment,
+                        Kitsunemimi::Ai::InitMeataData* initMetaData,
                         const Kitsunemimi::Ai::AiBaseMeta& metaBase)
 {
     uint32_t nodeBrickIdCounter = 0;
@@ -299,7 +303,7 @@ void addBricksToSegment(Segment &segment,
         // handle node-brick
         if(initBrick.nodeBrickId != UNINIT_STATE_32)
         {
-            const uint32_t nodePos = initBrick.nodeBrickId * segment.globalValues->nodesPerBrick;
+            const uint32_t nodePos = initBrick.nodeBrickId * initMetaData->nodesPerBrick;
             assert(nodePos < 0x7FFFFFFF);
             initBrick.nodePos = nodePos;
 
@@ -307,7 +311,7 @@ void addBricksToSegment(Segment &segment,
             if(initBrick.isOutputBrick)
             {
                 Node* array = segment.nodes;
-                for(uint32_t j = 0; j < segment.globalValues->nodesPerBrick; j++) {
+                for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
                     array[j + nodePos].border = -2.0f;
                 }
             }
@@ -316,7 +320,7 @@ void addBricksToSegment(Segment &segment,
             if(initBrick.isInputBrick)
             {
                 Node* array = segment.nodes;
-                for(uint32_t j = 0; j < segment.globalValues->nodesPerBrick; j++)
+                for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++)
                 {
                     array[j + nodePos].border = 0.0f;
                     segment.inputNodes[inputCounter].targetNode = j + nodePos;
@@ -334,8 +338,8 @@ void addBricksToSegment(Segment &segment,
     }
 
     // add to layer
-    if(segment.globalValues->layer > 0) {
-        initLayer(segment);
+    if(initMetaData->layer > 0) {
+        initLayer(segment, initMetaData);
     }
 
     return;

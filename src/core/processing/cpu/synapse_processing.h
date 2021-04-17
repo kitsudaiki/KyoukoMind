@@ -30,10 +30,7 @@
 #include <core/objects/node.h>
 #include <core/objects/segment.h>
 #include <core/objects/synapses.h>
-#include <core/objects/global_values.h>
-
-#include <libKitsunemimiCommon/buffer/item_buffer.h>
-
+#include <core/objects/network_cluster.h>
 
 /**
  * @brief synapseProcessing
@@ -44,6 +41,7 @@
 inline void
 synapseProcessing(Segment* segment,
                   SynapseSection* section,
+                  Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   const uint32_t nodeId,
                   const float weightIn,
                   const uint32_t layer)
@@ -53,7 +51,7 @@ synapseProcessing(Segment* segment,
     uint32_t counter = 0;
     float weight = weightIn;
     bool processed = false;
-    const float maxWeight = segment->globalValues->maxSynapseWeight;
+    const float maxWeight = segment->synapseMetaData->maxSynapseWeight;
     Node* node = &segment->nodes[nodeId];
 
     // reinit section if necessary
@@ -72,7 +70,7 @@ synapseProcessing(Segment* segment,
         // create new synapse
         if(synapse->targetNodeId == UNINIT_STATE_16
                 && pos >= section->hardening
-                && segment->globalValues->doLearn > 0
+                && networkMetaData->doLearn > 0
                 && section->next == UNINIT_STATE_64)
         {
             // set new weight
@@ -86,12 +84,12 @@ synapseProcessing(Segment* segment,
                                                  % segment->segmentMeta->numberOfNodesPerBrick;
             Brick* nodeBrick = &segment->nodeBricks[node->nodeBrickId];
             const uint32_t nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
-                                        * segment->globalValues->nodesPerBrick;
+                                        * segment->segmentMeta->numberOfNodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
 
             // set sign
             const uint32_t signRand = rand() % 1000;
-            const float signNeg = segment->globalValues->signNeg;
+            const float signNeg = segment->synapseMetaData->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
 
             synapse->multiplicator = (rand() % 5) + 1;
@@ -117,7 +115,7 @@ synapseProcessing(Segment* segment,
     }
 
     // harden synapse-section
-    if(segment->globalValues->lerningValue > 0.0f)
+    if(networkMetaData->lerningValue > 0.0f)
     {
         if(counter > section->hardening) {
             section->hardening = counter;
@@ -168,7 +166,7 @@ updating(Segment* segment,
         }
 
         // check for deletion of the single synapse
-        if(synapse->weight < segment->globalValues->synapseDeleteBorder)
+        if(synapse->weight < segment->synapseMetaData->synapseDeleteBorder)
         {
             synapse->weight = 0.0f;
             synapse->targetNodeId = UNINIT_STATE_16;
@@ -198,7 +196,8 @@ updating(Segment* segment,
  * @brief synapse_processing
  */
 inline void
-synapse_processing(Segment* segment)
+synapse_processing(Segment* segment,
+                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
     const uint64_t numberOfSynapses = segment->segmentMeta->numberOfSynapseSections;
 
@@ -223,6 +222,7 @@ synapse_processing(Segment* segment)
             {
                 synapseProcessing(segment,
                                   &segment->synapseSections[i],
+                                  networkMetaData,
                                   entry->nodeId,
                                   entry->weigth,
                                   layer);
@@ -267,9 +267,9 @@ node_processing(Segment* segment,
                                && node->refractionTime == 0;
             if(reset)
             {
-                node->potential = segment->globalValues->actionPotential +
-                                  segment->globalValues->potentialOverflow * node->currentState;
-                node->refractionTime = segment->globalValues->refractionTime;
+                node->potential = segment->synapseMetaData->actionPotential +
+                                  segment->synapseMetaData->potentialOverflow * node->currentState;
+                node->refractionTime = segment->synapseMetaData->refractionTime;
             }
 
             // set to 255.0f, if value is too high
@@ -288,8 +288,8 @@ node_processing(Segment* segment,
             node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
 
             // make cooldown in the node
-            node->potential /= segment->globalValues->nodeCooldown;
-            node->currentState /= segment->globalValues->nodeCooldown;
+            node->potential /= segment->synapseMetaData->nodeCooldown;
+            node->currentState /= segment->synapseMetaData->nodeCooldown;
         }
         else if(node->border == 0.0f)
         {
@@ -301,8 +301,8 @@ node_processing(Segment* segment,
         {
             const float newCur = node->currentState;
             node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
-            const float pot = segment->globalValues->potentialOverflow * node->currentState;
-            outputSegment->inputs[i % segment->globalValues->nodesPerBrick] = pot;
+            const float pot = segment->synapseMetaData->potentialOverflow * node->currentState;
+            outputSegment->inputs[i % segment->segmentMeta->numberOfNodesPerBrick] = pot;
             node->currentState = 0.0f;
         }
     }

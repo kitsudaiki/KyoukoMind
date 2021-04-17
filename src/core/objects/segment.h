@@ -29,8 +29,8 @@
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
-#include <core/objects/global_values.h>
 #include <core/objects/output.h>
+#include <libKitsunemimiAiCommon/metadata.h>
 
 enum SegmentType
 {
@@ -65,7 +65,8 @@ struct Segment
 
     // generic objects
     SegmentMeta* segmentMeta = nullptr;
-    GlobalValues* globalValues = nullptr;
+    Kitsunemimi::Ai::SynapseMetaData* synapseMetaData = nullptr;
+    Kitsunemimi::Ai::OutputMetaData* outputMetaData = nullptr;
     uint32_t* randomValues = nullptr;
 
     // bricks

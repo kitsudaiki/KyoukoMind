@@ -34,7 +34,8 @@ public:
     LayeredBrickInitializier();
 
     Brick* getAxonBrick(Segment &segment, Brick* sourceBrick);
-    bool initTargetBrickList(Segment &segment);
+    bool initTargetBrickList(Segment &segment,
+                             Kitsunemimi::Ai::InitMeataData* initMetaData);
 };
 
 #endif // LAYEREDBRICKINITIALIZIER_H

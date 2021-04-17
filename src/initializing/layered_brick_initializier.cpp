@@ -49,7 +49,8 @@ LayeredBrickInitializier::getAxonBrick(Segment &segment, Brick* sourceBrick)
  * @return
  */
 bool
-LayeredBrickInitializier::initTargetBrickList(Segment &segment)
+LayeredBrickInitializier::initTargetBrickList(Segment &segment,
+                                              Kitsunemimi::Ai::InitMeataData* initMetaData)
 {
     for(uint32_t i = 0; i < segment.layer.size() - 1; i++)
     {
