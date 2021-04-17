@@ -27,7 +27,6 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
 
-#include <import_export/obj_converter.h>
 #include <core/network_manager.h>
 #include <core/objects/segment.h>
 #include <kyouko_root.h>
@@ -51,7 +50,6 @@ SnapshotBlossom::runTask(BlossomLeaf &,
 
     //clearAllEdgeSections();
 
-    convertNetworkToString(snapshot);
     const bool ret = Kitsunemimi::Persistence::writeFile("/tmp/snapshot.obj",
                                                          snapshot,
                                                          errorMessage,

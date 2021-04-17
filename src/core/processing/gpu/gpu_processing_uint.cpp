@@ -67,7 +67,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
     oclData.threadsPerWg.x = 255;
 
     // fill buffer for nodes to map on gpu
-    oclData.addBuffer("nodes",
+    /*oclData.addBuffer("nodes",
                       segment.nodes.itemCapacity,
                       segment.nodes.itemSize,
                       false,
@@ -96,7 +96,7 @@ GpuProcessingUnit::initializeGpu(Segment &segment,
                       segment.globalValues.itemSize,
                       false,
                       false,
-                      segment.globalValues.buffer.data);
+                      segment.globalValues.buffer.data);*/
 
     assert(m_gpuInterface->initCopyToDevice(oclData));
 
@@ -153,7 +153,7 @@ GpuProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
 
-    Segment* segment = KyoukoRoot::m_segment;
+    Segment* segment = KyoukoRoot::m_synapseSegment;
 
     while(!m_abort)
     {

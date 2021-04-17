@@ -1,5 +1,5 @@
-/**
- * @file        input_output_processing.h
+﻿/**
+ * @file        layered_brick_initializier.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,30 +20,21 @@
  *      limitations under the License.
  */
 
-#ifndef INPUT_OUTPUT_PROCESSING_H
-#define INPUT_OUTPUT_PROCESSING_H
+#ifndef LAYEREDBRICKINITIALIZIER_H
+#define LAYEREDBRICKINITIALIZIER_H
 
 #include <common.h>
 
-class InputOutputProcessing
+#include <initializing/brick_initializer.h>
+
+class LayeredBrickInitializier
+        : public BrickInitializer
 {
 public:
-    InputOutputProcessing();
+    LayeredBrickInitializier();
 
-    void processInputMapping();
-    void processOutputMapping();
-
-    void setInput(Kitsunemimi::DataArray* input);
-    void resetInput();
-
-    void setShouldValues(Kitsunemimi::DataArray* should);
-    void resetShouldValues();
-
-    bool registerInput(const uint32_t numberOfInput);
-    bool registerOutput(const uint32_t numberOfOutputs);
-
-private:
-    std::vector<float> m_inputMapper;
+    Brick* getAxonBrick(Segment &segment, Brick* sourceBrick);
+    bool initTargetBrickList(Segment &segment);
 };
 
-#endif // INPUT_OUTPUT_PROCESSING_H
+#endif // LAYEREDBRICKINITIALIZIER_H

@@ -25,7 +25,6 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <core/objects/segment.h>
 #include <kyouko_root.h>
-#include <core/processing/input_output_processing.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -48,8 +47,6 @@ RegisterInputBlossom::runTask(BlossomLeaf &blossomLeaf,
         errorMessage = "number of inputs to register must be a positive value";
         return false;
     }
-
-    KyoukoRoot::m_ioHandler->registerInput(static_cast<uint32_t>(size));
 
     return true;
 }

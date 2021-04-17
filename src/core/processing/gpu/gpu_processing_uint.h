@@ -33,7 +33,7 @@ namespace Kitsunemimi {
 class Barrier;
 }
 
-class Segment;
+struct Segment;
 
 class GpuProcessingUnit
         : public Kitsunemimi::Thread

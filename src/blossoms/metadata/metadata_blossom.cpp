@@ -40,7 +40,5 @@ MetadataBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     LOG_DEBUG("get metadata");
 
-    blossomLeaf.output.insert("metadata", KyoukoRoot::m_segment->getMetadata());
-
     return true;
 }

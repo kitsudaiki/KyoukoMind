@@ -30,7 +30,6 @@
 #include <libKitsunemimiPersistence/files/file_methods.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
 
-#include <core/processing/input_output_processing.h>
 #include <core/processing/processing_unit_handler.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
@@ -80,11 +79,6 @@ NetworkManager::executeStep()
     KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
     KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
 
-    // object-numbers in item-buffer
-    const uint64_t numberOfSynapseSections = KyoukoRoot::m_segment->synapses.numberOfItems;
-    KyoukoRoot::monitoringMetaMessage.synapseSections = numberOfSynapseSections;
-    KyoukoRoot::monitoringMetaMessage.nodes = KyoukoRoot::m_segment->nodes.numberOfItems;
-
     // monitoring-output
     const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
     KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
@@ -100,7 +94,7 @@ void
 NetworkManager::run()
 {
     std::string errorMessage = "";
-    GlobalValues* globalValues = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    GlobalValues* globalValues = KyoukoRoot::m_synapseSegment->globalValues;
 
     uint32_t time = globalValues->cycleTime;
     while(!m_abort)
@@ -119,16 +113,12 @@ NetworkManager::run()
             KyoukoRoot::m_freezeState = false;
         }
 
-        KyoukoRoot::m_ioHandler->processInputMapping();
-
         const uint32_t usedTime = executeStep();
         if(globalValues->cycleTime > usedTime) {
             time = globalValues->cycleTime - usedTime;
         } else {
             time = 1000;
         }
-
-        KyoukoRoot::m_ioHandler->processOutputMapping();
 
         globalValues->lerningValue = 0.0f;
     }

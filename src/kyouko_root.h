@@ -27,7 +27,7 @@
 #include <core/objects/monitoring_container.h>
 
 class NetworkManager;
-class Segment;
+struct Segment;
 class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
@@ -40,7 +40,8 @@ public:
     ~KyoukoRoot();
 
     static KyoukoRoot* m_root;
-    static Segment* m_segment;
+    static Segment* m_synapseSegment;
+    static Segment* m_outputSegment;
     static bool m_freezeState;
     static ClientConnectionHandler* m_clientHandler;
     static MonitoringConnectionHandler* m_monitoringHandler;

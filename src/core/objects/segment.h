@@ -27,59 +27,71 @@
 
 #include <libKitsunemimiCommon/buffer/item_buffer.h>
 #include <core/objects/brick.h>
+#include <core/objects/node.h>
+#include <core/objects/synapses.h>
+#include <core/objects/global_values.h>
+#include <core/objects/output.h>
 
-class Segment
+enum SegmentType
 {
-public:
-    Kitsunemimi::ItemBuffer bricks;
+    UNDEFINED_SEGMENT = 0,
+    SYNAPSE_SEGMENT = 1,
+    OUTPUT_SEGMENT = 2
+};
 
-    Brick** nodeBricks = nullptr;
+struct SegmentMeta
+{
+    uint32_t segmentType = UNDEFINED_SEGMENT;
+
+    // synapse-segment
     uint32_t numberOfNodeBricks = 0;
-    Brick** inputBricks = nullptr;
-    uint32_t numberOfInputBricks = 0;
-    Brick** transferBricks = nullptr;
-    uint32_t numberOfOutputBricks = 0;
+    uint64_t numberOfSynapseSections = 0;
+    uint64_t numberOfNodes = 0;
+    uint32_t numberOfNodesPerBrick = 0;
 
-    // host-representation of permanent gpu-data
-    Kitsunemimi::ItemBuffer nodes;
-    Kitsunemimi::ItemBuffer synapses;
-    Kitsunemimi::ItemBuffer outputSynapses;
-    Kitsunemimi::ItemBuffer outputs;
+    // output-segment
+    uint32_t numberOfOutputs = 0;
 
-    Kitsunemimi::ItemBuffer nodeProcessingBuffer;
-    Kitsunemimi::ItemBuffer nodeInputBuffer;
-    Kitsunemimi::ItemBuffer transferNodeBuffer;
-    Kitsunemimi::ItemBuffer synapseBuffer;
+    // generic
+    uint32_t numberOfRandomValues = 0;
+    uint32_t numberOfInputs = 0;
 
-    uint32_t nodesPerBrick = 0;
+    uint8_t padding[224];
+};
 
-    std::atomic_flag input_lock = ATOMIC_FLAG_INIT;
+struct Segment
+{
+    Kitsunemimi::DataBuffer buffer;
 
-    // other
-    Kitsunemimi::ItemBuffer randomIntValues;
-    Kitsunemimi::ItemBuffer globalValues;
+    // generic objects
+    SegmentMeta* segmentMeta = nullptr;
+    GlobalValues* globalValues = nullptr;
+    uint32_t* randomValues = nullptr;
 
-    Segment();
+    // bricks
+    Brick* nodeBricks = nullptr;
 
-    bool initializeBuffer(const uint32_t numberOfBricks,
-                          const uint32_t numberOfNodeBricks,
-                          const uint32_t numberOfNodes,
-                          const uint64_t numberOfSynapseSections,
-                          const uint32_t numberOfTransferBricks,
-                          const uint32_t numberOfOutputs,
-                          const uint32_t numberOfRandValues);
+    // nodes
+    Node* nodes = nullptr;
+    float* nodeBuffers = nullptr;
 
-    DataItem* getMetadata();
+    // synapses
+    SynapseSection* synapseSections = nullptr;
+    SynapseBuffer* synapseBuffers = nullptr;
 
-    bool connectBricks(const uint32_t sourceBrickId,
-                       const uint8_t sourceSide,
-                       const uint32_t targetBrickId);
-    bool disconnectBricks(const uint32_t sourceBrickId,
-                          const uint8_t sourceSide);
+    // output
+    Output* outputs = nullptr;
+    OutputSynapseSection* outputSynapseSections = nullptr;
 
-private:
-    bool initNodeBuffer(Kitsunemimi::ItemBuffer &nodeBuffer,
-                        const uint32_t numberOfItems);
+
+    float* inputs = nullptr;
+    InputNode* inputNodes = nullptr;
+
+
+    std::vector<std::vector<Brick*>> layer;
+
+    Segment() {}
+
 };
 
 #endif // NETWORK_SEGMENT_H

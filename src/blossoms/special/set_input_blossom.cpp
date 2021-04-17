@@ -24,7 +24,6 @@
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <kyouko_root.h>
-#include <core/processing/input_output_processing.h>
 #include <core/objects/global_values.h>
 #include <core/objects/segment.h>
 #include <core/objects/output.h>
@@ -48,32 +47,6 @@ SetInputBlossom::runTask(BlossomLeaf &blossomLeaf,
     LOG_DEBUG("set input");
 
     const std::string type = blossomLeaf.input.get("type")->toValue()->getString();
-
-    if(type == "array")
-    {
-        DataArray* input = blossomLeaf.input.get("input")->toArray();
-        KyoukoRoot::m_ioHandler->setInput(input);
-        KyoukoRoot::m_ioHandler->processInputMapping();
-    }
-
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
-    Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
-
-    // learn until output-section
-    const uint32_t runCount = globalValue->layer + 2;
-    for(uint32_t i = 0; i < runCount; i++) {
-        KyoukoRoot::m_root->m_networkManager->executeStep();
-    }
-
-    output_node_processing();
-    output_node_processing();
-
-    Kitsunemimi::DataArray* outputArray = new Kitsunemimi::DataArray();
-    for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++) {
-        outputArray->append(new DataValue(outputs[i].outputValue));
-    }
-
-    blossomLeaf.output.insert("output", outputArray);
 
     return true;
 }

@@ -27,7 +27,6 @@
 #include <core/objects/global_values.h>
 #include <core/objects/output.h>
 #include <core/validation.h>
-#include <core/processing/input_output_processing.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/processing/cpu/output_synapse_processing.h>
@@ -45,7 +44,8 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
-Segment* KyoukoRoot::m_segment = nullptr;
+Segment* KyoukoRoot::m_synapseSegment = nullptr;
+Segment* KyoukoRoot::m_outputSegment = nullptr;
 bool KyoukoRoot::m_freezeState = false;
 ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
 MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
@@ -63,8 +63,6 @@ KyoukoRoot::KyoukoRoot()
 
     m_root = this;
     m_freezeState = false;
-    m_segment = new Segment();
-    m_ioHandler = new InputOutputProcessing();
     m_clientHandler = new ClientConnectionHandler();
     m_monitoringHandler = new MonitoringConnectionHandler();
 }
@@ -115,11 +113,14 @@ KyoukoRoot::start()
 bool
 KyoukoRoot::learnStep()
 {
-    Segment* seg = KyoukoRoot::m_segment;
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(seg->globalValues);
+    Segment* seg = KyoukoRoot::m_synapseSegment;
+    GlobalValues* globalValue = seg->globalValues;
     uint32_t timeout = 50;
 
     globalValue->doLearn = 1;
+
+    m_synapseSegment->globalValues->doLearn = 1;
+    m_outputSegment->globalValues->doLearn = 1;
 
     //----------------------------------------------------------------------------------------------
     // learn phase 1
@@ -128,18 +129,15 @@ KyoukoRoot::learnStep()
     uint32_t tempVal = 0;
     do
     {
-        KyoukoRoot::m_ioHandler->resetInput();
-        KyoukoRoot::m_ioHandler->processInputMapping();
         executeStep();
 
-        Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
-        float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+        InputNode* inputNodes = m_synapseSegment->inputNodes;
         for(uint32_t i = 0; i < 800; i++) {
-            inputNodes[i + inputBrick->nodePos] = m_inputBuffer[i];
+            inputNodes[i].weight = m_inputBuffer[i];
         }
 
         executeStep();
-        tempVal = output_precheck();
+        tempVal = output_precheck(m_outputSegment);
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
 
         if(tempVal < updateVals)
@@ -158,7 +156,9 @@ KyoukoRoot::learnStep()
     if(updateVals == 0)
     {
         KyoukoRoot::m_freezeState = true;
-        globalValue->lerningValue = 100000.0f;
+        m_synapseSegment->globalValues->lerningValue = 100000.0f;
+        m_outputSegment->globalValues->lerningValue = 100000.0f;
+
         executeStep();
 
         finishStep();
@@ -172,7 +172,7 @@ KyoukoRoot::learnStep()
     float totalDiff = 0.0f;
     do
     {
-        totalDiff = output_learn_step();
+        totalDiff = output_learn_step(m_outputSegment);
         timeout--;
     }
     while(totalDiff >= 1.0f
@@ -196,7 +196,7 @@ KyoukoRoot::learnStep()
 
 void KyoukoRoot::executeStep()
 {
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
+    GlobalValues* globalValue = m_synapseSegment->globalValues;
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
@@ -206,13 +206,13 @@ void KyoukoRoot::executeStep()
     for(uint32_t i = 0; i < runCount; i++)
     {
         start = std::chrono::system_clock::now();
-        node_processing();
+        node_processing(m_synapseSegment, KyoukoRoot::m_outputSegment);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //std::cout<<"node-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
 
         start = std::chrono::system_clock::now();
-        synapse_processing();
+        synapse_processing(m_synapseSegment);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //std::cout<<"synapse-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
@@ -220,21 +220,26 @@ void KyoukoRoot::executeStep()
         //KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 
-    output_node_processing();
+    output_node_processing(m_outputSegment);
 }
 
 void KyoukoRoot::finishStep()
 {
-    GlobalValues* globalValue = Kitsunemimi::getBuffer<GlobalValues>(KyoukoRoot::m_segment->globalValues);
 
-    globalValue->doLearn = 0;
-    globalValue->lerningValue = 0.0f;
+    m_synapseSegment->globalValues->doLearn = 0;
+    m_synapseSegment->globalValues->lerningValue = 0.0f;
+
+    m_outputSegment->globalValues->doLearn = 0;
+    m_outputSegment->globalValues->lerningValue = 0.0f;
+
     KyoukoRoot::m_freezeState = false;
 
+    InputNode* inputNodes = m_synapseSegment->inputNodes;
+    for(uint32_t i = 0; i < 800; i++) {
+        inputNodes[i].weight = 0.0f;
+    }
+
     // reset network
-    KyoukoRoot::m_ioHandler->resetInput();
-    KyoukoRoot::m_ioHandler->processInputMapping();
-    KyoukoRoot::m_ioHandler->resetShouldValues();
     executeStep();
 }
 
@@ -244,12 +249,6 @@ void KyoukoRoot::learnTestData()
     const std::string trainLabelPath = "/home/neptune/Schreibtisch/mnist/train-labels.idx1-ubyte";
     const std::string testDataPath = "/home/neptune/Schreibtisch/mnist/t10k-images.idx3-ubyte";
     const std::string testLabelPath = "/home/neptune/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
-
-
-    // register
-    KyoukoRoot::m_ioHandler->registerInput(static_cast<uint32_t>(800));
-    //KyoukoRoot::m_ioHandler->registerOutput(static_cast<uint32_t>(10));
-
 
     //==============================================================================================
     // learn
@@ -311,7 +310,7 @@ void KyoukoRoot::learnTestData()
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
 
-            Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+            Output* outputs = m_outputSegment->outputs;
             for(uint32_t i = 0; i < 10; i++) {
                 outputs[i].shouldValue = 0.0f;
             }
@@ -372,9 +371,9 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+    InputNode* inputNodes = m_synapseSegment->inputNodes;
     for(uint32_t i = 0; i < 800; i = i + 2)  {
-        inputNodes[i] = 0.0f;
+        inputNodes[i].weight = 0.0f;
     }
 
 
@@ -385,13 +384,12 @@ void KyoukoRoot::learnTestData()
         //std::cout<<pic<<" should: "<<(int)labelBufferPtr[pic + 8]<<"   is: ";
         std::cout<<pic<<" should: "<<label<<"   is: ";
 
-        Brick* inputBrick = KyoukoRoot::m_segment->inputBricks[0];
-        float* inputNodes = Kitsunemimi::getBuffer<float>(KyoukoRoot::m_segment->nodeInputBuffer);
+        InputNode* inputNodes = m_synapseSegment->inputNodes;
         for(uint32_t i = 0; i < pictureSize; i++)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
             int32_t total = testDataBufferPtr[pos] * 2;
-            inputNodes[i + inputBrick->nodePos] = (static_cast<float>(total));
+            inputNodes[i].weight = (static_cast<float>(total));
         }
 
         /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
@@ -420,9 +418,9 @@ void KyoukoRoot::learnTestData()
         // print result
         float biggest = -100000.0f;
         uint32_t pos = 0;
-        Output* outputs = Kitsunemimi::getBuffer<Output>(KyoukoRoot::m_segment->outputs);
+        Output* outputs = m_outputSegment->outputs;
         std::string outString = "[";
-        for(uint32_t i = 0; i < KyoukoRoot::m_segment->outputs.numberOfItems; i++)
+        for(uint32_t i = 0; i < m_outputSegment->segmentMeta->numberOfOutputs; i++)
         {
             if(i > 0) {
                 outString += " | ";
