@@ -70,8 +70,7 @@ synapseProcessing(SynapseSegment* segment,
         // create new synapse
         if(synapse->targetNodeId == UNINIT_STATE_16
                 && pos >= section->hardening
-                && networkMetaData->doLearn > 0
-                && section->next == UNINIT_STATE_64)
+                && networkMetaData->doLearn > 0)
         {
             // set new weight
             const float random = (rand() % 1024) / 1024.0f;

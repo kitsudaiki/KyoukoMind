@@ -75,9 +75,6 @@ struct SynapseSection
     uint16_t randomPos = UNINIT_STATE_16;
 
     uint32_t brickBufferPos = UNINIT_STATE_32;
-    uint64_t prev = UNINIT_STATE_64;
-    uint64_t next = UNINIT_STATE_64;
-
     uint32_t hardening = 0;
     uint8_t padding[4];
 
@@ -92,7 +89,7 @@ struct SynapseSection
             synapses[i] = newSynapse;
         }
     }
-    // total size: 256 Byte
+    // total size: 512 Byte
 };
 
 //==================================================================================================
