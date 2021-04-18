@@ -92,7 +92,8 @@ learNewOutput(OutputSegment* segment,
               const uint32_t outputPos)
 {
     outputSection->newOnes = 0;
-    int32_t toNew = 250 - static_cast<int32_t>(outputSection->total);
+    int32_t toNew = static_cast<int32_t>(segment->outputMetaData->maxConnections)
+                    - static_cast<int32_t>(outputSection->total);
     if(toNew <= 0) {
         return;
     }

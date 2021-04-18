@@ -91,7 +91,7 @@ synapseProcessing(SynapseSegment* segment,
             const float signNeg = segment->synapseMetaData->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
 
-            synapse->multiplicator = (rand() % 5) + 1;
+            synapse->multiplicator = (rand() % segment->synapseMetaData->multiplicatorRange) + 1;
         }
 
         pos++;
