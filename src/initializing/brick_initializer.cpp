@@ -68,8 +68,6 @@ bool BrickInitializer::initializeAxons(SynapseSegment &segment)
             segment.nodes[nodeCounter].targetBrickDistance = static_cast<uint32_t>(dist);
             segment.nodes[nodeCounter].targetSectionId = nodeCounter;
 
-            segment.synapseSections[nodeCounter].randomPos = rand() % 1024;
-
             // post-check
             assert(axonBrick->nodeBrickId != UNINIT_STATE_32);
             assert(sourceBrick->brickId != UNINIT_STATE_32);

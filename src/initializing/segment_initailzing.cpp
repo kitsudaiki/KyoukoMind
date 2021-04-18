@@ -81,7 +81,7 @@ initOutputSegment(const uint32_t numberOfOutputs,
     for(uint32_t i = 0; i < numberOfOutputs; i++)
     {
         newSegment->outputSynapseSections[i] = OutputSynapseSection();
-        newSegment->outputSynapseSections[i].randomPos = rand() % numberOfRandValues;
+        newSegment->outputSynapseSections[i].randomPos = static_cast<uint32_t>(rand()) % numberOfRandValues;
     }
 
     // init outputs
@@ -188,7 +188,7 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         newSegment->synapseSections[i] = SynapseSection();
-        newSegment->synapseSections[i].randomPos = rand() % numberOfRandValues;
+        newSegment->synapseSections[i].randomPos = static_cast<uint32_t>(rand()) % numberOfRandValues;
     }
 
     // init synapse buffer

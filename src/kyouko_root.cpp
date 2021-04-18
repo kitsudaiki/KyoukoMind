@@ -169,6 +169,7 @@ KyoukoRoot::learnStep()
                                       outputSegment->inputs,
                                       outputSegment->outputs,
                                       outputSegment->segmentMeta,
+                                      outputSegment->randomValues,
                                       &KyoukoRoot::m_networkCluster->networkMetaData,
                                       outputSegment->outputMetaData);
         timeout--;
@@ -225,6 +226,7 @@ void KyoukoRoot::executeStep()
                            synapseSegment->nodes,
                            synapseSegment->nodeBricks,
                            synapseSegment->nodeBuffers,
+                           synapseSegment->randomValues,
                            synapseSegment->synapseMetaData,
                            &KyoukoRoot::m_networkCluster->networkMetaData);
         end = std::chrono::system_clock::now();

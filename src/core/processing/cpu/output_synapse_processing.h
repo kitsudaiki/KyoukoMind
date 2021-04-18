@@ -90,16 +90,17 @@ outputSynapseProcessing(OutputSynapseSection* outputSection,
  * @return
  */
 inline void
-learNewOutput(OutputSynapseSection* outputSection,
+learNewOutput(OutputSynapseSection* section,
               float* inputs,
               OutputSegmentMeta* segmentMeta,
+              uint32_t* randomValues,
               Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
               Kitsunemimi::Ai::OutputMetaData* outputMetaData,
               const uint32_t outputPos)
 {
-    outputSection->newOnes = 0;
+    section->newOnes = 0;
     int32_t toNew = static_cast<int32_t>(outputMetaData->maxConnections)
-                    - static_cast<int32_t>(outputSection->total);
+                    - static_cast<int32_t>(section->total);
     if(toNew <= 0) {
         return;
     }
@@ -108,14 +109,15 @@ learNewOutput(OutputSynapseSection* outputSection,
     uint32_t pos = 0;
     while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
-        OutputSynapse* synapse = &outputSection->synapses[pos];
+        OutputSynapse* synapse = &section->synapses[pos];
 
         if(synapse->targetId == UNINIT_STATE_32
                 && networkMetaData->doLearn > 0
                 && limiter < 10)
         {
             // const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
-            uint32_t possibleTargetId = rand() % outputMetaData->inputRange;
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            uint32_t possibleTargetId = randomValues[section->randomPos] % outputMetaData->inputRange;
             possibleTargetId += outputPos * outputMetaData->inputOffset;
             assert(possibleTargetId <= segmentMeta->numberOfInputs);
             if(inputs[possibleTargetId] > 0.0f)
@@ -129,15 +131,15 @@ learNewOutput(OutputSynapseSection* outputSection,
             }
         }
 
-        if(outputSection->newOnes == static_cast<uint32_t>(toNew)
+        if(section->newOnes == static_cast<uint32_t>(toNew)
                 && synapse->newOne == 1)
         {
-            outputSection->synapses[pos] = OutputSynapse();
+            section->synapses[pos] = OutputSynapse();
         }
 
         if(synapse->newOne == 1) {
-            outputSection->newOnes++;
-            outputSection->total++;
+            section->newOnes++;
+            section->total++;
         }
 
         pos++;
@@ -235,6 +237,7 @@ output_learn_step(OutputSynapseSection* outputSynapseSections,
                   float* inputs,
                   Output* outputs,
                   OutputSegmentMeta* segmentMeta,
+                  uint32_t* randomValues,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   Kitsunemimi::Ai::OutputMetaData* outputMetaData)
 {
@@ -245,6 +248,7 @@ output_learn_step(OutputSynapseSection* outputSynapseSections,
         learNewOutput(&outputSynapseSections[o],
                       inputs,
                       segmentMeta,
+                      randomValues,
                       networkMetaData,
                       outputMetaData,
                       o);

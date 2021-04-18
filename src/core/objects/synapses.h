@@ -72,11 +72,11 @@ struct Synapse
 struct SynapseSection
 {
     uint16_t active = 0;
-    uint16_t randomPos = UNINIT_STATE_16;
+    uint8_t padding1[2];
+    uint32_t randomPos = 0;
 
     uint32_t brickBufferPos = UNINIT_STATE_32;
     uint32_t hardening = 0;
-    uint8_t padding[4];
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 

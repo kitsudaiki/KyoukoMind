@@ -47,6 +47,7 @@ synapseProcessing(SynapseSection* section,
                   float* nodeBuffers,
                   SynapseBuffer* synapseBuffers,
                   SynapseSegmentMeta* segmentMeta,
+                  uint32_t* randomValues,
                   Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   const uint32_t nodeId,
@@ -65,7 +66,8 @@ synapseProcessing(SynapseSection* section,
     if(section->active == 0)
     {
         section->active = 1;
-        section->brickBufferPos = rand() % 1000;
+        section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+        section->brickBufferPos = randomValues[section->randomPos] % 1000;
     }
 
     // iterate over all synapses in the section and update the target-nodes
@@ -80,25 +82,28 @@ synapseProcessing(SynapseSection* section,
                 && networkMetaData->doLearn > 0)
         {
             // set new weight
-            const float random = ((float) rand() / (RAND_MAX)) ;
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            const float random = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
             const float tooLearn = maxWeight * random;
             synapse->weight = static_cast<float>(weight < tooLearn) * weight
                                     + static_cast<float>(weight >= tooLearn) * tooLearn;
 
             // get random node-id as target
-            const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
-                                                 % segmentMeta->numberOfNodesPerBrick;
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            const uint32_t targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
             Brick* nodeBrick = &bricks[node->nodeBrickId];
             const uint32_t nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
                                         * segmentMeta->numberOfNodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
 
             // set sign
-            const uint32_t signRand = rand() % 1000;
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            const uint32_t signRand = randomValues[section->randomPos] % 1000;
             const float signNeg = synapseMetaData->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
 
-            synapse->multiplicator = (rand() % synapseMetaData->multiplicatorRange) + 1;
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            synapse->multiplicator = static_cast<int8_t>((randomValues[section->randomPos] % synapseMetaData->multiplicatorRange) + 1);
         }
 
         pos++;
@@ -209,6 +214,7 @@ synapse_processing(SynapseSegmentMeta* segmentMeta,
                    Node* nodes,
                    Brick* bricks,
                    float* nodeBuffers,
+                   uint32_t* randomValues,
                    Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
                    Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
@@ -241,6 +247,7 @@ synapse_processing(SynapseSegmentMeta* segmentMeta,
                                   nodeBuffers,
                                   synapseBuffers,
                                   segmentMeta,
+                                  randomValues,
                                   synapseMetaData,
                                   networkMetaData,
                                   entry->nodeId,
