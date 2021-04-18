@@ -192,19 +192,34 @@ void KyoukoRoot::executeStep()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
+    SynapseSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
     // learn until output-section
     const uint32_t runCount = cluster->initMetaData.layer + 2;
     for(uint32_t i = 0; i < runCount; i++)
     {
         start = std::chrono::system_clock::now();
-        node_processing(cluster->synapseSegment, cluster->outputSegment);
+        node_processing(synapseSegment->nodes,
+                        synapseSegment->nodeBuffers,
+                        synapseSegment->inputNodes,
+                        synapseSegment->synapseBuffers,
+                        synapseSegment->segmentMeta,
+                        synapseSegment->synapseMetaData,
+                        outputSegment->inputs);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //std::cout<<"node-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
 
         start = std::chrono::system_clock::now();
-        synapse_processing(cluster->synapseSegment, &cluster->networkMetaData);
+        synapse_processing(synapseSegment->segmentMeta,
+                           synapseSegment->synapseBuffers,
+                           synapseSegment->synapseSections,
+                           synapseSegment->nodes,
+                           synapseSegment->nodeBricks,
+                           synapseSegment->nodeBuffers,
+                           synapseSegment->synapseMetaData,
+                           &KyoukoRoot::m_networkCluster->networkMetaData);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //std::cout<<"synapse-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
@@ -313,7 +328,7 @@ void KyoukoRoot::learnTestData()
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
-                int32_t total = dataBufferPtr[pos] * 2;
+                int32_t total = dataBufferPtr[pos] * 1;
                 m_inputBuffer[i] = (static_cast<float>(total));
             }
 
@@ -379,7 +394,7 @@ void KyoukoRoot::learnTestData()
         for(uint32_t i = 0; i < pictureSize; i++)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
-            int32_t total = testDataBufferPtr[pos] * 2;
+            int32_t total = testDataBufferPtr[pos] * 1;
             inputNodes[i].weight = (static_cast<float>(total));
         }
 

@@ -49,13 +49,21 @@ CpuProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
+    SynapseSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
     while(m_abort == false)
     {
         m_phase2->triggerBarrier();
 
         start = std::chrono::system_clock::now();
-        node_processing(KyoukoRoot::m_networkCluster->synapseSegment, KyoukoRoot::m_networkCluster->outputSegment);
+        node_processing(synapseSegment->nodes,
+                        synapseSegment->nodeBuffers,
+                        synapseSegment->inputNodes,
+                        synapseSegment->synapseBuffers,
+                        synapseSegment->segmentMeta,
+                        synapseSegment->synapseMetaData,
+                        outputSegment->inputs);
         output_node_processing(KyoukoRoot::m_networkCluster->outputSegment,
                                &KyoukoRoot::m_networkCluster->networkMetaData);
         end = std::chrono::system_clock::now();
