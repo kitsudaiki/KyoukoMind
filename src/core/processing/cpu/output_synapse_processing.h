@@ -33,6 +33,8 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
+#include <libKitsunemimiAiCommon/metadata.h>
+
 /**
  * @brief outputSynapseProcessing
  * @param outputSection
@@ -40,9 +42,11 @@
  * @return
  */
 inline float
-outputSynapseProcessing(OutputSegment* segment,
+outputSynapseProcessing(OutputSynapseSection* outputSection,
+                        float* inputs,
+                        OutputSegmentMeta* segmentMeta,
                         Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
-                        OutputSynapseSection* outputSection)
+                        Kitsunemimi::Ai::OutputMetaData* outputMetaData)
 {
     float outputWeight = 0.0f;
 
@@ -67,9 +71,9 @@ outputSynapseProcessing(OutputSegment* segment,
         const uint32_t targetId = synapse->targetId;
         if(targetId != UNINIT_STATE_32)
         {
-            assert(targetId < segment->segmentMeta->numberOfInputs);
-            synapse->active = segment->inputs[targetId] >= segment->outputMetaData->lowerMatch * synapse->border
-                              && segment->inputs[targetId] <= segment->outputMetaData->upperMatch * synapse->border;
+            assert(targetId < segmentMeta->numberOfInputs);
+            synapse->active = inputs[targetId] >= outputMetaData->lowerMatch * synapse->border
+                              && inputs[targetId] <= outputMetaData->upperMatch * synapse->border;
             outputWeight += synapse->weight * static_cast<float>(synapse->active);
             outputSection->total += synapse->active;
         }
@@ -86,13 +90,15 @@ outputSynapseProcessing(OutputSegment* segment,
  * @return
  */
 inline void
-learNewOutput(OutputSegment* segment,
+learNewOutput(OutputSynapseSection* outputSection,
+              float* inputs,
+              OutputSegmentMeta* segmentMeta,
               Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
-              OutputSynapseSection* outputSection,
+              Kitsunemimi::Ai::OutputMetaData* outputMetaData,
               const uint32_t outputPos)
 {
     outputSection->newOnes = 0;
-    int32_t toNew = static_cast<int32_t>(segment->outputMetaData->maxConnections)
+    int32_t toNew = static_cast<int32_t>(outputMetaData->maxConnections)
                     - static_cast<int32_t>(outputSection->total);
     if(toNew <= 0) {
         return;
@@ -109,13 +115,13 @@ learNewOutput(OutputSegment* segment,
                 && limiter < 10)
         {
             // const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
-            uint32_t possibleTargetId = rand() % segment->outputMetaData->inputRange;
-            possibleTargetId += outputPos * segment->outputMetaData->inputOffset;
-            assert(possibleTargetId <= segment->segmentMeta->numberOfInputs);
-            if(segment->inputs[possibleTargetId] > 0.0f)
+            uint32_t possibleTargetId = rand() % outputMetaData->inputRange;
+            possibleTargetId += outputPos * outputMetaData->inputOffset;
+            assert(possibleTargetId <= segmentMeta->numberOfInputs);
+            if(inputs[possibleTargetId] > 0.0f)
             {
                 synapse->targetId = possibleTargetId;
-                synapse->border = segment->inputs[possibleTargetId];
+                synapse->border = inputs[possibleTargetId];
                 synapse->weight = 0.0f;
                 synapse->newOne = 1;
                 synapse->active = 1;
@@ -171,20 +177,20 @@ outputSynapseLearn(OutputSynapseSection* outputSection)
  */
 inline float
 calculateLearnings(OutputSynapseSection* outputSection,
-                   Output* out)
+                   Output* output)
 {
-    outputSection->diffNew = out->shouldValue - out->outputValue;
-    outputSection->diffTotal = out->shouldValue - out->outputValue;
+    outputSection->diffNew = output->shouldValue - output->outputValue;
+    outputSection->diffTotal = output->shouldValue - output->outputValue;
 
-    if(out->shouldValue == 0.0f
-            && out->outputValue <= out->shouldValue)
+    if(output->shouldValue == 0.0f
+            && output->outputValue <= output->shouldValue)
     {
         outputSection->diffNew = 0.0f;
         outputSection->diffTotal = 0.0f;
     }
 
-    if(out->shouldValue > 0.0f
-            && out->outputValue >= out->shouldValue)
+    if(output->shouldValue > 0.0f
+            && output->outputValue >= output->shouldValue)
     {
         outputSection->diffNew = 0.0f;
         outputSection->diffTotal = 0.0f;
@@ -202,14 +208,21 @@ calculateLearnings(OutputSynapseSection* outputSection,
  * @brief node_processing
  */
 inline void
-output_node_processing(OutputSegment* segment,
-                       Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
+output_node_processing(OutputSynapseSection* outputSynapseSections,
+                       float* inputs,
+                       Output* outputs,
+                       OutputSegmentMeta* segmentMeta,
+                       Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
+                       Kitsunemimi::Ai::OutputMetaData* outputMetaData)
 {
     // process output
-    for(uint32_t o = 0; o < segment->segmentMeta->numberOfOutputs; o++) {
-        segment->outputs[o].outputValue = outputSynapseProcessing(segment,
-                                                                  networkMetaData,
-                                                                  &segment->outputSynapseSections[o]);
+    for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
+    {
+        outputs[o].outputValue = outputSynapseProcessing(&outputSynapseSections[o],
+                                                         inputs,
+                                                         segmentMeta,
+                                                         networkMetaData,
+                                                         outputMetaData);
     }
 }
 
@@ -218,24 +231,32 @@ output_node_processing(OutputSegment* segment,
  * @return
  */
 inline float
-output_learn_step(OutputSegment* segment,
-                  Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
+output_learn_step(OutputSynapseSection* outputSynapseSections,
+                  float* inputs,
+                  Output* outputs,
+                  OutputSegmentMeta* segmentMeta,
+                  Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
+                  Kitsunemimi::Ai::OutputMetaData* outputMetaData)
 {
     float totalDiff = 0.0f;
 
-    for(uint32_t o = 0; o < segment->segmentMeta->numberOfOutputs; o++)
+    for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
     {
-        learNewOutput(segment,
+        learNewOutput(&outputSynapseSections[o],
+                      inputs,
+                      segmentMeta,
                       networkMetaData,
-                      &segment->outputSynapseSections[o],
+                      outputMetaData,
                       o);
-        totalDiff += calculateLearnings(&segment->outputSynapseSections[o], &segment->outputs[o]);
-        if(segment->outputSynapseSections[o].diffTotal != 0.0f)
+        totalDiff += calculateLearnings(&outputSynapseSections[o], &outputs[o]);
+        if(outputSynapseSections[o].diffTotal != 0.0f)
         {
-            outputSynapseLearn(&segment->outputSynapseSections[o]);
-            segment->outputs[o].outputValue = outputSynapseProcessing(segment,
-                                                                      networkMetaData,
-                                                                      &segment->outputSynapseSections[o]);
+            outputSynapseLearn(&outputSynapseSections[o]);
+            outputs[o].outputValue = outputSynapseProcessing(&outputSynapseSections[o],
+                                                             inputs,
+                                                             segmentMeta,
+                                                             networkMetaData,
+                                                             outputMetaData);
         }
     }
 
@@ -247,13 +268,14 @@ output_learn_step(OutputSegment* segment,
  * @return
  */
 inline uint32_t
-output_precheck(OutputSegment* segment)
+output_precheck(OutputSegmentMeta* segmentMeta,
+                Output* outputs)
 {
     uint32_t updateVals = 0;
 
-    for(uint32_t o = 0; o < segment->segmentMeta->numberOfOutputs; o++)
+    for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
     {
-        Output* out = &segment->outputs[o];
+        Output* out = &outputs[o];
         if(out->shouldValue == 0.0f
                 && out->outputValue <= out->shouldValue)
         {

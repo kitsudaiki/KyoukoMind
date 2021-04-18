@@ -109,6 +109,7 @@ KyoukoRoot::start()
 bool
 KyoukoRoot::learnStep()
 {
+    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     uint32_t timeout = 50;
 
@@ -129,7 +130,8 @@ KyoukoRoot::learnStep()
         }
 
         executeStep();
-        tempVal = output_precheck(cluster->outputSegment);
+        tempVal = output_precheck(outputSegment->segmentMeta,
+                                  outputSegment->outputs);
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
 
         if(tempVal < updateVals)
@@ -163,7 +165,12 @@ KyoukoRoot::learnStep()
     float totalDiff = 0.0f;
     do
     {
-        totalDiff = output_learn_step(cluster->outputSegment, &cluster->networkMetaData);
+        totalDiff = output_learn_step(outputSegment->outputSynapseSections,
+                                      outputSegment->inputs,
+                                      outputSegment->outputs,
+                                      outputSegment->segmentMeta,
+                                      &KyoukoRoot::m_networkCluster->networkMetaData,
+                                      outputSegment->outputMetaData);
         timeout--;
     }
     while(totalDiff >= 1.0f
@@ -227,7 +234,12 @@ void KyoukoRoot::executeStep()
         //KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 
-    output_node_processing(cluster->outputSegment, &cluster->networkMetaData);
+    output_node_processing(outputSegment->outputSynapseSections,
+                           outputSegment->inputs,
+                           outputSegment->outputs,
+                           outputSegment->segmentMeta,
+                           &KyoukoRoot::m_networkCluster->networkMetaData,
+                           outputSegment->outputMetaData);
 }
 
 void KyoukoRoot::finishStep()

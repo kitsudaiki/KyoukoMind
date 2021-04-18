@@ -64,8 +64,12 @@ CpuProcessingUnit::run()
                         synapseSegment->segmentMeta,
                         synapseSegment->synapseMetaData,
                         outputSegment->inputs);
-        output_node_processing(KyoukoRoot::m_networkCluster->outputSegment,
-                               &KyoukoRoot::m_networkCluster->networkMetaData);
+        output_node_processing(outputSegment->outputSynapseSections,
+                               outputSegment->inputs,
+                               outputSegment->outputs,
+                               outputSegment->segmentMeta,
+                               &KyoukoRoot::m_networkCluster->networkMetaData,
+                               outputSegment->outputMetaData);
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
 
