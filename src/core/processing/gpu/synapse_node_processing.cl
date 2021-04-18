@@ -30,60 +30,110 @@
 #define UNINIT_STATE_8  0xFF
 
 // common information
-#define SYNAPSES_PER_SYNAPSESECTION 15
+#define SYNAPSES_PER_SYNAPSESECTION 62
+#define OUTPUT_SYNAPSES_PER_SECTION 4094
+
+
+typedef struct NetworkMetaData_struct
+{
+    float lerningValue = 0.0f;
+    uint cycleTime = 1000000;
+    uchar doLearn = 0;
+
+    uchar padding[247];
+}
+NetworkMetaData;
+
+typedef struct SynapseMetaData_struct
+{
+    float synapseDeleteBorder = 1.0f;
+    float actionPotential = 100.0f;
+    float nodeCooldown = 100.0f;
+    float memorizing = 0.1f;
+    float gliaValue = 1.0f;
+    float signNeg = 0.6f;
+    float potentialOverflow = 20.0f;
+    float maxSynapseWeight = 30.0f;
+    uchar refractionTime = 1;
+    uchar multiplicatorRange = 0;
+
+    uchar padding[222];
+}
+SynapseMetaData;
+
+typedef struct OutputMetaData_struct
+{
+    float lowerMatch = 0.0f;
+    float upperMatch = 0.0f;
+    uint inputOffset = 0;
+    uint inputRange = 0;
+    uint maxConnections = 0;
+
+    uchar padding[236];
+}
+OutputMetaData;
 
 //==================================================================================================
 
-enum SectionStatus
+typedef struct SynapseBufferEntry_struct
 {
-    UNDEFINED_SECTION = 0,
-    ACTIVE_SECTION = 1,
-    DELETED_SECTION = 2,
-};
-
-enum SynapseType
-{
-    UNDEFINED_SYNAPSE_TYPE = 0,
-    POSITIVE_TYPE = 1,
-    NEGATIVE_TYPE = 2,
-};
+    float weigth;
+    uint nodeId;
+    // total size: 8 Byte
+}
+SynapseBufferEntry;
 
 //==================================================================================================
 
-typedef struct SynapseTransfer_struct
+typedef struct SynapseBuffer_struct
 {
-    uint brickId;
-    uint nodeBrickId;
-    uint synapseSectionId;
-    uint sourceEdgeId;
-    ushort positionInEdge;
-    uchar isNew;
-    uchar padding[1];
+    uchar process;
+    uchar upToDate;
+    uchar padding[6];
+
+    SynapseBufferEntry buffer[8];
+
+    // total size: 64 Byte
+}
+SynapseBuffer;
+
+//==================================================================================================
+
+typedef struct Synapse_struct
+{
     float weight;
-} 
-SynapseTransfer;
+    ushort targetNodeId;
+    char sign;
+    char multiplicator;
+    // total size: 8 Byte
+}
+Synapse;
 
 //==================================================================================================
 
-typedef struct AxonTransfer_struct
+typedef struct SynapseSection_struct
+{
+    ushort active;
+    ushort randomPos;
+
+    uint brickBufferPos;
+    uint hardening;
+    uchar padding[4];
+
+    Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
+
+    // total size: 512 Byte
+}
+SynapseSection;
+
+//==================================================================================================
+
+typedef struct  InputNode_struct
 {
     float weight;
-    uint brickId;
-} 
-AxonTransfer;
-
-//==================================================================================================
-
-typedef struct UpdateTransfer_struct
-{
-    uint targetId;
-    uchar positionInEdge;
-    uchar deleteEdge;
-    uchar padding[2];
-    float newWeight;
-    float hardening;
-} 
-UpdateTransfer;
+    uint targetNode;
+}
+InputNode;
 
 //==================================================================================================
 
@@ -95,564 +145,143 @@ typedef struct Node_struct
 
     uchar refractionTime;
     uchar active;
+    uchar upToDate;
+    uchar external;
 
-    uchar padding[2];
-
-    // Axon
-    uint brickId;
+    uint nodeBrickId;
     uint targetBrickDistance;
-} 
+
+    uint targetSectionId;
+    uchar padding2[4];
+
+    // total size: 32 Byte
+}
 Node;
 
 //==================================================================================================
 
-typedef struct Synapse_struct
+typedef struct OutputSynapse_struct
 {
-    float staticWeight;
-    float dynamicWeight;
-    float harden;
-    ushort targetNodeId;
-    uchar inProcess;
-    uchar type;
-} 
-Synapse;
+    float border;
+    float weight;
+    uint targetId;
+    uchar newOne;
+    uchar active;
+    uchar padding[2];
+    // total size: 16 Byte
+}
+OutputSynapse;
 
 //==================================================================================================
 
-typedef struct SynapseSection_struct
+typedef struct OutputSynapseSection_struct
 {
-    uchar status;
-    uchar positionInEdge;
-
+    ushort status;
     ushort randomPos;
 
-    uint sourceEdgeId;
-    uint sourceBrickId;
+    ulong prev;
 
-    float totalWeight;
+    uint hardening ;
 
-    Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
-} 
-SynapseSection;
+    uint newOnes;
+    uint total;
+
+    float diffNew;
+    float diffTotal;
+
+    OutputSynapse synapses[OUTPUT_SYNAPSES_PER_SECTION];
+
+    // total size: 4096 Byte
+}
+OutputSynapseSection;
 
 //==================================================================================================
 
-typedef struct GlobalValues_struct
+typedef struct Output_struct
 {
-    uint nodesPerBrick;
-
-    float sensitivity;
-    float lerningValue;
-    float gliaValue;
-    float initialMemorizing;
-    float memorizingOffset;
-
-    float nodeCooldown;
-    float actionPotential;
-    ulong refractionTime;
-
-    float newSynapseBorder;
-    float deleteSynapseBorder;
-
-    float outputIndex;
-
-    uchar padding[204];
+    float outputValue;
+    float shouldValue;
 }
-GlobalValues;
+Output;
 
 //==================================================================================================
 
-__kernel void
-hardening(__global SynapseSection* synapseSections,
-          const ulong numberOfSynapseSections,
-          __global GlobalValues* globalValue,
-          const ulong numberGlobalValue,
-          __local uchar* localMemory,
-          const ulong localMemorySize)
+enum SegmentType
 {
-    // prepare coordinates
-    const size_t globalId_x = get_global_id(0);
-    const size_t globalSize_x = get_global_size(0);
-    const int localId_x = get_local_id(0);
-
-    // prepare shared memory
-    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
-    localGlobalValue[0] = globalValue[0];
-    __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[256];
-
-    if(localGlobalValue->lerningValue == 0.0f) {
-        return;
-    }
-
-    for(ulong i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
-    {
-        // skip unused section
-        if(synapseSections[i].status == DELETED_SECTION) {
-            continue;
-        }
-
-        // load data into shared memory
-        tempSectionMem[localId_x] = synapseSections[i];
-        __local SynapseSection* synapseSection = &tempSectionMem[localId_x];
-        __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
-
-        // iterate over all synapses in synapse-section
-        for(__local Synapse* synapse = synapseSection->synapses;
-            synapse < end;
-            synapse++)
-        {
-            // skip unused synapse in section
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                continue;
-            }
-
-            // set new synapse hardening value
-            synapse->harden += localGlobalValue->lerningValue;
-            synapse->harden = (synapse->harden > 1.0f) * 1.0f + (synapse->harden <= 1.0f) * synapse->harden;
-
-            // update values
-            const float diff = synapse->dynamicWeight * localGlobalValue->lerningValue;
-            synapse->dynamicWeight -= diff;
-            synapse->staticWeight += diff;
-        }
-
-        // write changes back from shared memory to global memory
-        synapseSections[i] = tempSectionMem[localId_x];
-    }
-}
+    UNDEFINED_SEGMENT = 0,
+    SYNAPSE_SEGMENT = 1,
+    OUTPUT_SEGMENT = 2
+};
 
 //==================================================================================================
 
-inline float
-updateSynapseWeight(__local SynapseSection* synapseSection,
-                    __local Synapse* chosenSynapse,
-                    const float weight,
-                    __global uint* randomInts,
-                    __global Node* nodes,
-                    __local GlobalValues* globalValue,
-                    const uint nodeBrickId)
+typedef struct SynapseSegmentMeta_struct
 {
-    const Node tempNode = nodes[nodeBrickId * globalValue->nodesPerBrick];
-    float usedWeight = 0.0f;
-    
-    if(tempNode.border != -1.0f)
-    {
-        usedWeight = weight * (1.0f - chosenSynapse->harden) * globalValue->sensitivity;
+    uint segmentType = UNDEFINED_SEGMENT;
 
-        // set type if necessary
-        if(chosenSynapse->type == UNDEFINED_SYNAPSE_TYPE) 
-        {
-            synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-            const uint positiveValue = randomInts[synapseSection->randomPos] % 2;
-            if(positiveValue == 0) {
-                chosenSynapse->type = POSITIVE_TYPE;
-            } else {
-                chosenSynapse->type = NEGATIVE_TYPE;
-            }
-        }
+    // synapse-segment
+    uint numberOfNodeBricks;
+    ulong numberOfSynapseSections;
+    ulong numberOfNodes;
+    uint numberOfNodesPerBrick;
 
-        // set new weight
-        if(chosenSynapse->type == NEGATIVE_TYPE) {
-            chosenSynapse->dynamicWeight += -1.0f * usedWeight;
-        } else {
-            chosenSynapse->dynamicWeight += usedWeight;
-        }
-    }
-    else
-    {
-        usedWeight = weight * (1.0f - chosenSynapse->harden) * globalValue->outputIndex;
-        chosenSynapse->dynamicWeight += usedWeight;
-    }
+    // generic
+    uint numberOfRandomValues;
+    uint numberOfInputs;
 
-    return fabs(usedWeight);
+    uchar padding[224];
 }
-
-//--------------------------------------------------------------------------------------------------
-
-inline void
-rewightSynapse(__local SynapseSection* synapseSection,
-               float weight,
-               __global uint* randomInts,
-               __global Node* nodes,
-               __local GlobalValues* globalValue,
-               const uint nodeBrickId)
-{
-    uint numberOfActiveSynapses = 0;
-    __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
-
-    // iterate over all synapses in synapse-section
-    for(__local Synapse* synapse = synapseSection->synapses;
-        synapse < end;
-        synapse++)
-    {
-        if(globalValue->sensitivity == 0.0f
-            && globalValue->outputIndex == 0.0f)
-        {
-            return;
-        }
-
-        if(weight < 1.0f) {
-            return;
-        }
-
-        if(synapse->targetNodeId == UNINIT_STATE_16) 
-        {
-            // get random node-id as target
-            synapseSection->randomPos = (synapseSection->randomPos + 1) % 1024;
-            const uint targetNodeIdInBrick = randomInts[synapseSection->randomPos] % globalValue->nodesPerBrick;
-
-            // set initial values for the new synapse
-            synapse->targetNodeId = (ushort)(targetNodeIdInBrick + (nodeBrickId * globalValue->nodesPerBrick));
-            synapse->harden = 0.0f;
-        }
-        
-        weight -= updateSynapseWeight(synapseSection, 
-                                      synapse, 
-                                      weight, 
-                                      randomInts, 
-                                      nodes, 
-                                      globalValue, 
-                                      nodeBrickId);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-
-__kernel void 
-synapse_processing(__global SynapseTransfer* synapseTransfers,
-                   const ulong numberOfSynapseTransfers,
-                   __global Node* nodes,
-                   const ulong numberOfNodes,
-                   __global SynapseSection* synapseSections,
-                   const ulong numberOfSynapseSections,
-                   __global uint* randomInts,
-                   const ulong numberRandomInts,
-                   __global GlobalValues* globalValue,
-                   const ulong numberGlobalValue,
-                   __local uchar* localMemory,
-                   const ulong localMemorySize)
-{
-    // calculate global ids
-    const size_t globalId_x = get_global_id(0);
-    const size_t globalSize_x = get_global_size(0);
-    const int localId_x = get_local_id(0);
-    const int localSize_x = get_local_size(0);
-    const uint numberOfBricks = numberOfNodes / globalValue->nodesPerBrick;
-    const uint brickId = globalId_x / localSize_x; 
-
-    // prepare shared memory
-    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
-    localGlobalValue[0] = globalValue[0];
-    __local SynapseSection* tempSections = (__local SynapseSection*)&localMemory[256];
-
-    for(ulong i = localId_x; i < numberOfSynapseTransfers; i = i + localSize_x)
-    {
-        // check if gpu-thread is to determine to handle this tranfer-container
-        if(synapseTransfers[i].brickId != brickId) {
-            continue;
-        }
-
-        // load target-section into shared memory
-        const uint synapseSectionId = synapseTransfers[i].synapseSectionId;
-        tempSections[localId_x] = synapseSections[synapseSectionId];
-        __local SynapseSection* synapseSection = &tempSections[localId_x];
-
-        // check if section is new and schould be created
-        if(synapseTransfers[i].isNew == 1)
-        {
-            SynapseSection newSection;
-            newSection.status = ACTIVE_SECTION;
-            newSection.randomPos = (globalId_x * localId_x) % 1024;
-            newSection.positionInEdge = synapseTransfers[i].positionInEdge;
-            newSection.sourceEdgeId = synapseTransfers[i].sourceEdgeId;
-            newSection.sourceBrickId = synapseTransfers[i].brickId;
-            newSection.totalWeight = 0.0f;
-
-            tempSections[localId_x] = newSection;
-
-            // write result back
-            synapseSections[synapseSectionId] = tempSections[localId_x];
-        }
-
-        // run lerning-process by creating and updating synapses
-        const float weightDiff = synapseTransfers[i].weight - synapseSection->totalWeight;
-        if(weightDiff > 0.0f)
-        {
-            const uint nodeBrickId = synapseTransfers[i].nodeBrickId;
-            rewightSynapse(synapseSection, 
-                           weightDiff, 
-                           randomInts, 
-                           nodes, 
-                           localGlobalValue, 
-                           nodeBrickId);
-            synapseSections[synapseSectionId] = tempSections[localId_x];
-        }
-
-        // iterate over all synapses in the section and update the target-nodes
-        float weight = synapseTransfers[i].weight;
-        __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
-        for(__local Synapse* synapse = synapseSection->synapses;
-            synapse < end;
-            synapse++)
-        {
-            if(weight <= 1.0f) {
-                break;
-            }
-
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                continue;
-            }
-
-            const ulong nodeBufferPosition = (get_local_id(0) * (numberOfNodes / 256)) + synapse->targetNodeId;
-            const float synapseWeight = fabs(synapse->staticWeight) + fabs(synapse->dynamicWeight);
-            if(weight > synapseWeight) 
-            {
-                nodes[nodeBufferPosition].currentState += synapse->staticWeight + synapse->dynamicWeight;
-                weight -= synapseWeight;
-            } 
-            else 
-            {
-                nodes[nodeBufferPosition].currentState += weight;
-                weight = 0.0f;
-            }
-        }
-    }
-}
+SynapseSegmentMeta;
 
 //==================================================================================================
 
-__kernel void 
-sum_nodes(__global Node* nodes,
-          const ulong numberOfNodes,
-          __local uchar* localMemory,
-          const ulong localMemorySize)
+typedef struct OutputSegmentMeta_struct
 {
-    const size_t globalId_x = get_global_id(0);
-    const size_t globalSize_x = get_global_size(0);
-    const int localId_x = get_local_id(0);
-    const int localSize_x = get_local_size(0);
+    uint segmentType;
 
-    // prepare shared memory
-    __local Node* tempNodes = (__local Node*)&localMemory[256];
+    // output-segment
+    uint numberOfOutputs;
 
-    for(ulong i = globalId_x; i < numberOfNodes / 256; i = i + globalSize_x)
-    {
-        tempNodes[localId_x] = nodes[i];
-        __local Node* node = &tempNodes[localId_x];
+    // generic
+    uint numberOfRandomValues;
+    uint numberOfInputs;
 
-        for(uint pos = 1; pos < 256; pos++)
-        {
-            const ulong nodeBufferPosition = (pos * (numberOfNodes / 256)) + i;
-            tempNodes[localId_x].currentState += nodes[nodeBufferPosition].currentState;
-            nodes[nodeBufferPosition].currentState = 0.0f;
-        }
-
-        nodes[i] = tempNodes[localId_x];
-    }
+    uchar padding[224];
 }
+OutputSegmentMeta;
 
 //==================================================================================================
 
-__kernel void 
-node_processing(__global AxonTransfer* axonTransfers,
-                const ulong numberOfAxonTransfers,
-                __global Node* nodes,
-                const ulong numberOfNodes,
-                __global GlobalValues* globalValue,
-                const ulong numberGlobalValue,
-                __local uchar* localMemory,
-                const ulong localMemorySize)
+typedef struct Position_struct
 {
-    const size_t globalId_x = get_global_id(0);
-    const size_t globalSize_x = get_global_size(0);
-    const int localId_x = get_local_id(0);
-    const int localSize_x = get_local_size(0);
-
-    // prepare shared memory
-    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
-    localGlobalValue[0] = globalValue[0];
-    __local Node* tempNodes = (__local Node*)&localMemory[256];
-
-    for(ulong i = globalId_x; i < numberOfNodes / 256; i = i + globalSize_x)
-    {
-        tempNodes[localId_x] = nodes[i];
-        __local Node* node = &tempNodes[localId_x];
-
-        if(node->border != -1.0f) 
-        {
-            // set to 255.0f, if value is too high
-            const float cur = node->currentState;
-            node->currentState = (cur > 255.0f) * 255.0f + (cur <= 255.0f) * cur;
-            node->currentState = (cur < 0.000001f) * 0.0f + (cur >= 0.000001f) * cur;
-
-            // check if active
-            if(node->border < node->currentState
-                    && node->refractionTime == 0)
-            {
-                node->potential = localGlobalValue->actionPotential;
-                node->active = 1;
-                node->refractionTime = localGlobalValue->refractionTime;
-            }
-            else if(node->refractionTime == 0)
-            {
-                node->active = 0;
-            }
-
-            // build new axon-transfer-edge, which is send back to the host
-            AxonTransfer newEdge;
-            newEdge.weight = node->active * node->potential * pow(localGlobalValue->gliaValue, node->targetBrickDistance);
-            newEdge.brickId = node->brickId;
-            axonTransfers[i] = newEdge;
-
-            // post-steps
-            node->refractionTime = node->refractionTime >> 1;
-
-            // set to 0.0f, if value is negative
-            const float newCur = node->currentState;
-            node->currentState = (newCur < 0.0f) * 0.0f + (newCur >= 0.0f) * newCur;
-
-            // make cooldown in the node
-            node->potential /= localGlobalValue->nodeCooldown;
-            node->currentState /= localGlobalValue->nodeCooldown;
-        }
-        else
-        {
-            node->active = 0;
-
-            // build new axon-transfer-edge, which is send back to the host
-            AxonTransfer newEdge;
-            newEdge.weight = node->currentState;
-            newEdge.brickId = node->brickId;
-            axonTransfers[i] = newEdge;
-            node->currentState = 0.0f;
-        }
-
-        // write changes back from shared memory to global memory
-        nodes[i] = tempNodes[localId_x];
-    }
+    int x = 0;
+    int y = 0;
+    int z = 0;
+    int w = 0;
 }
+Position;
 
 //==================================================================================================
 
-void 
-squash(__local SynapseSection* synapseSections)
+typedef struct Brick_struct
 {
-    Synapse tempBuffer[SYNAPSES_PER_SYNAPSESECTION];
-    uint pos = 0;
+    // common
+    uint brickId = UNINIT_STATE_32;
+    uint nodeBrickId = UNINIT_STATE_32;
+    uint layerId = UNINIT_STATE_32;
+    bool isOutputBrick = false;
+    bool isInputBrick = false;
+    uchar padding[10];
 
-    for(uint i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++)
-    {
-        tempBuffer[i].targetNodeId = UNINIT_STATE_16;
+    Position brickPos;
 
-        if(synapseSections->synapses[i].targetNodeId != UNINIT_STATE_16) 
-        {
-            tempBuffer[pos] = synapseSections->synapses[i];
-            pos++;
-        }
-    }
+    uint neighbors[12];
+    uint possibleTargetNodeBrickIds[1000];
+    uint nodePos = UNINIT_STATE_32;
 
-    for(uint i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++) {
-        synapseSections->synapses[i] = tempBuffer[i];
-    }
+    uint nodeActivity = 0;
+    // total size: 4096 Bytes
 }
+Brick;
 
-//--------------------------------------------------------------------------------------------------
-
-__kernel void
-updating(__global UpdateTransfer* updateTransfers,
-         const ulong numberOfUpdateTransfers,
-         __global Node* nodes,
-         const ulong numberOfNodes,
-         __global SynapseSection* synapseSections,
-         const ulong numberOfSynapseSections,
-         __global GlobalValues* globalValue,
-         const ulong numberGlobalValue,
-         __local uchar* localMemory,
-         const ulong localMemorySize)
-{
-    // prepare coordinates
-    const size_t globalId_x = get_global_id(0);
-    const size_t globalSize_x = get_global_size(0);
-    const int localId_x = get_local_id(0);
-
-    // prepare shared memory
-    __local GlobalValues* localGlobalValue = (__local GlobalValues*)localMemory;
-    localGlobalValue[0] = globalValue[0];
-    __local SynapseSection* tempSectionMem = (__local SynapseSection*)&localMemory[256];
-
-    for(ulong i = globalId_x; i < numberOfSynapseSections; i = i + globalSize_x)
-    {
-        // prepare new container
-        UpdateTransfer transferContainer;
-        transferContainer.newWeight = 0.0f;
-        transferContainer.targetId = UNINIT_STATE_32;
-        transferContainer.positionInEdge = UNINIT_STATE_8;
-        transferContainer.deleteEdge = 0;
-
-        // skip if section is deleted
-        if(synapseSections[i].status == DELETED_SECTION)
-        {
-            updateTransfers[i] = transferContainer;
-            continue;
-        }
-
-        // load data into shared memory
-        tempSectionMem[localId_x] = synapseSections[i];
-        __local SynapseSection* synapseSection = &tempSectionMem[localId_x];
-        __local Synapse* end = synapseSection->synapses + SYNAPSES_PER_SYNAPSESECTION;
-
-        synapseSection->totalWeight = 0.0f;
-        float hardening = 0.0f;
-
-        // iterate over all synapses in synapse-section
-        for(__local Synapse* synapse = synapseSection->synapses;
-            synapse < end;
-            synapse++)
-        {
-            // skip unused synapse in section
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                continue;
-            }
-                              
-            // update dynamic-weight-value of the synapse     
-            if(nodes[synapse->targetNodeId].active == 0) {
-                synapse->dynamicWeight = synapse->dynamicWeight * (globalValue->initialMemorizing + localGlobalValue->memorizingOffset);
-            } else {
-                synapse->dynamicWeight = synapse->dynamicWeight * 0.95f;
-            }
-
-            // check for deletion of the single synapse
-            const float synapseWeight = fabs(synapse->dynamicWeight) + fabs(synapse->staticWeight);
-            if(synapseWeight < localGlobalValue->deleteSynapseBorder) 
-            {
-                synapse->dynamicWeight = 0.0f;
-                synapse->staticWeight = 0.0f;
-                synapse->targetNodeId = UNINIT_STATE_16;
-                synapse->type = UNDEFINED_SYNAPSE_TYPE;
-            } 
-            else 
-            {
-                synapseSection->totalWeight += synapseWeight;
-                hardening += synapse->harden;
-            }
-        }
-
-        squash(synapseSection);
-
-        // create update-container for the host
-        transferContainer.newWeight = synapseSection->totalWeight;
-        transferContainer.targetId = synapseSection->sourceEdgeId;
-        transferContainer.positionInEdge = synapseSection->positionInEdge;
-        transferContainer.deleteEdge = transferContainer.newWeight <= localGlobalValue->deleteSynapseBorder;
-        transferContainer.hardening = hardening / (float)SYNAPSES_PER_SYNAPSESECTION;
-
-        // mark section as deleted
-        if(transferContainer.deleteEdge > 0) {
-            synapseSection->status = DELETED_SECTION;
-        }
-
-        // write changes back from shared memory to global memory
-        updateTransfers[i] = transferContainer;
-        synapseSections[i] = tempSectionMem[localId_x];
-    }
-}
+//==================================================================================================
