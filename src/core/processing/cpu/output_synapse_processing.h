@@ -68,8 +68,8 @@ outputSynapseProcessing(OutputSegment* segment,
         if(targetId != UNINIT_STATE_32)
         {
             assert(targetId < segment->segmentMeta->numberOfInputs);
-            synapse->active = segment->inputs[targetId] >=  1.0f * synapse->border
-                              && segment->inputs[targetId] <= 2.0f * synapse->border;
+            synapse->active = segment->inputs[targetId] >= segment->outputMetaData->lowerMatch * synapse->border
+                              && segment->inputs[targetId] <= segment->outputMetaData->upperMatch * synapse->border;
             outputWeight += synapse->weight * static_cast<float>(synapse->active);
             outputSection->total += synapse->active;
         }
@@ -88,7 +88,8 @@ outputSynapseProcessing(OutputSegment* segment,
 inline void
 learNewOutput(OutputSegment* segment,
               Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
-              OutputSynapseSection* outputSection)
+              OutputSynapseSection* outputSection,
+              const uint32_t outputPos)
 {
     outputSection->newOnes = 0;
     int32_t toNew = 250 - static_cast<int32_t>(outputSection->total);
@@ -104,7 +105,10 @@ learNewOutput(OutputSegment* segment,
         if(synapse->targetId == UNINIT_STATE_32
                 && networkMetaData->doLearn > 0)
         {
-            const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
+            // const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
+            uint32_t possibleTargetId = rand() % segment->outputMetaData->inputRange;
+            possibleTargetId += outputPos * segment->outputMetaData->inputOffset;
+            assert(possibleTargetId <= segment->segmentMeta->numberOfInputs);
             if(segment->inputs[possibleTargetId] > 0.0f)
             {
                 synapse->targetId = possibleTargetId;
@@ -219,7 +223,8 @@ output_learn_step(OutputSegment* segment,
     {
         learNewOutput(segment,
                       networkMetaData,
-                      &segment->outputSynapseSections[o]);
+                      &segment->outputSynapseSections[o],
+                      o);
         totalDiff += calculateLearnings(&segment->outputSynapseSections[o], &segment->outputs[o]);
         if(segment->outputSynapseSections[o].diffTotal != 0.0f)
         {
