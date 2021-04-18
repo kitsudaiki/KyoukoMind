@@ -98,13 +98,15 @@ learNewOutput(OutputSegment* segment,
         return;
     }
 
+    uint32_t limiter = 0;
     uint32_t pos = 0;
     while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
         OutputSynapse* synapse = &outputSection->synapses[pos];
 
         if(synapse->targetId == UNINIT_STATE_32
-                && networkMetaData->doLearn > 0)
+                && networkMetaData->doLearn > 0
+                && limiter < 10)
         {
             // const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
             uint32_t possibleTargetId = rand() % segment->outputMetaData->inputRange;
@@ -117,6 +119,7 @@ learNewOutput(OutputSegment* segment,
                 synapse->weight = 0.0f;
                 synapse->newOne = 1;
                 synapse->active = 1;
+                limiter++;
             }
         }
 
