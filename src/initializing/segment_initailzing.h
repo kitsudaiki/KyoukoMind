@@ -33,21 +33,24 @@ struct AiBaseMeta;
 }
 }
 
-Segment* initSynapseSegment(const uint32_t numberOfNodeBricks,
-                            const uint32_t numberOfNodes,
-                            const uint64_t numberOfSynapseSections,
-                            const uint32_t numberOfInputs,
-                            const uint32_t numberOfRandValues);
+SynapseSegment* initSynapseSegment(const uint32_t numberOfNodeBricks,
+                                   const uint32_t numberOfNodes,
+                                   const uint64_t numberOfSynapseSections,
+                                   const uint32_t numberOfInputs,
+                                   const uint32_t numberOfRandValues);
 
-Segment* initOutputSegment(const uint32_t numberOfOutputs,
-                           const uint32_t numberOfInputs,
-                           const uint32_t numberOfRandValues);
+OutputSegment* initOutputSegment(const uint32_t numberOfOutputs,
+                                 const uint32_t numberOfInputs,
+                                 const uint32_t numberOfRandValues);
 
-bool initLayer(Segment &segment);
+bool initLayer(SynapseSegment &segment,
+               Kitsunemimi::Ai::InitMeataData *initMetaData);
 
-bool initializeNodes(Segment &segment);
+bool initializeNodes(SynapseSegment &segment,
+                     Kitsunemimi::Ai::InitMeataData* initMetaData);
 
-void addBricksToSegment(Segment &segment,
+void addBricksToSegment(SynapseSegment &segment,
+                        Kitsunemimi::Ai::InitMeataData *initMetaData,
                         const Kitsunemimi::Ai::AiBaseMeta& metaBase);
 
 #endif // SEGMENT_INITAILZING_H

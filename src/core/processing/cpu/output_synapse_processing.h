@@ -31,9 +31,7 @@
 #include <core/objects/output.h>
 #include <core/objects/segment.h>
 #include <core/objects/synapses.h>
-#include <core/objects/global_values.h>
-
-#include <libKitsunemimiCommon/buffer/item_buffer.h>
+#include <core/objects/network_cluster.h>
 
 /**
  * @brief outputSynapseProcessing
@@ -42,7 +40,8 @@
  * @return
  */
 inline float
-outputSynapseProcessing(Segment* segment,
+outputSynapseProcessing(OutputSegment* segment,
+                        Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                         OutputSynapseSection* outputSection)
 {
     float outputWeight = 0.0f;
@@ -54,7 +53,7 @@ outputSynapseProcessing(Segment* segment,
     {
         OutputSynapse* synapse = &outputSection->synapses[pos];
 
-        if(segment->globalValues->lerningValue > 0.0f)
+        if(networkMetaData->lerningValue > 0.0f)
         {
             synapse->newOne = 0;
             if(synapse->weight == 0.0f)
@@ -68,9 +67,9 @@ outputSynapseProcessing(Segment* segment,
         const uint32_t targetId = synapse->targetId;
         if(targetId != UNINIT_STATE_32)
         {
-            assert(targetId < segment->globalValues->nodesPerBrick);
-            synapse->active = segment->inputs[targetId] >=  1.0f * synapse->border
-                              && segment->inputs[targetId] <= 2.0f * synapse->border;
+            assert(targetId < segment->segmentMeta->numberOfInputs);
+            synapse->active = segment->inputs[targetId] >= segment->outputMetaData->lowerMatch * synapse->border
+                              && segment->inputs[targetId] <= segment->outputMetaData->upperMatch * synapse->border;
             outputWeight += synapse->weight * static_cast<float>(synapse->active);
             outputSection->total += synapse->active;
         }
@@ -87,11 +86,14 @@ outputSynapseProcessing(Segment* segment,
  * @return
  */
 inline void
-learNewOutput(Segment* segment,
-              OutputSynapseSection* outputSection)
+learNewOutput(OutputSegment* segment,
+              Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
+              OutputSynapseSection* outputSection,
+              const uint32_t outputPos)
 {
     outputSection->newOnes = 0;
-    int32_t toNew = 250 - static_cast<int32_t>(outputSection->total);
+    int32_t toNew = static_cast<int32_t>(segment->outputMetaData->maxConnections)
+                    - static_cast<int32_t>(outputSection->total);
     if(toNew <= 0) {
         return;
     }
@@ -102,9 +104,12 @@ learNewOutput(Segment* segment,
         OutputSynapse* synapse = &outputSection->synapses[pos];
 
         if(synapse->targetId == UNINIT_STATE_32
-                && segment->globalValues->doLearn > 0)
+                && networkMetaData->doLearn > 0)
         {
-            const uint32_t possibleTargetId = rand() % segment->globalValues->nodesPerBrick;
+            // const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
+            uint32_t possibleTargetId = rand() % segment->outputMetaData->inputRange;
+            possibleTargetId += outputPos * segment->outputMetaData->inputOffset;
+            assert(possibleTargetId <= segment->segmentMeta->numberOfInputs);
             if(segment->inputs[possibleTargetId] > 0.0f)
             {
                 synapse->targetId = possibleTargetId;
@@ -194,11 +199,14 @@ calculateLearnings(OutputSynapseSection* outputSection,
  * @brief node_processing
  */
 inline void
-output_node_processing(Segment* segment)
+output_node_processing(OutputSegment* segment,
+                       Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
     // process output
     for(uint32_t o = 0; o < segment->segmentMeta->numberOfOutputs; o++) {
-        segment->outputs[o].outputValue = outputSynapseProcessing(segment, &segment->outputSynapseSections[o]);
+        segment->outputs[o].outputValue = outputSynapseProcessing(segment,
+                                                                  networkMetaData,
+                                                                  &segment->outputSynapseSections[o]);
     }
 }
 
@@ -207,18 +215,24 @@ output_node_processing(Segment* segment)
  * @return
  */
 inline float
-output_learn_step(Segment* segment)
+output_learn_step(OutputSegment* segment,
+                  Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
     float totalDiff = 0.0f;
 
     for(uint32_t o = 0; o < segment->segmentMeta->numberOfOutputs; o++)
     {
-        learNewOutput(segment, &segment->outputSynapseSections[o]);
+        learNewOutput(segment,
+                      networkMetaData,
+                      &segment->outputSynapseSections[o],
+                      o);
         totalDiff += calculateLearnings(&segment->outputSynapseSections[o], &segment->outputs[o]);
         if(segment->outputSynapseSections[o].diffTotal != 0.0f)
         {
             outputSynapseLearn(&segment->outputSynapseSections[o]);
-            segment->outputs[o].outputValue = outputSynapseProcessing(segment, &segment->outputSynapseSections[o]);
+            segment->outputs[o].outputValue = outputSynapseProcessing(segment,
+                                                                      networkMetaData,
+                                                                      &segment->outputSynapseSections[o]);
         }
     }
 
@@ -230,7 +244,7 @@ output_learn_step(Segment* segment)
  * @return
  */
 inline uint32_t
-output_precheck(Segment* segment)
+output_precheck(OutputSegment* segment)
 {
     uint32_t updateVals = 0;
 

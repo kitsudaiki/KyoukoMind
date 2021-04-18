@@ -153,8 +153,6 @@ GpuProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
 
-    Segment* segment = KyoukoRoot::m_synapseSegment;
-
     while(!m_abort)
     {
         m_phase1->triggerBarrier();

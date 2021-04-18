@@ -24,7 +24,6 @@
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <kyouko_root.h>
-#include <core/objects/global_values.h>
 #include <core/objects/segment.h>
 #include <core/objects/output.h>
 #include <core/processing/cpu/output_synapse_processing.h>

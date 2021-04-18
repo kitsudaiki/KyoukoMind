@@ -26,7 +26,7 @@
 #include <core/objects/segment.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
-#include <core/objects/global_values.h>
+#include <core/objects/network_cluster.h>
 
 #include <initializing/layered_brick_initializier.h>
 #include <initializing/random_brick_initializer.h>
@@ -78,55 +78,33 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
         return false;
     }
 
-    const uint32_t numberOfBricks = static_cast<uint32_t>(parsedContent.bricks.size());
-
-    GlobalValues globalValues;
-    globalValues.nodesPerBrick = parsedContent.initializingMeta.nodesPerBrick;
-    globalValues.maxBrickDistance = parsedContent.initializingMeta.maxBrickDistance;
-    globalValues.nodeLowerBorder = parsedContent.initializingMeta.nodeLowerBorder;
-    globalValues.nodeUpperBorder = parsedContent.initializingMeta.nodeUpperBorder;
-    globalValues.maxSynapseSections = parsedContent.initializingMeta.maxSynapseSections;
-    globalValues.layer = parsedContent.initializingMeta.layer;
-
-    globalValues.synapseDeleteBorder = parsedContent.processingMeta.synapseDeleteBorder;
-    globalValues.actionPotential = parsedContent.processingMeta.actionPotential;
-    globalValues.nodeCooldown = parsedContent.processingMeta.nodeCooldown;
-    globalValues.memorizing = parsedContent.processingMeta.memorizing;
-    globalValues.gliaValue = parsedContent.processingMeta.gliaValue;
-    globalValues.maxSynapseWeight = parsedContent.processingMeta.maxSynapseWeight;
-    globalValues.refractionTime = parsedContent.processingMeta.refractionTime;
-    globalValues.cycleTime = parsedContent.processingMeta.cycleTime;
-    globalValues.inputFlowGradiant = parsedContent.processingMeta.inputFlowGradiant;
-    globalValues.nodeFlowGradiant = parsedContent.processingMeta.nodeFlowGradiant;
-    globalValues.signNeg = parsedContent.processingMeta.signNeg;
-    globalValues.potentialOverflow = parsedContent.processingMeta.potentialOverflow;
-
-
-    // update message for the monitoring
-    KyoukoRoot::monitoringBrickMessage.numberOfInfos = numberOfBricks;
-
     // init segment
     const uint32_t numberOfNodeBricks = parsedContent.numberOfNodeBricks;
-    const uint32_t totalNumberOfNodes = numberOfNodeBricks * globalValues.nodesPerBrick;
+    const uint32_t totalNumberOfNodes = numberOfNodeBricks * parsedContent.initMetaData.nodesPerBrick;
 
     // init segment
-    KyoukoRoot::m_synapseSegment = initSynapseSegment(parsedContent.numberOfNodeBricks,
-                                                      totalNumberOfNodes,
-                                                      globalValues.maxSynapseSections,
-                                                      totalNumberOfNodes / parsedContent.numberOfNodeBricks,
-                                                      1000);
-    KyoukoRoot::m_outputSegment = initOutputSegment(10,
-                                                    totalNumberOfNodes / parsedContent.numberOfNodeBricks,
-                                                    1000);
+    KyoukoRoot::m_networkCluster = new NetworkCluster();
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    cluster->initMetaData = parsedContent.initMetaData;
+    cluster->networkMetaData = parsedContent.networkMetaData;
 
-    KyoukoRoot::m_synapseSegment->globalValues[0] = globalValues;
-    KyoukoRoot::m_outputSegment->globalValues[0] = globalValues;
+    cluster->synapseSegment = initSynapseSegment(parsedContent.numberOfNodeBricks,
+                                                 totalNumberOfNodes,
+                                                 parsedContent.initMetaData.maxSynapseSections,
+                                                 totalNumberOfNodes / parsedContent.numberOfNodeBricks,
+                                                 1000);
+    cluster->outputSegment = initOutputSegment(10,
+                                               totalNumberOfNodes / parsedContent.numberOfNodeBricks,
+                                               1000);
+
+    cluster->synapseSegment->synapseMetaData[0] = parsedContent.synapseMetaData;
+    cluster->outputSegment->outputMetaData[0] = parsedContent.outputMetaData;
 
     // fill array with empty nodes
-    initializeNodes(*KyoukoRoot::m_synapseSegment);
-    addBricksToSegment(*KyoukoRoot::m_synapseSegment, parsedContent);
-    m_brickInitializer->initTargetBrickList(*KyoukoRoot::m_synapseSegment);
-    m_brickInitializer->initializeAxons(*KyoukoRoot::m_synapseSegment);
+    initializeNodes(*cluster->synapseSegment, &cluster->initMetaData);
+    addBricksToSegment(*cluster->synapseSegment, &cluster->initMetaData, parsedContent);
+    m_brickInitializer->initTargetBrickList(*cluster->synapseSegment, &cluster->initMetaData);
+    m_brickInitializer->initializeAxons(*cluster->synapseSegment);
 
     return true;
 }

@@ -46,26 +46,7 @@ bool
 MonitoringConnectionHandler::sendToMonitoring()
 {
     std::string monitoringOutput = "{\"bricks\": [";
-    Brick* brick = KyoukoRoot::m_synapseSegment->nodeBricks;
 
-    bool found = false;
-    for(uint32_t i = 0; i < KyoukoRoot::m_synapseSegment->segmentMeta->numberOfNodeBricks; i++)
-    {
-        if(brick[i].brickId != UNINIT_STATE_32)
-        {
-            if(found) {
-                monitoringOutput += ",";
-            }
-            const std::string part = "[" + std::to_string(brick[i].brickPos.x)
-                                   + "," + std::to_string(brick[i].brickPos.y)
-                                   + "," + std::to_string(brick[i].nodeActivity) + "]";
-
-            brick[i].nodeActivity = 0;
-            monitoringOutput += part;
-            found = true;
-        }
-    }
-    monitoringOutput += "]}";
     return sendToMonitoring(monitoringOutput.c_str(), monitoringOutput.size());
 }
 

@@ -29,8 +29,8 @@
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
-#include <core/objects/global_values.h>
 #include <core/objects/output.h>
+#include <libKitsunemimiAiCommon/metadata.h>
 
 enum SegmentType
 {
@@ -39,7 +39,9 @@ enum SegmentType
     OUTPUT_SEGMENT = 2
 };
 
-struct SegmentMeta
+//==================================================================================================
+
+struct SynapseSegmentMeta
 {
     uint32_t segmentType = UNDEFINED_SEGMENT;
 
@@ -49,9 +51,6 @@ struct SegmentMeta
     uint64_t numberOfNodes = 0;
     uint32_t numberOfNodesPerBrick = 0;
 
-    // output-segment
-    uint32_t numberOfOutputs = 0;
-
     // generic
     uint32_t numberOfRandomValues = 0;
     uint32_t numberOfInputs = 0;
@@ -59,13 +58,13 @@ struct SegmentMeta
     uint8_t padding[224];
 };
 
-struct Segment
+struct SynapseSegment
 {
     Kitsunemimi::DataBuffer buffer;
 
     // generic objects
-    SegmentMeta* segmentMeta = nullptr;
-    GlobalValues* globalValues = nullptr;
+    SynapseSegmentMeta* segmentMeta = nullptr;
+    Kitsunemimi::Ai::SynapseMetaData* synapseMetaData = nullptr;
     uint32_t* randomValues = nullptr;
 
     // bricks
@@ -79,19 +78,50 @@ struct Segment
     SynapseSection* synapseSections = nullptr;
     SynapseBuffer* synapseBuffers = nullptr;
 
+    InputNode* inputNodes = nullptr;
+
+    std::vector<std::vector<Brick*>> layer;
+
+    SynapseSegment() {}
+
+};
+
+//==================================================================================================
+
+struct OutputSegmentMeta
+{
+    uint32_t segmentType = UNDEFINED_SEGMENT;
+
+    // output-segment
+    uint32_t numberOfOutputs = 0;
+
+    // generic
+    uint32_t numberOfRandomValues = 0;
+    uint32_t numberOfInputs = 0;
+
+    uint8_t padding[224];
+};
+
+struct OutputSegment
+{
+    Kitsunemimi::DataBuffer buffer;
+
+    // generic objects
+    OutputSegmentMeta* segmentMeta = nullptr;
+    Kitsunemimi::Ai::OutputMetaData* outputMetaData = nullptr;
+    uint32_t* randomValues = nullptr;
+
     // output
     Output* outputs = nullptr;
     OutputSynapseSection* outputSynapseSections = nullptr;
 
 
     float* inputs = nullptr;
-    InputNode* inputNodes = nullptr;
 
-
-    std::vector<std::vector<Brick*>> layer;
-
-    Segment() {}
+    OutputSegment() {}
 
 };
+
+//==================================================================================================
 
 #endif // NETWORK_SEGMENT_H

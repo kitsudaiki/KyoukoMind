@@ -35,7 +35,7 @@ LayeredBrickInitializier::LayeredBrickInitializier()
  * @return
  */
 Brick*
-LayeredBrickInitializier::getAxonBrick(Segment &segment, Brick* sourceBrick)
+LayeredBrickInitializier::getAxonBrick(SynapseSegment &segment, Brick* sourceBrick)
 {
     const uint32_t sourceLayerId = sourceBrick->layerId;
     const uint32_t nextPos = static_cast<uint32_t>(rand())
@@ -49,7 +49,8 @@ LayeredBrickInitializier::getAxonBrick(Segment &segment, Brick* sourceBrick)
  * @return
  */
 bool
-LayeredBrickInitializier::initTargetBrickList(Segment &segment)
+LayeredBrickInitializier::initTargetBrickList(SynapseSegment &segment,
+                                              Kitsunemimi::Ai::InitMeataData* initMetaData)
 {
     for(uint32_t i = 0; i < segment.layer.size() - 1; i++)
     {

@@ -31,7 +31,6 @@ class Barrier;
 }
 
 class GlobalValuesHandler;
-struct Segment;
 struct Brick;
 
 class CpuProcessingUnit

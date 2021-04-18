@@ -1,5 +1,5 @@
 /**
- * @file        network_initializer.h
+ * @file        network_cluster.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,30 +20,25 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORK_INITIALIZER_H
-#define NETWORK_INITIALIZER_H
+#ifndef NETWORK_CLUSTER_H
+#define NETWORK_CLUSTER_H
 
 #include <common.h>
 
-namespace Kitsunemimi {
-namespace Ai {
-struct AiBaseMeta;
-}
-}
+#include <core/objects/segment.h>
+#include <libKitsunemimiAiCommon/metadata.h>
 
-struct Brick;
-class BrickInitializer;
+//==================================================================================================
 
-class NetworkInitializer
+struct NetworkCluster
 {
-public:
-    NetworkInitializer();
+    Kitsunemimi::Ai::NetworkMetaData networkMetaData;
+    Kitsunemimi::Ai::InitMeataData initMetaData;
 
-    bool createNewNetwork(const std::string &fileContent,
-                          const std::string &configFileContent);
-
-private:
-    BrickInitializer* m_brickInitializer = nullptr;
+    SynapseSegment* synapseSegment = nullptr;
+    OutputSegment* outputSegment = nullptr;
 };
 
-#endif // NETWORK_INITIALIZER_H
+//==================================================================================================
+
+#endif // NETWORK_CLUSTER_H

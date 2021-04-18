@@ -4,6 +4,8 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
+INCLUDEPATH += ../../libKitsunemimiAiCommon/include
+
 LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
 LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
 LIBS += -L../libKitsunemimiSakuraMessaging/src/release -lKitsunemimiSakuraMessaging
@@ -85,7 +87,7 @@ HEADERS += \
     src/common/includes.h \
     src/common/typedefs.h \
     src/core/objects/brick.h \
-    src/core/objects/global_values.h \
+    src/core/objects/network_cluster.h \
     src/core/objects/segment.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/gpu/gpu_processing_uint.h \
@@ -113,7 +115,6 @@ HEADERS += \
     src/blossoms/special/special_blossoms.h \
     src/blossoms/global_values/set_global_values_blossom.h \
     src/blossoms/snapshot/snapshot_blossom.h \
-    src/core/objects/monitoring_container.h \
     src/initializing/blossom_initializing.h \
     src/core/processing/cpu/synapse_processing.h \
     src/core/processing/cpu/output_synapse_processing.h \

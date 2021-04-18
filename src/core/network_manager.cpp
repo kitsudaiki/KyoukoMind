@@ -36,9 +36,11 @@
 #include <core/objects/brick.h>
 #include <core/objects/output.h>
 #include <core/objects/segment.h>
-#include <core/objects/global_values.h>
+#include <core/objects/network_cluster.h>
 
 #include <initializing/network_initializer.h>
+
+#include <libKitsunemimiAiCommon/metadata.h>
 
 using std::chrono::duration_cast;
 
@@ -74,16 +76,6 @@ NetworkManager::executeStep()
     const float synapseTime = duration_cast<chronoNanoSec>(m_synapseEnd - m_synapseStart).count();
     const uint32_t usedTime = static_cast<uint32_t>((edgeTime + synapseTime) / 1024.0f);
 
-    // total times
-    KyoukoRoot::monitoringMetaMessage.edgePhase = edgeTime;
-    KyoukoRoot::monitoringMetaMessage.synapsePhase = synapseTime;
-    KyoukoRoot::monitoringMetaMessage.totalCycle = edgeTime + synapseTime;
-
-    // monitoring-output
-    const std::string meta = KyoukoRoot::m_root->monitoringMetaMessage.toString();
-    KyoukoRoot::m_monitoringHandler->sendToMonitoring(meta.c_str(), meta.size());
-    KyoukoRoot::m_monitoringHandler->sendToMonitoring();
-
     return usedTime;
 }
 
@@ -94,9 +86,8 @@ void
 NetworkManager::run()
 {
     std::string errorMessage = "";
-    GlobalValues* globalValues = KyoukoRoot::m_synapseSegment->globalValues;
 
-    uint32_t time = globalValues->cycleTime;
+    uint32_t time = KyoukoRoot::m_networkCluster->networkMetaData.cycleTime;
     while(!m_abort)
     {
         if(m_block) {
@@ -106,21 +97,21 @@ NetworkManager::run()
         usleep(time);
 
         // handle learning
-        globalValues->lerningValue  = 0.0f;
+        KyoukoRoot::m_networkCluster->networkMetaData.lerningValue  = 0.0f;
         if(KyoukoRoot::m_freezeState)
         {
-            globalValues->lerningValue  = 1000.0f;
+            KyoukoRoot::m_networkCluster->networkMetaData.lerningValue  = 1000.0f;
             KyoukoRoot::m_freezeState = false;
         }
 
         const uint32_t usedTime = executeStep();
-        if(globalValues->cycleTime > usedTime) {
-            time = globalValues->cycleTime - usedTime;
+        if(KyoukoRoot::m_networkCluster->networkMetaData.cycleTime > usedTime) {
+            time = KyoukoRoot::m_networkCluster->networkMetaData.cycleTime - usedTime;
         } else {
             time = 1000;
         }
 
-        globalValues->lerningValue = 0.0f;
+        KyoukoRoot::m_networkCluster->networkMetaData.lerningValue = 0.0f;
     }
 }
 

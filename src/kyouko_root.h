@@ -24,10 +24,9 @@
 #define KYOUKO_ROOT_OBJECT_H
 
 #include <common.h>
-#include <core/objects/monitoring_container.h>
 
 class NetworkManager;
-struct Segment;
+struct NetworkCluster;
 class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
@@ -40,15 +39,11 @@ public:
     ~KyoukoRoot();
 
     static KyoukoRoot* m_root;
-    static Segment* m_synapseSegment;
-    static Segment* m_outputSegment;
+    static NetworkCluster* m_networkCluster;
     static bool m_freezeState;
     static ClientConnectionHandler* m_clientHandler;
     static MonitoringConnectionHandler* m_monitoringHandler;
     static InputOutputProcessing* m_ioHandler;
-
-    static MonitoringBrickMessage monitoringBrickMessage;
-    static MonitoringProcessingTimes monitoringMetaMessage;
 
     bool start();
     bool initializeSakuraFiles();

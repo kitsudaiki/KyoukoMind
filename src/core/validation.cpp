@@ -23,7 +23,6 @@
 #include "validation.h"
 
 #include <core/objects/segment.h>
-#include <core/objects/global_values.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
@@ -36,10 +35,7 @@ validateStructSizes()
     assert(sizeof(Synapse) == 8);
 
     std::cout<<"sizeof(SynapseSection): "<<sizeof(SynapseSection)<<std::endl;
-    assert(sizeof(SynapseSection) == 256);
-
-    std::cout<<"sizeof(GlobalValues): "<<sizeof(GlobalValues)<<std::endl;
-    assert(sizeof(GlobalValues) <= 256);
+    assert(sizeof(SynapseSection) == 512);
 
     return;
 }
