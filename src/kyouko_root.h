@@ -26,7 +26,6 @@
 #include <common.h>
 
 class NetworkManager;
-struct Segment;
 struct NetworkCluster;
 class InputOutputProcessing;
 class ClientConnectionHandler;

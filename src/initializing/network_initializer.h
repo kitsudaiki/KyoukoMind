@@ -25,8 +25,6 @@
 
 #include <common.h>
 
-struct Segment;
-
 namespace Kitsunemimi {
 namespace Ai {
 struct AiBaseMeta;

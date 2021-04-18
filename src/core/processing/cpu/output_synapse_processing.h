@@ -40,7 +40,7 @@
  * @return
  */
 inline float
-outputSynapseProcessing(Segment* segment,
+outputSynapseProcessing(OutputSegment* segment,
                         Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                         OutputSynapseSection* outputSection)
 {
@@ -86,7 +86,7 @@ outputSynapseProcessing(Segment* segment,
  * @return
  */
 inline void
-learNewOutput(Segment* segment,
+learNewOutput(OutputSegment* segment,
               Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
               OutputSynapseSection* outputSection)
 {
@@ -194,7 +194,7 @@ calculateLearnings(OutputSynapseSection* outputSection,
  * @brief node_processing
  */
 inline void
-output_node_processing(Segment* segment,
+output_node_processing(OutputSegment* segment,
                        Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
     // process output
@@ -210,7 +210,7 @@ output_node_processing(Segment* segment,
  * @return
  */
 inline float
-output_learn_step(Segment* segment,
+output_learn_step(OutputSegment* segment,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
     float totalDiff = 0.0f;
@@ -238,7 +238,7 @@ output_learn_step(Segment* segment,
  * @return
  */
 inline uint32_t
-output_precheck(Segment* segment)
+output_precheck(OutputSegment* segment)
 {
     uint32_t updateVals = 0;
 

@@ -39,7 +39,7 @@
  * @param hardening
  */
 inline void
-synapseProcessing(Segment* segment,
+synapseProcessing(SynapseSegment* segment,
                   SynapseSection* section,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   const uint32_t nodeId,
@@ -141,7 +141,7 @@ synapseProcessing(Segment* segment,
  * @param sectionPos
  */
 inline bool
-updating(Segment* segment,
+updating(SynapseSegment* segment,
          SynapseSection* section)
 {
     bool upToData = 1;
@@ -196,7 +196,7 @@ updating(Segment* segment,
  * @brief synapse_processing
  */
 inline void
-synapse_processing(Segment* segment,
+synapse_processing(SynapseSegment* segment,
                    Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
     const uint64_t numberOfSynapses = segment->segmentMeta->numberOfSynapseSections;
@@ -239,8 +239,8 @@ synapse_processing(Segment* segment,
  * @brief node_processing
  */
 inline void
-node_processing(Segment* segment,
-                Segment* outputSegment)
+node_processing(SynapseSegment* segment,
+                OutputSegment* outputSegment)
 {
     for(uint64_t i = 0; i < segment->segmentMeta->numberOfNodes; i++)
     {
