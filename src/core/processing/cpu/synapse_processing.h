@@ -65,7 +65,7 @@ synapseProcessing(SynapseSection* section,
     if(section->active == 0)
     {
         section->active = 1;
-        section->brickBufferPos = rand() & 1000;
+        section->brickBufferPos = rand() % 1000;
     }
 
     // iterate over all synapses in the section and update the target-nodes
@@ -80,7 +80,7 @@ synapseProcessing(SynapseSection* section,
                 && networkMetaData->doLearn > 0)
         {
             // set new weight
-            const float random = (rand() % 1024) / 1024.0f;
+            const float random = ((float) rand() / (RAND_MAX)) ;
             const float tooLearn = maxWeight * random;
             synapse->weight = static_cast<float>(weight < tooLearn) * weight
                                     + static_cast<float>(weight >= tooLearn) * tooLearn;
