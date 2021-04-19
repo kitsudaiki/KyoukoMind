@@ -30,6 +30,7 @@ struct NetworkCluster;
 class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
+class Learner;
 
 class KyoukoRoot
 {
@@ -48,17 +49,13 @@ public:
     bool start();
     bool initializeSakuraFiles();
 
-    bool learnStep();
-    void executeStep();
-    void finishStep();
     void learnTestData();
 
     NetworkManager* m_networkManager = nullptr;
+    Learner* m_learner = nullptr;
 
 private:
     uint32_t m_serverId = 0;
-
-    float m_inputBuffer[800];
 };
 
 #endif //KYOUKO_ROOT_OBJECT_H

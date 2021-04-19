@@ -113,7 +113,7 @@ learNewOutput(OutputSynapseSection* section,
 
         if(synapse->targetId == UNINIT_STATE_32
                 && networkMetaData->doLearn > 0
-                && limiter < 10)
+                && limiter < 3)
         {
             // const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
@@ -232,7 +232,7 @@ output_node_processing(OutputSynapseSection* outputSynapseSections,
  * @brief output_learn_step
  * @return
  */
-inline float
+inline void
 output_learn_step(OutputSynapseSection* outputSynapseSections,
                   float* inputs,
                   Output* outputs,
@@ -241,8 +241,6 @@ output_learn_step(OutputSynapseSection* outputSynapseSections,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   Kitsunemimi::Ai::OutputMetaData* outputMetaData)
 {
-    float totalDiff = 0.0f;
-
     for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
     {
         learNewOutput(&outputSynapseSections[o],
@@ -252,7 +250,7 @@ output_learn_step(OutputSynapseSection* outputSynapseSections,
                       networkMetaData,
                       outputMetaData,
                       o);
-        totalDiff += calculateLearnings(&outputSynapseSections[o], &outputs[o]);
+        calculateLearnings(&outputSynapseSections[o], &outputs[o]);
         if(outputSynapseSections[o].diffTotal != 0.0f)
         {
             outputSynapseLearn(&outputSynapseSections[o]);
@@ -263,39 +261,6 @@ output_learn_step(OutputSynapseSection* outputSynapseSections,
                                                              outputMetaData);
         }
     }
-
-    return totalDiff;
-}
-
-/**
- * @brief output_precheck
- * @return
- */
-inline uint32_t
-output_precheck(OutputSegmentMeta* segmentMeta,
-                Output* outputs)
-{
-    uint32_t updateVals = 0;
-
-    for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
-    {
-        Output* out = &outputs[o];
-        if(out->shouldValue == 0.0f
-                && out->outputValue <= out->shouldValue)
-        {
-            continue;
-        }
-
-        if(out->shouldValue > 0.0f
-                && out->outputValue >= out->shouldValue)
-        {
-            continue;
-        }
-
-        updateVals++;
-    }
-
-    return updateVals;
 }
 
 #endif // OUTPUT_SYNAPSE_PROCESSING_H
