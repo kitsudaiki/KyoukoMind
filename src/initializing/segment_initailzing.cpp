@@ -92,10 +92,10 @@ initOutputSegment(const uint32_t numberOfOutputs,
     }
 
     // init input
-    newSegment->inputs = reinterpret_cast<float*>(data + bufferPos);
+    newSegment->inputs = reinterpret_cast<OutputInput*>(data + bufferPos);
     bufferPos += numberOfInputs * sizeof(float);
     for(uint32_t i = 0; i < numberOfInputs; i++) {
-        newSegment->inputs[i] = 0.0f;
+        newSegment->inputs[i] = OutputInput();
     }
 
     return newSegment;

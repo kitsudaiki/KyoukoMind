@@ -116,7 +116,7 @@ struct OutputSegment
     OutputSynapseSection* outputSynapseSections = nullptr;
 
 
-    float* inputs = nullptr;
+    OutputInput* inputs = nullptr;
 
     OutputSegment() {}
 

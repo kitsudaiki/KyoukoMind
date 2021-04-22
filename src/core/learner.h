@@ -6,15 +6,22 @@
 struct OutputSegmentMeta;
 struct Output;
 
+struct Batch {
+    float buffer[2400];
+    uint32_t counter = 0;
+};
+
 class Learner
 {
 public:
     Learner();
 
-    bool learnStep();
+    uint32_t learnStep(uint32_t label);
     void executeStep();
 
-    float m_inputBuffer[800];
+    Batch batchs[10];
+
+    float buffer[2400];
 private:
     void finishStep();
     uint32_t checkOutput(OutputSegmentMeta *segmentMeta, Output *outputs);

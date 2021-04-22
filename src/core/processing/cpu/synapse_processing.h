@@ -272,7 +272,7 @@ node_processing(Node* nodes,
                 SynapseBuffer* synapseBuffers,
                 SynapseSegmentMeta* segmentMeta,
                 Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
-                float* outputInputs)
+                OutputInput* outputInputs)
 {
     for(uint64_t i = 0; i < segmentMeta->numberOfNodes; i++)
     {
@@ -281,6 +281,7 @@ node_processing(Node* nodes,
         {
             const ulong nodeBufferPosition = (pos * (segmentMeta->numberOfNodes)) + i;
             nodes[i].currentState += nodeBuffers[nodeBufferPosition];
+            //if(nodes[i].currentState > 1.0f) { std::cout<<i<<": "<<nodes[i].currentState<<std::endl; }
             nodeBuffers[nodeBufferPosition] = 0.0f;
         }
     }
@@ -306,7 +307,7 @@ node_processing(Node* nodes,
 
             // set to 255.0f, if value is too high
             const float cur = node->currentState;
-            node->currentState = static_cast<float>(cur < 0.0f) * 0.0f + static_cast<float>(cur >= 0.0f) * cur;
+            //node->currentState = static_cast<float>(cur < 0.0f) * 0.0f + static_cast<float>(cur >= 0.0f) * cur;
 
             synapseBuffers[i].buffer[0].weigth = node->potential;
             synapseBuffers[i].buffer[0].nodeId = i;
@@ -317,7 +318,7 @@ node_processing(Node* nodes,
 
             // set to 0.0f, if value is negative
             const float newCur = node->currentState;
-            node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
+            //node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
 
             // make cooldown in the node
             node->potential /= synapseMetaData->nodeCooldown;
@@ -327,14 +328,24 @@ node_processing(Node* nodes,
         {
             synapseBuffers[i].buffer[0].weigth = node->potential;
             synapseBuffers[i].buffer[0].nodeId = i;
-            synapseBuffers[i].process = node->potential > 5.0f;
+            synapseBuffers[i].process = node->potential > 5.0f;            
         }
         else
         {
-            const float newCur = node->currentState;
-            node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
-            const float pot = synapseMetaData->potentialOverflow * node->currentState;
-            outputInputs[i % segmentMeta->numberOfNodesPerBrick] = pot;
+            //const float newCur = node->currentState;
+            //node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
+            //const float pot = synapseMetaData->potentialOverflow * node->currentState;
+
+
+
+            OutputInput* oIn = &outputInputs[i % segmentMeta->numberOfNodesPerBrick];
+            if(oIn->weight > node->currentState * 1.01f
+                    || oIn->weight < node->currentState * 0.99f)
+            {
+                oIn->isNew = 1;
+            }
+
+            oIn->weight = node->currentState;
             node->currentState = 0.0f;
         }
     }

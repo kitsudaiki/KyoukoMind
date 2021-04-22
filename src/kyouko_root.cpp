@@ -159,16 +159,16 @@ void KyoukoRoot::learnTestData()
 
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
-
-    for(uint32_t i = 0; i < 800; i++) {
-        m_learner->m_inputBuffer[i] = 0.0f;
+    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
+    for(uint32_t i = 0; i < 2400; i++)  {
+        inputNodes[i].weight = 0.0f;
     }
 
     std::cout<<"learn"<<std::endl;
 
     for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 10000; pic++)
+        for(uint32_t pic = 0; pic < 60000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -184,8 +184,23 @@ void KyoukoRoot::learnTestData()
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
-                int32_t total = dataBufferPtr[pos] * 1;
-                m_learner->m_inputBuffer[i] = (static_cast<float>(total));
+                int32_t total = dataBufferPtr[pos];
+                m_learner->buffer[i * 3] = (static_cast<float>(total));
+                m_learner->buffer[i * 3 + 1] = (static_cast<float>(total));
+            }
+
+            for(uint32_t x = 8; x < 14; x++)
+            {
+                for(uint32_t y = 8; y < 14; y++)
+                {
+                    const uint32_t pixelPos = x * 28 + y;
+                    const uint32_t pos = pic * pictureSize + pixelPos + 16;
+                    int32_t total = (255 - dataBufferPtr[pos]) / 2;
+                    if(total < 0) {
+                        total = 0;
+                    }
+                    m_learner->buffer[pixelPos * 3 + 2] = (static_cast<float>(total));
+                }
             }
 
             /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
@@ -209,7 +224,7 @@ void KyoukoRoot::learnTestData()
                 }
             }*/
 
-            m_learner->learnStep();
+             m_learner->learnStep(label);
         }
     }
 
@@ -234,8 +249,7 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 800; i = i + 2)  {
+    for(uint32_t i = 0; i < 2400; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -250,9 +264,25 @@ void KyoukoRoot::learnTestData()
         for(uint32_t i = 0; i < pictureSize; i++)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
-            int32_t total = testDataBufferPtr[pos] * 1;
-            inputNodes[i].weight = (static_cast<float>(total));
+            int32_t total = testDataBufferPtr[pos];
+            inputNodes[i * 3].weight = (static_cast<float>(total));
+            inputNodes[i * 3 + 1].weight = (static_cast<float>(total));
         }
+
+        for(uint32_t x = 8; x < 14; x++)
+        {
+            for(uint32_t y = 8; y < 14; y++)
+            {
+                const uint32_t pixelPos = x * 28 + y;
+                const uint32_t pos = pic * pictureSize + pixelPos + 16;
+                int32_t total = (255 - testDataBufferPtr[pos]) / 2;
+                if(total < 0) {
+                    total = 0;
+                }
+                inputNodes[pixelPos * 3 + 2].weight = (static_cast<float>(total));
+            }
+        }
+
 
         /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
         {
@@ -302,7 +332,23 @@ void KyoukoRoot::learnTestData()
                 && biggest != 0.0f)
         {
             match++;
-        }
+        }/* else {
+            for(uint32_t x = 0; x < 28; x++)
+            {
+                for(uint32_t y = 0; y < 28; y++)
+                {
+                    const uint32_t pixelPos = x * 28 + y;
+                    const uint32_t pos = pic * pictureSize + pixelPos + 16;
+                    int32_t total = testDataBufferPtr[pos];
+                    if(total > 100) {
+                        std::cout<<" x";
+                    } else {
+                        std::cout<<"  ";
+                    }
+                }
+                std::cout<<"\n";
+            }
+        }*/
     }
 
     std::cout<<"======================================================================="<<std::endl;

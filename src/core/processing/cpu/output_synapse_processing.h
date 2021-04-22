@@ -43,7 +43,7 @@
  */
 inline float
 outputSynapseProcessing(OutputSynapseSection* outputSection,
-                        float* inputs,
+                        OutputInput* inputs,
                         OutputSegmentMeta* segmentMeta,
                         Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                         Kitsunemimi::Ai::OutputMetaData* outputMetaData)
@@ -72,8 +72,8 @@ outputSynapseProcessing(OutputSynapseSection* outputSection,
         if(targetId != UNINIT_STATE_32)
         {
             assert(targetId < segmentMeta->numberOfInputs);
-            synapse->active = inputs[targetId] >= outputMetaData->lowerMatch * synapse->border
-                              && inputs[targetId] <= outputMetaData->upperMatch * synapse->border;
+            synapse->active = inputs[targetId].weight >= outputMetaData->lowerMatch * synapse->border
+                              && inputs[targetId].weight <= outputMetaData->upperMatch * synapse->border;
             outputWeight += synapse->weight * static_cast<float>(synapse->active);
             outputSection->total += synapse->active;
         }
@@ -91,7 +91,7 @@ outputSynapseProcessing(OutputSynapseSection* outputSection,
  */
 inline void
 learNewOutput(OutputSynapseSection* section,
-              float* inputs,
+              OutputInput* inputs,
               OutputSegmentMeta* segmentMeta,
               uint32_t* randomValues,
               Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
@@ -110,20 +110,21 @@ learNewOutput(OutputSynapseSection* section,
     while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
         OutputSynapse* synapse = &section->synapses[pos];
-
         if(synapse->targetId == UNINIT_STATE_32
                 && networkMetaData->doLearn > 0
-                && limiter < 3)
+                && limiter < 5)
         {
             // const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             uint32_t possibleTargetId = randomValues[section->randomPos] % outputMetaData->inputRange;
             possibleTargetId += outputPos * outputMetaData->inputOffset;
             assert(possibleTargetId <= segmentMeta->numberOfInputs);
-            if(inputs[possibleTargetId] > 0.0f)
+            if(inputs[possibleTargetId].weight > 0.0f
+                    && inputs[possibleTargetId].isNew == 1)
             {
+
                 synapse->targetId = possibleTargetId;
-                synapse->border = inputs[possibleTargetId];
+                synapse->border = inputs[possibleTargetId].weight;
                 synapse->weight = 0.0f;
                 synapse->newOne = 1;
                 synapse->active = 1;
@@ -211,7 +212,7 @@ calculateLearnings(OutputSynapseSection* outputSection,
  */
 inline void
 output_node_processing(OutputSynapseSection* outputSynapseSections,
-                       float* inputs,
+                       OutputInput* inputs,
                        Output* outputs,
                        OutputSegmentMeta* segmentMeta,
                        Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
@@ -234,7 +235,7 @@ output_node_processing(OutputSynapseSection* outputSynapseSections,
  */
 inline void
 output_learn_step(OutputSynapseSection* outputSynapseSections,
-                  float* inputs,
+                  OutputInput* inputs,
                   Output* outputs,
                   OutputSegmentMeta* segmentMeta,
                   uint32_t* randomValues,

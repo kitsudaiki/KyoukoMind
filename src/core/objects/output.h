@@ -74,6 +74,19 @@ struct Output
 {
     float outputValue = 0.0f;
     float shouldValue = 0.0f;
+
+    // total size: 8 Byte
+};
+
+//==================================================================================================
+
+struct OutputInput
+{
+    float weight = 0.0f;
+    uint8_t isNew = 0;
+    uint8_t padding[3];
+
+    // total size: 8 Byte
 };
 
 //==================================================================================================

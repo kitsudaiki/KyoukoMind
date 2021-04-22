@@ -18,8 +18,8 @@ Learner::Learner()
  * @brief Lerner::learnStep
  * @return
  */
-bool
-Learner::learnStep()
+uint32_t
+Learner::learnStep(uint32_t label)
 {
     OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
@@ -28,6 +28,11 @@ Learner::learnStep()
 
     cluster->networkMetaData.doLearn = 1;
 
+    OutputInput* outputInputs = cluster->outputSegment->inputs;
+    for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
+        outputInputs[i].isNew = 0;
+    }
+
     //----------------------------------------------------------------------------------------------
     // learn phase 1
     timeout = 5;
@@ -35,19 +40,18 @@ Learner::learnStep()
     uint32_t tempVal = 0;
     do
     {
-        for(uint32_t i = 0; i < 800; i++) {
+        for(uint32_t i = 0; i < 2400; i++) {
             inputNodes[i].weight = 0.0f;
         }
 
         executeStep();
 
-        for(uint32_t i = 0; i < 800; i++) {
-            inputNodes[i].weight = m_inputBuffer[i];
+        for(uint32_t i = 0; i < 2400; i++) {
+            inputNodes[i].weight = buffer[i];
         }
 
         executeStep();
-        tempVal = checkOutput(outputSegment->segmentMeta,
-                                  outputSegment->outputs);
+        tempVal = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
 
         if(tempVal < updateVals)
@@ -107,7 +111,7 @@ Learner::learnStep()
 
     finishStep();
 
-    return true;
+    return tempVal;
 }
 
 /**
@@ -178,13 +182,10 @@ Learner::finishStep()
 
     KyoukoRoot::m_freezeState = false;
 
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 800; i++) {
-        inputNodes[i].weight = 0.0f;
+    OutputInput* outputInputs = cluster->outputSegment->inputs;
+    for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
+        outputInputs[i].isNew = 0;
     }
-
-    // reset network
-    executeStep();
 }
 
 /**
