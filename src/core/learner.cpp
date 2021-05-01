@@ -9,9 +9,15 @@
 #include <core/processing/cpu/output_synapse_processing.h>
 #include <core/processing/cpu/synapse_processing.h>
 
+#include <core/processing/gpu/gpu_processing_uint.h>
+#include <libKitsunemimiOpencl/gpu_interface.h>
+
 Learner::Learner()
 {
-
+    m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
+    assert(m_gpuHandler->m_interfaces.size() >= 1);
+    m_gpu = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
+    assert(m_gpu->initializeGpu(KyoukoRoot::m_networkCluster));
 }
 
 /**

@@ -55,7 +55,6 @@ KyoukoRoot::KyoukoRoot()
 {
     validateStructSizes();
 
-    m_learner = new Learner();
     m_root = this;
     m_freezeState = false;
     m_clientHandler = new ClientConnectionHandler();
@@ -156,6 +155,9 @@ void KyoukoRoot::learnTestData()
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[13]) << 16;
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
+
+    m_learner = new Learner();
+
 
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;

@@ -11,6 +11,13 @@ struct Batch {
     uint32_t counter = 0;
 };
 
+namespace Kitsunemimi {
+namespace Opencl {
+class GpuHandler;
+}
+}
+class GpuProcessingUnit;
+
 class Learner
 {
 public:
@@ -23,6 +30,9 @@ public:
 
     float buffer[2400];
 private:
+    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
+    GpuProcessingUnit* m_gpu = nullptr;
+
     void finishStep();
     uint32_t checkOutput(OutputSegmentMeta *segmentMeta, Output *outputs);
 };
