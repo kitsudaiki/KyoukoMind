@@ -98,6 +98,7 @@ Learner::learnStep(uint32_t label)
                           outputSegment->randomValues,
                           &KyoukoRoot::m_networkCluster->networkMetaData,
                           outputSegment->outputMetaData);
+        //m_gpu->output_learn_step();
         timeout--;
         check = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
     }
@@ -175,6 +176,7 @@ Learner::executeStep()
                            outputSegment->segmentMeta,
                            &KyoukoRoot::m_networkCluster->networkMetaData,
                            outputSegment->outputMetaData);
+    //m_gpu->output_node_processing();
 }
 
 /**
@@ -190,6 +192,7 @@ Learner::finishStep()
 
     KyoukoRoot::m_freezeState = false;
 
+    //m_gpu->finish();
     OutputInput* outputInputs = cluster->outputSegment->inputs;
     for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
         outputInputs[i].isNew = 0;

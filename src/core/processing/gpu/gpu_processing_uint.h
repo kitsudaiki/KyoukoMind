@@ -48,6 +48,7 @@ public:
     bool node_processing();
     bool output_node_processing();
     bool output_learn_step();
+    bool finish();
 
     void run();
 

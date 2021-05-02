@@ -58,7 +58,6 @@ GpuProcessingUnit::GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInter
 bool
 GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 {
-    std::cout<<"poi1: "<<std::endl;
     const std::string processingCode(reinterpret_cast<char*>(synapse_node_processing_cl),
                                      synapse_node_processing_cl_len);
 
@@ -69,22 +68,17 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.threadsPerWg.x = 127;
 
     //==============================================================================================
-    std::cout<<"poi2"<<std::endl;
 
     // fill buffer for nodes to map on gpu
-    oclData.addBuffer("outputMetaData",
-                      1,
-                      sizeof(Kitsunemimi::Ai::OutputMetaData),
-                      false,
-                      cluster->outputSegment->outputMetaData);
 
-    oclData.addBuffer("networkMetaData",    1, sizeof(Kitsunemimi::Ai::NetworkMetaData), false, &cluster->networkMetaData);
+    oclData.addBuffer("networkMetaData",    1, sizeof(Kitsunemimi::Ai::NetworkMetaData), true, &cluster->networkMetaData);
 
     OutputSegmentMeta* outputSegmentMeta = cluster->outputSegment->segmentMeta;
-    oclData.addBuffer("outputSegmentMeta",     1,                                  sizeof(OutputSegmentMeta),    false, outputSegmentMeta);
-    oclData.addBuffer("outputs",               outputSegmentMeta->numberOfOutputs, sizeof(Output),               false, cluster->outputSegment->outputs);
-    oclData.addBuffer("outputInputs",          outputSegmentMeta->numberOfInputs,  sizeof(OutputInput),          false, cluster->outputSegment->inputs);
-    oclData.addBuffer("outputSynapseSections", outputSegmentMeta->numberOfOutputs, sizeof(OutputSynapseSection), false, cluster->outputSegment->outputSynapseSections);
+    oclData.addBuffer("outputSegmentMeta",     1,                                  sizeof(OutputSegmentMeta),               false, outputSegmentMeta);
+    oclData.addBuffer("outputs",               outputSegmentMeta->numberOfOutputs, sizeof(Output),                          false, cluster->outputSegment->outputs);
+    oclData.addBuffer("outputInputs",          outputSegmentMeta->numberOfInputs,  sizeof(OutputInput),                     false, cluster->outputSegment->inputs);
+    oclData.addBuffer("outputSynapseSections", outputSegmentMeta->numberOfOutputs, sizeof(OutputSynapseSection),            false, cluster->outputSegment->outputSynapseSections);
+    oclData.addBuffer("outputMetaData",        1,                                  sizeof(Kitsunemimi::Ai::OutputMetaData), false, cluster->outputSegment->outputMetaData);
 
     SynapseSegmentMeta* synapseSegmentMeta = cluster->synapseSegment->segmentMeta;
     oclData.addBuffer("synapseMetaData",    1,                                           sizeof(Kitsunemimi::Ai::SynapseMetaData), false, cluster->synapseSegment->synapseMetaData);
@@ -96,22 +90,18 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.addBuffer("synapseSections",    synapseSegmentMeta->numberOfSynapseSections, sizeof(SynapseSection),                   false, cluster->synapseSegment->synapseSections);
     oclData.addBuffer("synapseBuffers",     synapseSegmentMeta->numberOfSynapseSections, sizeof(SynapseBuffer),                    false, cluster->synapseSegment->synapseBuffers);
     oclData.addBuffer("inputNodes",         synapseSegmentMeta->numberOfInputs,          sizeof(InputNode),                        true, cluster->synapseSegment->inputNodes);
-    std::cout<<"poi3"<<std::endl;
 
     //==============================================================================================
 
     assert(m_gpuInterface->initCopyToDevice(oclData));
 
     //==============================================================================================
-    std::cout<<"poi4"<<std::endl;
 
     // init kernel
     assert(m_gpuInterface->addKernel(oclData, "synapse_processing",  processingCode));
     assert(m_gpuInterface->addKernel(oclData, "node_processing",  processingCode));
-    //assert(m_gpuInterface->addKernel(oclData, "output_node_processing",  processingCode));
-    //assert(m_gpuInterface->addKernel(oclData, "output_learn_step",  processingCode));
-
-    std::cout<<"poi41"<<std::endl;
+    assert(m_gpuInterface->addKernel(oclData, "output_node_processing",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "output_learn_step",  processingCode));
 
     // bind buffer for node_processing kernel
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "nodes"));
@@ -121,8 +111,6 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "synapseSegmentMeta"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "synapseMetaData"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "outputInputs"));
-
-    std::cout<<"poi42"<<std::endl;
 
     // bind buffer for synapse_processing kernel
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "synapseSegmentMeta"));
@@ -136,7 +124,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "networkMetaData"));
 
     // bind buffer for output_node_processing kernel
-    /*assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputSynapseSections"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputSynapseSections"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputInputs"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputs"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputSegmentMeta"));
@@ -150,8 +138,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputSegmentMeta"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "randomValues"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "networkMetaData"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputMetaData"));*/
-    std::cout<<"poi5"<<std::endl;
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputMetaData"));
 
     //==============================================================================================
 
@@ -159,15 +146,15 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->getLocalMemorySize() == 256*256);
     assert(m_gpuInterface->setLocalMemory(oclData, "node_processing",  256*256));
     assert(m_gpuInterface->setLocalMemory(oclData, "synapse_processing",  256*256));
-    /*assert(m_gpuInterface->setLocalMemory(oclData, "output_node_processing",  256*256));
-    assert(m_gpuInterface->setLocalMemory(oclData, "output_learn_step",  256*256));*/
+    assert(m_gpuInterface->setLocalMemory(oclData, "output_node_processing",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "output_learn_step",  256*256));
 
     //==============================================================================================
 
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodes"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodeBuffers"));
 
-    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputInputs"));
 
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseBuffers"));
@@ -177,26 +164,15 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "randomValues"));
 
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
+
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseMetaData"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseSegmentMeta"));
 
-    // bind buffer for output_node_processing kernel
-    /*assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_node_processing", "outputSynapseSections"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_node_processing", "outputInputs"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_node_processing", "outputs"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_node_processing", "outputSegmentMeta"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_node_processing", "networkMetaData"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_node_processing", "outputMetaData"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputMetaData"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputSegmentMeta"));
 
-    // bind buffer for output_learn_step kernel
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_learn_step", "outputSynapseSections"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_learn_step", "outputInputs"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_learn_step", "outputs"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_learn_step", "outputSegmentMeta"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_learn_step", "randomValues"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_learn_step", "networkMetaData"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_learn_step", "outputMetaData"));
-    std::cout<<"poi6"<<std::endl;*/
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputSynapseSections"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
 
     return true;
 }
@@ -210,46 +186,15 @@ GpuProcessingUnit::updateInput()
 bool
 GpuProcessingUnit::synapse_processing()
 {
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-    float timeValue = 0.0f;
-    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
-    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseBuffers"));
-    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodes"));
-
-    start = std::chrono::system_clock::now();
     assert(m_gpuInterface->run(oclData, "synapse_processing"));
-    end = std::chrono::system_clock::now();
-    timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-    //std::cout<<"synapse-gpu-time: "<<static_cast<uint32_t>(timeValue / 1000.0f)<<" us"<<std::endl;
-
-    //assert(m_gpuInterface->copyFromDevice(oclData, "nodes"));
-    //assert(m_gpuInterface->copyFromDevice(oclData, "nodeBuffers"));
-    //assert(m_gpuInterface->copyFromDevice(oclData, "synapseBuffers"));
-
     return true;
 }
 
 bool
 GpuProcessingUnit::node_processing()
 {
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-    float timeValue = 0.0f;
-
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
-    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes"));
-    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodeBuffers"));
-
     assert(m_gpuInterface->run(oclData, "node_processing"));
-    start = std::chrono::system_clock::now();
-
-    //assert(m_gpuInterface->copyFromDevice(oclData, "nodeBuffers"));
-    //assert(m_gpuInterface->copyFromDevice(oclData, "synapseBuffers"));
     assert(m_gpuInterface->copyFromDevice(oclData, "outputInputs"));
-    end = std::chrono::system_clock::now();
-    timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-    //std::cout<<"node-gpu-time: "<<static_cast<uint32_t>(timeValue / 1000.0f)<<" us"<<std::endl;
 
     return true;
 }
@@ -257,15 +202,27 @@ GpuProcessingUnit::node_processing()
 bool
 GpuProcessingUnit::output_node_processing()
 {
-    m_gpuInterface->run(oclData, "output_node_processing");
+    assert(m_gpuInterface->run(oclData, "output_node_processing"));
+    assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
     return true;
 }
 
 bool
 GpuProcessingUnit::output_learn_step()
 {
-    m_gpuInterface->run(oclData, "output_learn_step");
+    assert(m_gpuInterface->run(oclData, "output_learn_step"));
+    assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
     return true;
+}
+
+bool GpuProcessingUnit::finish()
+{
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    OutputInput* outputInputs = cluster->outputSegment->inputs;
+    for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
+        outputInputs[i].isNew = 0;
+    }
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputInputs"));
 }
 
 /**
