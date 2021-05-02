@@ -95,7 +95,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.addBuffer("nodes",              synapseSegmentMeta->numberOfNodes,           sizeof(Node),                             false, cluster->synapseSegment->nodes);
     oclData.addBuffer("synapseSections",    synapseSegmentMeta->numberOfSynapseSections, sizeof(SynapseSection),                   false, cluster->synapseSegment->synapseSections);
     oclData.addBuffer("synapseBuffers",     synapseSegmentMeta->numberOfSynapseSections, sizeof(SynapseBuffer),                    false, cluster->synapseSegment->synapseBuffers);
-    oclData.addBuffer("inputNodes",         synapseSegmentMeta->numberOfInputs,          sizeof(InputNode),                        false, cluster->synapseSegment->inputNodes);
+    oclData.addBuffer("inputNodes",         synapseSegmentMeta->numberOfInputs,          sizeof(InputNode),                        true, cluster->synapseSegment->inputNodes);
     std::cout<<"poi3"<<std::endl;
 
     //==============================================================================================
@@ -166,15 +166,19 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodes"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodeBuffers"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseBuffers"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseSegmentMeta"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseMetaData"));
+
+    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputInputs"));
+
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseBuffers"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseSections"));
+
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "bricks"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "randomValues"));
+
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseMetaData"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseSegmentMeta"));
 
     // bind buffer for output_node_processing kernel
     /*assert(m_gpuInterface->updateBufferOnDevice(oclData, "output_node_processing", "outputSynapseSections"));
@@ -209,13 +213,19 @@ GpuProcessingUnit::synapse_processing()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
+    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
+    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseBuffers"));
+    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodes"));
 
     start = std::chrono::system_clock::now();
     assert(m_gpuInterface->run(oclData, "synapse_processing"));
     end = std::chrono::system_clock::now();
     timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-    std::cout<<"synapse-gpu-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
+    //std::cout<<"synapse-gpu-time: "<<static_cast<uint32_t>(timeValue / 1000.0f)<<" us"<<std::endl;
+
+    //assert(m_gpuInterface->copyFromDevice(oclData, "nodes"));
+    //assert(m_gpuInterface->copyFromDevice(oclData, "nodeBuffers"));
+    //assert(m_gpuInterface->copyFromDevice(oclData, "synapseBuffers"));
 
     return true;
 }
@@ -227,15 +237,19 @@ GpuProcessingUnit::node_processing()
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
 
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
+    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes"));
+    //assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodeBuffers"));
 
-    start = std::chrono::system_clock::now();
     assert(m_gpuInterface->run(oclData, "node_processing"));
+    start = std::chrono::system_clock::now();
+
+    //assert(m_gpuInterface->copyFromDevice(oclData, "nodeBuffers"));
+    //assert(m_gpuInterface->copyFromDevice(oclData, "synapseBuffers"));
+    assert(m_gpuInterface->copyFromDevice(oclData, "outputInputs"));
     end = std::chrono::system_clock::now();
     timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-    //std::cout<<"node-gpu-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
-
-    assert(m_gpuInterface->copyFromDevice(oclData, "outputInputs"));
+    //std::cout<<"node-gpu-time: "<<static_cast<uint32_t>(timeValue / 1000.0f)<<" us"<<std::endl;
 
     return true;
 }

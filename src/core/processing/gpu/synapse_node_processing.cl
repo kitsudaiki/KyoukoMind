@@ -241,7 +241,7 @@ typedef struct SynapseSegmentMeta_struct
     uint numberOfRandomValues;
     uint numberOfInputs;
 
-    uchar padding[224];
+    uchar padding[220];
 }
 SynapseSegmentMeta;
 
@@ -258,7 +258,7 @@ typedef struct OutputSegmentMeta_struct
     uint numberOfRandomValues;
     uint numberOfInputs;
 
-    uchar padding[224];
+    uchar padding[240];
 }
 OutputSegmentMeta;
 
@@ -305,13 +305,14 @@ Brick;
  * @param hardening
  */
 inline void
-synapseProcessing(__local SynapseSection* section,
+synapseProcessing(__global SynapseSection* section,
                   __global Node* nodes,
+                  __global Brick* bricks,
                   __global float* nodeBuffers,
                   __global SynapseBuffer* synapseBuffers,
-                  __local const SynapseSegmentMeta* segmentMeta,
+                  __global const SynapseSegmentMeta* segmentMeta,
                   __global uint* randomValues,
-                  __local SynapseMetaData* synapseMetaData,
+                  __global SynapseMetaData* synapseMetaData,
                   __global NetworkMetaData* networkMetaData,
                   const uint nodeId,
                   const float weightIn,
@@ -325,15 +326,18 @@ synapseProcessing(__local SynapseSection* section,
     __global Node* node = &nodes[nodeId];
 
     // reinit section if necessary
-    if(section->active == 0) {
+    if(section->active == 0)
+    {
         section->active = 1;
+        section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+        section->brickBufferPos = randomValues[section->randomPos] % 1000;
     }
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
           && weight > 0.0f)
     {
-        __local Synapse* synapse = &section->synapses[pos];
+        __global Synapse* synapse = &section->synapses[pos];
 
         // create new synapse
         if(synapse->targetNodeId == UNINIT_STATE_16
@@ -349,8 +353,9 @@ synapseProcessing(__local SynapseSection* section,
             // get random node-id as target
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             const uint targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
-            const uint brickId = get_group_id(0);
-            const uint nodeOffset = brickId * segmentMeta->numberOfNodesPerBrick;
+            __global Brick* nodeBrick = &bricks[node->nodeBrickId];
+            const uint nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
+                                        * segmentMeta->numberOfNodesPerBrick;
             synapse->targetNodeId = (ushort)(targetNodeIdInBrick + nodeOffset);
 
             // set sign
@@ -361,6 +366,8 @@ synapseProcessing(__local SynapseSection* section,
 
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             synapse->multiplicator = (char)((randomValues[section->randomPos] % synapseMetaData->multiplicatorRange) + 1);
+
+            //printf("poi: %d  %f\n", synapse->targetNodeId, synapse->weight * synapse->multiplicator);
         }
 
         pos++;
@@ -369,8 +376,7 @@ synapseProcessing(__local SynapseSection* section,
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
            // printf("%d\n", synapse->targetNodeId);
-            const int localId_x = get_local_id(0);
-            const ulong nodeBufferPosition = (localId_x * segmentMeta->numberOfNodes) + synapse->targetNodeId;
+            const ulong nodeBufferPosition = (get_group_id(0) * segmentMeta->numberOfNodes) + synapse->targetNodeId;
             const float synapseWeight = synapse->weight;
             const float shareWeight = (float)(weight > synapseWeight) * synapseWeight
                                       + (float)(weight <= synapseWeight) * weight;
@@ -409,9 +415,9 @@ synapseProcessing(__local SynapseSection* section,
  * @param sectionPos
  */
 inline bool
-updating(__local SynapseSection* section,
+updating(__global SynapseSection* section,
          __global Node* nodes,
-         __local SynapseMetaData* synapseMetaData)
+         __global SynapseMetaData* synapseMetaData)
 {
     bool upToData = 1;
 
@@ -419,7 +425,7 @@ updating(__local SynapseSection* section,
     uint currentPos = section->hardening;
     for(uint lastPos = section->hardening; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
     {
-        __local Synapse* synapse = &section->synapses[lastPos];
+        __global Synapse* synapse = &section->synapses[lastPos];
 
         if(synapse->targetNodeId != UNINIT_STATE_16) 
         {
@@ -484,73 +490,45 @@ synapse_processing(__global const SynapseSegmentMeta* segmentMeta,
     const uint brickId = get_group_id(0); 
     const NetworkMetaData tempNetworkMetaData = networkMetaData[0];
 
-    // prepare shared memory
-    __local SynapseSegmentMeta* localSegmentMeta = (__local SynapseSegmentMeta*)&localMemory[0];
-    __local SynapseMetaData* localSynapseMetaData = (__local SynapseMetaData*)&localMemory[256];
-
-    if(localId_x == 0)
-    {
-        localSegmentMeta[0] = segmentMeta[0];
-        localSynapseMetaData[0] = synapseMetaData[0];
-    }
-    
-    barrier(CLK_LOCAL_MEM_FENCE);
-
-    __local SynapseSection* localSynapseSections = (__local SynapseSection*)&localMemory[512];
-
     //--------------------------------------------------------------------------------------------------------------
-    for(uint i = globalId_x; i < localSegmentMeta->numberOfSynapseSections; i = i + globalSize_x)
+    for(uint i = globalId_x; i < segmentMeta->numberOfSynapseSections; i = i + globalSize_x)
     {
         __global SynapseBuffer* synapseBuffer = &synapseBuffers[i];
-        localSynapseSections[localId_x] = synapseSections[i];
 
         if(synapseBuffer->process == 0)
         {
             if(synapseBuffer->upToDate == 0) 
             {
-                synapseBuffer->upToDate = updating(&localSynapseSections[localId_x], nodes, localSynapseMetaData);
-                synapseSections[i] = localSynapseSections[localId_x];
+                synapseBuffer->upToDate = updating(&synapseSections[i], nodes, synapseMetaData);
             }
         }
         else
         {
-            if(localSynapseSections[localId_x].active == 0)
-            {        
-                localSynapseSections[localId_x].randomPos = (localSynapseSections[localId_x].randomPos + 1) % localSegmentMeta->numberOfRandomValues;
-                localSynapseSections[localId_x].brickBufferPos = randomValues[localSynapseSections[localId_x].randomPos] % 1000;
-            }
-
             for(uchar layer = 0; layer < 8; layer++)
             {
                 __global SynapseBufferEntry* entry = &synapseBuffer->buffer[layer];
-                __global Brick* nodeBrick = &bricks[nodes[entry->nodeId].nodeBrickId];
-                const uint targetBrick = nodeBrick->possibleTargetNodeBrickIds[localSynapseSections[localId_x].brickBufferPos];
-                // check if gpu-thread is to determine to handle this tranfer-container
 
-                if(targetBrick == brickId) 
+                if(entry->weigth > 5.0f)
                 {
-                    if(entry->weigth > 5.0f)
-                    {
-                        synapseProcessing(&localSynapseSections[i],
-                                          nodes,
-                                          nodeBuffers,
-                                          synapseBuffers,
-                                          localSegmentMeta,
-                                          randomValues,
-                                          localSynapseMetaData,
-                                          networkMetaData,
-                                          entry->nodeId,
-                                          entry->weigth,
-                                          layer);
-                        synapseBuffer->upToDate = 0;
-                    }
-
-                    entry->weigth = 0.0f;
-                    entry->nodeId = UNINIT_STATE_32;
+                    synapseProcessing(&synapseSections[i],
+                                      nodes,
+                                      bricks,
+                                      nodeBuffers,
+                                      synapseBuffers,
+                                      segmentMeta,
+                                      randomValues,
+                                      synapseMetaData,
+                                      networkMetaData,
+                                      entry->nodeId,
+                                      entry->weigth,
+                                      layer);
+                    synapseBuffer->upToDate = 0;
                 }
+
+                entry->weigth = 0.0f;
+                entry->nodeId = UNINIT_STATE_32;
             }
 
-            synapseSections[i] = localSynapseSections[localId_x];
         }
     }
 }
@@ -622,9 +600,6 @@ node_processing(__global Node* nodes,
                 node->refractionTime = localSynapseMetaData->refractionTime;
             }
 
-            if(node->currentState > 0.0f) {
-             //   printf("%f\n", node->currentState);
-            }
             synapseBuffers[i].buffer[0].weigth = node->potential;
             synapseBuffers[i].buffer[0].nodeId = i;
             synapseBuffers[i].process = node->potential > 5.0f;
@@ -636,12 +611,17 @@ node_processing(__global Node* nodes,
         }
         else if(node->border == 0.0f)
         {
+
+           /* if(node->currentState > 0.1f) {
+                printf("%f\n", node->currentState);
+            }*/
             synapseBuffers[i].buffer[0].weigth = node->potential;
             synapseBuffers[i].buffer[0].nodeId = i;
             synapseBuffers[i].process = node->potential > 5.0f;
         }
         else
         {
+            //printf("%f\n", node->currentState);
             __global OutputInput* oIn = &outputInputs[i % localSegmentMeta->numberOfNodesPerBrick];
             oIn->isNew = (oIn->weight > node->currentState * 1.01f) || (oIn->weight < node->currentState * 0.99f);
             oIn->weight = node->currentState;

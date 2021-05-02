@@ -305,22 +305,13 @@ node_processing(Node* nodes,
                 node->refractionTime = synapseMetaData->refractionTime;
             }
 
-            // set to 255.0f, if value is too high
-            const float cur = node->currentState;
-            //node->currentState = static_cast<float>(cur < 0.0f) * 0.0f + static_cast<float>(cur >= 0.0f) * cur;
-
             synapseBuffers[i].buffer[0].weigth = node->potential;
             synapseBuffers[i].buffer[0].nodeId = i;
             synapseBuffers[i].process = node->potential > 5.0f;
 
+
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
-
-            // set to 0.0f, if value is negative
-            const float newCur = node->currentState;
-            //node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
-
-            // make cooldown in the node
             node->potential /= synapseMetaData->nodeCooldown;
             node->currentState /= synapseMetaData->nodeCooldown;
         }
@@ -332,19 +323,16 @@ node_processing(Node* nodes,
         }
         else
         {
-            //const float newCur = node->currentState;
-            //node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
-            //const float pot = synapseMetaData->potentialOverflow * node->currentState;
-
-
-
             OutputInput* oIn = &outputInputs[i % segmentMeta->numberOfNodesPerBrick];
             if(oIn->weight > node->currentState * 1.01f
                     || oIn->weight < node->currentState * 0.99f)
             {
                 oIn->isNew = 1;
             }
+            if(node->currentState > 0.1f) {
+              //  std::cout<<"i: "<<i<<"  :  "<<node->currentState<<std::endl;
 
+            }
             oIn->weight = node->currentState;
             node->currentState = 0.0f;
         }
