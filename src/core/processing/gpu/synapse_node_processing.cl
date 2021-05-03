@@ -31,7 +31,7 @@
 
 // common information
 #define SYNAPSES_PER_SYNAPSESECTION 62
-#define OUTPUT_SYNAPSES_PER_SECTION 4094
+#define OUTPUT_SYNAPSES_PER_SECTION 2046
 
 
 typedef struct NetworkMetaData_struct
@@ -654,11 +654,11 @@ node_processing(__global Node* nodes,
  * @return
  */
 inline float
-outputSynapseProcessing(__global OutputSynapseSection* outputSection,
+outputSynapseProcessing(__local OutputSynapseSection* outputSection,
                         __global OutputInput* inputs,
-                        __global OutputSegmentMeta* segmentMeta,
+                        __local OutputSegmentMeta* segmentMeta,
                         __global NetworkMetaData* networkMetaData,
-                        __global OutputMetaData* outputMetaData)
+                        __local OutputMetaData* outputMetaData)
 {
     float outputWeight = 0.0f;
 
@@ -667,7 +667,7 @@ outputSynapseProcessing(__global OutputSynapseSection* outputSection,
     uint pos = 0;
     while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
-        __global OutputSynapse* synapse = &outputSection->synapses[pos];
+        __local OutputSynapse* synapse = &outputSection->synapses[pos];
 
         if(networkMetaData->lerningValue > 0.0f) {
             synapse->newOne = 0;
@@ -708,12 +708,12 @@ outputSynapseProcessing(__global OutputSynapseSection* outputSection,
  * @return
  */
 inline void
-learNewOutput(__global OutputSynapseSection* section,
+learNewOutput(__local OutputSynapseSection* section,
               __global OutputInput* inputs,
-              __global OutputSegmentMeta* segmentMeta,
+              __local OutputSegmentMeta* segmentMeta,
               __global uint* randomValues,
               __global NetworkMetaData* networkMetaData,
-              __global OutputMetaData* outputMetaData,
+              __local OutputMetaData* outputMetaData,
               const uint outputPos)
 {
     section->newOnes = 0;
@@ -727,7 +727,7 @@ learNewOutput(__global OutputSynapseSection* section,
     uint pos = 0;
     while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
-        __global OutputSynapse* synapse = &section->synapses[pos];
+        __local OutputSynapse* synapse = &section->synapses[pos];
 
         if(synapse->targetId == UNINIT_STATE_32
                 && networkMetaData->doLearn > 0
@@ -778,13 +778,13 @@ learNewOutput(__global OutputSynapseSection* section,
  * @return
  */
 inline void
-outputSynapseLearn(__global OutputSynapseSection* outputSection)
+outputSynapseLearn(__local OutputSynapseSection* outputSection)
 {
     uint pos = 0;
     while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
         // update target
-        __global OutputSynapse* synapse = &outputSection->synapses[pos];
+        __local OutputSynapse* synapse = &outputSection->synapses[pos];
         if(synapse->targetId != UNINIT_STATE_32)
         {
             if(synapse->active > 0) {
@@ -803,7 +803,7 @@ outputSynapseLearn(__global OutputSynapseSection* outputSection)
  * @return
  */
 inline float
-calculateLearnings(__global OutputSynapseSection* outputSection,
+calculateLearnings(__local OutputSynapseSection* outputSection,
                    __global Output* output)
 {
     outputSection->diffNew = output->shouldValue - output->outputValue;
@@ -843,14 +843,35 @@ output_node_processing(__global OutputSynapseSection* outputSynapseSections,
                        __global OutputMetaData* outputMetaData,         
                        __local uchar* localMemory)
 {
-    // process output
-    for(ulong o = get_global_id(0); o < segmentMeta->numberOfOutputs; o = o + get_global_size(0))
+    const size_t globalId_x = get_global_id(0);
+    const size_t globalSize_x = get_global_size(0);
+    const int localId_x = get_local_id(0);
+    const int localSize_x = get_local_size(0);
+    const size_t groupId_x = get_group_id(0);
+
+    // prepare shared memory
+    __local OutputSegmentMeta* localSegmentMeta = (__local OutputSegmentMeta*)&localMemory[0];
+    __local OutputMetaData* localOutputMetaData = (__local OutputMetaData*)&localMemory[256];
+    __local OutputSynapseSection* localOutputSynapseSection = (__local OutputSynapseSection*)&localMemory[512];
+
+    if(localId_x == 0)
     {
-        outputs[o].outputValue = outputSynapseProcessing(&outputSynapseSections[o],
-                                                         inputs,
-                                                         segmentMeta,
-                                                         networkMetaData,
-                                                         outputMetaData);
+        localSegmentMeta[0] = segmentMeta[0];
+        localOutputMetaData[0] = outputMetaData[0];
+
+        const ulong numberOfGroups = globalSize_x / localSize_x;
+        for(ulong o = groupId_x; o < localSegmentMeta->numberOfOutputs; o = o + numberOfGroups)
+        {
+            localOutputSynapseSection[0] = outputSynapseSections[o];
+
+            outputs[o].outputValue = outputSynapseProcessing(&localOutputSynapseSection[0],
+                                                             inputs,
+                                                             localSegmentMeta,
+                                                             networkMetaData,
+                                                             localOutputMetaData);
+
+            outputSynapseSections[o] = localOutputSynapseSection[0];
+        }
     }
 }
 
@@ -868,26 +889,46 @@ output_learn_step(__global OutputSynapseSection* outputSynapseSections,
                   __global OutputMetaData* outputMetaData,         
                   __local uchar* localMemory)
 {
-    for(ulong o = get_global_id(0); o < segmentMeta->numberOfOutputs; o = o + get_global_size(0))
+    const size_t globalId_x = get_global_id(0);
+    const size_t globalSize_x = get_global_size(0);
+    const int localId_x = get_local_id(0);
+    const int localSize_x = get_local_size(0);
+    const size_t groupId_x = get_group_id(0);
+
+    // prepare shared memory
+    __local OutputSegmentMeta* localSegmentMeta = (__local OutputSegmentMeta*)&localMemory[0];
+    __local OutputMetaData* localOutputMetaData = (__local OutputMetaData*)&localMemory[256];
+    __local OutputSynapseSection* localOutputSynapseSection = (__local OutputSynapseSection*)&localMemory[512];
+
+    if(localId_x == 0)
     {
+        localSegmentMeta[0] = segmentMeta[0];
+        localOutputMetaData[0] = outputMetaData[0];
 
-        learNewOutput(&outputSynapseSections[o],
-                      inputs,
-                      segmentMeta,
-                      randomValues,
-                      networkMetaData,
-                      outputMetaData,
-                      o);
-        calculateLearnings(&outputSynapseSections[o], &outputs[o]);
-        if(outputSynapseSections[o].diffTotal != 0.0f)
+        const ulong numberOfGroups = globalSize_x / localSize_x;
+        for(ulong o = groupId_x; o < localSegmentMeta->numberOfOutputs; o = o + numberOfGroups)
         {
-            outputSynapseLearn(&outputSynapseSections[o]);
-            outputs[o].outputValue = outputSynapseProcessing(&outputSynapseSections[o],
-                                                             inputs,
-                                                             segmentMeta,
-                                                             networkMetaData,
-                                                             outputMetaData);
+            localOutputSynapseSection[0] = outputSynapseSections[o];
 
+            learNewOutput(&localOutputSynapseSection[0],
+                          inputs,
+                          localSegmentMeta,
+                          randomValues,
+                          networkMetaData,
+                          localOutputMetaData,
+                          o);
+            calculateLearnings(&localOutputSynapseSection[0], &outputs[o]);
+            if(localOutputSynapseSection[0].diffTotal != 0.0f)
+            {
+                outputSynapseLearn(&localOutputSynapseSection[0]);
+                outputs[o].outputValue = outputSynapseProcessing(&localOutputSynapseSection[0],
+                                                                 inputs,
+                                                                 localSegmentMeta,
+                                                                 networkMetaData,
+                                                                 localOutputMetaData);
+            }
+
+            outputSynapseSections[o] = localOutputSynapseSection[0];
         }
     }
 }
