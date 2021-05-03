@@ -189,6 +189,7 @@ OutputInput;
 typedef struct OutputSynapseSection_struct
 {
     ushort status;
+    uchar padding[6];
     ushort randomPos;
 
     ulong prev;
@@ -672,7 +673,7 @@ outputSynapseProcessing(__global OutputSynapseSection* outputSection,
             synapse->newOne = 0;
         }
 
-        if(synapse->weight < 0.001f)
+        if(synapse->weight != 0.0f)
         {
             const uint targetId = synapse->targetId;
             if(targetId != UNINIT_STATE_32)
@@ -680,6 +681,7 @@ outputSynapseProcessing(__global OutputSynapseSection* outputSection,
                 synapse->active = inputs[targetId].weight >= outputMetaData->lowerMatch * synapse->border
                                   && inputs[targetId].weight <= outputMetaData->upperMatch * synapse->border;
                 outputWeight += synapse->weight * (float)(synapse->active);
+
                 outputSection->total += synapse->active;
             }
         }
@@ -760,7 +762,8 @@ learNewOutput(__global OutputSynapseSection* section,
             section->synapses[pos] = tempSyn;
         }
 
-        if(synapse->newOne == 1) {
+        if(synapse->newOne == 1)
+        {
             section->newOnes++;
             section->total++;
         }
@@ -867,6 +870,7 @@ output_learn_step(__global OutputSynapseSection* outputSynapseSections,
 {
     for(ulong o = get_global_id(0); o < segmentMeta->numberOfOutputs; o = o + get_global_size(0))
     {
+
         learNewOutput(&outputSynapseSections[o],
                       inputs,
                       segmentMeta,
@@ -883,7 +887,17 @@ output_learn_step(__global OutputSynapseSection* outputSynapseSections,
                                                              segmentMeta,
                                                              networkMetaData,
                                                              outputMetaData);
+
         }
+    }
+}
+
+__kernel void
+reset_output_inputs(__global OutputInput* inputs,
+                    __global OutputSegmentMeta* segmentMeta)
+{
+    for(ulong o = get_global_id(0); o < segmentMeta->numberOfOutputs; o = o + get_global_size(0)) {
+        inputs[o].isNew = 0;
     }
 }
 

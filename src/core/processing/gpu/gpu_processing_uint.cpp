@@ -74,11 +74,11 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.addBuffer("networkMetaData",    1, sizeof(Kitsunemimi::Ai::NetworkMetaData), true, &cluster->networkMetaData);
 
     OutputSegmentMeta* outputSegmentMeta = cluster->outputSegment->segmentMeta;
-    oclData.addBuffer("outputSegmentMeta",     1,                                  sizeof(OutputSegmentMeta),               false, outputSegmentMeta);
+    oclData.addBuffer("outputMetaData",        1,                                  sizeof(Kitsunemimi::Ai::OutputMetaData), false, cluster->outputSegment->outputMetaData);
+    oclData.addBuffer("outputSegmentMeta",     1,                                  sizeof(OutputSegmentMeta),               false, cluster->outputSegment->segmentMeta);
     oclData.addBuffer("outputs",               outputSegmentMeta->numberOfOutputs, sizeof(Output),                          false, cluster->outputSegment->outputs);
     oclData.addBuffer("outputInputs",          outputSegmentMeta->numberOfInputs,  sizeof(OutputInput),                     false, cluster->outputSegment->inputs);
     oclData.addBuffer("outputSynapseSections", outputSegmentMeta->numberOfOutputs, sizeof(OutputSynapseSection),            false, cluster->outputSegment->outputSynapseSections);
-    oclData.addBuffer("outputMetaData",        1,                                  sizeof(Kitsunemimi::Ai::OutputMetaData), false, cluster->outputSegment->outputMetaData);
 
     SynapseSegmentMeta* synapseSegmentMeta = cluster->synapseSegment->segmentMeta;
     oclData.addBuffer("synapseMetaData",    1,                                           sizeof(Kitsunemimi::Ai::SynapseMetaData), false, cluster->synapseSegment->synapseMetaData);
@@ -102,6 +102,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->addKernel(oclData, "node_processing",  processingCode));
     assert(m_gpuInterface->addKernel(oclData, "output_node_processing",  processingCode));
     assert(m_gpuInterface->addKernel(oclData, "output_learn_step",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "reset_output_inputs",  processingCode));
 
     // bind buffer for node_processing kernel
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "nodes"));
@@ -139,6 +140,10 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "randomValues"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "networkMetaData"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputMetaData"));
+
+    // bind buffer for reset_outputs kernel
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "reset_output_inputs", "outputInputs"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "reset_output_inputs", "outputSegmentMeta"));
 
     //==============================================================================================
 
@@ -194,7 +199,7 @@ bool
 GpuProcessingUnit::node_processing()
 {
     assert(m_gpuInterface->run(oclData, "node_processing"));
-    assert(m_gpuInterface->copyFromDevice(oclData, "outputInputs"));
+    //assert(m_gpuInterface->copyFromDevice(oclData, "outputInputs"));
 
     return true;
 }
@@ -202,6 +207,7 @@ GpuProcessingUnit::node_processing()
 bool
 GpuProcessingUnit::output_node_processing()
 {
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
     assert(m_gpuInterface->run(oclData, "output_node_processing"));
     assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
     return true;
@@ -210,6 +216,7 @@ GpuProcessingUnit::output_node_processing()
 bool
 GpuProcessingUnit::output_learn_step()
 {
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
     assert(m_gpuInterface->run(oclData, "output_learn_step"));
     assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
     return true;
@@ -217,12 +224,8 @@ GpuProcessingUnit::output_learn_step()
 
 bool GpuProcessingUnit::finish()
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    OutputInput* outputInputs = cluster->outputSegment->inputs;
-    for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
-        outputInputs[i].isNew = 0;
-    }
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputInputs"));
+    assert(m_gpuInterface->run(oclData, "reset_output_inputs"));
+    return true;
 }
 
 /**

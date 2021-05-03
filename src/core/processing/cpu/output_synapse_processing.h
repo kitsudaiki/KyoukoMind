@@ -57,25 +57,24 @@ outputSynapseProcessing(OutputSynapseSection* outputSection,
     {
         OutputSynapse* synapse = &outputSection->synapses[pos];
 
-        if(networkMetaData->lerningValue > 0.0f)
-        {
+        if(networkMetaData->lerningValue > 0.0f) {
             synapse->newOne = 0;
-            if(synapse->weight == 0.0f)
-            {
-                outputSection->synapses[pos] = OutputSynapse();
-                pos++;
-                continue;
-            }
         }
 
-        const uint32_t targetId = synapse->targetId;
-        if(targetId != UNINIT_STATE_32)
+        if(synapse->weight != 0.0f)
         {
-            assert(targetId < segmentMeta->numberOfInputs);
-            synapse->active = inputs[targetId].weight >= outputMetaData->lowerMatch * synapse->border
-                              && inputs[targetId].weight <= outputMetaData->upperMatch * synapse->border;
-            outputWeight += synapse->weight * static_cast<float>(synapse->active);
-            outputSection->total += synapse->active;
+            const uint targetId = synapse->targetId;
+            if(targetId != UNINIT_STATE_32)
+            {
+                synapse->active = inputs[targetId].weight >= outputMetaData->lowerMatch * synapse->border
+                                  && inputs[targetId].weight <= outputMetaData->upperMatch * synapse->border;
+                outputWeight += synapse->weight * static_cast<float>(synapse->active);
+                outputSection->total += synapse->active;
+            }
+        }
+        else
+        {
+            outputSection->synapses[pos] = OutputSynapse();
         }
 
         pos++;
@@ -118,7 +117,7 @@ learNewOutput(OutputSynapseSection* section,
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             uint32_t possibleTargetId = randomValues[section->randomPos] % outputMetaData->inputRange;
             possibleTargetId += outputPos * outputMetaData->inputOffset;
-            assert(possibleTargetId <= segmentMeta->numberOfInputs);
+
             if(inputs[possibleTargetId].weight > 0.0f
                     && inputs[possibleTargetId].isNew == 1)
             {
@@ -138,7 +137,8 @@ learNewOutput(OutputSynapseSection* section,
             section->synapses[pos] = OutputSynapse();
         }
 
-        if(synapse->newOne == 1) {
+        if(synapse->newOne == 1)
+        {
             section->newOnes++;
             section->total++;
         }
@@ -162,8 +162,7 @@ outputSynapseLearn(OutputSynapseSection* outputSection)
         OutputSynapse* synapse = &outputSection->synapses[pos];
         if(synapse->targetId != UNINIT_STATE_32)
         {
-            if(synapse->active > 0)
-            {
+            if(synapse->active > 0) {
                 synapse->weight += outputSection->diffTotal;
             }
         }

@@ -91,14 +91,14 @@ Learner::learnStep(uint32_t label)
     uint32_t check = 0;
     do
     {
-        output_learn_step(outputSegment->outputSynapseSections,
+        /*output_learn_step(outputSegment->outputSynapseSections,
                           outputSegment->inputs,
                           outputSegment->outputs,
                           outputSegment->segmentMeta,
                           outputSegment->randomValues,
                           &KyoukoRoot::m_networkCluster->networkMetaData,
-                          outputSegment->outputMetaData);
-        //m_gpu->output_learn_step();
+                          outputSegment->outputMetaData);*/
+        m_gpu->output_learn_step();
         timeout--;
         check = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
     }
@@ -170,13 +170,13 @@ Learner::executeStep()
         //KyoukoRoot::m_root->m_networkManager->executeStep();
     }
 
-    output_node_processing(outputSegment->outputSynapseSections,
+    /*output_node_processing(outputSegment->outputSynapseSections,
                            outputSegment->inputs,
                            outputSegment->outputs,
                            outputSegment->segmentMeta,
                            &KyoukoRoot::m_networkCluster->networkMetaData,
-                           outputSegment->outputMetaData);
-    //m_gpu->output_node_processing();
+                           outputSegment->outputMetaData);*/
+    m_gpu->output_node_processing();
 }
 
 /**
@@ -192,11 +192,11 @@ Learner::finishStep()
 
     KyoukoRoot::m_freezeState = false;
 
-    //m_gpu->finish();
-    OutputInput* outputInputs = cluster->outputSegment->inputs;
+    m_gpu->finish();
+    /*OutputInput* outputInputs = cluster->outputSegment->inputs;
     for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
         outputInputs[i].isNew = 0;
-    }
+    }*/
 }
 
 /**
