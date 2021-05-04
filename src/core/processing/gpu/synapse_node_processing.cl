@@ -31,7 +31,7 @@
 
 // common information
 #define SYNAPSES_PER_SYNAPSESECTION 62
-#define OUTPUT_SYNAPSES_PER_SECTION 2046
+#define OUTPUT_SYNAPSES_PER_SECTION 3068
 
 
 typedef struct NetworkMetaData_struct
