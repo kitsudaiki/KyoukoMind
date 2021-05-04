@@ -89,7 +89,7 @@ get_required_kitsune_lib_repo "libKitsunemimiPersistence" "v0.10.1" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiOpencl" "v0.2.0" 4
+get_required_kitsune_lib_repo "libKitsunemimiOpencl" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
