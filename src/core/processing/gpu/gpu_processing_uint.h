@@ -24,8 +24,10 @@
 #define GPU_INTERFACE_H
 
 #include <common.h>
-#include <libKitsunemimiCommon/threading/thread.h>
+#include <core/objects/network_cluster.h>
+#include <core/objects/segment.h>
 
+#include <libKitsunemimiCommon/threading/thread.h>
 #include <libKitsunemimiOpencl/gpu_handler.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
@@ -33,16 +35,20 @@ namespace Kitsunemimi {
 class Barrier;
 }
 
-struct Segment;
-
 class GpuProcessingUnit
         : public Kitsunemimi::Thread
 {
 public:
     GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInterface);
 
-    bool initializeGpu(Segment &segment,
-                       const uint32_t numberOfBricks);
+    bool initializeGpu(NetworkCluster *cluster);
+
+    bool updateInput();
+    bool synapse_processing();
+    bool node_processing();
+    bool output_node_processing();
+    bool output_learn_step();
+    bool finish();
 
     void run();
 
@@ -56,10 +62,6 @@ private:
 
     Kitsunemimi::Opencl::GpuData oclData;
 
-    bool copySynapseTransfersToGpu(Segment &segment);
-    bool copyGlobalValuesToGpu();
-    bool runOnGpu(const std::string &kernelName);
-    bool copyAxonTransfersFromGpu();
     bool closeDevice();
 };
 

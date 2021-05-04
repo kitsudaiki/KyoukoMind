@@ -55,9 +55,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 
     }
 
-    const bool result = KyoukoRoot::m_root->learnStep();
 
-    blossomLeaf.output.insert("result", new DataValue(result));
     Kitsunemimi::DataArray outputArray;
 
     return true;

@@ -92,10 +92,10 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
                                                  totalNumberOfNodes,
                                                  parsedContent.initMetaData.maxSynapseSections,
                                                  totalNumberOfNodes / parsedContent.numberOfNodeBricks,
-                                                 1000);
+                                                 10*1024*1024);
     cluster->outputSegment = initOutputSegment(10,
                                                totalNumberOfNodes / parsedContent.numberOfNodeBricks,
-                                               1000);
+                                               10*1024*1024);
 
     cluster->synapseSegment->synapseMetaData[0] = parsedContent.synapseMetaData;
     cluster->outputSegment->outputMetaData[0] = parsedContent.outputMetaData;

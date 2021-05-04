@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 
     // init logging
     const bool enableDebug = argParser.wasSet("debug");
-    Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
+    Kitsunemimi::Persistence::initConsoleLogger(true);
     Kitsunemimi::Persistence::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
 
     // init config

@@ -55,7 +55,7 @@ struct SynapseSegmentMeta
     uint32_t numberOfRandomValues = 0;
     uint32_t numberOfInputs = 0;
 
-    uint8_t padding[224];
+    uint8_t padding[220];
 };
 
 struct SynapseSegment
@@ -99,7 +99,7 @@ struct OutputSegmentMeta
     uint32_t numberOfRandomValues = 0;
     uint32_t numberOfInputs = 0;
 
-    uint8_t padding[224];
+    uint8_t padding[240];
 };
 
 struct OutputSegment
@@ -116,7 +116,7 @@ struct OutputSegment
     OutputSynapseSection* outputSynapseSections = nullptr;
 
 
-    float* inputs = nullptr;
+    OutputInput* inputs = nullptr;
 
     OutputSegment() {}
 

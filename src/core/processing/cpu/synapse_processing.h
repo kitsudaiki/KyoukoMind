@@ -32,6 +32,8 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
+#include <libKitsunemimiAiCommon/metadata.h>
+
 /**
  * @brief synapseProcessing
  * @param sectionPos
@@ -39,8 +41,14 @@
  * @param hardening
  */
 inline void
-synapseProcessing(SynapseSegment* segment,
-                  SynapseSection* section,
+synapseProcessing(SynapseSection* section,
+                  Node* nodes,
+                  Brick* bricks,
+                  float* nodeBuffers,
+                  SynapseBuffer* synapseBuffers,
+                  SynapseSegmentMeta* segmentMeta,
+                  uint32_t* randomValues,
+                  Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   const uint32_t nodeId,
                   const float weightIn,
@@ -51,14 +59,15 @@ synapseProcessing(SynapseSegment* segment,
     uint32_t counter = 0;
     float weight = weightIn;
     bool processed = false;
-    const float maxWeight = segment->synapseMetaData->maxSynapseWeight;
-    Node* node = &segment->nodes[nodeId];
+    const float maxWeight = synapseMetaData->maxSynapseWeight;
+    Node* node = &nodes[nodeId];
 
     // reinit section if necessary
     if(section->active == 0)
     {
         section->active = 1;
-        section->brickBufferPos = rand() & 1000;
+        section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+        section->brickBufferPos = randomValues[section->randomPos] % 1000;
     }
 
     // iterate over all synapses in the section and update the target-nodes
@@ -73,25 +82,28 @@ synapseProcessing(SynapseSegment* segment,
                 && networkMetaData->doLearn > 0)
         {
             // set new weight
-            const float random = (rand() % 1024) / 1024.0f;
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            const float random = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
             const float tooLearn = maxWeight * random;
             synapse->weight = static_cast<float>(weight < tooLearn) * weight
                                     + static_cast<float>(weight >= tooLearn) * tooLearn;
 
             // get random node-id as target
-            const uint32_t targetNodeIdInBrick = static_cast<uint32_t>(rand())
-                                                 % segment->segmentMeta->numberOfNodesPerBrick;
-            Brick* nodeBrick = &segment->nodeBricks[node->nodeBrickId];
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            const uint32_t targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
+            Brick* nodeBrick = &bricks[node->nodeBrickId];
             const uint32_t nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
-                                        * segment->segmentMeta->numberOfNodesPerBrick;
+                                        * segmentMeta->numberOfNodesPerBrick;
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
 
             // set sign
-            const uint32_t signRand = rand() % 1000;
-            const float signNeg = segment->synapseMetaData->signNeg;
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            const uint32_t signRand = randomValues[section->randomPos] % 1000;
+            const float signNeg = synapseMetaData->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
 
-            synapse->multiplicator = (rand() % segment->synapseMetaData->multiplicatorRange) + 1;
+            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            synapse->multiplicator = static_cast<int8_t>((randomValues[section->randomPos] % synapseMetaData->multiplicatorRange) + 1);
         }
 
         pos++;
@@ -100,12 +112,12 @@ synapseProcessing(SynapseSegment* segment,
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
             // 0 because only one thread at the moment
-            const ulong nodeBufferPosition = (0 * segment->segmentMeta->numberOfNodes) + synapse->targetNodeId;
+            const ulong nodeBufferPosition = (0 * segmentMeta->numberOfNodes) + synapse->targetNodeId;
             const float synapseWeight = synapse->weight;
             const float shareWeight = static_cast<float>(weight > synapseWeight) * synapseWeight
                                       + static_cast<float>(weight <= synapseWeight) * weight;
 
-            segment->nodeBuffers[nodeBufferPosition] += (shareWeight * static_cast<float>(synapse->sign) * static_cast<float>(synapse->multiplicator));
+            nodeBuffers[nodeBufferPosition] += (shareWeight * static_cast<float>(synapse->sign) * static_cast<float>(synapse->multiplicator));
 
             weight -= shareWeight;
             counter = pos;
@@ -127,8 +139,8 @@ synapseProcessing(SynapseSegment* segment,
     {
         uint32_t nextLayer = layer + 1;
         nextLayer = (nextLayer > 7) * 7  + (nextLayer <= 7) * nextLayer;
-        const uint32_t pos = (node->targetSectionId + nextLayer * 10000 + nextLayer) % segment->segmentMeta->numberOfSynapseSections;
-        SynapseBuffer* synapseBuffer = &segment->synapseBuffers[pos];
+        const uint32_t pos = (node->targetSectionId + nextLayer * 10000 + nextLayer) % segmentMeta->numberOfSynapseSections;
+        SynapseBuffer* synapseBuffer = &synapseBuffers[pos];
         synapseBuffer->buffer[nextLayer].weigth = weight;
         synapseBuffer->buffer[nextLayer].nodeId = nodeId;
         synapseBuffer->process = 1;
@@ -140,8 +152,9 @@ synapseProcessing(SynapseSegment* segment,
  * @param sectionPos
  */
 inline bool
-updating(SynapseSegment* segment,
-         SynapseSection* section)
+updating(SynapseSection* section,
+         Node* nodes,
+         Kitsunemimi::Ai::SynapseMetaData* synapseMetaData)
 {
     bool upToData = 1;
 
@@ -158,14 +171,14 @@ updating(SynapseSegment* segment,
         upToData = 0;
 
         // update dynamic-weight-value of the synapse
-        if(segment->nodes[synapse->targetNodeId].active == 0) {
+        if(nodes[synapse->targetNodeId].active == 0) {
             synapse->weight = synapse->weight * 0.0f;
         } else {
             synapse->weight = synapse->weight * 0.0f;
         }
 
         // check for deletion of the single synapse
-        if(synapse->weight < segment->synapseMetaData->synapseDeleteBorder)
+        if(synapse->weight < synapseMetaData->synapseDeleteBorder)
         {
             synapse->weight = 0.0f;
             synapse->targetNodeId = UNINIT_STATE_16;
@@ -195,20 +208,29 @@ updating(SynapseSegment* segment,
  * @brief synapse_processing
  */
 inline void
-synapse_processing(SynapseSegment* segment,
+synapse_processing(SynapseSegmentMeta* segmentMeta,
+                   SynapseBuffer* synapseBuffers,
+                   SynapseSection* synapseSections,
+                   Node* nodes,
+                   Brick* bricks,
+                   float* nodeBuffers,
+                   uint32_t* randomValues,
+                   Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
                    Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
-    const uint64_t numberOfSynapses = segment->segmentMeta->numberOfSynapseSections;
+    const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
 
     //----------------------------------------------------------------------------------------------
     for(uint32_t i = 0; i < numberOfSynapses; i++)
     {
-        SynapseBuffer* synapseBuffer = &segment->synapseBuffers[i];
+        SynapseBuffer* synapseBuffer = &synapseBuffers[i];
 
         if(synapseBuffer->process == 0)
         {
             if(synapseBuffer->upToDate == 0) {
-                synapseBuffer->upToDate = updating(segment, &segment->synapseSections[i]);
+                synapseBuffer->upToDate = updating(&synapseSections[i],
+                                                   nodes,
+                                                   synapseMetaData);
             }
             continue;
         }
@@ -219,8 +241,14 @@ synapse_processing(SynapseSegment* segment,
 
             if(entry->weigth > 5.0f)
             {
-                synapseProcessing(segment,
-                                  &segment->synapseSections[i],
+                synapseProcessing(&synapseSections[i],
+                                  nodes,
+                                  bricks,
+                                  nodeBuffers,
+                                  synapseBuffers,
+                                  segmentMeta,
+                                  randomValues,
+                                  synapseMetaData,
                                   networkMetaData,
                                   entry->nodeId,
                                   entry->weigth,
@@ -238,27 +266,33 @@ synapse_processing(SynapseSegment* segment,
  * @brief node_processing
  */
 inline void
-node_processing(SynapseSegment* segment,
-                OutputSegment* outputSegment)
+node_processing(Node* nodes,
+                float* nodeBuffers,
+                InputNode* inputNodes,
+                SynapseBuffer* synapseBuffers,
+                SynapseSegmentMeta* segmentMeta,
+                Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
+                OutputInput* outputInputs)
 {
-    for(uint64_t i = 0; i < segment->segmentMeta->numberOfNodes; i++)
+    for(uint64_t i = 0; i < segmentMeta->numberOfNodes; i++)
     {
         // TODO: when port to gpu: change 2 to 256 again
         for(uint pos = 0; pos < 1; pos++)
         {
-            const ulong nodeBufferPosition = (pos * (segment->segmentMeta->numberOfNodes)) + i;
-            segment->nodes[i].currentState += segment->nodeBuffers[nodeBufferPosition];
-            segment->nodeBuffers[nodeBufferPosition] = 0.0f;
+            const ulong nodeBufferPosition = (pos * (segmentMeta->numberOfNodes)) + i;
+            nodes[i].currentState += nodeBuffers[nodeBufferPosition];
+            //if(nodes[i].currentState > 1.0f) { std::cout<<i<<": "<<nodes[i].currentState<<std::endl; }
+            nodeBuffers[nodeBufferPosition] = 0.0f;
         }
     }
 
-    for(uint64_t i = 0; i < segment->segmentMeta->numberOfInputs; i++) {
-        segment->nodes[segment->inputNodes[i].targetNode].potential = segment->inputNodes[i].weight;
+    for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
+        nodes[inputNodes[i].targetNode].potential = inputNodes[i].weight;
     }
 
-    for(uint32_t i = 0; i < segment->segmentMeta->numberOfNodes; i++)
+    for(uint32_t i = 0; i < segmentMeta->numberOfNodes; i++)
     {
-        Node* node = &segment->nodes[i];
+        Node* node = &nodes[i];
         if(node->border > 0.0f)
         {
             // check if active
@@ -266,42 +300,40 @@ node_processing(SynapseSegment* segment,
                                && node->refractionTime == 0;
             if(reset)
             {
-                node->potential = segment->synapseMetaData->actionPotential +
-                                  segment->synapseMetaData->potentialOverflow * node->currentState;
-                node->refractionTime = segment->synapseMetaData->refractionTime;
+                node->potential = synapseMetaData->actionPotential +
+                                  synapseMetaData->potentialOverflow * node->currentState;
+                node->refractionTime = synapseMetaData->refractionTime;
             }
 
-            // set to 255.0f, if value is too high
-            const float cur = node->currentState;
-            node->currentState = static_cast<float>(cur < 0.0f) * 0.0f + static_cast<float>(cur >= 0.0f) * cur;
+            synapseBuffers[i].buffer[0].weigth = node->potential;
+            synapseBuffers[i].buffer[0].nodeId = i;
+            synapseBuffers[i].process = node->potential > 5.0f;
 
-            segment->synapseBuffers[i].buffer[0].weigth = node->potential;
-            segment->synapseBuffers[i].buffer[0].nodeId = i;
-            segment->synapseBuffers[i].process = node->potential > 5.0f;
 
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
-
-            // set to 0.0f, if value is negative
-            const float newCur = node->currentState;
-            node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
-
-            // make cooldown in the node
-            node->potential /= segment->synapseMetaData->nodeCooldown;
-            node->currentState /= segment->synapseMetaData->nodeCooldown;
+            node->potential /= synapseMetaData->nodeCooldown;
+            node->currentState /= synapseMetaData->nodeCooldown;
         }
         else if(node->border == 0.0f)
         {
-            segment->synapseBuffers[i].buffer[0].weigth = node->potential;
-            segment->synapseBuffers[i].buffer[0].nodeId = i;
-            segment->synapseBuffers[i].process = node->potential > 5.0f;
+            synapseBuffers[i].buffer[0].weigth = node->potential;
+            synapseBuffers[i].buffer[0].nodeId = i;
+            synapseBuffers[i].process = node->potential > 5.0f;            
         }
         else
         {
-            const float newCur = node->currentState;
-            node->currentState = static_cast<float>(newCur < 0.0f) * 0.0f + static_cast<float>(newCur >= 0.0f) * newCur;
-            const float pot = segment->synapseMetaData->potentialOverflow * node->currentState;
-            outputSegment->inputs[i % segment->segmentMeta->numberOfNodesPerBrick] = pot;
+            OutputInput* oIn = &outputInputs[i % segmentMeta->numberOfNodesPerBrick];
+            if(oIn->weight > node->currentState * 1.01f
+                    || oIn->weight < node->currentState * 0.99f)
+            {
+                oIn->isNew = 1;
+            }
+            if(node->currentState > 0.1f) {
+              //  std::cout<<"i: "<<i<<"  :  "<<node->currentState<<std::endl;
+
+            }
+            oIn->weight = node->currentState;
             node->currentState = 0.0f;
         }
     }

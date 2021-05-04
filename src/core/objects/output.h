@@ -44,9 +44,8 @@ struct OutputSynapse
 struct OutputSynapseSection
 {
     uint16_t status = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-    uint16_t randomPos = UNINIT_STATE_16;
-
-    uint64_t prev = UNINIT_STATE_64;
+    uint8_t padding[6];
+    uint32_t randomPos = UNINIT_STATE_16;
 
     uint32_t hardening = 0;
 
@@ -75,6 +74,19 @@ struct Output
 {
     float outputValue = 0.0f;
     float shouldValue = 0.0f;
+
+    // total size: 8 Byte
+};
+
+//==================================================================================================
+
+struct OutputInput
+{
+    float weight = 0.0f;
+    uint8_t isNew = 0;
+    uint8_t padding[3];
+
+    // total size: 8 Byte
 };
 
 //==================================================================================================

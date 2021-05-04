@@ -23,14 +23,12 @@
 #include <kyouko_root.h>
 
 #include <core/network_manager.h>
-#include <core/objects/segment.h>
-#include <core/objects/network_cluster.h>
-#include <core/objects/output.h>
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
-#include <core/processing/cpu/output_synapse_processing.h>
-#include <core/processing/cpu/synapse_processing.h>
+#include <core/learner.h>
+#include <core/objects/output.h>
+#include <core/objects/network_cluster.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
@@ -105,134 +103,6 @@ KyoukoRoot::start()
     return true;
 }
 
-
-bool
-KyoukoRoot::learnStep()
-{
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    uint32_t timeout = 50;
-
-    cluster->networkMetaData.doLearn = 1;
-
-    //----------------------------------------------------------------------------------------------
-    // learn phase 1
-    timeout = 5;
-    uint32_t updateVals = 0;
-    uint32_t tempVal = 0;
-    do
-    {
-        executeStep();
-
-        InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-        for(uint32_t i = 0; i < 800; i++) {
-            inputNodes[i].weight = m_inputBuffer[i];
-        }
-
-        executeStep();
-        tempVal = output_precheck(cluster->outputSegment);
-        std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
-
-        if(tempVal < updateVals)
-        {
-            updateVals = tempVal;
-            break;
-        }
-        updateVals = tempVal;
-
-        timeout--;
-    }
-    while(updateVals != 0
-          && timeout > 0);
-
-
-    if(updateVals == 0)
-    {
-        KyoukoRoot::m_freezeState = true;
-        cluster->networkMetaData.lerningValue = 100000.0f;
-
-        executeStep();
-
-        finishStep();
-
-        return true;
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // learn phase 2
-    timeout = 50;
-    float totalDiff = 0.0f;
-    do
-    {
-        totalDiff = output_learn_step(cluster->outputSegment, &cluster->networkMetaData);
-        timeout--;
-    }
-    while(totalDiff >= 1.0f
-          && timeout > 0);
-    std::cout<<"###################################################: "<<totalDiff<<std::endl;
-
-    // if desired state was reached, than freeze lerned state
-    if(totalDiff < 1.0f)
-    {
-        KyoukoRoot::m_freezeState = true;
-        cluster->networkMetaData.lerningValue = 100000.0f;
-        executeStep();
-    }
-
-    //----------------------------------------------------------------------------------------------
-
-    finishStep();
-
-    return true;
-}
-
-void KyoukoRoot::executeStep()
-{
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-    float timeValue = 0.0f;
-
-    // learn until output-section
-    const uint32_t runCount = cluster->initMetaData.layer + 2;
-    for(uint32_t i = 0; i < runCount; i++)
-    {
-        start = std::chrono::system_clock::now();
-        node_processing(cluster->synapseSegment, cluster->outputSegment);
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        //std::cout<<"node-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
-
-        start = std::chrono::system_clock::now();
-        synapse_processing(cluster->synapseSegment, &cluster->networkMetaData);
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
-        //std::cout<<"synapse-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
-
-        //KyoukoRoot::m_root->m_networkManager->executeStep();
-    }
-
-    output_node_processing(cluster->outputSegment, &cluster->networkMetaData);
-}
-
-void KyoukoRoot::finishStep()
-{
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-
-    cluster->networkMetaData.doLearn = 0;
-    cluster->networkMetaData.lerningValue = 0.0f;
-
-    KyoukoRoot::m_freezeState = false;
-
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 800; i++) {
-        inputNodes[i].weight = 0.0f;
-    }
-
-    // reset network
-    executeStep();
-}
-
 void KyoukoRoot::learnTestData()
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
@@ -286,11 +156,14 @@ void KyoukoRoot::learnTestData()
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
+    m_learner = new Learner();
+
+
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
-
-    for(uint32_t i = 0; i < 800; i++) {
-        m_inputBuffer[i] = 0.0f;
+    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
+    for(uint32_t i = 0; i < 2400; i++)  {
+        inputNodes[i].weight = 0.0f;
     }
 
     std::cout<<"learn"<<std::endl;
@@ -313,32 +186,47 @@ void KyoukoRoot::learnTestData()
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
-                int32_t total = dataBufferPtr[pos] * 2;
-                m_inputBuffer[i] = (static_cast<float>(total));
+                int32_t total = dataBufferPtr[pos];
+                m_learner->buffer[i * 3] = (static_cast<float>(total));
+                m_learner->buffer[i * 3 + 1] = (static_cast<float>(total));
+            }
+
+            for(uint32_t x = 8; x < 14; x++)
+            {
+                for(uint32_t y = 8; y < 14; y++)
+                {
+                    const uint32_t pixelPos = x * 28 + y;
+                    const uint32_t pos = pic * pictureSize + pixelPos + 16;
+                    int32_t total = (255 - dataBufferPtr[pos]) / 2;
+                    if(total < 0) {
+                        total = 0;
+                    }
+                    m_learner->buffer[pixelPos * 3 + 2] = (static_cast<float>(total));
+                }
             }
 
             /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
-                int32_t total = dataBufferPtr[pos] * 5 + dataBufferPtr[pos + 1] * 5;
+                int32_t total = dataBufferPtr[pos] + dataBufferPtr[pos + 1];
                 m_inputBuffer[i/2] = (static_cast<float>(total));
             }
 
-            for(uint32_t x = 4; x < 20; x++)
+            for(uint32_t x = 2; x < 26; x++)
             {
-                for(uint32_t y = 4; y < 20; y = y + 2)
+                for(uint32_t y = 2; y < 26; y++)
                 {
                     const uint32_t pixelPos = x * 28 + y;
                     const uint32_t pos = pic * pictureSize + pixelPos + 16;
-                    int32_t total = (255 - dataBufferPtr[pos]) * 5 + (255 - dataBufferPtr[pos + 1]) * 5;
+                    int32_t total = (255 - dataBufferPtr[pos]);
                     if(total < 0) {
                         total = 0;
                     }
-                    m_inputBuffer[(pictureSize / 2) + (pixelPos/2)] = (static_cast<float>(total));
+                    m_inputBuffer[pixelPos] = (static_cast<float>(total));
                 }
             }*/
 
-            KyoukoRoot::m_root->learnStep();
+             m_learner->learnStep(label);
         }
     }
 
@@ -363,8 +251,7 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 800; i = i + 2)  {
+    for(uint32_t i = 0; i < 2400; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -379,32 +266,48 @@ void KyoukoRoot::learnTestData()
         for(uint32_t i = 0; i < pictureSize; i++)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
-            int32_t total = testDataBufferPtr[pos] * 2;
-            inputNodes[i].weight = (static_cast<float>(total));
+            int32_t total = testDataBufferPtr[pos];
+            inputNodes[i * 3].weight = (static_cast<float>(total));
+            inputNodes[i * 3 + 1].weight = (static_cast<float>(total));
         }
+
+        for(uint32_t x = 8; x < 14; x++)
+        {
+            for(uint32_t y = 8; y < 14; y++)
+            {
+                const uint32_t pixelPos = x * 28 + y;
+                const uint32_t pos = pic * pictureSize + pixelPos + 16;
+                int32_t total = (255 - testDataBufferPtr[pos]) / 2;
+                if(total < 0) {
+                    total = 0;
+                }
+                inputNodes[pixelPos * 3 + 2].weight = (static_cast<float>(total));
+            }
+        }
+
 
         /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
-            int32_t total = testDataBufferPtr[pos] * 5 +  testDataBufferPtr[pos + 1] * 5;
-            inputNodes[(i/2) + inputBrick->nodePos] = (static_cast<float>(total));
+            int32_t total = testDataBufferPtr[pos] +  testDataBufferPtr[pos + 1];
+            inputNodes[(i/2)].weight = (static_cast<float>(total));
         }
 
-        for(uint32_t x = 4; x < 20; x++)
+        for(uint32_t x = 2; x < 26; x++)
         {
-            for(uint32_t y = 4; y < 20; y = y + 2)
+            for(uint32_t y = 2; y < 26; y++)
             {
                 const uint32_t pixelPos = x * 28 + y;
                 const uint32_t pos = pic * pictureSize + pixelPos + 16;
-                int32_t total = (255 - testDataBufferPtr[pos]) * 5 + (255 - testDataBufferPtr[pos + 1]) * 5;
+                int32_t total = (255 - testDataBufferPtr[pos]);
                 if(total < 0) {
                     total = 0;
                 }
-                inputNodes[(pictureSize / 2) + (pixelPos/2) + inputBrick->nodePos] = (static_cast<float>(total));
+                inputNodes[pixelPos].weight = (static_cast<float>(total));
             }
         }*/
 
-        executeStep();
+        m_learner->executeStep();
 
         // print result
         float biggest = -100000.0f;
@@ -431,7 +334,23 @@ void KyoukoRoot::learnTestData()
                 && biggest != 0.0f)
         {
             match++;
-        }
+        }/* else {
+            for(uint32_t x = 0; x < 28; x++)
+            {
+                for(uint32_t y = 0; y < 28; y++)
+                {
+                    const uint32_t pixelPos = x * 28 + y;
+                    const uint32_t pos = pic * pictureSize + pixelPos + 16;
+                    int32_t total = testDataBufferPtr[pos];
+                    if(total > 100) {
+                        std::cout<<" x";
+                    } else {
+                        std::cout<<"  ";
+                    }
+                }
+                std::cout<<"\n";
+            }
+        }*/
     }
 
     std::cout<<"======================================================================="<<std::endl;
