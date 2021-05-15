@@ -1,6 +1,0 @@
-["get_metadata"]
-- metadata = ""
-
-metadata("get metadata of segment")
--> get:
-    - metadata >> metadata

@@ -1,6 +1,0 @@
-["register_output"]
-- size = ""
-
-register("register output")
--> output:
-    - size = size

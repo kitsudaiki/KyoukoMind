@@ -1,9 +1,0 @@
-["set_input"]
-- type = "array"
-- input = ""
-- output = ""
-
-set_input("set input-values")
-- type = type
-- input = input
-- output >> output
