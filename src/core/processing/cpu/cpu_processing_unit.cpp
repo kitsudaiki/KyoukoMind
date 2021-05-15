@@ -56,22 +56,6 @@ CpuProcessingUnit::run()
     {
         m_phase2->triggerBarrier();
 
-        start = std::chrono::system_clock::now();
-        node_processing(synapseSegment->nodes,
-                        synapseSegment->nodeBuffers,
-                        synapseSegment->inputNodes,
-                        synapseSegment->synapseBuffers,
-                        synapseSegment->segmentMeta,
-                        synapseSegment->synapseMetaData,
-                        outputSegment->inputs);
-        output_node_processing(outputSegment->outputSynapseSections,
-                               outputSegment->inputs,
-                               outputSegment->outputs,
-                               outputSegment->segmentMeta,
-                               &KyoukoRoot::m_networkCluster->networkMetaData,
-                               outputSegment->outputMetaData);
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
 
         m_phase3->triggerBarrier();
     }

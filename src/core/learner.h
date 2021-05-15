@@ -24,7 +24,7 @@ public:
     Learner();
 
     uint32_t learnStep(uint32_t label);
-    void executeStep();
+    void executeStep(const uint32_t runs);
 
     Batch batchs[10];
 

@@ -50,13 +50,13 @@ Learner::learnStep(uint32_t label)
             inputNodes[i].weight = 0.0f;
         }
 
-        executeStep();
+        executeStep(1);
 
         for(uint32_t i = 0; i < 2400; i++) {
             inputNodes[i].weight = buffer[i];
         }
 
-        executeStep();
+        executeStep(cluster->initMetaData.layer + 2);
         tempVal = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
 
@@ -78,7 +78,7 @@ Learner::learnStep(uint32_t label)
         KyoukoRoot::m_freezeState = true;
         cluster->networkMetaData.lerningValue = 100000.0f;
 
-        executeStep();
+        executeStep(1);
 
         finishStep();
 
@@ -111,7 +111,7 @@ Learner::learnStep(uint32_t label)
     {
         KyoukoRoot::m_freezeState = true;
         cluster->networkMetaData.lerningValue = 100000.0f;
-        executeStep();
+        executeStep(1);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -125,10 +125,8 @@ Learner::learnStep(uint32_t label)
  * @brief Lerner::executeStep
  */
 void
-Learner::executeStep()
+Learner::executeStep(const uint32_t runs)
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
@@ -136,13 +134,16 @@ Learner::executeStep()
     OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
     // learn until output-section
-    const uint32_t runCount = cluster->initMetaData.layer + 2;
+    const uint32_t runCount = runs;
     for(uint32_t i = 0; i < runCount; i++)
     {
+        processInputNodes(synapseSegment->nodes,
+                          synapseSegment->inputNodes,
+                          synapseSegment->segmentMeta);
+
         start = std::chrono::system_clock::now();
         node_processing(synapseSegment->nodes,
                         synapseSegment->nodeBuffers,
-                        synapseSegment->inputNodes,
                         synapseSegment->synapseBuffers,
                         synapseSegment->segmentMeta,
                         synapseSegment->synapseMetaData,
@@ -151,6 +152,12 @@ Learner::executeStep()
         end = std::chrono::system_clock::now();
         timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
         //std::cout<<"node-time: "<<(timeValue / 1000.0f)<<" us"<<std::endl;
+
+        updateCoreSynapses(synapseSegment->segmentMeta,
+                           synapseSegment->synapseBuffers,
+                           synapseSegment->synapseSections,
+                           synapseSegment->nodes,
+                           synapseSegment->synapseMetaData);
 
         start = std::chrono::system_clock::now();
         synapse_processing(synapseSegment->segmentMeta,

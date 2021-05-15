@@ -204,6 +204,29 @@ updating(SynapseSection* section,
     return upToData;
 }
 
+inline void
+updateCoreSynapses(SynapseSegmentMeta* segmentMeta,
+                   SynapseBuffer* synapseBuffers,
+                   SynapseSection* synapseSections,
+                   Node* nodes,
+                   Kitsunemimi::Ai::SynapseMetaData* synapseMetaData)
+{
+    const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
+
+    for(uint32_t i = 0; i < numberOfSynapses; i++)
+    {
+        SynapseBuffer* synapseBuffer = &synapseBuffers[i];
+
+        if(synapseBuffer->process == 0
+                && synapseBuffer->upToDate == 0)
+        {
+            synapseBuffer->upToDate = updating(&synapseSections[i],
+                                               nodes,
+                                               synapseMetaData);
+        }
+    }
+}
+
 /**
  * @brief synapse_processing
  */
@@ -225,13 +248,7 @@ synapse_processing(SynapseSegmentMeta* segmentMeta,
     {
         SynapseBuffer* synapseBuffer = &synapseBuffers[i];
 
-        if(synapseBuffer->process == 0)
-        {
-            if(synapseBuffer->upToDate == 0) {
-                synapseBuffer->upToDate = updating(&synapseSections[i],
-                                                   nodes,
-                                                   synapseMetaData);
-            }
+        if(synapseBuffer->process == 0) {
             continue;
         }
 
@@ -262,36 +279,37 @@ synapse_processing(SynapseSegmentMeta* segmentMeta,
     }
 }
 
+inline void
+processInputNodes(Node* nodes,
+                  InputNode* inputNodes,
+                  SynapseSegmentMeta* segmentMeta)
+{
+    for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
+        nodes[inputNodes[i].targetNode].potential = inputNodes[i].weight;
+    }
+}
+
 /**
  * @brief node_processing
  */
 inline void
 node_processing(Node* nodes,
                 float* nodeBuffers,
-                InputNode* inputNodes,
                 SynapseBuffer* synapseBuffers,
                 SynapseSegmentMeta* segmentMeta,
                 Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
                 OutputInput* outputInputs)
 {
-    for(uint64_t i = 0; i < segmentMeta->numberOfNodes; i++)
+    for(uint32_t i = 0; i < segmentMeta->numberOfNodes; i++)
     {
         // TODO: when port to gpu: change 2 to 256 again
         for(uint pos = 0; pos < 1; pos++)
         {
             const ulong nodeBufferPosition = (pos * (segmentMeta->numberOfNodes)) + i;
             nodes[i].currentState += nodeBuffers[nodeBufferPosition];
-            //if(nodes[i].currentState > 1.0f) { std::cout<<i<<": "<<nodes[i].currentState<<std::endl; }
             nodeBuffers[nodeBufferPosition] = 0.0f;
         }
-    }
 
-    for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
-        nodes[inputNodes[i].targetNode].potential = inputNodes[i].weight;
-    }
-
-    for(uint32_t i = 0; i < segmentMeta->numberOfNodes; i++)
-    {
         Node* node = &nodes[i];
         if(node->border > 0.0f)
         {

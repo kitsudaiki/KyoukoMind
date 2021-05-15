@@ -205,28 +205,7 @@ void KyoukoRoot::learnTestData()
                 }
             }
 
-            /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
-            {
-                const uint32_t pos = pic * pictureSize + i + 16;
-                int32_t total = dataBufferPtr[pos] + dataBufferPtr[pos + 1];
-                m_inputBuffer[i/2] = (static_cast<float>(total));
-            }
-
-            for(uint32_t x = 2; x < 26; x++)
-            {
-                for(uint32_t y = 2; y < 26; y++)
-                {
-                    const uint32_t pixelPos = x * 28 + y;
-                    const uint32_t pos = pic * pictureSize + pixelPos + 16;
-                    int32_t total = (255 - dataBufferPtr[pos]);
-                    if(total < 0) {
-                        total = 0;
-                    }
-                    m_inputBuffer[pixelPos] = (static_cast<float>(total));
-                }
-            }*/
-
-             m_learner->learnStep(label);
+            m_learner->learnStep(label);
         }
     }
 
@@ -285,29 +264,7 @@ void KyoukoRoot::learnTestData()
             }
         }
 
-
-        /*for(uint32_t i = 0; i < pictureSize; i = i + 2)
-        {
-            const uint32_t pos = pic * pictureSize + i + 16;
-            int32_t total = testDataBufferPtr[pos] +  testDataBufferPtr[pos + 1];
-            inputNodes[(i/2)].weight = (static_cast<float>(total));
-        }
-
-        for(uint32_t x = 2; x < 26; x++)
-        {
-            for(uint32_t y = 2; y < 26; y++)
-            {
-                const uint32_t pixelPos = x * 28 + y;
-                const uint32_t pos = pic * pictureSize + pixelPos + 16;
-                int32_t total = (255 - testDataBufferPtr[pos]);
-                if(total < 0) {
-                    total = 0;
-                }
-                inputNodes[pixelPos].weight = (static_cast<float>(total));
-            }
-        }*/
-
-        m_learner->executeStep();
+        m_learner->executeStep(cluster->initMetaData.layer + 2);
 
         // print result
         float biggest = -100000.0f;
@@ -334,23 +291,7 @@ void KyoukoRoot::learnTestData()
                 && biggest != 0.0f)
         {
             match++;
-        }/* else {
-            for(uint32_t x = 0; x < 28; x++)
-            {
-                for(uint32_t y = 0; y < 28; y++)
-                {
-                    const uint32_t pixelPos = x * 28 + y;
-                    const uint32_t pos = pic * pictureSize + pixelPos + 16;
-                    int32_t total = testDataBufferPtr[pos];
-                    if(total > 100) {
-                        std::cout<<" x";
-                    } else {
-                        std::cout<<"  ";
-                    }
-                }
-                std::cout<<"\n";
-            }
-        }*/
+        }
     }
 
     std::cout<<"======================================================================="<<std::endl;
