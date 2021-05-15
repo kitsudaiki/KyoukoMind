@@ -46,9 +46,9 @@ synapseProcessing(SynapseSection* section,
                   Brick* bricks,
                   float* nodeBuffers,
                   SynapseBuffer* synapseBuffers,
-                  SynapseSegmentMeta* segmentMeta,
+                  CoreSegmentMeta* segmentMeta,
                   uint32_t* randomValues,
-                  Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
+                  Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   const uint32_t nodeId,
                   const float weightIn,
@@ -154,7 +154,7 @@ synapseProcessing(SynapseSection* section,
 inline bool
 updating(SynapseSection* section,
          Node* nodes,
-         Kitsunemimi::Ai::SynapseMetaData* synapseMetaData)
+         Kitsunemimi::Ai::CoreMetaData* synapseMetaData)
 {
     bool upToData = 1;
 
@@ -205,11 +205,11 @@ updating(SynapseSection* section,
 }
 
 inline void
-updateCoreSynapses(SynapseSegmentMeta* segmentMeta,
+updateCoreSynapses(CoreSegmentMeta* segmentMeta,
                    SynapseBuffer* synapseBuffers,
                    SynapseSection* synapseSections,
                    Node* nodes,
-                   Kitsunemimi::Ai::SynapseMetaData* synapseMetaData)
+                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData)
 {
     const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
 
@@ -231,14 +231,14 @@ updateCoreSynapses(SynapseSegmentMeta* segmentMeta,
  * @brief synapse_processing
  */
 inline void
-synapse_processing(SynapseSegmentMeta* segmentMeta,
+synapse_processing(CoreSegmentMeta* segmentMeta,
                    SynapseBuffer* synapseBuffers,
                    SynapseSection* synapseSections,
                    Node* nodes,
                    Brick* bricks,
                    float* nodeBuffers,
                    uint32_t* randomValues,
-                   Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
+                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
                    Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
     const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
@@ -282,7 +282,7 @@ synapse_processing(SynapseSegmentMeta* segmentMeta,
 inline void
 processInputNodes(Node* nodes,
                   InputNode* inputNodes,
-                  SynapseSegmentMeta* segmentMeta)
+                  CoreSegmentMeta* segmentMeta)
 {
     for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
         nodes[inputNodes[i].targetNode].potential = inputNodes[i].weight;
@@ -296,8 +296,8 @@ inline void
 node_processing(Node* nodes,
                 float* nodeBuffers,
                 SynapseBuffer* synapseBuffers,
-                SynapseSegmentMeta* segmentMeta,
-                Kitsunemimi::Ai::SynapseMetaData* synapseMetaData,
+                CoreSegmentMeta* segmentMeta,
+                Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
                 OutputInput* outputInputs)
 {
     for(uint32_t i = 0; i < segmentMeta->numberOfNodes; i++)

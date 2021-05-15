@@ -6,8 +6,8 @@
 #include <core/objects/network_cluster.h>
 #include <core/objects/output.h>
 
-#include <core/processing/cpu/output_synapse_processing.h>
-#include <core/processing/cpu/synapse_processing.h>
+#include <core/processing/cpu/output_processing.h>
+#include <core/processing/cpu/core_processing.h>
 
 #include <core/processing/gpu/gpu_processing_uint.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
@@ -130,7 +130,7 @@ Learner::executeStep(const uint32_t runs)
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
-    SynapseSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
     OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
     // learn until output-section

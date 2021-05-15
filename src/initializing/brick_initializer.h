@@ -32,10 +32,10 @@ public:
     BrickInitializer();
     virtual ~BrickInitializer();
 
-    bool initializeAxons(SynapseSegment &segment);
+    bool initializeAxons(CoreSegment &segment);
 
-    virtual Brick* getAxonBrick(SynapseSegment &segment, Brick* sourceBrick) = 0;
-    virtual bool initTargetBrickList(SynapseSegment &segment,
+    virtual Brick* getAxonBrick(CoreSegment &segment, Brick* sourceBrick) = 0;
+    virtual bool initTargetBrickList(CoreSegment &segment,
                                      Kitsunemimi::Ai::InitMeataData* initMetaData) = 0;
 };
 

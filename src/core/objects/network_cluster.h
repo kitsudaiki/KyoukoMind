@@ -35,7 +35,7 @@ struct NetworkCluster
     Kitsunemimi::Ai::NetworkMetaData networkMetaData;
     Kitsunemimi::Ai::InitMeataData initMetaData;
 
-    SynapseSegment* synapseSegment = nullptr;
+    CoreSegment* synapseSegment = nullptr;
     OutputSegment* outputSegment = nullptr;
 };
 

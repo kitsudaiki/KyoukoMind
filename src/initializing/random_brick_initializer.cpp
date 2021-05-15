@@ -35,7 +35,7 @@ RandomBrickInitializer::RandomBrickInitializer()
  * @return
  */
 Brick*
-RandomBrickInitializer::getAxonBrick(SynapseSegment &segment, Brick *sourceBrick)
+RandomBrickInitializer::getAxonBrick(CoreSegment &segment, Brick *sourceBrick)
 {
     Brick* axonBrick = nullptr;
 
@@ -57,7 +57,7 @@ RandomBrickInitializer::getAxonBrick(SynapseSegment &segment, Brick *sourceBrick
  * @return
  */
 bool
-RandomBrickInitializer::initTargetBrickList(SynapseSegment &segment,
+RandomBrickInitializer::initTargetBrickList(CoreSegment &segment,
                                             Kitsunemimi::Ai::InitMeataData* initMetaData)
 {
     Brick* bricks = segment.nodeBricks;
