@@ -12,12 +12,17 @@
 #include <core/processing/gpu/gpu_processing_uint.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
-StaticProcessing::StaticProcessing()
+StaticProcessing::StaticProcessing(const bool useGpu)
 {
-    m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
-    assert(m_gpuHandler->m_interfaces.size() >= 1);
-    m_gpu = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
-    assert(m_gpu->initializeGpu(KyoukoRoot::m_networkCluster));
+    m_useGpu = useGpu;
+
+    if(useGpu)
+    {
+        m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
+        assert(m_gpuHandler->m_interfaces.size() >= 1);
+        m_gpu = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
+        assert(m_gpu->initializeGpu(KyoukoRoot::m_networkCluster));
+    }
 }
 
 /**
@@ -158,13 +163,13 @@ StaticProcessing::learnPhase1()
     uint32_t tempVal = 0;
     do
     {
-        for(uint32_t i = 0; i < 2400; i++) {
+        for(uint32_t i = 0; i < 1600; i++) {
             inputNodes[i].weight = 0.0f;
         }
 
         executeStep(1);
 
-        for(uint32_t i = 0; i < 2400; i++) {
+        for(uint32_t i = 0; i < 1600; i++) {
             inputNodes[i].weight = buffer[i];
         }
 

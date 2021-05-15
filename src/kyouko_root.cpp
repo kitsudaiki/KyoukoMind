@@ -156,13 +156,13 @@ void KyoukoRoot::learnTestData()
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
-    m_staticProcessing = new StaticProcessing();
+    m_staticProcessing = new StaticProcessing(false);
 
 
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
     InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 2400; i++)  {
+    for(uint32_t i = 0; i < 1600; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -187,22 +187,8 @@ void KyoukoRoot::learnTestData()
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                m_staticProcessing->buffer[i * 3] = (static_cast<float>(total));
-                m_staticProcessing->buffer[i * 3 + 1] = (static_cast<float>(total));
-            }
-
-            for(uint32_t x = 8; x < 14; x++)
-            {
-                for(uint32_t y = 8; y < 14; y++)
-                {
-                    const uint32_t pixelPos = x * 28 + y;
-                    const uint32_t pos = pic * pictureSize + pixelPos + 16;
-                    int32_t total = (255 - dataBufferPtr[pos]) / 2;
-                    if(total < 0) {
-                        total = 0;
-                    }
-                    m_staticProcessing->buffer[pixelPos * 3 + 2] = (static_cast<float>(total));
-                }
+                m_staticProcessing->buffer[i * 2] = (static_cast<float>(total));
+                m_staticProcessing->buffer[i * 2 + 1] = (static_cast<float>(total));
             }
 
             m_staticProcessing->learnStep();
@@ -230,7 +216,7 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    for(uint32_t i = 0; i < 2400; i++)  {
+    for(uint32_t i = 0; i < 1600; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -239,29 +225,14 @@ void KyoukoRoot::learnTestData()
     {
         uint32_t label = testLabelBufferPtr[pic + 8];
 
-        //std::cout<<pic<<" should: "<<(int)labelBufferPtr[pic + 8]<<"   is: ";
         std::cout<<pic<<" should: "<<label<<"   is: ";
 
         for(uint32_t i = 0; i < pictureSize; i++)
         {
             const uint32_t pos = pic * pictureSize + i + 16;
             int32_t total = testDataBufferPtr[pos];
-            inputNodes[i * 3].weight = (static_cast<float>(total));
-            inputNodes[i * 3 + 1].weight = (static_cast<float>(total));
-        }
-
-        for(uint32_t x = 8; x < 14; x++)
-        {
-            for(uint32_t y = 8; y < 14; y++)
-            {
-                const uint32_t pixelPos = x * 28 + y;
-                const uint32_t pos = pic * pictureSize + pixelPos + 16;
-                int32_t total = (255 - testDataBufferPtr[pos]) / 2;
-                if(total < 0) {
-                    total = 0;
-                }
-                inputNodes[pixelPos * 3 + 2].weight = (static_cast<float>(total));
-            }
+            inputNodes[i * 2].weight = (static_cast<float>(total));
+            inputNodes[i * 2 + 1].weight = (static_cast<float>(total));
         }
 
         m_staticProcessing->executeStep(cluster->initMetaData.layer + 2);
@@ -277,7 +248,13 @@ void KyoukoRoot::learnTestData()
                 outString += " | ";
             }
             const float read = outputs[i].outputValue;
-            outString += std::to_string((int)read) + "\t";
+            if(read < 0.0f) {
+                outString += "0 \t";
+            } else if(read > 255.0f) {
+                outString += "255 \t";
+            } else {
+                outString += std::to_string((int)read) + "\t";
+            }
             if(read > biggest)
             {
                 biggest = read;

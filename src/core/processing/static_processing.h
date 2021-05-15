@@ -21,7 +21,7 @@ class GpuProcessingUnit;
 class StaticProcessing
 {
 public:
-    StaticProcessing();
+    StaticProcessing(const bool useGpu);
 
     bool learnStep();
     void executeStep(const uint32_t runs);
@@ -32,6 +32,7 @@ public:
 private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
     GpuProcessingUnit* m_gpu = nullptr;
+    bool m_useGpu = false;
 
     uint32_t checkOutput(OutputSegmentMeta *segmentMeta, Output *outputs);
 
