@@ -74,7 +74,7 @@ outputSynapseProcessing(OutputSynapseSection* outputSection,
         }
         else
         {
-            outputSection->synapses[pos] = OutputSynapse();
+            synapse->valid = 0;
         }
 
         pos++;
@@ -109,7 +109,7 @@ learNewOutput(OutputSynapseSection* section,
     while(pos < OUTPUT_SYNAPSES_PER_SECTION)
     {
         OutputSynapse* synapse = &section->synapses[pos];
-        if(synapse->targetId == UNINIT_STATE_32
+        if(synapse->valid == 0
                 && networkMetaData->doLearn > 0
                 && limiter < 5)
         {
@@ -118,30 +118,23 @@ learNewOutput(OutputSynapseSection* section,
             uint32_t possibleTargetId = randomValues[section->randomPos] % outputMetaData->inputRange;
             possibleTargetId += outputPos * outputMetaData->inputOffset;
 
-            if(inputs[possibleTargetId].weight > 0.0f
-                    && inputs[possibleTargetId].isNew == 1)
-            {
+            const uint8_t ok = inputs[possibleTargetId].weight > 0.0f && inputs[possibleTargetId].isNew == 1;
+            synapse->targetId = possibleTargetId;
+            synapse->border = inputs[possibleTargetId].weight;
+            synapse->weight = 0.0f;
+            synapse->newOne = ok;
+            synapse->active = ok;
+            synapse->valid = ok;
+            limiter += ok;
 
-                synapse->targetId = possibleTargetId;
-                synapse->border = inputs[possibleTargetId].weight;
-                synapse->weight = 0.0f;
-                synapse->newOne = 1;
-                synapse->active = 1;
-                limiter++;
-            }
         }
 
-        if(section->newOnes == static_cast<uint32_t>(toNew)
-                && synapse->newOne == 1)
-        {
-            section->synapses[pos] = OutputSynapse();
-        }
+        const uint8_t reset = (section->newOnes == static_cast<uint32_t>(toNew) && synapse->newOne == 1) == false;
+        synapse->valid = reset * synapse->valid;
 
-        if(synapse->newOne == 1)
-        {
-            section->newOnes++;
-            section->total++;
-        }
+        const uint8_t updateVal = synapse->newOne == 1;
+        section->newOnes += updateVal;
+        section->total += updateVal;
 
         pos++;
     }
@@ -177,34 +170,18 @@ outputSynapseLearn(OutputSynapseSection* outputSection)
  * @param out
  * @return
  */
-inline float
+inline void
 calculateLearnings(OutputSynapseSection* outputSection,
                    Output* output)
 {
-    outputSection->diffNew = output->shouldValue - output->outputValue;
     outputSection->diffTotal = output->shouldValue - output->outputValue;
 
-    if(output->shouldValue == 0.0f
-            && output->outputValue <= output->shouldValue)
-    {
-        outputSection->diffNew = 0.0f;
-        outputSection->diffTotal = 0.0f;
-    }
-
-    if(output->shouldValue > 0.0f
-            && output->outputValue >= output->shouldValue)
-    {
-        outputSection->diffNew = 0.0f;
-        outputSection->diffTotal = 0.0f;
-    }
-
-    const float totalDiff = fabs(outputSection->diffNew);
-
-    outputSection->diffNew /= static_cast<float>(outputSection->newOnes + 1);
+    bool good1Bool = output->shouldValue == 0.0f && output->outputValue <= output->shouldValue;
+    good1Bool = good1Bool || (output->shouldValue > 0.0f && output->outputValue >= output->shouldValue);
+    outputSection->diffTotal *= static_cast<float>(good1Bool == false);
     outputSection->diffTotal /= static_cast<float>(outputSection->total + 1);
-
-    return totalDiff;
 }
+
 
 /**
  * @brief node_processing

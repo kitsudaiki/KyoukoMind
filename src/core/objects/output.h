@@ -35,7 +35,8 @@ struct OutputSynapse
     uint32_t targetId = UNINIT_STATE_32;
     uint8_t newOne = 0;
     uint8_t active = 0;
-    uint8_t padding[2];
+    uint8_t valid = 0;
+    uint8_t padding[1];
     // total size: 16 Byte
 };
 

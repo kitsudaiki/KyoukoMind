@@ -104,7 +104,7 @@ Learner::learnStep(uint32_t label)
     }
     while(check > 0
           && timeout > 0);
-    std::cout<<"###################################################: "<<check<<std::endl;
+    std::cout<<"###################################################: "<<check<<" : "<<timeout<<std::endl;
 
     // if desired state was reached, than freeze lerned state
     if(check == 0)
@@ -220,20 +220,11 @@ Learner::checkOutput(OutputSegmentMeta* segmentMeta,
 
     for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
     {
+        uint32_t updateVal = 1;
         Output* out = &outputs[o];
-        if(out->shouldValue == 0.0f
-                && out->outputValue <= out->shouldValue + 10.0f)
-        {
-            continue;
-        }
-
-        if(out->shouldValue > 0.0f
-                && out->outputValue >= out->shouldValue - 10.0f)
-        {
-            continue;
-        }
-
-        updateVals++;
+        updateVal -= out->shouldValue == 0.0f && out->outputValue <= out->shouldValue + 10.0f;
+        updateVal -= out->shouldValue > 0.0f && out->outputValue >= out->shouldValue - 10.0f;
+        updateVals += updateVal;
     }
 
     return updateVals;

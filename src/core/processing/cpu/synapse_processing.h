@@ -342,15 +342,8 @@ node_processing(Node* nodes,
         else
         {
             OutputInput* oIn = &outputInputs[i % segmentMeta->numberOfNodesPerBrick];
-            if(oIn->weight > node->currentState * 1.01f
-                    || oIn->weight < node->currentState * 0.99f)
-            {
-                oIn->isNew = 1;
-            }
-            if(node->currentState > 0.1f) {
-              //  std::cout<<"i: "<<i<<"  :  "<<node->currentState<<std::endl;
-
-            }
+            const bool isNew = oIn->weight > node->currentState * 1.01f || oIn->weight < node->currentState * 0.99f;
+            oIn->isNew = isNew + (isNew == false) * oIn->isNew;
             oIn->weight = node->currentState;
             node->currentState = 0.0f;
         }
