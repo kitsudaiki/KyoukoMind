@@ -30,7 +30,7 @@ struct NetworkCluster;
 class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
-class Learner;
+class StaticProcessing;
 
 class KyoukoRoot
 {
@@ -52,7 +52,7 @@ public:
     void learnTestData();
 
     NetworkManager* m_networkManager = nullptr;
-    Learner* m_learner = nullptr;
+    StaticProcessing* m_staticProcessing = nullptr;
 
 private:
     uint32_t m_serverId = 0;

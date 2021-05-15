@@ -26,7 +26,7 @@
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
-#include <core/learner.h>
+#include <core/processing/static_processing.h>
 #include <core/objects/output.h>
 #include <core/objects/network_cluster.h>
 
@@ -156,7 +156,7 @@ void KyoukoRoot::learnTestData()
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
-    m_learner = new Learner();
+    m_staticProcessing = new StaticProcessing();
 
 
     // get pictures
@@ -187,8 +187,8 @@ void KyoukoRoot::learnTestData()
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                m_learner->buffer[i * 3] = (static_cast<float>(total));
-                m_learner->buffer[i * 3 + 1] = (static_cast<float>(total));
+                m_staticProcessing->buffer[i * 3] = (static_cast<float>(total));
+                m_staticProcessing->buffer[i * 3 + 1] = (static_cast<float>(total));
             }
 
             for(uint32_t x = 8; x < 14; x++)
@@ -201,11 +201,11 @@ void KyoukoRoot::learnTestData()
                     if(total < 0) {
                         total = 0;
                     }
-                    m_learner->buffer[pixelPos * 3 + 2] = (static_cast<float>(total));
+                    m_staticProcessing->buffer[pixelPos * 3 + 2] = (static_cast<float>(total));
                 }
             }
 
-            m_learner->learnStep(label);
+            m_staticProcessing->learnStep();
         }
     }
 
@@ -264,7 +264,7 @@ void KyoukoRoot::learnTestData()
             }
         }
 
-        m_learner->executeStep(cluster->initMetaData.layer + 2);
+        m_staticProcessing->executeStep(cluster->initMetaData.layer + 2);
 
         // print result
         float biggest = -100000.0f;

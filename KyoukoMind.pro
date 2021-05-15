@@ -86,7 +86,7 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/learner.h \
+    src/core/processing/static_processing.h \
     src/core/objects/brick.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segment.h \
@@ -117,7 +117,7 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
-    src/core/learner.cpp \
+    src/core/processing/static_processing.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/network_manager.cpp \

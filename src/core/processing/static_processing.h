@@ -18,12 +18,12 @@ class GpuHandler;
 }
 class GpuProcessingUnit;
 
-class Learner
+class StaticProcessing
 {
 public:
-    Learner();
+    StaticProcessing();
 
-    uint32_t learnStep(uint32_t label);
+    bool learnStep();
     void executeStep(const uint32_t runs);
 
     Batch batchs[10];
@@ -33,8 +33,10 @@ private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
     GpuProcessingUnit* m_gpu = nullptr;
 
-    void finishStep();
     uint32_t checkOutput(OutputSegmentMeta *segmentMeta, Output *outputs);
+
+    bool learnPhase1();
+    bool learnPhase2();
 };
 
 #endif // LERNER_H

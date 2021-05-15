@@ -1,4 +1,4 @@
-#include "learner.h"
+#include "static_processing.h"
 
 #include <kyouko_root.h>
 
@@ -12,7 +12,7 @@
 #include <core/processing/gpu/gpu_processing_uint.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
-Learner::Learner()
+StaticProcessing::StaticProcessing()
 {
     m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
     assert(m_gpuHandler->m_interfaces.size() >= 1);
@@ -24,14 +24,10 @@ Learner::Learner()
  * @brief Lerner::learnStep
  * @return
  */
-uint32_t
-Learner::learnStep(uint32_t label)
+bool
+StaticProcessing::learnStep()
 {
-    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    uint32_t timeout = 50;
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-
     cluster->networkMetaData.doLearn = 1;
 
     OutputInput* outputInputs = cluster->outputSegment->inputs;
@@ -39,93 +35,28 @@ Learner::learnStep(uint32_t label)
         outputInputs[i].isNew = 0;
     }
 
-    //----------------------------------------------------------------------------------------------
-    // learn phase 1
-    timeout = 5;
-    uint32_t updateVals = 0;
-    uint32_t tempVal = 0;
-    do
-    {
-        for(uint32_t i = 0; i < 2400; i++) {
-            inputNodes[i].weight = 0.0f;
-        }
-
-        executeStep(1);
-
-        for(uint32_t i = 0; i < 2400; i++) {
-            inputNodes[i].weight = buffer[i];
-        }
-
-        executeStep(cluster->initMetaData.layer + 2);
-        tempVal = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
-        std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
-
-        if(tempVal < updateVals)
-        {
-            updateVals = tempVal;
-            break;
-        }
-        updateVals = tempVal;
-
-        timeout--;
-    }
-    while(updateVals != 0
-          && timeout > 0);
-
-
-    if(updateVals == 0)
-    {
-        KyoukoRoot::m_freezeState = true;
-        cluster->networkMetaData.lerningValue = 100000.0f;
-
-        executeStep(1);
-
-        finishStep();
-
-        return true;
+    bool result = learnPhase1();
+    if(result == false) {
+        result = learnPhase2();
     }
 
-    //----------------------------------------------------------------------------------------------
-    // learn phase 2
-    timeout = 50;
-    uint32_t check = 0;
-    do
-    {
-        output_learn_step(outputSegment->outputSynapseSections,
-                          outputSegment->inputs,
-                          outputSegment->outputs,
-                          outputSegment->segmentMeta,
-                          outputSegment->randomValues,
-                          &KyoukoRoot::m_networkCluster->networkMetaData,
-                          outputSegment->outputMetaData);
-        //m_gpu->output_learn_step();
-        timeout--;
-        check = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
-    }
-    while(check > 0
-          && timeout > 0);
-    std::cout<<"###################################################: "<<check<<" : "<<timeout<<std::endl;
+    cluster->networkMetaData.doLearn = 0;
+    cluster->networkMetaData.lerningValue = 0.0f;
+    KyoukoRoot::m_freezeState = false;
 
-    // if desired state was reached, than freeze lerned state
-    if(check == 0)
-    {
-        KyoukoRoot::m_freezeState = true;
-        cluster->networkMetaData.lerningValue = 100000.0f;
-        executeStep(1);
+    //m_gpu->finish();
+    for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
+        outputInputs[i].isNew = 0;
     }
 
-    //----------------------------------------------------------------------------------------------
-
-    finishStep();
-
-    return tempVal;
+    return result;
 }
 
 /**
  * @brief Lerner::executeStep
  */
 void
-Learner::executeStep(const uint32_t runs)
+StaticProcessing::executeStep(const uint32_t runs)
 {
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
@@ -187,33 +118,13 @@ Learner::executeStep(const uint32_t runs)
 }
 
 /**
- * @brief Lerner::finishStep
- */
-void
-Learner::finishStep()
-{
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-
-    cluster->networkMetaData.doLearn = 0;
-    cluster->networkMetaData.lerningValue = 0.0f;
-
-    KyoukoRoot::m_freezeState = false;
-
-    //m_gpu->finish();
-    OutputInput* outputInputs = cluster->outputSegment->inputs;
-    for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
-        outputInputs[i].isNew = 0;
-    }
-}
-
-/**
  * @brief Learner::output_precheck
  * @param segmentMeta
  * @param outputs
  * @return
  */
 uint32_t
-Learner::checkOutput(OutputSegmentMeta* segmentMeta,
+StaticProcessing::checkOutput(OutputSegmentMeta* segmentMeta,
                      Output* outputs)
 {
     uint32_t updateVals = 0;
@@ -228,4 +139,104 @@ Learner::checkOutput(OutputSegmentMeta* segmentMeta,
     }
 
     return updateVals;
+}
+
+/**
+ * @brief Learner::learnPhase1
+ */
+bool
+StaticProcessing::learnPhase1()
+{
+    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
+
+    //----------------------------------------------------------------------------------------------
+    // learn phase 1
+    uint32_t timeout = 5;
+    uint32_t updateVals = 0;
+    uint32_t tempVal = 0;
+    do
+    {
+        for(uint32_t i = 0; i < 2400; i++) {
+            inputNodes[i].weight = 0.0f;
+        }
+
+        executeStep(1);
+
+        for(uint32_t i = 0; i < 2400; i++) {
+            inputNodes[i].weight = buffer[i];
+        }
+
+        executeStep(cluster->initMetaData.layer + 2);
+        tempVal = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
+        std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
+
+        if(tempVal < updateVals)
+        {
+            updateVals = tempVal;
+            break;
+        }
+        updateVals = tempVal;
+
+        timeout--;
+    }
+    while(updateVals != 0
+          && timeout > 0);
+
+
+    if(updateVals == 0)
+    {
+        KyoukoRoot::m_freezeState = true;
+        cluster->networkMetaData.lerningValue = 100000.0f;
+
+        executeStep(1);
+
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief Learner::learnPhase2
+ */
+bool
+StaticProcessing::learnPhase2()
+{
+    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+
+    uint32_t timeout = 10;
+    uint32_t check = 0;
+    do
+    {
+        output_learn_step(outputSegment->outputSynapseSections,
+                          outputSegment->inputs,
+                          outputSegment->outputs,
+                          outputSegment->segmentMeta,
+                          outputSegment->randomValues,
+                          &KyoukoRoot::m_networkCluster->networkMetaData,
+                          outputSegment->outputMetaData);
+        //m_gpu->output_learn_step();
+        timeout--;
+        check = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
+    }
+    while(check > 0
+          && timeout > 0);
+    std::cout<<"###################################################: "<<check<<" : "<<timeout<<std::endl;
+
+    // if desired state was reached, than freeze lerned state
+    if(check == 0)
+    {
+        KyoukoRoot::m_freezeState = true;
+        cluster->networkMetaData.lerningValue = 100000.0f;
+        executeStep(1);
+    }
+
+    if(check != 0) {
+        return false;
+    }
+
+    return true;
 }
