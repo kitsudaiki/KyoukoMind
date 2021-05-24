@@ -4,7 +4,7 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
-INCLUDEPATH += ../../libKitsunemimiAiCommon/include
+INCLUDEPATH += ../libKitsunemimiAiCommon/include
 
 LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
 LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
