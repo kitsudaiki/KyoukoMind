@@ -81,11 +81,11 @@ function get_required_private_repo_github () {
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.18.0" 4
+get_required_kitsune_lib_repo "libKitsunemimiCommon" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiPersistence" "v0.10.1" 4
+get_required_kitsune_lib_repo "libKitsunemimiPersistence" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -105,7 +105,7 @@ get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.8.0" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.4.6" 1
+get_required_kitsune_lib_repo "libKitsunemimiIni" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -117,19 +117,19 @@ get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "v0.5.0" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.2.1" 4
+get_required_kitsune_lib_repo "libKitsunemimiArgs" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.3" 4
+get_required_kitsune_lib_repo "libKitsunemimiConfig" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.7.2" 1
+get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_github "libKitsunemimiSakuraMessaging" "v0.4.0" 4
+get_required_private_repo_github "libKitsunemimiSakuraMessaging" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -149,16 +149,11 @@ mkdir -p $LIB_KITSUNE_SAKURA_TREE_DIR
 cd $LIB_KITSUNE_SAKURA_TREE_DIR
 
 # build KyoukoMind library with qmake
-if [ $1 = "test" ]; then
-#     /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full" "CONFIG+=run_tests"
-# else
-    /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full"
-fi
+/usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full"
 /usr/bin/make -j4
 
 # copy build-result and include-files into the result-directory
 cp "$LIB_KITSUNE_SAKURA_TREE_DIR/KyoukoMind" "$RESULT_DIR/"
-# cp "$LIB_KITSUNE_SAKURA_TREE_DIR/KyoukoMind_Test" "$RESULT_DIR/"
 
 #-----------------------------------------------------------------------------------------------------------------
 
