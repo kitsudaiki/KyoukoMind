@@ -77,16 +77,17 @@ synapseProcessing(SynapseSection* section,
         Synapse* synapse = &section->synapses[pos];
 
         // create new synapse
-        if(synapse->targetNodeId == UNINIT_STATE_16
-                && pos >= section->hardening
-                && networkMetaData->doLearn > 0)
+        const bool createSyn = synapse->targetNodeId == UNINIT_STATE_16
+                               && pos >= section->hardening
+                               && networkMetaData->doLearn > 0;
+        if(createSyn)
         {
             // set new weight
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             const float random = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
             const float tooLearn = maxWeight * random;
             synapse->weight = static_cast<float>(weight < tooLearn) * weight
-                                    + static_cast<float>(weight >= tooLearn) * tooLearn;
+                              + static_cast<float>(weight >= tooLearn) * tooLearn;
 
             // get random node-id as target
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
@@ -100,7 +101,7 @@ synapseProcessing(SynapseSection* section,
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             const uint32_t signRand = randomValues[section->randomPos] % 1000;
             const float signNeg = synapseMetaData->signNeg;
-            synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
+            synapse->sign = 1 - (1000.0f * (signNeg > signRand)) * 2;
 
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             synapse->multiplicator = static_cast<int8_t>((randomValues[section->randomPos] % synapseMetaData->multiplicatorRange) + 1);
@@ -126,11 +127,10 @@ synapseProcessing(SynapseSection* section,
     }
 
     // harden synapse-section
-    if(networkMetaData->lerningValue > 0.0f)
-    {
-        if(counter > section->hardening) {
-            section->hardening = counter;
-        }
+    const bool updatePos = networkMetaData->lerningValue > 0.0f
+                           && counter > section->hardening;
+    if(updatePos) {
+        section->hardening = counter;
     }
 
     // go to next section
@@ -217,8 +217,9 @@ updateCoreSynapses(CoreSegmentMeta* segmentMeta,
     {
         SynapseBuffer* synapseBuffer = &synapseBuffers[i];
 
-        if(synapseBuffer->process == 0
-                && synapseBuffer->upToDate == 0)
+        const bool updateSection = synapseBuffer->process == 0
+                                   && synapseBuffer->upToDate == 0;
+        if(updateSection)
         {
             synapseBuffer->upToDate = updating(&synapseSections[i],
                                                nodes,
@@ -251,6 +252,7 @@ synapse_processing(CoreSegmentMeta* segmentMeta,
         if(synapseBuffer->process == 0) {
             continue;
         }
+        synapseBuffer->process = 0;
 
         for(uint8_t layer = 0; layer < 8; layer++)
         {
@@ -325,7 +327,7 @@ node_processing(Node* nodes,
 
             synapseBuffers[i].buffer[0].weigth = node->potential;
             synapseBuffers[i].buffer[0].nodeId = i;
-            synapseBuffers[i].process = node->potential > 5.0f;
+            synapseBuffers[i].process |= node->potential > 5.0f;
 
 
             // post-steps
@@ -337,7 +339,7 @@ node_processing(Node* nodes,
         {
             synapseBuffers[i].buffer[0].weigth = node->potential;
             synapseBuffers[i].buffer[0].nodeId = i;
-            synapseBuffers[i].process = node->potential > 5.0f;            
+            synapseBuffers[i].process |= node->potential > 5.0f;
         }
         else
         {
