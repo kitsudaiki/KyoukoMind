@@ -47,7 +47,6 @@ StaticProcessing::learnStep()
 
     cluster->networkMetaData.doLearn = 0;
     cluster->networkMetaData.lerningValue = 0.0f;
-    KyoukoRoot::m_freezeState = false;
 
     //m_gpu->finish();
     for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
@@ -192,7 +191,6 @@ StaticProcessing::learnPhase1()
 
     if(updateVals == 0)
     {
-        KyoukoRoot::m_freezeState = true;
         cluster->networkMetaData.lerningValue = 100000.0f;
 
         executeStep(1);
@@ -234,7 +232,6 @@ StaticProcessing::learnPhase2()
     // if desired state was reached, than freeze lerned state
     if(check == 0)
     {
-        KyoukoRoot::m_freezeState = true;
         cluster->networkMetaData.lerningValue = 100000.0f;
         executeStep(1);
     }

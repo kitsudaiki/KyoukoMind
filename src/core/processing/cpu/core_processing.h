@@ -101,7 +101,7 @@ synapseProcessing(SynapseSection* section,
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             const uint32_t signRand = randomValues[section->randomPos] % 1000;
             const float signNeg = synapseMetaData->signNeg;
-            synapse->sign = 1 - (1000.0f * (signNeg > signRand)) * 2;
+            synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
 
             section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
             synapse->multiplicator = static_cast<int8_t>((randomValues[section->randomPos] % synapseMetaData->multiplicatorRange) + 1);

@@ -22,13 +22,14 @@
 
 #include <kyouko_root.h>
 
-#include <core/network_manager.h>
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/processing/static_processing.h>
 #include <core/objects/output.h>
 #include <core/objects/network_cluster.h>
+
+#include <initializing/network_initializer.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiConfig/config_handler.h>
@@ -43,7 +44,6 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 NetworkCluster* KyoukoRoot::m_networkCluster = nullptr;
-bool KyoukoRoot::m_freezeState = false;
 ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
 MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
 InputOutputProcessing* KyoukoRoot::m_ioHandler = nullptr;
@@ -56,7 +56,6 @@ KyoukoRoot::KyoukoRoot()
     validateStructSizes();
 
     m_root = this;
-    m_freezeState = false;
     m_clientHandler = new ClientConnectionHandler();
     m_monitoringHandler = new MonitoringConnectionHandler();
 }
@@ -97,12 +96,9 @@ bool
 KyoukoRoot::start()
 {
     // network-manager
-    m_networkManager = new NetworkManager();
-    //m_networkManager->startThread();
-
-    return true;
+    NetworkInitializer initializer;
+    return initializer.initNetwork();
 }
-
 void KyoukoRoot::learnTestData()
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
@@ -275,4 +271,3 @@ void KyoukoRoot::learnTestData()
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
 }
-

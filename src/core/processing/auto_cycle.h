@@ -1,5 +1,5 @@
 /**
- * @file        network_manager.h
+ * @file        auto_cycle.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORK_MANAGER_H
-#define NETWORK_MANAGER_H
+#ifndef AUTO_CYCLE_H
+#define AUTO_CYCLE_H
 
 #include <common.h>
 #include <random>
@@ -33,20 +33,18 @@ class Barrier;
 
 class ProcessingUnitHandler;
 
-class NetworkManager
+class AutoCycle
         : public Kitsunemimi::Thread
 {
 
 public:
-    NetworkManager();
+    AutoCycle();
 
     uint32_t executeStep();
 
     void run();
 
 private:
-    bool initNetwork();
-
     ProcessingUnitHandler* m_processingUnitHandler = nullptr;
     Kitsunemimi::Barrier* m_phase2 = nullptr;
     Kitsunemimi::Barrier* m_phase3 = nullptr;
@@ -58,4 +56,4 @@ private:
     std::chrono::high_resolution_clock::time_point m_synapseEnd;
 };
 
-#endif // NETWORK_MANAGER_H
+#endif // AUTO_CYCLE_H
