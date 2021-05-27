@@ -28,6 +28,7 @@
 #include <core/processing/static_processing.h>
 #include <core/objects/output.h>
 #include <core/objects/network_cluster.h>
+#include <core/storage_io.h>
 
 #include <initializing/network_initializer.h>
 
@@ -166,7 +167,7 @@ void KyoukoRoot::learnTestData()
 
     for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 60000; pic++)
+        for(uint32_t pic = 0; pic < 1000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -270,4 +271,7 @@ void KyoukoRoot::learnTestData()
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
+
+    StorageIO io;
+    io.writeToDisc("/tmp/");
 }

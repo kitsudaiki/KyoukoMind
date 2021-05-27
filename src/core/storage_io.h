@@ -1,5 +1,5 @@
 /**
- * @file        static_processing.h
+ * @file        storage_io.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,46 +20,27 @@
  *      limitations under the License.
  */
 
-#ifndef LERNER_H
-#define LERNER_H
+#ifndef STORAGEIO_H
+#define STORAGEIO_H
 
 #include <common.h>
 
-struct OutputSegmentMeta;
-struct Output;
-
-struct Batch {
-    float buffer[2400];
-    uint32_t counter = 0;
-};
-
 namespace Kitsunemimi {
-namespace Opencl {
-class GpuHandler;
+namespace Persistence {
+class BinaryFile;
 }
 }
-class GpuProcessingUnit;
 
-class StaticProcessing
+class StorageIO
 {
 public:
-    StaticProcessing(const bool useGpu);
+    StorageIO();
 
-    bool learnStep();
-    void executeStep(const uint32_t runs);
+    bool writeToDisc(const std::string &dirPath);
+    bool readFromDisc(const std::string &dirPath);
 
-    Batch batchs[10];
-
-    float buffer[2400];
 private:
-    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
-    GpuProcessingUnit* m_gpu = nullptr;
-    bool m_useGpu = false;
-
-    uint32_t checkOutput(OutputSegmentMeta *segmentMeta, Output *outputs);
-
-    bool learnPhase1();
-    bool learnPhase2();
+    bool writeBufferToFile(const std::string &filePath, DataBuffer &buffer);
 };
 
-#endif // LERNER_H
+#endif // STORAGEIO_H

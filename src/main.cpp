@@ -65,13 +65,13 @@ main(int argc, char *argv[])
     KyoukoRoot* rootObject = new KyoukoRoot();
 
     // init blossoms
-    initBlossoms();
+    /*initBlossoms();
     if(rootObject->initializeSakuraFiles() == false) {
         return 1;
-    }
+    }*/
 
     // initialize server and connections based on the config-file
-    std::vector<std::string> groupNames = {};
+    /*std::vector<std::string> groupNames = {};
     const bool sakuraMessageInit = MessagingController::initializeMessagingController("KyoukoMind",
                                                                                       groupNames,
                                                                                       &sessionCreateCallback,
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
     if(sakuraMessageInit == false)
     {
         return 1;
-    }
+    }*/
 
     // start core
     rootObject->start();
