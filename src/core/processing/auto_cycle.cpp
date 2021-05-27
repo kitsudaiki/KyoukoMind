@@ -20,15 +20,10 @@
  *      limitations under the License.
  */
 
-#include <core/network_manager.h>
+#include <core/processing/auto_cycle.h>
 #include <kyouko_root.h>
 
 #include <libKitsunemimiCommon/threading/barrier.h>
-
-#include <libKitsunemimiConfig/config_handler.h>
-#include <libKitsunemimiPersistence/logger/logger.h>
-#include <libKitsunemimiPersistence/files/file_methods.h>
-#include <libKitsunemimiPersistence/files/text_file.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/connection_handler/client_connection_handler.h>
@@ -38,27 +33,21 @@
 #include <core/objects/segment.h>
 #include <core/objects/network_cluster.h>
 
-#include <initializing/network_initializer.h>
-
-#include <libKitsunemimiAiCommon/metadata.h>
-
 using std::chrono::duration_cast;
 
 /**
  * @brief NetManager::NetManager
  */
-NetworkManager::NetworkManager()
+AutoCycle::AutoCycle()
 {
     m_phase2 = new Kitsunemimi::Barrier(2);
     m_phase3 = new Kitsunemimi::Barrier(2);
 
     m_processingUnitHandler = new ProcessingUnitHandler();
-
-    initNetwork();
 }
 
 uint32_t
-NetworkManager::executeStep()
+AutoCycle::executeStep()
 {
     // run phases of processing
     m_edgeStart = std::chrono::system_clock::now();
@@ -83,7 +72,7 @@ NetworkManager::executeStep()
  * @brief NetworkManager::run
  */
 void
-NetworkManager::run()
+AutoCycle::run()
 {
     std::string errorMessage = "";
 
@@ -98,11 +87,6 @@ NetworkManager::run()
 
         // handle learning
         KyoukoRoot::m_networkCluster->networkMetaData.lerningValue  = 0.0f;
-        if(KyoukoRoot::m_freezeState)
-        {
-            KyoukoRoot::m_networkCluster->networkMetaData.lerningValue  = 1000.0f;
-            KyoukoRoot::m_freezeState = false;
-        }
 
         const uint32_t usedTime = executeStep();
         if(KyoukoRoot::m_networkCluster->networkMetaData.cycleTime > usedTime) {
@@ -113,62 +97,4 @@ NetworkManager::run()
 
         KyoukoRoot::m_networkCluster->networkMetaData.lerningValue = 0.0f;
     }
-}
-
-/**
- * @brief initialize new network
- *
- * @return true, if successfull, else false
- */
-bool
-NetworkManager::initNetwork()
-{
-    bool success = false;
-
-    LOG_INFO("no files found. Try to create a new cluster");
-
-    const std::string initialFile = GET_STRING_CONFIG("Init", "file", success);
-    if(success == false)
-    {
-        LOG_ERROR("no init-file set in the config-file");
-        return false;
-    }
-    LOG_INFO("use init-file: " + initialFile);
-
-    std::string initFileContent = "";
-    std::string errorMessage = "";
-    if(Kitsunemimi::Persistence::readFile(initFileContent, initialFile, errorMessage) == false)
-    {
-        LOG_ERROR(errorMessage);
-        return false;
-    }
-
-    const std::string configFile = GET_STRING_CONFIG("Init", "config", success);
-    if(success == false)
-    {
-        LOG_ERROR("no init-file set in the config-file");
-        return false;
-    }
-    LOG_INFO("use init-file: " + configFile);
-
-    std::string configFileContent = "";
-    if(Kitsunemimi::Persistence::readFile(configFileContent, configFile, errorMessage) == false)
-    {
-        LOG_ERROR(errorMessage);
-        return false;
-    }
-
-    NetworkInitializer initializer;
-    success = initializer.createNewNetwork(initFileContent, configFileContent);
-    if(success == false)
-    {
-        LOG_ERROR("failed to initialize network");
-        return false;
-    }
-
-    m_processingUnitHandler->initProcessingUnits(m_phase2,
-                                                 m_phase3,
-                                                 NUMBER_OF_PROCESSING_UNITS);
-
-    return true;
 }

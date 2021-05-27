@@ -39,6 +39,7 @@ class NetworkInitializer
 public:
     NetworkInitializer();
 
+    bool initNetwork();
     bool createNewNetwork(const std::string &fileContent,
                           const std::string &configFileContent);
 

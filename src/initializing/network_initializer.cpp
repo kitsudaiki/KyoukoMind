@@ -30,15 +30,17 @@
 
 #include <initializing/layered_brick_initializier.h>
 #include <initializing/random_brick_initializer.h>
+#include <initializing/segment_initailzing.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
-
 #include <libKitsunemimiAiParser/ai_parser_input.h>
-
-#include <initializing/segment_initailzing.h>
+#include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiPersistence/files/file_methods.h>
+#include <libKitsunemimiPersistence/files/text_file.h>
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 /**
  * @brief constructor
@@ -46,6 +48,59 @@
 NetworkInitializer::NetworkInitializer()
 {
     m_brickInitializer = new LayeredBrickInitializier();
+}
+
+/**
+ * @brief initialize new network
+ *
+ * @return true, if successfull, else false
+ */
+bool
+NetworkInitializer::initNetwork()
+{
+    bool success = false;
+
+    LOG_INFO("no files found. Try to create a new cluster");
+
+    const std::string initialFile = GET_STRING_CONFIG("Init", "file", success);
+    if(success == false)
+    {
+        LOG_ERROR("no init-file set in the config-file");
+        return false;
+    }
+    LOG_INFO("use init-file: " + initialFile);
+
+    std::string initFileContent = "";
+    std::string errorMessage = "";
+    if(Kitsunemimi::Persistence::readFile(initFileContent, initialFile, errorMessage) == false)
+    {
+        LOG_ERROR(errorMessage);
+        return false;
+    }
+
+    const std::string configFile = GET_STRING_CONFIG("Init", "config", success);
+    if(success == false)
+    {
+        LOG_ERROR("no init-file set in the config-file");
+        return false;
+    }
+    LOG_INFO("use init-file: " + configFile);
+
+    std::string configFileContent = "";
+    if(Kitsunemimi::Persistence::readFile(configFileContent, configFile, errorMessage) == false)
+    {
+        LOG_ERROR(errorMessage);
+        return false;
+    }
+
+    success = createNewNetwork(initFileContent, configFileContent);
+    if(success == false)
+    {
+        LOG_ERROR("failed to initialize network");
+        return false;
+    }
+
+    return true;
 }
 
 /**

@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 
     // init logging
     const bool enableDebug = argParser.wasSet("debug");
-    Kitsunemimi::Persistence::initConsoleLogger(true);
+    Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
     Kitsunemimi::Persistence::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
 
     // init config
@@ -61,24 +61,27 @@ main(int argc, char *argv[])
     }
     registerConfigs();
 
-    // create server
-    //initBlossoms();
+    // create core
+    KyoukoRoot* rootObject = new KyoukoRoot();
+
+    // init blossoms
+    initBlossoms();
+    if(rootObject->initializeSakuraFiles() == false) {
+        return 1;
+    }
 
     // initialize server and connections based on the config-file
-    /*std::vector<std::string> groupNames = {};
-    if(MessagingController::initializeMessagingController("KyoukoMind",
-                                                          groupNames,
-                                                          &sessionCreateCallback,
-                                                          &sessionCloseCallback) == false)
+    std::vector<std::string> groupNames = {};
+    const bool sakuraMessageInit = MessagingController::initializeMessagingController("KyoukoMind",
+                                                                                      groupNames,
+                                                                                      &sessionCreateCallback,
+                                                                                      &sessionCloseCallback);
+    if(sakuraMessageInit == false)
     {
         return 1;
-    }*/
+    }
 
     // start core
-    KyoukoRoot* rootObject = new KyoukoRoot();
-    /*if(rootObject->initializeSakuraFiles() == false) {
-        return 1;
-    }*/
     rootObject->start();
     rootObject->learnTestData();
 

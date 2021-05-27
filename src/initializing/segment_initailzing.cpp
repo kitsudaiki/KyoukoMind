@@ -109,19 +109,19 @@ initOutputSegment(const uint32_t numberOfOutputs,
  * @param numberOfRandValues
  * @return
  */
-SynapseSegment*
+CoreSegment*
 initSynapseSegment(const uint32_t numberOfNodeBricks,
                    const uint32_t numberOfNodes,
                    const uint64_t numberOfSynapseSections,
                    const uint32_t numberOfInputs,
                    const uint32_t numberOfRandValues)
 {
-    SynapseSegment* newSegment = new SynapseSegment();
+    CoreSegment* newSegment = new CoreSegment();
 
     // get total buffer-size for the new segment
     uint32_t totalSize = 0;
-    totalSize += 1 * sizeof(SynapseSegmentMeta);
-    totalSize += 1 * sizeof(Kitsunemimi::Ai::SynapseMetaData);
+    totalSize += 1 * sizeof(CoreSegmentMeta);
+    totalSize += 1 * sizeof(Kitsunemimi::Ai::CoreMetaData);
     totalSize += numberOfRandValues * sizeof(uint32_t);
     totalSize += numberOfNodeBricks * sizeof(Brick);
     totalSize += numberOfNodes * sizeof(Node);
@@ -138,10 +138,10 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     uint32_t bufferPos = 0;
 
     // init segment meta-data
-    newSegment->segmentMeta = reinterpret_cast<SynapseSegmentMeta*>(data + bufferPos);
-    bufferPos += 1 * sizeof(SynapseSegmentMeta);
-    newSegment->segmentMeta[0] = SynapseSegmentMeta();
-    newSegment->segmentMeta->segmentType = SYNAPSE_SEGMENT;
+    newSegment->segmentMeta = reinterpret_cast<CoreSegmentMeta*>(data + bufferPos);
+    bufferPos += 1 * sizeof(CoreSegmentMeta);
+    newSegment->segmentMeta[0] = CoreSegmentMeta();
+    newSegment->segmentMeta->segmentType = CORE_SEGMENT;
     newSegment->segmentMeta->numberOfRandomValues = numberOfRandValues;
     newSegment->segmentMeta->numberOfNodeBricks = numberOfNodeBricks;
     newSegment->segmentMeta->numberOfNodesPerBrick = numberOfNodes / numberOfNodeBricks;
@@ -150,9 +150,9 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     newSegment->segmentMeta->numberOfNodes = numberOfNodes;
 
     // init global values
-    newSegment->synapseMetaData = reinterpret_cast<Kitsunemimi::Ai::SynapseMetaData*>(data + bufferPos);
-    bufferPos += 1 * sizeof(Kitsunemimi::Ai::SynapseMetaData);
-    newSegment->synapseMetaData[0] = Kitsunemimi::Ai::SynapseMetaData();
+    newSegment->synapseMetaData = reinterpret_cast<Kitsunemimi::Ai::CoreMetaData*>(data + bufferPos);
+    bufferPos += 1 * sizeof(Kitsunemimi::Ai::CoreMetaData);
+    newSegment->synapseMetaData[0] = Kitsunemimi::Ai::CoreMetaData();
 
     // init random values
     newSegment->randomValues = reinterpret_cast<uint32_t*>(data + bufferPos);
@@ -214,7 +214,7 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
  * @return
  */
 bool
-initLayer(SynapseSegment &segment,
+initLayer(CoreSegment &segment,
           Kitsunemimi::Ai::InitMeataData* initMetaData)
 {
     // init layer-buffer
@@ -255,7 +255,7 @@ initLayer(SynapseSegment &segment,
 }
 
 bool
-initializeNodes(SynapseSegment &segment,
+initializeNodes(CoreSegment &segment,
                 Kitsunemimi::Ai::InitMeataData* initMetaData)
 {
     const uint32_t numberOfNodes = segment.segmentMeta->numberOfNodeBricks
@@ -277,7 +277,7 @@ initializeNodes(SynapseSegment &segment,
  *
  * @param segment segment where to add a new brick
  */
-void addBricksToSegment(SynapseSegment &segment,
+void addBricksToSegment(CoreSegment &segment,
                         Kitsunemimi::Ai::InitMeataData* initMetaData,
                         const Kitsunemimi::Ai::AiBaseMeta& metaBase)
 {

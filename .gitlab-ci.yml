@@ -1,6 +1,11 @@
-image: registry.gitlab.com/kitsudaiki/kitsunemimi-ci-docker-images/opencl-tests:1.0.0
+image: registry.gitlab.com/kitsudaiki/kitsunemimi-ci-docker-images/opencl-tests:1.1.0
+
+stages:
+  - build
+  - docker_create
 
 build:
+  stage: build
   script:
     - echo Working on branch $CI_COMMIT_REF_NAME
 
@@ -9,10 +14,34 @@ build:
     - ssh-keyscan -H 10.0.3.120 >> ~/.ssh/known_hosts
 
     - apt-get update
-    - apt-get install -y libboost-filesystem-dev openssl libssl-dev opencl-headers ocl-icd-opencl-dev xxd
+    - apt-get install -y libboost-filesystem-dev openssl libssl-dev opencl-headers ocl-icd-opencl-dev xxd 
 
     - cd /builds/kitsudaiki/KyoukoMind
-    - ./build.sh test
+    - ./build.sh
 
+    - mkdir upload
+    - cp ../result/KyoukoMind upload/
+
+  artifacts:
+    paths:
+      - upload
+    expire_in: 1 week
   tags:
     - docker
+
+docker_create:
+  stage: docker_create
+  script:
+
+    - apt-get update
+    - apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    - echo  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - apt-get update
+    - apt-get install -y docker-ce docker-ce-cli containerd.io
+    - docker build -t kyouko_mind .
+  dependencies:
+    - build
+  tags:
+    - docker
+

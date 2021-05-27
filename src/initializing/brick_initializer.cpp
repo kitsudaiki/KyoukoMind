@@ -32,7 +32,7 @@ BrickInitializer::~BrickInitializer()
 
 }
 
-bool BrickInitializer::initializeAxons(SynapseSegment &segment)
+bool BrickInitializer::initializeAxons(CoreSegment &segment)
 {
     uint32_t nodeCounter = 0;
 

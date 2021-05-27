@@ -29,8 +29,8 @@
 #include <core/objects/network_cluster.h>
 #include <core/objects/brick.h>
 
-#include <core/processing/cpu/synapse_processing.h>
-#include <core/processing/cpu/output_synapse_processing.h>
+#include <core/processing/cpu/core_processing.h>
+#include <core/processing/cpu/output_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -49,29 +49,13 @@ CpuProcessingUnit::run()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     float timeValue = 0.0f;
-    SynapseSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
     OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
     while(m_abort == false)
     {
         m_phase2->triggerBarrier();
 
-        start = std::chrono::system_clock::now();
-        node_processing(synapseSegment->nodes,
-                        synapseSegment->nodeBuffers,
-                        synapseSegment->inputNodes,
-                        synapseSegment->synapseBuffers,
-                        synapseSegment->segmentMeta,
-                        synapseSegment->synapseMetaData,
-                        outputSegment->inputs);
-        output_node_processing(outputSegment->outputSynapseSections,
-                               outputSegment->inputs,
-                               outputSegment->outputs,
-                               outputSegment->segmentMeta,
-                               &KyoukoRoot::m_networkCluster->networkMetaData,
-                               outputSegment->outputMetaData);
-        end = std::chrono::system_clock::now();
-        timeValue = std::chrono::duration_cast<chronoNanoSec>(end - start).count();
 
         m_phase3->triggerBarrier();
     }

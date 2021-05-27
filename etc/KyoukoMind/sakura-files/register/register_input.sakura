@@ -1,7 +1,0 @@
-["register_input"]
-- size = ""
-
-register("register input")
--> input:
-    - size = size
-

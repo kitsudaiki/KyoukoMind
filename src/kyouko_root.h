@@ -25,12 +25,12 @@
 
 #include <common.h>
 
-class NetworkManager;
+class AutoCycle;
 struct NetworkCluster;
 class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
-class Learner;
+class StaticProcessing;
 
 class KyoukoRoot
 {
@@ -41,18 +41,16 @@ public:
 
     static KyoukoRoot* m_root;
     static NetworkCluster* m_networkCluster;
-    static bool m_freezeState;
     static ClientConnectionHandler* m_clientHandler;
     static MonitoringConnectionHandler* m_monitoringHandler;
     static InputOutputProcessing* m_ioHandler;
 
     bool start();
     bool initializeSakuraFiles();
-
     void learnTestData();
 
-    NetworkManager* m_networkManager = nullptr;
-    Learner* m_learner = nullptr;
+    AutoCycle* m_networkManager = nullptr;
+    StaticProcessing* m_staticProcessing = nullptr;
 
 private:
     uint32_t m_serverId = 0;

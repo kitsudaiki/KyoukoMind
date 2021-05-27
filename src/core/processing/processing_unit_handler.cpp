@@ -61,7 +61,7 @@ ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* phase2,
                                            const uint16_t numberOfThreads)
 {
     // init cpu
-    for(uint16_t i = 0; i < numberOfThreads; i++)
+    /*for(uint16_t i = 0; i < numberOfThreads; i++)
     {
         CpuProcessingUnit* newUnit = new CpuProcessingUnit();
         m_cpuProcessingUnits.push_back(newUnit);
@@ -70,7 +70,7 @@ ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* phase2,
         newUnit->m_phase3 = phase3;
 
         newUnit->startThread();
-    }
+    }*/
 
     // init gpu
     /*m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();

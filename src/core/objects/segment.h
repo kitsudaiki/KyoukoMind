@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file        segment.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -35,13 +35,13 @@
 enum SegmentType
 {
     UNDEFINED_SEGMENT = 0,
-    SYNAPSE_SEGMENT = 1,
+    CORE_SEGMENT = 1,
     OUTPUT_SEGMENT = 2
 };
 
 //==================================================================================================
 
-struct SynapseSegmentMeta
+struct CoreSegmentMeta
 {
     uint32_t segmentType = UNDEFINED_SEGMENT;
 
@@ -58,13 +58,13 @@ struct SynapseSegmentMeta
     uint8_t padding[220];
 };
 
-struct SynapseSegment
+struct CoreSegment
 {
     Kitsunemimi::DataBuffer buffer;
 
     // generic objects
-    SynapseSegmentMeta* segmentMeta = nullptr;
-    Kitsunemimi::Ai::SynapseMetaData* synapseMetaData = nullptr;
+    CoreSegmentMeta* segmentMeta = nullptr;
+    Kitsunemimi::Ai::CoreMetaData* synapseMetaData = nullptr;
     uint32_t* randomValues = nullptr;
 
     // bricks
@@ -82,7 +82,7 @@ struct SynapseSegment
 
     std::vector<std::vector<Brick*>> layer;
 
-    SynapseSegment() {}
+    CoreSegment() {}
 
 };
 

@@ -33,8 +33,8 @@ class LayeredBrickInitializier
 public:
     LayeredBrickInitializier();
 
-    Brick* getAxonBrick(SynapseSegment &segment, Brick* sourceBrick);
-    bool initTargetBrickList(SynapseSegment &segment,
+    Brick* getAxonBrick(CoreSegment &segment, Brick* sourceBrick);
+    bool initTargetBrickList(CoreSegment &segment,
                              Kitsunemimi::Ai::InitMeataData* initMetaData);
 };
 

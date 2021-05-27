@@ -4,7 +4,7 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
-INCLUDEPATH += ../../libKitsunemimiAiCommon/include
+INCLUDEPATH += ../libKitsunemimiAiCommon/include
 
 LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
 LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
@@ -86,16 +86,18 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/learner.h \
+    src/core/processing/auto_cycle.h \
+    src/core/processing/static_processing.h \
     src/core/objects/brick.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segment.h \
+    src/core/processing/cpu/core_processing.h \
     src/core/processing/cpu/cpu_processing_unit.h \
+    src/core/processing/cpu/output_processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
     src/core/processing/processing_unit_handler.h \
-    src/core/network_manager.h \
     src/core/validation.h \
     src/initializing/brick_initializer.h \
     src/initializing/layered_brick_initializier.h \
@@ -107,27 +109,18 @@ HEADERS += \
     src/initializing/segment_initailzing.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
-    src/blossoms/register/register_input_blossom.h \
-    src/blossoms/register/register_output_blossom.h \
-    src/blossoms/special/learn_blossom.h \
-    src/blossoms/metadata/metadata_blossom.h \
     src/core/connection_handler/monitoring_connection_handler.h \
     src/core/connection_handler/client_connection_handler.h \
     src/blossoms/special/special_blossoms.h \
-    src/blossoms/global_values/set_global_values_blossom.h \
-    src/blossoms/snapshot/snapshot_blossom.h \
     src/initializing/blossom_initializing.h \
-    src/core/processing/cpu/synapse_processing.h \
-    src/core/processing/cpu/output_synapse_processing.h \
-    src/blossoms/special/set_input_blossom.h \
     src/core/objects/output.h \
     src/common/structs.h
 
 SOURCES += \
-    src/core/learner.cpp \
+    src/core/processing/auto_cycle.cpp \
+    src/core/processing/static_processing.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
-    src/core/network_manager.cpp \
     src/core/validation.cpp \
     src/initializing/brick_initializer.cpp \
     src/initializing/layered_brick_initializier.cpp \
@@ -136,16 +129,9 @@ SOURCES += \
     src/initializing/segment_initailzing.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
-    src/blossoms/register/register_input_blossom.cpp \
-    src/blossoms/register/register_output_blossom.cpp \
-    src/blossoms/special/learn_blossom.cpp \
-    src/blossoms/metadata/metadata_blossom.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \
     src/core/connection_handler/client_connection_handler.cpp \
-    src/blossoms/global_values/set_global_values_blossom.cpp \
-    src/blossoms/snapshot/snapshot_blossom.cpp \
-    src/blossoms/special/special_blossoms.cpp \
-    src/blossoms/special/set_input_blossom.cpp
+    src/blossoms/special/special_blossoms.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
