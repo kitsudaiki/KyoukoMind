@@ -36,3 +36,5 @@
 
 // processing
 #define NUMBER_OF_PROCESSING_UNITS 1
+
+#define NUMBER_OF_RAND_VALUES 10485760

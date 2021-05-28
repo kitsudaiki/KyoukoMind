@@ -114,7 +114,7 @@ learNewOutput(OutputSynapseSection* section,
                 && limiter < 5)
         {
             // const uint32_t possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
             uint32_t possibleTargetId = randomValues[section->randomPos] % outputMetaData->inputRange;
             possibleTargetId += outputPos * outputMetaData->inputOffset;
 

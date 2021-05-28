@@ -165,9 +165,9 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 1; poi++)
+    for(uint32_t poi = 0; poi < 2; poi++)
     {
-        for(uint32_t pic = 0; pic < 1000; pic++)
+        for(uint32_t pic = 0; pic < 60000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;

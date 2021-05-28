@@ -123,7 +123,7 @@ StaticProcessing::executeStep(const uint32_t runs)
                            synapseSegment->nodes,
                            synapseSegment->nodeBricks,
                            synapseSegment->nodeBuffers,
-                           synapseSegment->randomValues,
+                           KyoukoRoot::m_networkCluster->randomValues,
                            synapseSegment->synapseMetaData,
                            &KyoukoRoot::m_networkCluster->networkMetaData);
         //m_gpu->synapse_processing();
@@ -240,7 +240,7 @@ StaticProcessing::learnPhase2()
                           outputSegment->inputs,
                           outputSegment->outputs,
                           outputSegment->segmentMeta,
-                          outputSegment->randomValues,
+                          KyoukoRoot::m_networkCluster->randomValues,
                           &KyoukoRoot::m_networkCluster->networkMetaData,
                           outputSegment->outputMetaData);
         //m_gpu->output_learn_step();
