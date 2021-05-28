@@ -41,6 +41,8 @@ public:
 
 private:
     bool writeBufferToFile(const std::string &filePath, DataBuffer &buffer);
+    bool readBufferFromFile(const std::string &filePath, DataBuffer &buffer);
+
 };
 
 #endif // STORAGEIO_H
