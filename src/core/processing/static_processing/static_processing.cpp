@@ -30,31 +30,16 @@
 
 #include <core/processing/cpu/output_processing.h>
 #include <core/processing/cpu/core_processing.h>
-#include <core/processing/processing_unit_handler.h>
 
-#include <core/processing/gpu/gpu_processing_uint.h>
-#include <libKitsunemimiOpencl/gpu_interface.h>
 #include <libKitsunemimiCommon/threading/barrier.h>
 
-StaticProcessing::StaticProcessing(const bool useGpu)
+StaticProcessing::StaticProcessing()
 {
-    m_useGpu = useGpu;
+}
 
-    m_startBarrier = new Kitsunemimi::Barrier(9);
-    m_endBarrier = new Kitsunemimi::Barrier(9);
+StaticProcessing::~StaticProcessing()
+{
 
-    m_processingUnitHandler = new ProcessingUnitHandler();
-    m_processingUnitHandler->initProcessingUnits(m_startBarrier,
-                                                 m_endBarrier,
-                                                 8);
-
-    if(useGpu)
-    {
-        m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
-        assert(m_gpuHandler->m_interfaces.size() >= 1);
-        m_gpu = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
-        assert(m_gpu->initializeGpu(KyoukoRoot::m_networkCluster));
-    }
 }
 
 /**
@@ -108,50 +93,6 @@ StaticProcessing::learnStep()
     }
 
     return result;
-}
-
-/**
- * @brief Lerner::executeStep
- */
-void
-StaticProcessing::executeStep(const uint32_t runs)
-{
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-    float timeValue = 0.0f;
-    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
-
-    // learn until output-section
-    const uint32_t runCount = runs;
-    for(uint32_t i = 0; i < runCount; i++)
-    {
-        processInputNodes(synapseSegment->nodes,
-                          synapseSegment->inputNodes,
-                          synapseSegment->segmentMeta);
-
-        m_processingUnitHandler->shareNewTask(NODE_PROCESSING);
-        m_startBarrier->triggerBarrier();
-        m_endBarrier->triggerBarrier();
-
-        //m_gpu->node_processing();
-        m_processingUnitHandler->shareNewTask(UPDATE_CORE);
-        m_startBarrier->triggerBarrier();
-        m_endBarrier->triggerBarrier();
-
-        m_processingUnitHandler->shareNewTask(CORE_PROCESSING);
-        m_startBarrier->triggerBarrier();
-        m_endBarrier->triggerBarrier();
-
-        //m_gpu->synapse_processing();
-
-    }
-
-    m_processingUnitHandler->shareNewTask(OUTPUT_PROCESSING);
-    m_startBarrier->triggerBarrier();
-    m_endBarrier->triggerBarrier();
-
-    //m_gpu->output_node_processing();
 }
 
 /**
@@ -215,7 +156,6 @@ StaticProcessing::learnPhase1()
             break;
         }
         updateVals = tempVal;
-
         timeout--;
     }
     while(updateVals != 0
@@ -225,9 +165,7 @@ StaticProcessing::learnPhase1()
     if(updateVals == 0)
     {
         cluster->networkMetaData.lerningValue = 100000.0f;
-
         executeStep(1);
-
         return true;
     }
 
@@ -247,10 +185,7 @@ StaticProcessing::learnPhase2()
     uint32_t check = 0;
     do
     {
-        m_processingUnitHandler->shareNewTask(OUTPUT_LEARN);
-        m_startBarrier->triggerBarrier();
-        m_endBarrier->triggerBarrier();
-        //m_gpu->output_learn_step();
+        outputLearn();
         timeout--;
         check = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
     }

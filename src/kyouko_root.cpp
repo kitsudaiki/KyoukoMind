@@ -25,7 +25,7 @@
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
-#include <core/processing/static_processing.h>
+#include <core/processing/static_processing/single_thread_processing_static.h>
 #include <core/objects/output.h>
 #include <core/objects/network_cluster.h>
 #include <core/storage_io.h>
@@ -153,7 +153,7 @@ void KyoukoRoot::learnTestData()
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
-    m_staticProcessing = new StaticProcessing(false);
+    m_staticProcessing = new SingleThreadProcessingStatic();
 
 
     // get pictures
@@ -167,7 +167,7 @@ void KyoukoRoot::learnTestData()
 
     for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 1000; pic++)
+        for(uint32_t pic = 0; pic < 60000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;

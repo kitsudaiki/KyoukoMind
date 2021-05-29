@@ -20,25 +20,14 @@
  *      limitations under the License.
  */
 
-#ifndef LERNER_H
-#define LERNER_H
+#ifndef STATIC_PROCESSING_H
+#define STATIC_PROCESSING_H
 
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
-namespace Kitsunemimi {
-class Barrier;
-}
-
-class ProcessingUnitHandler;
-
 struct OutputSegmentMeta;
 struct Output;
-
-struct Batch {
-    float buffer[2400];
-    uint32_t counter = 0;
-};
 
 namespace Kitsunemimi {
 namespace Opencl {
@@ -50,30 +39,23 @@ class GpuProcessingUnit;
 class StaticProcessing
 {
 public:
-    StaticProcessing(const bool useGpu);
+    StaticProcessing();
+    virtual ~StaticProcessing();
 
     bool learn();
     bool execute();
 
-    Batch batchs[10];
-
     float buffer[2400];
 private:
-    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
-    GpuProcessingUnit* m_gpu = nullptr;
-    bool m_useGpu = false;
-
     uint32_t checkOutput(OutputSegmentMeta *segmentMeta, Output *outputs);
 
     bool learnStep();
-    void executeStep(const uint32_t runs);
+    virtual void executeStep(const uint32_t runs) = 0;
+    virtual void outputLearn() = 0;
 
     bool learnPhase1();
     bool learnPhase2();
 
-    ProcessingUnitHandler* m_processingUnitHandler = nullptr;
-    Kitsunemimi::Barrier* m_startBarrier = nullptr;
-    Kitsunemimi::Barrier* m_endBarrier = nullptr;
 };
 
-#endif // LERNER_H
+#endif // STATIC_PROCESSING_H

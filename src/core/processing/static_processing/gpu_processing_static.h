@@ -1,5 +1,5 @@
 /**
- * @file        auto_cycle.h
+ * @file        gpu_processing_static.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,40 +20,23 @@
  *      limitations under the License.
  */
 
-#ifndef AUTO_CYCLE_H
-#define AUTO_CYCLE_H
+#ifndef GPUPROCESSINGSTATIC_H
+#define GPUPROCESSINGSTATIC_H
 
-#include <common.h>
-#include <random>
-#include <libKitsunemimiCommon/threading/thread.h>
+#include <core/processing/static_processing/static_processing.h>
 
-namespace Kitsunemimi {
-class Barrier;
-}
-
-class ProcessingUnitHandler;
-
-class AutoCycle
-        : public Kitsunemimi::Thread
+class GpuProcessingStatic
+        : public StaticProcessing
 {
-
 public:
-    AutoCycle();
-
-    uint32_t executeStep();
-
-    void run();
+    GpuProcessingStatic();
 
 private:
-    ProcessingUnitHandler* m_processingUnitHandler = nullptr;
-    Kitsunemimi::Barrier* m_phase2 = nullptr;
-    Kitsunemimi::Barrier* m_phase3 = nullptr;
+    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
+    GpuProcessingUnit* m_gpu = nullptr;
 
-    std::chrono::high_resolution_clock::time_point m_edgeStart;
-    std::chrono::high_resolution_clock::time_point m_edgeEnd;
-
-    std::chrono::high_resolution_clock::time_point m_synapseStart;
-    std::chrono::high_resolution_clock::time_point m_synapseEnd;
+    void executeStep(const uint32_t runs);
+    void outputLearn();
 };
 
-#endif // AUTO_CYCLE_H
+#endif // GPUPROCESSINGSTATIC_H
