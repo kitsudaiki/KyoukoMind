@@ -209,11 +209,13 @@ updateCoreSynapses(CoreSegmentMeta* segmentMeta,
                    SynapseBuffer* synapseBuffers,
                    SynapseSection* synapseSections,
                    Node* nodes,
-                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData)
+                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
+                   const uint32_t threadId,
+                   const uint32_t numberOfThreads)
 {
     const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
 
-    for(uint32_t i = 0; i < numberOfSynapses; i++)
+    for(uint32_t i = threadId; i < numberOfSynapses; i = i + numberOfThreads)
     {
         SynapseBuffer* synapseBuffer = &synapseBuffers[i];
 
@@ -240,12 +242,14 @@ synapse_processing(CoreSegmentMeta* segmentMeta,
                    float* nodeBuffers,
                    uint32_t* randomValues,
                    Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
+                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
+                   const uint32_t threadId,
+                   const uint32_t numberOfThreads)
 {
     const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
 
     //----------------------------------------------------------------------------------------------
-    for(uint32_t i = 0; i < numberOfSynapses; i++)
+    for(uint32_t i = threadId; i < numberOfSynapses; i = i + numberOfThreads)
     {
         SynapseBuffer* synapseBuffer = &synapseBuffers[i];
 
@@ -300,9 +304,11 @@ node_processing(Node* nodes,
                 SynapseBuffer* synapseBuffers,
                 CoreSegmentMeta* segmentMeta,
                 Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                OutputInput* outputInputs)
+                OutputInput* outputInputs,
+                const uint32_t threadId,
+                const uint32_t numberOfThreads)
 {
-    for(uint32_t i = 0; i < segmentMeta->numberOfNodes; i++)
+    for(uint32_t i = threadId; i < segmentMeta->numberOfNodes; i = i + numberOfThreads)
     {
         // TODO: when port to gpu: change 2 to 256 again
         for(uint pos = 0; pos < 1; pos++)

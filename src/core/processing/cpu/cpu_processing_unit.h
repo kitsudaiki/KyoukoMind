@@ -38,16 +38,24 @@ class CpuProcessingUnit
 {
 
 public:
-    CpuProcessingUnit();
+    CpuProcessingUnit(const uint32_t threadId,
+                      const uint32_t maxThreads);
 
     void run();
 
-    Kitsunemimi::Barrier* m_phase2 = nullptr;
-    Kitsunemimi::Barrier* m_phase3 = nullptr;
+    void setTask(const ThreadTask newTask);
+
+    Kitsunemimi::Barrier* startBarrier = nullptr;
+    Kitsunemimi::Barrier* endBarrier = nullptr;
 
 private:
     DataBuffer m_clientBuffer;
     DataBuffer m_monitoringBuffer;
+
+    ThreadTask m_currentTask = NOTHING;
+
+    uint32_t m_threadId = 0;
+    uint32_t m_maxThreads = 0;
 };
 
 #endif // PROCESSING_UNIT_H

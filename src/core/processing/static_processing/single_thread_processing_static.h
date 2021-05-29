@@ -1,5 +1,5 @@
-﻿/**
- * @file        kyouko_root.h
+/**
+ * @file        single_thread_processing_static.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,38 +20,20 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKO_ROOT_OBJECT_H
-#define KYOUKO_ROOT_OBJECT_H
+#ifndef SINGLETHREADPROCESSINGSTATIC_H
+#define SINGLETHREADPROCESSINGSTATIC_H
 
-#include <common.h>
+#include <core/processing/static_processing/static_processing.h>
 
-struct NetworkCluster;
-class InputOutputProcessing;
-class ClientConnectionHandler;
-class MonitoringConnectionHandler;
-class StaticProcessing;
-
-class KyoukoRoot
+class SingleThreadProcessingStatic
+        : public StaticProcessing
 {
-
 public:
-    KyoukoRoot();
-    ~KyoukoRoot();
-
-    static KyoukoRoot* m_root;
-    static NetworkCluster* m_networkCluster;
-    static ClientConnectionHandler* m_clientHandler;
-    static MonitoringConnectionHandler* m_monitoringHandler;
-    static InputOutputProcessing* m_ioHandler;
-
-    bool start();
-    bool initializeSakuraFiles();
-    void learnTestData();
-
-    StaticProcessing* m_staticProcessing = nullptr;
+    SingleThreadProcessingStatic();
 
 private:
-    uint32_t m_serverId = 0;
+    void executeStep(const uint32_t runs);
+    void outputLearn();
 };
 
-#endif //KYOUKO_ROOT_OBJECT_H
+#endif // SINGLETHREADPROCESSINGSTATIC_H

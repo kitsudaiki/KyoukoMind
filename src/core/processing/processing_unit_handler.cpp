@@ -50,27 +50,35 @@ ProcessingUnitHandler::~ProcessingUnitHandler()
     closeAllProcessingUnits();
 }
 
+void
+ProcessingUnitHandler::shareNewTask(const ThreadTask newTask)
+{
+    for(uint16_t i = 0; i < m_cpuProcessingUnits.size(); i++) {
+        m_cpuProcessingUnits[i]->setTask(newTask);
+    }
+}
+
 /**
  * @brief ProcessingUnitHandler::initProcessingUnits
  * @param numberOfThreads
  * @return
  */
 bool
-ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* phase2,
-                                           Kitsunemimi::Barrier* phase3,
+ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* startBarrier,
+                                           Kitsunemimi::Barrier* endBarrier,
                                            const uint16_t numberOfThreads)
 {
     // init cpu
-    /*for(uint16_t i = 0; i < numberOfThreads; i++)
+    for(uint16_t i = 0; i < numberOfThreads; i++)
     {
-        CpuProcessingUnit* newUnit = new CpuProcessingUnit();
+        CpuProcessingUnit* newUnit = new CpuProcessingUnit(i, numberOfThreads);
         m_cpuProcessingUnits.push_back(newUnit);
 
-        newUnit->m_phase2 = phase2;
-        newUnit->m_phase3 = phase3;
+        newUnit->startBarrier = startBarrier;
+        newUnit->endBarrier = endBarrier;
 
         newUnit->startThread();
-    }*/
+    }
 
     // init gpu
     /*m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();

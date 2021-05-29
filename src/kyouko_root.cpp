@@ -25,7 +25,7 @@
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
-#include <core/processing/static_processing.h>
+#include <core/processing/static_processing/single_thread_processing_static.h>
 #include <core/objects/output.h>
 #include <core/objects/network_cluster.h>
 #include <core/storage_io.h>
@@ -104,10 +104,10 @@ void KyoukoRoot::learnTestData()
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
 
-    const std::string trainDataPath = "/home/neptune/Schreibtisch/mnist/train-images.idx3-ubyte";
-    const std::string trainLabelPath = "/home/neptune/Schreibtisch/mnist/train-labels.idx1-ubyte";
-    const std::string testDataPath = "/home/neptune/Schreibtisch/mnist/t10k-images.idx3-ubyte";
-    const std::string testLabelPath = "/home/neptune/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
+    const std::string trainDataPath = "/home/kyouko/Schreibtisch/mnist/train-images.idx3-ubyte";
+    const std::string trainLabelPath = "/home/kyouko/Schreibtisch/mnist/train-labels.idx1-ubyte";
+    const std::string testDataPath = "/home/kyouko/Schreibtisch/mnist/t10k-images.idx3-ubyte";
+    const std::string testLabelPath = "/home/kyouko/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
 
     //==============================================================================================
     // learn
@@ -153,7 +153,7 @@ void KyoukoRoot::learnTestData()
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
-    m_staticProcessing = new StaticProcessing(false);
+    m_staticProcessing = new SingleThreadProcessingStatic();
 
 
     // get pictures
@@ -165,7 +165,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 2; poi++)
+    for(uint32_t poi = 0; poi < 1; poi++)
     {
         for(uint32_t pic = 0; pic < 60000; pic++)
         {
@@ -188,7 +188,7 @@ void KyoukoRoot::learnTestData()
                 m_staticProcessing->buffer[i * 2 + 1] = (static_cast<float>(total));
             }
 
-            m_staticProcessing->learnStep();
+            m_staticProcessing->learn();
         }
     }
 
@@ -232,7 +232,7 @@ void KyoukoRoot::learnTestData()
             inputNodes[i * 2 + 1].weight = (static_cast<float>(total));
         }
 
-        m_staticProcessing->executeStep(cluster->initMetaData.layer + 2);
+        m_staticProcessing->execute();
 
         // print result
         float biggest = -100000.0f;

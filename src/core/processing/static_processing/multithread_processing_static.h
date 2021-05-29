@@ -1,5 +1,5 @@
 /**
- * @file        processing_unit_handler.h
+ * @file        multithread_processing_static.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,39 +20,30 @@
  *      limitations under the License.
  */
 
-#ifndef PROCESSING_UNIT_HANDLER_H
-#define PROCESSING_UNIT_HANDLER_H
+#ifndef MULTITHREADPROCESSINGSTATIC_H
+#define MULTITHREADPROCESSINGSTATIC_H
 
-#include <common.h>
+#include <core/processing/static_processing/static_processing.h>
 
 namespace Kitsunemimi {
 class Barrier;
-namespace Opencl {
-class GpuHandler;
-}
 }
 
-class CpuProcessingUnit;
-class GpuProcessingUnit;
+class ProcessingUnitHandler;
 
-class ProcessingUnitHandler
+class MultiThreadProcessingStatic
+        : public StaticProcessing
 {
 public:
-    ProcessingUnitHandler();
-    ~ProcessingUnitHandler();
-
-    void shareNewTask(const ThreadTask newTask);
-
-    std::vector<CpuProcessingUnit*> m_cpuProcessingUnits;
-    std::vector<GpuProcessingUnit*> m_gpuProcessingUnits;
-
-    bool initProcessingUnits(Kitsunemimi::Barrier* startBarrier,
-                             Kitsunemimi::Barrier* endBarrier,
-                             const uint16_t numberOfThreads);
-    bool closeAllProcessingUnits();
+    MultiThreadProcessingStatic();
 
 private:
-    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
+    ProcessingUnitHandler* m_processingUnitHandler = nullptr;
+    Kitsunemimi::Barrier* m_startBarrier = nullptr;
+    Kitsunemimi::Barrier* m_endBarrier = nullptr;
+
+    void executeStep(const uint32_t runs);
+    void outputLearn();
 };
 
-#endif // PROCESSING_UNIT_HANDLER_H
+#endif // MULTITHREADPROCESSINGSTATIC_H

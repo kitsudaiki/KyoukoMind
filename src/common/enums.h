@@ -23,5 +23,13 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+enum ThreadTask {
+    NOTHING = 0,
+    OUTPUT_LEARN = 1,
+    NODE_PROCESSING = 2,
+    UPDATE_CORE = 3,
+    CORE_PROCESSING = 4,
+    OUTPUT_PROCESSING = 5,
+};
 
 #endif // ENUMS_H
