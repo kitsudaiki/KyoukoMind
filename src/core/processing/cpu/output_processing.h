@@ -44,7 +44,7 @@
 inline float
 outputSynapseProcessing(OutputSynapseSection* outputSection,
                         OutputInput* inputs,
-                        OutputSegmentMeta* segmentMeta,
+                        OutputSegmentMeta*,
                         Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                         Kitsunemimi::Ai::OutputMetaData* outputMetaData)
 {
@@ -91,7 +91,7 @@ outputSynapseProcessing(OutputSynapseSection* outputSection,
 inline void
 learNewOutput(OutputSynapseSection* section,
               OutputInput* inputs,
-              OutputSegmentMeta* segmentMeta,
+              OutputSegmentMeta*,
               uint32_t* randomValues,
               Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
               Kitsunemimi::Ai::OutputMetaData* outputMetaData,

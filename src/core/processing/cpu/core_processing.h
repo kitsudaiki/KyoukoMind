@@ -89,6 +89,12 @@ synapseProcessing(SynapseSection* section,
             synapse->weight = static_cast<float>(weight < tooLearn) * weight
                               + static_cast<float>(weight >= tooLearn) * tooLearn;
 
+            synapse->border = static_cast<uint8_t>(synapse->weight) + 1;
+
+            section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
+            const float randomMulti = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
+            synapse->weight *= randomMulti * static_cast<float>(synapseMetaData->multiplicatorRange);
+
             // get random node-id as target
             section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
             const uint32_t targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
@@ -102,9 +108,6 @@ synapseProcessing(SynapseSection* section,
             const uint32_t signRand = randomValues[section->randomPos] % 1000;
             const float signNeg = synapseMetaData->signNeg;
             synapse->weight *= static_cast<float>(1 - (1000.0f * signNeg > signRand) * 2);
-
-            section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-            synapse->multiplicator = static_cast<int8_t>((randomValues[section->randomPos] % synapseMetaData->multiplicatorRange) + 1);
         }
 
         pos++;
@@ -119,9 +122,10 @@ synapseProcessing(SynapseSection* section,
             const float shareWeight = static_cast<float>(weight > synapseWeight) * synapseWeight
                                       + static_cast<float>(weight <= synapseWeight) * weight;
 
-            nodeBuffers[nodeBufferPosition] += (shareWeight * sign * static_cast<float>(synapse->multiplicator));
+            nodeBuffers[nodeBufferPosition] += shareWeight * sign;
+            synapse->activeCounter += (synapse->activeCounter < 126) * 1;
 
-            weight -= synapseWeight;
+            weight -= static_cast<float>(synapse->border);
             counter = pos;
             processed = true;
         }
@@ -155,7 +159,7 @@ synapseProcessing(SynapseSection* section,
 inline bool
 updating(SynapseSection* section,
          Node* nodes,
-         Kitsunemimi::Ai::CoreMetaData* synapseMetaData)
+         Kitsunemimi::Ai::CoreMetaData*)
 {
     bool upToData = 1;
 
@@ -173,13 +177,13 @@ updating(SynapseSection* section,
 
         // update dynamic-weight-value of the synapse
         if(nodes[synapse->targetNodeId].active == 0) {
-            synapse->weight = synapse->weight * 0.0f;
+            synapse->activeCounter -= 0;
         } else {
-            synapse->weight = synapse->weight * 0.0f;
+            synapse->activeCounter -= 0;
         }
 
         // check for deletion of the single synapse
-        if(fabs(synapse->weight) < synapseMetaData->synapseDeleteBorder)
+        if(synapse->activeCounter < 0)
         {
             synapse->weight = 0.0f;
             synapse->targetNodeId = UNINIT_STATE_16;

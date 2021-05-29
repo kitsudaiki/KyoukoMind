@@ -54,9 +54,6 @@ CpuProcessingUnit::CpuProcessingUnit(const uint32_t threadId,
 void
 CpuProcessingUnit::run()
 {
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-    float timeValue = 0.0f;
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
     OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 

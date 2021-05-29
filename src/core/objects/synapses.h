@@ -62,8 +62,8 @@ struct Synapse
 {
     float weight = 0.0;
     uint16_t targetNodeId = UNINIT_STATE_16;
-    int8_t padding;
-    int8_t multiplicator;
+    int8_t activeCounter = 0;
+    uint8_t border = 0;
     // total size: 8 Byte
 };
 
