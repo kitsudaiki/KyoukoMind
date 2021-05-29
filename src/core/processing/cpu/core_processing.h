@@ -101,7 +101,7 @@ synapseProcessing(SynapseSection* section,
             section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
             const uint32_t signRand = randomValues[section->randomPos] % 1000;
             const float signNeg = synapseMetaData->signNeg;
-            synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
+            synapse->weight *= static_cast<float>(1 - (1000.0f * signNeg > signRand) * 2);
 
             section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
             synapse->multiplicator = static_cast<int8_t>((randomValues[section->randomPos] % synapseMetaData->multiplicatorRange) + 1);
@@ -114,13 +114,14 @@ synapseProcessing(SynapseSection* section,
         {
             // 0 because only one thread at the moment
             const ulong nodeBufferPosition = (0 * segmentMeta->numberOfNodes) + synapse->targetNodeId;
-            const float synapseWeight = synapse->weight;
+            const float synapseWeight = fabs(synapse->weight);
+            const float sign = static_cast<float>(1 - (synapseWeight < 0.0f) * 2);
             const float shareWeight = static_cast<float>(weight > synapseWeight) * synapseWeight
                                       + static_cast<float>(weight <= synapseWeight) * weight;
 
-            nodeBuffers[nodeBufferPosition] += (shareWeight * static_cast<float>(synapse->sign) * static_cast<float>(synapse->multiplicator));
+            nodeBuffers[nodeBufferPosition] += (shareWeight * sign * static_cast<float>(synapse->multiplicator));
 
-            weight -= shareWeight;
+            weight -= synapseWeight;
             counter = pos;
             processed = true;
         }
@@ -178,11 +179,10 @@ updating(SynapseSection* section,
         }
 
         // check for deletion of the single synapse
-        if(synapse->weight < synapseMetaData->synapseDeleteBorder)
+        if(fabs(synapse->weight) < synapseMetaData->synapseDeleteBorder)
         {
             synapse->weight = 0.0f;
             synapse->targetNodeId = UNINIT_STATE_16;
-            synapse->sign = 1;
         }
         else
         {
