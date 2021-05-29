@@ -1,5 +1,5 @@
 /**
- * @file        defines.h
+ * @file        storage_io.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,21 +20,29 @@
  *      limitations under the License.
  */
 
-#include <common/includes.h>
+#ifndef STORAGEIO_H
+#define STORAGEIO_H
 
-// const predefined values
-#define UNINIT_STATE_64 0xFFFFFFFFFFFFFFFF
-#define UNINIT_STATE_32 0xFFFFFFFF
-#define UNINIT_STATE_24 0xFFFFFF
-#define UNINIT_STATE_16 0xFFFF
-#define UNINIT_STATE_8 0xFF
+#include <common.h>
 
-// network-predefines
-#define SYNAPSES_PER_SYNAPSESECTION 62
-#define POSSIBLE_NEXT_AXON_STEP 80
-#define OUTPUT_SYNAPSES_PER_SECTION 3068
+namespace Kitsunemimi {
+namespace Persistence {
+class BinaryFile;
+}
+}
 
-// processing
-#define NUMBER_OF_PROCESSING_UNITS 1
+class StorageIO
+{
+public:
+    StorageIO();
 
-#define NUMBER_OF_RAND_VALUES 10485760
+    bool writeToDisc(const std::string &dirPath);
+    bool readFromDisc(const std::string &dirPath);
+
+private:
+    bool writeBufferToFile(const std::string &filePath, DataBuffer &buffer);
+    bool readBufferFromFile(const std::string &filePath, DataBuffer &buffer);
+
+};
+
+#endif // STORAGEIO_H

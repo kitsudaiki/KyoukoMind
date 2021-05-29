@@ -66,7 +66,7 @@ synapseProcessing(SynapseSection* section,
     if(section->active == 0)
     {
         section->active = 1;
-        section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+        section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
         section->brickBufferPos = randomValues[section->randomPos] % 1000;
     }
 
@@ -83,14 +83,14 @@ synapseProcessing(SynapseSection* section,
         if(createSyn)
         {
             // set new weight
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
             const float random = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
             const float tooLearn = maxWeight * random;
             synapse->weight = static_cast<float>(weight < tooLearn) * weight
                               + static_cast<float>(weight >= tooLearn) * tooLearn;
 
             // get random node-id as target
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
             const uint32_t targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
             Brick* nodeBrick = &bricks[node->nodeBrickId];
             const uint32_t nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
@@ -98,12 +98,12 @@ synapseProcessing(SynapseSection* section,
             synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
 
             // set sign
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
             const uint32_t signRand = randomValues[section->randomPos] % 1000;
             const float signNeg = synapseMetaData->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
 
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
             synapse->multiplicator = static_cast<int8_t>((randomValues[section->randomPos] % synapseMetaData->multiplicatorRange) + 1);
         }
 

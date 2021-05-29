@@ -37,6 +37,8 @@ struct NetworkCluster
 
     CoreSegment* synapseSegment = nullptr;
     OutputSegment* outputSegment = nullptr;
+
+    uint32_t* randomValues = nullptr;
 };
 
 //==================================================================================================

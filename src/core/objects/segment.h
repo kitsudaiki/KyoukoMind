@@ -52,10 +52,9 @@ struct CoreSegmentMeta
     uint32_t numberOfNodesPerBrick = 0;
 
     // generic
-    uint32_t numberOfRandomValues = 0;
     uint32_t numberOfInputs = 0;
 
-    uint8_t padding[220];
+    uint8_t padding[224];
 };
 
 struct CoreSegment
@@ -65,7 +64,6 @@ struct CoreSegment
     // generic objects
     CoreSegmentMeta* segmentMeta = nullptr;
     Kitsunemimi::Ai::CoreMetaData* synapseMetaData = nullptr;
-    uint32_t* randomValues = nullptr;
 
     // bricks
     Brick* nodeBricks = nullptr;
@@ -96,10 +94,9 @@ struct OutputSegmentMeta
     uint32_t numberOfOutputs = 0;
 
     // generic
-    uint32_t numberOfRandomValues = 0;
     uint32_t numberOfInputs = 0;
 
-    uint8_t padding[240];
+    uint8_t padding[244];
 };
 
 struct OutputSegment
@@ -109,7 +106,6 @@ struct OutputSegment
     // generic objects
     OutputSegmentMeta* segmentMeta = nullptr;
     Kitsunemimi::Ai::OutputMetaData* outputMetaData = nullptr;
-    uint32_t* randomValues = nullptr;
 
     // output
     Output* outputs = nullptr;

@@ -98,6 +98,7 @@ HEADERS += \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
     src/core/processing/processing_unit_handler.h \
+    src/core/storage_io.h \
     src/core/validation.h \
     src/initializing/brick_initializer.h \
     src/initializing/layered_brick_initializier.h \
@@ -121,6 +122,7 @@ SOURCES += \
     src/core/processing/static_processing.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
+    src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/initializing/brick_initializer.cpp \
     src/initializing/layered_brick_initializier.cpp \

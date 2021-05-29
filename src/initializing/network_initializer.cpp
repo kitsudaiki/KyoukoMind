@@ -143,14 +143,21 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     cluster->initMetaData = parsedContent.initMetaData;
     cluster->networkMetaData = parsedContent.networkMetaData;
 
+    // init predefinde random-values
+    const uint32_t numberOfRandValues = 10*1024*1024;
+    cluster->randomValues = new uint32_t[numberOfRandValues];
+    for(uint32_t i = 0; i < numberOfRandValues; i++) {
+        cluster->randomValues[i] = static_cast<uint32_t>(rand());
+    }
+
     cluster->synapseSegment = initSynapseSegment(parsedContent.numberOfNodeBricks,
                                                  totalNumberOfNodes,
                                                  parsedContent.initMetaData.maxSynapseSections,
                                                  totalNumberOfNodes / parsedContent.numberOfNodeBricks,
-                                                 10*1024*1024);
+                                                 numberOfRandValues);
     cluster->outputSegment = initOutputSegment(10,
                                                totalNumberOfNodes / parsedContent.numberOfNodeBricks,
-                                               10*1024*1024);
+                                               numberOfRandValues);
 
     cluster->synapseSegment->synapseMetaData[0] = parsedContent.synapseMetaData;
     cluster->outputSegment->outputMetaData[0] = parsedContent.outputMetaData;
