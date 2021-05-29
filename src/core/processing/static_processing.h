@@ -24,6 +24,13 @@
 #define LERNER_H
 
 #include <common.h>
+#include <libKitsunemimiCommon/threading/thread.h>
+
+namespace Kitsunemimi {
+class Barrier;
+}
+
+class ProcessingUnitHandler;
 
 struct OutputSegmentMeta;
 struct Output;
@@ -45,8 +52,8 @@ class StaticProcessing
 public:
     StaticProcessing(const bool useGpu);
 
-    bool learnStep();
-    void executeStep(const uint32_t runs);
+    bool learn();
+    bool execute();
 
     Batch batchs[10];
 
@@ -58,8 +65,15 @@ private:
 
     uint32_t checkOutput(OutputSegmentMeta *segmentMeta, Output *outputs);
 
+    bool learnStep();
+    void executeStep(const uint32_t runs);
+
     bool learnPhase1();
     bool learnPhase2();
+
+    ProcessingUnitHandler* m_processingUnitHandler = nullptr;
+    Kitsunemimi::Barrier* m_startBarrier = nullptr;
+    Kitsunemimi::Barrier* m_endBarrier = nullptr;
 };
 
 #endif // LERNER_H

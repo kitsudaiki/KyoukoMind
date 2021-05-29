@@ -25,7 +25,6 @@
 
 #include <common.h>
 
-class AutoCycle;
 struct NetworkCluster;
 class InputOutputProcessing;
 class ClientConnectionHandler;
@@ -49,7 +48,6 @@ public:
     bool initializeSakuraFiles();
     void learnTestData();
 
-    AutoCycle* m_networkManager = nullptr;
     StaticProcessing* m_staticProcessing = nullptr;
 
 private:

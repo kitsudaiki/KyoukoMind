@@ -192,10 +192,12 @@ output_node_processing(OutputSynapseSection* outputSynapseSections,
                        Output* outputs,
                        OutputSegmentMeta* segmentMeta,
                        Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
-                       Kitsunemimi::Ai::OutputMetaData* outputMetaData)
+                       Kitsunemimi::Ai::OutputMetaData* outputMetaData,
+                       const uint32_t threadId,
+                       const uint32_t numberOfThreads)
 {
     // process output
-    for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
+    for(uint32_t o = threadId; o < segmentMeta->numberOfOutputs; o = o + numberOfThreads)
     {
         outputs[o].outputValue = outputSynapseProcessing(&outputSynapseSections[o],
                                                          inputs,
@@ -216,9 +218,11 @@ output_learn_step(OutputSynapseSection* outputSynapseSections,
                   OutputSegmentMeta* segmentMeta,
                   uint32_t* randomValues,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
-                  Kitsunemimi::Ai::OutputMetaData* outputMetaData)
+                  Kitsunemimi::Ai::OutputMetaData* outputMetaData,
+                  const uint32_t threadId,
+                  const uint32_t numberOfThreads)
 {
-    for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
+    for(uint32_t o = threadId; o < segmentMeta->numberOfOutputs; o = o + numberOfThreads)
     {
         learNewOutput(&outputSynapseSections[o],
                       inputs,

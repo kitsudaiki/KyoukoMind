@@ -41,11 +41,13 @@ public:
     ProcessingUnitHandler();
     ~ProcessingUnitHandler();
 
+    void shareNewTask(const ThreadTask newTask);
+
     std::vector<CpuProcessingUnit*> m_cpuProcessingUnits;
     std::vector<GpuProcessingUnit*> m_gpuProcessingUnits;
 
-    bool initProcessingUnits(Kitsunemimi::Barrier* phase2,
-                             Kitsunemimi::Barrier* phase3,
+    bool initProcessingUnits(Kitsunemimi::Barrier* startBarrier,
+                             Kitsunemimi::Barrier* endBarrier,
                              const uint16_t numberOfThreads);
     bool closeAllProcessingUnits();
 

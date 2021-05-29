@@ -104,10 +104,10 @@ void KyoukoRoot::learnTestData()
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
 
-    const std::string trainDataPath = "/home/neptune/Schreibtisch/mnist/train-images.idx3-ubyte";
-    const std::string trainLabelPath = "/home/neptune/Schreibtisch/mnist/train-labels.idx1-ubyte";
-    const std::string testDataPath = "/home/neptune/Schreibtisch/mnist/t10k-images.idx3-ubyte";
-    const std::string testLabelPath = "/home/neptune/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
+    const std::string trainDataPath = "/home/kyouko/Schreibtisch/mnist/train-images.idx3-ubyte";
+    const std::string trainLabelPath = "/home/kyouko/Schreibtisch/mnist/train-labels.idx1-ubyte";
+    const std::string testDataPath = "/home/kyouko/Schreibtisch/mnist/t10k-images.idx3-ubyte";
+    const std::string testLabelPath = "/home/kyouko/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
 
     //==============================================================================================
     // learn
@@ -165,9 +165,9 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 2; poi++)
+    for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 60000; pic++)
+        for(uint32_t pic = 0; pic < 1000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -188,7 +188,7 @@ void KyoukoRoot::learnTestData()
                 m_staticProcessing->buffer[i * 2 + 1] = (static_cast<float>(total));
             }
 
-            m_staticProcessing->learnStep();
+            m_staticProcessing->learn();
         }
     }
 
@@ -232,7 +232,7 @@ void KyoukoRoot::learnTestData()
             inputNodes[i * 2 + 1].weight = (static_cast<float>(total));
         }
 
-        m_staticProcessing->executeStep(cluster->initMetaData.layer + 2);
+        m_staticProcessing->execute();
 
         // print result
         float biggest = -100000.0f;
