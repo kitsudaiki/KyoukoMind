@@ -136,13 +136,13 @@ StaticProcessing::learnPhase1()
     uint32_t tempVal = 0;
     do
     {
-        for(uint32_t i = 0; i < 1600; i++) {
+        for(uint32_t i = 0; i < 800; i++) {
             inputNodes[i].weight = 0.0f;
         }
 
         executeStep(1);
 
-        for(uint32_t i = 0; i < 1600; i++) {
+        for(uint32_t i = 0; i < 800; i++) {
             inputNodes[i].weight = buffer[i];
         }
 
