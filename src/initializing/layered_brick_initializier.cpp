@@ -37,10 +37,7 @@ LayeredBrickInitializier::LayeredBrickInitializier()
 Brick*
 LayeredBrickInitializier::getAxonBrick(CoreSegment &segment, Brick* sourceBrick)
 {
-    const uint32_t sourceLayerId = sourceBrick->layerId;
-    const uint32_t nextPos = static_cast<uint32_t>(rand())
-                             % segment.layer[sourceLayerId + 1].size();
-    return segment.layer[sourceLayerId + 1][nextPos];
+    return sourceBrick;
 }
 
 /**

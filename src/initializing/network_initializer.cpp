@@ -29,6 +29,7 @@
 #include <core/objects/network_cluster.h>
 
 #include <initializing/layered_brick_initializier.h>
+#include <initializing/fan_brick_initializer.h>
 #include <initializing/random_brick_initializer.h>
 #include <initializing/segment_initailzing.h>
 
@@ -47,7 +48,8 @@
  */
 NetworkInitializer::NetworkInitializer()
 {
-    m_brickInitializer = new LayeredBrickInitializier();
+    m_brickInitializer = new FanBrickInitializer();
+    //m_brickInitializer = new LayeredBrickInitializier();
 }
 
 /**
@@ -153,7 +155,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     cluster->synapseSegment = initSynapseSegment(parsedContent.numberOfNodeBricks,
                                                  totalNumberOfNodes,
                                                  parsedContent.initMetaData.maxSynapseSections,
-                                                 totalNumberOfNodes / parsedContent.numberOfNodeBricks,
+                                                 (totalNumberOfNodes / parsedContent.numberOfNodeBricks) * parsedContent.numberOfInputBricks,
                                                  numberOfRandValues);
     cluster->outputSegment = initOutputSegment(10,
                                                totalNumberOfNodes / parsedContent.numberOfNodeBricks,
@@ -163,9 +165,13 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
     cluster->outputSegment->outputMetaData[0] = parsedContent.outputMetaData;
 
     // fill array with empty nodes
-    initializeNodes(*cluster->synapseSegment, &cluster->initMetaData);
-    addBricksToSegment(*cluster->synapseSegment, &cluster->initMetaData, parsedContent);
-    m_brickInitializer->initTargetBrickList(*cluster->synapseSegment, &cluster->initMetaData);
+    initializeNodes(*cluster->synapseSegment,
+                    &cluster->initMetaData);
+    addBricksToSegment(*cluster->synapseSegment,
+                       &cluster->initMetaData,
+                       parsedContent);
+    m_brickInitializer->initTargetBrickList(*cluster->synapseSegment,
+                                            &cluster->initMetaData);
     m_brickInitializer->initializeAxons(*cluster->synapseSegment);
 
     return true;

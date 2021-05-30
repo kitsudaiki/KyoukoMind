@@ -32,16 +32,17 @@ BrickInitializer::~BrickInitializer()
 
 }
 
-bool BrickInitializer::initializeAxons(CoreSegment &segment)
+bool
+BrickInitializer::initializeAxons(CoreSegment &segment)
 {
-    uint32_t nodeCounter = 0;
+    uint32_t nodeId = 0;
 
     // calculate number of axons per brick
     for(uint32_t i = 0; i < segment.segmentMeta->numberOfNodeBricks; i++)
     {
         if(segment.nodeBricks[i].isOutputBrick == 1)
         {
-            nodeCounter += segment.segmentMeta->numberOfNodesPerBrick;
+            nodeId += segment.segmentMeta->numberOfNodesPerBrick;
             continue;
         }
 
@@ -64,19 +65,19 @@ bool BrickInitializer::initializeAxons(CoreSegment &segment)
 
             // set source and target in related nodes and edges
             //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
-            segment.nodes[nodeCounter].nodeBrickId = sourceBrick->nodeBrickId;
-            segment.nodes[nodeCounter].targetBrickDistance = static_cast<uint32_t>(dist);
-            segment.nodes[nodeCounter].targetSectionId = nodeCounter;
+            segment.nodes[nodeId].nodeBrickId = sourceBrick->nodeBrickId;
+            segment.nodes[nodeId].targetBrickDistance = static_cast<uint32_t>(dist);
+            segment.nodes[nodeId].targetSectionId = nodeId;
 
             // post-check
             assert(axonBrick->nodeBrickId != UNINIT_STATE_32);
             assert(sourceBrick->brickId != UNINIT_STATE_32);
 
-            nodeCounter++;
+            nodeId++;
         }
     }
 
-    assert(nodeCounter == segment.segmentMeta->numberOfNodes);
+    assert(nodeId == segment.segmentMeta->numberOfNodes);
 
     return true;
 }

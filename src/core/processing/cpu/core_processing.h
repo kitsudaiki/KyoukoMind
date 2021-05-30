@@ -148,14 +148,14 @@ synapseProcessing(SynapseSection* section,
     }
 
     // harden synapse-section
-    const bool updatePos = networkMetaData->lerningValue > 0.0f
+    const bool updateHardening = networkMetaData->lerningValue > 0.0f
                            && counter > section->hardening;
-    section->hardening = (updatePos == true) * counter
-                         + (updatePos == false) * section->hardening;
+    section->hardening = (updateHardening == true) * counter
+                         + (updateHardening == false) * section->hardening;
 
     // go to next section
-    if(weight > 1.0f
-            && processed)
+    const bool triggerNext = weight > 1.0f && processed;
+    if(triggerNext)
     {
         nextLayer = layer + 1;
         nextLayer = (nextLayer > 7) * 7  + (nextLayer <= 7) * nextLayer;
@@ -192,9 +192,9 @@ updating(SynapseSection* section,
 
         // update dynamic-weight-value of the synapse
         if(nodes[synapse->targetNodeId].active == 0) {
-            synapse->activeCounter -= 0;
+            synapse->activeCounter = -1;
         } else {
-            synapse->activeCounter -= 0;
+            synapse->activeCounter = -1;
         }
 
         // check for deletion of the single synapse
@@ -280,19 +280,22 @@ synapse_processing(CoreSegmentMeta* segmentMeta,
         for(uint8_t layer = 0; layer < 8; layer++)
         {
             SynapseBufferEntry* entry = &synapseBuffer->buffer[layer];
-            synapseProcessing(&synapseSections[i],
-                              nodes,
-                              bricks,
-                              nodeBuffers,
-                              synapseBuffers,
-                              segmentMeta,
-                              randomValues,
-                              synapseMetaData,
-                              networkMetaData,
-                              entry->nodeId,
-                              entry->weigth,
-                              layer);
-            synapseBuffer->upToDate = 0;
+            if(entry->weigth > 5.0f)
+            {
+                synapseProcessing(&synapseSections[i],
+                                  nodes,
+                                  bricks,
+                                  nodeBuffers,
+                                  synapseBuffers,
+                                  segmentMeta,
+                                  randomValues,
+                                  synapseMetaData,
+                                  networkMetaData,
+                                  entry->nodeId,
+                                  entry->weigth,
+                                  layer);
+                synapseBuffer->upToDate = 0;
+            }
 
             entry->weigth = 0.0f;
             entry->nodeId = UNINIT_STATE_32;
