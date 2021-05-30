@@ -53,14 +53,30 @@ synapseProcessing(SynapseSection* section,
                   const uint32_t nodeId,
                   const float weightIn,
                   const uint32_t layer)
-
 {
     uint32_t pos = 0;
     uint32_t counter = 0;
     float weight = weightIn;
     bool processed = false;
+    uint32_t signRand = 0;
     const float maxWeight = synapseMetaData->maxSynapseWeight;
     Node* node = &nodes[nodeId];
+
+    uint32_t targetNodeIdInBrick = 0;
+    uint32_t nodeOffset = 0;
+    Brick* nodeBrick = nullptr;
+
+    float randomMulti = 0.0f;
+    float random = 0.0f;
+    float doLearn = 0.0f;
+
+    ulong nodeBufferPosition = 0;
+    float ratio = 0.0f;
+    float shareWeight = 0.0f;
+
+    uint32_t bufferPos = 0;
+    SynapseBuffer* synapseBuffer = nullptr;
+    uint32_t nextLayer = 0;
 
     // reinit section if necessary
     if(section->active == 0)
@@ -84,30 +100,31 @@ synapseProcessing(SynapseSection* section,
         {
             // set new weight
             section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-            const float random = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
-            const float tooLearn = maxWeight * random;
-            synapse->weight = static_cast<float>(weight < tooLearn) * weight
-                              + static_cast<float>(weight >= tooLearn) * tooLearn;
+            random = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
+            doLearn = maxWeight * random;
+            synapse->weight = static_cast<float>(weight < doLearn) * weight
+                              + static_cast<float>(weight >= doLearn) * doLearn;
 
+            // set activation-border
             synapse->border = static_cast<uint8_t>(synapse->weight) + 1;
 
+            // update weight with multiplicator
             section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-            const float randomMulti = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
+            randomMulti = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
             synapse->weight *= randomMulti * static_cast<float>(synapseMetaData->multiplicatorRange);
 
-            // get random node-id as target
+            // update weight with multiplicator
             section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-            const uint32_t targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
-            Brick* nodeBrick = &bricks[node->nodeBrickId];
-            const uint32_t nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
-                                        * segmentMeta->numberOfNodesPerBrick;
-            synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
+            signRand = randomValues[section->randomPos] % 1000;
+            synapse->weight *= static_cast<float>(1 - (1000.0f * synapseMetaData->signNeg > signRand) * 2);
 
-            // set sign
+            // set target node id
             section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-            const uint32_t signRand = randomValues[section->randomPos] % 1000;
-            const float signNeg = synapseMetaData->signNeg;
-            synapse->weight *= static_cast<float>(1 - (1000.0f * signNeg > signRand) * 2);
+            targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
+            nodeBrick = &bricks[node->nodeBrickId];
+            nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
+                         * segmentMeta->numberOfNodesPerBrick;
+            synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
         }
 
         pos++;
@@ -115,16 +132,15 @@ synapseProcessing(SynapseSection* section,
         // process synapse
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
+            ratio = weight / static_cast<float>(synapse->border);
+            shareWeight = static_cast<float>(ratio >= 1.0f) * synapse->weight
+                          + static_cast<float>(ratio < 1.0f) * synapse->weight * ratio;
+
             // 0 because only one thread at the moment
-            const ulong nodeBufferPosition = (0 * segmentMeta->numberOfNodes) + synapse->targetNodeId;
-            const float synapseWeight = fabs(synapse->weight);
-            const float sign = static_cast<float>(1 - (synapseWeight < 0.0f) * 2);
-            const float shareWeight = static_cast<float>(weight > synapseWeight) * synapseWeight
-                                      + static_cast<float>(weight <= synapseWeight) * weight;
+            nodeBufferPosition = (0 * segmentMeta->numberOfNodes) + synapse->targetNodeId;
+            nodeBuffers[nodeBufferPosition] += shareWeight;
 
-            nodeBuffers[nodeBufferPosition] += shareWeight * sign;
             synapse->activeCounter += (synapse->activeCounter < 126) * 1;
-
             weight -= static_cast<float>(synapse->border);
             counter = pos;
             processed = true;
@@ -134,18 +150,17 @@ synapseProcessing(SynapseSection* section,
     // harden synapse-section
     const bool updatePos = networkMetaData->lerningValue > 0.0f
                            && counter > section->hardening;
-    if(updatePos) {
-        section->hardening = counter;
-    }
+    section->hardening = (updatePos == true) * counter
+                         + (updatePos == false) * section->hardening;
 
     // go to next section
     if(weight > 1.0f
             && processed)
     {
-        uint32_t nextLayer = layer + 1;
+        nextLayer = layer + 1;
         nextLayer = (nextLayer > 7) * 7  + (nextLayer <= 7) * nextLayer;
-        const uint32_t pos = (node->targetSectionId + nextLayer * 10000 + nextLayer) % segmentMeta->numberOfSynapseSections;
-        SynapseBuffer* synapseBuffer = &synapseBuffers[pos];
+        bufferPos = (node->targetSectionId + nextLayer * 10000 + nextLayer) % segmentMeta->numberOfSynapseSections;
+        synapseBuffer = &synapseBuffers[bufferPos];
         synapseBuffer->buffer[nextLayer].weigth = weight;
         synapseBuffer->buffer[nextLayer].nodeId = nodeId;
         synapseBuffer->process = 1;
@@ -265,23 +280,19 @@ synapse_processing(CoreSegmentMeta* segmentMeta,
         for(uint8_t layer = 0; layer < 8; layer++)
         {
             SynapseBufferEntry* entry = &synapseBuffer->buffer[layer];
-
-            if(entry->weigth > 5.0f)
-            {
-                synapseProcessing(&synapseSections[i],
-                                  nodes,
-                                  bricks,
-                                  nodeBuffers,
-                                  synapseBuffers,
-                                  segmentMeta,
-                                  randomValues,
-                                  synapseMetaData,
-                                  networkMetaData,
-                                  entry->nodeId,
-                                  entry->weigth,
-                                  layer);
-                synapseBuffer->upToDate = 0;
-            }
+            synapseProcessing(&synapseSections[i],
+                              nodes,
+                              bricks,
+                              nodeBuffers,
+                              synapseBuffers,
+                              segmentMeta,
+                              randomValues,
+                              synapseMetaData,
+                              networkMetaData,
+                              entry->nodeId,
+                              entry->weigth,
+                              layer);
+            synapseBuffer->upToDate = 0;
 
             entry->weigth = 0.0f;
             entry->nodeId = UNINIT_STATE_32;
@@ -339,7 +350,6 @@ node_processing(Node* nodes,
             synapseBuffers[i].buffer[0].nodeId = i;
             synapseBuffers[i].process |= node->potential > 5.0f;
 
-
             // post-steps
             node->refractionTime = node->refractionTime >> 1;
             node->potential /= synapseMetaData->nodeCooldown;
@@ -354,7 +364,8 @@ node_processing(Node* nodes,
         else
         {
             OutputInput* oIn = &outputInputs[i % segmentMeta->numberOfNodesPerBrick];
-            const bool isNew = oIn->weight > node->currentState * 1.01f || oIn->weight < node->currentState * 0.99f;
+            const bool isNew = oIn->weight > node->currentState * 1.01f
+                               || oIn->weight < node->currentState * 0.99f;
             oIn->isNew = isNew + (isNew == false) * oIn->isNew;
             oIn->weight = node->currentState;
             node->currentState = 0.0f;
