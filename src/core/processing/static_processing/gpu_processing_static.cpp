@@ -22,7 +22,6 @@
 
 #include "gpu_processing_static.h"
 
-#include <core/processing/cpu/output_processing.h>
 #include <core/processing/cpu/core_processing.h>
 
 #include <core/processing/gpu/gpu_processing_uint.h>

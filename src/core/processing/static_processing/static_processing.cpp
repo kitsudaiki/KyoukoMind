@@ -26,9 +26,7 @@
 
 #include <core/objects/segment.h>
 #include <core/objects/network_cluster.h>
-#include <core/objects/output.h>
 
-#include <core/processing/cpu/output_processing.h>
 #include <core/processing/cpu/core_processing.h>
 
 #include <libKitsunemimiCommon/threading/barrier.h>
@@ -74,11 +72,6 @@ StaticProcessing::learnStep()
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     cluster->networkMetaData.doLearn = 1;
 
-    OutputInput* outputInputs = cluster->outputSegment->inputs;
-    for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
-        outputInputs[i].isNew = 0;
-    }
-
     bool result = learnPhase1();
     if(result == false) {
         result = learnPhase2();
@@ -87,36 +80,7 @@ StaticProcessing::learnStep()
     cluster->networkMetaData.doLearn = 0;
     cluster->networkMetaData.lerningValue = 0.0f;
 
-    //m_gpu->finish();
-    for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfInputs; i++) {
-        outputInputs[i].isNew = 0;
-    }
-
     return result;
-}
-
-/**
- * @brief Learner::output_precheck
- * @param segmentMeta
- * @param outputs
- * @return
- */
-uint32_t
-StaticProcessing::checkOutput(OutputSegmentMeta* segmentMeta,
-                              Output* outputs)
-{
-    uint32_t updateVals = 0;
-
-    for(uint32_t o = 0; o < segmentMeta->numberOfOutputs; o++)
-    {
-        uint32_t updateVal = 1;
-        Output* out = &outputs[o];
-        updateVal -= out->shouldValue == 0.0f && out->outputValue <= out->shouldValue + 10.0f;
-        updateVal -= out->shouldValue > 0.0f && out->outputValue >= out->shouldValue - 10.0f;
-        updateVals += updateVal;
-    }
-
-    return updateVals;
 }
 
 /**
@@ -125,7 +89,6 @@ StaticProcessing::checkOutput(OutputSegmentMeta* segmentMeta,
 bool
 StaticProcessing::learnPhase1()
 {
-    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     InputNode* inputNodes = cluster->synapseSegment->inputNodes;
 
@@ -147,7 +110,6 @@ StaticProcessing::learnPhase1()
         }
 
         executeStep(cluster->initMetaData.layer + 2);
-        tempVal = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
         std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
 
         if(tempVal < updateVals)
@@ -178,7 +140,6 @@ StaticProcessing::learnPhase1()
 bool
 StaticProcessing::learnPhase2()
 {
-    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
 
     uint32_t timeout = 10;
@@ -187,7 +148,6 @@ StaticProcessing::learnPhase2()
     {
         outputLearn();
         timeout--;
-        check = checkOutput(outputSegment->segmentMeta, outputSegment->outputs);
     }
     while(check > 0
           && timeout > 0);

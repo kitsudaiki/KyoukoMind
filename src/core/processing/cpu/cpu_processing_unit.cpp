@@ -30,11 +30,7 @@
 #include <core/objects/brick.h>
 
 #include <core/processing/cpu/core_processing.h>
-#include <core/processing/cpu/output_processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
-
-#include <core/processing/cpu/output_processing.h>
-#include <core/processing/cpu/core_processing.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -55,7 +51,6 @@ void
 CpuProcessingUnit::run()
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
     while(m_abort == false)
     {
@@ -65,34 +60,18 @@ CpuProcessingUnit::run()
         {
             case OUTPUT_LEARN:
             {
-                output_learn_step(outputSegment->outputSynapseSections,
-                                  outputSegment->inputs,
-                                  outputSegment->outputs,
-                                  outputSegment->segmentMeta,
-                                  KyoukoRoot::m_networkCluster->randomValues,
-                                  &KyoukoRoot::m_networkCluster->networkMetaData,
-                                  outputSegment->outputMetaData,
-                                  m_threadId,
-                                  m_maxThreads);
+
                 break;
             }
 
             case NODE_PROCESSING:
             {
-                node_processing(synapseSegment->nodes,
-                                synapseSegment->nodeBuffers,
-                                synapseSegment->synapseBuffers,
-                                synapseSegment->segmentMeta,
-                                synapseSegment->synapseMetaData,
-                                outputSegment->inputs,
-                                m_threadId,
-                                m_maxThreads);
+
                 break;
             }
             case UPDATE_CORE:
             {
-                updateCoreSynapses(synapseSegment->segmentMeta,
-                                   synapseSegment->synapseBuffers,
+                reduceCoreSynapses(synapseSegment->segmentMeta,
                                    synapseSegment->synapseSections,
                                    synapseSegment->nodes,
                                    synapseSegment->synapseMetaData,
@@ -102,29 +81,7 @@ CpuProcessingUnit::run()
             }
             case CORE_PROCESSING:
             {
-                synapse_processing(synapseSegment->segmentMeta,
-                                   synapseSegment->synapseBuffers,
-                                   synapseSegment->synapseSections,
-                                   synapseSegment->nodes,
-                                   synapseSegment->nodeBricks,
-                                   synapseSegment->nodeBuffers,
-                                   KyoukoRoot::m_networkCluster->randomValues,
-                                   synapseSegment->synapseMetaData,
-                                   &KyoukoRoot::m_networkCluster->networkMetaData,
-                                   m_threadId,
-                                   m_maxThreads);
-                break;
-            }
-            case OUTPUT_PROCESSING:
-            {
-                output_node_processing(outputSegment->outputSynapseSections,
-                                       outputSegment->inputs,
-                                       outputSegment->outputs,
-                                       outputSegment->segmentMeta,
-                                       &KyoukoRoot::m_networkCluster->networkMetaData,
-                                       outputSegment->outputMetaData,
-                                       m_threadId,
-                                       m_maxThreads);
+
                 break;
             }
 

@@ -92,7 +92,6 @@ HEADERS += \
     src/core/objects/segment.h \
     src/core/processing/cpu/core_processing.h \
     src/core/processing/cpu/cpu_processing_unit.h \
-    src/core/processing/cpu/output_processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
@@ -117,7 +116,6 @@ HEADERS += \
     src/core/connection_handler/client_connection_handler.h \
     src/blossoms/special/special_blossoms.h \
     src/initializing/blossom_initializing.h \
-    src/core/objects/output.h \
     src/common/structs.h
 
 SOURCES += \

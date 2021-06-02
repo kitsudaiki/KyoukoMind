@@ -34,14 +34,11 @@ struct AiBaseMeta;
 }
 
 CoreSegment* initSynapseSegment(const uint32_t numberOfNodeBricks,
-                                   const uint32_t numberOfNodes,
-                                   const uint64_t numberOfSynapseSections,
-                                   const uint32_t numberOfInputs,
-                                   const uint32_t numberOfRandValues);
-
-OutputSegment* initOutputSegment(const uint32_t numberOfOutputs,
-                                 const uint32_t numberOfInputs,
-                                 const uint32_t numberOfRandValues);
+                                const uint32_t numberOfNodes,
+                                const uint64_t numberOfSynapseSections,
+                                const uint32_t numberOfInputs,
+                                const uint32_t numberOfOutputs,
+                                const uint32_t numberOfRandValues);
 
 bool initLayer(CoreSegment &segment,
                Kitsunemimi::Ai::InitMeataData *initMetaData);

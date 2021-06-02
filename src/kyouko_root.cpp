@@ -26,8 +26,8 @@
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/processing/static_processing/single_thread_processing_static.h>
-#include <core/objects/output.h>
 #include <core/objects/network_cluster.h>
+#include <core/objects/node.h>
 #include <core/storage_io.h>
 
 #include <initializing/network_initializer.h>
@@ -172,7 +172,7 @@ void KyoukoRoot::learnTestData()
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
 
-            Output* outputs = cluster->outputSegment->outputs;
+            OutputNode* outputs = cluster->synapseSegment->outputNodes;
             for(uint32_t i = 0; i < 10; i++) {
                 outputs[i].shouldValue = 0.0f;
             }
@@ -238,14 +238,15 @@ void KyoukoRoot::learnTestData()
         // print result
         float biggest = -100000.0f;
         uint32_t pos = 0;
-        Output* outputs = cluster->outputSegment->outputs;
+        OutputNode* outputs = cluster->synapseSegment->outputNodes;
+        Node* nodes = cluster->synapseSegment->nodes;
         std::string outString = "[";
-        for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfOutputs; i++)
+        for(uint32_t i = 0; i < cluster->synapseSegment->segmentMeta->numberOfOutputs; i++)
         {
             if(i > 0) {
                 outString += " | ";
             }
-            const float read = outputs[i].outputValue;
+            const float read = nodes[outputs[i].targetNode].currentState;
             if(read < 0.0f) {
                 outString += "0 \t";
             } else if(read > 255.0f) {

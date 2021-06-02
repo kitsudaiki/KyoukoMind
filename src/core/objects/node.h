@@ -31,6 +31,14 @@ struct InputNode
     uint32_t targetNode = 0;
 };
 
+struct OutputNode
+{
+    float shouldValue = 0.0f;
+    uint32_t targetNode = 0;
+
+    // total size: 8 Byte
+};
+
 //==================================================================================================
 
 struct Node
@@ -39,16 +47,17 @@ struct Node
     float border = 100.0f;
     float potential = 0.0f;
 
+    float updateWeight = 0.0f;
+
     uint8_t refractionTime = 1;
     uint8_t active = 0;
     uint8_t upToDate = 0;
-    uint8_t external = 0;
+    uint8_t padding1[1];
 
     uint32_t nodeBrickId = 0;
     uint32_t targetBrickDistance = 0;
 
     uint32_t targetSectionId = 0;
-    uint8_t padding2[4];
 
 
     // total size: 32 Byte

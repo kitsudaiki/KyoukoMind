@@ -42,12 +42,6 @@ StorageIO::writeToDisc(const std::string &dirPath)
         return false;
     }
 
-    const std::string outputSegPath = dirPath + "/output_segment_01";
-    DataBuffer* outputBuffer = &KyoukoRoot::m_networkCluster->outputSegment->buffer;
-    if(writeBufferToFile(outputSegPath, *outputBuffer) == false) {
-        return false;
-    }
-
     return true;
 }
 
@@ -62,12 +56,6 @@ StorageIO::readFromDisc(const std::string &dirPath)
     const std::string coreSegPath = dirPath + "/core_segment_01";
     DataBuffer* coreBuffer = &KyoukoRoot::m_networkCluster->synapseSegment->buffer;
     if(readBufferFromFile(coreSegPath, *coreBuffer) == false) {
-        return false;
-    }
-
-    const std::string outputSegPath = dirPath + "/output_segment_01";
-    DataBuffer* outputBuffer = &KyoukoRoot::m_networkCluster->outputSegment->buffer;
-    if(readBufferFromFile(outputSegPath, *outputBuffer) == false) {
         return false;
     }
 

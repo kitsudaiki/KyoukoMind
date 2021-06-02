@@ -22,7 +22,6 @@
 
 #include "single_thread_processing_static.h"
 
-#include <core/processing/cpu/output_processing.h>
 #include <core/processing/cpu/core_processing.h>
 
 SingleThreadProcessingStatic::SingleThreadProcessingStatic()
@@ -35,70 +34,79 @@ void
 SingleThreadProcessingStatic::executeStep(const uint32_t runs)
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
     // learn until output-section
+    processInputNodes(synapseSegment->nodes,
+                      synapseSegment->inputNodes,
+                      synapseSegment->segmentMeta);
+
     const uint32_t runCount = runs;
     for(uint32_t i = 0; i < runCount; i++)
     {
-        processInputNodes(synapseSegment->nodes,
-                          synapseSegment->inputNodes,
-                          synapseSegment->segmentMeta);
-
         node_processing(synapseSegment->nodes,
                         synapseSegment->nodeBuffers,
-                        synapseSegment->synapseBuffers,
                         synapseSegment->segmentMeta,
+                        synapseSegment->synapseSections,
+                        synapseSegment->nodeBricks,
+                        KyoukoRoot::m_networkCluster->randomValues,
                         synapseSegment->synapseMetaData,
-                        outputSegment->inputs,
+                        &KyoukoRoot::m_networkCluster->networkMetaData,
+                        0,
+                        1);
+    }
+}
+
+void SingleThreadProcessingStatic::reductionLearning(const uint32_t runs)
+{
+    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+
+    // learn until output-section
+    processInputNodes(synapseSegment->nodes,
+                      synapseSegment->inputNodes,
+                      synapseSegment->segmentMeta);
+
+    const uint32_t runCount = runs;
+    for(uint32_t i = 0; i < runCount; i++)
+    {
+    }
+}
+
+void
+SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
+{
+    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+
+    // learn until output-section
+    processInputNodes(synapseSegment->nodes,
+                      synapseSegment->inputNodes,
+                      synapseSegment->segmentMeta);
+
+    const uint32_t runCount = runs;
+    for(uint32_t i = 0; i < runCount; i++)
+    {
+        node_processing(synapseSegment->nodes,
+                        synapseSegment->nodeBuffers,
+                        synapseSegment->segmentMeta,
+                        synapseSegment->synapseSections,
+                        synapseSegment->nodeBricks,
+                        KyoukoRoot::m_networkCluster->randomValues,
+                        synapseSegment->synapseMetaData,
+                        &KyoukoRoot::m_networkCluster->networkMetaData,
                         0,
                         1);
 
         updateCoreSynapses(synapseSegment->segmentMeta,
-                           synapseSegment->synapseBuffers,
                            synapseSegment->synapseSections,
                            synapseSegment->nodes,
                            synapseSegment->synapseMetaData,
-                           0,
-                           1);
-
-        synapse_processing(synapseSegment->segmentMeta,
-                           synapseSegment->synapseBuffers,
-                           synapseSegment->synapseSections,
-                           synapseSegment->nodes,
-                           synapseSegment->nodeBricks,
-                           synapseSegment->nodeBuffers,
-                           KyoukoRoot::m_networkCluster->randomValues,
-                           synapseSegment->synapseMetaData,
-                           &KyoukoRoot::m_networkCluster->networkMetaData,
                            0,
                            1);
     }
-
-    output_node_processing(outputSegment->outputSynapseSections,
-                           outputSegment->inputs,
-                           outputSegment->outputs,
-                           outputSegment->segmentMeta,
-                           &KyoukoRoot::m_networkCluster->networkMetaData,
-                           outputSegment->outputMetaData,
-                           0,
-                           1);
-
 }
 
 void
 SingleThreadProcessingStatic::outputLearn()
 {
-    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
-    output_learn_step(outputSegment->outputSynapseSections,
-                      outputSegment->inputs,
-                      outputSegment->outputs,
-                      outputSegment->segmentMeta,
-                      KyoukoRoot::m_networkCluster->randomValues,
-                      &KyoukoRoot::m_networkCluster->networkMetaData,
-                      outputSegment->outputMetaData,
-                      0,
-                      1);
 
 }

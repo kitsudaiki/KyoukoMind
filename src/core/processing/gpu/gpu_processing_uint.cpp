@@ -73,13 +73,6 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 
     oclData.addBuffer("networkMetaData",    1, sizeof(Kitsunemimi::Ai::NetworkMetaData), true, &cluster->networkMetaData);
 
-    OutputSegmentMeta* outputSegmentMeta = cluster->outputSegment->segmentMeta;
-    oclData.addBuffer("outputMetaData",        1,                                  sizeof(Kitsunemimi::Ai::OutputMetaData), false, cluster->outputSegment->outputMetaData);
-    oclData.addBuffer("outputSegmentMeta",     1,                                  sizeof(OutputSegmentMeta),               false, cluster->outputSegment->segmentMeta);
-    oclData.addBuffer("outputs",               outputSegmentMeta->numberOfOutputs, sizeof(Output),                          false, cluster->outputSegment->outputs);
-    oclData.addBuffer("outputInputs",          outputSegmentMeta->numberOfInputs,  sizeof(OutputInput),                     false, cluster->outputSegment->inputs);
-    oclData.addBuffer("outputSynapseSections", outputSegmentMeta->numberOfOutputs, sizeof(OutputSynapseSection),            false, cluster->outputSegment->outputSynapseSections);
-
     CoreSegmentMeta* coreSegmentMeta = cluster->synapseSegment->segmentMeta;
     oclData.addBuffer("coreMetaData",       1,                                           sizeof(Kitsunemimi::Ai::CoreMetaData), false, cluster->synapseSegment->synapseMetaData);
     oclData.addBuffer("coreSegmentMeta",    1,                                           sizeof(CoreSegmentMeta),               false, cluster->synapseSegment->segmentMeta);

@@ -36,23 +36,28 @@
 
 /**
  * @brief synapseProcessing
- * @param sectionPos
- * @param weight
- * @param hardening
+ * @param section
+ * @param nodes
+ * @param bricks
+ * @param nodeBuffers
+ * @param segmentMeta
+ * @param randomValues
+ * @param synapseMetaData
+ * @param networkMetaData
+ * @param nodeId
+ * @param weightIn
  */
 inline void
 synapseProcessing(SynapseSection* section,
                   Node* nodes,
                   Brick* bricks,
                   float* nodeBuffers,
-                  SynapseBuffer* synapseBuffers,
                   CoreSegmentMeta* segmentMeta,
                   uint32_t* randomValues,
                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   const uint32_t nodeId,
-                  const float weightIn,
-                  const uint32_t layer)
+                  const float weightIn)
 {
     uint32_t pos = 0;
     uint32_t counter = 0;
@@ -72,11 +77,6 @@ synapseProcessing(SynapseSection* section,
 
     ulong nodeBufferPosition = 0;
     float ratio = 0.0f;
-    float shareWeight = 0.0f;
-
-    uint32_t bufferPos = 0;
-    SynapseBuffer* synapseBuffer = nullptr;
-    uint32_t nextLayer = 0;
 
     // reinit section if necessary
     if(section->active == 0)
@@ -133,12 +133,12 @@ synapseProcessing(SynapseSection* section,
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
             ratio = weight / static_cast<float>(synapse->border);
-            shareWeight = static_cast<float>(ratio >= 1.0f) * synapse->weight
-                          + static_cast<float>(ratio < 1.0f) * synapse->weight * ratio;
+            ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+            ratio *= -1.0f * pow(0.9f, pos) + 1;
 
             // 0 because only one thread at the moment
             nodeBufferPosition = (0 * segmentMeta->numberOfNodes) + synapse->targetNodeId;
-            nodeBuffers[nodeBufferPosition] += shareWeight;
+            nodeBuffers[nodeBufferPosition] += ratio * synapse->weight;
 
             synapse->activeCounter += (synapse->activeCounter < 126) * 1;
             weight -= static_cast<float>(synapse->border);
@@ -149,180 +149,31 @@ synapseProcessing(SynapseSection* section,
 
     // harden synapse-section
     const bool updateHardening = networkMetaData->lerningValue > 0.0f
-                           && counter > section->hardening;
+                                 && counter > section->hardening;
     section->hardening = (updateHardening == true) * counter
                          + (updateHardening == false) * section->hardening;
-
-    // go to next section
-    const bool triggerNext = weight > 1.0f && processed;
-    if(triggerNext)
-    {
-        nextLayer = layer + 1;
-        nextLayer = (nextLayer > 7) * 7  + (nextLayer <= 7) * nextLayer;
-        bufferPos = (node->targetSectionId + nextLayer * 10000 + nextLayer) % segmentMeta->numberOfSynapseSections;
-        synapseBuffer = &synapseBuffers[bufferPos];
-        synapseBuffer->buffer[nextLayer].weigth = weight;
-        synapseBuffer->buffer[nextLayer].nodeId = nodeId;
-        synapseBuffer->process = 1;
-    }
-}
-
-/**
- * @brief updating
- * @param sectionPos
- */
-inline bool
-updating(SynapseSection* section,
-         Node* nodes,
-         Kitsunemimi::Ai::CoreMetaData*)
-{
-    bool upToData = 1;
-
-    // iterate over all synapses in synapse-section
-    uint32_t currentPos = section->hardening;
-    for(uint32_t lastPos = section->hardening; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
-    {
-        Synapse* synapse = &section->synapses[lastPos];
-
-        if(synapse->targetNodeId == UNINIT_STATE_16) {
-            continue;
-        }
-
-        upToData = 0;
-
-        // update dynamic-weight-value of the synapse
-        if(nodes[synapse->targetNodeId].active == 0) {
-            synapse->activeCounter = -1;
-        } else {
-            synapse->activeCounter = -1;
-        }
-
-        // check for deletion of the single synapse
-        if(synapse->activeCounter < 0)
-        {
-            synapse->weight = 0.0f;
-            synapse->targetNodeId = UNINIT_STATE_16;
-        }
-        else
-        {
-            const Synapse currentSyn = section->synapses[currentPos];
-            section->synapses[currentPos] = section->synapses[lastPos];
-            section->synapses[lastPos] = currentSyn;
-            currentPos++;
-        }
-    }
-
-    // delete if sections is empty
-    if(section->hardening == 0
-            && currentPos == 0)
-    {
-        section->active = 0;
-        upToData = 1;
-    }
-
-    return upToData;
-}
-
-inline void
-updateCoreSynapses(CoreSegmentMeta* segmentMeta,
-                   SynapseBuffer* synapseBuffers,
-                   SynapseSection* synapseSections,
-                   Node* nodes,
-                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                   const uint32_t threadId,
-                   const uint32_t numberOfThreads)
-{
-    const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
-
-    for(uint32_t i = threadId; i < numberOfSynapses; i = i + numberOfThreads)
-    {
-        SynapseBuffer* synapseBuffer = &synapseBuffers[i];
-
-        const bool updateSection = synapseBuffer->process == 0
-                                   && synapseBuffer->upToDate == 0;
-        if(updateSection)
-        {
-            synapseBuffer->upToDate = updating(&synapseSections[i],
-                                               nodes,
-                                               synapseMetaData);
-        }
-    }
-}
-
-/**
- * @brief synapse_processing
- */
-inline void
-synapse_processing(CoreSegmentMeta* segmentMeta,
-                   SynapseBuffer* synapseBuffers,
-                   SynapseSection* synapseSections,
-                   Node* nodes,
-                   Brick* bricks,
-                   float* nodeBuffers,
-                   uint32_t* randomValues,
-                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
-                   const uint32_t threadId,
-                   const uint32_t numberOfThreads)
-{
-    const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
-
-    //----------------------------------------------------------------------------------------------
-    for(uint32_t i = threadId; i < numberOfSynapses; i = i + numberOfThreads)
-    {
-        SynapseBuffer* synapseBuffer = &synapseBuffers[i];
-
-        if(synapseBuffer->process == 0) {
-            continue;
-        }
-        synapseBuffer->process = 0;
-
-        for(uint8_t layer = 0; layer < 8; layer++)
-        {
-            SynapseBufferEntry* entry = &synapseBuffer->buffer[layer];
-            if(entry->weigth > 5.0f)
-            {
-                synapseProcessing(&synapseSections[i],
-                                  nodes,
-                                  bricks,
-                                  nodeBuffers,
-                                  synapseBuffers,
-                                  segmentMeta,
-                                  randomValues,
-                                  synapseMetaData,
-                                  networkMetaData,
-                                  entry->nodeId,
-                                  entry->weigth,
-                                  layer);
-                synapseBuffer->upToDate = 0;
-            }
-
-            entry->weigth = 0.0f;
-            entry->nodeId = UNINIT_STATE_32;
-        }
-    }
-}
-
-inline void
-processInputNodes(Node* nodes,
-                  InputNode* inputNodes,
-                  CoreSegmentMeta* segmentMeta)
-{
-    for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
-        nodes[inputNodes[i].targetNode].potential = inputNodes[i].weight;
-    }
 }
 
 /**
  * @brief node_processing
+ * @param nodes
+ * @param nodeBuffers
+ * @param synapseBuffers
+ * @param segmentMeta
+ * @param synapseMetaData
+ * @param outputInputs
+ * @param threadId
+ * @param numberOfThreads
  */
 inline void
 node_processing(Node* nodes,
                 float* nodeBuffers,
-                SynapseBuffer* synapseBuffers,
                 CoreSegmentMeta* segmentMeta,
+                SynapseSection* synapseSections,
+                Brick* bricks,
+                uint32_t* randomValues,
                 Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                OutputInput* outputInputs,
+                Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                 const uint32_t threadId,
                 const uint32_t numberOfThreads)
 {
@@ -349,30 +200,167 @@ node_processing(Node* nodes,
                 node->refractionTime = synapseMetaData->refractionTime;
             }
 
-            synapseBuffers[i].buffer[0].weigth = node->potential;
-            synapseBuffers[i].buffer[0].nodeId = i;
-            synapseBuffers[i].process |= node->potential > 5.0f;
+            if(node->potential > 5.0f)
+            {
+                synapseProcessing(&synapseSections[i],
+                                  nodes,
+                                  bricks,
+                                  nodeBuffers,
+                                  segmentMeta,
+                                  randomValues,
+                                  synapseMetaData,
+                                  networkMetaData,
+                                  i,
+                                  node->potential);
+            }
 
             // post-steps
+            node->active = node->currentState > node->border;
             node->refractionTime = node->refractionTime >> 1;
             node->potential /= synapseMetaData->nodeCooldown;
             node->currentState /= synapseMetaData->nodeCooldown;
         }
         else if(node->border == 0.0f)
         {
-            synapseBuffers[i].buffer[0].weigth = node->potential;
-            synapseBuffers[i].buffer[0].nodeId = i;
-            synapseBuffers[i].process |= node->potential > 5.0f;
+            if(node->potential > 5.0f)
+            {
+                synapseProcessing(&synapseSections[i],
+                                  nodes,
+                                  bricks,
+                                  nodeBuffers,
+                                  segmentMeta,
+                                  randomValues,
+                                  synapseMetaData,
+                                  networkMetaData,
+                                  i,
+                                  node->potential);
+            }
         }
         else
         {
-            OutputInput* oIn = &outputInputs[i % segmentMeta->numberOfNodesPerBrick];
-            const bool isNew = oIn->weight > node->currentState * 1.01f
-                               || oIn->weight < node->currentState * 0.99f;
-            oIn->isNew = isNew + (isNew == false) * oIn->isNew;
-            oIn->weight = node->currentState;
             node->currentState = 0.0f;
         }
+    }
+}
+
+/**
+ * @brief updateCoreSynapses
+ * @param segmentMeta
+ * @param synapseSections
+ * @param nodes
+ * @param synapseMetaData
+ * @param threadId
+ * @param numberOfThreads
+ */
+inline void
+updateCoreSynapses(CoreSegmentMeta* segmentMeta,
+                   SynapseSection* synapseSections,
+                   Node* nodes,
+                   Kitsunemimi::Ai::CoreMetaData*,
+                   const uint32_t threadId,
+                   const uint32_t numberOfThreads)
+{
+    for(uint32_t i = threadId; i < segmentMeta->numberOfNodes; i = i + numberOfThreads)
+    {
+        Node* sourceNode = &nodes[i];
+
+        if(sourceNode->border >= 0.0f)
+        {
+            SynapseSection* section = &synapseSections[i];
+            for(uint32_t pos = section->hardening; pos < SYNAPSES_PER_SYNAPSESECTION; pos++)
+            {
+                Synapse* synapse = &section->synapses[pos];
+                if(synapse->targetNodeId == UNINIT_STATE_16) {
+                    continue;
+                }
+
+                const float updateWeight = nodes[synapse->targetNodeId].updateWeight;
+            }
+        }
+    }
+}
+
+/**
+ * @brief reduceCoreSynapses
+ * @param segmentMeta
+ * @param synapseBuffers
+ * @param synapseSections
+ * @param nodes
+ * @param synapseMetaData
+ * @param threadId
+ * @param numberOfThreads
+ */
+inline void
+reduceCoreSynapses(CoreSegmentMeta* segmentMeta,
+                   SynapseSection* synapseSections,
+                   Node* nodes,
+                   Kitsunemimi::Ai::CoreMetaData*,
+                   const uint32_t threadId,
+                   const uint32_t numberOfThreads)
+{
+    const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
+
+    for(uint32_t i = threadId; i < numberOfSynapses; i = i + numberOfThreads)
+    {
+        bool upToData = 1;
+        SynapseSection* section = &synapseSections[i];
+
+        // iterate over all synapses in synapse-section
+        uint32_t currentPos = section->hardening;
+        for(uint32_t lastPos = section->hardening; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
+        {
+            Synapse* synapse = &section->synapses[lastPos];
+            if(synapse->targetNodeId == UNINIT_STATE_16) {
+                continue;
+            }
+
+            upToData = 0;
+
+            // update dynamic-weight-value of the synapse
+            if(nodes[synapse->targetNodeId].active == 0) {
+                synapse->activeCounter -= 2;
+            } else {
+                synapse->activeCounter -= 1;
+            }
+
+            // check for deletion of the single synapse
+            if(synapse->activeCounter < 0)
+            {
+                synapse->weight = 0.0f;
+                synapse->targetNodeId = UNINIT_STATE_16;
+            }
+            else
+            {
+                const Synapse currentSyn = section->synapses[currentPos];
+                section->synapses[currentPos] = section->synapses[lastPos];
+                section->synapses[lastPos] = currentSyn;
+                currentPos++;
+            }
+        }
+
+        // delete if sections is empty
+        if(section->hardening == 0
+                && currentPos == 0)
+        {
+            section->active = 0;
+            upToData = 1;
+        }
+    }
+}
+
+/**
+ * @brief processInputNodes
+ * @param nodes
+ * @param inputNodes
+ * @param segmentMeta
+ */
+inline void
+processInputNodes(Node* nodes,
+                  InputNode* inputNodes,
+                  CoreSegmentMeta* segmentMeta)
+{
+    for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
+        nodes[inputNodes[i].targetNode].potential = inputNodes[i].weight;
     }
 }
 
