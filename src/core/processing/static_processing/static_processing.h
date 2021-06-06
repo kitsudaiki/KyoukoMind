@@ -48,11 +48,8 @@ public:
 private:
     bool learnStep();
     virtual void executeStep(const uint32_t runs) = 0;
-    virtual void outputLearn() = 0;
-
-    bool learnPhase1();
-    bool learnPhase2();
-
+    virtual void reductionLearning(const uint32_t runs) = 0;
+    virtual void updateLearning(const uint32_t runs) = 0;
 };
 
 #endif // STATIC_PROCESSING_H

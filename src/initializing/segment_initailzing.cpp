@@ -126,8 +126,11 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     // init output
     newSegment->outputNodes = reinterpret_cast<OutputNode*>(data + bufferPos);
     bufferPos += numberOfOutputs * sizeof(OutputNode);
-    for(uint32_t i = 0; i < numberOfOutputs; i++) {
+    for(uint32_t i = 0; i < numberOfOutputs; i++)
+    {
         newSegment->outputNodes[i] = OutputNode();
+        //TODO
+        newSegment->outputNodes[i].targetNode = 1600 + i;
     }
 
     return newSegment;

@@ -72,97 +72,14 @@ StaticProcessing::learnStep()
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     cluster->networkMetaData.doLearn = 1;
 
-    bool result = learnPhase1();
-    if(result == false) {
-        result = learnPhase2();
+    for(uint32_t i = 0; i < 800; i++) {
+        cluster->synapseSegment->inputNodes[i].weight = buffer[i];
     }
+
+    updateLearning(cluster->initMetaData.layer + 2);
 
     cluster->networkMetaData.doLearn = 0;
     cluster->networkMetaData.lerningValue = 0.0f;
-
-    return result;
-}
-
-/**
- * @brief Learner::learnPhase1
- */
-bool
-StaticProcessing::learnPhase1()
-{
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-
-    //----------------------------------------------------------------------------------------------
-    // learn phase 1
-    uint32_t timeout = 5;
-    uint32_t updateVals = 0;
-    uint32_t tempVal = 0;
-    do
-    {
-        for(uint32_t i = 0; i < 1600; i++) {
-            inputNodes[i].weight = 0.0f;
-        }
-
-        executeStep(1);
-
-        for(uint32_t i = 0; i < 1600; i++) {
-            inputNodes[i].weight = buffer[i];
-        }
-
-        executeStep(cluster->initMetaData.layer + 2);
-        std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++: "<<tempVal<<std::endl;
-
-        if(tempVal < updateVals)
-        {
-            updateVals = tempVal;
-            break;
-        }
-        updateVals = tempVal;
-        timeout--;
-    }
-    while(updateVals != 0
-          && timeout > 0);
-
-
-    if(updateVals == 0)
-    {
-        cluster->networkMetaData.lerningValue = 100000.0f;
-        executeStep(1);
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * @brief Learner::learnPhase2
- */
-bool
-StaticProcessing::learnPhase2()
-{
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-
-    uint32_t timeout = 10;
-    uint32_t check = 0;
-    do
-    {
-        outputLearn();
-        timeout--;
-    }
-    while(check > 0
-          && timeout > 0);
-    std::cout<<"###################################################: "<<check<<" : "<<timeout<<std::endl;
-
-    // if desired state was reached, than freeze lerned state
-    if(check == 0)
-    {
-        cluster->networkMetaData.lerningValue = 100000.0f;
-        executeStep(1);
-    }
-
-    if(check != 0) {
-        return false;
-    }
 
     return true;
 }

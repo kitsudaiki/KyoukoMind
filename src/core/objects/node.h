@@ -33,10 +33,12 @@ struct InputNode
 
 struct OutputNode
 {
+    float outputWeight = 0.0f;
     float shouldValue = 0.0f;
     uint32_t targetNode = 0;
+    uint8_t padding[4];
 
-    // total size: 8 Byte
+    // total size: 16 Byte
 };
 
 //==================================================================================================
@@ -47,7 +49,7 @@ struct Node
     float border = 100.0f;
     float potential = 0.0f;
 
-    float updateWeight = 0.0f;
+    float delta = 0.0f;
 
     uint8_t refractionTime = 1;
     uint8_t active = 0;

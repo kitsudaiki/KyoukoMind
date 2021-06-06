@@ -69,9 +69,13 @@ MultiThreadProcessingStatic::executeStep(const uint32_t runs)
 }
 
 void
-MultiThreadProcessingStatic::outputLearn()
+MultiThreadProcessingStatic::reductionLearning(const uint32_t runs)
 {
-    m_processingUnitHandler->shareNewTask(OUTPUT_LEARN);
-    m_startBarrier->triggerBarrier();
-    m_endBarrier->triggerBarrier();
+
+}
+
+void
+MultiThreadProcessingStatic::updateLearning(const uint32_t runs)
+{
+
 }

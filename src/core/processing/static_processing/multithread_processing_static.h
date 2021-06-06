@@ -43,7 +43,8 @@ private:
     Kitsunemimi::Barrier* m_endBarrier = nullptr;
 
     void executeStep(const uint32_t runs);
-    void outputLearn();
+    void reductionLearning(const uint32_t runs);
+    void updateLearning(const uint32_t runs);
 };
 
 #endif // MULTITHREADPROCESSINGSTATIC_H

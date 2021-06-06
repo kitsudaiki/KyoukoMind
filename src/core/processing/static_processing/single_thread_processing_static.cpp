@@ -75,13 +75,14 @@ void
 SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    const uint32_t runCount = runs;
 
+    std::cout<<"########################################################################"<<std::endl;
     // learn until output-section
     processInputNodes(synapseSegment->nodes,
                       synapseSegment->inputNodes,
                       synapseSegment->segmentMeta);
 
-    const uint32_t runCount = runs;
     for(uint32_t i = 0; i < runCount; i++)
     {
         node_processing(synapseSegment->nodes,
@@ -95,18 +96,66 @@ SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
                         0,
                         1);
 
-        updateCoreSynapses(synapseSegment->segmentMeta,
-                           synapseSegment->synapseSections,
-                           synapseSegment->nodes,
-                           synapseSegment->synapseMetaData,
-                           0,
-                           1);
+        processOutputNodes(synapseSegment->nodes,
+                           synapseSegment->outputNodes,
+                           synapseSegment->segmentMeta);
     }
-}
-
-void
-SingleThreadProcessingStatic::outputLearn()
-{
 
 
+    for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
+    {
+        OutputNode* out = &synapseSegment->outputNodes[i];
+        Node* targetNode = &synapseSegment->nodes[out->targetNode];
+        float nodeWeight = targetNode->currentState;
+
+        std::cout<<i<<"    netO: "<<nodeWeight<<"   outO: "<<out->outputWeight<<std::endl;
+    }
+
+    std::cout<<"------------------"<<std::endl;
+    updateCoreSynapses(synapseSegment->segmentMeta,
+                       synapseSegment->synapseSections,
+                       synapseSegment->nodes,
+                       synapseSegment->outputNodes,
+                       synapseSegment->nodeBricks,
+                       synapseSegment->synapseMetaData,
+                       0,
+                       1);
+
+    node_processing(synapseSegment->nodes,
+                    synapseSegment->nodeBuffers,
+                    synapseSegment->segmentMeta,
+                    synapseSegment->synapseSections,
+                    synapseSegment->nodeBricks,
+                    KyoukoRoot::m_networkCluster->randomValues,
+                    synapseSegment->synapseMetaData,
+                    &KyoukoRoot::m_networkCluster->networkMetaData,
+                    0,
+                    1);
+
+    for(uint32_t i = 0; i < runCount; i++)
+    {
+        node_processing(synapseSegment->nodes,
+                        synapseSegment->nodeBuffers,
+                        synapseSegment->segmentMeta,
+                        synapseSegment->synapseSections,
+                        synapseSegment->nodeBricks,
+                        KyoukoRoot::m_networkCluster->randomValues,
+                        synapseSegment->synapseMetaData,
+                        &KyoukoRoot::m_networkCluster->networkMetaData,
+                        0,
+                        1);
+
+        processOutputNodes(synapseSegment->nodes,
+                           synapseSegment->outputNodes,
+                           synapseSegment->segmentMeta);
+    }
+
+    for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
+    {
+        OutputNode* out = &synapseSegment->outputNodes[i];
+        Node* targetNode = &synapseSegment->nodes[out->targetNode];
+        float nodeWeight = targetNode->currentState;
+
+        std::cout<<i<<"    netO: "<<nodeWeight<<"   outO: "<<out->outputWeight<<std::endl;
+    }
 }

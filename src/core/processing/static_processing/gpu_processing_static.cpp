@@ -56,7 +56,14 @@ GpuProcessingStatic::executeStep(const uint32_t runs)
     m_gpu->output_node_processing();
 }
 
-void GpuProcessingStatic::outputLearn()
+void
+GpuProcessingStatic::reductionLearning(const uint32_t runs)
 {
-    m_gpu->output_learn_step();
+
+}
+
+void
+GpuProcessingStatic::updateLearning(const uint32_t runs)
+{
+
 }

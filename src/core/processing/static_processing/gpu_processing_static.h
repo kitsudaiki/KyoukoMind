@@ -36,7 +36,8 @@ private:
     GpuProcessingUnit* m_gpu = nullptr;
 
     void executeStep(const uint32_t runs);
-    void outputLearn();
+    void reductionLearning(const uint32_t runs);
+    void updateLearning(const uint32_t runs);
 };
 
 #endif // GPUPROCESSINGSTATIC_H

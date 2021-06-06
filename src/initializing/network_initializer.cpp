@@ -48,8 +48,8 @@
  */
 NetworkInitializer::NetworkInitializer()
 {
-    m_brickInitializer = new FanBrickInitializer();
-    //m_brickInitializer = new LayeredBrickInitializier();
+    //m_brickInitializer = new FanBrickInitializer();
+    m_brickInitializer = new LayeredBrickInitializier();
 }
 
 /**
@@ -156,7 +156,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
                                                  totalNumberOfNodes,
                                                  parsedContent.initMetaData.maxSynapseSections,
                                                  (totalNumberOfNodes / parsedContent.numberOfNodeBricks) * parsedContent.numberOfInputBricks,
-                                                 (totalNumberOfNodes / parsedContent.numberOfNodeBricks) * parsedContent.numberOfOutputBricks,
+                                                 10 * parsedContent.numberOfOutputBricks,
                                                  numberOfRandValues);
 
     cluster->synapseSegment->synapseMetaData[0] = parsedContent.synapseMetaData;
