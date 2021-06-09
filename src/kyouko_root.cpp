@@ -177,21 +177,21 @@ void KyoukoRoot::learnTestData()
                 outputs[i].shouldValue = 0.0f;
             }
 
-            outputs[label].shouldValue = 255.0f;
+            outputs[label].shouldValue = 1.0f;
             std::cout<<"label: "<<label<<std::endl;
 
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                m_staticProcessing->buffer[i] = (static_cast<float>(total));
+                m_staticProcessing->buffer[i] = (static_cast<float>(total) / 255.0f);
             }
 
             m_staticProcessing->learn();
         }
     }
 
-    return;
+   // return;
 
     //==============================================================================================
     // test
@@ -218,6 +218,8 @@ void KyoukoRoot::learnTestData()
         inputNodes[i].weight = 0.0f;
     }
 
+    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+
     for(uint32_t pic = 0; pic < total; pic++)
     {
         uint32_t label = testLabelBufferPtr[pic + 8];
@@ -238,34 +240,39 @@ void KyoukoRoot::learnTestData()
         uint32_t pos = 0;
         OutputNode* outputs = cluster->synapseSegment->outputNodes;
         Node* nodes = cluster->synapseSegment->nodes;
-        std::string outString = "[";
-        for(uint32_t i = 0; i < cluster->synapseSegment->segmentMeta->numberOfOutputs; i++)
+        std::cout<<"[";
+
+
+        for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
         {
+            OutputNode* out = &synapseSegment->outputNodes[i];
+            Node* targetNode = &synapseSegment->nodes[out->targetNode];
+
             if(i > 0) {
-                outString += " | ";
+                std::cout<<" | ";
             }
-            const float read = nodes[outputs[i].targetNode].currentState;
-            if(read < 0.0f) {
-                outString += "0 \t";
-            } else if(read > 255.0f) {
-                outString += "255 \t";
-            } else {
-                outString += std::to_string((int)read) + "\t";
-            }
+
+            const float read = out->outputWeight;
+
+            std::cout.precision(2);
+            std::cout<<read<<"\t";
+
             if(read > biggest)
             {
                 biggest = read;
                 pos = i;
             }
         }
-        outString += "]";
-        std::cout<<pos<<"   complete: "<<outString<<std::endl;
 
-        if(testLabelBufferPtr[pic + 8] == pos
-                && biggest != 0.0f)
-        {
+        std::cout<<"]  result: ";
+        std::cout<<pos;
+
+        if(testLabelBufferPtr[pic + 8] == pos) {
             match++;
+        } else {
+            std::cout<<"     FAIL!!!!!!!";
         }
+        std::cout<<std::endl;
     }
 
     std::cout<<"======================================================================="<<std::endl;

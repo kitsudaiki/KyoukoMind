@@ -60,7 +60,7 @@ synapseProcessing(SynapseSection* section,
                   const float weightIn)
 {
 
-    if(node->potential <= 5.0f) {
+    if(node->potential <= 0.01f) {
         return;
     }
 
@@ -78,8 +78,6 @@ synapseProcessing(SynapseSection* section,
     float randomMulti = 0.0f;
     float random = 0.0f;
     float doLearn = 0.0f;
-
-    ulong nodeBufferPosition = 0;
     float ratio = 0.0f;
 
     // reinit section if necessary
@@ -110,7 +108,7 @@ synapseProcessing(SynapseSection* section,
                               + static_cast<float>(weight >= doLearn) * doLearn;
 
             // set activation-border
-            synapse->border = static_cast<uint8_t>(synapse->weight) + 1;
+            synapse->border = static_cast<uint8_t>(synapse->weight) + 0.0001f;
 
             // update weight with multiplicator
             section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -143,20 +141,28 @@ synapseProcessing(SynapseSection* section,
         // process synapse
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
-            ratio = weight / static_cast<float>(synapse->border);
-            ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-            ratio *= -1.0f * pow(0.98f, pos) + 1.0f;
+            weight -= static_cast<float>(synapse->border);
 
+            // ratio = weight / static_cast<float>(synapse->border);
+            // ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
+            // ratio *= -1.0f * pow(0.95f, pos) + 1.0f;
+            ratio = 1.0f / (1.0f + exp(-1.0f * weight));
+
+            // update weight
             const float delta = nodes[synapse->targetNodeId].delta;
             const float learnValue =  0.5f;
-            synapse->weight -= learnValue * delta * ratio;
+            if(delta != 0.0f)
+            {
+                // std::cout<<"update: "<<(synapse->targetNodeId - 1600)<<std::endl;
+                // std::cout<<"    delta: "<<delta<<std::endl;
+                // std::cout<<"    out: "<<synapse->weight;
+                synapse->weight -= learnValue * delta * ratio;
+                // std::cout<<"    new: "<<synapse->weight<<std::endl;
+            }
 
-            // 0 because only one thread at the moment
-            nodeBufferPosition = (0 * segmentMeta->numberOfNodes) + synapse->targetNodeId;
-            nodeBuffers[nodeBufferPosition] += ratio * synapse->weight;
+            nodeBuffers[synapse->targetNodeId] += ratio * synapse->weight;
 
             synapse->activeCounter += (synapse->activeCounter < 126);
-            weight -= static_cast<float>(synapse->border);
             counter = pos;
             processed = true;
         }
@@ -273,7 +279,9 @@ updateCoreSynapses(CoreSegmentMeta* segmentMeta,
     {
         OutputNode* out = &outputNodes[i];
         Node* targetNode = &nodes[out->targetNode];
-        targetNode->delta = ((out->outputWeight - out->shouldValue) * (-0.020202 * (out->outputWeight - 255)));
+        const float outW = out->outputWeight;
+        targetNode->delta = (outW - out->shouldValue) * outW * (1.0f - outW);
+        //std::cout<<"-----------"<<i<<" out: "<<out->outputWeight<<"  delta: "<<targetNode->delta<<std::endl;
     }
 }
 
@@ -377,12 +385,33 @@ processOutputNodes(Node* nodes,
         OutputNode* out = &outputNodes[i];
         Node* targetNode = &nodes[out->targetNode];
         float nodeWeight = targetNode->currentState;
-        nodeWeight = (nodeWeight < 0.0f) * 0.0f + (nodeWeight >= 0.0f) * nodeWeight;
-
-        out->outputWeight = (-1.0f * pow(0.98f, nodeWeight) + 1.0f) * 255.0f;
+        out->outputWeight = 1.0f / (1.0f + exp(-1.0f * nodeWeight));
         targetNode->currentState = 0.0f;
         targetNode->delta = 0.0f;
     }
+}
+
+/**
+ * @brief calcTotalError
+ * @param outputNodes
+ * @param segmentMeta
+ * @return
+ */
+inline float
+calcTotalError(OutputNode* outputNodes,
+               CoreSegmentMeta* segmentMeta)
+{
+    float totalError = 0.0f;
+
+    for(uint64_t i = 0; i < segmentMeta->numberOfOutputs; i++)
+    {
+        OutputNode* out = &outputNodes[i];
+        const float diff = (out->shouldValue - out->outputWeight);
+        totalError += 0.5f * (diff * diff);
+    }
+
+    std::cout<<"++++++++++++++++ total error: "<<totalError<<std::endl;
+    return totalError;
 }
 
 #endif // SYNAPSE_PROCESSING_H
