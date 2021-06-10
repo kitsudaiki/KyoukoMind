@@ -142,22 +142,15 @@ synapseProcessing(SynapseSection* section,
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
             weight -= static_cast<float>(synapse->border);
-
-            // ratio = weight / static_cast<float>(synapse->border);
-            // ratio = (ratio > 1.0f) * 1.0f + (ratio <= 1.0f) * ratio;
-            // ratio *= -1.0f * pow(0.95f, pos) + 1.0f;
-            ratio = 1.0f / (1.0f + exp(-1.0f * weight));
+            const float val = static_cast<float>(SYNAPSES_PER_SYNAPSESECTION - pos);
+            ratio = 1.0f / (1.0f + exp(-1.0f * (weight / val)));
 
             // update weight
             const float delta = nodes[synapse->targetNodeId].delta;
             const float learnValue =  0.5f;
             if(delta != 0.0f)
             {
-                // std::cout<<"update: "<<(synapse->targetNodeId - 1600)<<std::endl;
-                // std::cout<<"    delta: "<<delta<<std::endl;
-                // std::cout<<"    out: "<<synapse->weight;
                 synapse->weight -= learnValue * delta * ratio;
-                // std::cout<<"    new: "<<synapse->weight<<std::endl;
             }
 
             nodeBuffers[synapse->targetNodeId] += ratio * synapse->weight;
@@ -195,10 +188,10 @@ node_processing(Node* nodes,
                 uint32_t* randomValues,
                 Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
                 Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
-                const uint32_t threadId,
-                const uint32_t numberOfThreads)
+                const uint32_t startPoint,
+                const uint32_t numberOfNodes)
 {
-    for(uint32_t i = threadId; i < segmentMeta->numberOfNodes; i = i + numberOfThreads)
+    for(uint32_t i = startPoint; i < numberOfNodes + startPoint; i++)
     {
         // TODO: when port to gpu: change 2 to 256 again
         for(uint pos = 0; pos < 1; pos++)

@@ -40,24 +40,26 @@ SingleThreadProcessingStatic::executeStep(const uint32_t runs)
                       synapseSegment->inputNodes,
                       synapseSegment->segmentMeta);
 
-    const uint32_t runCount = runs;
-    for(uint32_t i = 0; i < runCount; i++)
+    for(uint32_t layerId = 0; layerId < synapseSegment->layer.size(); layerId++)
     {
-        node_processing(synapseSegment->nodes,
-                        synapseSegment->nodeBuffers,
-                        synapseSegment->segmentMeta,
-                        synapseSegment->synapseSections,
-                        synapseSegment->nodeBricks,
-                        KyoukoRoot::m_networkCluster->randomValues,
-                        synapseSegment->synapseMetaData,
-                        &KyoukoRoot::m_networkCluster->networkMetaData,
-                        0,
-                        1);
-
-        processOutputNodes(synapseSegment->nodes,
-                           synapseSegment->outputNodes,
-                           synapseSegment->segmentMeta);
+        for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
+        {
+            node_processing(synapseSegment->nodes,
+                            synapseSegment->nodeBuffers,
+                            synapseSegment->segmentMeta,
+                            synapseSegment->synapseSections,
+                            synapseSegment->nodeBricks,
+                            KyoukoRoot::m_networkCluster->randomValues,
+                            synapseSegment->synapseMetaData,
+                            &KyoukoRoot::m_networkCluster->networkMetaData,
+                            synapseSegment->layer.at(layerId).at(brickId)->nodePos,
+                            synapseSegment->segmentMeta->numberOfNodesPerBrick);
+        }
     }
+
+    processOutputNodes(synapseSegment->nodes,
+                       synapseSegment->outputNodes,
+                       synapseSegment->segmentMeta);
 }
 
 void SingleThreadProcessingStatic::reductionLearning(const uint32_t runs)
@@ -79,7 +81,7 @@ void
 SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-    const uint32_t runCount = runs;
+    const uint32_t runCount = 1;
 
     std::cout<<"########################################################################"<<std::endl;
     // learn until output-section
@@ -87,34 +89,32 @@ SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
                       synapseSegment->inputNodes,
                       synapseSegment->segmentMeta);
 
-    for(uint32_t i = 0; i < runCount; i++)
+    for(uint32_t layerId = 0; layerId < synapseSegment->layer.size(); layerId++)
     {
-        node_processing(synapseSegment->nodes,
-                        synapseSegment->nodeBuffers,
-                        synapseSegment->segmentMeta,
-                        synapseSegment->synapseSections,
-                        synapseSegment->nodeBricks,
-                        KyoukoRoot::m_networkCluster->randomValues,
-                        synapseSegment->synapseMetaData,
-                        &KyoukoRoot::m_networkCluster->networkMetaData,
-                        0,
-                        1);
-
-        processOutputNodes(synapseSegment->nodes,
-                           synapseSegment->outputNodes,
-                           synapseSegment->segmentMeta);
+        for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
+        {
+            node_processing(synapseSegment->nodes,
+                            synapseSegment->nodeBuffers,
+                            synapseSegment->segmentMeta,
+                            synapseSegment->synapseSections,
+                            synapseSegment->nodeBricks,
+                            KyoukoRoot::m_networkCluster->randomValues,
+                            synapseSegment->synapseMetaData,
+                            &KyoukoRoot::m_networkCluster->networkMetaData,
+                            synapseSegment->layer.at(layerId).at(brickId)->nodePos,
+                            synapseSegment->segmentMeta->numberOfNodesPerBrick);
+        }
     }
+
+    processOutputNodes(synapseSegment->nodes,
+                       synapseSegment->outputNodes,
+                       synapseSegment->segmentMeta);
 
     calcTotalError(synapseSegment->outputNodes,
                    synapseSegment->segmentMeta);
 
-    for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
-    {
-        OutputNode* out = &synapseSegment->outputNodes[i];
-        Node* targetNode = &synapseSegment->nodes[out->targetNode];
-        float nodeWeight = targetNode->currentState;
-
-        std::cout<<i<<"    netO: "<<nodeWeight<<"   outO: "<<out->outputWeight<<std::endl;
+    for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++) {
+        std::cout<<i<<"   outO: "<<synapseSegment->outputNodes[i].outputWeight<<std::endl;
     }
 
     std::cout<<"------------------"<<std::endl;
@@ -138,33 +138,31 @@ SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
                     0,
                     1);
 
-    for(uint32_t i = 0; i < runCount; i++)
+    for(uint32_t layerId = 0; layerId < synapseSegment->layer.size(); layerId++)
     {
-        node_processing(synapseSegment->nodes,
-                        synapseSegment->nodeBuffers,
-                        synapseSegment->segmentMeta,
-                        synapseSegment->synapseSections,
-                        synapseSegment->nodeBricks,
-                        KyoukoRoot::m_networkCluster->randomValues,
-                        synapseSegment->synapseMetaData,
-                        &KyoukoRoot::m_networkCluster->networkMetaData,
-                        0,
-                        1);
-
-        processOutputNodes(synapseSegment->nodes,
-                           synapseSegment->outputNodes,
-                           synapseSegment->segmentMeta);
+        for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
+        {
+            node_processing(synapseSegment->nodes,
+                            synapseSegment->nodeBuffers,
+                            synapseSegment->segmentMeta,
+                            synapseSegment->synapseSections,
+                            synapseSegment->nodeBricks,
+                            KyoukoRoot::m_networkCluster->randomValues,
+                            synapseSegment->synapseMetaData,
+                            &KyoukoRoot::m_networkCluster->networkMetaData,
+                            synapseSegment->layer.at(layerId).at(brickId)->nodePos,
+                            synapseSegment->segmentMeta->numberOfNodesPerBrick);
+        }
     }
+
+    processOutputNodes(synapseSegment->nodes,
+                       synapseSegment->outputNodes,
+                       synapseSegment->segmentMeta);
 
     calcTotalError(synapseSegment->outputNodes,
                    synapseSegment->segmentMeta);
 
-    for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
-    {
-        OutputNode* out = &synapseSegment->outputNodes[i];
-        Node* targetNode = &synapseSegment->nodes[out->targetNode];
-        float nodeWeight = targetNode->currentState;
-
-        std::cout<<i<<"    outO: "<<out->outputWeight<<std::endl;
+    for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++) {
+        std::cout<<i<<"   outO: "<<synapseSegment->outputNodes[i].outputWeight<<std::endl;
     }
 }

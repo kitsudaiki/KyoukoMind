@@ -246,15 +246,17 @@ void KyoukoRoot::learnTestData()
         for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
         {
             OutputNode* out = &synapseSegment->outputNodes[i];
-            Node* targetNode = &synapseSegment->nodes[out->targetNode];
 
             if(i > 0) {
                 std::cout<<" | ";
             }
 
-            const float read = out->outputWeight;
+            float read = out->outputWeight;
 
-            std::cout.precision(2);
+            std::cout.precision(3);
+            if(read < 0.001f) {
+                read = 0.0f;
+            }
             std::cout<<read<<"\t";
 
             if(read > biggest)
