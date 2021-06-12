@@ -22,7 +22,7 @@
 
 #include "gpu_processing_static.h"
 
-#include <core/processing/cpu/core_processing.h>
+#include <core/processing/cpu/processing.h>
 
 #include <core/processing/gpu/gpu_processing_uint.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
@@ -44,9 +44,6 @@ GpuProcessingStatic::executeStep(const uint32_t runs)
     const uint32_t runCount = runs;
     for(uint32_t i = 0; i < runCount; i++)
     {
-        processInputNodes(synapseSegment->nodes,
-                          synapseSegment->inputNodes,
-                          synapseSegment->segmentMeta);
 
         m_gpu->node_processing();
 

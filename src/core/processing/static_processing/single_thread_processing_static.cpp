@@ -22,7 +22,9 @@
 
 #include "single_thread_processing_static.h"
 
-#include <core/processing/cpu/core_processing.h>
+#include <core/processing/cpu/processing.h>
+#include <core/processing/cpu/io.h>
+#include <core/processing/cpu/backpropagation.h>
 
 SingleThreadProcessingStatic::SingleThreadProcessingStatic()
     : StaticProcessing()
@@ -84,31 +86,7 @@ SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
     const uint32_t runCount = 1;
 
     std::cout<<"########################################################################"<<std::endl;
-    // learn until output-section
-    processInputNodes(synapseSegment->nodes,
-                      synapseSegment->inputNodes,
-                      synapseSegment->segmentMeta);
-
-    for(uint32_t layerId = 0; layerId < synapseSegment->layer.size(); layerId++)
-    {
-        for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
-        {
-            node_processing(synapseSegment->nodes,
-                            synapseSegment->nodeBuffers,
-                            synapseSegment->segmentMeta,
-                            synapseSegment->synapseSections,
-                            synapseSegment->nodeBricks,
-                            KyoukoRoot::m_networkCluster->randomValues,
-                            synapseSegment->synapseMetaData,
-                            &KyoukoRoot::m_networkCluster->networkMetaData,
-                            synapseSegment->layer.at(layerId).at(brickId)->nodePos,
-                            synapseSegment->segmentMeta->numberOfNodesPerBrick);
-        }
-    }
-
-    processOutputNodes(synapseSegment->nodes,
-                       synapseSegment->outputNodes,
-                       synapseSegment->segmentMeta);
+    executeStep(runs);
 
     calcTotalError(synapseSegment->outputNodes,
                    synapseSegment->segmentMeta);
@@ -118,46 +96,22 @@ SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
     }
 
     std::cout<<"------------------"<<std::endl;
-    updateCoreSynapses(synapseSegment->segmentMeta,
-                       synapseSegment->synapseSections,
-                       synapseSegment->nodes,
-                       synapseSegment->outputNodes,
-                       synapseSegment->nodeBricks,
-                       synapseSegment->synapseMetaData,
-                       0,
-                       1);
+    backpropagateOutput(synapseSegment->segmentMeta,
+                        synapseSegment->nodes,
+                        synapseSegment->outputNodes);
 
-    node_processing(synapseSegment->nodes,
-                    synapseSegment->nodeBuffers,
-                    synapseSegment->segmentMeta,
-                    synapseSegment->synapseSections,
-                    synapseSegment->nodeBricks,
-                    KyoukoRoot::m_networkCluster->randomValues,
-                    synapseSegment->synapseMetaData,
-                    &KyoukoRoot::m_networkCluster->networkMetaData,
-                    0,
-                    1);
-
-    for(uint32_t layerId = 0; layerId < synapseSegment->layer.size(); layerId++)
+    for(int32_t layerId = synapseSegment->layer.size() - 2; layerId >= 0; layerId--)
     {
         for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
         {
-            node_processing(synapseSegment->nodes,
-                            synapseSegment->nodeBuffers,
-                            synapseSegment->segmentMeta,
-                            synapseSegment->synapseSections,
-                            synapseSegment->nodeBricks,
-                            KyoukoRoot::m_networkCluster->randomValues,
-                            synapseSegment->synapseMetaData,
-                            &KyoukoRoot::m_networkCluster->networkMetaData,
-                            synapseSegment->layer.at(layerId).at(brickId)->nodePos,
-                            synapseSegment->segmentMeta->numberOfNodesPerBrick);
+            backpropagateNodes(synapseSegment->nodes,
+                               synapseSegment->synapseSections,
+                               synapseSegment->layer.at(layerId).at(brickId)->nodePos,
+                               synapseSegment->segmentMeta->numberOfNodesPerBrick);
         }
     }
 
-    processOutputNodes(synapseSegment->nodes,
-                       synapseSegment->outputNodes,
-                       synapseSegment->segmentMeta);
+    executeStep(runs);
 
     calcTotalError(synapseSegment->outputNodes,
                    synapseSegment->segmentMeta);

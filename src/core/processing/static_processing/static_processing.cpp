@@ -27,7 +27,9 @@
 #include <core/objects/segment.h>
 #include <core/objects/network_cluster.h>
 
-#include <core/processing/cpu/core_processing.h>
+#include <core/processing/cpu/processing.h>
+#include <core/processing/cpu/io.h>
+#include <core/processing/cpu/backpropagation.h>
 
 #include <libKitsunemimiCommon/threading/barrier.h>
 

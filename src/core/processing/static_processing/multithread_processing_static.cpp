@@ -22,7 +22,9 @@
 
 #include "multithread_processing_static.h"
 
-#include <core/processing/cpu/core_processing.h>
+#include <core/processing/cpu/processing.h>
+#include <core/processing/cpu/io.h>
+#include <core/processing/cpu/backpropagation.h>
 #include <core/processing/processing_unit_handler.h>
 
 #include <libKitsunemimiCommon/threading/barrier.h>

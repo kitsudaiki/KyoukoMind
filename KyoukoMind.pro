@@ -86,11 +86,14 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
+    src/core/processing/cpu/backpropagation.h \
+    src/core/processing/cpu/create_reduce.h \
+    src/core/processing/cpu/io.h \
+    src/core/processing/cpu/processing.h \
     src/core/processing/static_processing/static_processing.h \
     src/core/objects/brick.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segment.h \
-    src/core/processing/cpu/core_processing.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \

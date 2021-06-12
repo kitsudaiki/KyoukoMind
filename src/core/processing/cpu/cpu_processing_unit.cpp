@@ -29,7 +29,7 @@
 #include <core/objects/network_cluster.h>
 #include <core/objects/brick.h>
 
-#include <core/processing/cpu/core_processing.h>
+#include <core/processing/cpu/processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
