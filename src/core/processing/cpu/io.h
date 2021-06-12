@@ -24,7 +24,7 @@ processInputNodes(Node* nodes,
                   CoreSegmentMeta* segmentMeta)
 {
     for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
-        nodes[inputNodes[i].targetNode].potential = inputNodes[i].weight;
+        nodes[inputNodes[i].targetNode].currentState = inputNodes[i].weight;
     }
 }
 
@@ -43,7 +43,7 @@ processOutputNodes(Node* nodes,
     {
         OutputNode* out = &outputNodes[i];
         Node* targetNode = &nodes[out->targetNode];
-        float nodeWeight = targetNode->currentState;
+        float nodeWeight = targetNode->potential;
         out->outputWeight = 1.0f / (1.0f + exp(-1.0f * nodeWeight));
     }
 }
@@ -67,7 +67,6 @@ calcTotalError(OutputNode* outputNodes,
         totalError += 0.5f * (diff * diff);
     }
 
-    std::cout<<"++++++++++++++++ total error: "<<totalError<<std::endl;
     return totalError;
 }
 

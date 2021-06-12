@@ -85,17 +85,8 @@ SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
     const uint32_t runCount = 1;
 
-    std::cout<<"########################################################################"<<std::endl;
     executeStep(runs);
 
-    calcTotalError(synapseSegment->outputNodes,
-                   synapseSegment->segmentMeta);
-
-    for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++) {
-        std::cout<<i<<"   outO: "<<synapseSegment->outputNodes[i].outputWeight<<std::endl;
-    }
-
-    std::cout<<"------------------"<<std::endl;
     backpropagateOutput(synapseSegment->segmentMeta,
                         synapseSegment->nodes,
                         synapseSegment->outputNodes);
@@ -109,14 +100,5 @@ SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
                                synapseSegment->layer.at(layerId).at(brickId)->nodePos,
                                synapseSegment->segmentMeta->numberOfNodesPerBrick);
         }
-    }
-
-    executeStep(runs);
-
-    calcTotalError(synapseSegment->outputNodes,
-                   synapseSegment->segmentMeta);
-
-    for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++) {
-        std::cout<<i<<"   outO: "<<synapseSegment->outputNodes[i].outputWeight<<std::endl;
     }
 }

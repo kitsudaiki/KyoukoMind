@@ -36,18 +36,16 @@
 
 #include <core/processing/cpu/create_reduce.h>
 
-
 /**
  * @brief synapseProcessing
  * @param section
- * @param nodes
  * @param bricks
  * @param nodeBuffers
  * @param segmentMeta
  * @param randomValues
  * @param synapseMetaData
  * @param networkMetaData
- * @param nodeId
+ * @param sourceNode
  * @param weightIn
  */
 inline void
@@ -66,10 +64,7 @@ synapseProcessing(SynapseSection* section,
         return;
     }
 
-    uint32_t pos = 0;
     uint32_t counter = 0;
-    float weight = weightIn;
-    bool processed = false;
 
     // reinit section if necessary
     if(section->active == 0)
@@ -79,13 +74,15 @@ synapseProcessing(SynapseSection* section,
         section->brickBufferPos = randomValues[section->randomPos] % 1000;
     }
 
+    uint32_t pos = 0;
+    float netH = weightIn;
+    const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
+
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
-          && weight > 0.0f)
+          && netH > 0.0f)
     {
         Synapse* synapse = &section->synapses[pos];
-
-        // create new synapse
         const bool createSyn = synapse->targetNodeId == UNINIT_STATE_16
                                && pos >= section->hardening
                                && networkMetaData->doLearn > 0;
@@ -98,7 +95,7 @@ synapseProcessing(SynapseSection* section,
                              sourceNode,
                              segmentMeta,
                              synapseMetaData,
-                             weight);
+                             netH);
         }
 
         pos++;
@@ -106,16 +103,11 @@ synapseProcessing(SynapseSection* section,
         // process synapse
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
-            weight -= static_cast<float>(synapse->border);
-            const float val = static_cast<float>(SYNAPSES_PER_SYNAPSESECTION - pos);
-            const float netH = weight / val;
-            const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
-
+            netH -= static_cast<float>(synapse->border);
             nodeBuffers[synapse->targetNodeId] += outH * synapse->weight;
 
             synapse->activeCounter += (synapse->activeCounter < 126);
             counter = pos;
-            processed = true;
         }
     }
 
@@ -164,19 +156,10 @@ node_processing(Node* nodes,
     {
         Node* node = &nodes[i];
         node->delta = 0.0f;
+        node->potential = synapseMetaData->potentialOverflow * node->currentState;
 
         if(node->border >= 0.0f)
         {
-            // check if active
-            const bool reset = node->border < node->currentState
-                               && node->refractionTime == 0;
-            if(reset)
-            {
-                node->potential = synapseMetaData->actionPotential +
-                                  synapseMetaData->potentialOverflow * node->currentState;
-                node->refractionTime = synapseMetaData->refractionTime;
-            }
-
             synapseProcessing(&synapseSections[i],
                               bricks,
                               nodeBuffers,
@@ -186,13 +169,10 @@ node_processing(Node* nodes,
                               networkMetaData,
                               node,
                               node->potential);
-
-            // post-steps
-            node->active = node->currentState > node->border;
-            node->refractionTime = node->refractionTime >> 1;
-            //node->potential /= synapseMetaData->nodeCooldown;
-            //node->currentState /= synapseMetaData->nodeCooldown;
         }
+
+        node->active = node->currentState > node->border;
+        node->currentState = 0.0f;
     }
 }
 

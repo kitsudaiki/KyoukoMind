@@ -12,47 +12,52 @@
 
 #include <libKitsunemimiAiCommon/metadata.h>
 
+/**
+ * @brief backpropagateNodes
+ * @param nodes
+ * @param synapseSections
+ * @param startPoint
+ * @param numberOfNodes
+ */
 inline void
 backpropagateNodes(Node* nodes,
                    SynapseSection* synapseSections,
                    const uint32_t startPoint,
                    const uint32_t numberOfNodes)
 {
-    for(uint32_t i = startPoint; i < numberOfNodes + startPoint; i++)
+    for(uint32_t nodeId = startPoint; nodeId < numberOfNodes + startPoint; nodeId++)
     {
-        Node* sourceNode = &nodes[i];
-        if(sourceNode->border >= 0.0f)
+        Node* sourceNode = &nodes[nodeId];
+        SynapseSection* section = &synapseSections[nodeId];
+
+        if(section->active == 0) {
+            continue;
+        }
+
+        uint16_t pos = 0;
+        float netH = sourceNode->potential;
+        const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
+
+        // iterate over all synapses in the section and update the target-nodes
+        while(pos < SYNAPSES_PER_SYNAPSESECTION
+              && netH > 0.0f)
         {
-            SynapseSection* section = &synapseSections[i];
-            if(section->active == 0) {
-                continue;
-            }
+            Synapse* synapse = &section->synapses[pos];
+            pos++;
 
-            uint16_t pos = 0;
-            float weight = sourceNode->potential;
-            // iterate over all synapses in the section and update the target-nodes
-            while(pos < SYNAPSES_PER_SYNAPSESECTION
-                  && weight > 0.0f)
+            // process synapse
+            if(synapse->targetNodeId != UNINIT_STATE_16)
             {
-                Synapse* synapse = &section->synapses[pos];
-                pos++;
+                netH -= static_cast<float>(synapse->border);
 
-                // process synapse
-                if(synapse->targetNodeId != UNINIT_STATE_16)
-                {
-                    weight -= static_cast<float>(synapse->border);
-                    const float val = static_cast<float>(SYNAPSES_PER_SYNAPSESECTION - pos);
-                    const float netH = weight / val;
-                    const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
+                // update weight
+                const float delta = nodes[synapse->targetNodeId].delta;
+                const float learnValue =  0.15f;
+                const float diff = learnValue * delta * outH;
+                Node* targetNode = &nodes[synapse->targetNodeId];
+                sourceNode->delta += targetNode->delta * synapse->weight;
 
-                    // update weight
-                    const float delta = nodes[synapse->targetNodeId].delta;
-                    const float learnValue =  0.5f;
-                    synapse->weight -= learnValue * delta * outH;
-
-                    Node* targetNode = &nodes[synapse->targetNodeId];
-                    sourceNode->delta += targetNode->delta * synapse->weight * outH * (1.0f -  outH) * netH;
-                }
+                synapse->weight -= diff;
             }
         }
     }
@@ -77,8 +82,8 @@ backpropagateOutput(CoreSegmentMeta* segmentMeta,
         OutputNode* out = &outputNodes[i];
         Node* targetNode = &nodes[out->targetNode];
         const float outW = out->outputWeight;
-        targetNode->delta = (outW - out->shouldValue) * outW * (1.0f - outW);
-        //std::cout<<"-----------"<<i<<" out: "<<out->outputWeight<<"  delta: "<<targetNode->delta<<std::endl;
+        const float delta = (outW - out->shouldValue) * outW * (1.0f - outW);
+        targetNode->delta = delta;
     }
 }
 
