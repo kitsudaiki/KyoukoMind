@@ -64,6 +64,58 @@ backpropagateNodes(Node* nodes,
 }
 
 /**
+ * @brief correctNewOutputSynapses
+ * @param nodes
+ * @param synapseSections
+ * @param startPoint
+ * @param numberOfNodes
+ */
+inline void
+correctNewOutputSynapses(Node* nodes,
+                         SynapseSection* synapseSections,
+                         const uint32_t startPoint,
+                         const uint32_t numberOfNodes)
+{
+    for(uint32_t nodeId = startPoint; nodeId < numberOfNodes + startPoint; nodeId++)
+    {
+        Node* sourceNode = &nodes[nodeId];
+        SynapseSection* section = &synapseSections[nodeId];
+
+        if(section->active == 0) {
+            continue;
+        }
+
+        uint16_t pos = section->hardening;
+        float netH = sourceNode->potential;
+
+        // iterate over all synapses in the section and update the target-nodes
+        while(pos < SYNAPSES_PER_SYNAPSESECTION
+              && netH > 0.0f)
+        {
+            Synapse* synapse = &section->synapses[pos];
+            pos++;
+
+            // process synapse
+            if(synapse->targetNodeId != UNINIT_STATE_16)
+            {
+                netH -= static_cast<float>(synapse->border);
+
+                // update weight
+                const float delta = nodes[synapse->targetNodeId].delta;
+
+                if(delta < 0.0f && synapse->weight < 0.0f) {
+                    synapse->weight *= -1.0f;
+                }
+
+                if(delta > 0.0f && synapse->weight > 0.0f) {
+                    synapse->weight *= -1.0f;
+                }
+            }
+        }
+    }
+}
+
+/**
  * @brief updateCoreSynapses
  * @param segmentMeta
  * @param synapseSections

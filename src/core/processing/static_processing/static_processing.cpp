@@ -74,10 +74,6 @@ StaticProcessing::learnStep()
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     cluster->networkMetaData.doLearn = 1;
 
-    for(uint32_t i = 0; i < 800; i++) {
-        cluster->synapseSegment->inputNodes[i].weight = buffer[i];
-    }
-
     updateLearning(cluster->initMetaData.layer + 2);
 
     cluster->networkMetaData.doLearn = 0;

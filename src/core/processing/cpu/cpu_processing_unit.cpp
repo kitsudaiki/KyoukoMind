@@ -71,12 +71,6 @@ CpuProcessingUnit::run()
             }
             case UPDATE_CORE:
             {
-                reduceCoreSynapses(synapseSegment->segmentMeta,
-                                   synapseSegment->synapseSections,
-                                   synapseSegment->nodes,
-                                   synapseSegment->synapseMetaData,
-                                   m_threadId,
-                                   m_maxThreads);
                 break;
             }
             case CORE_PROCESSING:

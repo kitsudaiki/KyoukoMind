@@ -165,7 +165,7 @@ void KyoukoRoot::learnTestData()
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 1; poi++)
+    for(uint32_t poi = 0; poi < 5; poi++)
     {
         for(uint32_t pic = 0; pic < 60000; pic++)
         {
@@ -184,7 +184,7 @@ void KyoukoRoot::learnTestData()
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                m_staticProcessing->buffer[i] = (static_cast<float>(total) / 255.0f);
+                inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
             }
 
             m_staticProcessing->learn();
@@ -230,7 +230,7 @@ void KyoukoRoot::learnTestData()
         {
             const uint32_t pos = pic * pictureSize + i + 16;
             int32_t total = testDataBufferPtr[pos];
-            inputNodes[i].weight = (static_cast<float>(total));
+            inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
         }
 
         m_staticProcessing->execute();

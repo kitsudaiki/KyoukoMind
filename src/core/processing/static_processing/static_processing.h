@@ -43,8 +43,6 @@ public:
 
     bool learn();
     bool execute();
-
-    float buffer[2400];
 private:
     bool learnStep();
     virtual void executeStep(const uint32_t runs) = 0;

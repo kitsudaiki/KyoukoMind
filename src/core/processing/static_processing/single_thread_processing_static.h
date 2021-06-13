@@ -35,6 +35,7 @@ private:
     void executeStep(const uint32_t runs);
     void reductionLearning(const uint32_t runs);
     void updateLearning(const uint32_t runs);
+    void runBackpropagation();
 };
 
 #endif // SINGLETHREADPROCESSINGSTATIC_H

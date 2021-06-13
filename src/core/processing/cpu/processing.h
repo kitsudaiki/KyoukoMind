@@ -64,8 +64,6 @@ synapseProcessing(SynapseSection* section,
         return;
     }
 
-    uint32_t counter = 0;
-
     // reinit section if necessary
     if(section->active == 0)
     {
@@ -107,15 +105,8 @@ synapseProcessing(SynapseSection* section,
             nodeBuffers[synapse->targetNodeId] += outH * synapse->weight;
 
             synapse->activeCounter += (synapse->activeCounter < 126);
-            counter = pos;
         }
     }
-
-    // harden synapse-section
-    const bool updateHardening = networkMetaData->lerningValue > 0.0f
-                                 && counter > section->hardening;
-    section->hardening = (updateHardening == true) * counter
-                         + (updateHardening == false) * section->hardening;
 }
 
 /**

@@ -64,6 +64,37 @@ SingleThreadProcessingStatic::executeStep(const uint32_t runs)
                        synapseSegment->segmentMeta);
 }
 
+void
+SingleThreadProcessingStatic::runBackpropagation()
+{
+    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+
+    backpropagateOutput(synapseSegment->segmentMeta,
+                        synapseSegment->nodes,
+                        synapseSegment->outputNodes);
+
+    int32_t layerId = synapseSegment->layer.size() - 2;
+
+    for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
+    {
+        correctNewOutputSynapses(synapseSegment->nodes,
+                                 synapseSegment->synapseSections,
+                                 synapseSegment->layer.at(layerId).at(brickId)->nodePos,
+                                 synapseSegment->segmentMeta->numberOfNodesPerBrick);
+    }
+
+    for(layerId = synapseSegment->layer.size() - 2; layerId >= 0; layerId--)
+    {
+        for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
+        {
+            backpropagateNodes(synapseSegment->nodes,
+                               synapseSegment->synapseSections,
+                               synapseSegment->layer.at(layerId).at(brickId)->nodePos,
+                               synapseSegment->segmentMeta->numberOfNodesPerBrick);
+        }
+    }
+}
+
 void SingleThreadProcessingStatic::reductionLearning(const uint32_t runs)
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
@@ -83,22 +114,38 @@ void
 SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-    const uint32_t runCount = 1;
 
     executeStep(runs);
 
-    backpropagateOutput(synapseSegment->segmentMeta,
-                        synapseSegment->nodes,
-                        synapseSegment->outputNodes);
+    const float initError = calcTotalError(synapseSegment->outputNodes,
+                                           synapseSegment->segmentMeta);
+    float error = initError;
 
-    for(int32_t layerId = synapseSegment->layer.size() - 2; layerId >= 0; layerId--)
+    /*if(initError > 0.01f)
     {
-        for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
+        int16_t timeout = 3;
+        while(error >= initError
+              && timeout >= 0)
         {
-            backpropagateNodes(synapseSegment->nodes,
+            std::cout<<"------- error: "<<error<<std::endl;
+            reduceCoreSynapses(synapseSegment->segmentMeta,
                                synapseSegment->synapseSections,
-                               synapseSegment->layer.at(layerId).at(brickId)->nodePos,
-                               synapseSegment->segmentMeta->numberOfNodesPerBrick);
+                               synapseSegment->nodes);
+            executeStep(runs);
+            error = calcTotalError(synapseSegment->outputNodes,
+                                   synapseSegment->segmentMeta);
+
+            timeout--;
         }
     }
+
+    std::cout<<"------- error: "<<error<<std::endl;*/
+
+    if(error > 0.01f) {
+        runBackpropagation();
+    }
+
+    hardenSynapses(synapseSegment->nodes,
+                   synapseSegment->synapseSections,
+                   synapseSegment->segmentMeta);
 }

@@ -51,12 +51,12 @@ createNewSynapse(SynapseSection* section,
                       + static_cast<float>(remainingWeight >= doLearn) * doLearn;
 
     // set activation-border
-    synapse->border = static_cast<uint8_t>(synapse->weight) + 0.0001f;
+    synapse->border = synapse->weight + 0.0001f;
 
     // update weight with multiplicator
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
     randomMulti = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
-    synapse->weight *= randomMulti * static_cast<float>(synapseMetaData->multiplicatorRange);
+    synapse->weight *= randomMulti * static_cast<float>(synapseMetaData->multiplicatorRange) + 1.0f;
 
     // update weight with multiplicator
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -77,6 +77,54 @@ createNewSynapse(SynapseSection* section,
         targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
     }
     synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
+    synapse->activeCounter = 1;
+}
+
+/**
+ * @brief backpropagateNodes
+ * @param nodes
+ * @param synapseSections
+ * @param startPoint
+ * @param numberOfNodes
+ */
+inline void
+hardenSynapses(Node* nodes,
+               SynapseSection* synapseSections,
+               CoreSegmentMeta* segmentMeta)
+{
+    for(uint32_t nodeId = 0; nodeId < segmentMeta->numberOfNodes; nodeId++)
+    {
+        Node* sourceNode = &nodes[nodeId];
+        SynapseSection* section = &synapseSections[nodeId];
+
+        if(section->active == 0) {
+            continue;
+        }
+
+        uint32_t counter = 0;
+        uint16_t pos = 0;
+        float netH = sourceNode->potential;
+
+        // iterate over all synapses in the section and update the target-nodes
+        while(pos < SYNAPSES_PER_SYNAPSESECTION
+              && netH > 0.0f)
+        {
+            Synapse* synapse = &section->synapses[pos];
+            pos++;
+
+            // process synapse
+            if(synapse->targetNodeId != UNINIT_STATE_16)
+            {
+                netH -= static_cast<float>(synapse->border);
+                counter = pos;
+            }
+        }
+
+        // harden synapse-section
+        const bool updateHardening = counter > section->hardening;
+        section->hardening = (updateHardening == true) * counter
+                             + (updateHardening == false) * section->hardening;
+    }
 }
 
 /**
@@ -92,14 +140,9 @@ createNewSynapse(SynapseSection* section,
 inline void
 reduceCoreSynapses(CoreSegmentMeta* segmentMeta,
                    SynapseSection* synapseSections,
-                   Node* nodes,
-                   Kitsunemimi::Ai::CoreMetaData*,
-                   const uint32_t threadId,
-                   const uint32_t numberOfThreads)
+                   Node* nodes)
 {
-    const uint64_t numberOfSynapses = segmentMeta->numberOfSynapseSections;
-
-    for(uint32_t i = threadId; i < numberOfSynapses; i = i + numberOfThreads)
+    for(uint32_t i = 0; i < segmentMeta->numberOfSynapseSections; i++)
     {
         bool upToData = 1;
         SynapseSection* section = &synapseSections[i];
@@ -117,9 +160,9 @@ reduceCoreSynapses(CoreSegmentMeta* segmentMeta,
 
             // update dynamic-weight-value of the synapse
             if(nodes[synapse->targetNodeId].active == 0) {
-                synapse->activeCounter -= 2;
+                synapse->activeCounter = -2;
             } else {
-                synapse->activeCounter -= 1;
+                synapse->activeCounter = -2;
             }
 
             // check for deletion of the single synapse
