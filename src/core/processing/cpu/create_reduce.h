@@ -67,14 +67,15 @@ createNewSynapse(SynapseSection* section,
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
     nodeBrick = &bricks[sourceNode->nodeBrickId];
     const uint32_t targetBrickId = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos];
-    nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
-                 * segmentMeta->numberOfNodesPerBrick;
     Brick* targetBrick = &bricks[targetBrickId];
+
+    nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
+                 * targetBrick->numberOfNodes;
     if(targetBrick->isOutputBrick) {
         // TODO
         targetNodeIdInBrick = randomValues[section->randomPos] % 10;
     } else {
-        targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
+        targetNodeIdInBrick = randomValues[section->randomPos] % targetBrick->numberOfNodes;
     }
     synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + nodeOffset);
     synapse->activeCounter = 1;
@@ -85,7 +86,7 @@ createNewSynapse(SynapseSection* section,
  * @param nodes
  * @param synapseSections
  * @param startPoint
- * @param numberOfNodes
+ * @param s
  */
 inline void
 hardenSynapses(Node* nodes,

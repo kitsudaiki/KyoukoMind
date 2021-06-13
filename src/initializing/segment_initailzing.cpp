@@ -238,6 +238,7 @@ void addBricksToSegment(CoreSegment &segment,
             const uint32_t nodePos = initBrick.nodeBrickId * initMetaData->nodesPerBrick;
             assert(nodePos < 0x7FFFFFFF);
             initBrick.nodePos = nodePos;
+            initBrick.numberOfNodes = initMetaData->nodesPerBrick;
 
             // handle output-brick
             if(initBrick.isOutputBrick)

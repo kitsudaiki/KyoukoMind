@@ -20,12 +20,12 @@
  * @param numberOfNodes
  */
 inline void
-backpropagateNodes(Node* nodes,
-                   SynapseSection* synapseSections,
-                   const uint32_t startPoint,
-                   const uint32_t numberOfNodes)
+backpropagateNodes(Brick* brick,
+                   Node* nodes,
+                   SynapseSection* synapseSections)
 {
-    for(uint32_t nodeId = startPoint; nodeId < numberOfNodes + startPoint; nodeId++)
+    const uint32_t upperPos = brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
         Node* sourceNode = &nodes[nodeId];
         SynapseSection* section = &synapseSections[nodeId];
@@ -71,12 +71,12 @@ backpropagateNodes(Node* nodes,
  * @param numberOfNodes
  */
 inline void
-correctNewOutputSynapses(Node* nodes,
-                         SynapseSection* synapseSections,
-                         const uint32_t startPoint,
-                         const uint32_t numberOfNodes)
+correctNewOutputSynapses(Brick* brick,
+                         Node* nodes,
+                         SynapseSection* synapseSections)
 {
-    for(uint32_t nodeId = startPoint; nodeId < numberOfNodes + startPoint; nodeId++)
+    const uint32_t upperPos = brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
         Node* sourceNode = &nodes[nodeId];
         SynapseSection* section = &synapseSections[nodeId];
@@ -102,12 +102,9 @@ correctNewOutputSynapses(Node* nodes,
 
                 // update weight
                 const float delta = nodes[synapse->targetNodeId].delta;
-
-                if(delta < 0.0f && synapse->weight < 0.0f) {
-                    synapse->weight *= -1.0f;
-                }
-
-                if(delta > 0.0f && synapse->weight > 0.0f) {
+                const bool invert = (delta < 0.0f && synapse->weight < 0.0f)
+                                    || (delta > 0.0f && synapse->weight > 0.0f);
+                if(invert) {
                     synapse->weight *= -1.0f;
                 }
             }

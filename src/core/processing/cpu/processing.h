@@ -121,37 +121,37 @@ synapseProcessing(SynapseSection* section,
  * @param numberOfThreads
  */
 inline void
-node_processing(Node* nodes,
+node_processing(Brick* brick,
+                Node* nodes,
                 float* nodeBuffers,
                 CoreSegmentMeta* segmentMeta,
                 SynapseSection* synapseSections,
                 Brick* bricks,
                 uint32_t* randomValues,
                 Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
-                const uint32_t startPoint,
-                const uint32_t numberOfNodes)
+                Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
-    for(uint32_t i = startPoint; i < numberOfNodes + startPoint; i++)
+    const uint32_t upperPos = brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
         // TODO: when port to gpu: change 2 to 256 again
         for(uint pos = 0; pos < 1; pos++)
         {
-            const ulong nodeBufferPosition = (pos * (segmentMeta->numberOfNodes)) + i;
-            nodes[i].currentState += nodeBuffers[nodeBufferPosition];
+            const ulong nodeBufferPosition = (pos * (brick->numberOfNodes)) + nodeId;
+            nodes[nodeId].currentState += nodeBuffers[nodeBufferPosition];
             nodeBuffers[nodeBufferPosition] = 0.0f;
         }
     }
 
-    for(uint32_t i = startPoint; i < numberOfNodes + startPoint; i++)
+    for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
-        Node* node = &nodes[i];
+        Node* node = &nodes[nodeId];
         node->delta = 0.0f;
         node->potential = synapseMetaData->potentialOverflow * node->currentState;
 
         if(node->border >= 0.0f)
         {
-            synapseProcessing(&synapseSections[i],
+            synapseProcessing(&synapseSections[nodeId],
                               bricks,
                               nodeBuffers,
                               segmentMeta,

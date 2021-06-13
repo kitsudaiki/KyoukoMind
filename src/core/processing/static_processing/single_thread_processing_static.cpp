@@ -46,16 +46,16 @@ SingleThreadProcessingStatic::executeStep(const uint32_t runs)
     {
         for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
         {
-            node_processing(synapseSegment->nodes,
+            Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
+            node_processing(brick,
+                            synapseSegment->nodes,
                             synapseSegment->nodeBuffers,
                             synapseSegment->segmentMeta,
                             synapseSegment->synapseSections,
                             synapseSegment->nodeBricks,
                             KyoukoRoot::m_networkCluster->randomValues,
                             synapseSegment->synapseMetaData,
-                            &KyoukoRoot::m_networkCluster->networkMetaData,
-                            synapseSegment->layer.at(layerId).at(brickId)->nodePos,
-                            synapseSegment->segmentMeta->numberOfNodesPerBrick);
+                            &KyoukoRoot::m_networkCluster->networkMetaData);
         }
     }
 
@@ -77,20 +77,20 @@ SingleThreadProcessingStatic::runBackpropagation()
 
     for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
     {
-        correctNewOutputSynapses(synapseSegment->nodes,
-                                 synapseSegment->synapseSections,
-                                 synapseSegment->layer.at(layerId).at(brickId)->nodePos,
-                                 synapseSegment->segmentMeta->numberOfNodesPerBrick);
+        Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
+        correctNewOutputSynapses(brick,
+                                 synapseSegment->nodes,
+                                 synapseSegment->synapseSections);
     }
 
     for(layerId = synapseSegment->layer.size() - 2; layerId >= 0; layerId--)
     {
         for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
         {
-            backpropagateNodes(synapseSegment->nodes,
-                               synapseSegment->synapseSections,
-                               synapseSegment->layer.at(layerId).at(brickId)->nodePos,
-                               synapseSegment->segmentMeta->numberOfNodesPerBrick);
+            Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
+            backpropagateNodes(brick,
+                               synapseSegment->nodes,
+                               synapseSegment->synapseSections);
         }
     }
 }
