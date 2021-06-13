@@ -59,8 +59,7 @@ StaticProcessing::learn()
 bool
 StaticProcessing::execute()
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    executeStep(cluster->initMetaData.layer + 2);
+    executeStep();
     return true;
 }
 
@@ -74,7 +73,7 @@ StaticProcessing::learnStep()
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     cluster->networkMetaData.doLearn = 1;
 
-    updateLearning(cluster->initMetaData.layer + 2);
+    updateLearning();
 
     cluster->networkMetaData.doLearn = 0;
     cluster->networkMetaData.lerningValue = 0.0f;

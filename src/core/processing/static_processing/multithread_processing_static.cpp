@@ -41,13 +41,10 @@ MultiThreadProcessingStatic::MultiThreadProcessingStatic()
 }
 
 void
-MultiThreadProcessingStatic::executeStep(const uint32_t runs)
+MultiThreadProcessingStatic::executeStep()
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
-    const uint32_t runCount = runs;
-    for(uint32_t i = 0; i < runCount; i++)
-    {
         processInputNodes(synapseSegment->nodes,
                           synapseSegment->inputNodes,
                           synapseSegment->segmentMeta);
@@ -63,7 +60,7 @@ MultiThreadProcessingStatic::executeStep(const uint32_t runs)
         m_processingUnitHandler->shareNewTask(CORE_PROCESSING);
         m_startBarrier->triggerBarrier();
         m_endBarrier->triggerBarrier();
-    }
+
 
     m_processingUnitHandler->shareNewTask(OUTPUT_PROCESSING);
     m_startBarrier->triggerBarrier();
@@ -71,13 +68,13 @@ MultiThreadProcessingStatic::executeStep(const uint32_t runs)
 }
 
 void
-MultiThreadProcessingStatic::reductionLearning(const uint32_t runs)
+MultiThreadProcessingStatic::reductionLearning()
 {
 
 }
 
 void
-MultiThreadProcessingStatic::updateLearning(const uint32_t runs)
+MultiThreadProcessingStatic::updateLearning()
 {
 
 }

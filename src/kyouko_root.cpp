@@ -159,7 +159,7 @@ void KyoukoRoot::learnTestData()
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
     InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 800; i++)  {
+    for(uint32_t i = 0; i < 784; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -214,7 +214,7 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    for(uint32_t i = 0; i < 800; i++)  {
+    for(uint32_t i = 0; i < 784; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -238,8 +238,6 @@ void KyoukoRoot::learnTestData()
         // print result
         float biggest = -100000.0f;
         uint32_t pos = 0;
-        OutputNode* outputs = cluster->synapseSegment->outputNodes;
-        Node* nodes = cluster->synapseSegment->nodes;
         std::cout<<"[";
 
 

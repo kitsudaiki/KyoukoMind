@@ -37,30 +37,26 @@ GpuProcessingStatic::GpuProcessingStatic()
 }
 
 void
-GpuProcessingStatic::executeStep(const uint32_t runs)
+GpuProcessingStatic::executeStep()
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
-    const uint32_t runCount = runs;
-    for(uint32_t i = 0; i < runCount; i++)
-    {
 
         m_gpu->node_processing();
 
         m_gpu->synapse_processing();
-    }
 
     m_gpu->output_node_processing();
 }
 
 void
-GpuProcessingStatic::reductionLearning(const uint32_t runs)
+GpuProcessingStatic::reductionLearning()
 {
 
 }
 
 void
-GpuProcessingStatic::updateLearning(const uint32_t runs)
+GpuProcessingStatic::updateLearning()
 {
 
 }

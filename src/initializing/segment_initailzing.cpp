@@ -126,11 +126,8 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     // init output
     newSegment->outputNodes = reinterpret_cast<OutputNode*>(data + bufferPos);
     bufferPos += numberOfOutputs * sizeof(OutputNode);
-    for(uint32_t i = 0; i < numberOfOutputs; i++)
-    {
+    for(uint32_t i = 0; i < numberOfOutputs; i++) {
         newSegment->outputNodes[i] = OutputNode();
-        //TODO
-        newSegment->outputNodes[i].targetNode = 1600 + i;
     }
 
     return newSegment;
@@ -152,26 +149,26 @@ initLayer(CoreSegment &segment,
 
     for(uint32_t i = 0; i < segment.segmentMeta->numberOfNodeBricks; i++)
     {
-        Brick* brickPtr = &segment.nodeBricks[i];
+        Brick* brick = &segment.nodeBricks[i];
 
-        if(brickPtr->isInputBrick)
+        if(brick->isInputBrick)
         {
-            brickPtr->layerId = 0;
-            segment.layer[brickPtr->layerId].push_back(brickPtr);
+            brick->layerId = 0;
+            segment.layer[brick->layerId].push_back(brick);
         }
-        else if(brickPtr->isOutputBrick)
+        else if(brick->isOutputBrick)
         {
-            brickPtr->layerId = initMetaData->layer;
-            segment.layer[brickPtr->layerId].push_back(brickPtr);
+            brick->layerId = initMetaData->layer;
+            segment.layer[brick->layerId].push_back(brick);
         }
-        else if(brickPtr->nodeBrickId != UNINIT_STATE_32)
+        else if(brick->nodeBrickId != UNINIT_STATE_32)
         {
             if(initMetaData->layer == 1) {
-                brickPtr->layerId = 1;
+                brick->layerId = 1;
             } else {
-                brickPtr->layerId = (brickPtr->brickPos.x % (initMetaData->layer - 1)) + 1;
+                brick->layerId = (brick->brickPos.x % (initMetaData->layer - 1)) + 1;
             }
-            segment.layer[brickPtr->layerId].push_back(brickPtr);
+            segment.layer[brick->layerId].push_back(brick);
         }
     }
 
@@ -214,43 +211,49 @@ void addBricksToSegment(CoreSegment &segment,
 
     for(uint32_t i = 0; i < metaBase.bricks.size(); i++)
     {
-        Brick initBrick;
+        Brick newBrick;
 
         // copy metadata
-        initBrick.brickId = metaBase.bricks[i].brickId;
-        initBrick.nodeBrickId = metaBase.bricks[i].nodeBrickId;
-        initBrick.isOutputBrick = metaBase.bricks[i].isOutputBrick;
-        initBrick.isInputBrick = metaBase.bricks[i].isInputBrick;
+        newBrick.brickId = metaBase.bricks[i].brickId;
+        newBrick.nodeBrickId = metaBase.bricks[i].nodeBrickId;
+        newBrick.isOutputBrick = metaBase.bricks[i].isOutputBrick;
+        newBrick.isInputBrick = metaBase.bricks[i].isInputBrick;
 
         // copy position
-        initBrick.brickPos.x = static_cast<int32_t>(metaBase.bricks[i].brickPos.x);
-        initBrick.brickPos.y = static_cast<int32_t>(metaBase.bricks[i].brickPos.y);
-        initBrick.brickPos.z = static_cast<int32_t>(metaBase.bricks[i].brickPos.z);
+        newBrick.brickPos.x = static_cast<int32_t>(metaBase.bricks[i].brickPos.x);
+        newBrick.brickPos.y = static_cast<int32_t>(metaBase.bricks[i].brickPos.y);
+        newBrick.brickPos.z = static_cast<int32_t>(metaBase.bricks[i].brickPos.z);
 
         // copy neighbors
         for(uint32_t j = 0; j < 12; j++) {
-            initBrick.neighbors[j] = metaBase.bricks[i].neighbors[j];
+            newBrick.neighbors[j] = metaBase.bricks[i].neighbors[j];
         }
 
         // handle node-brick
-        if(initBrick.nodeBrickId != UNINIT_STATE_32)
+        if(newBrick.nodeBrickId != UNINIT_STATE_32)
         {
-            const uint32_t nodePos = initBrick.nodeBrickId * initMetaData->nodesPerBrick;
+            const uint32_t nodePos = newBrick.nodeBrickId * initMetaData->nodesPerBrick;
             assert(nodePos < 0x7FFFFFFF);
-            initBrick.nodePos = nodePos;
-            initBrick.numberOfNodes = initMetaData->nodesPerBrick;
+            newBrick.nodePos = nodePos;
+            newBrick.numberOfNodes = initMetaData->nodesPerBrick;
 
             // handle output-brick
-            if(initBrick.isOutputBrick)
+            if(newBrick.isOutputBrick)
             {
-                Node* array = segment.nodes;
+                Node* nodes = segment.nodes;
                 for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
-                    array[j + nodePos].border = -2.0f;
+                    nodes[j + nodePos].border = -2.0f;
                 }
+
+                for(uint32_t i = 0; i < segment.segmentMeta->numberOfOutputs; i++) {
+                    segment.outputNodes[i].targetNode = nodePos + i;
+                }
+
+                newBrick.numberOfNodes = segment.segmentMeta->numberOfOutputs;
             }
 
             // handle input-brick
-            if(initBrick.isInputBrick)
+            if(newBrick.isInputBrick)
             {
                 Node* array = segment.nodes;
                 for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++)
@@ -262,12 +265,12 @@ void addBricksToSegment(CoreSegment &segment,
             }
 
             // copy new brick to segment
-            segment.nodeBricks[nodeBrickIdCounter] = initBrick;
-            assert(nodeBrickIdCounter == initBrick.nodeBrickId);
+            segment.nodeBricks[nodeBrickIdCounter] = newBrick;
+            assert(nodeBrickIdCounter == newBrick.nodeBrickId);
             nodeBrickIdCounter++;
         }
 
-        assert(initBrick.brickId == i);
+        assert(newBrick.brickId == i);
     }
 
     // add to layer

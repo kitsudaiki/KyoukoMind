@@ -32,8 +32,11 @@ SingleThreadProcessingStatic::SingleThreadProcessingStatic()
 
 }
 
+/**
+ * @brief SingleThreadProcessingStatic::executeStep
+ */
 void
-SingleThreadProcessingStatic::executeStep(const uint32_t runs)
+SingleThreadProcessingStatic::executeStep()
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
@@ -64,10 +67,49 @@ SingleThreadProcessingStatic::executeStep(const uint32_t runs)
                        synapseSegment->segmentMeta);
 }
 
+/**
+ * @brief SingleThreadProcessingStatic::reductionLearning
+ */
 void
-SingleThreadProcessingStatic::runBackpropagation()
+SingleThreadProcessingStatic::reductionLearning()
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+
+    const float initError = calcTotalError(synapseSegment->outputNodes,
+                                           synapseSegment->segmentMeta);
+    float error = initError;
+
+    if(initError > 0.1f)
+    {
+        int16_t timeout = 3;
+        while(error >= initError
+              && timeout >= 0)
+        {
+            reduceCoreSynapses(synapseSegment->segmentMeta,
+                               synapseSegment->synapseSections,
+                               synapseSegment->nodes);
+            executeStep();
+            error = calcTotalError(synapseSegment->outputNodes,
+                                   synapseSegment->segmentMeta);
+
+            timeout--;
+        }
+    }
+
+    hardenSynapses(synapseSegment->nodes,
+                   synapseSegment->synapseSections,
+                   synapseSegment->segmentMeta);
+}
+
+/**
+ * @brief SingleThreadProcessingStatic::updateLearning
+ */
+void
+SingleThreadProcessingStatic::updateLearning()
+{
+    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+
+    executeStep();
 
     backpropagateOutput(synapseSegment->segmentMeta,
                         synapseSegment->nodes,
@@ -93,59 +135,9 @@ SingleThreadProcessingStatic::runBackpropagation()
                                synapseSegment->synapseSections);
         }
     }
-}
-
-void SingleThreadProcessingStatic::reductionLearning(const uint32_t runs)
-{
-    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-
-    // learn until output-section
-    processInputNodes(synapseSegment->nodes,
-                      synapseSegment->inputNodes,
-                      synapseSegment->segmentMeta);
-
-    const uint32_t runCount = runs;
-    for(uint32_t i = 0; i < runCount; i++)
-    {
-    }
-}
-
-void
-SingleThreadProcessingStatic::updateLearning(const uint32_t runs)
-{
-    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-
-    executeStep(runs);
-
-    const float initError = calcTotalError(synapseSegment->outputNodes,
-                                           synapseSegment->segmentMeta);
-    float error = initError;
-
-    /*if(initError > 0.01f)
-    {
-        int16_t timeout = 3;
-        while(error >= initError
-              && timeout >= 0)
-        {
-            std::cout<<"------- error: "<<error<<std::endl;
-            reduceCoreSynapses(synapseSegment->segmentMeta,
-                               synapseSegment->synapseSections,
-                               synapseSegment->nodes);
-            executeStep(runs);
-            error = calcTotalError(synapseSegment->outputNodes,
-                                   synapseSegment->segmentMeta);
-
-            timeout--;
-        }
-    }
-
-    std::cout<<"------- error: "<<error<<std::endl;*/
-
-    if(error > 0.01f) {
-        runBackpropagation();
-    }
 
     hardenSynapses(synapseSegment->nodes,
                    synapseSegment->synapseSections,
                    synapseSegment->segmentMeta);
 }
+
