@@ -26,7 +26,6 @@
 #include <common.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
-struct OutputSegmentMeta;
 struct Output;
 
 namespace Kitsunemimi {
@@ -44,18 +43,11 @@ public:
 
     bool learn();
     bool execute();
-
-    float buffer[2400];
 private:
-    uint32_t checkOutput(OutputSegmentMeta *segmentMeta, Output *outputs);
-
     bool learnStep();
-    virtual void executeStep(const uint32_t runs) = 0;
-    virtual void outputLearn() = 0;
-
-    bool learnPhase1();
-    bool learnPhase2();
-
+    virtual void executeStep() = 0;
+    virtual void reductionLearning() = 0;
+    virtual void updateLearning() = 0;
 };
 
 #endif // STATIC_PROCESSING_H

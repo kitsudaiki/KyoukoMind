@@ -1,5 +1,5 @@
 /**
- * @file        defines.h
+ * @file        fan_brick_initializer.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,21 +20,24 @@
  *      limitations under the License.
  */
 
-#include <common/includes.h>
+#ifndef FANBRICKINITIALIZER_H
+#define FANBRICKINITIALIZER_H
 
-// const predefined values
-#define UNINIT_STATE_64 0xFFFFFFFFFFFFFFFF
-#define UNINIT_STATE_32 0xFFFFFFFF
-#define UNINIT_STATE_24 0xFFFFFF
-#define UNINIT_STATE_16 0xFFFF
-#define UNINIT_STATE_8 0xFF
+#include <common.h>
 
-// network-predefines
-#define SYNAPSES_PER_SYNAPSESECTION 31
-#define POSSIBLE_NEXT_AXON_STEP 80
-#define OUTPUT_SYNAPSES_PER_SECTION 3068
+#include <initializing/brick_initializer.h>
 
-// processing
-#define NUMBER_OF_PROCESSING_UNITS 1
+class FanBrickInitializer
+        : public BrickInitializer
+{
+public:
+    FanBrickInitializer();
 
-#define NUMBER_OF_RAND_VALUES 10485760
+    Brick* getAxonBrick(CoreSegment &segment, Brick* sourceBrick);
+    bool initTargetBrickList(CoreSegment &segment, Kitsunemimi::Ai::InitMeataData *initMetaData);
+
+private:
+    uint8_t getPossibleNext();
+};
+
+#endif // FANBRICKINITIALIZER_H

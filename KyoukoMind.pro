@@ -86,13 +86,15 @@ HEADERS += \
     src/common/enums.h \
     src/common/includes.h \
     src/common/typedefs.h \
+    src/core/processing/cpu/backpropagation.h \
+    src/core/processing/cpu/create_reduce.h \
+    src/core/processing/cpu/io.h \
+    src/core/processing/cpu/processing.h \
     src/core/processing/static_processing/static_processing.h \
     src/core/objects/brick.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segment.h \
-    src/core/processing/cpu/core_processing.h \
     src/core/processing/cpu/cpu_processing_unit.h \
-    src/core/processing/cpu/output_processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
@@ -103,6 +105,7 @@ HEADERS += \
     src/core/storage_io.h \
     src/core/validation.h \
     src/initializing/brick_initializer.h \
+    src/initializing/fan_brick_initializer.h \
     src/initializing/layered_brick_initializier.h \
     src/initializing/network_initializer.h \
     src/args.h \
@@ -116,7 +119,6 @@ HEADERS += \
     src/core/connection_handler/client_connection_handler.h \
     src/blossoms/special/special_blossoms.h \
     src/initializing/blossom_initializing.h \
-    src/core/objects/output.h \
     src/common/structs.h
 
 SOURCES += \
@@ -129,6 +131,7 @@ SOURCES += \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/initializing/brick_initializer.cpp \
+    src/initializing/fan_brick_initializer.cpp \
     src/initializing/layered_brick_initializier.cpp \
     src/initializing/network_initializer.cpp \
     src/initializing/random_brick_initializer.cpp \

@@ -32,8 +32,9 @@ public:
     SingleThreadProcessingStatic();
 
 private:
-    void executeStep(const uint32_t runs);
-    void outputLearn();
+    void executeStep();
+    void reductionLearning();
+    void updateLearning();
 };
 
 #endif // SINGLETHREADPROCESSINGSTATIC_H

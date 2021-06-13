@@ -22,8 +22,7 @@
 
 #include "gpu_processing_static.h"
 
-#include <core/processing/cpu/output_processing.h>
-#include <core/processing/cpu/core_processing.h>
+#include <core/processing/cpu/processing.h>
 
 #include <core/processing/gpu/gpu_processing_uint.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
@@ -38,26 +37,26 @@ GpuProcessingStatic::GpuProcessingStatic()
 }
 
 void
-GpuProcessingStatic::executeStep(const uint32_t runs)
+GpuProcessingStatic::executeStep()
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
-    const uint32_t runCount = runs;
-    for(uint32_t i = 0; i < runCount; i++)
-    {
-        processInputNodes(synapseSegment->nodes,
-                          synapseSegment->inputNodes,
-                          synapseSegment->segmentMeta);
 
         m_gpu->node_processing();
 
         m_gpu->synapse_processing();
-    }
 
     m_gpu->output_node_processing();
 }
 
-void GpuProcessingStatic::outputLearn()
+void
+GpuProcessingStatic::reductionLearning()
 {
-    m_gpu->output_learn_step();
+
+}
+
+void
+GpuProcessingStatic::updateLearning()
+{
+
 }

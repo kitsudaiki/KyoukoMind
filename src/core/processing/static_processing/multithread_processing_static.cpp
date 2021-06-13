@@ -22,8 +22,9 @@
 
 #include "multithread_processing_static.h"
 
-#include <core/processing/cpu/output_processing.h>
-#include <core/processing/cpu/core_processing.h>
+#include <core/processing/cpu/processing.h>
+#include <core/processing/cpu/io.h>
+#include <core/processing/cpu/backpropagation.h>
 #include <core/processing/processing_unit_handler.h>
 
 #include <libKitsunemimiCommon/threading/barrier.h>
@@ -40,13 +41,10 @@ MultiThreadProcessingStatic::MultiThreadProcessingStatic()
 }
 
 void
-MultiThreadProcessingStatic::executeStep(const uint32_t runs)
+MultiThreadProcessingStatic::executeStep()
 {
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
-    const uint32_t runCount = runs;
-    for(uint32_t i = 0; i < runCount; i++)
-    {
         processInputNodes(synapseSegment->nodes,
                           synapseSegment->inputNodes,
                           synapseSegment->segmentMeta);
@@ -62,7 +60,7 @@ MultiThreadProcessingStatic::executeStep(const uint32_t runs)
         m_processingUnitHandler->shareNewTask(CORE_PROCESSING);
         m_startBarrier->triggerBarrier();
         m_endBarrier->triggerBarrier();
-    }
+
 
     m_processingUnitHandler->shareNewTask(OUTPUT_PROCESSING);
     m_startBarrier->triggerBarrier();
@@ -70,9 +68,13 @@ MultiThreadProcessingStatic::executeStep(const uint32_t runs)
 }
 
 void
-MultiThreadProcessingStatic::outputLearn()
+MultiThreadProcessingStatic::reductionLearning()
 {
-    m_processingUnitHandler->shareNewTask(OUTPUT_LEARN);
-    m_startBarrier->triggerBarrier();
-    m_endBarrier->triggerBarrier();
+
+}
+
+void
+MultiThreadProcessingStatic::updateLearning()
+{
+
 }

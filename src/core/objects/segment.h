@@ -29,14 +29,12 @@
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
-#include <core/objects/output.h>
 #include <libKitsunemimiAiCommon/metadata.h>
 
 enum SegmentType
 {
     UNDEFINED_SEGMENT = 0,
-    CORE_SEGMENT = 1,
-    OUTPUT_SEGMENT = 2
+    CORE_SEGMENT = 1
 };
 
 //==================================================================================================
@@ -53,8 +51,9 @@ struct CoreSegmentMeta
 
     // generic
     uint32_t numberOfInputs = 0;
+    uint32_t numberOfOutputs = 0;
 
-    uint8_t padding[224];
+    uint8_t padding[220];
 };
 
 struct CoreSegment
@@ -77,44 +76,11 @@ struct CoreSegment
     SynapseBuffer* synapseBuffers = nullptr;
 
     InputNode* inputNodes = nullptr;
+    OutputNode* outputNodes = nullptr;
 
     std::vector<std::vector<Brick*>> layer;
 
     CoreSegment() {}
-
-};
-
-//==================================================================================================
-
-struct OutputSegmentMeta
-{
-    uint32_t segmentType = UNDEFINED_SEGMENT;
-
-    // output-segment
-    uint32_t numberOfOutputs = 0;
-
-    // generic
-    uint32_t numberOfInputs = 0;
-
-    uint8_t padding[244];
-};
-
-struct OutputSegment
-{
-    Kitsunemimi::DataBuffer buffer;
-
-    // generic objects
-    OutputSegmentMeta* segmentMeta = nullptr;
-    Kitsunemimi::Ai::OutputMetaData* outputMetaData = nullptr;
-
-    // output
-    Output* outputs = nullptr;
-    OutputSynapseSection* outputSynapseSections = nullptr;
-
-
-    OutputInput* inputs = nullptr;
-
-    OutputSegment() {}
 
 };
 

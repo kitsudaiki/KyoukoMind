@@ -35,8 +35,9 @@ private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
     GpuProcessingUnit* m_gpu = nullptr;
 
-    void executeStep(const uint32_t runs);
-    void outputLearn();
+    void executeStep();
+    void reductionLearning();
+    void updateLearning();
 };
 
 #endif // GPUPROCESSINGSTATIC_H

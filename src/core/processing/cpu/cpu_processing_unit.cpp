@@ -29,12 +29,8 @@
 #include <core/objects/network_cluster.h>
 #include <core/objects/brick.h>
 
-#include <core/processing/cpu/core_processing.h>
-#include <core/processing/cpu/output_processing.h>
+#include <core/processing/cpu/processing.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
-
-#include <core/processing/cpu/output_processing.h>
-#include <core/processing/cpu/core_processing.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
@@ -54,11 +50,7 @@ CpuProcessingUnit::CpuProcessingUnit(const uint32_t threadId,
 void
 CpuProcessingUnit::run()
 {
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-    float timeValue = 0.0f;
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-    OutputSegment* outputSegment = KyoukoRoot::m_networkCluster->outputSegment;
 
     while(m_abort == false)
     {
@@ -68,66 +60,22 @@ CpuProcessingUnit::run()
         {
             case OUTPUT_LEARN:
             {
-                output_learn_step(outputSegment->outputSynapseSections,
-                                  outputSegment->inputs,
-                                  outputSegment->outputs,
-                                  outputSegment->segmentMeta,
-                                  KyoukoRoot::m_networkCluster->randomValues,
-                                  &KyoukoRoot::m_networkCluster->networkMetaData,
-                                  outputSegment->outputMetaData,
-                                  m_threadId,
-                                  m_maxThreads);
+
                 break;
             }
 
             case NODE_PROCESSING:
             {
-                node_processing(synapseSegment->nodes,
-                                synapseSegment->nodeBuffers,
-                                synapseSegment->synapseBuffers,
-                                synapseSegment->segmentMeta,
-                                synapseSegment->synapseMetaData,
-                                outputSegment->inputs,
-                                m_threadId,
-                                m_maxThreads);
+
                 break;
             }
             case UPDATE_CORE:
             {
-                updateCoreSynapses(synapseSegment->segmentMeta,
-                                   synapseSegment->synapseBuffers,
-                                   synapseSegment->synapseSections,
-                                   synapseSegment->nodes,
-                                   synapseSegment->synapseMetaData,
-                                   m_threadId,
-                                   m_maxThreads);
                 break;
             }
             case CORE_PROCESSING:
             {
-                synapse_processing(synapseSegment->segmentMeta,
-                                   synapseSegment->synapseBuffers,
-                                   synapseSegment->synapseSections,
-                                   synapseSegment->nodes,
-                                   synapseSegment->nodeBricks,
-                                   synapseSegment->nodeBuffers,
-                                   KyoukoRoot::m_networkCluster->randomValues,
-                                   synapseSegment->synapseMetaData,
-                                   &KyoukoRoot::m_networkCluster->networkMetaData,
-                                   m_threadId,
-                                   m_maxThreads);
-                break;
-            }
-            case OUTPUT_PROCESSING:
-            {
-                output_node_processing(outputSegment->outputSynapseSections,
-                                       outputSegment->inputs,
-                                       outputSegment->outputs,
-                                       outputSegment->segmentMeta,
-                                       &KyoukoRoot::m_networkCluster->networkMetaData,
-                                       outputSegment->outputMetaData,
-                                       m_threadId,
-                                       m_maxThreads);
+
                 break;
             }
 

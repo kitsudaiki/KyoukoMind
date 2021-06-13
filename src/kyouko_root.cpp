@@ -26,8 +26,8 @@
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/processing/static_processing/single_thread_processing_static.h>
-#include <core/objects/output.h>
 #include <core/objects/network_cluster.h>
+#include <core/objects/node.h>
 #include <core/storage_io.h>
 
 #include <initializing/network_initializer.h>
@@ -104,10 +104,10 @@ void KyoukoRoot::learnTestData()
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
 
-    const std::string trainDataPath = "/home/kyouko/Schreibtisch/mnist/train-images.idx3-ubyte";
-    const std::string trainLabelPath = "/home/kyouko/Schreibtisch/mnist/train-labels.idx1-ubyte";
-    const std::string testDataPath = "/home/kyouko/Schreibtisch/mnist/t10k-images.idx3-ubyte";
-    const std::string testLabelPath = "/home/kyouko/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
+    const std::string trainDataPath = "/home/neptune/Schreibtisch/mnist/train-images.idx3-ubyte";
+    const std::string trainLabelPath = "/home/neptune/Schreibtisch/mnist/train-labels.idx1-ubyte";
+    const std::string testDataPath = "/home/neptune/Schreibtisch/mnist/t10k-images.idx3-ubyte";
+    const std::string testLabelPath = "/home/neptune/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
 
     //==============================================================================================
     // learn
@@ -159,38 +159,39 @@ void KyoukoRoot::learnTestData()
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
     InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 1600; i++)  {
+    for(uint32_t i = 0; i < 784; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 1; poi++)
+    for(uint32_t poi = 0; poi < 5; poi++)
     {
         for(uint32_t pic = 0; pic < 60000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
 
-            Output* outputs = cluster->outputSegment->outputs;
+            OutputNode* outputs = cluster->synapseSegment->outputNodes;
             for(uint32_t i = 0; i < 10; i++) {
                 outputs[i].shouldValue = 0.0f;
             }
 
-            outputs[label].shouldValue = 255.0f;
+            outputs[label].shouldValue = 1.0f;
             std::cout<<"label: "<<label<<std::endl;
 
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                m_staticProcessing->buffer[i * 2] = (static_cast<float>(total));
-                m_staticProcessing->buffer[i * 2 + 1] = (static_cast<float>(total));
+                inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
             }
 
             m_staticProcessing->learn();
         }
     }
+
+    //return;
 
     //==============================================================================================
     // test
@@ -213,10 +214,11 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    for(uint32_t i = 0; i < 1600; i++)  {
+    for(uint32_t i = 0; i < 784; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
+    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
@@ -228,8 +230,7 @@ void KyoukoRoot::learnTestData()
         {
             const uint32_t pos = pic * pictureSize + i + 16;
             int32_t total = testDataBufferPtr[pos];
-            inputNodes[i * 2].weight = (static_cast<float>(total));
-            inputNodes[i * 2 + 1].weight = (static_cast<float>(total));
+            inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
         }
 
         m_staticProcessing->execute();
@@ -237,35 +238,41 @@ void KyoukoRoot::learnTestData()
         // print result
         float biggest = -100000.0f;
         uint32_t pos = 0;
-        Output* outputs = cluster->outputSegment->outputs;
-        std::string outString = "[";
-        for(uint32_t i = 0; i < cluster->outputSegment->segmentMeta->numberOfOutputs; i++)
+        std::cout<<"[";
+
+
+        for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
         {
+            OutputNode* out = &synapseSegment->outputNodes[i];
+
             if(i > 0) {
-                outString += " | ";
+                std::cout<<" | ";
             }
-            const float read = outputs[i].outputValue;
-            if(read < 0.0f) {
-                outString += "0 \t";
-            } else if(read > 255.0f) {
-                outString += "255 \t";
-            } else {
-                outString += std::to_string((int)read) + "\t";
+
+            float read = out->outputWeight;
+
+            std::cout.precision(3);
+            if(read < 0.001f) {
+                read = 0.0f;
             }
+            std::cout<<read<<"\t";
+
             if(read > biggest)
             {
                 biggest = read;
                 pos = i;
             }
         }
-        outString += "]";
-        std::cout<<pos<<"   complete: "<<outString<<std::endl;
 
-        if(testLabelBufferPtr[pic + 8] == pos
-                && biggest != 0.0f)
-        {
+        std::cout<<"]  result: ";
+        std::cout<<pos;
+
+        if(testLabelBufferPtr[pic + 8] == pos) {
             match++;
+        } else {
+            std::cout<<"     FAIL!!!!!!!";
         }
+        std::cout<<std::endl;
     }
 
     std::cout<<"======================================================================="<<std::endl;
