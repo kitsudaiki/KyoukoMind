@@ -50,7 +50,7 @@ createNewSynapse(SynapseSection* section,
                       + static_cast<float>(remainingWeight >= doLearn) * doLearn;
 
     // set activation-border
-    synapse->border = synapse->weight + 0.0001f;
+    synapse->border = (synapse->weight + 0.0001f) * 255.0f;
 
     // update weight with multiplicator
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -85,6 +85,8 @@ hardenSynapses(Node* nodes,
                SynapseSection* synapseSections,
                CoreSegmentMeta* segmentMeta)
 {
+    const float borderStep = 1.0f / 255.0f;
+
     for(uint32_t nodeId = 0; nodeId < segmentMeta->numberOfNodes; nodeId++)
     {
         Node* sourceNode = &nodes[nodeId];
@@ -108,7 +110,7 @@ hardenSynapses(Node* nodes,
             // process synapse
             if(synapse->targetNodeId != UNINIT_STATE_16)
             {
-                netH -= static_cast<float>(synapse->border);
+                netH -= static_cast<float>(synapse->border) * borderStep;
                 counter = pos;
             }
         }

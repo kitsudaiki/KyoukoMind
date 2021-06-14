@@ -59,6 +59,7 @@ synapseProcessing(SynapseSection* section,
                   Node* sourceNode,
                   const float weightIn)
 {
+    const float borderStep = 1.0f / 255.0f;
 
     if(sourceNode->potential <= 0.01f) {
         return;
@@ -101,7 +102,7 @@ synapseProcessing(SynapseSection* section,
         // process synapse
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
-            netH -= static_cast<float>(synapse->border);
+            netH -= static_cast<float>(synapse->border) * borderStep;
             nodeBuffers[synapse->targetNodeId] += outH * synapse->weight;
 
             synapse->activeCounter += (synapse->activeCounter < 126);
