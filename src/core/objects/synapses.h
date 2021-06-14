@@ -71,8 +71,8 @@ struct Synapse
 
 struct SynapseSection
 {
-    uint16_t active = 0;
-    uint8_t padding1[2];
+    uint8_t active = 0;
+    uint8_t padding1[3];
     uint32_t randomPos = 0;
 
     uint32_t brickBufferPos = UNINIT_STATE_32;
@@ -80,13 +80,10 @@ struct SynapseSection
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
-
     SynapseSection()
     {
-        for(uint32_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++)
-        {
-            Synapse newSynapse;
-            synapses[i] = newSynapse;
+        for(uint32_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++) {
+            synapses[i] = Synapse();
         }
     }
     // total size: 512 Byte
