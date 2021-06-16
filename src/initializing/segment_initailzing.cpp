@@ -49,7 +49,6 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     totalSize += 1 * sizeof(Kitsunemimi::Ai::CoreMetaData);
     totalSize += numberOfNodeBricks * sizeof(Brick);
     totalSize += numberOfNodes * sizeof(Node);
-    totalSize += numberOfNodes * 127 * sizeof(float);
     totalSize += numberOfSynapseSections * sizeof(SynapseSection);
     totalSize += numberOfSynapseSections * sizeof(SynapseBuffer);
     totalSize += numberOfInputs * sizeof(InputNode);
@@ -91,13 +90,6 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     bufferPos += numberOfNodes * sizeof(Node);
     for(uint32_t i = 0; i < numberOfNodes; i++) {
         newSegment->nodes[i] = Node();
-    }
-
-    // init node-buffer
-    newSegment->nodeBuffers = reinterpret_cast<float*>(data + bufferPos);
-    bufferPos += numberOfNodes * 127 * sizeof(float);
-    for(uint32_t i = 0; i < numberOfNodes * 127; i++) {
-        newSegment->nodeBuffers[i] = 0.0f;
     }
 
     // init synapse sections

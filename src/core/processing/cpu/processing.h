@@ -51,7 +51,7 @@
 inline void
 synapseProcessing(SynapseSection* section,
                   Brick* bricks,
-                  float* nodeBuffers,
+                  Node* nodes,
                   CoreSegmentMeta* segmentMeta,
                   uint32_t* randomValues,
                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
@@ -103,7 +103,7 @@ synapseProcessing(SynapseSection* section,
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
             netH -= static_cast<float>(synapse->border) * borderStep;
-            nodeBuffers[synapse->targetNodeId] += outH * synapse->weight;
+            nodes[synapse->targetNodeId].input += outH * synapse->weight;
 
             synapse->activeCounter += (synapse->activeCounter < 126);
         }
@@ -124,7 +124,6 @@ synapseProcessing(SynapseSection* section,
 inline void
 node_processing(Brick* brick,
                 Node* nodes,
-                float* nodeBuffers,
                 CoreSegmentMeta* segmentMeta,
                 SynapseSection* synapseSections,
                 Brick* bricks,
@@ -135,26 +134,20 @@ node_processing(Brick* brick,
     const uint32_t upperPos = brick->numberOfNodes + brick->nodePos;
     for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
-        // TODO: when port to gpu: change 2 to 256 again
-        for(uint pos = 0; pos < 1; pos++)
-        {
-            const ulong nodeBufferPosition = (pos * (brick->numberOfNodes)) + nodeId;
-            nodes[nodeId].currentState += nodeBuffers[nodeBufferPosition];
-            nodeBuffers[nodeBufferPosition] = 0.0f;
-        }
+        Node* node = &nodes[nodeId];
+        node->potential = synapseMetaData->potentialOverflow * node->input;
+        node->input = 0.0f;
+        node->delta = 0.0f;
     }
 
     for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
         Node* node = &nodes[nodeId];
-        node->delta = 0.0f;
-        node->potential = synapseMetaData->potentialOverflow * node->currentState;
-
         if(node->border >= 0.0f)
         {
             synapseProcessing(&synapseSections[nodeId],
                               bricks,
-                              nodeBuffers,
+                              nodes,
                               segmentMeta,
                               randomValues,
                               synapseMetaData,
@@ -163,8 +156,7 @@ node_processing(Brick* brick,
                               node->potential);
         }
 
-        node->active = node->currentState > node->border;
-        node->currentState = 0.0f;
+        node->active = node->input > node->border;
     }
 }
 

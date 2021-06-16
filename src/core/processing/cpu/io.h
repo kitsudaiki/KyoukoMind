@@ -24,7 +24,7 @@ processInputNodes(Node* nodes,
                   CoreSegmentMeta* segmentMeta)
 {
     for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
-        nodes[inputNodes[i].targetNode].currentState = inputNodes[i].weight;
+        nodes[inputNodes[i].targetNode].input = inputNodes[i].weight;
     }
 }
 

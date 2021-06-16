@@ -45,7 +45,7 @@ struct OutputNode
 
 struct Node
 {
-    float currentState = 0.0f;
+    float input = 0.0f;
     float border = 100.0f;
     float potential = 0.0f;
 

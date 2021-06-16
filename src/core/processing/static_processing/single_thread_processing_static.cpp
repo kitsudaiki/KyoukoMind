@@ -52,7 +52,6 @@ SingleThreadProcessingStatic::executeStep()
             Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
             node_processing(brick,
                             synapseSegment->nodes,
-                            synapseSegment->nodeBuffers,
                             synapseSegment->segmentMeta,
                             synapseSegment->synapseSections,
                             synapseSegment->nodeBricks,
