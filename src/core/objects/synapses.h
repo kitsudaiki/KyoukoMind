@@ -29,31 +29,17 @@
 
 //==================================================================================================
 
-struct SynapseBufferEntry
-{
-    float weigth = 0.0f;
-    uint32_t nodeId = UNINIT_STATE_16;
-    // total size: 8 Byte
-};
-
-//==================================================================================================
-
 struct SynapseBuffer
 {
     uint8_t process = 0;
     uint8_t upToDate = 1;
-    uint8_t padding[6];
+    uint8_t padding[2];
 
-    SynapseBufferEntry buffer[8];
+    float weigth = 0.0f;
+    uint32_t nodeId = UNINIT_STATE_32;
+    uint32_t targetId = UNINIT_STATE_32;
 
-    SynapseBuffer()
-    {
-        for(uint32_t i = 0; i < 8; i++) {
-            buffer[i] = SynapseBufferEntry();
-        }
-    }
-
-    // total size: 64 Byte
+    // total size: 16 Byte
 };
 
 //==================================================================================================

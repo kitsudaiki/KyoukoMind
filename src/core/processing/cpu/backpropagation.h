@@ -53,7 +53,8 @@ backpropagateNodes(Brick* brick,
 
                 // update weight
                 const float delta = nodes[synapse->targetNodeId].delta;
-                const float learnValue =  0.15f;
+                const float learnValue = static_cast<float>(pos <= section->hardening) * 0.10f
+                                         + static_cast<float>(pos > section->hardening) * 0.2f;
                 const float diff = learnValue * delta * outH;
                 Node* targetNode = &nodes[synapse->targetNodeId];
                 sourceNode->delta += targetNode->delta * synapse->weight;

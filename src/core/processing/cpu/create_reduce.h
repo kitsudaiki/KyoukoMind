@@ -165,6 +165,7 @@ reduceCoreSynapses(CoreSegmentMeta* segmentMeta,
             {
                 synapse->weight = 0.0f;
                 synapse->targetNodeId = UNINIT_STATE_16;
+                synapse->border = 0;
             }
             else
             {
