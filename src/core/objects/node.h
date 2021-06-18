@@ -54,7 +54,7 @@ struct Node
     uint8_t refractionTime = 1;
     uint8_t active = 0;
     uint8_t upToDate = 0;
-    uint8_t padding1[1];
+    uint8_t init = 0;
 
     uint32_t nodeBrickId = 0;
     uint32_t targetBrickDistance = 0;

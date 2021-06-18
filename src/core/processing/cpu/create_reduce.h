@@ -31,7 +31,8 @@ createNewSynapse(SynapseSection* section,
                  Node* sourceNode,
                  CoreSegmentMeta* segmentMeta,
                  Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                 const float remainingWeight)
+                 const float remainingWeight,
+                 const float pos)
 {
     float randomMulti = 0.0f;
     float random = 0.0f;
@@ -50,6 +51,7 @@ createNewSynapse(SynapseSection* section,
                       + static_cast<float>(remainingWeight >= doLearn) * doLearn;
 
     // set activation-border
+    //synapse->weight *= 1.0f + pos * 0.1f;
     synapse->border = (synapse->weight + 0.0001f) * 255.0f;
 
     // update weight with multiplicator
@@ -94,6 +96,10 @@ hardenSynapses(Node* nodes,
 
         if(section->active == 0) {
             continue;
+        }
+
+        if(sourceNode->input > 0.0f) {
+            sourceNode->init = 1;
         }
 
         uint32_t counter = 0;

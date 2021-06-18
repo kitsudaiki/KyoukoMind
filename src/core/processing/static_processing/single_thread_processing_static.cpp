@@ -93,7 +93,7 @@ SingleThreadProcessingStatic::reductionLearning()
 
     if(initError > 0.1f)
     {
-        int16_t timeout = 3;
+        int16_t timeout = 10;
         while(error >= initError
               && timeout >= 0)
         {
@@ -122,6 +122,12 @@ SingleThreadProcessingStatic::updateLearning()
     CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
     executeStep();
+
+    if(reductionCounter < 1000)
+    {
+        reductionLearning();
+        reductionCounter++;
+    }
 
     backpropagateOutput(synapseSegment->segmentMeta,
                         synapseSegment->nodes,

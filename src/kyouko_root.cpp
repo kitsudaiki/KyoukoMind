@@ -159,7 +159,7 @@ void KyoukoRoot::learnTestData()
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
     InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 784; i++)  {
+    for(uint32_t i = 0; i < 1568; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -184,7 +184,8 @@ void KyoukoRoot::learnTestData()
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
+                inputNodes[i * 2].weight = (static_cast<float>(total) / 255.0f);
+                inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
             }
 
             m_staticProcessing->learn();
@@ -214,7 +215,7 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    for(uint32_t i = 0; i < 784; i++)  {
+    for(uint32_t i = 0; i < 1568; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -230,7 +231,8 @@ void KyoukoRoot::learnTestData()
         {
             const uint32_t pos = pic * pictureSize + i + 16;
             int32_t total = testDataBufferPtr[pos];
-            inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
+            inputNodes[i * 2].weight = (static_cast<float>(total) / 255.0f);
+            inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
         }
 
         m_staticProcessing->execute();

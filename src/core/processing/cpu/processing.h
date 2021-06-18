@@ -90,7 +90,8 @@ synapseProcessing(SynapseSection* section,
                              sourceNode,
                              segmentMeta,
                              synapseMetaData,
-                             netH);
+                             netH,
+                             static_cast<float>(pos));
         }
 
         pos++;
@@ -167,7 +168,12 @@ nodeProcessingMultiThread(Brick* brick,
     for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
         Node* node = &nodes[nodeId];
-        node->potential = synapseMetaData->potentialOverflow * node->input;
+        /*if(node->init == 0 && node->input > 0.0f)
+        {
+            node->init = 1;
+            node->border = node->input / 2.0f;
+        }*/
+        node->potential = synapseMetaData->potentialOverflow * node->input * static_cast<float>(node->input > 0.0f);
         node->input = 0.0f;
         node->delta = 0.0f;
     }
@@ -212,7 +218,13 @@ nodeProcessingSingleThread(Brick* brick,
     for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
         Node* node = &nodes[nodeId];
-        node->potential = synapseMetaData->potentialOverflow * node->input;
+        /*if(node->init == 0 && node->input > 0.0f) {
+            node->border = node->input * 0.1f;
+        }
+        const float diff = node->input - node->border;*/
+        const float diff = node->input;
+        node->potential = synapseMetaData->potentialOverflow * diff;
+
         node->input = 0.0f;
         node->delta = 0.0f;
     }
