@@ -59,8 +59,6 @@ synapseProcessing(SynapseSection* section,
                   Node* sourceNode,
                   const float weightIn)
 {
-    const float borderStep = 1.0f / 255.0f;
-
     // reinit section if necessary
     if(section->active == 0)
     {
@@ -99,7 +97,7 @@ synapseProcessing(SynapseSection* section,
         // process synapse
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
-            netH -= static_cast<float>(synapse->border) * borderStep;
+            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             nodes[synapse->targetNodeId].input += outH * synapse->weight;
 
             synapse->activeCounter += (synapse->activeCounter < 126);
@@ -218,10 +216,10 @@ nodeProcessingSingleThread(Brick* brick,
     for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
         Node* node = &nodes[nodeId];
-        /*if(node->init == 0 && node->input > 0.0f) {
-            node->border = node->input * 0.1f;
+        if(node->border > 0.0f && node->init == 0 && node->input > 0.0f) {
+            node->border = node->input * 0.5f;
         }
-        const float diff = node->input - node->border;*/
+        //const float diff = node->input - node->border;*/
         const float diff = node->input;
         node->potential = synapseMetaData->potentialOverflow * diff;
 
@@ -235,7 +233,7 @@ nodeProcessingSingleThread(Brick* brick,
         node->delta = 0.0f;
 
         if(node->border >= 0.0f
-                && node->potential > 0.01f)
+                && node->potential > node->border)
         {
             synapseProcessing(&synapseSections[nodeId],
                               bricks,
@@ -246,9 +244,10 @@ nodeProcessingSingleThread(Brick* brick,
                               networkMetaData,
                               node,
                               node->potential);
+            node->active = 1;
+        } else {
+            node->active = 0;
         }
-
-        node->active = node->potential > node->border;
     }
 }
 

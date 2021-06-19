@@ -24,7 +24,6 @@ backpropagateNodes(Brick* brick,
                    Node* nodes,
                    SynapseSection* synapseSections)
 {
-    const float borderStep = 1.0f / 255.0f;
     const uint32_t upperPos = brick->numberOfNodes + brick->nodePos;
     for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
@@ -49,7 +48,7 @@ backpropagateNodes(Brick* brick,
             // process synapse
             if(synapse->targetNodeId != UNINIT_STATE_16)
             {
-                netH -= static_cast<float>(synapse->border) * borderStep;
+                netH -= static_cast<float>(synapse->border) * BORDER_STEP;
 
                 // update weight
                 const float delta = nodes[synapse->targetNodeId].delta;
@@ -77,8 +76,6 @@ correctNewOutputSynapses(Brick* brick,
                          Node* nodes,
                          SynapseSection* synapseSections)
 {
-    const float borderStep = 1.0f / 255.0f;
-
     const uint32_t upperPos = brick->numberOfNodes + brick->nodePos;
     for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
     {
@@ -102,7 +99,7 @@ correctNewOutputSynapses(Brick* brick,
             // process synapse
             if(synapse->targetNodeId != UNINIT_STATE_16)
             {
-                netH -= static_cast<float>(synapse->border) * borderStep;
+                netH -= static_cast<float>(synapse->border) * BORDER_STEP;
 
                 // update weight
                 const float delta = nodes[synapse->targetNodeId].delta;

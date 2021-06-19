@@ -123,7 +123,7 @@ SingleThreadProcessingStatic::updateLearning()
 
     executeStep();
 
-    if(reductionCounter < 1000)
+    if(reductionCounter < 0)
     {
         reductionLearning();
         reductionCounter++;
@@ -134,7 +134,6 @@ SingleThreadProcessingStatic::updateLearning()
                         synapseSegment->outputNodes);
 
     int32_t layerId = synapseSegment->layer.size() - 2;
-
     for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
     {
         Brick* brick = synapseSegment->layer.at(layerId).at(brickId);

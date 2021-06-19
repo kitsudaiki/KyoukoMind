@@ -87,8 +87,6 @@ hardenSynapses(Node* nodes,
                SynapseSection* synapseSections,
                CoreSegmentMeta* segmentMeta)
 {
-    const float borderStep = 1.0f / 255.0f;
-
     for(uint32_t nodeId = 0; nodeId < segmentMeta->numberOfNodes; nodeId++)
     {
         Node* sourceNode = &nodes[nodeId];
@@ -116,7 +114,7 @@ hardenSynapses(Node* nodes,
             // process synapse
             if(synapse->targetNodeId != UNINIT_STATE_16)
             {
-                netH -= static_cast<float>(synapse->border) * borderStep;
+                netH -= static_cast<float>(synapse->border) * BORDER_STEP;
                 counter = pos;
             }
         }
