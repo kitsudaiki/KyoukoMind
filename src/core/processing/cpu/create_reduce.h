@@ -52,7 +52,7 @@ createNewSynapse(SynapseSection* section,
 
     // set activation-border
     //synapse->weight *= 1.0f + pos * 0.1f;
-    synapse->border = (synapse->weight + 0.0001f) * 255.0f;
+    synapse->border = (synapse->weight * 255.0f) + 1;
 
     // update weight with multiplicator
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
