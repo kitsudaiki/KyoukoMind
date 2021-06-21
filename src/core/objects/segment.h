@@ -66,6 +66,7 @@ struct CoreSegment
 
     // bricks
     Brick* nodeBricks = nullptr;
+    Brick** brickOrder = nullptr;
 
     // nodes
     Node* nodes = nullptr;
@@ -77,8 +78,6 @@ struct CoreSegment
 
     InputNode* inputNodes = nullptr;
     OutputNode* outputNodes = nullptr;
-
-    std::vector<std::vector<Brick*>> layer;
 
     CoreSegment() {}
 };

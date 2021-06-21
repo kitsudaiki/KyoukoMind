@@ -133,52 +133,6 @@ initSynapseSegment(const uint32_t numberOfNodeBricks,
     return newSegment;
 }
 
-/**
- * @brief initLayer
- * @param segment
- * @return
- */
-bool
-initLayer(CoreSegment &segment,
-          Kitsunemimi::Ai::InitMeataData* initMetaData)
-{
-    // init layer-buffer
-    for(uint32_t i = 0; i < initMetaData->layer + 1; i++) {
-        segment.layer.push_back(std::vector<Brick*>());
-    }
-
-    for(uint32_t i = 0; i < segment.segmentMeta->numberOfNodeBricks; i++)
-    {
-        Brick* brick = &segment.nodeBricks[i];
-
-        if(brick->isInputBrick)
-        {
-            brick->layerId = 0;
-            segment.layer[brick->layerId].push_back(brick);
-        }
-        else if(brick->isOutputBrick)
-        {
-            brick->layerId = initMetaData->layer;
-            segment.layer[brick->layerId].push_back(brick);
-        }
-        else if(brick->nodeBrickId != UNINIT_STATE_32)
-        {
-            if(initMetaData->layer == 1) {
-                brick->layerId = 1;
-            } else {
-                brick->layerId = (brick->brickPos.x % (initMetaData->layer - 1)) + 1;
-            }
-            segment.layer[brick->layerId].push_back(brick);
-        }
-    }
-
-    for(uint32_t i = 0; i < segment.layer.size(); i++) {
-        std::cout<<"layer "<<i<<": "<<segment.layer[i].size()<<std::endl;
-    }
-
-    return true;
-}
-
 bool
 initializeNodes(CoreSegment &segment,
                 Kitsunemimi::Ai::InitMeataData* initMetaData)
@@ -271,11 +225,6 @@ void addBricksToSegment(CoreSegment &segment,
         }
 
         assert(newBrick.brickId == i);
-    }
-
-    // add to layer
-    if(initMetaData->layer > 0) {
-        initLayer(segment, initMetaData);
     }
 
     return;

@@ -105,7 +105,6 @@ HEADERS += \
     src/core/validation.h \
     src/initializing/brick_initializer.h \
     src/initializing/fan_brick_initializer.h \
-    src/initializing/layered_brick_initializier.h \
     src/initializing/network_initializer.h \
     src/args.h \
     src/common.h \
@@ -130,7 +129,6 @@ SOURCES += \
     src/core/validation.cpp \
     src/initializing/brick_initializer.cpp \
     src/initializing/fan_brick_initializer.cpp \
-    src/initializing/layered_brick_initializier.cpp \
     src/initializing/network_initializer.cpp \
     src/initializing/random_brick_initializer.cpp \
     src/initializing/segment_initailzing.cpp \

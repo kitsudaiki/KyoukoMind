@@ -44,32 +44,17 @@ SingleThreadProcessingStatic::executeStep()
                       synapseSegment->inputNodes,
                       synapseSegment->segmentMeta);
 
-    for(uint32_t layerId = 0; layerId < synapseSegment->layer.size(); layerId++)
+    const uint32_t numberOfBricks = synapseSegment->segmentMeta->numberOfNodeBricks;
+    for(uint32_t pos = 0; pos < numberOfBricks; pos++)
     {
-        for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
-        {
-            Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
-            /*nodeProcessingMultiThread(brick,
-                                      synapseSegment->nodes,
-                                      synapseSegment->synapseBuffers,
-                                      synapseSegment->synapseMetaData);
-            processSynapseBuffer(synapseSegment->nodes,
-                                 synapseSegment->segmentMeta,
-                                 synapseSegment->synapseSections,
-                                 synapseSegment->synapseBuffers,
-                                 synapseSegment->nodeBricks,
-                                 KyoukoRoot::m_networkCluster->randomValues,
-                                 synapseSegment->synapseMetaData,
-                                 &KyoukoRoot::m_networkCluster->networkMetaData);*/
-
-            nodeProcessingSingleThread(brick,
-                                       synapseSegment->nodes,
-                                       synapseSegment->synapseSections,
-                                       synapseSegment->nodeBricks,
-                                       KyoukoRoot::m_networkCluster->randomValues,
-                                       synapseSegment->synapseMetaData,
-                                       &KyoukoRoot::m_networkCluster->networkMetaData);
-        }
+        Brick* brick = synapseSegment->brickOrder[pos];
+        nodeProcessingSingleThread(brick,
+                                   synapseSegment->nodes,
+                                   synapseSegment->synapseSections,
+                                   synapseSegment->nodeBricks,
+                                   KyoukoRoot::m_networkCluster->randomValues,
+                                   synapseSegment->synapseMetaData,
+                                   &KyoukoRoot::m_networkCluster->networkMetaData);
     }
 
     processOutputNodes(synapseSegment->nodes,
@@ -131,24 +116,24 @@ SingleThreadProcessingStatic::updateLearning()
                         synapseSegment->nodes,
                         synapseSegment->outputNodes);
 
-    int32_t layerId = synapseSegment->layer.size() - 2;
-    for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
+    const uint32_t numberOfBricks = synapseSegment->segmentMeta->numberOfNodeBricks;
+    for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
-        Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
-        correctNewOutputSynapses(brick,
-                                 synapseSegment->nodes,
-                                 synapseSegment->synapseSections);
+        Brick* brick = synapseSegment->brickOrder[pos];
+        if(brick->isOutputBrick)
+        {
+            correctNewOutputSynapses(brick,
+                                     synapseSegment->nodes,
+                                     synapseSegment->synapseSections);
+        }
     }
 
-    for(layerId = synapseSegment->layer.size() - 2; layerId >= 0; layerId--)
+    for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
-        for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
-        {
-            Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
-            backpropagateNodes(brick,
-                               synapseSegment->nodes,
-                               synapseSegment->synapseSections);
-        }
+        Brick* brick = synapseSegment->brickOrder[pos];
+        backpropagateNodes(brick,
+                           synapseSegment->nodes,
+                           synapseSegment->synapseSections);
     }
 
     hardenSynapses(synapseSegment->nodes,
