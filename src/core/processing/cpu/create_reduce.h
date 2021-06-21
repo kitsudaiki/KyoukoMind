@@ -19,7 +19,6 @@
  * @param bricks
  * @param randomValues
  * @param sourceNode
- * @param segmentMeta
  * @param synapseMetaData
  * @param remainingWeight
  */
@@ -29,10 +28,8 @@ createNewSynapse(SynapseSection* section,
                  Brick* bricks,
                  uint32_t* randomValues,
                  Node* sourceNode,
-                 CoreSegmentMeta* segmentMeta,
                  Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                 const float remainingWeight,
-                 const float pos)
+                 const float remainingWeight)
 {
     float randomMulti = 0.0f;
     float random = 0.0f;
@@ -51,7 +48,6 @@ createNewSynapse(SynapseSection* section,
                       + static_cast<float>(remainingWeight >= doLearn) * doLearn;
 
     // set activation-border
-    //synapse->weight *= 1.0f + pos * 0.1f;
     synapse->border = (synapse->weight * 255.0f) + 1;
 
     // update weight with multiplicator
@@ -76,18 +72,19 @@ createNewSynapse(SynapseSection* section,
 }
 
 /**
- * @brief backpropagateNodes
+ * @brief hardenSynapses
  * @param nodes
  * @param synapseSections
- * @param startPoint
- * @param s
+ * @param segmentMeta
  */
 inline void
 hardenSynapses(Node* nodes,
                SynapseSection* synapseSections,
                CoreSegmentMeta* segmentMeta)
 {
-    for(uint32_t nodeId = 0; nodeId < segmentMeta->numberOfNodes; nodeId++)
+    for(uint32_t nodeId = 0;
+        nodeId < segmentMeta->numberOfNodes;
+        nodeId++)
     {
         Node* sourceNode = &nodes[nodeId];
         SynapseSection* section = &synapseSections[nodeId];
@@ -112,11 +109,12 @@ hardenSynapses(Node* nodes,
             pos++;
 
             // process synapse
-            if(synapse->targetNodeId != UNINIT_STATE_16)
-            {
-                netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-                counter = pos;
+            if(synapse->targetNodeId == UNINIT_STATE_16) {
+                break;
             }
+
+            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
+            counter = pos;
         }
 
         // harden synapse-section
@@ -129,22 +127,20 @@ hardenSynapses(Node* nodes,
 /**
  * @brief reduceCoreSynapses
  * @param segmentMeta
- * @param synapseBuffers
  * @param synapseSections
  * @param nodes
- * @param synapseMetaData
- * @param threadId
- * @param numberOfThreads
  */
 inline void
 reduceCoreSynapses(CoreSegmentMeta* segmentMeta,
                    SynapseSection* synapseSections,
                    Node* nodes)
 {
-    for(uint32_t i = 0; i < segmentMeta->numberOfSynapseSections; i++)
+    for(uint32_t sectionId = 0;
+        sectionId < segmentMeta->numberOfSynapseSections;
+        sectionId++)
     {
         bool upToData = 1;
-        SynapseSection* section = &synapseSections[i];
+        SynapseSection* section = &synapseSections[sectionId];
 
         // iterate over all synapses in synapse-section
         uint32_t currentPos = section->hardening;

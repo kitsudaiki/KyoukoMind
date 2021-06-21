@@ -25,11 +25,10 @@
 #include <core/processing/cpu/processing.h>
 #include <core/processing/cpu/io.h>
 #include <core/processing/cpu/backpropagation.h>
-
+#include <core/processing/static_processing/gpu_processing_static.h>
 SingleThreadProcessingStatic::SingleThreadProcessingStatic()
     : StaticProcessing()
 {
-
 }
 
 /**
@@ -65,7 +64,6 @@ SingleThreadProcessingStatic::executeStep()
 
             nodeProcessingSingleThread(brick,
                                        synapseSegment->nodes,
-                                       synapseSegment->segmentMeta,
                                        synapseSegment->synapseSections,
                                        synapseSegment->nodeBricks,
                                        KyoukoRoot::m_networkCluster->randomValues,

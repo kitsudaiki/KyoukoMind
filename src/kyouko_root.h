@@ -47,6 +47,7 @@ public:
     bool start();
     bool initializeSakuraFiles();
     void learnTestData();
+    uint32_t runTest(const uint32_t pictureSize);
 
     StaticProcessing* m_staticProcessing = nullptr;
 

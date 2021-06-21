@@ -21,7 +21,6 @@
  */
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
 #include <libKitsunemimiCommon/threading/thread.h>
@@ -53,9 +52,7 @@ ProcessingUnitHandler::~ProcessingUnitHandler()
 void
 ProcessingUnitHandler::shareNewTask(const ThreadTask newTask)
 {
-    for(uint16_t i = 0; i < m_cpuProcessingUnits.size(); i++) {
-        m_cpuProcessingUnits[i]->setTask(newTask);
-    }
+
 }
 
 /**
@@ -69,7 +66,7 @@ ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* startBarrier,
                                            const uint16_t numberOfThreads)
 {
     // init cpu
-    for(uint16_t i = 0; i < numberOfThreads; i++)
+    /*for(uint16_t i = 0; i < numberOfThreads; i++)
     {
         CpuProcessingUnit* newUnit = new CpuProcessingUnit(i, numberOfThreads);
         m_cpuProcessingUnits.push_back(newUnit);
@@ -111,17 +108,6 @@ ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* startBarrier,
 bool
 ProcessingUnitHandler::closeAllProcessingUnits()
 {
-    if(m_cpuProcessingUnits.size() == 0) {
-        return false;
-    }
-
-    for(uint32_t i = 0; i < m_cpuProcessingUnits.size(); i++)
-    {
-        CpuProcessingUnit* unit = m_cpuProcessingUnits.at(i);
-        delete unit;
-    }
-
-    m_cpuProcessingUnits.clear();
 
     return true;
 }

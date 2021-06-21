@@ -52,7 +52,6 @@ inline void
 synapseProcessing(SynapseSection* section,
                   Brick* bricks,
                   Node* nodes,
-                  CoreSegmentMeta* segmentMeta,
                   uint32_t* randomValues,
                   Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
@@ -86,108 +85,20 @@ synapseProcessing(SynapseSection* section,
                              bricks,
                              randomValues,
                              sourceNode,
-                             segmentMeta,
                              synapseMetaData,
-                             netH,
-                             static_cast<float>(pos));
+                             netH);
         }
 
-        pos++;
+        if(synapse->targetNodeId == UNINIT_STATE_16) {
+            break;
+        }
 
         // process synapse
-        if(synapse->targetNodeId != UNINIT_STATE_16)
-        {
-            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-            nodes[synapse->targetNodeId].input += outH * synapse->weight;
+        netH -= static_cast<float>(synapse->border) * BORDER_STEP;
+        nodes[synapse->targetNodeId].input += outH * synapse->weight;
+        synapse->activeCounter += (synapse->activeCounter < 126);
 
-            synapse->activeCounter += (synapse->activeCounter < 126);
-        }
-    }
-}
-
-/**
- * @brief processSynapseBuffer
- * @param nodes
- * @param segmentMeta
- * @param synapseSections
- * @param synapseBuffers
- * @param bricks
- * @param randomValues
- * @param synapseMetaData
- * @param networkMetaData
- */
-inline void
-processSynapseBuffer(Node* nodes,
-                     CoreSegmentMeta* segmentMeta,
-                     SynapseSection* synapseSections,
-                     SynapseBuffer* synapseBuffers,
-                     Brick* bricks,
-                     uint32_t* randomValues,
-                     Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                     Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
-{
-    for(uint32_t bufferId = 0; bufferId < segmentMeta->numberOfSynapseSections; bufferId++)
-    {
-        SynapseBuffer* synapseBuffer = &synapseBuffers[bufferId];
-
-        if(synapseBuffer->targetId != UNINIT_STATE_32)
-        {
-            synapseProcessing(&synapseSections[synapseBuffer->targetId],
-                              bricks,
-                              nodes,
-                              segmentMeta,
-                              randomValues,
-                              synapseMetaData,
-                              networkMetaData,
-                              &nodes[synapseBuffer->nodeId],
-                              synapseBuffer->weigth);
-
-            synapseBuffer->weigth = 0.0f;
-            synapseBuffer->nodeId = UNINIT_STATE_32;
-            synapseBuffer->targetId = UNINIT_STATE_32;
-        }
-    }
-}
-
-/**
- * @brief node_processing
- * @param brick
- * @param nodes
- * @param synapseBuffers
- * @param synapseMetaData
- */
-inline void
-nodeProcessingMultiThread(Brick* brick,
-                          Node* nodes,
-                          SynapseBuffer* synapseBuffers,
-                          Kitsunemimi::Ai::CoreMetaData* synapseMetaData)
-{
-    const uint32_t upperPos = brick->numberOfNodes + brick->nodePos;
-    for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
-    {
-        Node* node = &nodes[nodeId];
-        /*if(node->init == 0 && node->input > 0.0f)
-        {
-            node->init = 1;
-            node->border = node->input / 2.0f;
-        }*/
-        node->potential = synapseMetaData->potentialOverflow * node->input * static_cast<float>(node->input > 0.0f);
-        node->input = 0.0f;
-        node->delta = 0.0f;
-    }
-
-    for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
-    {
-        Node* node = &nodes[nodeId];
-        if(node->border >= 0.0f
-                && node->potential > 0.01f)
-        {
-            synapseBuffers[nodeId].weigth = node->potential;
-            synapseBuffers[nodeId].nodeId = nodeId;
-            synapseBuffers[nodeId].targetId = nodeId;
-        }
-
-        node->active = node->potential > node->border;
+        pos++;
     }
 }
 
@@ -205,49 +116,51 @@ nodeProcessingMultiThread(Brick* brick,
 inline void
 nodeProcessingSingleThread(Brick* brick,
                            Node* nodes,
-                           CoreSegmentMeta* segmentMeta,
                            SynapseSection* synapseSections,
                            Brick* bricks,
                            uint32_t* randomValues,
                            Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
                            Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
-    const uint32_t upperPos = brick->numberOfNodes + brick->nodePos;
-    for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
+    // prepare nodes
+    for(uint32_t nodeId = brick->nodePos;
+        nodeId < brick->numberOfNodes + brick->nodePos;
+        nodeId++)
     {
         Node* node = &nodes[nodeId];
-        if(node->border > 0.0f && node->init == 0 && node->input > 0.0f) {
-            node->border = node->input * 0.5f;
-        }
-        //const float diff = node->input - node->border;*/
-        const float diff = node->input;
-        node->potential = synapseMetaData->potentialOverflow * diff;
+        const bool initNode = node->border > 0.0f
+                              && node->init == 0
+                              && node->input > 0.0f;
+        node->border = static_cast<float>(initNode) * node->input * 0.5f
+                       + static_cast<float>(initNode == false) * node->border;
+        node->potential = synapseMetaData->potentialOverflow * node->input;
 
         node->input = 0.0f;
         node->delta = 0.0f;
     }
 
-    for(uint32_t nodeId = brick->nodePos; nodeId < upperPos; nodeId++)
+    // process nodes
+    for(uint32_t nodeId = brick->nodePos;
+        nodeId < brick->numberOfNodes + brick->nodePos;
+        nodeId++)
     {
         Node* node = &nodes[nodeId];
-        node->delta = 0.0f;
-
-        if(node->border >= 0.0f
-                && node->potential > node->border)
+        const bool active = node->border >= 0.0f
+                            && node->potential > node->border;
+        if(active)
         {
             synapseProcessing(&synapseSections[nodeId],
                               bricks,
                               nodes,
-                              segmentMeta,
                               randomValues,
                               synapseMetaData,
                               networkMetaData,
                               node,
                               node->potential);
-            node->active = 1;
-        } else {
-            node->active = 0;
+
         }
+
+        node->active = active;
     }
 }
 

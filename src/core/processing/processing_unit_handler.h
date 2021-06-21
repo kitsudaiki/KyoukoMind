@@ -32,7 +32,6 @@ class GpuHandler;
 }
 }
 
-class CpuProcessingUnit;
 class GpuProcessingUnit;
 
 class ProcessingUnitHandler
@@ -43,7 +42,6 @@ public:
 
     void shareNewTask(const ThreadTask newTask);
 
-    std::vector<CpuProcessingUnit*> m_cpuProcessingUnits;
     std::vector<GpuProcessingUnit*> m_gpuProcessingUnits;
 
     bool initProcessingUnits(Kitsunemimi::Barrier* startBarrier,

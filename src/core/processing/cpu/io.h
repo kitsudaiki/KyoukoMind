@@ -23,8 +23,11 @@ processInputNodes(Node* nodes,
                   InputNode* inputNodes,
                   CoreSegmentMeta* segmentMeta)
 {
-    for(uint64_t i = 0; i < segmentMeta->numberOfInputs; i++) {
-        nodes[inputNodes[i].targetNode].input = inputNodes[i].weight;
+    for(uint64_t inputNodeId = 0;
+        inputNodeId < segmentMeta->numberOfInputs;
+        inputNodeId++)
+    {
+        nodes[inputNodes[inputNodeId].targetNode].input = inputNodes[inputNodeId].weight;
     }
 }
 
@@ -39,9 +42,11 @@ processOutputNodes(Node* nodes,
                    OutputNode* outputNodes,
                    CoreSegmentMeta* segmentMeta)
 {
-    for(uint64_t i = 0; i < segmentMeta->numberOfOutputs; i++)
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segmentMeta->numberOfOutputs;
+        outputNodeId++)
     {
-        OutputNode* out = &outputNodes[i];
+        OutputNode* out = &outputNodes[outputNodeId];
         Node* targetNode = &nodes[out->targetNode];
         float nodeWeight = targetNode->potential;
         out->outputWeight = 1.0f / (1.0f + exp(-1.0f * nodeWeight));
@@ -60,9 +65,11 @@ calcTotalError(OutputNode* outputNodes,
 {
     float totalError = 0.0f;
 
-    for(uint64_t i = 0; i < segmentMeta->numberOfOutputs; i++)
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segmentMeta->numberOfOutputs;
+        outputNodeId++)
     {
-        OutputNode* out = &outputNodes[i];
+        OutputNode* out = &outputNodes[outputNodeId];
         const float diff = (out->shouldValue - out->outputWeight);
         totalError += 0.5f * (diff * diff);
     }

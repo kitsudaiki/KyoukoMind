@@ -39,14 +39,7 @@ GpuProcessingStatic::GpuProcessingStatic()
 void
 GpuProcessingStatic::executeStep()
 {
-    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
-
-        m_gpu->node_processing();
-
-        m_gpu->synapse_processing();
-
-    m_gpu->output_node_processing();
 }
 
 void
