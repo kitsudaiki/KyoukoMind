@@ -33,6 +33,8 @@
 #include <initializing/network_initializer.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiPersistence/files/text_file.h>
+
 #include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiSakuraMessaging/messaging_controller.h>
@@ -159,13 +161,13 @@ void KyoukoRoot::learnTestData()
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
     InputNode* inputNodes = cluster->synapseSegment->inputNodes;
-    for(uint32_t i = 0; i < 784; i++)  {
+    for(uint32_t i = 0; i < 1568; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 5; poi++)
+    for(uint32_t poi = 0; poi < 1; poi++)
     {
         for(uint32_t pic = 0; pic < 60000; pic++)
         {
@@ -184,18 +186,31 @@ void KyoukoRoot::learnTestData()
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
+                inputNodes[i * 2].weight = (static_cast<float>(total) / 255.0f);
+                inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
             }
 
             m_staticProcessing->learn();
         }
     }
 
+    runTest(pictureSize);
+
     //return;
 
     //==============================================================================================
     // test
     //==============================================================================================
+
+}
+
+uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
+{
+    const std::string testDataPath = "/home/neptune/Schreibtisch/mnist/t10k-images.idx3-ubyte";
+    const std::string testLabelPath = "/home/neptune/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
+
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
 
     // read train-data
     Kitsunemimi::Persistence::BinaryFile testData(testDataPath);
@@ -214,7 +229,7 @@ void KyoukoRoot::learnTestData()
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    for(uint32_t i = 0; i < 784; i++)  {
+    for(uint32_t i = 0; i < 1568; i++)  {
         inputNodes[i].weight = 0.0f;
     }
 
@@ -230,7 +245,8 @@ void KyoukoRoot::learnTestData()
         {
             const uint32_t pos = pic * pictureSize + i + 16;
             int32_t total = testDataBufferPtr[pos];
-            inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
+            inputNodes[i * 2].weight = (static_cast<float>(total) / 255.0f);
+            inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
         }
 
         m_staticProcessing->execute();
@@ -279,6 +295,5 @@ void KyoukoRoot::learnTestData()
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
 
-    StorageIO io;
-    io.writeToDisc("/tmp/");
+    return match;
 }

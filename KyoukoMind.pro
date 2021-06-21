@@ -94,7 +94,6 @@ HEADERS += \
     src/core/objects/brick.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segment.h \
-    src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
@@ -123,7 +122,6 @@ HEADERS += \
 
 SOURCES += \
     src/core/processing/static_processing/static_processing.cpp \
-    src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/processing/static_processing/gpu_processing_static.cpp \
     src/core/processing/static_processing/multithread_processing_static.cpp \

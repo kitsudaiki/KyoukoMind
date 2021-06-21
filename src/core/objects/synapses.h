@@ -29,31 +29,17 @@
 
 //==================================================================================================
 
-struct SynapseBufferEntry
-{
-    float weigth = 0.0f;
-    uint32_t nodeId = UNINIT_STATE_16;
-    // total size: 8 Byte
-};
-
-//==================================================================================================
-
 struct SynapseBuffer
 {
     uint8_t process = 0;
     uint8_t upToDate = 1;
-    uint8_t padding[6];
+    uint8_t padding[2];
 
-    SynapseBufferEntry buffer[8];
+    float weigth = 0.0f;
+    uint32_t nodeId = UNINIT_STATE_32;
+    uint32_t targetId = UNINIT_STATE_32;
 
-    SynapseBuffer()
-    {
-        for(uint32_t i = 0; i < 8; i++) {
-            buffer[i] = SynapseBufferEntry();
-        }
-    }
-
-    // total size: 64 Byte
+    // total size: 16 Byte
 };
 
 //==================================================================================================
@@ -63,17 +49,16 @@ struct Synapse
     float weight = 0.0f;
     uint16_t targetNodeId = UNINIT_STATE_16;
     int8_t activeCounter = 0;
-    uint8_t padding[5];
-    float border = 0.0f;
-    // total size: 16 Byte
+    uint8_t border = 0.0f;
+    // total size: 8 Byte
 };
 
 //==================================================================================================
 
 struct SynapseSection
 {
-    uint16_t active = 0;
-    uint8_t padding1[2];
+    uint8_t active = 0;
+    uint8_t padding1[3];
     uint32_t randomPos = 0;
 
     uint32_t brickBufferPos = UNINIT_STATE_32;
@@ -81,13 +66,10 @@ struct SynapseSection
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
-
     SynapseSection()
     {
-        for(uint32_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++)
-        {
-            Synapse newSynapse;
-            synapses[i] = newSynapse;
+        for(uint32_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++) {
+            synapses[i] = Synapse();
         }
     }
     // total size: 512 Byte

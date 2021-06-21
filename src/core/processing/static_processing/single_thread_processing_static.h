@@ -35,6 +35,8 @@ private:
     void executeStep();
     void reductionLearning();
     void updateLearning();
+
+    uint32_t reductionCounter = 0;
 };
 
 #endif // SINGLETHREADPROCESSINGSTATIC_H

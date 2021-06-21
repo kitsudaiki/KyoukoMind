@@ -25,11 +25,10 @@
 #include <core/processing/cpu/processing.h>
 #include <core/processing/cpu/io.h>
 #include <core/processing/cpu/backpropagation.h>
-
+#include <core/processing/static_processing/gpu_processing_static.h>
 SingleThreadProcessingStatic::SingleThreadProcessingStatic()
     : StaticProcessing()
 {
-
 }
 
 /**
@@ -50,15 +49,26 @@ SingleThreadProcessingStatic::executeStep()
         for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
         {
             Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
-            node_processing(brick,
-                            synapseSegment->nodes,
-                            synapseSegment->nodeBuffers,
-                            synapseSegment->segmentMeta,
-                            synapseSegment->synapseSections,
-                            synapseSegment->nodeBricks,
-                            KyoukoRoot::m_networkCluster->randomValues,
-                            synapseSegment->synapseMetaData,
-                            &KyoukoRoot::m_networkCluster->networkMetaData);
+            /*nodeProcessingMultiThread(brick,
+                                      synapseSegment->nodes,
+                                      synapseSegment->synapseBuffers,
+                                      synapseSegment->synapseMetaData);
+            processSynapseBuffer(synapseSegment->nodes,
+                                 synapseSegment->segmentMeta,
+                                 synapseSegment->synapseSections,
+                                 synapseSegment->synapseBuffers,
+                                 synapseSegment->nodeBricks,
+                                 KyoukoRoot::m_networkCluster->randomValues,
+                                 synapseSegment->synapseMetaData,
+                                 &KyoukoRoot::m_networkCluster->networkMetaData);*/
+
+            nodeProcessingSingleThread(brick,
+                                       synapseSegment->nodes,
+                                       synapseSegment->synapseSections,
+                                       synapseSegment->nodeBricks,
+                                       KyoukoRoot::m_networkCluster->randomValues,
+                                       synapseSegment->synapseMetaData,
+                                       &KyoukoRoot::m_networkCluster->networkMetaData);
         }
     }
 
@@ -81,7 +91,7 @@ SingleThreadProcessingStatic::reductionLearning()
 
     if(initError > 0.1f)
     {
-        int16_t timeout = 3;
+        int16_t timeout = 10;
         while(error >= initError
               && timeout >= 0)
         {
@@ -111,12 +121,17 @@ SingleThreadProcessingStatic::updateLearning()
 
     executeStep();
 
+    if(reductionCounter < 0)
+    {
+        reductionLearning();
+        reductionCounter++;
+    }
+
     backpropagateOutput(synapseSegment->segmentMeta,
                         synapseSegment->nodes,
                         synapseSegment->outputNodes);
 
     int32_t layerId = synapseSegment->layer.size() - 2;
-
     for(uint32_t brickId = 0; brickId < synapseSegment->layer.at(layerId).size(); brickId++)
     {
         Brick* brick = synapseSegment->layer.at(layerId).at(brickId);
