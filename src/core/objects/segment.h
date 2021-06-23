@@ -67,7 +67,7 @@ struct Segment
     Kitsunemimi::Ai::SegmentSettings* synapseMetaData = nullptr;
 
     // bricks
-    Brick* nodeBricks = nullptr;
+    Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
 
     // nodes
@@ -78,8 +78,8 @@ struct Segment
     SynapseSection* synapseSections = nullptr;
     SynapseBuffer* synapseBuffers = nullptr;
 
-    InputNode* inputNodes = nullptr;
-    OutputNode* outputNodes = nullptr;
+    InputNode* inputs = nullptr;
+    OutputNode* outputs = nullptr;
 
     Segment() {}
 };

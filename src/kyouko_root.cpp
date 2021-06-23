@@ -160,7 +160,7 @@ void KyoukoRoot::learnTestData()
 
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
+    InputNode* inputNodes = cluster->synapseSegment->inputs;
     for(uint32_t i = 0; i < 1568; i++)  {
         inputNodes[i].weight = 0.0f;
     }
@@ -174,7 +174,7 @@ void KyoukoRoot::learnTestData()
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
 
-            OutputNode* outputs = cluster->synapseSegment->outputNodes;
+            OutputNode* outputs = cluster->synapseSegment->outputs;
             for(uint32_t i = 0; i < 10; i++) {
                 outputs[i].shouldValue = 0.0f;
             }
@@ -210,7 +210,7 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
     const std::string testLabelPath = "/home/neptune/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
 
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
+    InputNode* inputNodes = cluster->synapseSegment->inputs;
 
     // read train-data
     Kitsunemimi::Persistence::BinaryFile testData(testDataPath);
@@ -259,7 +259,7 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
 
         for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
         {
-            OutputNode* out = &synapseSegment->outputNodes[i];
+            OutputNode* out = &synapseSegment->outputs[i];
 
             if(i > 0) {
                 std::cout<<" | ";

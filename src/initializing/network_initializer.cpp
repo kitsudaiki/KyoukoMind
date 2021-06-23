@@ -28,9 +28,8 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-#include <initializing/fan_brick_initializer.h>
-#include <initializing/random_brick_initializer.h>
 #include <initializing/segment_initailzing.h>
+#include <initializing/brick_initializer.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
@@ -47,7 +46,7 @@
  */
 NetworkInitializer::NetworkInitializer()
 {
-    m_brickInitializer = new FanBrickInitializer();
+    m_brickInitializer = new BrickInitializer();
 }
 
 /**

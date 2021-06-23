@@ -78,11 +78,11 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.addBuffer("coreSegmentMeta",    1,                                           sizeof(SegmentHeader),                    false, cluster->synapseSegment->segmentHeader);
     oclData.addBuffer("randomValues",       NUMBER_OF_RAND_VALUES,                       sizeof(uint32_t),                         false, cluster->randomValues);
     oclData.addBuffer("nodeBuffers",        segmentHeader->nodes.count * 127,            sizeof(float),                            false, cluster->synapseSegment->nodeBuffers);
-    oclData.addBuffer("bricks",             segmentHeader->bricks.count,                 sizeof(Brick),                            false, cluster->synapseSegment->nodeBricks);
+    oclData.addBuffer("bricks",             segmentHeader->bricks.count,                 sizeof(Brick),                            false, cluster->synapseSegment->bricks);
     oclData.addBuffer("nodes",              segmentHeader->nodes.count,                  sizeof(Node),                             false, cluster->synapseSegment->nodes);
     oclData.addBuffer("synapseSections",    segmentHeader->synapseSections.count,        sizeof(SynapseSection),                   false, cluster->synapseSegment->synapseSections);
     oclData.addBuffer("synapseBuffers",     segmentHeader->synapseBuffers.count,         sizeof(SynapseBuffer),                    false, cluster->synapseSegment->synapseBuffers);
-    oclData.addBuffer("inputNodes",         segmentHeader->inputs.count,                 sizeof(InputNode),                        true, cluster->synapseSegment->inputNodes);
+    oclData.addBuffer("inputNodes",         segmentHeader->inputs.count,                 sizeof(InputNode),                        true, cluster->synapseSegment->inputs);
 
     //==============================================================================================
 

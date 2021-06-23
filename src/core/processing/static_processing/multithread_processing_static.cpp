@@ -46,7 +46,7 @@ MultiThreadProcessingStatic::executeStep()
     Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
         processInputNodes(synapseSegment->nodes,
-                          synapseSegment->inputNodes,
+                          synapseSegment->inputs,
                           synapseSegment->segmentHeader);
 
         m_processingUnitHandler->shareNewTask(NODE_PROCESSING);

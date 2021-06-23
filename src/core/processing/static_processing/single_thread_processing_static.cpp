@@ -41,25 +41,25 @@ SingleThreadProcessingStatic::executeStep()
 
     // learn until output-section
     processInputNodes(synapseSegment->nodes,
-                      synapseSegment->inputNodes,
+                      synapseSegment->inputs,
                       synapseSegment->segmentHeader);
 
     const uint32_t numberOfBricks = synapseSegment->segmentHeader->bricks.count;
     for(uint32_t pos = 0; pos < numberOfBricks; pos++)
     {
         const uint32_t brickId = synapseSegment->brickOrder[pos];
-        Brick* brick = &synapseSegment->nodeBricks[brickId];
+        Brick* brick = &synapseSegment->bricks[brickId];
         nodeProcessingSingleThread(brick,
                                    synapseSegment->nodes,
                                    synapseSegment->synapseSections,
-                                   synapseSegment->nodeBricks,
+                                   synapseSegment->bricks,
                                    KyoukoRoot::m_networkCluster->randomValues,
                                    synapseSegment->synapseMetaData,
                                    &KyoukoRoot::m_networkCluster->networkMetaData);
     }
 
     processOutputNodes(synapseSegment->nodes,
-                       synapseSegment->outputNodes,
+                       synapseSegment->outputs,
                        synapseSegment->segmentHeader);
 }
 
@@ -71,7 +71,7 @@ SingleThreadProcessingStatic::reductionLearning()
 {
     Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
-    const float initError = calcTotalError(synapseSegment->outputNodes,
+    const float initError = calcTotalError(synapseSegment->outputs,
                                            synapseSegment->segmentHeader);
     float error = initError;
 
@@ -85,7 +85,7 @@ SingleThreadProcessingStatic::reductionLearning()
                                synapseSegment->synapseSections,
                                synapseSegment->nodes);
             executeStep();
-            error = calcTotalError(synapseSegment->outputNodes,
+            error = calcTotalError(synapseSegment->outputs,
                                    synapseSegment->segmentHeader);
 
             timeout--;
@@ -115,13 +115,13 @@ SingleThreadProcessingStatic::updateLearning()
 
     backpropagateOutput(synapseSegment->segmentHeader,
                         synapseSegment->nodes,
-                        synapseSegment->outputNodes);
+                        synapseSegment->outputs);
 
     const uint32_t numberOfBricks = synapseSegment->segmentHeader->bricks.count;
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
         const uint32_t brickId = synapseSegment->brickOrder[pos];
-        Brick* brick = &synapseSegment->nodeBricks[brickId];
+        Brick* brick = &synapseSegment->bricks[brickId];
         if(brick->isOutputBrick)
         {
             correctNewOutputSynapses(brick,
@@ -133,7 +133,7 @@ SingleThreadProcessingStatic::updateLearning()
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
         const uint32_t brickId = synapseSegment->brickOrder[pos];
-        Brick* brick = &synapseSegment->nodeBricks[brickId];
+        Brick* brick = &synapseSegment->bricks[brickId];
         backpropagateNodes(brick,
                            synapseSegment->nodes,
                            synapseSegment->synapseSections);

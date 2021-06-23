@@ -104,12 +104,10 @@ HEADERS += \
     src/core/storage_io.h \
     src/core/validation.h \
     src/initializing/brick_initializer.h \
-    src/initializing/fan_brick_initializer.h \
     src/initializing/network_initializer.h \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/initializing/random_brick_initializer.h \
     src/initializing/segment_initailzing.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
@@ -128,9 +126,7 @@ SOURCES += \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/initializing/brick_initializer.cpp \
-    src/initializing/fan_brick_initializer.cpp \
     src/initializing/network_initializer.cpp \
-    src/initializing/random_brick_initializer.cpp \
     src/initializing/segment_initailzing.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \

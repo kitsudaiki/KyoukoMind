@@ -42,7 +42,7 @@ BrickInitializer::initializeAxons(Segment &segment)
         brickId < segment.segmentHeader->bricks.count;
         brickId++)
     {
-        Brick* sourceBrick = &segment.nodeBricks[brickId];
+        Brick* sourceBrick = &segment.bricks[brickId];
 
         if(sourceBrick->isOutputBrick == 1)
         {
@@ -82,4 +82,71 @@ BrickInitializer::initializeAxons(Segment &segment)
     assert(nodeId == segment.segmentHeader->nodes.count);
 
     return true;
+}
+
+/**
+ * @brief FanBrickInitializer::getAxonBrick
+ * @param segment
+ * @param sourceBrick
+ * @return
+ */
+Brick*
+BrickInitializer::getAxonBrick(Segment &segment, Brick *sourceBrick)
+{
+    return sourceBrick;
+}
+
+/**
+ * @brief FanBrickInitializer::initTargetBrickList
+ * @param segment
+ * @return
+ */
+bool
+BrickInitializer::initTargetBrickList(Segment &segment,
+                                         Kitsunemimi::Ai::InitSettings* )
+{
+    Brick* bricks = segment.bricks;
+
+    // iterate over all bricks
+    for(uint32_t i = 0; i < segment.segmentHeader->bricks.count; i++)
+    {
+        Brick* baseBrick = &bricks[i];
+        if(baseBrick->isOutputBrick != 0) {
+            continue;
+        }
+
+        // get 1000 samples
+        uint32_t counter = 0;
+        while(counter < 1000)
+        {
+            uint8_t nextSide = getPossibleNext();
+            const uint32_t nextBrickId = baseBrick->neighbors[nextSide];
+            if(nextBrickId != UNINIT_STATE_32)
+            {
+                baseBrick->possibleTargetNodeBrickIds[counter] = nextBrickId;
+                counter++;
+                if(counter >= 1000) {
+                    break;
+                }
+            }
+        }
+        assert(counter == 1000);
+    }
+
+    return true;
+}
+
+/**
+ * @brief Brick::getPossibleNext
+ * @param inputSide
+ * @return
+ */
+uint8_t
+BrickInitializer::getPossibleNext()
+{
+    uint8_t possibleNext[3];
+    possibleNext[0] = 3;
+    possibleNext[1] = 4;
+    possibleNext[2] = 5;
+    return possibleNext[rand() % 3];
 }
