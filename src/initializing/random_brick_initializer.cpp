@@ -35,13 +35,13 @@ RandomBrickInitializer::RandomBrickInitializer()
  * @return
  */
 Brick*
-RandomBrickInitializer::getAxonBrick(CoreSegment &segment, Brick *sourceBrick)
+RandomBrickInitializer::getAxonBrick(Segment &segment, Brick *sourceBrick)
 {
     Brick* axonBrick = nullptr;
 
     do {
         // get random brick as target for the axon
-        const uint32_t numberNodeBricks = segment.segmentMeta->numberOfNodeBricks;
+        const uint32_t numberNodeBricks = axonBrick->numberOfNodes;
         const uint32_t randPos = static_cast<uint32_t>(rand()) % numberNodeBricks;
         axonBrick = &segment.nodeBricks[randPos];
     }
@@ -57,13 +57,14 @@ RandomBrickInitializer::getAxonBrick(CoreSegment &segment, Brick *sourceBrick)
  * @return
  */
 bool
-RandomBrickInitializer::initTargetBrickList(CoreSegment &segment,
-                                            Kitsunemimi::Ai::InitMeataData* initMetaData)
+RandomBrickInitializer::initTargetBrickList(Segment &segment,
+                                            Kitsunemimi::Ai::InitSettings* initMetaData)
 {
     Brick* bricks = segment.nodeBricks;
 
     // iterate over all bricks
-    for(uint32_t i = 0; i < segment.segmentMeta->numberOfNodeBricks; i++)
+    // TODO
+    for(uint32_t i = 0; i < 42; i++)
     {
         Brick* baseBrick = &bricks[i];
 

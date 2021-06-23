@@ -33,7 +33,7 @@ FanBrickInitializer::FanBrickInitializer()
  * @return
  */
 Brick*
-FanBrickInitializer::getAxonBrick(CoreSegment &segment, Brick *sourceBrick)
+FanBrickInitializer::getAxonBrick(Segment &segment, Brick *sourceBrick)
 {
     return sourceBrick;
 }
@@ -44,13 +44,13 @@ FanBrickInitializer::getAxonBrick(CoreSegment &segment, Brick *sourceBrick)
  * @return
  */
 bool
-FanBrickInitializer::initTargetBrickList(CoreSegment &segment,
-                                         Kitsunemimi::Ai::InitMeataData* )
+FanBrickInitializer::initTargetBrickList(Segment &segment,
+                                         Kitsunemimi::Ai::InitSettings* )
 {
     Brick* bricks = segment.nodeBricks;
 
     // iterate over all bricks
-    for(uint32_t i = 0; i < segment.segmentMeta->numberOfNodeBricks; i++)
+    for(uint32_t i = 0; i < segment.segmentHeader->bricks.count; i++)
     {
         Brick* baseBrick = &bricks[i];
         if(baseBrick->isOutputBrick != 0) {

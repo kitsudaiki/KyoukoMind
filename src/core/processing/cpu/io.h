@@ -16,15 +16,15 @@
  * @brief processInputNodes
  * @param nodes
  * @param inputNodes
- * @param segmentMeta
+ * @param segmentHeader
  */
 inline void
 processInputNodes(Node* nodes,
                   InputNode* inputNodes,
-                  CoreSegmentMeta* segmentMeta)
+                  SegmentHeader* segmentHeader)
 {
     for(uint64_t inputNodeId = 0;
-        inputNodeId < segmentMeta->numberOfInputs;
+        inputNodeId < segmentHeader->inputs.count;
         inputNodeId++)
     {
         nodes[inputNodes[inputNodeId].targetNode].input = inputNodes[inputNodeId].weight;
@@ -35,15 +35,15 @@ processInputNodes(Node* nodes,
  * @brief processOutputNodes
  * @param nodes
  * @param outputNodes
- * @param segmentMeta
+ * @param segmentHeader
  */
 inline void
 processOutputNodes(Node* nodes,
                    OutputNode* outputNodes,
-                   CoreSegmentMeta* segmentMeta)
+                   SegmentHeader* segmentHeader)
 {
     for(uint64_t outputNodeId = 0;
-        outputNodeId < segmentMeta->numberOfOutputs;
+        outputNodeId < segmentHeader->outputs.count;
         outputNodeId++)
     {
         OutputNode* out = &outputNodes[outputNodeId];
@@ -56,17 +56,17 @@ processOutputNodes(Node* nodes,
 /**
  * @brief calcTotalError
  * @param outputNodes
- * @param segmentMeta
+ * @param segmentHeader
  * @return
  */
 inline float
 calcTotalError(OutputNode* outputNodes,
-               CoreSegmentMeta* segmentMeta)
+               SegmentHeader* segmentHeader)
 {
     float totalError = 0.0f;
 
     for(uint64_t outputNodeId = 0;
-        outputNodeId < segmentMeta->numberOfOutputs;
+        outputNodeId < segmentHeader->outputs.count;
         outputNodeId++)
     {
         OutputNode* out = &outputNodes[outputNodeId];

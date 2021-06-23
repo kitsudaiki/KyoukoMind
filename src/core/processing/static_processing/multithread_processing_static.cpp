@@ -43,11 +43,11 @@ MultiThreadProcessingStatic::MultiThreadProcessingStatic()
 void
 MultiThreadProcessingStatic::executeStep()
 {
-    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
         processInputNodes(synapseSegment->nodes,
                           synapseSegment->inputNodes,
-                          synapseSegment->segmentMeta);
+                          synapseSegment->segmentHeader);
 
         m_processingUnitHandler->shareNewTask(NODE_PROCESSING);
         m_startBarrier->triggerBarrier();

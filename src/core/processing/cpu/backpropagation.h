@@ -60,17 +60,17 @@ backpropagateNodes(Brick* brick,
 
 /**
  * @brief backpropagateOutput
- * @param segmentMeta
+ * @param segmentHeader
  * @param nodes
  * @param outputNodes
  */
 inline void
-backpropagateOutput(CoreSegmentMeta* segmentMeta,
+backpropagateOutput(SegmentHeader* segmentHeader,
                     Node* nodes,
                     OutputNode* outputNodes)
 {
     for(uint64_t outputNodeId = 0;
-        outputNodeId < segmentMeta->numberOfOutputs;
+        outputNodeId < segmentHeader->outputs.count;
         outputNodeId++)
     {
         OutputNode* out = &outputNodes[outputNodeId];

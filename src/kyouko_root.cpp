@@ -233,7 +233,7 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
         inputNodes[i].weight = 0.0f;
     }
 
-    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
@@ -257,7 +257,7 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
         std::cout<<"[";
 
 
-        for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
+        for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
         {
             OutputNode* out = &synapseSegment->outputNodes[i];
 

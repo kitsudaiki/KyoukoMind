@@ -244,7 +244,7 @@ typedef struct CoreSegmentMeta_struct
 
     uchar padding[220];
 }
-CoreSegmentMeta;
+SegmentHeader;
 
 //==================================================================================================
 
@@ -311,7 +311,7 @@ synapseProcessing(__local SynapseSection* section,
                   __global Brick* bricks,
                   __global float* nodeBuffers,
                   __global SynapseBuffer* synapseBuffers,
-                  __local const CoreSegmentMeta* segmentMeta,
+                  __local const SegmentHeader* segmentHeader,
                   __global uint* randomValues,
                   __local CoreMetaData* coreMetaData,
                   __global const NetworkMetaData* networkMetaData,
@@ -330,7 +330,7 @@ synapseProcessing(__local SynapseSection* section,
     if(section->active == 0)
     {
         section->active = 1;
-        section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+        section->randomPos = (section->randomPos + 1) % segmentHeader->numberOfRandomValues;
         section->brickBufferPos = randomValues[section->randomPos] % 1000;
     }
 
@@ -347,26 +347,26 @@ synapseProcessing(__local SynapseSection* section,
         if(createSyn)
         {
             // set new weight
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            section->randomPos = (section->randomPos + 1) % segmentHeader->numberOfRandomValues;
             const float random = (float)(randomValues[section->randomPos]) / 2147483647;  // 2147483647 == RAND_MAX
             const float tooLearn = maxWeight * random;
             synapse->weight = (float)(weight < tooLearn) * weight + (float)(weight >= tooLearn) * tooLearn;
 
             // get random node-id as target
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
-            const uint targetNodeIdInBrick = randomValues[section->randomPos] % segmentMeta->numberOfNodesPerBrick;
+            section->randomPos = (section->randomPos + 1) % segmentHeader->numberOfRandomValues;
+            const uint targetNodeIdInBrick = randomValues[section->randomPos] % segmentHeader->numberOfNodesPerBrick;
             __global Brick* nodeBrick = &bricks[node->nodeBrickId];
             const uint nodeOffset = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos]
-                                        * segmentMeta->numberOfNodesPerBrick;
+                                        * segmentHeader->numberOfNodesPerBrick;
             synapse->targetNodeId = (ushort)(targetNodeIdInBrick + nodeOffset);
 
             // set sign
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            section->randomPos = (section->randomPos + 1) % segmentHeader->numberOfRandomValues;
             const uint signRand = randomValues[section->randomPos] % 1000;
             const float signNeg = coreMetaData->signNeg;
             synapse->sign = 1 - (1000.0f * signNeg > signRand) * 2;
 
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            section->randomPos = (section->randomPos + 1) % segmentHeader->numberOfRandomValues;
             synapse->multiplicator = (char)((randomValues[section->randomPos] % coreMetaData->multiplicatorRange) + 1);
         }
 
@@ -376,7 +376,7 @@ synapseProcessing(__local SynapseSection* section,
         if(synapse->targetNodeId != UNINIT_STATE_16)
         {
            // printf("%d\n", synapse->targetNodeId);
-            const ulong nodeBufferPosition = (get_group_id(0) * segmentMeta->numberOfNodes) + synapse->targetNodeId;
+            const ulong nodeBufferPosition = (get_group_id(0) * segmentHeader->numberOfNodes) + synapse->targetNodeId;
             const float synapseWeight = synapse->weight;
             const float shareWeight = (float)(weight > synapseWeight) * synapseWeight
                                       + (float)(weight <= synapseWeight) * weight;
@@ -401,7 +401,7 @@ synapseProcessing(__local SynapseSection* section,
     {
         uint nextLayer = layer + 1;
         nextLayer = (nextLayer > 7) * 7  + (nextLayer <= 7) * nextLayer;
-        const uint pos = (node->targetSectionId + nextLayer * 10000 + nextLayer) % segmentMeta->numberOfSynapseSections;
+        const uint pos = (node->targetSectionId + nextLayer * 10000 + nextLayer) % segmentHeader->numberOfSynapseSections;
         __global SynapseBuffer* synapseBuffer = &synapseBuffers[pos];
         synapseBuffer->buffer[nextLayer].weigth = weight;
         synapseBuffer->buffer[nextLayer].nodeId = nodeId;
@@ -467,7 +467,7 @@ updating(__local SynapseSection* section,
 
 
 __kernel void
-updateCoreSynapses(__global CoreSegmentMeta* segmentMeta,
+updateCoreSynapses(__global SegmentHeader* segmentHeader,
                    __global SynapseBuffer* synapseBuffers,
                    __global SynapseSection* synapseSections,
                    __global Node* nodes,
@@ -504,7 +504,7 @@ updateCoreSynapses(__global CoreSegmentMeta* segmentMeta,
  * @brief synapse_processing
  */
 __kernel void
-synapse_processing(__global const CoreSegmentMeta* segmentMeta,
+synapse_processing(__global const SegmentHeader* segmentHeader,
                    __global SynapseBuffer* synapseBuffers,
                    __global SynapseSection* synapseSections,
                    __global Node* nodes,
@@ -529,7 +529,7 @@ synapse_processing(__global const CoreSegmentMeta* segmentMeta,
 
     if(localId_x == 0)
     {
-        localSegmentMeta[0] = segmentMeta[0];
+        localSegmentMeta[0] = segmentHeader[0];
         localCoreMetaData[0] = coreMetaData[0];
     }
 
@@ -582,10 +582,10 @@ synapse_processing(__global const CoreSegmentMeta* segmentMeta,
 __kernel void
 processInputNodes(__global Node* nodes,
                   __global InputNode* inputNodes,
-                  __global CoreSegmentMeta* segmentMeta,
+                  __global SegmentHeader* segmentHeader,
                   __local uchar* localMemory)
 {
-    for(ulong i = globalId_x; i < segmentMeta->numberOfInputs; i = i + globalSize_x) {
+    for(ulong i = globalId_x; i < segmentHeader->numberOfInputs; i = i + globalSize_x) {
         nodes[inputNodes[i].targetNode].potential = inputNodes[i].weight;
     }
 }
@@ -598,7 +598,7 @@ node_processing(__global Node* nodes,
                 __global float* nodeBuffers,
                 __global InputNode* inputNodes,
                 __global SynapseBuffer* synapseBuffers,
-                __global const CoreSegmentMeta* segmentMeta,
+                __global const SegmentHeader* segmentHeader,
                 __global const CoreMetaData* coreMetaData,
                 __global OutputInput* outputInputs,         
                 __local uchar* localMemory)
@@ -615,7 +615,7 @@ node_processing(__global Node* nodes,
 
     if(localId_x == 0)
     {
-        localSegmentMeta[0] = segmentMeta[0];
+        localSegmentMeta[0] = segmentHeader[0];
         localCoreMetaData[0] = coreMetaData[0];
     }
     
@@ -685,7 +685,7 @@ node_processing(__global Node* nodes,
 inline float
 outputSynapseProcessing(__local OutputSynapseSection* outputSection,
                         __global OutputInput* inputs,
-                        __local OutputSegmentMeta* segmentMeta,
+                        __local OutputSegmentMeta* segmentHeader,
                         __global NetworkMetaData* networkMetaData,
                         __local OutputMetaData* outputMetaData)
 {
@@ -739,7 +739,7 @@ outputSynapseProcessing(__local OutputSynapseSection* outputSection,
 inline void
 learNewOutput(__local OutputSynapseSection* section,
               __global OutputInput* inputs,
-              __local OutputSegmentMeta* segmentMeta,
+              __local OutputSegmentMeta* segmentHeader,
               __global uint* randomValues,
               __global NetworkMetaData* networkMetaData,
               __local OutputMetaData* outputMetaData,
@@ -762,8 +762,8 @@ learNewOutput(__local OutputSynapseSection* section,
                 && networkMetaData->doLearn > 0
                 && limiter < 5)
         {
-            // const uint possibleTargetId = rand() % segment->segmentMeta->numberOfInputs;
-            section->randomPos = (section->randomPos + 1) % segmentMeta->numberOfRandomValues;
+            // const uint possibleTargetId = rand() % segment->segmentHeader->numberOfInputs;
+            section->randomPos = (section->randomPos + 1) % segmentHeader->numberOfRandomValues;
             uint possibleTargetId = randomValues[section->randomPos] % outputMetaData->inputRange;
             possibleTargetId += outputPos * outputMetaData->inputOffset;
 
@@ -867,7 +867,7 @@ __kernel void
 output_node_processing(__global OutputSynapseSection* outputSynapseSections,
                        __global OutputInput* inputs,
                        __global Output* outputs,
-                       __global OutputSegmentMeta* segmentMeta,
+                       __global OutputSegmentMeta* segmentHeader,
                        __global NetworkMetaData* networkMetaData,
                        __global OutputMetaData* outputMetaData,         
                        __local uchar* localMemory)
@@ -885,7 +885,7 @@ output_node_processing(__global OutputSynapseSection* outputSynapseSections,
 
     if(localId_x == 0)
     {
-        localSegmentMeta[0] = segmentMeta[0];
+        localSegmentMeta[0] = segmentHeader[0];
         localOutputMetaData[0] = outputMetaData[0];
 
         const ulong numberOfGroups = globalSize_x / localSize_x;
@@ -912,7 +912,7 @@ __kernel void
 output_learn_step(__global OutputSynapseSection* outputSynapseSections,
                   __global OutputInput* inputs,
                   __global Output* outputs,
-                  __global OutputSegmentMeta* segmentMeta,
+                  __global OutputSegmentMeta* segmentHeader,
                   __global uint* randomValues,
                   __global NetworkMetaData* networkMetaData,
                   __global OutputMetaData* outputMetaData,         
@@ -931,7 +931,7 @@ output_learn_step(__global OutputSynapseSection* outputSynapseSections,
 
     if(localId_x == 0)
     {
-        localSegmentMeta[0] = segmentMeta[0];
+        localSegmentMeta[0] = segmentHeader[0];
         localOutputMetaData[0] = outputMetaData[0];
 
         const ulong numberOfGroups = globalSize_x / localSize_x;
@@ -964,9 +964,9 @@ output_learn_step(__global OutputSynapseSection* outputSynapseSections,
 
 __kernel void
 reset_output_inputs(__global OutputInput* inputs,
-                    __global OutputSegmentMeta* segmentMeta)
+                    __global OutputSegmentMeta* segmentHeader)
 {
-    for(ulong o = get_global_id(0); o < segmentMeta->numberOfOutputs; o = o + get_global_size(0)) {
+    for(ulong o = get_global_id(0); o < segmentHeader->numberOfOutputs; o = o + get_global_size(0)) {
         inputs[o].isNew = 0;
     }
 }

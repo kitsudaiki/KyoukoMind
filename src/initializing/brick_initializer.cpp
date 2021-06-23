@@ -33,23 +33,25 @@ BrickInitializer::~BrickInitializer()
 }
 
 bool
-BrickInitializer::initializeAxons(CoreSegment &segment)
+BrickInitializer::initializeAxons(Segment &segment)
 {
     uint32_t nodeId = 0;
 
     // calculate number of axons per brick
-    for(uint32_t i = 0; i < segment.segmentMeta->numberOfNodeBricks; i++)
+    for(uint32_t brickId = 0;
+        brickId < segment.segmentHeader->bricks.count;
+        brickId++)
     {
-        if(segment.nodeBricks[i].isOutputBrick == 1)
+        Brick* sourceBrick = &segment.nodeBricks[brickId];
+
+        if(sourceBrick->isOutputBrick == 1)
         {
-            nodeId += segment.segmentMeta->numberOfNodesPerBrick;
+            nodeId += sourceBrick->numberOfNodes;
             continue;
         }
 
-        Brick* sourceBrick = &segment.nodeBricks[i];
-
         // iterate over all nodes of the brick and create an axon for each node
-        for(uint32_t nodePos = 0; nodePos < segment.segmentMeta->numberOfNodesPerBrick; nodePos++)
+        for(uint32_t nodePos = 0; nodePos < sourceBrick->numberOfNodes; nodePos++)
         {
             Brick* axonBrick = getAxonBrick(segment, sourceBrick);
             assert(axonBrick->nodeBrickId <= 100);
@@ -77,7 +79,7 @@ BrickInitializer::initializeAxons(CoreSegment &segment)
         }
     }
 
-    assert(nodeId == segment.segmentMeta->numberOfNodes);
+    assert(nodeId == segment.segmentHeader->nodes.count);
 
     return true;
 }

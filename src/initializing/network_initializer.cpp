@@ -28,7 +28,6 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-#include <initializing/layered_brick_initializier.h>
 #include <initializing/fan_brick_initializer.h>
 #include <initializing/random_brick_initializer.h>
 #include <initializing/segment_initailzing.h>
@@ -48,8 +47,7 @@
  */
 NetworkInitializer::NetworkInitializer()
 {
-    //m_brickInitializer = new FanBrickInitializer();
-    m_brickInitializer = new LayeredBrickInitializier();
+    m_brickInitializer = new FanBrickInitializer();
 }
 
 /**

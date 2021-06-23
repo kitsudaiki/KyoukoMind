@@ -28,7 +28,7 @@ createNewSynapse(SynapseSection* section,
                  Brick* bricks,
                  uint32_t* randomValues,
                  Node* sourceNode,
-                 Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
+                 Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
                  const float remainingWeight)
 {
     float randomMulti = 0.0f;
@@ -75,15 +75,15 @@ createNewSynapse(SynapseSection* section,
  * @brief hardenSynapses
  * @param nodes
  * @param synapseSections
- * @param segmentMeta
+ * @param segmentHeader
  */
 inline void
 hardenSynapses(Node* nodes,
                SynapseSection* synapseSections,
-               CoreSegmentMeta* segmentMeta)
+               SegmentHeader* segmentHeader)
 {
     for(uint32_t nodeId = 0;
-        nodeId < segmentMeta->numberOfNodes;
+        nodeId < segmentHeader->nodes.count;
         nodeId++)
     {
         Node* sourceNode = &nodes[nodeId];
@@ -126,17 +126,17 @@ hardenSynapses(Node* nodes,
 
 /**
  * @brief reduceCoreSynapses
- * @param segmentMeta
+ * @param segmentHeader
  * @param synapseSections
  * @param nodes
  */
 inline void
-reduceCoreSynapses(CoreSegmentMeta* segmentMeta,
+reduceCoreSynapses(SegmentHeader* segmentHeader,
                    SynapseSection* synapseSections,
                    Node* nodes)
 {
     for(uint32_t sectionId = 0;
-        sectionId < segmentMeta->numberOfSynapseSections;
+        sectionId < segmentHeader->synapseSections.count;
         sectionId++)
     {
         bool upToData = 1;

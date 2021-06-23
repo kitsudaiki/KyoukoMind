@@ -33,8 +33,8 @@ class RandomBrickInitializer
 public:
     RandomBrickInitializer();
 
-    Brick* getAxonBrick(CoreSegment &segment, Brick* sourceBrick);
-    bool initTargetBrickList(CoreSegment &segment, Kitsunemimi::Ai::InitMeataData *initMetaData);
+    Brick* getAxonBrick(Segment &segment, Brick* sourceBrick);
+    bool initTargetBrickList(Segment &segment, Kitsunemimi::Ai::InitSettings *initMetaData);
 
 private:
     uint8_t getPossibleNext(const uint8_t inputSide);

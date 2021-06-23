@@ -41,7 +41,7 @@
  * @param section
  * @param bricks
  * @param nodeBuffers
- * @param segmentMeta
+ * @param segmentHeader
  * @param randomValues
  * @param synapseMetaData
  * @param networkMetaData
@@ -53,7 +53,7 @@ synapseProcessing(SynapseSection* section,
                   Brick* bricks,
                   Node* nodes,
                   uint32_t* randomValues,
-                  Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
+                  Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   Node* sourceNode,
                   const float weightIn)
@@ -106,7 +106,7 @@ synapseProcessing(SynapseSection* section,
  * @brief nodeProcessingSingleThread
  * @param brick
  * @param nodes
- * @param segmentMeta
+ * @param segmentHeader
  * @param synapseSections
  * @param bricks
  * @param randomValues
@@ -119,7 +119,7 @@ nodeProcessingSingleThread(Brick* brick,
                            SynapseSection* synapseSections,
                            Brick* bricks,
                            uint32_t* randomValues,
-                           Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
+                           Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
                            Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
     // prepare nodes

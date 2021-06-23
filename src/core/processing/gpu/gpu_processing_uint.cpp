@@ -62,7 +62,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
                                      synapse_node_processing_cl_len);
 
     // init worker-sizes
-    oclData.numberOfWg.x = cluster->synapseSegment->segmentMeta->numberOfNodeBricks;
+    oclData.numberOfWg.x = cluster->synapseSegment->segmentHeader->bricks.count;
     // only 127 threads per group, instead of 128, because 1/128 of the local memory is used for
     // the meta-data
     oclData.threadsPerWg.x = 127;
@@ -73,16 +73,16 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 
     oclData.addBuffer("networkMetaData",    1, sizeof(Kitsunemimi::Ai::NetworkMetaData), true, &cluster->networkMetaData);
 
-    CoreSegmentMeta* coreSegmentMeta = cluster->synapseSegment->segmentMeta;
-    oclData.addBuffer("coreMetaData",       1,                                           sizeof(Kitsunemimi::Ai::CoreMetaData), false, cluster->synapseSegment->synapseMetaData);
-    oclData.addBuffer("coreSegmentMeta",    1,                                           sizeof(CoreSegmentMeta),               false, cluster->synapseSegment->segmentMeta);
+    SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
+    oclData.addBuffer("coreMetaData",       1,                                           sizeof(Kitsunemimi::Ai::SegmentSettings), false, cluster->synapseSegment->synapseMetaData);
+    oclData.addBuffer("coreSegmentMeta",    1,                                           sizeof(SegmentHeader),                    false, cluster->synapseSegment->segmentHeader);
     oclData.addBuffer("randomValues",       NUMBER_OF_RAND_VALUES,                       sizeof(uint32_t),                         false, cluster->randomValues);
-    oclData.addBuffer("nodeBuffers",        coreSegmentMeta->numberOfNodes * 127,        sizeof(float),                            false, cluster->synapseSegment->nodeBuffers);
-    oclData.addBuffer("bricks",             coreSegmentMeta->numberOfNodeBricks,         sizeof(Brick),                            false, cluster->synapseSegment->nodeBricks);
-    oclData.addBuffer("nodes",              coreSegmentMeta->numberOfNodes,              sizeof(Node),                             false, cluster->synapseSegment->nodes);
-    oclData.addBuffer("synapseSections",    coreSegmentMeta->numberOfSynapseSections,    sizeof(SynapseSection),                   false, cluster->synapseSegment->synapseSections);
-    oclData.addBuffer("synapseBuffers",     coreSegmentMeta->numberOfSynapseSections,    sizeof(SynapseBuffer),                    false, cluster->synapseSegment->synapseBuffers);
-    oclData.addBuffer("inputNodes",         coreSegmentMeta->numberOfInputs,             sizeof(InputNode),                        true, cluster->synapseSegment->inputNodes);
+    oclData.addBuffer("nodeBuffers",        segmentHeader->nodes.count * 127,            sizeof(float),                            false, cluster->synapseSegment->nodeBuffers);
+    oclData.addBuffer("bricks",             segmentHeader->bricks.count,                 sizeof(Brick),                            false, cluster->synapseSegment->nodeBricks);
+    oclData.addBuffer("nodes",              segmentHeader->nodes.count,                  sizeof(Node),                             false, cluster->synapseSegment->nodes);
+    oclData.addBuffer("synapseSections",    segmentHeader->synapseSections.count,        sizeof(SynapseSection),                   false, cluster->synapseSegment->synapseSections);
+    oclData.addBuffer("synapseBuffers",     segmentHeader->synapseBuffers.count,         sizeof(SynapseBuffer),                    false, cluster->synapseSegment->synapseBuffers);
+    oclData.addBuffer("inputNodes",         segmentHeader->inputs.count,                 sizeof(InputNode),                        true, cluster->synapseSegment->inputNodes);
 
     //==============================================================================================
 

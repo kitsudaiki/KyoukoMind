@@ -31,42 +31,44 @@
 #include <core/objects/synapses.h>
 #include <libKitsunemimiAiCommon/metadata.h>
 
-enum SegmentType
-{
-    UNDEFINED_SEGMENT = 0,
-    CORE_SEGMENT = 1
-};
-
 //==================================================================================================
-
-struct CoreSegmentMeta
+struct SegmentHeaderEntry
 {
-    uint32_t segmentType = UNDEFINED_SEGMENT;
+    uint64_t bytePos = 0;
+    uint64_t count = 0;
 
-    // synapse-segment
-    uint32_t numberOfNodeBricks = 0;
-    uint64_t numberOfSynapseSections = 0;
-    uint64_t numberOfNodes = 0;
-    uint32_t numberOfNodesPerBrick = 0;
-
-    // generic
-    uint32_t numberOfInputs = 0;
-    uint32_t numberOfOutputs = 0;
-
-    uint8_t padding[220];
+    // total size: 16 Byte
 };
 
-struct CoreSegment
+struct SegmentHeader
+{
+    // synapse-segment
+    SegmentHeaderEntry settings;
+    SegmentHeaderEntry bricks;
+    SegmentHeaderEntry brickOrder;
+    SegmentHeaderEntry synapseSections;
+    SegmentHeaderEntry synapseBuffers;
+    SegmentHeaderEntry nodes;
+    SegmentHeaderEntry nodeBuffers;
+    SegmentHeaderEntry inputs;
+    SegmentHeaderEntry outputs;
+
+    uint8_t padding[112];
+
+    // total size: 256 Byte
+};
+
+struct Segment
 {
     Kitsunemimi::DataBuffer buffer;
 
     // generic objects
-    CoreSegmentMeta* segmentMeta = nullptr;
-    Kitsunemimi::Ai::CoreMetaData* synapseMetaData = nullptr;
+    SegmentHeader* segmentHeader = nullptr;
+    Kitsunemimi::Ai::SegmentSettings* synapseMetaData = nullptr;
 
     // bricks
     Brick* nodeBricks = nullptr;
-    Brick** brickOrder = nullptr;
+    uint32_t* brickOrder = nullptr;
 
     // nodes
     Node* nodes = nullptr;
@@ -79,7 +81,7 @@ struct CoreSegment
     InputNode* inputNodes = nullptr;
     OutputNode* outputNodes = nullptr;
 
-    CoreSegment() {}
+    Segment() {}
 };
 
 //==================================================================================================
