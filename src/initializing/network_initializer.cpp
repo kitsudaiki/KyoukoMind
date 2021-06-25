@@ -166,7 +166,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
                        parsedContent);
     m_brickInitializer->initTargetBrickList(*cluster->synapseSegment,
                                             &cluster->initMetaData);
-    m_brickInitializer->initializeAxons(*cluster->synapseSegment);
+  //  m_brickInitializer->initializeAxons(*cluster->synapseSegment);
 
     return true;
 }

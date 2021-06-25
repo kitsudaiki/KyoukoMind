@@ -134,7 +134,6 @@ nodeProcessingSingleThread(Brick* brick,
         node->border = static_cast<float>(initNode) * node->input * 0.5f
                        + static_cast<float>(initNode == false) * node->border;
         node->potential = synapseMetaData->potentialOverflow * node->input;
-
         node->input = 0.0f;
         node->delta = 0.0f;
     }
@@ -149,6 +148,7 @@ nodeProcessingSingleThread(Brick* brick,
                             && node->potential > node->border;
         if(active)
         {
+            assert(brick->brickId == node->nodeBrickId);
             synapseProcessing(&synapseSections[nodeId],
                               bricks,
                               nodes,
@@ -157,10 +157,10 @@ nodeProcessingSingleThread(Brick* brick,
                               networkMetaData,
                               node,
                               node->potential);
-
         }
 
         node->active = active;
+
     }
 }
 

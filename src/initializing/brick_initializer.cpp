@@ -67,7 +67,6 @@ BrickInitializer::initializeAxons(Segment &segment)
 
             // set source and target in related nodes and edges
             //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
-            segment.nodes[nodeId].nodeBrickId = sourceBrick->nodeBrickId;
             segment.nodes[nodeId].targetBrickDistance = static_cast<uint32_t>(dist);
             segment.nodes[nodeId].targetSectionId = nodeId;
 
@@ -119,7 +118,9 @@ BrickInitializer::initTargetBrickList(Segment &segment,
         uint32_t counter = 0;
         while(counter < 1000)
         {
-            uint8_t nextSide = getPossibleNext();
+            baseBrick->possibleTargetNodeBrickIds[counter] = baseBrick->brickId + 1;
+            counter++;
+            /*uint8_t nextSide = getPossibleNext();
             const uint32_t nextBrickId = baseBrick->neighbors[nextSide];
             if(nextBrickId != UNINIT_STATE_32)
             {
@@ -128,7 +129,7 @@ BrickInitializer::initTargetBrickList(Segment &segment,
                 if(counter >= 1000) {
                     break;
                 }
-            }
+            }*/
         }
         assert(counter == 1000);
     }

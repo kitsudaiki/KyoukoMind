@@ -64,6 +64,7 @@ createNewSynapse(SynapseSection* section,
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
     nodeBrick = &bricks[sourceNode->nodeBrickId];
     const uint32_t targetBrickId = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos];
+
     Brick* targetBrick = &bricks[targetBrickId];
     targetNodeIdInBrick = randomValues[section->randomPos] % targetBrick->numberOfNodes;
 

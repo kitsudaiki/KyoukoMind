@@ -90,7 +90,7 @@ initSynapseSegment(const uint32_t numberOfBricks,
     newSegment->brickOrder = reinterpret_cast<uint32_t*>(data + bufferPos);
     bufferPos += numberOfBricks * sizeof(uint32_t);
     for(uint32_t i = 0; i < numberOfBricks; i++) {
-        newSegment->brickOrder[i] = 0;
+        newSegment->brickOrder[i] = i;
     }
 
     // init nodes
@@ -203,9 +203,9 @@ void addBricksToSegment(Segment &segment,
         // handle node-brick
         if(newBrick.nodeBrickId != UNINIT_STATE_32)
         {
-            const uint32_t nodePos = newBrick.nodeBrickId * initMetaData->nodesPerBrick;
-            assert(nodePos < 0x7FFFFFFF);
-            newBrick.nodePos = nodePos;
+            const uint32_t nodeOffset = newBrick.nodeBrickId * initMetaData->nodesPerBrick;
+            assert(nodeOffset < 0x7FFFFFFF);
+            newBrick.nodePos = nodeOffset;
             newBrick.numberOfNodes = initMetaData->nodesPerBrick;
 
             // handle output-brick
@@ -213,11 +213,11 @@ void addBricksToSegment(Segment &segment,
             {
                 Node* nodes = segment.nodes;
                 for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
-                    nodes[j + nodePos].border = -2.0f;
+                    nodes[j + nodeOffset].border = -2.0f;
                 }
 
                 for(uint32_t i = 0; i < segment.segmentHeader->outputs.count; i++) {
-                    segment.outputs[i].targetNode = nodePos + i;
+                    segment.outputs[i].targetNode = nodeOffset + i;
                 }
 
                 newBrick.numberOfNodes = segment.segmentHeader->outputs.count;
@@ -229,10 +229,15 @@ void addBricksToSegment(Segment &segment,
                 Node* array = segment.nodes;
                 for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++)
                 {
-                    array[j + nodePos].border = 0.0f;
-                    segment.inputs[inputCounter].targetNode = j + nodePos;
+                    array[j + nodeOffset].border = 0.0f;
+                    segment.inputs[inputCounter].targetNode = j + nodeOffset;
                     inputCounter++;
                 }
+            }
+
+            Node* nodes = segment.nodes;
+            for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
+                nodes[j + nodeOffset].nodeBrickId = newBrick.nodeBrickId;
             }
 
             // copy new brick to segment

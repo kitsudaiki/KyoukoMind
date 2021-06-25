@@ -107,7 +107,7 @@ SingleThreadProcessingStatic::updateLearning()
 
     executeStep();
 
-    if(reductionCounter < 0)
+    if(reductionCounter < 1000)
     {
         reductionLearning();
         reductionCounter++;

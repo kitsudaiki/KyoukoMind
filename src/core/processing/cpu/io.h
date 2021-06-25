@@ -27,7 +27,8 @@ processInputNodes(Node* nodes,
         inputNodeId < segmentHeader->inputs.count;
         inputNodeId++)
     {
-        nodes[inputNodes[inputNodeId].targetNode].input = inputNodes[inputNodeId].weight;
+        const InputNode* inputNode = &inputNodes[inputNodeId];
+        nodes[inputNode->targetNode].input = inputNode->weight;
     }
 }
 
@@ -48,7 +49,7 @@ processOutputNodes(Node* nodes,
     {
         OutputNode* out = &outputNodes[outputNodeId];
         Node* targetNode = &nodes[out->targetNode];
-        float nodeWeight = targetNode->potential;
+        const float nodeWeight = targetNode->potential;
         out->outputWeight = 1.0f / (1.0f + exp(-1.0f * nodeWeight));
     }
 }
@@ -73,6 +74,8 @@ calcTotalError(OutputNode* outputNodes,
         const float diff = (out->shouldValue - out->outputWeight);
         totalError += 0.5f * (diff * diff);
     }
+
+    //std::cout<<"error: "<<totalError<<std::endl;
 
     return totalError;
 }

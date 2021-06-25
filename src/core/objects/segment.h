@@ -62,27 +62,36 @@ struct Segment
 {
     Kitsunemimi::DataBuffer buffer;
 
-    // generic objects
     SegmentHeader* segmentHeader = nullptr;
     Kitsunemimi::Ai::SegmentSettings* synapseMetaData = nullptr;
-
-    // bricks
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
-
-    // nodes
     Node* nodes = nullptr;
     float* nodeBuffers = nullptr;
-
-    // synapses
     SynapseSection* synapseSections = nullptr;
     SynapseBuffer* synapseBuffers = nullptr;
-
     InputNode* inputs = nullptr;
     OutputNode* outputs = nullptr;
 
     Segment() {}
 };
+
+inline void
+initSegmentPointer(Segment &segment)
+{
+    uint8_t* data = static_cast<uint8_t*>(segment.buffer.data);
+
+    segment.segmentHeader = reinterpret_cast<SegmentHeader*>(data + 0);
+    segment.synapseMetaData = reinterpret_cast<Kitsunemimi::Ai::SegmentSettings*>(data + 256);
+    segment.bricks = reinterpret_cast<Brick*>(data + segment.segmentHeader->bricks.bytePos);
+    segment.brickOrder = reinterpret_cast<uint32_t*>(data + segment.segmentHeader->brickOrder.bytePos);
+    segment.nodes = reinterpret_cast<Node*>(data + segment.segmentHeader->nodes.bytePos);
+    segment.nodeBuffers = reinterpret_cast<float*>(data + segment.segmentHeader->nodeBuffers.bytePos);
+    segment.synapseSections = reinterpret_cast<SynapseSection*>(data + segment.segmentHeader->synapseSections.bytePos);
+    segment.synapseBuffers = reinterpret_cast<SynapseBuffer*>(data + segment.segmentHeader->synapseBuffers.bytePos);
+    segment.inputs = reinterpret_cast<InputNode*>(data + segment.segmentHeader->inputs.bytePos);
+    segment.outputs = reinterpret_cast<OutputNode*>(data + segment.segmentHeader->outputs.bytePos);
+}
 
 //==================================================================================================
 
