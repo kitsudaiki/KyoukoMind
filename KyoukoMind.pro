@@ -82,6 +82,7 @@ INCLUDEPATH += $$PWD \
                src
 
 HEADERS += \
+    src/blossoms/network_init_blossom.h \
     src/common/defines.h \
     src/common/enums.h \
     src/common/includes.h \
@@ -117,6 +118,7 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
+    src/blossoms/network_init_blossom.cpp \
     src/core/processing/cpu/segment_processing.cpp \
     src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
