@@ -29,7 +29,7 @@ struct NetworkCluster;
 class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
-class StaticProcessing;
+class CpuProcessingUnit;
 
 class KyoukoRoot
 {
@@ -49,7 +49,7 @@ public:
     void learnTestData();
     uint32_t runTest(const uint32_t pictureSize);
 
-    StaticProcessing* m_staticProcessing = nullptr;
+    CpuProcessingUnit* m_cpuProcessingUnit = nullptr;
 
 private:
     uint32_t m_serverId = 0;

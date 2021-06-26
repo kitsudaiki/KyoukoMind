@@ -25,7 +25,7 @@
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
-#include <core/processing/static_processing/single_thread_processing_static.h>
+#include <core/processing/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
 #include <core/objects/node.h>
 #include <core/storage_io.h>
@@ -155,7 +155,7 @@ void KyoukoRoot::learnTestData()
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
-    m_staticProcessing = new SingleThreadProcessingStatic();
+    m_cpuProcessingUnit = new CpuProcessingUnit();
 
 
     // get pictures
@@ -190,7 +190,7 @@ void KyoukoRoot::learnTestData()
                 inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
             }
 
-            m_staticProcessing->learn();
+            m_cpuProcessingUnit->learn();
         }
     }
 
@@ -249,7 +249,7 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
             inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
         }
 
-        m_staticProcessing->execute();
+        m_cpuProcessingUnit->execute();
 
         // print result
         float biggest = -100000.0f;

@@ -91,7 +91,7 @@ HEADERS += \
     src/core/processing/cpu/io.h \
     src/core/processing/cpu/processing.h \
     src/core/processing/cpu/segment_processing.h \
-    src/core/processing/static_processing/static_processing.h \
+    src/core/processing/cpu_processing_unit.h \
     src/core/objects/brick.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segment.h \
@@ -99,9 +99,6 @@ HEADERS += \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
     src/core/processing/processing_unit_handler.h \
-    src/core/processing/static_processing/gpu_processing_static.h \
-    src/core/processing/static_processing/multithread_processing_static.h \
-    src/core/processing/static_processing/single_thread_processing_static.h \
     src/core/storage_io.h \
     src/core/validation.h \
     src/initializing/brick_initializer.h \
@@ -120,11 +117,8 @@ HEADERS += \
 
 SOURCES += \
     src/core/processing/cpu/segment_processing.cpp \
-    src/core/processing/static_processing/static_processing.cpp \
+    src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
-    src/core/processing/static_processing/gpu_processing_static.cpp \
-    src/core/processing/static_processing/multithread_processing_static.cpp \
-    src/core/processing/static_processing/single_thread_processing_static.cpp \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/initializing/brick_initializer.cpp \
