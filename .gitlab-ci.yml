@@ -2,7 +2,6 @@ image: registry.gitlab.com/kitsudaiki/kitsunemimi-ci-docker-images/opencl-tests:
 
 stages:
   - build
-  - docker_create
 
 build:
   stage: build
@@ -26,23 +25,6 @@ build:
     paths:
       - upload
     expire_in: 1 week
-  tags:
-    - docker
-
-docker_create:
-  stage: docker_create
-  script:
-
-    - apt-get update
-    - apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    - echo  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-    - apt-get update
-    - apt-get install -y docker-ce docker-ce-cli containerd.io
-    - docker build -t kyouko_mind .
-    - docker rmi $(docker images | grep "<none>" | awk "{print $3}")
-  dependencies:
-    - build
   tags:
     - docker
 
