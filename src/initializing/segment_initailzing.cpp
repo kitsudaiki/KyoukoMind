@@ -26,6 +26,120 @@
 #include <libKitsunemimiAiCommon/metadata.h>
 
 /**
+ * @brief createNewHeader
+ * @param numberOfBricks
+ * @param numberOfNodes
+ * @param numberOfSynapseSections
+ * @param numberOfInputs
+ * @param numberOfOutputs
+ * @return
+ */
+SegmentHeader
+createNewHeader(const uint32_t numberOfBricks,
+                const uint32_t numberOfNodes,
+                const uint64_t numberOfSynapseSections,
+                const uint32_t numberOfInputs,
+                const uint32_t numberOfOutputs)
+{
+    SegmentHeader segmentHeader;
+    uint32_t bufferPos = 0;
+
+    // init header
+    bufferPos += 1 * sizeof(SegmentHeader);
+
+    // init settings
+    segmentHeader.settings.count = 1;
+    segmentHeader.settings.bytePos = bufferPos;
+    bufferPos += 1 * sizeof(Kitsunemimi::Ai::SegmentSettings);
+
+    // init bricks
+    segmentHeader.bricks.count = numberOfBricks;
+    segmentHeader.bricks.bytePos = bufferPos;
+    bufferPos += numberOfBricks * sizeof(Brick);
+
+    // init brick-order
+    segmentHeader.brickOrder.count = numberOfBricks;
+    segmentHeader.brickOrder.bytePos = bufferPos;
+    bufferPos += numberOfBricks * sizeof(uint32_t);
+
+    // init nodes
+    segmentHeader.nodes.count = numberOfNodes;
+    segmentHeader.nodes.bytePos = bufferPos;
+    bufferPos += numberOfNodes * sizeof(Node);
+
+    // init nodes-buffers
+    segmentHeader.nodeBuffers.count = numberOfNodes / numberOfBricks;
+    segmentHeader.nodeBuffers.bytePos = bufferPos;
+    bufferPos += numberOfBricks * 127 * sizeof(float);
+
+    // init synapse sections
+    segmentHeader.synapseSections.count = numberOfSynapseSections;
+    segmentHeader.synapseSections.bytePos = bufferPos;
+    bufferPos += numberOfSynapseSections * sizeof(SynapseSection);
+
+    // init synapse buffer
+    segmentHeader.synapseBuffers.count = numberOfSynapseSections;
+    segmentHeader.synapseBuffers.bytePos = bufferPos;
+    bufferPos += numberOfSynapseSections * sizeof(SynapseBuffer);
+
+    // init input
+    segmentHeader.inputs.count = numberOfInputs;
+    segmentHeader.inputs.bytePos = bufferPos;
+    bufferPos += numberOfInputs * sizeof(InputNode);
+
+    // init output
+    segmentHeader.outputs.count = numberOfOutputs;
+    segmentHeader.outputs.bytePos = bufferPos;
+    bufferPos += numberOfOutputs * sizeof(OutputNode);
+
+    segmentHeader.segmentSize = bufferPos;
+
+    return segmentHeader;
+}
+
+/**
+ * @brief initSegmentPointer
+ * @param segment
+ * @param header
+ */
+void
+initSegmentPointer(Segment &segment,
+                   const SegmentHeader &header)
+{
+    uint8_t* data = static_cast<uint8_t*>(segment.buffer.data);
+
+    segment.segmentHeader = reinterpret_cast<SegmentHeader*>(data + 0);
+    segment.segmentHeader[0] = header;
+
+    segment.synapseMetaData = reinterpret_cast<Kitsunemimi::Ai::SegmentSettings*>(data + 256);
+    segment.bricks = reinterpret_cast<Brick*>(data + segment.segmentHeader->bricks.bytePos);
+    segment.brickOrder = reinterpret_cast<uint32_t*>(data + segment.segmentHeader->brickOrder.bytePos);
+    segment.nodes = reinterpret_cast<Node*>(data + segment.segmentHeader->nodes.bytePos);
+    segment.nodeBuffers = reinterpret_cast<float*>(data + segment.segmentHeader->nodeBuffers.bytePos);
+    segment.synapseSections = reinterpret_cast<SynapseSection*>(data + segment.segmentHeader->synapseSections.bytePos);
+    segment.synapseBuffers = reinterpret_cast<SynapseBuffer*>(data + segment.segmentHeader->synapseBuffers.bytePos);
+    segment.inputs = reinterpret_cast<InputNode*>(data + segment.segmentHeader->inputs.bytePos);
+    segment.outputs = reinterpret_cast<OutputNode*>(data + segment.segmentHeader->outputs.bytePos);
+}
+
+/**
+ * @brief allocateSegment
+ * @param header
+ * @return
+ */
+Segment*
+allocateSegment(const SegmentHeader &header)
+{
+    Segment* newSegment = new Segment();
+
+    const uint32_t numberOfBlocks = (header.segmentSize / 4096) + 1;
+    Kitsunemimi::allocateBlocks_DataBuffer(newSegment->buffer, numberOfBlocks);
+    initSegmentPointer(*newSegment, header);
+
+    return newSegment;
+}
+
+/**
  * @brief Segment::initSynapseSegment
  * @param numberOfNodeBricks
  * @param numberOfNodes
@@ -41,115 +155,59 @@ initSynapseSegment(const uint32_t numberOfBricks,
                    const uint32_t numberOfOutputs,
                    const uint32_t numberOfRandValues)
 {
-    Segment* newSegment = new Segment();
+    SegmentHeader header = createNewHeader(numberOfBricks,
+                                           numberOfNodes,
+                                           numberOfSynapseSections,
+                                           numberOfInputs,
+                                           numberOfOutputs);
+    Segment* segment = allocateSegment(header);
 
-    // get total buffer-size for the new segment
-    uint32_t totalSize = 0;
-    totalSize += 1 * sizeof(SegmentHeader);
-    totalSize += 1 * sizeof(Kitsunemimi::Ai::SegmentSettings);
-    totalSize += numberOfBricks * sizeof(Brick);
-    totalSize += numberOfBricks * sizeof(uint32_t);
-    totalSize += numberOfNodes * sizeof(Node);
-    totalSize += (numberOfNodes / numberOfBricks) * 127 * sizeof(float);
-    totalSize += numberOfSynapseSections * sizeof(SynapseSection);
-    totalSize += numberOfSynapseSections * sizeof(SynapseBuffer);
-    totalSize += numberOfInputs * sizeof(InputNode);
-    totalSize += numberOfOutputs * sizeof(OutputNode);
+    // init header and metadata
+    segment->synapseMetaData[0] = Kitsunemimi::Ai::SegmentSettings();
 
-    // allocate memory
-    const uint32_t numberOfBlocks = (totalSize / 4096) + 1;
-    Kitsunemimi::allocateBlocks_DataBuffer(newSegment->buffer, numberOfBlocks);
-
-    uint8_t* data = static_cast<uint8_t*>(newSegment->buffer.data);
-    uint32_t bufferPos = 0;
-
-    // init header
-    newSegment->segmentHeader = reinterpret_cast<SegmentHeader*>(data + bufferPos);
-    bufferPos += 1 * sizeof(SegmentHeader);
-    newSegment->segmentHeader[0] = SegmentHeader();
-
-    // init settings
-    newSegment->segmentHeader->settings.count = 1;
-    newSegment->segmentHeader->settings.bytePos = bufferPos;
-    newSegment->synapseMetaData = reinterpret_cast<Kitsunemimi::Ai::SegmentSettings*>(data + bufferPos);
-    bufferPos += 1 * sizeof(Kitsunemimi::Ai::SegmentSettings);
-    newSegment->synapseMetaData[0] = Kitsunemimi::Ai::SegmentSettings();
-
-    // init bricks
-    newSegment->segmentHeader->bricks.count = numberOfBricks;
-    newSegment->segmentHeader->bricks.bytePos = bufferPos;
-    newSegment->bricks = reinterpret_cast<Brick*>(data + bufferPos);
-    bufferPos += numberOfBricks * sizeof(Brick);
+    // init bricks;
     for(uint32_t i = 0; i < numberOfBricks; i++) {
-        newSegment->bricks[i] = Brick();
+        segment->bricks[i] = Brick();
     }
 
     // init brick-order
-    newSegment->segmentHeader->brickOrder.count = numberOfBricks;
-    newSegment->segmentHeader->brickOrder.bytePos = bufferPos;
-    newSegment->brickOrder = reinterpret_cast<uint32_t*>(data + bufferPos);
-    bufferPos += numberOfBricks * sizeof(uint32_t);
     for(uint32_t i = 0; i < numberOfBricks; i++) {
-        newSegment->brickOrder[i] = i;
+        segment->brickOrder[i] = i;
     }
 
     // init nodes
-    newSegment->segmentHeader->nodes.count = numberOfNodes;
-    newSegment->segmentHeader->nodes.bytePos = bufferPos;
-    newSegment->nodes = reinterpret_cast<Node*>(data + bufferPos);
-    bufferPos += numberOfNodes * sizeof(Node);
     for(uint32_t i = 0; i < numberOfNodes; i++) {
-        newSegment->nodes[i] = Node();
+        segment->nodes[i] = Node();
     }
 
     // init nodes-buffers
-    newSegment->segmentHeader->nodeBuffers.count = numberOfNodes / numberOfBricks;
-    newSegment->segmentHeader->nodeBuffers.bytePos = bufferPos;
-    newSegment->nodeBuffers = reinterpret_cast<float*>(data + bufferPos);
-    bufferPos += numberOfBricks * 127 * sizeof(float);
     for(uint32_t i = 0; i < numberOfBricks * 127; i++) {
-        newSegment->nodeBuffers[i] = 0.0f;
+        segment->nodeBuffers[i] = 0.0f;
     }
 
     // init synapse sections
-    newSegment->segmentHeader->synapseSections.count = numberOfSynapseSections;
-    newSegment->segmentHeader->synapseSections.bytePos = bufferPos;
-    newSegment->synapseSections = reinterpret_cast<SynapseSection*>(data + bufferPos);
-    bufferPos += numberOfSynapseSections * sizeof(SynapseSection);
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
-        newSegment->synapseSections[i] = SynapseSection();
-        newSegment->synapseSections[i].randomPos = static_cast<uint32_t>(rand()) % numberOfRandValues;
+        segment->synapseSections[i] = SynapseSection();
+        segment->synapseSections[i].randomPos = static_cast<uint32_t>(rand()) % numberOfRandValues;
     }
 
     // init synapse buffer
-    newSegment->segmentHeader->synapseBuffers.count = numberOfSynapseSections;
-    newSegment->segmentHeader->synapseBuffers.bytePos = bufferPos;
-    newSegment->synapseBuffers = reinterpret_cast<SynapseBuffer*>(data + bufferPos);
-    bufferPos += numberOfSynapseSections * sizeof(SynapseBuffer);
     for(uint32_t i = 0; i < numberOfSynapseSections; i++) {
-        newSegment->synapseBuffers[i] = SynapseBuffer();
+        segment->synapseBuffers[i] = SynapseBuffer();
     }
 
     // init input
-    newSegment->segmentHeader->inputs.count = numberOfInputs;
-    newSegment->segmentHeader->inputs.bytePos = bufferPos;
-    newSegment->inputs = reinterpret_cast<InputNode*>(data + bufferPos);
-    bufferPos += numberOfInputs * sizeof(InputNode);
     for(uint32_t i = 0; i < numberOfInputs; i++) {
-        newSegment->inputs[i] = InputNode();
+        segment->inputs[i] = InputNode();
     }
 
     // init output
-    newSegment->segmentHeader->outputs.count = numberOfOutputs;
-    newSegment->segmentHeader->outputs.bytePos = bufferPos;
-    newSegment->outputs = reinterpret_cast<OutputNode*>(data + bufferPos);
-    bufferPos += numberOfOutputs * sizeof(OutputNode);
     for(uint32_t i = 0; i < numberOfOutputs; i++) {
-        newSegment->outputs[i] = OutputNode();
+        segment->outputs[i] = OutputNode();
     }
 
-    return newSegment;
+    return segment;
 }
 
 bool

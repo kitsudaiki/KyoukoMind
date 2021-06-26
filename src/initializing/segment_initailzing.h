@@ -34,11 +34,11 @@ struct AiBaseMeta;
 }
 
 Segment* initSynapseSegment(const uint32_t numberOfNodeBricks,
-                                const uint32_t numberOfNodes,
-                                const uint64_t numberOfSynapseSections,
-                                const uint32_t numberOfInputs,
-                                const uint32_t numberOfOutputs,
-                                const uint32_t numberOfRandValues);
+                            const uint32_t numberOfNodes,
+                            const uint64_t numberOfSynapseSections,
+                            const uint32_t numberOfInputs,
+                            const uint32_t numberOfOutputs,
+                            const uint32_t numberOfRandValues);
 
 bool initializeNodes(Segment &segment,
                      Kitsunemimi::Ai::InitSettings* initMetaData);

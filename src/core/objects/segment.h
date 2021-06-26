@@ -42,6 +42,8 @@ struct SegmentHeaderEntry
 
 struct SegmentHeader
 {
+    uint64_t segmentSize = 0;
+
     // synapse-segment
     SegmentHeaderEntry settings;
     SegmentHeaderEntry bricks;
@@ -53,7 +55,7 @@ struct SegmentHeader
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
-    uint8_t padding[112];
+    uint8_t padding[104];
 
     // total size: 256 Byte
 };
@@ -75,23 +77,6 @@ struct Segment
 
     Segment() {}
 };
-
-inline void
-initSegmentPointer(Segment &segment)
-{
-    uint8_t* data = static_cast<uint8_t*>(segment.buffer.data);
-
-    segment.segmentHeader = reinterpret_cast<SegmentHeader*>(data + 0);
-    segment.synapseMetaData = reinterpret_cast<Kitsunemimi::Ai::SegmentSettings*>(data + 256);
-    segment.bricks = reinterpret_cast<Brick*>(data + segment.segmentHeader->bricks.bytePos);
-    segment.brickOrder = reinterpret_cast<uint32_t*>(data + segment.segmentHeader->brickOrder.bytePos);
-    segment.nodes = reinterpret_cast<Node*>(data + segment.segmentHeader->nodes.bytePos);
-    segment.nodeBuffers = reinterpret_cast<float*>(data + segment.segmentHeader->nodeBuffers.bytePos);
-    segment.synapseSections = reinterpret_cast<SynapseSection*>(data + segment.segmentHeader->synapseSections.bytePos);
-    segment.synapseBuffers = reinterpret_cast<SynapseBuffer*>(data + segment.segmentHeader->synapseBuffers.bytePos);
-    segment.inputs = reinterpret_cast<InputNode*>(data + segment.segmentHeader->inputs.bytePos);
-    segment.outputs = reinterpret_cast<OutputNode*>(data + segment.segmentHeader->outputs.bytePos);
-}
 
 //==================================================================================================
 
