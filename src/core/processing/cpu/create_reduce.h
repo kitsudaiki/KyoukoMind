@@ -79,16 +79,14 @@ createNewSynapse(SynapseSection* section,
  * @param segmentHeader
  */
 inline void
-hardenSynapses(Node* nodes,
-               SynapseSection* synapseSections,
-               SegmentHeader* segmentHeader)
+hardenSynapses(Segment* segment)
 {
     for(uint32_t nodeId = 0;
-        nodeId < segmentHeader->nodes.count;
+        nodeId < segment->segmentHeader->nodes.count;
         nodeId++)
     {
-        Node* sourceNode = &nodes[nodeId];
-        SynapseSection* section = &synapseSections[nodeId];
+        Node* sourceNode = &segment->nodes[nodeId];
+        SynapseSection* section = &segment->synapseSections[nodeId];
 
         if(section->active == 0) {
             continue;
@@ -132,16 +130,14 @@ hardenSynapses(Node* nodes,
  * @param nodes
  */
 inline void
-reduceCoreSynapses(SegmentHeader* segmentHeader,
-                   SynapseSection* synapseSections,
-                   Node* nodes)
+reduceCoreSynapses(Segment* segment)
 {
     for(uint32_t sectionId = 0;
-        sectionId < segmentHeader->synapseSections.count;
+        sectionId < segment->segmentHeader->synapseSections.count;
         sectionId++)
     {
         bool upToData = 1;
-        SynapseSection* section = &synapseSections[sectionId];
+        SynapseSection* section = &segment->synapseSections[sectionId];
 
         // iterate over all synapses in synapse-section
         uint32_t currentPos = section->hardening;
@@ -155,7 +151,7 @@ reduceCoreSynapses(SegmentHeader* segmentHeader,
             upToData = 0;
 
             // update dynamic-weight-value of the synapse
-            if(nodes[synapse->targetNodeId].active == 0) {
+            if(segment->nodes[synapse->targetNodeId].active == 0) {
                 synapse->activeCounter = -2;
             } else {
                 synapse->activeCounter = -2;

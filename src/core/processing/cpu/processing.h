@@ -40,8 +40,7 @@
  * @brief synapseProcessing
  * @param section
  * @param bricks
- * @param nodeBuffers
- * @param segmentHeader
+ * @param nodes
  * @param randomValues
  * @param synapseMetaData
  * @param networkMetaData
@@ -103,10 +102,9 @@ synapseProcessing(SynapseSection* section,
 }
 
 /**
- * @brief nodeProcessingSingleThread
+ * @brief nodeProcessing
  * @param brick
  * @param nodes
- * @param segmentHeader
  * @param synapseSections
  * @param bricks
  * @param randomValues
@@ -114,22 +112,20 @@ synapseProcessing(SynapseSection* section,
  * @param networkMetaData
  */
 inline void
-nodeProcessingSingleThread(Brick* brick,
-                           Node* nodes,
-                           SynapseSection* synapseSections,
-                           Brick* bricks,
-                           uint32_t* randomValues,
-                           Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
-                           Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
+nodeProcessing(Brick* brick,
+               Node* nodes,
+               SynapseSection* synapseSections,
+               Brick* bricks,
+               uint32_t* randomValues,
+               Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
+               Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
-    // prepare nodes
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
         Node* node = &nodes[nodeId];
-        const bool initNode = node->border > 0.0f
-                              && node->init == 0
+        const bool initNode = node->init == 0
                               && node->input > 0.0f;
         node->border = static_cast<float>(initNode) * node->input * 0.5f
                        + static_cast<float>(initNode == false) * node->border;
@@ -138,17 +134,18 @@ nodeProcessingSingleThread(Brick* brick,
         node->delta = 0.0f;
     }
 
-    // process nodes
+    if(brick->isOutputBrick) {
+        return;
+    }
+
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
         Node* node = &nodes[nodeId];
-        const bool active = node->border >= 0.0f
-                            && node->potential > node->border;
+        const bool active = node->potential > node->border;
         if(active)
         {
-            assert(brick->brickId == node->nodeBrickId);
             synapseProcessing(&synapseSections[nodeId],
                               bricks,
                               nodes,
@@ -164,5 +161,26 @@ nodeProcessingSingleThread(Brick* brick,
     }
 }
 
+/**
+ * @brief segmentProcessing
+ * @param segment
+ */
+inline void
+segmentProcessing(Segment* segment)
+{
+    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
+    for(uint32_t pos = 0; pos < numberOfBricks; pos++)
+    {
+        const uint32_t brickId = segment->brickOrder[pos];
+        Brick* brick = &segment->bricks[brickId];
+        nodeProcessing(brick,
+                       segment->nodes,
+                       segment->synapseSections,
+                       segment->bricks,
+                       KyoukoRoot::m_networkCluster->randomValues,
+                       segment->synapseSettings,
+                       &KyoukoRoot::m_networkCluster->networkMetaData);
+    }
+}
 
 #endif // SYNAPSE_PROCESSING_H

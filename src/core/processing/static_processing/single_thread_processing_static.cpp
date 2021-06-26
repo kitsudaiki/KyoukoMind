@@ -40,27 +40,9 @@ SingleThreadProcessingStatic::executeStep()
     Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
     // learn until output-section
-    processInputNodes(synapseSegment->nodes,
-                      synapseSegment->inputs,
-                      synapseSegment->segmentHeader);
-
-    const uint32_t numberOfBricks = synapseSegment->segmentHeader->bricks.count;
-    for(uint32_t pos = 0; pos < numberOfBricks; pos++)
-    {
-        const uint32_t brickId = synapseSegment->brickOrder[pos];
-        Brick* brick = &synapseSegment->bricks[brickId];
-        nodeProcessingSingleThread(brick,
-                                   synapseSegment->nodes,
-                                   synapseSegment->synapseSections,
-                                   synapseSegment->bricks,
-                                   KyoukoRoot::m_networkCluster->randomValues,
-                                   synapseSegment->synapseSettings,
-                                   &KyoukoRoot::m_networkCluster->networkMetaData);
-    }
-
-    processOutputNodes(synapseSegment->nodes,
-                       synapseSegment->outputs,
-                       synapseSegment->segmentHeader);
+    processInputNodes(synapseSegment);
+    segmentProcessing(synapseSegment);
+    processOutputNodes(synapseSegment);
 }
 
 /**
@@ -71,8 +53,7 @@ SingleThreadProcessingStatic::reductionLearning()
 {
     Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
-    const float initError = calcTotalError(synapseSegment->outputs,
-                                           synapseSegment->segmentHeader);
+    const float initError = calcTotalError(synapseSegment);
     float error = initError;
 
     if(initError > 0.1f)
@@ -81,20 +62,15 @@ SingleThreadProcessingStatic::reductionLearning()
         while(error >= initError
               && timeout >= 0)
         {
-            reduceCoreSynapses(synapseSegment->segmentHeader,
-                               synapseSegment->synapseSections,
-                               synapseSegment->nodes);
+            reduceCoreSynapses(synapseSegment);
             executeStep();
-            error = calcTotalError(synapseSegment->outputs,
-                                   synapseSegment->segmentHeader);
+            error = calcTotalError(synapseSegment);
 
             timeout--;
         }
     }
 
-    hardenSynapses(synapseSegment->nodes,
-                   synapseSegment->synapseSections,
-                   synapseSegment->segmentHeader);
+    hardenSynapses(synapseSegment);
 }
 
 /**
@@ -139,8 +115,6 @@ SingleThreadProcessingStatic::updateLearning()
                            synapseSegment->synapseSections);
     }
 
-    hardenSynapses(synapseSegment->nodes,
-                   synapseSegment->synapseSections,
-                   synapseSegment->segmentHeader);
+    hardenSynapses(synapseSegment);
 }
 
