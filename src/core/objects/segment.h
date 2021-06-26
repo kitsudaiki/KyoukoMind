@@ -31,56 +31,54 @@
 #include <core/objects/synapses.h>
 #include <libKitsunemimiAiCommon/metadata.h>
 
-enum SegmentType
+//==================================================================================================
+struct SegmentHeaderEntry
 {
-    UNDEFINED_SEGMENT = 0,
-    CORE_SEGMENT = 1
+    uint64_t bytePos = 0;
+    uint64_t count = 0;
+
+    // total size: 16 Byte
 };
 
-//==================================================================================================
-
-struct CoreSegmentMeta
+struct SegmentHeader
 {
-    uint32_t segmentType = UNDEFINED_SEGMENT;
+    uint64_t segmentSize = 0;
+    uint64_t segmentPersistentBufferSize = 0;
+    uint64_t segmentEphemeralBufferSize = 0;
 
     // synapse-segment
-    uint32_t numberOfNodeBricks = 0;
-    uint64_t numberOfSynapseSections = 0;
-    uint64_t numberOfNodes = 0;
-    uint32_t numberOfNodesPerBrick = 0;
+    SegmentHeaderEntry settings;
+    SegmentHeaderEntry bricks;
+    SegmentHeaderEntry brickOrder;
+    SegmentHeaderEntry synapseSections;
+    SegmentHeaderEntry synapseBuffers;
+    SegmentHeaderEntry nodes;
+    SegmentHeaderEntry nodeBuffers;
+    SegmentHeaderEntry inputs;
+    SegmentHeaderEntry outputs;
 
-    // generic
-    uint32_t numberOfInputs = 0;
-    uint32_t numberOfOutputs = 0;
+    uint8_t padding[88];
 
-    uint8_t padding[220];
+    // total size: 256 Byte
 };
 
-struct CoreSegment
+struct Segment
 {
-    Kitsunemimi::DataBuffer buffer;
+    Kitsunemimi::DataBuffer persistenBuffer;
+    Kitsunemimi::DataBuffer ephemeralBuffer;
 
-    // generic objects
-    CoreSegmentMeta* segmentMeta = nullptr;
-    Kitsunemimi::Ai::CoreMetaData* synapseMetaData = nullptr;
-
-    // bricks
-    Brick* nodeBricks = nullptr;
-
-    // nodes
+    SegmentHeader* segmentHeader = nullptr;
+    Kitsunemimi::Ai::SegmentSettings* synapseSettings = nullptr;
+    Brick* bricks = nullptr;
+    uint32_t* brickOrder = nullptr;
     Node* nodes = nullptr;
     float* nodeBuffers = nullptr;
-
-    // synapses
     SynapseSection* synapseSections = nullptr;
     SynapseBuffer* synapseBuffers = nullptr;
+    InputNode* inputs = nullptr;
+    OutputNode* outputs = nullptr;
 
-    InputNode* inputNodes = nullptr;
-    OutputNode* outputNodes = nullptr;
-
-    std::vector<std::vector<Brick*>> layer;
-
-    CoreSegment() {}
+    Segment() {}
 };
 
 //==================================================================================================

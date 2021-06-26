@@ -40,8 +40,7 @@
  * @brief synapseProcessing
  * @param section
  * @param bricks
- * @param nodeBuffers
- * @param segmentMeta
+ * @param nodes
  * @param randomValues
  * @param synapseMetaData
  * @param networkMetaData
@@ -53,7 +52,7 @@ synapseProcessing(SynapseSection* section,
                   Brick* bricks,
                   Node* nodes,
                   uint32_t* randomValues,
-                  Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
+                  Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
                   Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   Node* sourceNode,
                   const float weightIn)
@@ -103,10 +102,9 @@ synapseProcessing(SynapseSection* section,
 }
 
 /**
- * @brief nodeProcessingSingleThread
+ * @brief nodeProcessing
  * @param brick
  * @param nodes
- * @param segmentMeta
  * @param synapseSections
  * @param bricks
  * @param randomValues
@@ -114,39 +112,38 @@ synapseProcessing(SynapseSection* section,
  * @param networkMetaData
  */
 inline void
-nodeProcessingSingleThread(Brick* brick,
-                           Node* nodes,
-                           SynapseSection* synapseSections,
-                           Brick* bricks,
-                           uint32_t* randomValues,
-                           Kitsunemimi::Ai::CoreMetaData* synapseMetaData,
-                           Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
+nodeProcessing(Brick* brick,
+               Node* nodes,
+               SynapseSection* synapseSections,
+               Brick* bricks,
+               uint32_t* randomValues,
+               Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
+               Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
 {
-    // prepare nodes
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
         Node* node = &nodes[nodeId];
-        const bool initNode = node->border > 0.0f
-                              && node->init == 0
+        const bool initNode = node->init == 0
                               && node->input > 0.0f;
         node->border = static_cast<float>(initNode) * node->input * 0.5f
                        + static_cast<float>(initNode == false) * node->border;
         node->potential = synapseMetaData->potentialOverflow * node->input;
-
         node->input = 0.0f;
         node->delta = 0.0f;
     }
 
-    // process nodes
+    if(brick->isOutputBrick) {
+        return;
+    }
+
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
         Node* node = &nodes[nodeId];
-        const bool active = node->border >= 0.0f
-                            && node->potential > node->border;
+        const bool active = node->potential > node->border;
         if(active)
         {
             synapseProcessing(&synapseSections[nodeId],
@@ -157,12 +154,11 @@ nodeProcessingSingleThread(Brick* brick,
                               networkMetaData,
                               node,
                               node->potential);
-
         }
 
         node->active = active;
+
     }
 }
-
 
 #endif // SYNAPSE_PROCESSING_H

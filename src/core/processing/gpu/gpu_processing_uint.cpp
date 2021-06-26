@@ -24,7 +24,6 @@
 
 #include <synapse_node_processing.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
-#include <libKitsunemimiCommon/threading/barrier.h>
 
 #include <core/objects/node.h>
 #include <core/objects/segment.h>
@@ -62,7 +61,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
                                      synapse_node_processing_cl_len);
 
     // init worker-sizes
-    oclData.numberOfWg.x = cluster->synapseSegment->segmentMeta->numberOfNodeBricks;
+    oclData.numberOfWg.x = 1;
     // only 127 threads per group, instead of 128, because 1/128 of the local memory is used for
     // the meta-data
     oclData.threadsPerWg.x = 127;
@@ -71,18 +70,15 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 
     // fill buffer for nodes to map on gpu
 
-    oclData.addBuffer("networkMetaData",    1, sizeof(Kitsunemimi::Ai::NetworkMetaData), true, &cluster->networkMetaData);
+    oclData.addBuffer("networkMetaData",    1,                     sizeof(Kitsunemimi::Ai::NetworkMetaData), true,  &cluster->networkMetaData);
+    oclData.addBuffer("randomValues",       NUMBER_OF_RAND_VALUES, sizeof(uint32_t),                         false, cluster->randomValues);
 
-    CoreSegmentMeta* coreSegmentMeta = cluster->synapseSegment->segmentMeta;
-    oclData.addBuffer("coreMetaData",       1,                                           sizeof(Kitsunemimi::Ai::CoreMetaData), false, cluster->synapseSegment->synapseMetaData);
-    oclData.addBuffer("coreSegmentMeta",    1,                                           sizeof(CoreSegmentMeta),               false, cluster->synapseSegment->segmentMeta);
-    oclData.addBuffer("randomValues",       NUMBER_OF_RAND_VALUES,                       sizeof(uint32_t),                         false, cluster->randomValues);
-    oclData.addBuffer("nodeBuffers",        coreSegmentMeta->numberOfNodes * 127,        sizeof(float),                            false, cluster->synapseSegment->nodeBuffers);
-    oclData.addBuffer("bricks",             coreSegmentMeta->numberOfNodeBricks,         sizeof(Brick),                            false, cluster->synapseSegment->nodeBricks);
-    oclData.addBuffer("nodes",              coreSegmentMeta->numberOfNodes,              sizeof(Node),                             false, cluster->synapseSegment->nodes);
-    oclData.addBuffer("synapseSections",    coreSegmentMeta->numberOfSynapseSections,    sizeof(SynapseSection),                   false, cluster->synapseSegment->synapseSections);
-    oclData.addBuffer("synapseBuffers",     coreSegmentMeta->numberOfSynapseSections,    sizeof(SynapseBuffer),                    false, cluster->synapseSegment->synapseBuffers);
-    oclData.addBuffer("inputNodes",         coreSegmentMeta->numberOfInputs,             sizeof(InputNode),                        true, cluster->synapseSegment->inputNodes);
+    SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
+    oclData.addBuffer("segment_persistent", 1,  segmentHeader->segmentPersistentBufferSize, false,  cluster->synapseSegment->persistenBuffer.data);
+    oclData.addBuffer("segment_ephemeral",  1,  segmentHeader->segmentEphemeralBufferSize,  false,  cluster->synapseSegment->ephemeralBuffer.data);
+
+    oclData.addBuffer("inputs",  segmentHeader->inputs.count,  sizeof(InputNode),  true,  cluster->synapseSegment->inputs);
+    oclData.addBuffer("outputs", segmentHeader->outputs.count, sizeof(OutputNode), false, cluster->synapseSegment->outputs);
 
     //==============================================================================================
 
@@ -91,151 +87,71 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     //==============================================================================================
 
     // init kernel
-    assert(m_gpuInterface->addKernel(oclData, "synapse_processing",  processingCode));
-    assert(m_gpuInterface->addKernel(oclData, "node_processing",  processingCode));
-    assert(m_gpuInterface->addKernel(oclData, "output_node_processing",  processingCode));
-    assert(m_gpuInterface->addKernel(oclData, "output_learn_step",  processingCode));
-    assert(m_gpuInterface->addKernel(oclData, "reset_output_inputs",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "processSegmentInput",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "processSegmentOutput",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "rewightSegment",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "hardenSegment",  processingCode));
+    assert(m_gpuInterface->addKernel(oclData, "prcessSegmentNodes",  processingCode));
 
-    // bind buffer for node_processing kernel
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "nodes"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "nodeBuffers"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "inputNodes"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "synapseBuffers"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "coreSegmentMeta"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "coreMetaData"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "node_processing", "outputInputs"));
+    // bind buffer for processSegmentInput kernel
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "processSegmentInput", "inputs"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "processSegmentInput", "segment_persistent"));
 
-    // bind buffer for synapse_processing kernel
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "coreSegmentMeta"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "synapseBuffers"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "synapseSections"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "nodes"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "bricks"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "nodeBuffers"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "randomValues"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "coreMetaData"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "synapse_processing", "networkMetaData"));
+    // bind buffer for processSegmentOutput kernel
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "processSegmentOutput", "outputs"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "processSegmentOutput", "segment_persistent"));
 
-    // bind buffer for output_node_processing kernel
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputSynapseSections"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputInputs"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputs"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputSegmentMeta"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "networkMetaData"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_node_processing", "outputMetaData"));
+    // bind buffer for rewightSegment kernel
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "rewightSegment", "segment_persistent"));
 
-    // bind buffer for output_learn_step kernel
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputSynapseSections"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputInputs"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputs"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputSegmentMeta"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "randomValues"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "networkMetaData"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "output_learn_step", "outputMetaData"));
+    // bind buffer for hardenSegment kernel
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "hardenSegment", "synapseBuffers"));
 
-    // bind buffer for reset_outputs kernel
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "reset_output_inputs", "outputInputs"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "reset_output_inputs", "outputSegmentMeta"));
+    // bind buffer for prcessSegmentNodes kernel
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "prcessSegmentNodes", "synapseBuffers"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "prcessSegmentNodes", "segment_ephemeral"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "prcessSegmentNodes", "randomValues"));
+
 
     //==============================================================================================
 
     // init local memory for the kernels
     assert(m_gpuInterface->getLocalMemorySize() == 256*256);
-    assert(m_gpuInterface->setLocalMemory(oclData, "node_processing",  256*256));
-    assert(m_gpuInterface->setLocalMemory(oclData, "synapse_processing",  256*256));
-    assert(m_gpuInterface->setLocalMemory(oclData, "output_node_processing",  256*256));
-    assert(m_gpuInterface->setLocalMemory(oclData, "output_learn_step",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "processSegmentInput",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "processSegmentOutput",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "rewightSegment",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "hardenSegment",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "prcessSegmentNodes",  256*256));
 
     //==============================================================================================
 
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodes"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "nodeBuffers"));
-
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputInputs"));
-
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseBuffers"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "synapseSections"));
-
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "bricks"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "randomValues"));
 
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "networkMetaData"));
-
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "coreMetaData"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "coreSegmentMeta"));
-
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputMetaData"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputSegmentMeta"));
-
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputSynapseSections"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
 
-    return true;
-}
-
-bool
-GpuProcessingUnit::updateInput()
-{
-    return m_gpuInterface->updateBufferOnDevice(oclData, "inputNodes");
-}
-
-bool
-GpuProcessingUnit::synapse_processing()
-{
-    assert(m_gpuInterface->run(oclData, "synapse_processing"));
-    return true;
-}
-
-bool
-GpuProcessingUnit::node_processing()
-{
-    assert(m_gpuInterface->run(oclData, "node_processing"));
-    //assert(m_gpuInterface->copyFromDevice(oclData, "outputInputs"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_persistent"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_ephemeral"));
 
     return true;
 }
 
 bool
-GpuProcessingUnit::output_node_processing()
+GpuProcessingUnit::learn()
 {
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
-    assert(m_gpuInterface->run(oclData, "output_node_processing"));
+    assert(m_gpuInterface->run(oclData, "processSegmentInput"));
+    assert(m_gpuInterface->run(oclData, "prcessSegmentNodes"));
+    assert(m_gpuInterface->run(oclData, "processSegmentOutput"));
+    assert(m_gpuInterface->run(oclData, "rewightSegment"));
+    assert(m_gpuInterface->run(oclData, "hardenSegment"));
+}
+
+bool
+GpuProcessingUnit::execute()
+{
+    assert(m_gpuInterface->run(oclData, "processSegmentInput"));
+    assert(m_gpuInterface->run(oclData, "prcessSegmentNodes"));
+    assert(m_gpuInterface->run(oclData, "processSegmentOutput"));
     assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
-    return true;
-}
-
-bool
-GpuProcessingUnit::output_learn_step()
-{
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
-    assert(m_gpuInterface->run(oclData, "output_learn_step"));
-    assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
-    return true;
-}
-
-bool GpuProcessingUnit::finish()
-{
-    assert(m_gpuInterface->run(oclData, "reset_output_inputs"));
-    return true;
-}
-
-/**
- * @brief run thread to execute gpu-code
- */
-void
-GpuProcessingUnit::run()
-{
-    std::chrono::high_resolution_clock::time_point start;
-    std::chrono::high_resolution_clock::time_point end;
-    float timeValue = 0.0f;
-
-    while(!m_abort)
-    {
-        m_phase1->triggerBarrier();
-        m_phase2->triggerBarrier();
-
-        m_phase3->triggerBarrier();
-    }
 }

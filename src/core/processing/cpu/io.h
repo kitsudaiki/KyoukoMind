@@ -14,41 +14,36 @@
 
 /**
  * @brief processInputNodes
- * @param nodes
+ * @param segment
  * @param inputNodes
- * @param segmentMeta
  */
 inline void
-processInputNodes(Node* nodes,
-                  InputNode* inputNodes,
-                  CoreSegmentMeta* segmentMeta)
+processInputNodes(Segment* segment)
 {
     for(uint64_t inputNodeId = 0;
-        inputNodeId < segmentMeta->numberOfInputs;
+        inputNodeId < segment->segmentHeader->inputs.count;
         inputNodeId++)
     {
-        nodes[inputNodes[inputNodeId].targetNode].input = inputNodes[inputNodeId].weight;
+        const InputNode* inputNode = &segment->inputs[inputNodeId];
+        segment->nodes[inputNode->targetNode].input = inputNode->weight;
     }
 }
 
 /**
  * @brief processOutputNodes
- * @param nodes
+ * @param segment
  * @param outputNodes
- * @param segmentMeta
  */
 inline void
-processOutputNodes(Node* nodes,
-                   OutputNode* outputNodes,
-                   CoreSegmentMeta* segmentMeta)
+processOutputNodes(Segment* segment)
 {
     for(uint64_t outputNodeId = 0;
-        outputNodeId < segmentMeta->numberOfOutputs;
+        outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {
-        OutputNode* out = &outputNodes[outputNodeId];
-        Node* targetNode = &nodes[out->targetNode];
-        float nodeWeight = targetNode->potential;
+        OutputNode* out = &segment->outputs[outputNodeId];
+        Node* targetNode = &segment->nodes[out->targetNode];
+        const float nodeWeight = targetNode->potential;
         out->outputWeight = 1.0f / (1.0f + exp(-1.0f * nodeWeight));
     }
 }
@@ -56,23 +51,24 @@ processOutputNodes(Node* nodes,
 /**
  * @brief calcTotalError
  * @param outputNodes
- * @param segmentMeta
+ * @param segmentHeader
  * @return
  */
 inline float
-calcTotalError(OutputNode* outputNodes,
-               CoreSegmentMeta* segmentMeta)
+calcTotalError(Segment* segment)
 {
     float totalError = 0.0f;
 
     for(uint64_t outputNodeId = 0;
-        outputNodeId < segmentMeta->numberOfOutputs;
+        outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {
-        OutputNode* out = &outputNodes[outputNodeId];
+        OutputNode* out = &segment->outputs[outputNodeId];
         const float diff = (out->shouldValue - out->outputWeight);
         totalError += 0.5f * (diff * diff);
     }
+
+    //std::cout<<"error: "<<totalError<<std::endl;
 
     return totalError;
 }

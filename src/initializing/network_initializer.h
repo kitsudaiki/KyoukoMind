@@ -34,10 +34,10 @@ struct AiBaseMeta;
 struct Brick;
 class BrickInitializer;
 
-class NetworkInitializer
+class ClusterInitializer
 {
 public:
-    NetworkInitializer();
+    ClusterInitializer();
 
     bool initNetwork();
     bool createNewNetwork(const std::string &fileContent,

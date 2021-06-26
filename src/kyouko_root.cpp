@@ -25,7 +25,7 @@
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
-#include <core/processing/static_processing/single_thread_processing_static.h>
+#include <core/processing/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
 #include <core/objects/node.h>
 #include <core/storage_io.h>
@@ -99,7 +99,7 @@ bool
 KyoukoRoot::start()
 {
     // network-manager
-    NetworkInitializer initializer;
+    ClusterInitializer initializer;
     return initializer.initNetwork();
 }
 void KyoukoRoot::learnTestData()
@@ -155,12 +155,12 @@ void KyoukoRoot::learnTestData()
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
-    m_staticProcessing = new SingleThreadProcessingStatic();
+    m_cpuProcessingUnit = new CpuProcessingUnit();
 
 
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
+    InputNode* inputNodes = cluster->synapseSegment->inputs;
     for(uint32_t i = 0; i < 1568; i++)  {
         inputNodes[i].weight = 0.0f;
     }
@@ -174,7 +174,7 @@ void KyoukoRoot::learnTestData()
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
 
-            OutputNode* outputs = cluster->synapseSegment->outputNodes;
+            OutputNode* outputs = cluster->synapseSegment->outputs;
             for(uint32_t i = 0; i < 10; i++) {
                 outputs[i].shouldValue = 0.0f;
             }
@@ -190,7 +190,7 @@ void KyoukoRoot::learnTestData()
                 inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
             }
 
-            m_staticProcessing->learn();
+            m_cpuProcessingUnit->learn();
         }
     }
 
@@ -210,7 +210,7 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
     const std::string testLabelPath = "/home/neptune/Schreibtisch/mnist/t10k-labels.idx1-ubyte";
 
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    InputNode* inputNodes = cluster->synapseSegment->inputNodes;
+    InputNode* inputNodes = cluster->synapseSegment->inputs;
 
     // read train-data
     Kitsunemimi::Persistence::BinaryFile testData(testDataPath);
@@ -233,7 +233,7 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
         inputNodes[i].weight = 0.0f;
     }
 
-    CoreSegment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
@@ -249,7 +249,7 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
             inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
         }
 
-        m_staticProcessing->execute();
+        m_cpuProcessingUnit->execute();
 
         // print result
         float biggest = -100000.0f;
@@ -257,9 +257,9 @@ uint32_t KyoukoRoot::runTest(const uint32_t pictureSize)
         std::cout<<"[";
 
 
-        for(uint64_t i = 0; i < synapseSegment->segmentMeta->numberOfOutputs; i++)
+        for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
         {
-            OutputNode* out = &synapseSegment->outputNodes[i];
+            OutputNode* out = &synapseSegment->outputs[i];
 
             if(i > 0) {
                 std::cout<<" | ";

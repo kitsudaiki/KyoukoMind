@@ -1,5 +1,5 @@
-/**
- * @file        fan_brick_initializer.h
+﻿/**
+ * @file        synapse_processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,24 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef FANBRICKINITIALIZER_H
-#define FANBRICKINITIALIZER_H
+#ifndef SEGMENT_PROCESSING_H
+#define SEGMENT_PROCESSING_H
 
 #include <common.h>
+#include <core/objects/segment.h>
 
-#include <initializing/brick_initializer.h>
+void processSegmentInput(Segment* segment);
+void processSegmentOutput(Segment* segment);
+float calculateSegmentError(Segment* segment);
 
-class FanBrickInitializer
-        : public BrickInitializer
-{
-public:
-    FanBrickInitializer();
+void reduceSegmentSynapses(Segment* segment);
+void rewightSegment(Segment* segment);
+void hardenSegment(Segment* segment);
+void prcessSegmentNodes(Segment* segment);
 
-    Brick* getAxonBrick(CoreSegment &segment, Brick* sourceBrick);
-    bool initTargetBrickList(CoreSegment &segment, Kitsunemimi::Ai::InitMeataData *initMetaData);
-
-private:
-    uint8_t getPossibleNext();
-};
-
-#endif // FANBRICKINITIALIZER_H
+#endif // SEGMENT_PROCESSING_H

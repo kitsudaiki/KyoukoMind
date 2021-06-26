@@ -90,7 +90,8 @@ HEADERS += \
     src/core/processing/cpu/create_reduce.h \
     src/core/processing/cpu/io.h \
     src/core/processing/cpu/processing.h \
-    src/core/processing/static_processing/static_processing.h \
+    src/core/processing/cpu/segment_processing.h \
+    src/core/processing/cpu_processing_unit.h \
     src/core/objects/brick.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segment.h \
@@ -98,19 +99,13 @@ HEADERS += \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
     src/core/processing/processing_unit_handler.h \
-    src/core/processing/static_processing/gpu_processing_static.h \
-    src/core/processing/static_processing/multithread_processing_static.h \
-    src/core/processing/static_processing/single_thread_processing_static.h \
     src/core/storage_io.h \
     src/core/validation.h \
     src/initializing/brick_initializer.h \
-    src/initializing/fan_brick_initializer.h \
-    src/initializing/layered_brick_initializier.h \
     src/initializing/network_initializer.h \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/initializing/random_brick_initializer.h \
     src/initializing/segment_initailzing.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
@@ -121,18 +116,13 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
-    src/core/processing/static_processing/static_processing.cpp \
+    src/core/processing/cpu/segment_processing.cpp \
+    src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
-    src/core/processing/static_processing/gpu_processing_static.cpp \
-    src/core/processing/static_processing/multithread_processing_static.cpp \
-    src/core/processing/static_processing/single_thread_processing_static.cpp \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/initializing/brick_initializer.cpp \
-    src/initializing/fan_brick_initializer.cpp \
-    src/initializing/layered_brick_initializier.cpp \
     src/initializing/network_initializer.cpp \
-    src/initializing/random_brick_initializer.cpp \
     src/initializing/segment_initailzing.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
