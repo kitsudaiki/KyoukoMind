@@ -43,7 +43,8 @@ struct SegmentHeaderEntry
 struct SegmentHeader
 {
     uint64_t segmentSize = 0;
-    uint64_t segmentBufferSize = 0;
+    uint64_t segmentPersistentBufferSize = 0;
+    uint64_t segmentEphemeralBufferSize = 0;
 
     // synapse-segment
     SegmentHeaderEntry settings;
@@ -56,14 +57,15 @@ struct SegmentHeader
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
-    uint8_t padding[96];
+    uint8_t padding[88];
 
     // total size: 256 Byte
 };
 
 struct Segment
 {
-    Kitsunemimi::DataBuffer buffer;
+    Kitsunemimi::DataBuffer persistenBuffer;
+    Kitsunemimi::DataBuffer ephemeralBuffer;
 
     SegmentHeader* segmentHeader = nullptr;
     Kitsunemimi::Ai::SegmentSettings* synapseSettings = nullptr;
