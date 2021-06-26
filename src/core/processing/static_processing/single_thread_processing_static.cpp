@@ -54,7 +54,7 @@ SingleThreadProcessingStatic::executeStep()
                                    synapseSegment->synapseSections,
                                    synapseSegment->bricks,
                                    KyoukoRoot::m_networkCluster->randomValues,
-                                   synapseSegment->synapseMetaData,
+                                   synapseSegment->synapseSettings,
                                    &KyoukoRoot::m_networkCluster->networkMetaData);
     }
 

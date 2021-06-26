@@ -74,7 +74,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.addBuffer("networkMetaData",    1, sizeof(Kitsunemimi::Ai::NetworkMetaData), true, &cluster->networkMetaData);
 
     SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
-    oclData.addBuffer("coreMetaData",       1,                                           sizeof(Kitsunemimi::Ai::SegmentSettings), false, cluster->synapseSegment->synapseMetaData);
+    oclData.addBuffer("coreMetaData",       1,                                           sizeof(Kitsunemimi::Ai::SegmentSettings), false, cluster->synapseSegment->synapseSettings);
     oclData.addBuffer("coreSegmentMeta",    1,                                           sizeof(SegmentHeader),                    false, cluster->synapseSegment->segmentHeader);
     oclData.addBuffer("randomValues",       NUMBER_OF_RAND_VALUES,                       sizeof(uint32_t),                         false, cluster->randomValues);
     oclData.addBuffer("nodeBuffers",        segmentHeader->nodes.count * 127,            sizeof(float),                            false, cluster->synapseSegment->nodeBuffers);

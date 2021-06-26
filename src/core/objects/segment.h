@@ -43,6 +43,7 @@ struct SegmentHeaderEntry
 struct SegmentHeader
 {
     uint64_t segmentSize = 0;
+    uint64_t segmentBufferSize = 0;
 
     // synapse-segment
     SegmentHeaderEntry settings;
@@ -55,7 +56,7 @@ struct SegmentHeader
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
-    uint8_t padding[104];
+    uint8_t padding[96];
 
     // total size: 256 Byte
 };
@@ -65,7 +66,7 @@ struct Segment
     Kitsunemimi::DataBuffer buffer;
 
     SegmentHeader* segmentHeader = nullptr;
-    Kitsunemimi::Ai::SegmentSettings* synapseMetaData = nullptr;
+    Kitsunemimi::Ai::SegmentSettings* synapseSettings = nullptr;
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
     Node* nodes = nullptr;

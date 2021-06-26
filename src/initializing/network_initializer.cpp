@@ -44,7 +44,7 @@
 /**
  * @brief constructor
  */
-NetworkInitializer::NetworkInitializer()
+ClusterInitializer::ClusterInitializer()
 {
     m_brickInitializer = new BrickInitializer();
 }
@@ -55,7 +55,7 @@ NetworkInitializer::NetworkInitializer()
  * @return true, if successfull, else false
  */
 bool
-NetworkInitializer::initNetwork()
+ClusterInitializer::initNetwork()
 {
     bool success = false;
 
@@ -110,7 +110,7 @@ NetworkInitializer::initNetwork()
  * @return true, if successfull, else false
  */
 bool
-NetworkInitializer::createNewNetwork(const std::string &fileContent,
+ClusterInitializer::createNewNetwork(const std::string &fileContent,
                                      const std::string &configFileContent)
 {
     // init randomizer
@@ -156,7 +156,7 @@ NetworkInitializer::createNewNetwork(const std::string &fileContent,
                                                  10 * parsedContent.numberOfOutputBricks,
                                                  numberOfRandValues);
 
-    cluster->synapseSegment->synapseMetaData[0] = parsedContent.synapseMetaData;
+    cluster->synapseSegment->synapseSettings[0] = parsedContent.synapseMetaData;
 
     // fill array with empty nodes
     initializeNodes(*cluster->synapseSegment,

@@ -23,14 +23,10 @@
 #include "brick_initializer.h"
 
 BrickInitializer::BrickInitializer()
-{
-
-}
+{}
 
 BrickInitializer::~BrickInitializer()
-{
-
-}
+{}
 
 bool
 BrickInitializer::initializeAxons(Segment &segment)

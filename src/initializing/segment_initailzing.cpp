@@ -93,6 +93,7 @@ createNewHeader(const uint32_t numberOfBricks,
     bufferPos += numberOfOutputs * sizeof(OutputNode);
 
     segmentHeader.segmentSize = bufferPos;
+    segmentHeader.segmentBufferSize = 0;
 
     return segmentHeader;
 }
@@ -111,7 +112,7 @@ initSegmentPointer(Segment &segment,
     segment.segmentHeader = reinterpret_cast<SegmentHeader*>(data + 0);
     segment.segmentHeader[0] = header;
 
-    segment.synapseMetaData = reinterpret_cast<Kitsunemimi::Ai::SegmentSettings*>(data + 256);
+    segment.synapseSettings = reinterpret_cast<Kitsunemimi::Ai::SegmentSettings*>(data + 256);
     segment.bricks = reinterpret_cast<Brick*>(data + segment.segmentHeader->bricks.bytePos);
     segment.brickOrder = reinterpret_cast<uint32_t*>(data + segment.segmentHeader->brickOrder.bytePos);
     segment.nodes = reinterpret_cast<Node*>(data + segment.segmentHeader->nodes.bytePos);
@@ -128,11 +129,12 @@ initSegmentPointer(Segment &segment,
  * @return
  */
 Segment*
-allocateSegment(const SegmentHeader &header)
+allocateSegment(SegmentHeader &header)
 {
     Segment* newSegment = new Segment();
 
     const uint32_t numberOfBlocks = (header.segmentSize / 4096) + 1;
+    header.segmentBufferSize = numberOfBlocks * 4096;
     Kitsunemimi::allocateBlocks_DataBuffer(newSegment->buffer, numberOfBlocks);
     initSegmentPointer(*newSegment, header);
 
@@ -163,7 +165,7 @@ initSynapseSegment(const uint32_t numberOfBricks,
     Segment* segment = allocateSegment(header);
 
     // init header and metadata
-    segment->synapseMetaData[0] = Kitsunemimi::Ai::SegmentSettings();
+    segment->synapseSettings[0] = Kitsunemimi::Ai::SegmentSettings();
 
     // init bricks;
     for(uint32_t i = 0; i < numberOfBricks; i++) {
@@ -210,6 +212,12 @@ initSynapseSegment(const uint32_t numberOfBricks,
     return segment;
 }
 
+/**
+ * @brief initializeNodes
+ * @param segment
+ * @param initMetaData
+ * @return
+ */
 bool
 initializeNodes(Segment &segment,
                 Kitsunemimi::Ai::InitSettings* initMetaData)
@@ -227,13 +235,15 @@ initializeNodes(Segment &segment,
 }
 
 /**
- * @brief add new brick
- *
- * @param segment segment where to add a new brick
+ * @brief addBricksToSegment
+ * @param segment
+ * @param initMetaData
+ * @param metaBase
  */
-void addBricksToSegment(Segment &segment,
-                        Kitsunemimi::Ai::InitSettings* initMetaData,
-                        const Kitsunemimi::Ai::AiBaseMeta& metaBase)
+void
+addBricksToSegment(Segment &segment,
+                   Kitsunemimi::Ai::InitSettings* initMetaData,
+                   const Kitsunemimi::Ai::AiBaseMeta& metaBase)
 {
     uint32_t nodeBrickIdCounter = 0;
     uint32_t inputCounter = 0;
