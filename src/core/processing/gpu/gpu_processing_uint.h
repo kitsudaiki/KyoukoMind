@@ -27,34 +27,18 @@
 #include <core/objects/network_cluster.h>
 #include <core/objects/segment.h>
 
-#include <libKitsunemimiCommon/threading/thread.h>
 #include <libKitsunemimiOpencl/gpu_handler.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
-namespace Kitsunemimi {
-class Barrier;
-}
-
 class GpuProcessingUnit
-        : public Kitsunemimi::Thread
 {
 public:
     GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInterface);
 
     bool initializeGpu(NetworkCluster *cluster);
 
-    bool updateInput();
-    bool synapse_processing();
-    bool node_processing();
-    bool output_node_processing();
-    bool output_learn_step();
-    bool finish();
-
-    void run();
-
-    Kitsunemimi::Barrier* m_phase1 = nullptr;
-    Kitsunemimi::Barrier* m_phase2 = nullptr;
-    Kitsunemimi::Barrier* m_phase3 = nullptr;
+    bool learn();
+    bool execute();
 
 private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
