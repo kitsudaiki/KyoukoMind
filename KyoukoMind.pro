@@ -90,6 +90,7 @@ HEADERS += \
     src/core/processing/cpu/create_reduce.h \
     src/core/processing/cpu/io.h \
     src/core/processing/cpu/processing.h \
+    src/core/processing/cpu/segment_processing.h \
     src/core/processing/static_processing/static_processing.h \
     src/core/objects/brick.h \
     src/core/objects/network_cluster.h \
@@ -118,6 +119,7 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
+    src/core/processing/cpu/segment_processing.cpp \
     src/core/processing/static_processing/static_processing.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/processing/static_processing/gpu_processing_static.cpp \

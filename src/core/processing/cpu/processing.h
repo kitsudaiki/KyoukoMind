@@ -161,26 +161,4 @@ nodeProcessing(Brick* brick,
     }
 }
 
-/**
- * @brief segmentProcessing
- * @param segment
- */
-inline void
-segmentProcessing(Segment* segment)
-{
-    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
-    for(uint32_t pos = 0; pos < numberOfBricks; pos++)
-    {
-        const uint32_t brickId = segment->brickOrder[pos];
-        Brick* brick = &segment->bricks[brickId];
-        nodeProcessing(brick,
-                       segment->nodes,
-                       segment->synapseSections,
-                       segment->bricks,
-                       KyoukoRoot::m_networkCluster->randomValues,
-                       segment->synapseSettings,
-                       &KyoukoRoot::m_networkCluster->networkMetaData);
-    }
-}
-
 #endif // SYNAPSE_PROCESSING_H

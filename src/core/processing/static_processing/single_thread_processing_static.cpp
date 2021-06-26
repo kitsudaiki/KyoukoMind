@@ -22,10 +22,10 @@
 
 #include "single_thread_processing_static.h"
 
-#include <core/processing/cpu/processing.h>
-#include <core/processing/cpu/io.h>
-#include <core/processing/cpu/backpropagation.h>
+#include <core/processing/cpu/segment_processing.h>
 #include <core/processing/static_processing/gpu_processing_static.h>
+#include <core/objects/network_cluster.h>
+
 SingleThreadProcessingStatic::SingleThreadProcessingStatic()
     : StaticProcessing()
 {
@@ -40,9 +40,9 @@ SingleThreadProcessingStatic::executeStep()
     Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
     // learn until output-section
-    processInputNodes(synapseSegment);
-    segmentProcessing(synapseSegment);
-    processOutputNodes(synapseSegment);
+    processSegmentInput(synapseSegment);
+    prcessSegmentNodes(synapseSegment);
+    processSegmentOutput(synapseSegment);
 }
 
 /**
@@ -53,7 +53,7 @@ SingleThreadProcessingStatic::reductionLearning()
 {
     Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
 
-    const float initError = calcTotalError(synapseSegment);
+    const float initError = calculateSegmentError(synapseSegment);
     float error = initError;
 
     if(initError > 0.1f)
@@ -62,15 +62,15 @@ SingleThreadProcessingStatic::reductionLearning()
         while(error >= initError
               && timeout >= 0)
         {
-            reduceCoreSynapses(synapseSegment);
+            reduceSegmentSynapses(synapseSegment);
             executeStep();
-            error = calcTotalError(synapseSegment);
+            error = calculateSegmentError(synapseSegment);
 
             timeout--;
         }
     }
 
-    hardenSynapses(synapseSegment);
+    hardenSegment(synapseSegment);
 }
 
 /**
@@ -89,32 +89,7 @@ SingleThreadProcessingStatic::updateLearning()
         reductionCounter++;
     }
 
-    backpropagateOutput(synapseSegment->segmentHeader,
-                        synapseSegment->nodes,
-                        synapseSegment->outputs);
-
-    const uint32_t numberOfBricks = synapseSegment->segmentHeader->bricks.count;
-    for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
-    {
-        const uint32_t brickId = synapseSegment->brickOrder[pos];
-        Brick* brick = &synapseSegment->bricks[brickId];
-        if(brick->isOutputBrick)
-        {
-            correctNewOutputSynapses(brick,
-                                     synapseSegment->nodes,
-                                     synapseSegment->synapseSections);
-        }
-    }
-
-    for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
-    {
-        const uint32_t brickId = synapseSegment->brickOrder[pos];
-        Brick* brick = &synapseSegment->bricks[brickId];
-        backpropagateNodes(brick,
-                           synapseSegment->nodes,
-                           synapseSegment->synapseSections);
-    }
-
-    hardenSynapses(synapseSegment);
+    rewightSegment(synapseSegment);
+    hardenSegment(synapseSegment);
 }
 

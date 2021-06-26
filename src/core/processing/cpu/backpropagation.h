@@ -20,20 +20,19 @@
  */
 inline void
 backpropagateNodes(Brick* brick,
-                   Node* nodes,
-                   SynapseSection* synapseSections)
+                   Segment* segment)
 {
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
-        SynapseSection* section = &synapseSections[nodeId];
+        SynapseSection* section = &segment->synapseSections[nodeId];
         if(section->active == 0) {
             continue;
         }
 
         uint16_t pos = 0;
-        Node* sourceNode = &nodes[nodeId];
+        Node* sourceNode = &segment->nodes[nodeId];
         float netH = sourceNode->potential;
         const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
 
@@ -49,8 +48,8 @@ backpropagateNodes(Brick* brick,
             // update weight
             const float learnValue = static_cast<float>(pos <= section->hardening) * 0.1f
                                      + static_cast<float>(pos > section->hardening) * 0.4f;
-            sourceNode->delta += nodes[synapse->targetNodeId].delta * synapse->weight;
-            synapse->weight -= learnValue * nodes[synapse->targetNodeId].delta * outH;
+            sourceNode->delta += segment->nodes[synapse->targetNodeId].delta * synapse->weight;
+            synapse->weight -= learnValue * segment->nodes[synapse->targetNodeId].delta * outH;
 
             netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             pos++;
@@ -65,16 +64,14 @@ backpropagateNodes(Brick* brick,
  * @param outputNodes
  */
 inline void
-backpropagateOutput(SegmentHeader* segmentHeader,
-                    Node* nodes,
-                    OutputNode* outputNodes)
+backpropagateOutput(Segment* segment)
 {
     for(uint64_t outputNodeId = 0;
-        outputNodeId < segmentHeader->outputs.count;
+        outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {
-        OutputNode* out = &outputNodes[outputNodeId];
-        Node* targetNode = &nodes[out->targetNode];
+        OutputNode* out = &segment->outputs[outputNodeId];
+        Node* targetNode = &segment->nodes[out->targetNode];
         const float outW = out->outputWeight;
         const float delta = (outW - out->shouldValue) * outW * (1.0f - outW);
         targetNode->delta = delta;
@@ -89,20 +86,19 @@ backpropagateOutput(SegmentHeader* segmentHeader,
  */
 inline void
 correctNewOutputSynapses(Brick* brick,
-                         Node* nodes,
-                         SynapseSection* synapseSections)
+                         Segment* segment)
 {
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
-        SynapseSection* section = &synapseSections[nodeId];
+        SynapseSection* section = &segment->synapseSections[nodeId];
         if(section->active == 0) {
             continue;
         }
 
         uint16_t pos = section->hardening;
-        Node* sourceNode = &nodes[nodeId];
+        Node* sourceNode = &segment->nodes[nodeId];
         float netH = sourceNode->potential;
 
         // iterate over all synapses in the section and update the target-nodes
@@ -115,7 +111,7 @@ correctNewOutputSynapses(Brick* brick,
             }
 
             // update weight
-            const float delta = nodes[synapse->targetNodeId].delta;
+            const float delta = segment->nodes[synapse->targetNodeId].delta;
             const bool invert = (delta < 0.0f && synapse->weight < 0.0f)
                                 || (delta > 0.0f && synapse->weight > 0.0f);
             if(invert) {
