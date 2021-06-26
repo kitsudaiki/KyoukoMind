@@ -101,6 +101,7 @@ HEADERS += \
     src/core/processing/processing_unit_handler.h \
     src/core/storage_io.h \
     src/core/validation.h \
+    src/dev_test.h \
     src/initializing/brick_initializer.h \
     src/initializing/network_initializer.h \
     src/args.h \
@@ -121,6 +122,7 @@ SOURCES += \
     src/core/processing/processing_unit_handler.cpp \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
+    src/dev_test.cpp \
     src/initializing/brick_initializer.cpp \
     src/initializing/network_initializer.cpp \
     src/initializing/segment_initailzing.cpp \

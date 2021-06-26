@@ -26,6 +26,7 @@
 #include <args.h>
 #include <config.h>
 #include <core/callbacks.h>
+#include <dev_test.h>
 #include <initializing/blossom_initializing.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
@@ -63,27 +64,33 @@ main(int argc, char *argv[])
 
     // create core
     KyoukoRoot* rootObject = new KyoukoRoot();
-
-    // init blossoms
-    /*initBlossoms();
-    if(rootObject->initializeSakuraFiles() == false) {
-        return 1;
-    }*/
-
-    // initialize server and connections based on the config-file
-    /*std::vector<std::string> groupNames = {};
-    const bool sakuraMessageInit = MessagingController::initializeMessagingController("KyoukoMind",
-                                                                                      groupNames,
-                                                                                      &sessionCreateCallback,
-                                                                                      &sessionCloseCallback);
-    if(sakuraMessageInit == false)
-    {
-        return 1;
-    }*/
-
-    // start core
     rootObject->start();
-    rootObject->learnTestData();
+
+    if(argParser.wasSet("develop"))
+    {
+        const std::string mnistTestPath = argParser.getStringValue("develop");
+        learnTestData(mnistTestPath);
+    }
+    else
+    {
+        // init blossoms
+        initBlossoms();
+        if(rootObject->initializeSakuraFiles() == false) {
+            return 1;
+        }
+
+        // initialize server and connections based on the config-file
+        std::vector<std::string> groupNames = {};
+        const bool sakuraMessageInit = MessagingController::initializeMessagingController("KyoukoMind",
+                                                                                          groupNames,
+                                                                                          &sessionCreateCallback,
+                                                                                          &sessionCloseCallback);
+        if(sakuraMessageInit == false)
+        {
+            return 1;
+        }
+    }
+
 
     int a = 0;
     std::cin >> a;

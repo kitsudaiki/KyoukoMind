@@ -34,6 +34,9 @@ registerArguments(Kitsunemimi::Args::ArgParser &argparser)
 
     argparser.registerPlain("debug,d",
                             "enable debug-mode");
+
+    argparser.registerString("develop",
+                             "enable develop-mode without any network-connection");
     return true;
 }
 

@@ -46,10 +46,6 @@ public:
 
     bool start();
     bool initializeSakuraFiles();
-    void learnTestData();
-    uint32_t runTest(const uint32_t pictureSize);
-
-    CpuProcessingUnit* m_cpuProcessingUnit = nullptr;
 
 private:
     uint32_t m_serverId = 0;
