@@ -7,12 +7,17 @@
 #include <libKitsunemimiPersistence/files/text_file.h>
 
 #include <core/processing/cpu_processing_unit.h>
+#include <core/processing/gpu/gpu_processing_uint.h>
 
 void
 learnTestData(const std::string &mnistRootPath)
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     CpuProcessingUnit cpuProcessingUnit;
+
+    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
+    GpuProcessingUnit gpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
+    assert(gpuProcessingUnit.initializeGpu(cluster));
 
     // /home/neptune/Schreibtisch/mnist
 
@@ -99,7 +104,8 @@ learnTestData(const std::string &mnistRootPath)
                 inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
             }
 
-            cpuProcessingUnit.learn();
+            //cpuProcessingUnit.learn();
+            gpuProcessingUnit.learn();
         }
     }
 
@@ -145,7 +151,8 @@ learnTestData(const std::string &mnistRootPath)
             inputNodes[i * 2 + 1].weight = (static_cast<float>(total) / 255.0f);
         }
 
-        cpuProcessingUnit.execute();
+        //cpuProcessingUnit.execute();
+        gpuProcessingUnit.execute();
 
         // print result
         float biggest = -100000.0f;
