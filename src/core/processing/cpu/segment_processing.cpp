@@ -123,7 +123,6 @@ prcessSegmentNodes(Segment* segment)
                        segment->synapseSections,
                        segment->bricks,
                        KyoukoRoot::m_networkCluster->randomValues,
-                       segment->synapseSettings,
-                       &KyoukoRoot::m_networkCluster->networkMetaData);
+                       segment->synapseSettings);
     }
 }

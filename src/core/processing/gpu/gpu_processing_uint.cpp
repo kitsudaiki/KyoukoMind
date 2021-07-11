@@ -76,7 +76,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.addBuffer("segment_persistent", 1,  segmentHeader->segmentPersistentBufferSize, false,  cluster->synapseSegment->persistenBuffer.data);
     oclData.addBuffer("segment_ephemeral",  1,  segmentHeader->segmentEphemeralBufferSize,  false,  cluster->synapseSegment->ephemeralBuffer.data);
 
-    oclData.addBuffer("inputs",  segmentHeader->inputs.count,  sizeof(InputNode),  true,  cluster->synapseSegment->inputs);
+    oclData.addBuffer("inputs",  segmentHeader->inputs.count,  sizeof(InputNode),  false,  cluster->synapseSegment->inputs);
     oclData.addBuffer("outputs", segmentHeader->outputs.count, sizeof(OutputNode), false, cluster->synapseSegment->outputs);
 
     //==============================================================================================
@@ -133,6 +133,9 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
 
+    Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    synapseSegment->synapseSettings->doLearn = 1;
+
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_persistent"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_ephemeral"));
 
@@ -142,6 +145,8 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 bool
 GpuProcessingUnit::learn()
 {
+    std::cout<<"+++++++++++ learn"<<std::endl;
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
     assert(m_gpuInterface->run(oclData, "processSegmentInput"));
     assert(m_gpuInterface->run(oclData, "prcessSegmentNodes"));
@@ -149,13 +154,17 @@ GpuProcessingUnit::learn()
     assert(m_gpuInterface->run(oclData, "rewightSegment"));
     assert(m_gpuInterface->run(oclData, "hardenSegment"));
     assert(m_gpuInterface->run(oclData, "processSegmentOutput"));
+    return true;
 }
 
 bool
 GpuProcessingUnit::execute()
 {
+    std::cout<<"++++++++++++++ execute"<<std::endl;
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
     assert(m_gpuInterface->run(oclData, "processSegmentInput"));
     assert(m_gpuInterface->run(oclData, "prcessSegmentNodes"));
     assert(m_gpuInterface->run(oclData, "processSegmentOutput"));
     assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
+    return true;
 }
