@@ -69,15 +69,35 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     //==============================================================================================
 
     // fill buffer for nodes to map on gpu
-
-    oclData.addBuffer("randomValues",       NUMBER_OF_RAND_VALUES, sizeof(uint32_t),                         false, cluster->randomValues);
-
     SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
-    oclData.addBuffer("segment_persistent", 1,  segmentHeader->segmentPersistentBufferSize, false,  cluster->synapseSegment->persistenBuffer.data);
-    oclData.addBuffer("segment_ephemeral",  1,  segmentHeader->segmentEphemeralBufferSize,  false,  cluster->synapseSegment->ephemeralBuffer.data);
 
-    oclData.addBuffer("inputs",  segmentHeader->inputs.count,  sizeof(InputNode),  false,  cluster->synapseSegment->inputs);
-    oclData.addBuffer("outputs", segmentHeader->outputs.count, sizeof(OutputNode), false, cluster->synapseSegment->outputs);
+    oclData.addBuffer("segment_persistent",
+                      1,
+                      segmentHeader->segmentPersistentBufferSize,
+                      false,
+                      cluster->synapseSegment->persistenBuffer.data);
+    oclData.addBuffer("segment_ephemeral",
+                      1,
+                      segmentHeader->segmentEphemeralBufferSize,
+                      false,
+                      cluster->synapseSegment->ephemeralBuffer.data);
+
+    oclData.addBuffer("inputs",
+                      segmentHeader->inputs.count,
+                      sizeof(InputNode),
+                      false,
+                      cluster->synapseSegment->inputs);
+    oclData.addBuffer("outputs",
+                      segmentHeader->outputs.count,
+                      sizeof(OutputNode),
+                      false,
+                      cluster->synapseSegment->outputs);
+
+    oclData.addBuffer("randomValues",
+                      NUMBER_OF_RAND_VALUES,
+                      sizeof(uint32_t),
+                      false,
+                      cluster->randomValues);
 
     //==============================================================================================
 
@@ -127,19 +147,49 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 bool
 GpuProcessingUnit::learn()
 {
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+
     std::cout<<"+++++++++++ learn"<<std::endl;
+    start = std::chrono::system_clock::now();
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
+    end = std::chrono::system_clock::now();
+    std::cout<<"copy inputs to device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+
+    start = std::chrono::system_clock::now();
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
+    end = std::chrono::system_clock::now();
+    std::cout<<"copy outputs to device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+
+    start = std::chrono::system_clock::now();
     assert(m_gpuInterface->run(oclData, "learn"));
+    end = std::chrono::system_clock::now();
+    std::cout<<"run learn: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+
     return true;
 }
 
 bool
 GpuProcessingUnit::execute()
 {
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+
     std::cout<<"++++++++++++++ execute"<<std::endl;
+    start = std::chrono::system_clock::now();
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
+    end = std::chrono::system_clock::now();
+    std::cout<<"copy inputs to device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+
+    start = std::chrono::system_clock::now();
     assert(m_gpuInterface->run(oclData, "execute"));
+    end = std::chrono::system_clock::now();
+    std::cout<<"run execute: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+
+    start = std::chrono::system_clock::now();
     assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
+    end = std::chrono::system_clock::now();
+    std::cout<<"copy outputs from device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+
     return true;
 }
