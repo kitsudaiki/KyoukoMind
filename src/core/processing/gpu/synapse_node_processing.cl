@@ -346,7 +346,7 @@ createNewSynapse(__global SynapseSection* section,
                  __global Brick* bricks,
                  __global uint* randomValues,
                  __global Node* sourceNode,
-                 __global SegmentSettings* synapseMetaData,
+                 __global SegmentSettings* segmentSettings,
                  const float remainingWeight)
 {
     float randomMulti = 0.0f;
@@ -356,7 +356,7 @@ createNewSynapse(__global SynapseSection* section,
     __global Brick* nodeBrick = NULL;
     uint signRand = 0;
 
-    const float maxWeight = synapseMetaData->maxSynapseWeight;
+    const float maxWeight = segmentSettings->maxSynapseWeight;
 
     // set new weight
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -371,12 +371,12 @@ createNewSynapse(__global SynapseSection* section,
     // update weight with multiplicator
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
     randomMulti = (float)(randomValues[section->randomPos]) / RAND_MAX;
-    synapse->weight *= randomMulti * (float)(synapseMetaData->multiplicatorRange) + 1.0f;
+    synapse->weight *= randomMulti * (float)(segmentSettings->multiplicatorRange) + 1.0f;
 
     // update weight with multiplicator
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
     signRand = randomValues[section->randomPos] % 1000;
-    synapse->weight *= (float)(1 - (1000.0f * synapseMetaData->signNeg > signRand) * 2);
+    synapse->weight *= (float)(1 - (1000.0f * segmentSettings->signNeg > signRand) * 2);
 
     // set target node id
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -546,7 +546,7 @@ synapseProcessing(__global SynapseSection* section,
                   __global Brick* bricks,
                   __global Node* nodes,
                   __global uint* randomValues,
-                  __global SegmentSettings* synapseMetaData,
+                  __global SegmentSettings* segmentSettings,
                   __global Node* sourceNode,
                   const float weightIn)
 {
@@ -569,7 +569,7 @@ synapseProcessing(__global SynapseSection* section,
         __global Synapse* synapse = &section->synapses[pos];
         const bool createSyn = synapse->targetNodeId == UNINIT_STATE_16
                                && pos >= section->hardening
-                               && synapseMetaData->doLearn > 0;
+                               && segmentSettings->doLearn > 0;
         if(createSyn)
         {
             createNewSynapse(section,
@@ -577,7 +577,7 @@ synapseProcessing(__global SynapseSection* section,
                              bricks,
                              randomValues,
                              sourceNode,
-                             synapseMetaData,
+                             segmentSettings,
                              netH);
         }
 
@@ -601,7 +601,7 @@ synapseProcessing(__global SynapseSection* section,
  * @param synapseSections
  * @param bricks
  * @param randomValues
- * @param synapseMetaData
+ * @param segmentSettings
  * @param networkMetaData
  */
 inline void
@@ -610,7 +610,7 @@ nodeProcessing(__global Brick* brick,
                __global SynapseSection* synapseSections,
                __global Brick* bricks,
                __global uint* randomValues,
-               __global SegmentSettings* synapseMetaData)
+               __global SegmentSettings* segmentSettings)
 {
     for(uint nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
@@ -621,7 +621,7 @@ nodeProcessing(__global Brick* brick,
                               && node->input > 0.0f;
         node->border = (float)(initNode) * node->input * 0.5f
                        + (float)(initNode == false) * node->border;
-        node->potential = synapseMetaData->potentialOverflow * node->input;
+        node->potential = segmentSettings->potentialOverflow * node->input;
         node->input = 0.0f;
         node->delta = 0.0f;
     }
@@ -642,7 +642,7 @@ nodeProcessing(__global Brick* brick,
                               bricks,
                               nodes,
                               randomValues,
-                              synapseMetaData,
+                              segmentSettings,
                               node,
                               node->potential);
         }
