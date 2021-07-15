@@ -655,8 +655,9 @@ nodeProcessing(__global Brick* brick,
 /**
  * 
  */
-Segment parseSegment(__global uchar* persistentData,
-                     __global uchar* ephemeralData)
+inline Segment 
+parseSegment(__global uchar* persistentData,
+             __global uchar* ephemeralData)
 {
     Segment segment;
 
@@ -691,58 +692,10 @@ Segment parseSegment(__global uchar* persistentData,
 }
 
 /**
- * @brief segmentInputProcessing
- * @param segment
- */
-void
-processSegmentInput(Segment segment,
-                    __global InputNode* inputs,  
-                    __local uchar* localMemory)
-{
-    processInputNodes(&segment, inputs);
-}
-
-/**
- * @brief segmentOutputProcessing
- * @param segment
- */
-void
-processSegmentOutput(Segment segment,
-                     __global OutputNode* outputs,
-                     __local uchar* localMemory)
-{
-    processOutputNodes(&segment, outputs);
-
-    float totalError = 0.0f;
-
-    for(ulong outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
-    {
-        __global OutputNode* out = &segment.outputs[outputNodeId];
-        const float diff = (out->shouldValue - out->outputWeight);
-        totalError += 0.5f * (diff * diff);
-    }
-
-    printf("######################### totalError: %f\n", totalError);
-}
-
-/**
- * @brief segmentReduceSynapses
- * @param segment
- */
-void
-reduceSegmentSynapses(Segment segment,
-                      __local uchar* localMemory)
-{
-    reduceCoreSynapses(&segment);
-}
-
-/**
  * @brief segmentBackpropagation
  * @param segment
  */
-void
+inline void
 rewightSegment(Segment segment,
                __local uchar* localMemory)
 {
@@ -769,21 +722,10 @@ rewightSegment(Segment segment,
 }
 
 /**
- * @brief segmentHardeing
- * @param segment
- */
-void
-hardenSegment(Segment segment,
-              __local uchar* localMemory)
-{
-    hardenSynapses(&segment);
-}
-
-/**
  * @brief segmentNodeProcessing
  * @param segment
  */
-void
+inline void
 prcessSegmentNodes(Segment segment,
                    __global uint* randomValues,
                    __local uchar* localMemory)
@@ -824,11 +766,24 @@ learn(__global uchar* persistentData,
     {
         Segment segment = parseSegment(persistentData, ephemeralData);
         segment.synapseSettings->doLearn = 1;
-        processSegmentInput(segment, inputs, localMemory);
+        processInputNodes(&segment, inputs);
         prcessSegmentNodes(segment, randomValues, localMemory);
-        processSegmentOutput(segment, outputs, localMemory);
+        processOutputNodes(&segment, outputs);
+        float totalError = 0.0f;
+
+        for(ulong outputNodeId = 0;
+            outputNodeId < segment.segmentHeader->outputs.count;
+            outputNodeId++)
+        {
+            __global OutputNode* out = &segment.outputs[outputNodeId];
+            const float diff = (out->shouldValue - out->outputWeight);
+            totalError += 0.5f * (diff * diff);
+        }
+
+        printf("######################### totalError: %f\n", totalError);
+
         rewightSegment(segment, localMemory);
-        hardenSegment(segment, localMemory);
+        hardenSynapses(&segment);
     }
 }
 
@@ -851,8 +806,8 @@ execute(__global uchar* persistentData,
     {
         Segment segment = parseSegment(persistentData, ephemeralData);
         segment.synapseSettings->doLearn = 0;
-        processSegmentInput(segment, inputs, localMemory);
+        processInputNodes(&segment, inputs);
         prcessSegmentNodes(segment, randomValues, localMemory);
-        processSegmentOutput(segment, outputs, localMemory);
+        processOutputNodes(&segment, outputs);
     }
 }

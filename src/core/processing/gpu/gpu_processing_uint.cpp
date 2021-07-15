@@ -64,7 +64,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.numberOfWg.x = 1;
     // only 127 threads per group, instead of 128, because 1/128 of the local memory is used for
     // the meta-data
-    oclData.threadsPerWg.x = 127;
+    oclData.threadsPerWg.x = 1;
 
     //==============================================================================================
 
@@ -85,9 +85,12 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     oclData.addBuffer("inputs",
                       segmentHeader->inputs.count,
                       sizeof(InputNode),
-                      false,
-                      cluster->synapseSegment->inputs);
-    oclData.addBuffer("outputs",
+                      true);
+    oclData.addBuffer("outputs_ro",
+                      segmentHeader->outputs.count,
+                      sizeof(OutputNode),
+                      true);
+    oclData.addBuffer("outputs_rw",
                       segmentHeader->outputs.count,
                       sizeof(OutputNode),
                       false,
@@ -105,7 +108,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 
     //==============================================================================================
 
-    // init kernel            
+    // init kernel
     assert(m_gpuInterface->addKernel(oclData, "learn",  processingCode));
     assert(m_gpuInterface->addKernel(oclData, "execute",  processingCode));
 
@@ -113,14 +116,14 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "segment_persistent"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "segment_ephemeral"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "inputs"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "outputs"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "outputs_ro"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "randomValues"));
 
     // bind buffer for execute kernel
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "segment_persistent"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "segment_ephemeral"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "inputs"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "outputs"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "outputs_rw"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "randomValues"));
 
 
@@ -136,7 +139,8 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "randomValues"));
 
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs_ro"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs_rw"));
 
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_persistent"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_ephemeral"));
@@ -149,17 +153,18 @@ GpuProcessingUnit::learn()
 {
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
-
     std::cout<<"+++++++++++ learn"<<std::endl;
-    start = std::chrono::system_clock::now();
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
-    end = std::chrono::system_clock::now();
-    std::cout<<"copy inputs to device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
 
-    start = std::chrono::system_clock::now();
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
-    end = std::chrono::system_clock::now();
-    std::cout<<"copy outputs to device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
+
+    uint8_t* inputs = static_cast<uint8_t*>(oclData.getBufferData("inputs"));
+    memcpy(inputs, cluster->synapseSegment->inputs, segmentHeader->inputs.count * sizeof(InputNode));
+
+    uint8_t* outputs_ro = static_cast<uint8_t*>(oclData.getBufferData("outputs_ro"));
+    memcpy(outputs_ro, cluster->synapseSegment->outputs, segmentHeader->outputs.count * sizeof(OutputNode));
+
 
     start = std::chrono::system_clock::now();
     assert(m_gpuInterface->run(oclData, "learn"));
@@ -175,11 +180,12 @@ GpuProcessingUnit::execute()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
-    std::cout<<"++++++++++++++ execute"<<std::endl;
-    start = std::chrono::system_clock::now();
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
-    end = std::chrono::system_clock::now();
-    std::cout<<"copy inputs to device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+    std::cout<<"poi1"<<std::endl;
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
+
+    uint8_t* inputs = static_cast<uint8_t*>(oclData.getBufferData("inputs"));
+    memcpy(inputs, cluster->synapseSegment->inputs, segmentHeader->inputs.count * sizeof(InputNode));
 
     start = std::chrono::system_clock::now();
     assert(m_gpuInterface->run(oclData, "execute"));
@@ -187,9 +193,9 @@ GpuProcessingUnit::execute()
     std::cout<<"run execute: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
 
     start = std::chrono::system_clock::now();
-    assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
+    assert(m_gpuInterface->copyFromDevice(oclData, "outputs_rw"));
     end = std::chrono::system_clock::now();
-    std::cout<<"copy outputs from device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+    std::cout<<"copy outputs_rw from device: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
 
     return true;
 }
