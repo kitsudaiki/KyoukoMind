@@ -236,13 +236,16 @@ Segment;
  */
 inline void
 backpropagateNodes(__global Brick* brick,
-                   Segment* segment)
+                   Segment* segment,
+                   __local uchar* localBuffer)
 {
+    __local SynapseSection* section = (__local SynapseSection*)localBuffer;
+
     for(uint nodeId = brick->nodePos + get_local_id(0);
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId += get_local_size(0))
     {
-        __global SynapseSection* section = &segment->synapseSections[nodeId];
+        section[0] = segment->synapseSections[nodeId];
         if(section->active == 0) {
             continue;
         }
@@ -256,7 +259,7 @@ backpropagateNodes(__global Brick* brick,
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
         {
-            __global Synapse* synapse = &section->synapses[pos];
+            __local Synapse* synapse = &section->synapses[pos];
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 break;
             }
@@ -270,6 +273,8 @@ backpropagateNodes(__global Brick* brick,
             netH -= (float)(synapse->border) * BORDER_STEP;
             pos++;
         }
+
+        segment->synapseSections[nodeId] = section[0];
     }
 }
 
@@ -281,17 +286,21 @@ backpropagateNodes(__global Brick* brick,
  */
 inline void
 backpropagateOutput(Segment* segment,
-                    __global OutputNode* outputs)
+                    __global OutputNode* outputs,
+                    __local uchar* localBuffer)
 {
+    __local OutputNode* out = (__local OutputNode*)localBuffer;
+
     for(ulong outputNodeId = get_local_id(0);
         outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId += get_local_size(0))
     {
-        __global OutputNode* out = &outputs[outputNodeId];
+        out[0] = outputs[outputNodeId];
         __global Node* targetNode = &segment->nodes[out->targetNode];
         const float outW = out->outputWeight;
         const float delta = (outW - out->shouldValue) * outW * (1.0f - outW);
         targetNode->delta = delta;
+        outputs[outputNodeId] = out[0];
     }
 }
 
@@ -303,13 +312,16 @@ backpropagateOutput(Segment* segment,
  */
 inline void
 correctNewOutputSynapses(__global Brick* brick,
-                         Segment* segment)
+                         Segment* segment,
+                         __local uchar* localBuffer)
 {
+    __local SynapseSection* section = (__local SynapseSection*)localBuffer;
+
     for(uint nodeId = brick->nodePos + get_local_id(0);
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId += get_local_size(0))
     {
-        __global SynapseSection* section = &segment->synapseSections[nodeId];
+        section[0] = segment->synapseSections[nodeId];
         if(section->active == 0) {
             continue;
         }
@@ -322,7 +334,7 @@ correctNewOutputSynapses(__global Brick* brick,
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
         {
-            __global Synapse* synapse = &section->synapses[pos];
+            __local Synapse* synapse = &section->synapses[pos];
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 break;
             }
@@ -338,6 +350,8 @@ correctNewOutputSynapses(__global Brick* brick,
             netH -= (float)(synapse->border) * BORDER_STEP;
             pos++;
         }
+
+        segment->synapseSections[nodeId] = section[0];
     }
 }
 
@@ -398,18 +412,22 @@ createNewSynapse(__local SynapseSection* section,
  * @param segmentHeader
  */
 inline void
-hardenSynapses(Segment* segment)
+hardenSynapses(Segment* segment,
+               __local uchar* localBuffer)
 {
+    //__local SynapseSection* section = (__local SynapseSection*)localBuffer;
+
     for(uint nodeId = 0;
         nodeId < segment->segmentHeader->nodes.count;
         nodeId++)
     {
         __global Node* sourceNode = &segment->nodes[nodeId];
-        __global SynapseSection* section = &segment->synapseSections[nodeId];
 
+        __global SynapseSection* section = &segment->synapseSections[nodeId];
         if(section->active == 0) {
             continue;
         }
+
 
         if(sourceNode->input > 0.0f) {
             sourceNode->init = 1;
@@ -420,6 +438,7 @@ hardenSynapses(Segment* segment)
         float netH = sourceNode->potential;
 
         // iterate over all synapses in the section and update the target-nodes
+        // section[0] = segment->synapseSections[nodeId];
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
         {
@@ -427,18 +446,19 @@ hardenSynapses(Segment* segment)
             pos++;
 
             // process synapse
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                break;
+            if(synapse->targetNodeId != UNINIT_STATE_16) 
+            {
+                netH -= (float)(synapse->border) * BORDER_STEP;
+                counter = pos;
             }
-
-            netH -= (float)(synapse->border) * BORDER_STEP;
-            counter = pos;
         }
 
         // harden synapse-section
         const bool updateHardening = counter > section->hardening;
         section->hardening = (updateHardening == true) * counter
                              + (updateHardening == false) * section->hardening;
+
+        //segment->synapseSections[nodeId] = section[0];
     }
 }
 
@@ -726,19 +746,19 @@ rewightSegment(Segment segment,
         const uint brickId = segment.brickOrder[pos];
         __global Brick* brick = &segment.bricks[brickId];
         if(brick->isOutputBrick) {
-            correctNewOutputSynapses(brick, &segment);
+            correctNewOutputSynapses(brick, &segment, localBuffer);
         }
         barrier(CLK_LOCAL_MEM_FENCE);
     }
 
-    backpropagateOutput(&segment, outputs);
+    backpropagateOutput(&segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
 
     for(int pos = numberOfBricks - 1; pos >= 0; pos--)
     {
         const uint brickId = segment.brickOrder[pos];
         __global Brick* brick = &segment.bricks[brickId];
-        backpropagateNodes(brick, &segment);
+        backpropagateNodes(brick, &segment, localBuffer);
         barrier(CLK_LOCAL_MEM_FENCE);
     }
 }
@@ -824,7 +844,7 @@ learn(__global uchar* persistentData,
     rewightSegment(segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
 
-    hardenSynapses(&segment);
+    hardenSynapses(&segment, localBuffer);
 }
 
 __kernel void
