@@ -14,6 +14,8 @@ learnTestData(const std::string &mnistRootPath)
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     CpuProcessingUnit cpuProcessingUnit;
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
 
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
     GpuProcessingUnit gpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
@@ -83,7 +85,7 @@ learnTestData(const std::string &mnistRootPath)
 
     for(uint32_t poi = 0; poi < 1; poi++)
     {
-        for(uint32_t pic = 0; pic < 1000; pic++)
+        for(uint32_t pic = 0; pic < 60000; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -103,8 +105,11 @@ learnTestData(const std::string &mnistRootPath)
                 inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
             }
 
+            start = std::chrono::system_clock::now();
             //cpuProcessingUnit.learn();
             gpuProcessingUnit.learn();
+            end = std::chrono::system_clock::now();
+            std::cout<<"run learn: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
         }
     }
 
@@ -149,8 +154,11 @@ learnTestData(const std::string &mnistRootPath)
             inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
         }
 
+        start = std::chrono::system_clock::now();
         //cpuProcessingUnit.execute();
         gpuProcessingUnit.execute();
+        end = std::chrono::system_clock::now();
+        std::cout<<"run execute: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
 
         // print result
         float biggest = -100000.0f;
