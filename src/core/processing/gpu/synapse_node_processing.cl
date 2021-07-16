@@ -238,9 +238,9 @@ inline void
 backpropagateNodes(__global Brick* brick,
                    Segment* segment)
 {
-    for(uint nodeId = brick->nodePos;
+    for(uint nodeId = brick->nodePos + get_local_id(0);
         nodeId < brick->numberOfNodes + brick->nodePos;
-        nodeId++)
+        nodeId += get_local_size(0))
     {
         __global SynapseSection* section = &segment->synapseSections[nodeId];
         if(section->active == 0) {
@@ -282,9 +282,9 @@ backpropagateNodes(__global Brick* brick,
 inline void
 backpropagateOutput(Segment* segment)
 {
-    for(ulong outputNodeId = 0;
+    for(ulong outputNodeId = get_local_id(0);
         outputNodeId < segment->segmentHeader->outputs.count;
-        outputNodeId++)
+        outputNodeId += get_local_size(0))
     {
         __global OutputNode* out = &segment->outputs[outputNodeId];
         __global Node* targetNode = &segment->nodes[out->targetNode];
@@ -304,9 +304,9 @@ inline void
 correctNewOutputSynapses(__global Brick* brick,
                          Segment* segment)
 {
-    for(uint nodeId = brick->nodePos;
+    for(uint nodeId = brick->nodePos + get_local_id(0);
         nodeId < brick->numberOfNodes + brick->nodePos;
-        nodeId++)
+        nodeId += get_local_size(0))
     {
         __global SynapseSection* section = &segment->synapseSections[nodeId];
         if(section->active == 0) {
@@ -346,7 +346,7 @@ createNewSynapse(__global SynapseSection* section,
                  __global Brick* bricks,
                  __global uint* randomValues,
                  __global Node* sourceNode,
-                 __global SegmentSettings* segmentSettings,
+                 __local SegmentSettings* segmentSettings,
                  const float remainingWeight)
 {
     float randomMulti = 0.0f;
@@ -506,13 +506,14 @@ reduceCoreSynapses(Segment* segment)
  * @param segment
  * @param inputNodes
  */
-inline void
+void
 processInputNodes(Segment* segment, 
-                  __global InputNode* inputs)
+                  __global InputNode* inputs,
+                  __local uchar* localBuffer)
 {
-    for(ulong inputNodeId = 0;
+    for(ulong inputNodeId = get_local_id(0);
         inputNodeId < segment->segmentHeader->inputs.count;
-        inputNodeId++)
+        inputNodeId += get_local_size(0))
     {
         __global const InputNode* inputNode = &inputs[inputNodeId];
         segment->nodes[inputNode->targetNode].input = inputNode->weight;
@@ -524,13 +525,14 @@ processInputNodes(Segment* segment,
  * @param segment
  * @param outputNodes
  */
-inline void
+void
 processOutputNodes(Segment* segment, 
-                  __global OutputNode* outputs)
+                  __global OutputNode* outputs,
+                  __local uchar* localBuffer)
 {
-    for(ulong outputNodeId = 0;
+    for(ulong outputNodeId = get_local_id(0);
         outputNodeId < segment->segmentHeader->outputs.count;
-        outputNodeId++)
+        outputNodeId += get_local_size(0))
     {
         __global OutputNode* out = &outputs[outputNodeId];
         __global Node* targetNode = &segment->nodes[out->targetNode];
@@ -546,7 +548,7 @@ synapseProcessing(__global SynapseSection* section,
                   __global Brick* bricks,
                   __global Node* nodes,
                   __global uint* randomValues,
-                  __global SegmentSettings* segmentSettings,
+                  __local SegmentSettings* segmentSettings,
                   __global Node* sourceNode,
                   const float weightIn)
 {
@@ -604,40 +606,52 @@ synapseProcessing(__global SynapseSection* section,
  * @param segmentSettings
  * @param networkMetaData
  */
-inline void
+void
 nodeProcessing(__global Brick* brick,
                __global Node* nodes,
                __global SynapseSection* synapseSections,
                __global Brick* bricks,
                __global uint* randomValues,
-               __global SegmentSettings* segmentSettings)
+               __local SegmentSettings* segmentSettings,
+               __local uchar* localBuffer)
 {
-    for(uint nodeId = brick->nodePos;
+   // __local Node* localNodeBuffer = (__local Node*)localBuffer;
+
+    for(uint nodeId = brick->nodePos + get_local_id(0);
         nodeId < brick->numberOfNodes + brick->nodePos;
-        nodeId++)
+        nodeId += get_local_size(0))
     {
+        //localNodeBuffer[0] = nodes[nodeId];
         __global Node* node = &nodes[nodeId];
+
         const bool initNode = node->init == 0
                               && node->input > 0.0f;
         node->border = (float)(initNode) * node->input * 0.5f
-                       + (float)(initNode == false) * node->border;
+                                  + (float)(initNode == false) * node->border;
         node->potential = segmentSettings->potentialOverflow * node->input;
         node->input = 0.0f;
         node->delta = 0.0f;
+
+        //nodes[nodeId] = localNodeBuffer[0];
     }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
 
     if(brick->isOutputBrick) {
         return;
     }
 
-    for(uint nodeId = brick->nodePos;
+    //__local SynapseSection* localSynapseBuffer = (__local SynapseSection*)localBuffer;
+
+    for(uint nodeId = brick->nodePos + get_local_id(0);
         nodeId < brick->numberOfNodes + brick->nodePos;
-        nodeId++)
+        nodeId += get_local_size(0))
     {
         __global Node* node = &nodes[nodeId];
         const bool active = node->potential > node->border;
         if(active)
         {
+            //localSynapseBuffer[0] = synapseSections[nodeId];
             synapseProcessing(&synapseSections[nodeId],
                               bricks,
                               nodes,
@@ -645,6 +659,7 @@ nodeProcessing(__global Brick* brick,
                               segmentSettings,
                               node,
                               node->potential);
+            //synapseSections[nodeId] = localSynapseBuffer[0];
         }
 
         node->active = active;
@@ -695,7 +710,7 @@ parseSegment(__global uchar* persistentData,
  * @brief segmentBackpropagation
  * @param segment
  */
-inline void
+void
 rewightSegment(Segment segment,
                __local uchar* localMemory)
 {
@@ -707,17 +722,19 @@ rewightSegment(Segment segment,
         __global Brick* brick = &segment.bricks[brickId];
         if(brick->isOutputBrick) {
             correctNewOutputSynapses(brick, &segment);
-            //printf("poi\n");
         }
+        barrier(CLK_LOCAL_MEM_FENCE);
     }
 
-   backpropagateOutput(&segment);
+    backpropagateOutput(&segment);
+    barrier(CLK_LOCAL_MEM_FENCE);
 
     for(int pos = numberOfBricks - 1; pos >= 0; pos--)
     {
         const uint brickId = segment.brickOrder[pos];
         __global Brick* brick = &segment.bricks[brickId];
         backpropagateNodes(brick, &segment);
+        barrier(CLK_LOCAL_MEM_FENCE);
     }
 }
 
@@ -725,10 +742,11 @@ rewightSegment(Segment segment,
  * @brief segmentNodeProcessing
  * @param segment
  */
-inline void
+void
 prcessSegmentNodes(Segment segment,
                    __global uint* randomValues,
-                   __local uchar* localMemory)
+                   __local SegmentSettings* localSegmentSettings, 
+                   __local uchar* localBuffer)
 {
     const uint numberOfBricks = segment.segmentHeader->bricks.count;
 
@@ -741,7 +759,9 @@ prcessSegmentNodes(Segment segment,
                        segment.synapseSections,
                        segment.bricks,
                        randomValues,
-                       segment.synapseSettings);
+                       localSegmentSettings,
+                       localBuffer);
+        barrier(CLK_LOCAL_MEM_FENCE);
     }
 }
 
@@ -755,20 +775,31 @@ learn(__global uchar* persistentData,
       __global uint* randomValues, 
       __local uchar* localMemory)
 {
-    const size_t globalId_x = get_global_id(0);
-    const size_t globalSize_x = get_global_size(0);
-    const int localId_x = get_local_id(0);
-    const int localSize_x = get_local_size(0);
-    const size_t groupId_x = get_group_id(0);
+    __local SegmentHeader* localSegmentHeader = (__local SegmentHeader*)&localMemory[0];
+    __local SegmentSettings* localSegmentSettings = (__local SegmentSettings*)&localMemory[256];
+    __local uchar* localBuffer = (__local uchar*)&localMemory[512 + (get_local_id(0) * 256)];
 
+    Segment segment = parseSegment(persistentData, ephemeralData);
+    segment.synapseSettings->doLearn = 1;
 
-    if(localId_x == 0)
+    if(get_local_id(0) == 0) 
     {
-        Segment segment = parseSegment(persistentData, ephemeralData);
-        segment.synapseSettings->doLearn = 1;
-        processInputNodes(&segment, inputs);
-        prcessSegmentNodes(segment, randomValues, localMemory);
-        processOutputNodes(&segment, outputs);
+        localSegmentHeader[0] = segment.segmentHeader[0];
+        localSegmentSettings[0] = segment.synapseSettings[0];
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    processInputNodes(&segment, inputs, localBuffer);
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    prcessSegmentNodes(segment, randomValues, localSegmentSettings, localBuffer);
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    processOutputNodes(&segment, outputs, localBuffer);
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    /*if(get_local_id(0) == 0) 
+    {
         float totalError = 0.0f;
 
         for(ulong outputNodeId = 0;
@@ -781,10 +812,13 @@ learn(__global uchar* persistentData,
         }
 
         printf("######################### totalError: %f\n", totalError);
-
-        rewightSegment(segment, localMemory);
-        hardenSynapses(&segment);
     }
+    barrier(CLK_LOCAL_MEM_FENCE);*/
+
+    rewightSegment(segment, localMemory);
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    hardenSynapses(&segment);
 }
 
 __kernel void
@@ -795,19 +829,24 @@ execute(__global uchar* persistentData,
         __global uint* randomValues, 
         __local uchar* localMemory)
 {
-    const size_t globalId_x = get_global_id(0);
-    const size_t globalSize_x = get_global_size(0);
-    const int localId_x = get_local_id(0);
-    const int localSize_x = get_local_size(0);
-    const size_t groupId_x = get_group_id(0);
+    __local SegmentHeader* localSegmentHeader = (__local SegmentHeader*)&localMemory[0];
+    __local SegmentSettings* localSegmentSettings = (__local SegmentSettings*)&localMemory[256];
+    __local uchar* localBuffer = (__local uchar*)&localMemory[512 + (get_local_id(0) * 256)];
 
-
-    if(localId_x == 0)
+    Segment segment = parseSegment(persistentData, ephemeralData);
+    segment.synapseSettings->doLearn = 1;
+    if(get_local_id(0) == 0) 
     {
-        Segment segment = parseSegment(persistentData, ephemeralData);
-        segment.synapseSettings->doLearn = 0;
-        processInputNodes(&segment, inputs);
-        prcessSegmentNodes(segment, randomValues, localMemory);
-        processOutputNodes(&segment, outputs);
+        localSegmentHeader[0] = segment.segmentHeader[0];
+        localSegmentSettings[0] = segment.synapseSettings[0];
     }
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    processInputNodes(&segment, inputs, localBuffer);
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    prcessSegmentNodes(segment, randomValues, localSegmentSettings, localBuffer);
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    processOutputNodes(&segment, outputs, localBuffer);
 }
