@@ -368,7 +368,7 @@ createNewSynapse(__local SynapseSection* section,
     float random = 0.0f;
     float doLearn = 0.0f;
     uint targetNodeIdInBrick = 0;
-    __global Brick* nodeBrick = NULL;
+    __global Brick* nodeBrick = 0;
     uint signRand = 0;
 
     const float maxWeight = segmentSettings->maxSynapseWeight;
@@ -415,15 +415,14 @@ inline void
 hardenSynapses(Segment* segment,
                __local uchar* localBuffer)
 {
-    //__local SynapseSection* section = (__local SynapseSection*)localBuffer;
-
-    for(uint nodeId = 0;
+    __local SynapseSection* section = (__local SynapseSection*)localBuffer;
+    for(uint nodeId = get_local_id(0);
         nodeId < segment->segmentHeader->nodes.count;
-        nodeId++)
+        nodeId += get_local_size(0))
     {
         __global Node* sourceNode = &segment->nodes[nodeId];
+        section[0] = segment->synapseSections[nodeId];
 
-        __global SynapseSection* section = &segment->synapseSections[nodeId];
         if(section->active == 0) {
             continue;
         }
@@ -438,11 +437,10 @@ hardenSynapses(Segment* segment,
         float netH = sourceNode->potential;
 
         // iterate over all synapses in the section and update the target-nodes
-        // section[0] = segment->synapseSections[nodeId];
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
         {
-            __global Synapse* synapse = &section->synapses[pos];
+            __local Synapse* synapse = &section->synapses[pos];
             pos++;
 
             // process synapse
@@ -458,7 +456,7 @@ hardenSynapses(Segment* segment,
         section->hardening = (updateHardening == true) * counter
                              + (updateHardening == false) * section->hardening;
 
-        //segment->synapseSections[nodeId] = section[0];
+        segment->synapseSections[nodeId] = section[0];
     }
 }
 
@@ -824,7 +822,7 @@ learn(__global uchar* persistentData,
     processOutputNodes(&segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
 
-    if(get_local_id(0) == 0) 
+    /*if(get_local_id(0) == 0) 
     {
         float totalError = 0.0f;
 
@@ -839,7 +837,7 @@ learn(__global uchar* persistentData,
 
         printf("######################### totalError: %f\n", totalError);
     }
-    barrier(CLK_LOCAL_MEM_FENCE);
+    barrier(CLK_LOCAL_MEM_FENCE);*/
 
     rewightSegment(segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
