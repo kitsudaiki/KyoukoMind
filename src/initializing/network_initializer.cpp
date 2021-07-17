@@ -55,18 +55,13 @@ ClusterInitializer::ClusterInitializer()
  * @return true, if successfull, else false
  */
 bool
-ClusterInitializer::initNetwork()
+ClusterInitializer::initNetwork(const std::string &initialFile,
+                                const std::string &configFile)
 {
     bool success = false;
 
     LOG_INFO("no files found. Try to create a new cluster");
 
-    const std::string initialFile = GET_STRING_CONFIG("Init", "file", success);
-    if(success == false)
-    {
-        LOG_ERROR("no init-file set in the config-file");
-        return false;
-    }
     LOG_INFO("use init-file: " + initialFile);
 
     std::string initFileContent = "";
@@ -77,12 +72,6 @@ ClusterInitializer::initNetwork()
         return false;
     }
 
-    const std::string configFile = GET_STRING_CONFIG("Init", "config", success);
-    if(success == false)
-    {
-        LOG_ERROR("no init-file set in the config-file");
-        return false;
-    }
     LOG_INFO("use init-file: " + configFile);
 
     std::string configFileContent = "";

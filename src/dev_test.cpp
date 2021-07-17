@@ -5,6 +5,7 @@
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
+#include <libKitsunemimiConfig/config_handler.h>
 
 #include <core/processing/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
@@ -14,12 +15,25 @@ learnTestData(const std::string &mnistRootPath)
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     CpuProcessingUnit cpuProcessingUnit;
+    GpuProcessingUnit* gpuProcessingUnit = nullptr;
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
-
-    // Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
-    // GpuProcessingUnit gpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
-    // assert(gpuProcessingUnit.initializeGpu(cluster));
+    bool success = false;
+    bool useGpu = GET_BOOL_CONFIG("DevMode", "use_gpu", success);
+    if(useGpu)
+    {
+        Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
+        if(m_gpuHandler->m_interfaces.size() == 0)
+        {
+            LOG_INFO("no gpu device found");
+            useGpu = false;
+        }
+        else
+        {
+            gpuProcessingUnit = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
+            assert(gpuProcessingUnit->initializeGpu(cluster));
+        }
+    }
 
     // /home/neptune/Schreibtisch/mnist
 
@@ -83,9 +97,12 @@ learnTestData(const std::string &mnistRootPath)
 
     std::cout<<"learn"<<std::endl;
 
-    for(uint32_t poi = 0; poi < 1; poi++)
+    const uint32_t numberOfIteractions = GET_INT_CONFIG("DevMode", "learn_iterations", success);
+    const uint32_t numberOfLearningPictures = GET_INT_CONFIG("DevMode", "learn_images", success);
+
+    for(uint32_t poi = 0; poi < numberOfIteractions; poi++)
     {
-        for(uint32_t pic = 0; pic < 60000; pic++)
+        for(uint32_t pic = 0; pic < numberOfLearningPictures; pic++)
         {
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
@@ -106,8 +123,11 @@ learnTestData(const std::string &mnistRootPath)
             }
 
             start = std::chrono::system_clock::now();
-            cpuProcessingUnit.learn();
-            //gpuProcessingUnit.learn();
+            if(useGpu) {
+                gpuProcessingUnit->learn();
+            } else {
+                cpuProcessingUnit.learn();
+            }
             end = std::chrono::system_clock::now();
             std::cout<<"run learn: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
         }
@@ -155,8 +175,11 @@ learnTestData(const std::string &mnistRootPath)
         }
 
         start = std::chrono::system_clock::now();
-        cpuProcessingUnit.execute();
-        //gpuProcessingUnit.execute();
+        if(useGpu) {
+            gpuProcessingUnit->execute();
+        } else {
+            cpuProcessingUnit.execute();
+        }
         end = std::chrono::system_clock::now();
         std::cout<<"run execute: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
 

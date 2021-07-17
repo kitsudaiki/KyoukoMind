@@ -99,6 +99,5 @@ bool
 KyoukoRoot::start()
 {
     // network-manager
-    ClusterInitializer initializer;
-    return initializer.initNetwork();
+    return true;
 }
