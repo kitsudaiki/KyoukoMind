@@ -58,7 +58,8 @@ struct Synapse
 struct SynapseSection
 {
     uint8_t active = 0;
-    uint8_t padding1[3];
+    uint8_t updated = 0;
+    uint8_t padding1[2];
     uint32_t randomPos = 0;
 
     uint32_t brickBufferPos = UNINIT_STATE_32;

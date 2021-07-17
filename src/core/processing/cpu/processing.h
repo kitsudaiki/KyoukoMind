@@ -67,6 +67,7 @@ synapseProcessing(SynapseSection* section,
     uint32_t pos = 0;
     float netH = weightIn;
     const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
+    section->updated = 0;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION

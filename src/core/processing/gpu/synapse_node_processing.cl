@@ -68,7 +68,8 @@ Synapse;
 typedef struct SynapseSection
 {
     uchar active;
-    uchar padding1[3];
+    uchar updated;
+    uchar padding1[2];
     uint randomPos;
 
     uint brickBufferPos;
@@ -403,6 +404,7 @@ createNewSynapse(__local SynapseSection* section,
 
     synapse->targetNodeId = (ushort)(targetNodeIdInBrick + targetBrick->nodePos);
     synapse->activeCounter = 1;
+    section->updated = 1;
 }
 
 /**
@@ -423,11 +425,12 @@ hardenSynapses(Segment* segment,
         __global Node* sourceNode = &segment->nodes[nodeId];
         section[0] = segment->synapseSections[nodeId];
 
-        if(section->active == 0) {
+        if(section->active == 0
+                || section->updated == 0) 
+        {
             continue;
         }
-
-
+        
         if(sourceNode->input > 0.0f) {
             sourceNode->init = 1;
         }
@@ -586,6 +589,7 @@ synapseProcessing(__local SynapseSection* section,
     uint pos = 0;
     float netH = weightIn;
     const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
+    section->updated = 0;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION

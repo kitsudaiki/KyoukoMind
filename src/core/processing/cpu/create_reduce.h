@@ -70,6 +70,7 @@ createNewSynapse(SynapseSection* section,
 
     synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + targetBrick->nodePos);
     synapse->activeCounter = 1;
+    section->updated = 1;
 }
 
 /**
@@ -88,7 +89,9 @@ hardenSynapses(Segment* segment)
         Node* sourceNode = &segment->nodes[nodeId];
         SynapseSection* section = &segment->synapseSections[nodeId];
 
-        if(section->active == 0) {
+        if(section->active == 0
+                || section->updated == 0)
+        {
             continue;
         }
 
