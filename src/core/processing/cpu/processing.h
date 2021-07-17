@@ -53,7 +53,6 @@ synapseProcessing(SynapseSection* section,
                   Node* nodes,
                   uint32_t* randomValues,
                   Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
-                  Kitsunemimi::Ai::NetworkMetaData* networkMetaData,
                   Node* sourceNode,
                   const float weightIn)
 {
@@ -68,6 +67,7 @@ synapseProcessing(SynapseSection* section,
     uint32_t pos = 0;
     float netH = weightIn;
     const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
+    section->updated = 0;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -76,7 +76,7 @@ synapseProcessing(SynapseSection* section,
         Synapse* synapse = &section->synapses[pos];
         const bool createSyn = synapse->targetNodeId == UNINIT_STATE_16
                                && pos >= section->hardening
-                               && networkMetaData->doLearn > 0;
+                               && synapseMetaData->doLearn > 0;
         if(createSyn)
         {
             createNewSynapse(section,
@@ -117,8 +117,7 @@ nodeProcessing(Brick* brick,
                SynapseSection* synapseSections,
                Brick* bricks,
                uint32_t* randomValues,
-               Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
-               Kitsunemimi::Ai::NetworkMetaData* networkMetaData)
+               Kitsunemimi::Ai::SegmentSettings* synapseMetaData)
 {
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
@@ -151,7 +150,6 @@ nodeProcessing(Brick* brick,
                               nodes,
                               randomValues,
                               synapseMetaData,
-                              networkMetaData,
                               node,
                               node->potential);
         }

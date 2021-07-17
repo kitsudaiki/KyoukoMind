@@ -39,7 +39,8 @@ class ClusterInitializer
 public:
     ClusterInitializer();
 
-    bool initNetwork();
+    bool initNetwork(const std::string &initialFile,
+                     const std::string &configFile);
     bool createNewNetwork(const std::string &fileContent,
                           const std::string &configFileContent);
 
