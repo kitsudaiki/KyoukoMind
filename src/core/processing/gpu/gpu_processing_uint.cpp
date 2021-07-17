@@ -59,12 +59,13 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 {
     const std::string processingCode(reinterpret_cast<char*>(synapse_node_processing_cl),
                                      synapse_node_processing_cl_len);
+    const uint64_t availableLocalMem = m_gpuInterface->getLocalMemorySize();
 
     // init worker-sizes
     oclData.numberOfWg.x = 1;
     // only 127 threads per group, instead of 128, because 1/128 of the local memory is used for
     // the meta-data
-    oclData.threadsPerWg.x = 127;
+    oclData.threadsPerWg.x = (availableLocalMem / 512) - 1;
 
     //==============================================================================================
 
@@ -127,9 +128,8 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     //==============================================================================================
 
     // init local memory for the kernels
-    assert(m_gpuInterface->getLocalMemorySize() == 256*256);
-    assert(m_gpuInterface->setLocalMemory(oclData, "learn",  256*256));
-    assert(m_gpuInterface->setLocalMemory(oclData, "execute",  256*256));
+    assert(m_gpuInterface->setLocalMemory(oclData, "learn",  availableLocalMem));
+    assert(m_gpuInterface->setLocalMemory(oclData, "execute",  availableLocalMem));
 
     //==============================================================================================
 
