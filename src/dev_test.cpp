@@ -17,9 +17,9 @@ learnTestData(const std::string &mnistRootPath)
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
-    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
-    GpuProcessingUnit gpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
-    assert(gpuProcessingUnit.initializeGpu(cluster));
+    // Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
+    // GpuProcessingUnit gpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
+    // assert(gpuProcessingUnit.initializeGpu(cluster));
 
     // /home/neptune/Schreibtisch/mnist
 
@@ -106,8 +106,8 @@ learnTestData(const std::string &mnistRootPath)
             }
 
             start = std::chrono::system_clock::now();
-            //cpuProcessingUnit.learn();
-            gpuProcessingUnit.learn();
+            cpuProcessingUnit.learn();
+            //gpuProcessingUnit.learn();
             end = std::chrono::system_clock::now();
             std::cout<<"run learn: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
         }
@@ -155,8 +155,8 @@ learnTestData(const std::string &mnistRootPath)
         }
 
         start = std::chrono::system_clock::now();
-        //cpuProcessingUnit.execute();
-        gpuProcessingUnit.execute();
+        cpuProcessingUnit.execute();
+        //gpuProcessingUnit.execute();
         end = std::chrono::system_clock::now();
         std::cout<<"run execute: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
 
