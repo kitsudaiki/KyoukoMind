@@ -73,8 +73,7 @@ backpropagateOutput(Segment* segment)
         OutputNode* out = &segment->outputs[outputNodeId];
         Node* targetNode = &segment->nodes[out->targetNode];
         const float outW = out->outputWeight;
-        const float delta = (outW - out->shouldValue) * outW * (1.0f - outW);
-        targetNode->delta = static_cast<float>(delta > 0.001f) * delta;
+        targetNode->delta = (outW - out->shouldValue) * outW * (1.0f - outW);
     }
 }
 
