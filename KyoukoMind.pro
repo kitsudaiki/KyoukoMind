@@ -4,17 +4,10 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
-INCLUDEPATH += ../libKitsunemimiAiCommon/include
-
 LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
 LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
 LIBS += -L../libKitsunemimiSakuraMessaging/src/release -lKitsunemimiSakuraMessaging
 INCLUDEPATH += ../libKitsunemimiSakuraMessaging/include
-
-LIBS += -L../libKitsunemimiAiParser/src -lKitsunemimiAiParser
-LIBS += -L../libKitsunemimiAiParser/src/debug -lKitsunemimiAiParser
-LIBS += -L../libKitsunemimiAiParser/src/release -lKitsunemimiAiParser
-INCLUDEPATH += ../libKitsunemimiAiParser/include
 
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
@@ -104,7 +97,6 @@ HEADERS += \
     src/core/storage_io.h \
     src/core/validation.h \
     src/dev_test.h \
-    src/initializing/brick_initializer.h \
     src/initializing/network_initializer.h \
     src/args.h \
     src/common.h \
@@ -127,7 +119,6 @@ SOURCES += \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/dev_test.cpp \
-    src/initializing/brick_initializer.cpp \
     src/initializing/network_initializer.cpp \
     src/initializing/segment_initailzing.cpp \
     src/kyouko_root.cpp \

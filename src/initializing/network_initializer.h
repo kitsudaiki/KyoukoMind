@@ -39,10 +39,8 @@ class ClusterInitializer
 public:
     ClusterInitializer();
 
-    bool initNetwork(const std::string &initialFile,
-                     const std::string &configFile);
-    bool createNewNetwork(const std::string &fileContent,
-                          const std::string &configFileContent);
+    bool initNetwork(const std::string &filePath);
+    bool createNewNetwork(const std::string &fileContent);
 
 private:
     BrickInitializer* m_brickInitializer = nullptr;

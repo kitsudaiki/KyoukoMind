@@ -26,25 +26,31 @@
 #include <common.h>
 
 #include <core/objects/segment.h>
+#include <core/objects/network_cluster.h>
 
-namespace Kitsunemimi {
-namespace Ai {
-struct AiBaseMeta;
-}
-}
-
-Segment* initSynapseSegment(const uint32_t numberOfNodeBricks,
-                            const uint32_t numberOfNodes,
-                            const uint64_t numberOfSynapseSections,
-                            const uint32_t numberOfInputs,
-                            const uint32_t numberOfOutputs,
-                            const uint32_t numberOfRandValues);
+Segment* createNewSegment(const uint32_t numberOfNodeBricks,
+                          const uint32_t numberOfNodes,
+                          const uint64_t numberOfSynapseSections,
+                          const uint32_t numberOfInputs,
+                          const uint32_t numberOfOutputs,
+                          const uint32_t numberOfRandValues);
 
 bool initializeNodes(Segment &segment,
-                     Kitsunemimi::Ai::InitSettings* initMetaData);
+                     InitSettings* initMetaData);
 
 void addBricksToSegment(Segment &segment,
-                        Kitsunemimi::Ai::InitSettings *initMetaData,
-                        const Kitsunemimi::Ai::AiBaseMeta& metaBase);
+                        InitSettings *initMetaData,
+                        JsonItem &metaBase);
+
+Position getNeighborPos(Position sourcePos,
+                 const uint8_t side);
+void connectAllBrick(Brick &sourceBrick);
+
+bool initializeAxons(Segment &segment);
+Brick* getAxonBrick(Segment &segment, Brick *sourceBrick);
+
+bool initTargetBrickList(Segment &segment,
+                         InitSettings* init);
+
 
 #endif // SEGMENT_INITAILZING_H

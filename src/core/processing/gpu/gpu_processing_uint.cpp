@@ -30,8 +30,6 @@
 #include <core/objects/network_cluster.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
-#include <libKitsunemimiAiCommon/metadata.h>
-
 
 /**
  * @brief constructor

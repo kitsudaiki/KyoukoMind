@@ -32,8 +32,6 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-#include <libKitsunemimiAiCommon/metadata.h>
-
 #include <core/processing/cpu/create_reduce.h>
 
 /**
@@ -52,7 +50,7 @@ synapseProcessing(SynapseSection* section,
                   Brick* bricks,
                   Node* nodes,
                   uint32_t* randomValues,
-                  Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
+                  SegmentSettings* synapseMetaData,
                   Node* sourceNode,
                   const float weightIn)
 {
@@ -119,7 +117,7 @@ nodeProcessing(Brick* brick,
                SynapseSection* synapseSections,
                Brick* bricks,
                uint32_t* randomValues,
-               Kitsunemimi::Ai::SegmentSettings* synapseMetaData)
+               SegmentSettings* synapseMetaData)
 {
     bool initNode = false;
     bool active = false;

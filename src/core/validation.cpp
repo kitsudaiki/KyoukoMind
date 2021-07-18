@@ -26,6 +26,7 @@
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
+#include <core/objects/network_cluster.h>
 
 void
 validateStructSizes()
@@ -38,6 +39,10 @@ validateStructSizes()
     assert(sizeof(SegmentHeader) == 256);
     assert(sizeof(Brick) == 4096);
     assert(sizeof(Node) == 32);
+
+    assert(sizeof(NetworkMetaData) == 256);
+    assert(sizeof(InitSettings) == 256);
+    assert(sizeof(SegmentSettings) == 256);
 
     return;
 }

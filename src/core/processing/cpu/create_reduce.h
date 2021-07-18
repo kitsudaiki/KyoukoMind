@@ -10,8 +10,6 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-#include <libKitsunemimiAiCommon/metadata.h>
-
 /**
  * @brief createNewSynapse
  * @param section
@@ -28,7 +26,7 @@ createNewSynapse(SynapseSection* section,
                  Brick* bricks,
                  uint32_t* randomValues,
                  Node* sourceNode,
-                 Kitsunemimi::Ai::SegmentSettings* synapseMetaData,
+                 SegmentSettings* synapseMetaData,
                  const float remainingWeight)
 {
     float randomMulti = 0.0f;

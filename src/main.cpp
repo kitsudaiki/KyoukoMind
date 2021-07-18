@@ -78,7 +78,7 @@ main(int argc, char *argv[])
         const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
         const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
         ClusterInitializer initializer;
-        initializer.initNetwork(initialFile, configFile);
+        initializer.initNetwork(initialFile);
 
         const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
         learnTestData(mnistTestPath);

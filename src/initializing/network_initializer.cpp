@@ -29,12 +29,10 @@
 #include <core/objects/network_cluster.h>
 
 #include <initializing/segment_initailzing.h>
-#include <initializing/brick_initializer.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
-#include <libKitsunemimiAiParser/ai_parser_input.h>
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/file_methods.h>
@@ -46,7 +44,6 @@
  */
 ClusterInitializer::ClusterInitializer()
 {
-    m_brickInitializer = new BrickInitializer();
 }
 
 /**
@@ -55,33 +52,23 @@ ClusterInitializer::ClusterInitializer()
  * @return true, if successfull, else false
  */
 bool
-ClusterInitializer::initNetwork(const std::string &initialFile,
-                                const std::string &configFile)
+ClusterInitializer::initNetwork(const std::string &filePath)
 {
     bool success = false;
 
     LOG_INFO("no files found. Try to create a new cluster");
 
-    LOG_INFO("use init-file: " + initialFile);
+    LOG_INFO("use init-file: " + filePath);
 
-    std::string initFileContent = "";
+    std::string fileContent = "";
     std::string errorMessage = "";
-    if(Kitsunemimi::Persistence::readFile(initFileContent, initialFile, errorMessage) == false)
+    if(Kitsunemimi::Persistence::readFile(fileContent, filePath, errorMessage) == false)
     {
         LOG_ERROR(errorMessage);
         return false;
     }
 
-    LOG_INFO("use init-file: " + configFile);
-
-    std::string configFileContent = "";
-    if(Kitsunemimi::Persistence::readFile(configFileContent, configFile, errorMessage) == false)
-    {
-        LOG_ERROR(errorMessage);
-        return false;
-    }
-
-    success = createNewNetwork(initFileContent, configFileContent);
+    success = createNewNetwork(fileContent);
     if(success == false)
     {
         LOG_ERROR("failed to initialize network");
@@ -99,8 +86,7 @@ ClusterInitializer::initNetwork(const std::string &initialFile,
  * @return true, if successfull, else false
  */
 bool
-ClusterInitializer::createNewNetwork(const std::string &fileContent,
-                                     const std::string &configFileContent)
+ClusterInitializer::createNewNetwork(const std::string &fileContent)
 {
     // init randomizer
     srand(time(NULL));
@@ -112,24 +98,48 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent,
 
     // parse input
     std::string errorMessage = "";
-    Kitsunemimi::Ai::AiBaseMeta parsedContent;
-    Kitsunemimi::Ai::AiParserInput inputParser;
-    const bool ret = inputParser.parseAi(parsedContent, fileContent, configFileContent, errorMessage);
+    JsonItem parsedContent;
+    const bool ret = parsedContent.parse(fileContent, errorMessage);
     if(ret == false)
     {
         LOG_ERROR("error while parsing input: " + errorMessage);
         return false;
     }
 
-    // init segment
-    const uint32_t numberOfNodeBricks = parsedContent.numberOfNodeBricks;
-    const uint32_t totalNumberOfNodes = numberOfNodeBricks * parsedContent.initMetaData.nodesPerBrick;
+    NetworkCluster newCluster;
+    SegmentSettings settings;
+
+    // network-meta
+    newCluster.networkMetaData.cycleTime = parsedContent.get("settings").get("cycle_time").getLong();
+
+    // init-meta
+    newCluster.initMetaData.nodesPerBrick = parsedContent.get("settings").get("nodes_per_brick").getInt();
+    newCluster.initMetaData.nodeLowerBorder = parsedContent.get("settings").get("node_lower_border").getFloat();
+    newCluster.initMetaData.nodeUpperBorder = parsedContent.get("settings").get("node_upper_border").getFloat();
+    newCluster.initMetaData.maxBrickDistance = parsedContent.get("settings").get("max_brick_distance").getInt();
+    newCluster.initMetaData.maxSynapseSections = parsedContent.get("settings").get("max_synapse_sections").getLong();
+    newCluster.initMetaData.layer = parsedContent.get("settings").get("layer").getInt();
+
+    // segment-meta
+    settings.synapseDeleteBorder = parsedContent.get("settings").get("synapse_delete_border").getFloat();
+    settings.actionPotential = parsedContent.get("settings").get("action_potential").getFloat();
+    settings.nodeCooldown = parsedContent.get("settings").get("node_cooldown").getFloat();
+    settings.memorizing = parsedContent.get("settings").get("memorizing").getFloat();
+    settings.gliaValue = parsedContent.get("settings").get("glia_value").getFloat();
+    settings.maxSynapseWeight = parsedContent.get("settings").get("max_synapse_weight").getFloat();
+    settings.refractionTime = parsedContent.get("settings").get("refraction_time").getInt();
+    settings.signNeg = parsedContent.get("settings").get("sign_neg").getFloat();
+    settings.potentialOverflow = parsedContent.get("settings").get("potential_overflow").getFloat();
+    settings.multiplicatorRange = parsedContent.get("settings").get("multiplicator_range").getInt();
+
+    const uint32_t numberOfNodeBricks = parsedContent.get("bricks").size();
+    const uint32_t totalNumberOfNodes = numberOfNodeBricks * newCluster.initMetaData.nodesPerBrick;
 
     // init segment
     KyoukoRoot::m_networkCluster = new NetworkCluster();
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    cluster->initMetaData = parsedContent.initMetaData;
-    cluster->networkMetaData = parsedContent.networkMetaData;
+    cluster->initMetaData = newCluster.initMetaData;
+    cluster->networkMetaData = newCluster.networkMetaData;
 
     // init predefinde random-values
     const uint32_t numberOfRandValues = 10*1024*1024;
@@ -138,14 +148,14 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent,
         cluster->randomValues[i] = static_cast<uint32_t>(rand());
     }
 
-    cluster->synapseSegment = initSynapseSegment(parsedContent.numberOfNodeBricks,
+    cluster->synapseSegment = createNewSegment(newCluster.initMetaData.nodesPerBrick,
                                                  totalNumberOfNodes,
-                                                 parsedContent.initMetaData.maxSynapseSections,
-                                                 (totalNumberOfNodes / parsedContent.numberOfNodeBricks) * parsedContent.numberOfInputBricks,
-                                                 10 * parsedContent.numberOfOutputBricks,
+                                                 newCluster.initMetaData.maxSynapseSections,
+                                                 1 * newCluster.initMetaData.nodesPerBrick,  // TODO: correct number of inputs
+                                                 10,  // TODO: correct number of outputs
                                                  numberOfRandValues);
 
-    cluster->synapseSegment->synapseSettings[0] = parsedContent.synapseMetaData;
+    cluster->synapseSegment->synapseSettings[0] = settings;
 
     // fill array with empty nodes
     initializeNodes(*cluster->synapseSegment,
@@ -153,9 +163,10 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent,
     addBricksToSegment(*cluster->synapseSegment,
                        &cluster->initMetaData,
                        parsedContent);
-    m_brickInitializer->initTargetBrickList(*cluster->synapseSegment,
-                                            &cluster->initMetaData);
+    initTargetBrickList(*cluster->synapseSegment,
+                        &cluster->initMetaData);
   //  m_brickInitializer->initializeAxons(*cluster->synapseSegment);
 
     return true;
 }
+

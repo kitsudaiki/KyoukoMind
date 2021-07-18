@@ -24,13 +24,27 @@
 #define STRUCTS_H
 
 #include <stdint.h>
-
+#include <common/defines.h>
 struct Position
 {
-    int32_t x = 0;
-    int32_t y = 0;
-    int32_t z = 0;
-    int32_t w = 0;
+    int32_t x = UNINTI_POINT_32;
+    int32_t y = UNINTI_POINT_32;
+    int32_t z = UNINTI_POINT_32;
+    int32_t w = UNINTI_POINT_32;
+
+    bool isValid()
+    {
+        return(x != UNINTI_POINT_32
+               && y != UNINTI_POINT_32
+               && z != UNINTI_POINT_32);
+    }
+
+    bool operator==(const Position &other)
+    {
+        return(this->x == other.x
+               && this->y == other.y
+               && this->z == other.z);
+    }
 };
 
 #endif // STRUCTS_H

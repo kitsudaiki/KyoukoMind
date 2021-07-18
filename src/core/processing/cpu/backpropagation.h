@@ -10,8 +10,6 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-#include <libKitsunemimiAiCommon/metadata.h>
-
 /**
  * @brief backpropagateNodes
  * @param brick

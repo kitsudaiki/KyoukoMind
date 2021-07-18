@@ -29,9 +29,26 @@
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
-#include <libKitsunemimiAiCommon/metadata.h>
 
 //==================================================================================================
+
+struct SegmentSettings
+{
+    float synapseDeleteBorder = 1.0f;
+    float actionPotential = 100.0f;
+    float nodeCooldown = 100.0f;
+    float memorizing = 0.1f;
+    float gliaValue = 1.0f;
+    float signNeg = 0.6f;
+    float potentialOverflow = 20.0f;
+    float maxSynapseWeight = 30.0f;
+    uint8_t refractionTime = 1;
+    uint8_t multiplicatorRange = 0;
+    uint8_t doLearn = 0;
+
+    uint8_t padding[221];
+};
+
 struct SegmentHeaderEntry
 {
     uint64_t bytePos = 0;
@@ -66,7 +83,7 @@ struct Segment
     Kitsunemimi::DataBuffer ephemeralBuffer;
 
     SegmentHeader* segmentHeader = nullptr;
-    Kitsunemimi::Ai::SegmentSettings* synapseSettings = nullptr;
+    SegmentSettings* synapseSettings = nullptr;
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
     Node* nodes = nullptr;
