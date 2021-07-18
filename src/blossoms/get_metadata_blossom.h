@@ -1,5 +1,5 @@
 /**
- * @file        brick_initializer.h
+ * @file        get_metadata_blossom.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,25 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef BRICKINITIALIZER_H
-#define BRICKINITIALIZER_H
+#ifndef GET_METADATA_BLOSSOM_H
+#define GET_METADATA_BLOSSOM_H
 
-#include <common.h>
-#include <core/objects/segment.h>
+#include <libKitsunemimiSakuraLang/blossom.h>
 
-class BrickInitializer
+class GetMetadataBlossom
+        : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    BrickInitializer();
-    virtual ~BrickInitializer();
+    GetMetadataBlossom();
 
-    bool initializeAxons(Segment &segment);
-
-    Brick* getAxonBrick(Segment &segment, Brick* sourceBrick);
-    bool initTargetBrickList(Segment &segment,
-                             Kitsunemimi::Ai::InitSettings* initMetaData);
-private:
-    uint8_t getPossibleNext();
+protected:
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
 };
 
-#endif // BRICKINITIALIZER_H
+#endif // GET_METADATA_BLOSSOM_H

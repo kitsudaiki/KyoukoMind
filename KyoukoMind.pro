@@ -4,17 +4,10 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
-INCLUDEPATH += ../libKitsunemimiAiCommon/include
-
 LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
 LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
 LIBS += -L../libKitsunemimiSakuraMessaging/src/release -lKitsunemimiSakuraMessaging
 INCLUDEPATH += ../libKitsunemimiSakuraMessaging/include
-
-LIBS += -L../libKitsunemimiAiParser/src -lKitsunemimiAiParser
-LIBS += -L../libKitsunemimiAiParser/src/debug -lKitsunemimiAiParser
-LIBS += -L../libKitsunemimiAiParser/src/release -lKitsunemimiAiParser
-INCLUDEPATH += ../libKitsunemimiAiParser/include
 
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
@@ -82,6 +75,8 @@ INCLUDEPATH += $$PWD \
                src
 
 HEADERS += \
+    src/blossoms/get_metadata_blossom.h \
+    src/blossoms/network_init_blossom.h \
     src/common/defines.h \
     src/common/enums.h \
     src/common/includes.h \
@@ -102,7 +97,6 @@ HEADERS += \
     src/core/storage_io.h \
     src/core/validation.h \
     src/dev_test.h \
-    src/initializing/brick_initializer.h \
     src/initializing/network_initializer.h \
     src/args.h \
     src/common.h \
@@ -117,13 +111,14 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
+    src/blossoms/get_metadata_blossom.cpp \
+    src/blossoms/network_init_blossom.cpp \
     src/core/processing/cpu/segment_processing.cpp \
     src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/dev_test.cpp \
-    src/initializing/brick_initializer.cpp \
     src/initializing/network_initializer.cpp \
     src/initializing/segment_initailzing.cpp \
     src/kyouko_root.cpp \

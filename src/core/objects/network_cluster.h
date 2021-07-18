@@ -26,20 +26,35 @@
 #include <common.h>
 
 #include <core/objects/segment.h>
-#include <libKitsunemimiAiCommon/metadata.h>
 
-//==================================================================================================
+struct NetworkMetaData
+{
+    float lerningValue = 0.0f;
+    uint32_t cycleTime = 1000000;
+
+    uint8_t padding[247];
+};
+
+struct InitSettings
+{
+    uint16_t nodesPerBrick = 0;
+    uint16_t maxBrickDistance = 0;
+    float nodeLowerBorder = 0.0f;
+    float nodeUpperBorder = 0.0f;
+    uint32_t layer = 0;
+    uint64_t maxSynapseSections = 0;
+
+    uint8_t padding[232];
+};
 
 struct NetworkCluster
 {
-    Kitsunemimi::Ai::NetworkMetaData networkMetaData;
-    Kitsunemimi::Ai::InitSettings initMetaData;
+    NetworkMetaData networkMetaData;
+    InitSettings initMetaData;
 
     Segment* synapseSegment = nullptr;
 
     uint32_t* randomValues = nullptr;
 };
-
-//==================================================================================================
 
 #endif // NETWORK_CLUSTER_H

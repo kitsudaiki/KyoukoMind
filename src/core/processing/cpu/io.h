@@ -10,8 +10,6 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-#include <libKitsunemimiAiCommon/metadata.h>
-
 /**
  * @brief processInputNodes
  * @param segment
@@ -20,11 +18,13 @@
 inline void
 processInputNodes(Segment* segment)
 {
+    InputNode* inputNode = nullptr;
+
     for(uint64_t inputNodeId = 0;
         inputNodeId < segment->segmentHeader->inputs.count;
         inputNodeId++)
     {
-        const InputNode* inputNode = &segment->inputs[inputNodeId];
+        inputNode = &segment->inputs[inputNodeId];
         segment->nodes[inputNode->targetNode].input = inputNode->weight;
     }
 }
@@ -37,13 +37,17 @@ processInputNodes(Segment* segment)
 inline void
 processOutputNodes(Segment* segment)
 {
+    OutputNode* out = nullptr;
+    Node* targetNode = nullptr;
+    float nodeWeight = 0.0f;
+
     for(uint64_t outputNodeId = 0;
         outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {
-        OutputNode* out = &segment->outputs[outputNodeId];
-        Node* targetNode = &segment->nodes[out->targetNode];
-        const float nodeWeight = targetNode->potential;
+        out = &segment->outputs[outputNodeId];
+        targetNode = &segment->nodes[out->targetNode];
+        nodeWeight = targetNode->potential;
         out->outputWeight = 1.0f / (1.0f + exp(-1.0f * nodeWeight));
     }
 }
@@ -58,13 +62,15 @@ inline float
 calcTotalError(Segment* segment)
 {
     float totalError = 0.0f;
+    OutputNode* out = nullptr;
+    float diff = 0.0f;
 
     for(uint64_t outputNodeId = 0;
         outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {
-        OutputNode* out = &segment->outputs[outputNodeId];
-        const float diff = (out->shouldValue - out->outputWeight);
+        out = &segment->outputs[outputNodeId];
+        diff = (out->shouldValue - out->outputWeight);
         totalError += 0.5f * (diff * diff);
     }
 

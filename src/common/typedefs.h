@@ -25,6 +25,7 @@
 
 #include <chrono>
 
+typedef std::chrono::milliseconds chronoMilliSec;
 typedef std::chrono::microseconds chronoMicroSec;
 typedef std::chrono::nanoseconds chronoNanoSec;
 typedef std::chrono::seconds chronoSec;

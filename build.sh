@@ -125,19 +125,11 @@ get_required_kitsune_lib_repo "libKitsunemimiConfig" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
+get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "separate-parsing-and-reading" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
 get_required_private_repo_github "libKitsunemimiSakuraMessaging" "master" 4
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_private_repo_gitlab "libKitsunemimiAiCommon" "master" 1
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_private_repo_gitlab "libKitsunemimiAiParser" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""

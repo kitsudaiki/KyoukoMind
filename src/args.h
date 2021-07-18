@@ -29,14 +29,10 @@ bool
 registerArguments(Kitsunemimi::Args::ArgParser &argparser)
 {
     argparser.registerString("config,c",
-                             "absolute path to config-file",
-                             true);
+                             "absolute path to config-file");
 
     argparser.registerPlain("debug,d",
                             "enable debug-mode");
-
-    argparser.registerString("develop",
-                             "enable develop-mode without any network-connection");
     return true;
 }
 

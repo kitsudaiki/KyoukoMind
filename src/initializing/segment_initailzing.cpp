@@ -22,9 +22,6 @@
 
 #include "segment_initailzing.h"
 
-#include <libKitsunemimiAiParser/ai_parser_input.h>
-#include <libKitsunemimiAiCommon/metadata.h>
-
 /**
  * @brief createNewHeader
  * @param numberOfBricks
@@ -50,7 +47,7 @@ createNewHeader(const uint32_t numberOfBricks,
     // init settings
     segmentHeader.settings.count = 1;
     segmentHeader.settings.bytePos = persistentBufferPos;
-    persistentBufferPos += 1 * sizeof(Kitsunemimi::Ai::SegmentSettings);
+    persistentBufferPos += 1 * sizeof(SegmentSettings);
 
     // init bricks
     segmentHeader.bricks.count = numberOfBricks;
@@ -74,16 +71,6 @@ createNewHeader(const uint32_t numberOfBricks,
 
 
     uint32_t ephemeralBufferPos = 0;
-
-    // init nodes-buffers
-    segmentHeader.nodeBuffers.count = numberOfNodes / numberOfBricks;
-    segmentHeader.nodeBuffers.bytePos = ephemeralBufferPos;
-    ephemeralBufferPos += numberOfBricks * 127 * sizeof(float);
-
-    // init synapse buffer
-    segmentHeader.synapseBuffers.count = numberOfSynapseSections;
-    segmentHeader.synapseBuffers.bytePos = ephemeralBufferPos;
-    ephemeralBufferPos += numberOfSynapseSections * sizeof(SynapseBuffer);
 
     // init input
     segmentHeader.inputs.count = numberOfInputs;
@@ -117,7 +104,7 @@ initSegmentPointer(Segment &segment,
     segment.segmentHeader = reinterpret_cast<SegmentHeader*>(persistentData + 0);
     segment.segmentHeader[0] = header;
 
-    segment.synapseSettings = reinterpret_cast<Kitsunemimi::Ai::SegmentSettings*>(persistentData + 256);
+    segment.synapseSettings = reinterpret_cast<SegmentSettings*>(persistentData + 256);
     segment.bricks = reinterpret_cast<Brick*>(persistentData + segment.segmentHeader->bricks.bytePos);
     segment.brickOrder = reinterpret_cast<uint32_t*>(persistentData + segment.segmentHeader->brickOrder.bytePos);
     segment.nodes = reinterpret_cast<Node*>(persistentData + segment.segmentHeader->nodes.bytePos);
@@ -125,8 +112,6 @@ initSegmentPointer(Segment &segment,
 
     uint8_t* ephemeralData = static_cast<uint8_t*>(segment.ephemeralBuffer.data);
 
-    segment.nodeBuffers = reinterpret_cast<float*>(ephemeralData + segment.segmentHeader->nodeBuffers.bytePos);
-    segment.synapseBuffers = reinterpret_cast<SynapseBuffer*>(ephemeralData + segment.segmentHeader->synapseBuffers.bytePos);
     segment.inputs = reinterpret_cast<InputNode*>(ephemeralData + segment.segmentHeader->inputs.bytePos);
     segment.outputs = reinterpret_cast<OutputNode*>(ephemeralData + segment.segmentHeader->outputs.bytePos);
 }
@@ -165,12 +150,12 @@ allocateSegment(SegmentHeader &header)
  * @return
  */
 Segment*
-initSynapseSegment(const uint32_t numberOfBricks,
-                   const uint32_t numberOfNodes,
-                   const uint64_t numberOfSynapseSections,
-                   const uint32_t numberOfInputs,
-                   const uint32_t numberOfOutputs,
-                   const uint32_t numberOfRandValues)
+createNewSegment(const uint32_t numberOfBricks,
+                 const uint32_t numberOfNodes,
+                 const uint64_t numberOfSynapseSections,
+                 const uint32_t numberOfInputs,
+                 const uint32_t numberOfOutputs,
+                 const uint32_t numberOfRandValues)
 {
     SegmentHeader header = createNewHeader(numberOfBricks,
                                            numberOfNodes,
@@ -180,7 +165,7 @@ initSynapseSegment(const uint32_t numberOfBricks,
     Segment* segment = allocateSegment(header);
 
     // init header and metadata
-    segment->synapseSettings[0] = Kitsunemimi::Ai::SegmentSettings();
+    segment->synapseSettings[0] = SegmentSettings();
 
     // init bricks;
     for(uint32_t i = 0; i < numberOfBricks; i++) {
@@ -197,21 +182,11 @@ initSynapseSegment(const uint32_t numberOfBricks,
         segment->nodes[i] = Node();
     }
 
-    // init nodes-buffers
-    for(uint32_t i = 0; i < numberOfBricks * 127; i++) {
-        segment->nodeBuffers[i] = 0.0f;
-    }
-
     // init synapse sections
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         segment->synapseSections[i] = SynapseSection();
         segment->synapseSections[i].randomPos = static_cast<uint32_t>(rand()) % numberOfRandValues;
-    }
-
-    // init synapse buffer
-    for(uint32_t i = 0; i < numberOfSynapseSections; i++) {
-        segment->synapseBuffers[i] = SynapseBuffer();
     }
 
     // init input
@@ -235,7 +210,7 @@ initSynapseSegment(const uint32_t numberOfBricks,
  */
 bool
 initializeNodes(Segment &segment,
-                Kitsunemimi::Ai::InitSettings* initMetaData)
+                InitSettings* initMetaData)
 {
     const uint32_t numberOfNodes = segment.segmentHeader->nodes.count;
     const float range = initMetaData->nodeUpperBorder - initMetaData->nodeLowerBorder;
@@ -257,81 +232,364 @@ initializeNodes(Segment &segment,
  */
 void
 addBricksToSegment(Segment &segment,
-                   Kitsunemimi::Ai::InitSettings* initMetaData,
-                   const Kitsunemimi::Ai::AiBaseMeta& metaBase)
+                   InitSettings* initMetaData,
+                   JsonItem &metaBase)
 {
     uint32_t nodeBrickIdCounter = 0;
     uint32_t inputCounter = 0;
+    JsonItem bricks = metaBase.get("bricks");
 
-    for(uint32_t i = 0; i < metaBase.bricks.size(); i++)
+    for(uint32_t i = 0; i < bricks.size(); i++)
     {
         Brick newBrick;
 
         // copy metadata
-        newBrick.brickId = metaBase.bricks[i].brickId;
-        newBrick.nodeBrickId = metaBase.bricks[i].nodeBrickId;
-        newBrick.isOutputBrick = metaBase.bricks[i].isOutputBrick;
-        newBrick.isInputBrick = metaBase.bricks[i].isInputBrick;
+        newBrick.brickId = i;
+        newBrick.nodeBrickId = i;
+        if(bricks[i].get("type").getString() == "output") {
+            newBrick.isOutputBrick = true;
+        }
+        if(bricks[i].get("type").getString() == "input") {
+            newBrick.isInputBrick = true;
+        }
 
         // copy position
-        newBrick.brickPos.x = static_cast<int32_t>(metaBase.bricks[i].brickPos.x);
-        newBrick.brickPos.y = static_cast<int32_t>(metaBase.bricks[i].brickPos.y);
-        newBrick.brickPos.z = static_cast<int32_t>(metaBase.bricks[i].brickPos.z);
-
-        // copy neighbors
-        for(uint32_t j = 0; j < 12; j++) {
-            newBrick.neighbors[j] = metaBase.bricks[i].neighbors[j];
-        }
+        newBrick.brickPos.x = bricks[i].get("x").getInt();
+        newBrick.brickPos.y = bricks[i].get("y").getInt();
+        newBrick.brickPos.z = bricks[i].get("z").getInt();
 
         // handle node-brick
-        if(newBrick.nodeBrickId != UNINIT_STATE_32)
+        const uint32_t nodeOffset = newBrick.nodeBrickId * initMetaData->nodesPerBrick;
+        assert(nodeOffset < 0x7FFFFFFF);
+        newBrick.nodePos = nodeOffset;
+        newBrick.numberOfNodes = initMetaData->nodesPerBrick;
+
+        // handle output-brick
+        if(newBrick.isOutputBrick)
         {
-            const uint32_t nodeOffset = newBrick.nodeBrickId * initMetaData->nodesPerBrick;
-            assert(nodeOffset < 0x7FFFFFFF);
-            newBrick.nodePos = nodeOffset;
-            newBrick.numberOfNodes = initMetaData->nodesPerBrick;
-
-            // handle output-brick
-            if(newBrick.isOutputBrick)
-            {
-                Node* nodes = segment.nodes;
-                for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
-                    nodes[j + nodeOffset].border = -2.0f;
-                }
-
-                for(uint32_t i = 0; i < segment.segmentHeader->outputs.count; i++) {
-                    segment.outputs[i].targetNode = nodeOffset + i;
-                }
-
-                newBrick.numberOfNodes = segment.segmentHeader->outputs.count;
-            }
-
-            // handle input-brick
-            if(newBrick.isInputBrick)
-            {
-                Node* array = segment.nodes;
-                for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++)
-                {
-                    array[j + nodeOffset].border = 0.0f;
-                    segment.inputs[inputCounter].targetNode = j + nodeOffset;
-                    inputCounter++;
-                }
-            }
-
             Node* nodes = segment.nodes;
             for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
-                nodes[j + nodeOffset].nodeBrickId = newBrick.nodeBrickId;
+                nodes[j + nodeOffset].border = -2.0f;
             }
 
-            // copy new brick to segment
-            segment.bricks[nodeBrickIdCounter] = newBrick;
-            assert(nodeBrickIdCounter == newBrick.nodeBrickId);
-            nodeBrickIdCounter++;
+            for(uint32_t i = 0; i < segment.segmentHeader->outputs.count; i++) {
+                segment.outputs[i].targetNode = nodeOffset + i;
+            }
+
+            newBrick.numberOfNodes = segment.segmentHeader->outputs.count;
         }
 
-        assert(newBrick.brickId == i);
+        // handle input-brick
+        if(newBrick.isInputBrick)
+        {
+            Node* array = segment.nodes;
+            for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++)
+            {
+                array[j + nodeOffset].border = 0.0f;
+                segment.inputs[inputCounter].targetNode = j + nodeOffset;
+                inputCounter++;
+            }
+        }
+
+        Node* nodes = segment.nodes;
+        for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
+            nodes[j + nodeOffset].nodeBrickId = newBrick.nodeBrickId;
+        }
+
+        // copy new brick to segment
+        segment.bricks[nodeBrickIdCounter] = newBrick;
+        assert(nodeBrickIdCounter == newBrick.nodeBrickId);
+        nodeBrickIdCounter++;
     }
 
     return;
 }
 
+void
+connectBrick(Segment &segment,
+             Brick* sourceBrick,
+             const uint8_t side)
+{
+    sourceBrick->neighbors[side] = UNINIT_STATE_32;
+    Position next = getNeighborPos(sourceBrick->brickPos, side);
+    if(next.isValid())
+    {
+        for(uint32_t t = 0; t < segment.segmentHeader->bricks.count; t++)
+        {
+            Brick* targetBrick = &segment.bricks[t];
+            if(targetBrick->brickPos == next)
+            {
+                sourceBrick->neighbors[side] = targetBrick->brickId;
+                targetBrick->neighbors[11 - side] = sourceBrick->brickId;
+            }
+        }
+    }
+}
+
+/**
+ * @brief connect all bricks in the parser-output based on its coordinates to identify neighbors
+ *
+ * @param parserOutput output coming from the parser
+ * @param x current x-position
+ * @param y current y-position
+ * @param z current z-position
+ */
+void
+connectAllBricks(Segment &segment)
+{
+    for(uint32_t i = 0; i < segment.segmentHeader->bricks.count; i++)
+    {
+        Brick* sourceBrick = &segment.bricks[i];
+        for(uint8_t side = 0; side < 12; side++) {
+            connectBrick(segment, sourceBrick, side);
+        }
+    }
+}
+
+/**
+ * @brief get the next position in the raster for a specific brick and side
+ *
+ * @param x current x-position
+ * @param y current y-position
+ * @param z current z-position
+ * @param side side to go to next
+ *
+ * @return position of the next brick for the specific side
+ */
+Position
+getNeighborPos(Position sourcePos, const uint8_t side)
+{
+    Position result;
+    result.x = UNINIT_STATE_32;
+    result.y = UNINIT_STATE_32;
+    result.z = UNINIT_STATE_32;
+
+    switch (side)
+    {
+    case 0:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x;
+            } else {
+                result.x = sourcePos.x - 1;
+            }
+            result.y = sourcePos.y - 1;
+            result.z = sourcePos.z - 1;
+            break;
+        }
+    case 1:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x + 1;
+            } else {
+                result.x = sourcePos.x;
+            }
+            result.y = sourcePos.y - 1;
+            result.z = sourcePos.z - 1;
+            break;
+        }
+    case 2:
+        {
+            result.x = sourcePos.x;
+            result.y = sourcePos.y;
+            result.z = sourcePos.z - 1;
+            break;
+        }
+    case 3:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x + 1;
+            } else {
+                result.x = sourcePos.x;
+            }
+            result.y = sourcePos.y - 1;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 4:
+        {
+            result.x = sourcePos.x + 1;
+            result.y = sourcePos.y;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 5:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x + 1;
+            } else {
+                result.x = sourcePos.x;
+            }
+            result.y = sourcePos.y + 1;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 8:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x;
+            } else {
+                result.x = sourcePos.x - 1;
+            }
+            result.y = sourcePos.y + 1;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 7:
+        {
+            result.x = sourcePos.x - 1;
+            result.y = sourcePos.y;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 6:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x;
+            } else {
+                result.x = sourcePos.x - 1;
+            }
+            result.y = sourcePos.y - 1;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 9:
+        {
+            result.x = sourcePos.x;
+            result.y = sourcePos.y;
+            result.z = sourcePos.z + 1;
+            break;
+        }
+    case 10:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x;
+            } else {
+                result.x = sourcePos.x - 1;
+            }
+            result.y = sourcePos.y + 1;
+            result.z = sourcePos.z + 1;
+            break;
+        }
+    case 11:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x + 1;
+            } else {
+                result.x = sourcePos.x;
+            }
+            result.y = sourcePos.y + 1;
+            result.z = sourcePos.z + 1;
+            break;
+        }
+    default:
+        assert(false);
+    }
+    return result;
+}
+
+
+bool
+initializeAxons(Segment &segment)
+{
+    uint32_t nodeId = 0;
+
+    // calculate number of axons per brick
+    for(uint32_t brickId = 0;
+        brickId < segment.segmentHeader->bricks.count;
+        brickId++)
+    {
+        Brick* sourceBrick = &segment.bricks[brickId];
+
+        if(sourceBrick->isOutputBrick == 1)
+        {
+            nodeId += sourceBrick->numberOfNodes;
+            continue;
+        }
+
+        // iterate over all nodes of the brick and create an axon for each node
+        for(uint32_t nodePos = 0; nodePos < sourceBrick->numberOfNodes; nodePos++)
+        {
+            Brick* axonBrick = getAxonBrick(segment, sourceBrick);
+            assert(axonBrick->nodeBrickId <= 100);
+
+            // calculate distance with pythagoras
+            int32_t x = axonBrick->brickPos.x - sourceBrick->brickPos.x;
+            int32_t y = axonBrick->brickPos.y - sourceBrick->brickPos.y;
+            int32_t z = axonBrick->brickPos.z - sourceBrick->brickPos.z;
+            x = x * x;
+            y = y * y;
+            z = z * z;
+            const double dist = std::sqrt(x + y + z);
+
+            // set source and target in related nodes and edges
+            //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
+            segment.nodes[nodeId].targetBrickDistance = static_cast<uint32_t>(dist);
+            segment.nodes[nodeId].targetSectionId = nodeId;
+
+            // post-check
+            assert(axonBrick->nodeBrickId != UNINIT_STATE_32);
+            assert(sourceBrick->brickId != UNINIT_STATE_32);
+
+            nodeId++;
+        }
+    }
+
+    assert(nodeId == segment.segmentHeader->nodes.count);
+
+    return true;
+}
+
+/**
+ * @brief FanBrickInitializer::getAxonBrick
+ * @param segment
+ * @param sourceBrick
+ * @return
+ */
+Brick*
+getAxonBrick(Segment &segment, Brick *sourceBrick)
+{
+    return sourceBrick;
+}
+
+/**
+ * @brief FanBrickInitializer::initTargetBrickList
+ * @param segment
+ * @return
+ */
+bool
+initTargetBrickList(Segment &segment,
+                    InitSettings* init)
+{
+    Brick* bricks = segment.bricks;
+
+    // iterate over all bricks
+    for(uint32_t i = 0; i < segment.segmentHeader->bricks.count; i++)
+    {
+        Brick* baseBrick = &bricks[i];
+        if(baseBrick->isOutputBrick != 0) {
+            continue;
+        }
+
+        // get 1000 samples
+        uint32_t counter = 0;
+        while(counter < 1000)
+        {
+            baseBrick->possibleTargetNodeBrickIds[counter] = baseBrick->brickId + 1;
+            counter++;
+            /*uint8_t nextSide = getPossibleNext();
+            const uint32_t nextBrickId = baseBrick->neighbors[nextSide];
+            if(nextBrickId != UNINIT_STATE_32)
+            {
+                baseBrick->possibleTargetNodeBrickIds[counter] = nextBrickId;
+                counter++;
+                if(counter >= 1000) {
+                    break;
+                }
+            }*/
+        }
+        assert(counter == 1000);
+    }
+
+    return true;
+}

@@ -1,5 +1,5 @@
 /**
- * @file        structs.h
+ * @file        get_metadata_blossom.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,31 +20,27 @@
  *      limitations under the License.
  */
 
-#ifndef STRUCTS_H
-#define STRUCTS_H
+#include "get_metadata_blossom.h"
 
-#include <stdint.h>
-#include <common/defines.h>
-struct Position
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
+
+using namespace Kitsunemimi::Sakura;
+
+GetMetadataBlossom::GetMetadataBlossom()
+    : Blossom()
 {
-    int32_t x = UNINTI_POINT_32;
-    int32_t y = UNINTI_POINT_32;
-    int32_t z = UNINTI_POINT_32;
-    int32_t w = UNINTI_POINT_32;
+    registerField("metadata", OUTPUT_TYPE, true);
+}
 
-    bool isValid()
-    {
-        return(x != UNINTI_POINT_32
-               && y != UNINTI_POINT_32
-               && z != UNINTI_POINT_32);
-    }
+bool
+GetMetadataBlossom::runTask(BlossomLeaf &blossomLeaf,
+                            std::string &errorMessage)
+{
+    const std::string content = blossomLeaf.input.getStringByKey("content");
 
-    bool operator==(const Position &other)
-    {
-        return(this->x == other.x
-               && this->y == other.y
-               && this->z == other.z);
-    }
-};
+    Kitsunemimi::DataMap result;
 
-#endif // STRUCTS_H
+    blossomLeaf.output.insert("metadata", &result);
+
+    return true;
+}

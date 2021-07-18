@@ -30,10 +30,13 @@ registerConfigs()
 {
     REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", "/etc/KyoukoMind/sakura-files");
 
-    REGISTER_STRING_CONFIG("Init", "file", "/tmp/KyoukoMind_init");
-
-    REGISTER_STRING_CONFIG("Init", "config", "/tmp/KyoukoMind_config");
-
+    REGISTER_BOOL_CONFIG("DevMode", "enable", false);
+    REGISTER_BOOL_CONFIG("DevMode", "use_gpu", false);
+    REGISTER_STRING_CONFIG("DevMode", "file", "");
+    REGISTER_STRING_CONFIG("DevMode", "config", "");
+    REGISTER_STRING_CONFIG("DevMode", "mnist_path", "");
+    REGISTER_INT_CONFIG("DevMode", "learn_images", 100);
+    REGISTER_INT_CONFIG("DevMode", "learn_iterations", 1);
 }
 
 #endif // KYOUKOMIND_CONFIG_H

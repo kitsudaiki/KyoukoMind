@@ -28,6 +28,7 @@
 #include <core/callbacks.h>
 #include <dev_test.h>
 #include <initializing/blossom_initializing.h>
+#include <initializing/network_initializer.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -56,7 +57,11 @@ main(int argc, char *argv[])
     Kitsunemimi::Persistence::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
 
     // init config
-    const std::string configFile = argParser.getStringValue("config");
+    std::string configFile = "/etc/KyoukoMind/KyoukoMind.conf";
+
+    if(argParser.wasSet("config")) {
+        configFile = argParser.getStringValue("config");
+    }
     if(Kitsunemimi::Config::initConfig(configFile) == false) {
         return 1;
     }
@@ -66,9 +71,16 @@ main(int argc, char *argv[])
     KyoukoRoot* rootObject = new KyoukoRoot();
     rootObject->start();
 
-    if(argParser.wasSet("develop"))
+    bool success = false;
+    const bool devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
+    if(devMode)
     {
-        const std::string mnistTestPath = argParser.getStringValue("develop");
+        const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
+        const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
+        ClusterInitializer initializer;
+        initializer.initNetwork(initialFile);
+
+        const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
         learnTestData(mnistTestPath);
     }
     else

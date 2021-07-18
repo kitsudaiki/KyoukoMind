@@ -1,5 +1,5 @@
 /**
- * @file        structs.h
+ * @file        network_init_blossom.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,31 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef STRUCTS_H
-#define STRUCTS_H
+#ifndef NETWORKINITBLOSSOM_H
+#define NETWORKINITBLOSSOM_H
 
-#include <stdint.h>
-#include <common/defines.h>
-struct Position
+#include <libKitsunemimiSakuraLang/blossom.h>
+
+class NetworkInitBlossom
+        : public Kitsunemimi::Sakura::Blossom
 {
-    int32_t x = UNINTI_POINT_32;
-    int32_t y = UNINTI_POINT_32;
-    int32_t z = UNINTI_POINT_32;
-    int32_t w = UNINTI_POINT_32;
+public:
+    NetworkInitBlossom();
 
-    bool isValid()
-    {
-        return(x != UNINTI_POINT_32
-               && y != UNINTI_POINT_32
-               && z != UNINTI_POINT_32);
-    }
-
-    bool operator==(const Position &other)
-    {
-        return(this->x == other.x
-               && this->y == other.y
-               && this->z == other.z);
-    }
+protected:
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
 };
 
-#endif // STRUCTS_H
+#endif // NETWORKINITBLOSSOM_H

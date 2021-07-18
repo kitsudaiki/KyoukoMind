@@ -16,9 +16,10 @@ CpuProcessingUnit::CpuProcessingUnit()
 bool
 CpuProcessingUnit::learn()
 {
-    KyoukoRoot::m_networkCluster->networkMetaData.doLearn = 1;
+    Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    synapseSegment->synapseSettings->doLearn = 1;
     updateLearning();
-    KyoukoRoot::m_networkCluster->networkMetaData.doLearn = 0;
+    synapseSegment->synapseSettings->doLearn = 0;
 
     return true;
 }
