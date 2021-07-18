@@ -199,13 +199,11 @@ typedef struct SegmentHeader
     SegmentHeaderEntry bricks;
     SegmentHeaderEntry brickOrder;
     SegmentHeaderEntry synapseSections;
-    SegmentHeaderEntry synapseBuffers;
     SegmentHeaderEntry nodes;
-    SegmentHeaderEntry nodeBuffers;
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
-    uchar padding[88];
+    uchar padding[120];
 
     // total size: 256 Byte
 } 
@@ -717,12 +715,6 @@ parseSegment(__global uchar* persistentData,
     // printf("synapseSections: %d\n" , segment.segmentHeader->synapseSections.bytePos);
     segment.synapseSections = (__global SynapseSection*)(persistentData + segment.segmentHeader->synapseSections.bytePos);
 
-    // printf("nodeBuffers: %d\n" , segment.segmentHeader->nodeBuffers.bytePos);
-    segment.nodeBuffers = (__global float*)(ephemeralData + segment.segmentHeader->nodeBuffers.bytePos);
-    
-    // printf("synapseBuffers: %d\n" , segment.segmentHeader->synapseBuffers.bytePos);
-    segment.synapseBuffers = (__global SynapseBuffer*)(ephemeralData + segment.segmentHeader->synapseBuffers.bytePos);
-    
     // printf("inputs: %d\n" , segment.segmentHeader->inputs.bytePos);
     segment.inputs = (__global InputNode*)(ephemeralData + segment.segmentHeader->inputs.bytePos);
 

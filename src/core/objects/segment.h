@@ -51,13 +51,11 @@ struct SegmentHeader
     SegmentHeaderEntry bricks;
     SegmentHeaderEntry brickOrder;
     SegmentHeaderEntry synapseSections;
-    SegmentHeaderEntry synapseBuffers;
     SegmentHeaderEntry nodes;
-    SegmentHeaderEntry nodeBuffers;
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
-    uint8_t padding[88];
+    uint8_t padding[120];
 
     // total size: 256 Byte
 };
@@ -72,9 +70,7 @@ struct Segment
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
     Node* nodes = nullptr;
-    float* nodeBuffers = nullptr;
     SynapseSection* synapseSections = nullptr;
-    SynapseBuffer* synapseBuffers = nullptr;
     InputNode* inputs = nullptr;
     OutputNode* outputs = nullptr;
 

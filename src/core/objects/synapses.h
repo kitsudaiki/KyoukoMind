@@ -27,20 +27,6 @@
 
 #include <libKitsunemimiCommon/buffer/item_buffer.h>
 
-//==================================================================================================
-
-struct SynapseBuffer
-{
-    uint8_t process = 0;
-    uint8_t upToDate = 1;
-    uint8_t padding[2];
-
-    float weigth = 0.0f;
-    uint32_t nodeId = UNINIT_STATE_32;
-    uint32_t targetId = UNINIT_STATE_32;
-
-    // total size: 16 Byte
-};
 
 //==================================================================================================
 

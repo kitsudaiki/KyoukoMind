@@ -75,16 +75,6 @@ createNewHeader(const uint32_t numberOfBricks,
 
     uint32_t ephemeralBufferPos = 0;
 
-    // init nodes-buffers
-    segmentHeader.nodeBuffers.count = numberOfNodes / numberOfBricks;
-    segmentHeader.nodeBuffers.bytePos = ephemeralBufferPos;
-    ephemeralBufferPos += numberOfBricks * 127 * sizeof(float);
-
-    // init synapse buffer
-    segmentHeader.synapseBuffers.count = numberOfSynapseSections;
-    segmentHeader.synapseBuffers.bytePos = ephemeralBufferPos;
-    ephemeralBufferPos += numberOfSynapseSections * sizeof(SynapseBuffer);
-
     // init input
     segmentHeader.inputs.count = numberOfInputs;
     segmentHeader.inputs.bytePos = ephemeralBufferPos;
@@ -125,8 +115,6 @@ initSegmentPointer(Segment &segment,
 
     uint8_t* ephemeralData = static_cast<uint8_t*>(segment.ephemeralBuffer.data);
 
-    segment.nodeBuffers = reinterpret_cast<float*>(ephemeralData + segment.segmentHeader->nodeBuffers.bytePos);
-    segment.synapseBuffers = reinterpret_cast<SynapseBuffer*>(ephemeralData + segment.segmentHeader->synapseBuffers.bytePos);
     segment.inputs = reinterpret_cast<InputNode*>(ephemeralData + segment.segmentHeader->inputs.bytePos);
     segment.outputs = reinterpret_cast<OutputNode*>(ephemeralData + segment.segmentHeader->outputs.bytePos);
 }
@@ -197,21 +185,11 @@ initSynapseSegment(const uint32_t numberOfBricks,
         segment->nodes[i] = Node();
     }
 
-    // init nodes-buffers
-    for(uint32_t i = 0; i < numberOfBricks * 127; i++) {
-        segment->nodeBuffers[i] = 0.0f;
-    }
-
     // init synapse sections
     for(uint32_t i = 0; i < numberOfSynapseSections; i++)
     {
         segment->synapseSections[i] = SynapseSection();
         segment->synapseSections[i].randomPos = static_cast<uint32_t>(rand()) % numberOfRandValues;
-    }
-
-    // init synapse buffer
-    for(uint32_t i = 0; i < numberOfSynapseSections; i++) {
-        segment->synapseBuffers[i] = SynapseBuffer();
     }
 
     // init input
