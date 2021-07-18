@@ -57,7 +57,11 @@ main(int argc, char *argv[])
     Kitsunemimi::Persistence::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
 
     // init config
-    const std::string configFile = argParser.getStringValue("config");
+    std::string configFile = "/etc/KyoukoMind/KyoukoMind.conf";
+
+    if(argParser.wasSet("config")) {
+        configFile = argParser.getStringValue("config");
+    }
     if(Kitsunemimi::Config::initConfig(configFile) == false) {
         return 1;
     }
