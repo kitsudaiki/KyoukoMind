@@ -66,6 +66,8 @@ synapseProcessing(SynapseSection* section,
 
     uint32_t pos = 0;
     float netH = weightIn;
+    bool createSyn = false;
+    Synapse* synapse = nullptr;
     const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
     section->updated = 0;
 
@@ -73,10 +75,10 @@ synapseProcessing(SynapseSection* section,
     while(pos < SYNAPSES_PER_SYNAPSESECTION
           && netH > 0.0f)
     {
-        Synapse* synapse = &section->synapses[pos];
-        const bool createSyn = synapse->targetNodeId == UNINIT_STATE_16
-                               && pos >= section->hardening
-                               && synapseMetaData->doLearn > 0;
+        synapse = &section->synapses[pos];
+        createSyn = synapse->targetNodeId == UNINIT_STATE_16
+                    && pos >= section->hardening
+                    && synapseMetaData->doLearn > 0;
         if(createSyn)
         {
             createNewSynapse(section,
@@ -119,13 +121,17 @@ nodeProcessing(Brick* brick,
                uint32_t* randomValues,
                Kitsunemimi::Ai::SegmentSettings* synapseMetaData)
 {
+    bool initNode = false;
+    bool active = false;
+    Node* node = nullptr;
+
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
-        Node* node = &nodes[nodeId];
-        const bool initNode = node->init == 0
-                              && node->input > 0.0f;
+        node = &nodes[nodeId];
+        initNode = node->init == 0
+                   && node->input > 0.0f;
         node->border = static_cast<float>(initNode) * node->input * 0.5f
                        + static_cast<float>(initNode == false) * node->border;
         node->potential = synapseMetaData->potentialOverflow * node->input;
@@ -141,8 +147,8 @@ nodeProcessing(Brick* brick,
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
-        Node* node = &nodes[nodeId];
-        const bool active = node->potential > node->border;
+        node = &nodes[nodeId];
+        active = node->potential > node->border;
         if(active)
         {
             synapseProcessing(&synapseSections[nodeId],

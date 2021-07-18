@@ -82,12 +82,20 @@ createNewSynapse(SynapseSection* section,
 inline void
 hardenSynapses(Segment* segment)
 {
+    uint16_t pos = 0;
+    Node* sourceNode = nullptr;
+    SynapseSection* section = nullptr;
+    Synapse* synapse = nullptr;
+    uint32_t counter = 0;
+    float netH = 0.0f;
+    bool updateHardening = false;
+
     for(uint32_t nodeId = 0;
         nodeId < segment->segmentHeader->nodes.count;
         nodeId++)
     {
-        Node* sourceNode = &segment->nodes[nodeId];
-        SynapseSection* section = &segment->synapseSections[nodeId];
+        sourceNode = &segment->nodes[nodeId];
+        section = &segment->synapseSections[nodeId];
 
         if(section->active == 0
                 || section->updated == 0)
@@ -99,15 +107,15 @@ hardenSynapses(Segment* segment)
             sourceNode->init = 1;
         }
 
-        uint32_t counter = 0;
-        uint16_t pos = 0;
-        float netH = sourceNode->potential;
+        counter = 0;
+        pos = 0;
+        netH = sourceNode->potential;
 
         // iterate over all synapses in the section and update the target-nodes
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
         {
-            Synapse* synapse = &section->synapses[pos];
+            synapse = &section->synapses[pos];
             pos++;
 
             // process synapse
@@ -120,7 +128,7 @@ hardenSynapses(Segment* segment)
         }
 
         // harden synapse-section
-        const bool updateHardening = counter > section->hardening;
+        updateHardening = counter > section->hardening;
         section->hardening = (updateHardening == true) * counter
                              + (updateHardening == false) * section->hardening;
     }
@@ -135,18 +143,24 @@ hardenSynapses(Segment* segment)
 inline void
 reduceCoreSynapses(Segment* segment)
 {
+    Synapse currentSyn;
+    uint32_t currentPos = 0;
+    SynapseSection* section = nullptr;
+    Synapse* synapse = nullptr;
+    bool upToData = false;
+
     for(uint32_t sectionId = 0;
         sectionId < segment->segmentHeader->synapseSections.count;
         sectionId++)
     {
-        bool upToData = 1;
-        SynapseSection* section = &segment->synapseSections[sectionId];
+        upToData = 1;
+        section = &segment->synapseSections[sectionId];
 
         // iterate over all synapses in synapse-section
-        uint32_t currentPos = section->hardening;
+        currentPos = section->hardening;
         for(uint32_t lastPos = section->hardening; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
         {
-            Synapse* synapse = &section->synapses[lastPos];
+            synapse = &section->synapses[lastPos];
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 continue;
             }
@@ -169,7 +183,7 @@ reduceCoreSynapses(Segment* segment)
             }
             else
             {
-                const Synapse currentSyn = section->synapses[currentPos];
+                currentSyn = section->synapses[currentPos];
                 section->synapses[currentPos] = section->synapses[lastPos];
                 section->synapses[lastPos] = currentSyn;
                 currentPos++;
