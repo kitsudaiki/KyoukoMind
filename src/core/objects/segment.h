@@ -78,7 +78,6 @@ struct SegmentHeader
 struct Segment
 {
     Kitsunemimi::DataBuffer persistenBuffer;
-    Kitsunemimi::DataBuffer ephemeralBuffer;
 
     SegmentHeader* segmentHeader = nullptr;
     SegmentSettings* synapseSettings = nullptr;

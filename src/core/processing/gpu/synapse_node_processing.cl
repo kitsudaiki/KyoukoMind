@@ -38,22 +38,6 @@
 
 //==================================================================================================
 
-typedef struct SynapseBuffer
-{
-    uchar process;
-    uchar upToDate;
-    uchar padding[2];
-
-    float weigth;
-    uint nodeId;
-    uint targetId;
-
-    // total size: 64 Byte
-}
-SynapseBuffer;
-
-//==================================================================================================
-
 typedef struct Synapse
 {
     float weight;
@@ -214,9 +198,7 @@ typedef struct Segment
     __global Brick* bricks;
     __global uint* brickOrder;
     __global Node* nodes;
-    __global float* nodeBuffers;
     __global SynapseSection* synapseSections;
-    __global SynapseBuffer* synapseBuffers;
     __global InputNode* inputs;
     __global OutputNode* outputs;
 } 
@@ -814,7 +796,7 @@ learn(__global uchar* segmentData,
     processOutputNodes(&segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
 
-    if(get_local_id(0) == 0) 
+    /*if(get_local_id(0) == 0) 
     {
         float totalError = 0.0f;
 
@@ -829,7 +811,7 @@ learn(__global uchar* segmentData,
 
         printf("######################### totalError: %f\n", totalError);
     }
-    barrier(CLK_LOCAL_MEM_FENCE);
+    barrier(CLK_LOCAL_MEM_FENCE);*/
 
     rewightSegment(segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
