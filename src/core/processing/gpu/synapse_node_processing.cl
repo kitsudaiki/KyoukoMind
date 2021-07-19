@@ -190,9 +190,7 @@ SegmentHeaderEntry;
 
 typedef struct SegmentHeader
 {
-    ulong segmentSize;
-    ulong segmentPersistentBufferSize;
-    ulong segmentEphemeralBufferSize;
+    ulong segmentDataSize;
 
     // synapse-segment
     SegmentHeaderEntry settings;
@@ -203,7 +201,7 @@ typedef struct SegmentHeader
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
-    uchar padding[120];
+    uchar padding[136];
 
     // total size: 256 Byte
 } 
@@ -695,30 +693,30 @@ nodeProcessing(__global Brick* brick,
  * 
  */
 inline Segment 
-parseSegment(__global uchar* persistentData)
+parseSegment(__global uchar* segmentData)
 {
     Segment segment;
 
-    segment.segmentHeader = (__global SegmentHeader*)(persistentData + 0);
+    segment.segmentHeader = (__global SegmentHeader*)(segmentData + 0);
 
-    segment.synapseSettings = (__global SegmentSettings*)(persistentData + 256);
+    segment.synapseSettings = (__global SegmentSettings*)(segmentData + 256);
     // printf("bricks: %d\n" , segment.segmentHeader->bricks.bytePos);
-    segment.bricks = (__global Brick*)(persistentData + segment.segmentHeader->bricks.bytePos);
+    segment.bricks = (__global Brick*)(segmentData + segment.segmentHeader->bricks.bytePos);
     
     // printf("brickOrder: %d\n" , segment.segmentHeader->brickOrder.bytePos);
-    segment.brickOrder = (__global uint*)(persistentData + segment.segmentHeader->brickOrder.bytePos);
+    segment.brickOrder = (__global uint*)(segmentData + segment.segmentHeader->brickOrder.bytePos);
     
     // printf("nodes: %d\n" , segment.segmentHeader->nodes.bytePos);
-    segment.nodes = (__global Node*)(persistentData + segment.segmentHeader->nodes.bytePos);
+    segment.nodes = (__global Node*)(segmentData + segment.segmentHeader->nodes.bytePos);
     
     // printf("synapseSections: %d\n" , segment.segmentHeader->synapseSections.bytePos);
-    segment.synapseSections = (__global SynapseSection*)(persistentData + segment.segmentHeader->synapseSections.bytePos);
+    segment.synapseSections = (__global SynapseSection*)(segmentData + segment.segmentHeader->synapseSections.bytePos);
 
     // printf("inputs: %d\n" , segment.segmentHeader->inputs.bytePos);
-    segment.inputs = (__global InputNode*)(persistentData + segment.segmentHeader->inputs.bytePos);
+    segment.inputs = (__global InputNode*)(segmentData + segment.segmentHeader->inputs.bytePos);
 
     // printf("outputs: %d\n" , segment.segmentHeader->outputs.bytePos);
-    segment.outputs = (__global OutputNode*)(persistentData + segment.segmentHeader->outputs.bytePos);
+    segment.outputs = (__global OutputNode*)(segmentData + segment.segmentHeader->outputs.bytePos);
 
     return segment;
 }
@@ -787,7 +785,7 @@ prcessSegmentNodes(Segment segment,
 //==================================================================================================
 
 __kernel void
-learn(__global uchar* persistentData,
+learn(__global uchar* segmentData,
       __global InputNode* inputs,   
       __global OutputNode* outputs, 
       __global uint* randomValues, 
@@ -797,7 +795,7 @@ learn(__global uchar* persistentData,
     __local SegmentSettings* localSegmentSettings = (__local SegmentSettings*)&localMemory[256];
     __local uchar* localBuffer = (__local uchar*)&localMemory[512 + (get_local_id(0) * 512)];
 
-    Segment segment = parseSegment(persistentData);
+    Segment segment = parseSegment(segmentData);
     segment.synapseSettings->doLearn = 1;
 
     if(get_local_id(0) == 0) 
@@ -816,7 +814,7 @@ learn(__global uchar* persistentData,
     processOutputNodes(&segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
 
-    /*if(get_local_id(0) == 0) 
+    if(get_local_id(0) == 0) 
     {
         float totalError = 0.0f;
 
@@ -831,7 +829,7 @@ learn(__global uchar* persistentData,
 
         printf("######################### totalError: %f\n", totalError);
     }
-    barrier(CLK_LOCAL_MEM_FENCE);*/
+    barrier(CLK_LOCAL_MEM_FENCE);
 
     rewightSegment(segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -840,7 +838,7 @@ learn(__global uchar* persistentData,
 }
 
 __kernel void
-execute(__global uchar* persistentData,
+execute(__global uchar* segmentData,
         __global InputNode* inputs,   
         __global OutputNode* outputs,  
         __global uint* randomValues, 
@@ -850,7 +848,7 @@ execute(__global uchar* persistentData,
     __local SegmentSettings* localSegmentSettings = (__local SegmentSettings*)&localMemory[256];
     __local uchar* localBuffer = (__local uchar*)&localMemory[512 + (get_local_id(0) * 512)];
 
-    Segment segment = parseSegment(persistentData);
+    Segment segment = parseSegment(segmentData);
     segment.synapseSettings->doLearn = 1;
     if(get_local_id(0) == 0) 
     {

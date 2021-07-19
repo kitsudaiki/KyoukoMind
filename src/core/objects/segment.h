@@ -59,8 +59,7 @@ struct SegmentHeaderEntry
 
 struct SegmentHeader
 {
-    uint64_t segmentSize = 0;
-    uint64_t segmentPersistentBufferSize = 0;
+    uint64_t segmentDataSize = 0;
 
     // synapse-segment
     SegmentHeaderEntry settings;
@@ -71,7 +70,7 @@ struct SegmentHeader
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
-    uint8_t padding[128];
+    uint8_t padding[136];
 
     // total size: 256 Byte
 };
