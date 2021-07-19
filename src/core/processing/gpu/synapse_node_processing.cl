@@ -695,8 +695,7 @@ nodeProcessing(__global Brick* brick,
  * 
  */
 inline Segment 
-parseSegment(__global uchar* persistentData,
-             __global uchar* ephemeralData)
+parseSegment(__global uchar* persistentData)
 {
     Segment segment;
 
@@ -716,10 +715,10 @@ parseSegment(__global uchar* persistentData,
     segment.synapseSections = (__global SynapseSection*)(persistentData + segment.segmentHeader->synapseSections.bytePos);
 
     // printf("inputs: %d\n" , segment.segmentHeader->inputs.bytePos);
-    segment.inputs = (__global InputNode*)(ephemeralData + segment.segmentHeader->inputs.bytePos);
+    segment.inputs = (__global InputNode*)(persistentData + segment.segmentHeader->inputs.bytePos);
 
     // printf("outputs: %d\n" , segment.segmentHeader->outputs.bytePos);
-    segment.outputs = (__global OutputNode*)(ephemeralData + segment.segmentHeader->outputs.bytePos);
+    segment.outputs = (__global OutputNode*)(persistentData + segment.segmentHeader->outputs.bytePos);
 
     return segment;
 }
@@ -789,7 +788,6 @@ prcessSegmentNodes(Segment segment,
 
 __kernel void
 learn(__global uchar* persistentData,
-      __global uchar* ephemeralData,    
       __global InputNode* inputs,   
       __global OutputNode* outputs, 
       __global uint* randomValues, 
@@ -799,7 +797,7 @@ learn(__global uchar* persistentData,
     __local SegmentSettings* localSegmentSettings = (__local SegmentSettings*)&localMemory[256];
     __local uchar* localBuffer = (__local uchar*)&localMemory[512 + (get_local_id(0) * 512)];
 
-    Segment segment = parseSegment(persistentData, ephemeralData);
+    Segment segment = parseSegment(persistentData);
     segment.synapseSettings->doLearn = 1;
 
     if(get_local_id(0) == 0) 
@@ -843,7 +841,6 @@ learn(__global uchar* persistentData,
 
 __kernel void
 execute(__global uchar* persistentData,
-        __global uchar* ephemeralData, 
         __global InputNode* inputs,   
         __global OutputNode* outputs,  
         __global uint* randomValues, 
@@ -853,7 +850,7 @@ execute(__global uchar* persistentData,
     __local SegmentSettings* localSegmentSettings = (__local SegmentSettings*)&localMemory[256];
     __local uchar* localBuffer = (__local uchar*)&localMemory[512 + (get_local_id(0) * 512)];
 
-    Segment segment = parseSegment(persistentData, ephemeralData);
+    Segment segment = parseSegment(persistentData);
     segment.synapseSettings->doLearn = 1;
     if(get_local_id(0) == 0) 
     {
