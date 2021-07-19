@@ -148,12 +148,12 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
         cluster->randomValues[i] = static_cast<uint32_t>(rand());
     }
 
-    cluster->synapseSegment = createNewSegment(newCluster.initMetaData.nodesPerBrick,
-                                                 totalNumberOfNodes,
-                                                 newCluster.initMetaData.maxSynapseSections,
-                                                 1 * newCluster.initMetaData.nodesPerBrick,  // TODO: correct number of inputs
-                                                 10,  // TODO: correct number of outputs
-                                                 numberOfRandValues);
+    cluster->synapseSegment = createNewSegment(numberOfNodeBricks,
+                                               totalNumberOfNodes,
+                                               newCluster.initMetaData.maxSynapseSections,
+                                               1 * newCluster.initMetaData.nodesPerBrick,  // TODO: correct number of inputs
+                                               10,  // TODO: correct number of outputs
+                                               numberOfRandValues);
 
     cluster->synapseSegment->synapseSettings[0] = settings;
 
