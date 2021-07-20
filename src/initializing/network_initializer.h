@@ -25,12 +25,6 @@
 
 #include <common.h>
 
-namespace Kitsunemimi {
-namespace Ai {
-struct AiBaseMeta;
-}
-}
-
 struct Brick;
 class BrickInitializer;
 

@@ -40,10 +40,10 @@ bool initializeNodes(Segment &segment,
 
 void addBricksToSegment(Segment &segment,
                         InitSettings *initMetaData,
-                        JsonItem &metaBase);
+                        const JsonItem &metaBase);
 
 Position getNeighborPos(Position sourcePos,
-                 const uint8_t side);
+                        const uint8_t side);
 void connectAllBrick(Brick &sourceBrick);
 
 bool initializeAxons(Segment &segment);

@@ -210,6 +210,32 @@ initializeNodes(Segment &segment,
     return true;
 }
 
+Brick
+createNewBrick(const JsonItem &brickDef, const uint32_t id)
+{
+    Brick newBrick;
+
+    // copy metadata
+    newBrick.brickId = id;
+    newBrick.nodeBrickId = id;
+    if(brickDef.contains("type"))
+    {
+        if(brickDef.get("type").getString() == "output") {
+            newBrick.isOutputBrick = true;
+        }
+        if(brickDef.get("type").getString() == "input") {
+            newBrick.isInputBrick = true;
+        }
+    }
+
+    // copy position
+    newBrick.brickPos.x = brickDef.get("x").getInt();
+    newBrick.brickPos.y = brickDef.get("y").getInt();
+    newBrick.brickPos.z = brickDef.get("z").getInt();
+
+    return newBrick;
+}
+
 /**
  * @brief addBricksToSegment
  * @param segment
@@ -219,7 +245,7 @@ initializeNodes(Segment &segment,
 void
 addBricksToSegment(Segment &segment,
                    InitSettings* initMetaData,
-                   JsonItem &metaBase)
+                   const JsonItem &metaBase)
 {
     uint32_t nodeBrickIdCounter = 0;
     uint32_t inputCounter = 0;
@@ -227,22 +253,7 @@ addBricksToSegment(Segment &segment,
 
     for(uint32_t i = 0; i < bricks.size(); i++)
     {
-        Brick newBrick;
-
-        // copy metadata
-        newBrick.brickId = i;
-        newBrick.nodeBrickId = i;
-        if(bricks[i].get("type").getString() == "output") {
-            newBrick.isOutputBrick = true;
-        }
-        if(bricks[i].get("type").getString() == "input") {
-            newBrick.isInputBrick = true;
-        }
-
-        // copy position
-        newBrick.brickPos.x = bricks[i].get("x").getInt();
-        newBrick.brickPos.y = bricks[i].get("y").getInt();
-        newBrick.brickPos.z = bricks[i].get("z").getInt();
+        Brick newBrick = createNewBrick(bricks[i], i);
 
         // handle node-brick
         const uint32_t nodeOffset = newBrick.nodeBrickId * initMetaData->nodesPerBrick;
