@@ -568,6 +568,7 @@ synapseProcessing(__local SynapseSection* section,
     float netH = weightIn;
     const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
     section->updated = 0;
+        uint counter = 0;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -587,18 +588,23 @@ synapseProcessing(__local SynapseSection* section,
                              segmentSettings,
                              netH);
         }
+        pos++;
 
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             break;
         }
 
+        counter = pos;
         // process synapse
         netH -= (float)(synapse->border) * BORDER_STEP;
         nodes[synapse->targetNodeId].input += outH * synapse->weight;
         synapse->activeCounter += (synapse->activeCounter < 126);
-
-        pos++;
     }
+
+    const bool updateHardening = counter > section->hardening;
+    section->hardening = (updateHardening == true) * counter
+                         + (updateHardening == false) * section->hardening;
+
 }
 
 /**
@@ -721,8 +727,8 @@ rewightSegment(Segment segment,
         if(brick->isOutputBrick) {
             correctNewOutputSynapses(brick, &segment, localBuffer);
         }
-        barrier(CLK_LOCAL_MEM_FENCE);
     }
+    barrier(CLK_LOCAL_MEM_FENCE);
 
     backpropagateOutput(&segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -786,12 +792,9 @@ learn(__global uchar* segmentData,
         localSegmentSettings[0] = segment.synapseSettings[0];
     }
     barrier(CLK_LOCAL_MEM_FENCE);
-
     processInputNodes(&segment, inputs, localBuffer);
-    barrier(CLK_LOCAL_MEM_FENCE);
 
     prcessSegmentNodes(segment, randomValues, localSegmentSettings, localBuffer);
-    barrier(CLK_LOCAL_MEM_FENCE);
 
     processOutputNodes(&segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -814,9 +817,8 @@ learn(__global uchar* segmentData,
     barrier(CLK_LOCAL_MEM_FENCE);*/
 
     rewightSegment(segment, outputs, localBuffer);
-    barrier(CLK_LOCAL_MEM_FENCE);
 
-    hardenSynapses(&segment, localBuffer);
+    //hardenSynapses(&segment, localBuffer);
 }
 
 __kernel void
@@ -843,7 +845,7 @@ execute(__global uchar* segmentData,
     barrier(CLK_LOCAL_MEM_FENCE);
 
     prcessSegmentNodes(segment, randomValues, localSegmentSettings, localBuffer);
-    barrier(CLK_LOCAL_MEM_FENCE);
 
     processOutputNodes(&segment, outputs, localBuffer);
+    barrier(CLK_LOCAL_MEM_FENCE);
 }
