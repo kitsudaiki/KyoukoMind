@@ -18,7 +18,18 @@ CpuProcessingUnit::learn()
 {
     Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
     synapseSegment->synapseSettings->doLearn = 1;
-    updateLearning();
+
+    executeStep();
+
+    if(reductionCounter < 1000)
+    {
+        reductionLearning();
+        reductionCounter++;
+    }
+
+    hardenSegment(synapseSegment);
+    rewightSegment(synapseSegment);
+
     synapseSegment->synapseSettings->doLearn = 0;
 
     return true;
@@ -34,7 +45,6 @@ CpuProcessingUnit::execute()
     executeStep();
     return true;
 }
-
 
 /**
  * @brief SingleThreadProcessingStatic::executeStep
@@ -74,26 +84,5 @@ CpuProcessingUnit::reductionLearning()
             timeout--;
         }
     }
-
-    hardenSegment(synapseSegment);
 }
 
-/**
- * @brief SingleThreadProcessingStatic::updateLearning
- */
-void
-CpuProcessingUnit::updateLearning()
-{
-    Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-
-    executeStep();
-
-    if(reductionCounter < 1000)
-    {
-        reductionLearning();
-        reductionCounter++;
-    }
-
-    rewightSegment(synapseSegment);
-    hardenSegment(synapseSegment);
-}

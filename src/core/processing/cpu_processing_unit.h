@@ -14,7 +14,6 @@ public:
 private:
     void executeStep();
     void reductionLearning();
-    void updateLearning();
 
     uint32_t reductionCounter = 0;
 };
