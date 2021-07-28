@@ -28,8 +28,9 @@
 #include <core/processing/cpu/processing.h>
 
 /**
- * @brief segmentInputProcessing
- * @param segment
+ * @brief process all input-nodes of a specific segment
+ *
+ * @param segment segment to process
  */
 void
 processSegmentInput(Segment* segment)
@@ -38,8 +39,9 @@ processSegmentInput(Segment* segment)
 }
 
 /**
- * @brief segmentOutputProcessing
- * @param segment
+ * @brief process all output-nodes of a specific segment
+ *
+ * @param segment segment to process
  */
 void
 processSegmentOutput(Segment* segment)
@@ -48,9 +50,11 @@ processSegmentOutput(Segment* segment)
 }
 
  /**
- * @brief segmentCalculateError
- * @param segment
- * @return
+ * @brief calculate the total error of all outputs of a specific segment
+ *
+ * @param segment segment to process
+ *
+ * @return total error value
  */
 float
 calculateSegmentError(Segment* segment)
@@ -59,24 +63,27 @@ calculateSegmentError(Segment* segment)
 }
 
 /**
- * @brief segmentReduceSynapses
- * @param segment
+ * @brief reduce all synapses within the segment and delete them, if the reach a deletion-border
+ *
+ * @param segment segment to process
  */
 void
-reduceSegmentSynapses(Segment* segment)
+reduceSegment(Segment* segment)
 {
-    reduceCoreSynapses(segment);
+    reduceSynapses(segment);
 }
 
 /**
- * @brief segmentBackpropagation
- * @param segment
+ * @brief correct wight of synapses within
+ *
+ * @param segment segment to process
  */
 void
 rewightSegment(Segment* segment)
 {
     const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
 
+    // phase 1: correct new output-synapses
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
         const uint32_t brickId = segment->brickOrder[pos];
@@ -86,8 +93,10 @@ rewightSegment(Segment* segment)
         }
     }
 
+    // phase 2: rewight synapses, which are directly connected to the output
     backpropagateOutput(segment);
 
+    // run back-propagation over all internal nodes and synapses
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
         const uint32_t brickId = segment->brickOrder[pos];
@@ -97,8 +106,9 @@ rewightSegment(Segment* segment)
 }
 
 /**
- * @brief segmentHardeing
- * @param segment
+ * @brief harden all synapses within a specific section
+ *
+ * @param segment segment to process
  */
 void
 hardenSegment(Segment* segment)
@@ -107,11 +117,13 @@ hardenSegment(Segment* segment)
 }
 
 /**
- * @brief segmentNodeProcessing
- * @param segment
+ * @brief process all nodes within a specific brick and also all synapse-sections,
+ *        which are connected to an active node
+ *
+ * @param segment segment to process
  */
 void
-prcessSegmentNodes(Segment* segment)
+prcessSegment(Segment* segment)
 {
     const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
     for(uint32_t pos = 0; pos < numberOfBricks; pos++)

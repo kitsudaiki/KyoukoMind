@@ -1,3 +1,25 @@
+/**
+ * @file        create_reduce.h
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 #ifndef CORE_CREATE_RESUCE_H
 #define CORE_CREATE_RESUCE_H
 
@@ -11,14 +33,15 @@
 #include <core/objects/network_cluster.h>
 
 /**
- * @brief createNewSynapse
- * @param section
- * @param synapse
- * @param bricks
- * @param randomValues
- * @param sourceNode
- * @param synapseMetaData
- * @param remainingWeight
+ * @brief initialize a new specific synapse
+ *
+ * @param section current processed synapse-section
+ * @param synapse new synapse, which has to be initialized
+ * @param bricks array of all bricks
+ * @param randomValues array of precreated random values for the learning process
+ * @param sourceNode source-node, who triggered the section
+ * @param segmentSettings settings of the section
+ * @param remainingWeight weight of which to cut of a part for the new synapse
  */
 inline void
 createNewSynapse(SynapseSection* section,
@@ -26,7 +49,7 @@ createNewSynapse(SynapseSection* section,
                  Brick* bricks,
                  uint32_t* randomValues,
                  Node* sourceNode,
-                 SegmentSettings* synapseMetaData,
+                 SegmentSettings* segmentSettings,
                  const float remainingWeight)
 {
     float randomMulti = 0.0f;
@@ -35,12 +58,13 @@ createNewSynapse(SynapseSection* section,
     uint32_t targetNodeIdInBrick = 0;
     Brick* nodeBrick = nullptr;
     uint32_t signRand = 0;
+    const float randMax = static_cast<float>(RAND_MAX);
 
-    const float maxWeight = synapseMetaData->maxSynapseWeight;
+    const float maxWeight = segmentSettings->maxSynapseWeight;
 
     // set new weight
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    random = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
+    random = static_cast<float>(randomValues[section->randomPos]) / randMax;
     doLearn = maxWeight * random;
     synapse->weight = static_cast<float>(remainingWeight < doLearn) * remainingWeight
                       + static_cast<float>(remainingWeight >= doLearn) * doLearn;
@@ -50,13 +74,13 @@ createNewSynapse(SynapseSection* section,
 
     // update weight with multiplicator
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    randomMulti = static_cast<float>(randomValues[section->randomPos]) / RAND_MAX;
-    synapse->weight *= randomMulti * static_cast<float>(synapseMetaData->multiplicatorRange) + 1.0f;
+    randomMulti = static_cast<float>(randomValues[section->randomPos]) / randMax;
+    synapse->weight *= randomMulti * static_cast<float>(segmentSettings->multiplicatorRange) + 1.0f;
 
     // update weight with multiplicator
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
     signRand = randomValues[section->randomPos] % 1000;
-    synapse->weight *= static_cast<float>(1 - (1000.0f * synapseMetaData->signNeg > signRand) * 2);
+    synapse->weight *= static_cast<float>(1 - (1000.0f * segmentSettings->signNeg > signRand) * 2);
 
     // set target node id
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -72,10 +96,9 @@ createNewSynapse(SynapseSection* section,
 }
 
 /**
- * @brief hardenSynapses
- * @param nodes
- * @param synapseSections
- * @param segmentHeader
+ * @brief harden all synapses within a specific section
+ *
+ * @param segment current segemnt to process
  */
 inline void
 hardenSynapses(Segment* segment)
@@ -84,7 +107,6 @@ hardenSynapses(Segment* segment)
     Node* sourceNode = nullptr;
     SynapseSection* section = nullptr;
     Synapse* synapse = nullptr;
-    uint32_t counter = 0;
     float netH = 0.0f;
     bool updateHardening = false;
 
@@ -95,6 +117,8 @@ hardenSynapses(Segment* segment)
         sourceNode = &segment->nodes[nodeId];
         section = &segment->synapseSections[nodeId];
 
+        // skip if section is not active or if there were no changes within the section since the
+        // last hardening-step
         if(section->active == 0
                 || section->updated == 0)
         {
@@ -105,41 +129,39 @@ hardenSynapses(Segment* segment)
             sourceNode->init = 1;
         }
 
-        counter = 0;
+        // set start-values
         pos = 0;
         netH = sourceNode->potential;
 
-        // iterate over all synapses in the section and update the target-nodes
+        // iterate over all synapses in the section
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
         {
+            // break look, if no more synapses to process
             synapse = &section->synapses[pos];
-            pos++;
-
-            // process synapse
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 break;
             }
 
+            // update loop-counter
             netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-            counter = pos;
+            pos++;
         }
 
         // harden synapse-section
-        updateHardening = counter > section->hardening;
-        section->hardening = (updateHardening == true) * counter
+        updateHardening = pos > section->hardening;
+        section->hardening = (updateHardening == true) * pos
                              + (updateHardening == false) * section->hardening;
     }
 }
 
 /**
- * @brief reduceCoreSynapses
- * @param segmentHeader
- * @param synapseSections
- * @param nodes
+ * @brief reduce all synapses within the segment and delete them, if the reach a deletion-border
+ *
+ * @param segment current segemnt to process
  */
 inline void
-reduceCoreSynapses(Segment* segment)
+reduceSynapses(Segment* segment)
 {
     Synapse currentSyn;
     uint32_t currentPos = 0;
@@ -147,17 +169,22 @@ reduceCoreSynapses(Segment* segment)
     Synapse* synapse = nullptr;
     bool upToData = false;
 
+    // iterate over all synapse-section within the segment
     for(uint32_t sectionId = 0;
         sectionId < segment->segmentHeader->synapseSections.count;
         sectionId++)
     {
+        // set start-values
         upToData = 1;
         section = &segment->synapseSections[sectionId];
 
         // iterate over all synapses in synapse-section
         currentPos = section->hardening;
-        for(uint32_t lastPos = section->hardening; lastPos < SYNAPSES_PER_SYNAPSESECTION; lastPos++)
+        for(uint32_t lastPos = section->hardening;
+            lastPos < SYNAPSES_PER_SYNAPSESECTION;
+            lastPos++)
         {
+            // skip not connected synapses
             synapse = &section->synapses[lastPos];
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 continue;

@@ -56,7 +56,7 @@ CpuProcessingUnit::executeStep()
 
     // learn until output-section
     processSegmentInput(synapseSegment);
-    prcessSegmentNodes(synapseSegment);
+    prcessSegment(synapseSegment);
     processSegmentOutput(synapseSegment);
 }
 
@@ -77,7 +77,7 @@ CpuProcessingUnit::reductionLearning()
         while(error >= initError
               && timeout >= 0)
         {
-            reduceSegmentSynapses(synapseSegment);
+            reduceSegment(synapseSegment);
             executeStep();
             error = calculateSegmentError(synapseSegment);
 

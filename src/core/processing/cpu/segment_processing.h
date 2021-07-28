@@ -30,9 +30,9 @@ void processSegmentInput(Segment* segment);
 void processSegmentOutput(Segment* segment);
 float calculateSegmentError(Segment* segment);
 
-void reduceSegmentSynapses(Segment* segment);
+void reduceSegment(Segment* segment);
 void rewightSegment(Segment* segment);
 void hardenSegment(Segment* segment);
-void prcessSegmentNodes(Segment* segment);
+void prcessSegment(Segment* segment);
 
 #endif // SEGMENT_PROCESSING_H

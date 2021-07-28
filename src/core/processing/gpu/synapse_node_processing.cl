@@ -698,7 +698,8 @@ parseSegment(__global uchar* segmentData)
     segment.nodes = (__global Node*)(segmentData + segment.segmentHeader->nodes.bytePos);
     
     // printf("synapseSections: %d\n" , segment.segmentHeader->synapseSections.bytePos);
-    segment.synapseSections = (__global SynapseSection*)(segmentData + segment.segmentHeader->synapseSections.bytePos);
+    ulong sectionPos = segment.segmentHeader->synapseSections.bytePos;
+    segment.synapseSections = (__global SynapseSection*)(segmentData + sectionPos);
 
     // printf("inputs: %d\n" , segment.segmentHeader->inputs.bytePos);
     segment.inputs = (__global InputNode*)(segmentData + segment.segmentHeader->inputs.bytePos);
