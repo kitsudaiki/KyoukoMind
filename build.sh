@@ -85,7 +85,7 @@ get_required_kitsune_lib_repo "libKitsunemimiCommon" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiPersistence" "fix-and-improve-binary-files" 4
+get_required_kitsune_lib_repo "libKitsunemimiPersistence" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -125,7 +125,7 @@ get_required_kitsune_lib_repo "libKitsunemimiConfig" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "separate-parsing-and-reading" 1
+get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""

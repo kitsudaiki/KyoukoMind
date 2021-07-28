@@ -38,22 +38,6 @@
 
 //==================================================================================================
 
-typedef struct SynapseBuffer
-{
-    uchar process;
-    uchar upToDate;
-    uchar padding[2];
-
-    float weigth;
-    uint nodeId;
-    uint targetId;
-
-    // total size: 64 Byte
-}
-SynapseBuffer;
-
-//==================================================================================================
-
 typedef struct Synapse
 {
     float weight;
@@ -190,9 +174,7 @@ SegmentHeaderEntry;
 
 typedef struct SegmentHeader
 {
-    ulong segmentSize;
-    ulong segmentPersistentBufferSize;
-    ulong segmentEphemeralBufferSize;
+    ulong segmentDataSize;
 
     // synapse-segment
     SegmentHeaderEntry settings;
@@ -203,7 +185,7 @@ typedef struct SegmentHeader
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
-    uchar padding[120];
+    uchar padding[136];
 
     // total size: 256 Byte
 } 
@@ -216,9 +198,7 @@ typedef struct Segment
     __global Brick* bricks;
     __global uint* brickOrder;
     __global Node* nodes;
-    __global float* nodeBuffers;
     __global SynapseSection* synapseSections;
-    __global SynapseBuffer* synapseBuffers;
     __global InputNode* inputs;
     __global OutputNode* outputs;
 } 
@@ -588,6 +568,7 @@ synapseProcessing(__local SynapseSection* section,
     float netH = weightIn;
     const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
     section->updated = 0;
+        uint counter = 0;
 
     // iterate over all synapses in the section and update the target-nodes
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -607,18 +588,23 @@ synapseProcessing(__local SynapseSection* section,
                              segmentSettings,
                              netH);
         }
+        pos++;
 
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             break;
         }
 
+        counter = pos;
         // process synapse
         netH -= (float)(synapse->border) * BORDER_STEP;
         nodes[synapse->targetNodeId].input += outH * synapse->weight;
         synapse->activeCounter += (synapse->activeCounter < 126);
-
-        pos++;
     }
+
+    const bool updateHardening = counter > section->hardening;
+    section->hardening = (updateHardening == true) * counter
+                         + (updateHardening == false) * section->hardening;
+
 }
 
 /**
@@ -695,31 +681,31 @@ nodeProcessing(__global Brick* brick,
  * 
  */
 inline Segment 
-parseSegment(__global uchar* persistentData,
-             __global uchar* ephemeralData)
+parseSegment(__global uchar* segmentData)
 {
     Segment segment;
 
-    segment.segmentHeader = (__global SegmentHeader*)(persistentData + 0);
+    segment.segmentHeader = (__global SegmentHeader*)(segmentData + 0);
 
-    segment.synapseSettings = (__global SegmentSettings*)(persistentData + 256);
+    segment.synapseSettings = (__global SegmentSettings*)(segmentData + 256);
     // printf("bricks: %d\n" , segment.segmentHeader->bricks.bytePos);
-    segment.bricks = (__global Brick*)(persistentData + segment.segmentHeader->bricks.bytePos);
+    segment.bricks = (__global Brick*)(segmentData + segment.segmentHeader->bricks.bytePos);
     
     // printf("brickOrder: %d\n" , segment.segmentHeader->brickOrder.bytePos);
-    segment.brickOrder = (__global uint*)(persistentData + segment.segmentHeader->brickOrder.bytePos);
+    segment.brickOrder = (__global uint*)(segmentData + segment.segmentHeader->brickOrder.bytePos);
     
     // printf("nodes: %d\n" , segment.segmentHeader->nodes.bytePos);
-    segment.nodes = (__global Node*)(persistentData + segment.segmentHeader->nodes.bytePos);
+    segment.nodes = (__global Node*)(segmentData + segment.segmentHeader->nodes.bytePos);
     
     // printf("synapseSections: %d\n" , segment.segmentHeader->synapseSections.bytePos);
-    segment.synapseSections = (__global SynapseSection*)(persistentData + segment.segmentHeader->synapseSections.bytePos);
+    ulong sectionPos = segment.segmentHeader->synapseSections.bytePos;
+    segment.synapseSections = (__global SynapseSection*)(segmentData + sectionPos);
 
     // printf("inputs: %d\n" , segment.segmentHeader->inputs.bytePos);
-    segment.inputs = (__global InputNode*)(ephemeralData + segment.segmentHeader->inputs.bytePos);
+    segment.inputs = (__global InputNode*)(segmentData + segment.segmentHeader->inputs.bytePos);
 
     // printf("outputs: %d\n" , segment.segmentHeader->outputs.bytePos);
-    segment.outputs = (__global OutputNode*)(ephemeralData + segment.segmentHeader->outputs.bytePos);
+    segment.outputs = (__global OutputNode*)(segmentData + segment.segmentHeader->outputs.bytePos);
 
     return segment;
 }
@@ -742,8 +728,8 @@ rewightSegment(Segment segment,
         if(brick->isOutputBrick) {
             correctNewOutputSynapses(brick, &segment, localBuffer);
         }
-        barrier(CLK_LOCAL_MEM_FENCE);
     }
+    barrier(CLK_LOCAL_MEM_FENCE);
 
     backpropagateOutput(&segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -788,8 +774,7 @@ prcessSegmentNodes(Segment segment,
 //==================================================================================================
 
 __kernel void
-learn(__global uchar* persistentData,
-      __global uchar* ephemeralData,    
+learn(__global uchar* segmentData,
       __global InputNode* inputs,   
       __global OutputNode* outputs, 
       __global uint* randomValues, 
@@ -799,7 +784,7 @@ learn(__global uchar* persistentData,
     __local SegmentSettings* localSegmentSettings = (__local SegmentSettings*)&localMemory[256];
     __local uchar* localBuffer = (__local uchar*)&localMemory[512 + (get_local_id(0) * 512)];
 
-    Segment segment = parseSegment(persistentData, ephemeralData);
+    Segment segment = parseSegment(segmentData);
     segment.synapseSettings->doLearn = 1;
 
     if(get_local_id(0) == 0) 
@@ -808,12 +793,9 @@ learn(__global uchar* persistentData,
         localSegmentSettings[0] = segment.synapseSettings[0];
     }
     barrier(CLK_LOCAL_MEM_FENCE);
-
     processInputNodes(&segment, inputs, localBuffer);
-    barrier(CLK_LOCAL_MEM_FENCE);
 
     prcessSegmentNodes(segment, randomValues, localSegmentSettings, localBuffer);
-    barrier(CLK_LOCAL_MEM_FENCE);
 
     processOutputNodes(&segment, outputs, localBuffer);
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -836,14 +818,12 @@ learn(__global uchar* persistentData,
     barrier(CLK_LOCAL_MEM_FENCE);*/
 
     rewightSegment(segment, outputs, localBuffer);
-    barrier(CLK_LOCAL_MEM_FENCE);
 
-    hardenSynapses(&segment, localBuffer);
+    //hardenSynapses(&segment, localBuffer);
 }
 
 __kernel void
-execute(__global uchar* persistentData,
-        __global uchar* ephemeralData, 
+execute(__global uchar* segmentData,
         __global InputNode* inputs,   
         __global OutputNode* outputs,  
         __global uint* randomValues, 
@@ -853,7 +833,7 @@ execute(__global uchar* persistentData,
     __local SegmentSettings* localSegmentSettings = (__local SegmentSettings*)&localMemory[256];
     __local uchar* localBuffer = (__local uchar*)&localMemory[512 + (get_local_id(0) * 512)];
 
-    Segment segment = parseSegment(persistentData, ephemeralData);
+    Segment segment = parseSegment(segmentData);
     segment.synapseSettings->doLearn = 1;
     if(get_local_id(0) == 0) 
     {
@@ -866,7 +846,7 @@ execute(__global uchar* persistentData,
     barrier(CLK_LOCAL_MEM_FENCE);
 
     prcessSegmentNodes(segment, randomValues, localSegmentSettings, localBuffer);
-    barrier(CLK_LOCAL_MEM_FENCE);
 
     processOutputNodes(&segment, outputs, localBuffer);
+    barrier(CLK_LOCAL_MEM_FENCE);
 }

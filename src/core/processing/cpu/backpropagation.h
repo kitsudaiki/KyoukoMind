@@ -1,3 +1,25 @@
+/**
+ * @file        backpropagation.h
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 #ifndef CORE_BACKPROPAGATION_H
 #define CORE_BACKPROPAGATION_H
 
@@ -11,10 +33,10 @@
 #include <core/objects/network_cluster.h>
 
 /**
- * @brief backpropagateNodes
- * @param brick
- * @param nodes
- * @param synapseSections
+ * @brief run back-propagation over the hidden neurons
+ *
+ * @param brick pointer to current brick
+ * @param segment pointer to currect segment to process, which contains the brick
  */
 inline void
 backpropagateNodes(Brick* brick,
@@ -28,24 +50,28 @@ backpropagateNodes(Brick* brick,
     float outH = 0.0f;
     float learnValue = 0.0f;
 
+    // iterate over all nodes within the brick
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
+        // skip section, if not active
         section = &segment->synapseSections[nodeId];
         if(section->active == 0) {
             continue;
         }
 
+        // set start-values
         pos = 0;
         sourceNode = &segment->nodes[nodeId];
         netH = sourceNode->potential;
         outH = 1.0f / (1.0f + exp(-1.0f * netH));
 
-        // iterate over all synapses in the section and update the target-nodes
+        // iterate over all synapses in the section
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
         {
+            // break look, if no more synapses to process
             synapse = &section->synapses[pos];
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 break;
@@ -57,6 +83,7 @@ backpropagateNodes(Brick* brick,
             sourceNode->delta += segment->nodes[synapse->targetNodeId].delta * synapse->weight;
             synapse->weight -= learnValue * segment->nodes[synapse->targetNodeId].delta * outH;
 
+            // update loop-counter
             netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             pos++;
         }
@@ -65,9 +92,8 @@ backpropagateNodes(Brick* brick,
 
 /**
  * @brief backpropagateOutput
- * @param segmentHeader
- * @param nodes
- * @param outputNodes
+ *
+ * @param segment pointer to currect segment to process
  */
 inline void
 backpropagateOutput(Segment* segment)
@@ -76,6 +102,7 @@ backpropagateOutput(Segment* segment)
     OutputNode* out = nullptr;
     Node* targetNode = nullptr;
 
+    // iterate over all output-nodes
     for(uint64_t outputNodeId = 0;
         outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
@@ -88,10 +115,11 @@ backpropagateOutput(Segment* segment)
 }
 
 /**
- * @brief correctNewOutputSynapses
- * @param brick
- * @param nodes
- * @param synapseSections
+ * @brief correct new created synapses, which are directly connected to the output and fix the
+ *        sign of the values based on the should-value, to force the output in the right direction
+ *
+ * @param brick pointer to output-brick
+ * @param segment pointer to currect segment to process, which contains the brick
  */
 inline void
 correctNewOutputSynapses(Brick* brick,
@@ -105,36 +133,39 @@ correctNewOutputSynapses(Brick* brick,
     float delta = 0.0f;
     float invert = 0.0f;
 
+    // iterate over all nodes within the brick
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
+        // skip section, if not active
         section = &segment->synapseSections[nodeId];
         if(section->active == 0) {
             continue;
         }
 
+        // set start-values
         pos = section->hardening;
         sourceNode = &segment->nodes[nodeId];
         netH = sourceNode->potential;
 
-        // iterate over all synapses in the section and update the target-nodes
+        // iterate over all synapses in the section
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
         {
+            // break look, if no more synapses to process
             synapse = &section->synapses[pos];
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 break;
             }
 
-            // update weight
+            // correct weight-value, if necessary
             delta = segment->nodes[synapse->targetNodeId].delta;
             invert = (delta < 0.0f && synapse->weight < 0.0f)
                      || (delta > 0.0f && synapse->weight > 0.0f);
-            if(invert) {
-                synapse->weight *= -1.0f;
-            }
+            synapse->weight += -2.0f * invert * synapse->weight;
 
+            // update loop-counter
             netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             pos++;
         }

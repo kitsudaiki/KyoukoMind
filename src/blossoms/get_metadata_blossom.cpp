@@ -40,7 +40,7 @@ GetMetadataBlossom::runTask(BlossomLeaf &blossomLeaf,
 
     Kitsunemimi::DataMap result;
 
-    blossomLeaf.output.insert("metadata", &result);
+    blossomLeaf.output.insert("metadata", result.copy());
 
     return true;
 }

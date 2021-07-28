@@ -70,16 +70,11 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     // fill buffer for nodes to map on gpu
     SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
 
-    oclData.addBuffer("segment_persistent",
+    oclData.addBuffer("segment_data",
                       1,
-                      segmentHeader->segmentPersistentBufferSize,
+                      segmentHeader->segmentDataSize,
                       false,
                       cluster->synapseSegment->persistenBuffer.data);
-    oclData.addBuffer("segment_ephemeral",
-                      1,
-                      segmentHeader->segmentEphemeralBufferSize,
-                      false,
-                      cluster->synapseSegment->ephemeralBuffer.data);
 
     oclData.addBuffer("inputs",
                       segmentHeader->inputs.count,
@@ -109,15 +104,13 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->addKernel(oclData, "execute",  processingCode));
 
     // bind buffer for learn kernel
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "segment_persistent"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "segment_ephemeral"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "segment_data"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "inputs"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "outputs"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "learn", "randomValues"));
 
     // bind buffer for execute kernel
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "segment_persistent"));
-    assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "segment_ephemeral"));
+    assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "segment_data"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "inputs"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "outputs"));
     assert(m_gpuInterface->bindKernelToBuffer(oclData, "execute", "randomValues"));
@@ -136,8 +129,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
 
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_persistent"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_ephemeral"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_data"));
 
     return true;
 }

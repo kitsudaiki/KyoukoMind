@@ -103,8 +103,8 @@ main(int argc, char *argv[])
         }
     }
 
+    // sleep forever
+    std::this_thread::sleep_until(std::chrono::time_point<std::chrono::system_clock>::max());
 
-    int a = 0;
-    std::cin >> a;
     return 0;
 }

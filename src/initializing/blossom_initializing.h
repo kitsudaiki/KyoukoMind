@@ -32,6 +32,7 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 #include <src/blossoms/special/special_blossoms.h>
+#include <src/blossoms/get_metadata_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -46,6 +47,7 @@ initSpecialBlossoms()
     assert(interface->addBlossom("special", "print", new PrintBlossom()));
     assert(interface->addBlossom("special", "assert", new AssertBlossom()));
     assert(interface->addBlossom("special", "item_update", new ItemUpdateBlossom()));
+    assert(interface->addBlossom("special", "get_metadata", new GetMetadataBlossom()));
 }
 
 void
