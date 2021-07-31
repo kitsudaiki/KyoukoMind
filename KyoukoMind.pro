@@ -39,11 +39,6 @@ LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
 INCLUDEPATH += ../libKitsunemimiNetwork/include
 
-LIBS += -L../libKitsunemimiObj/src -lKitsunemimiObj
-LIBS += -L../libKitsunemimiObj/src/debug -lKitsunemimiObj
-LIBS += -L../libKitsunemimiObj/src/release -lKitsunemimiObj
-INCLUDEPATH += ../libKitsunemimiObj/include
-
 LIBS += -L../libKitsunemimiCommon/src -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/debug -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/release -lKitsunemimiCommon
