@@ -1,5 +1,5 @@
 /**
- * @file        get_metadata_blossom.h
+ * @file        list_save_files_blossom.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef GET_METADATA_BLOSSOM_H
-#define GET_METADATA_BLOSSOM_H
+#include "list_save_files_blossom.h"
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+using namespace Kitsunemimi::Sakura;
 
-class GetMetadataBlossom
-        : public Kitsunemimi::Sakura::Blossom
+ListSaveFilesBlossom::ListSaveFilesBlossom()
+    : Blossom()
 {
-public:
-    GetMetadataBlossom();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
-};
+}
 
-#endif // GET_METADATA_BLOSSOM_H
+bool
+ListSaveFilesBlossom::runTask(BlossomLeaf &blossomLeaf,
+                              std::string &errorMessage)
+{
+    return true;
+}

@@ -70,8 +70,13 @@ INCLUDEPATH += $$PWD \
                src
 
 HEADERS += \
-    src/blossoms/get_metadata_blossom.h \
-    src/blossoms/network_init_blossom.h \
+    src/blossoms/io/ask_blossom.h \
+    src/blossoms/io/init_blossom.h \
+    src/blossoms/io/learn_blossom.h \
+    src/blossoms/save_load/list_save_files_blossom.h \
+    src/blossoms/save_load/restore_net_blossom.h \
+    src/blossoms/save_load/save_net_blossom.h \
+    src/blossoms/save_load/show_save_file_blossom.h \
     src/common/defines.h \
     src/common/enums.h \
     src/common/includes.h \
@@ -106,8 +111,13 @@ HEADERS += \
     src/common/structs.h
 
 SOURCES += \
-    src/blossoms/get_metadata_blossom.cpp \
-    src/blossoms/network_init_blossom.cpp \
+    src/blossoms/io/ask_blossom.cpp \
+    src/blossoms/io/init_blossom.cpp \
+    src/blossoms/io/learn_blossom.cpp \
+    src/blossoms/save_load/list_save_files_blossom.cpp \
+    src/blossoms/save_load/restore_net_blossom.cpp \
+    src/blossoms/save_load/save_net_blossom.cpp \
+    src/blossoms/save_load/show_save_file_blossom.cpp \
     src/core/processing/cpu/segment_processing.cpp \
     src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \

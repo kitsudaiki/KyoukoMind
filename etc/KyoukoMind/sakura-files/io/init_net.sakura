@@ -1,0 +1,9 @@
+["learn_net"]
+- content = "{{}}"
+- result = ""
+
+io("init new network")
+-> init:
+	- content = content
+	- result >> result
+ 
