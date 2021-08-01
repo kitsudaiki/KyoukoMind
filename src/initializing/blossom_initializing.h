@@ -32,9 +32,43 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 #include <src/blossoms/special/special_blossoms.h>
-#include <src/blossoms/get_metadata_blossom.h>
+
+#include <src/blossoms/save_load/list_save_files_blossom.h>
+#include <src/blossoms/save_load/restore_net_blossom.h>
+#include <src/blossoms/save_load/save_net_blossom.h>
+#include <src/blossoms/save_load/show_save_file_blossom.h>
+
+#include <src/blossoms/io/ask_blossom.h>
+#include <src/blossoms/io/init_blossom.h>
+#include <src/blossoms/io/learn_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
+
+void
+initIoBlossoms()
+{
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+    const std::string group = "io";
+
+    assert(interface->addBlossom(group, "ask", new AskBlossom()));
+    assert(interface->addBlossom(group, "learn", new LearnBlossom()));
+    assert(interface->addBlossom(group, "init", new InitBlossom()));
+}
+
+/**
+ * @brief init save_load blossoms
+ */
+void
+initSaveRestoreBlossomes()
+{
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+    const std::string group = "save_load";
+
+    assert(interface->addBlossom(group, "list", new ListSaveFilesBlossom()));
+    assert(interface->addBlossom(group, "show", new ShowSaveFileBlossom()));
+    assert(interface->addBlossom(group, "save", new SaveNetBlossom()));
+    assert(interface->addBlossom(group, "load", new LoadNetBlossom()));
+}
 
 /**
  * @brief init special blossoms
@@ -43,17 +77,19 @@ void
 initSpecialBlossoms()
 {
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+    const std::string group = "special";
 
-    assert(interface->addBlossom("special", "print", new PrintBlossom()));
-    assert(interface->addBlossom("special", "assert", new AssertBlossom()));
-    assert(interface->addBlossom("special", "item_update", new ItemUpdateBlossom()));
-    assert(interface->addBlossom("special", "get_metadata", new GetMetadataBlossom()));
+    assert(interface->addBlossom(group, "print", new PrintBlossom()));
+    assert(interface->addBlossom(group, "assert", new AssertBlossom()));
+    assert(interface->addBlossom(group, "item_update", new ItemUpdateBlossom()));
 }
 
 void
 initBlossoms()
 {
     initSpecialBlossoms();
+    initIoBlossoms();
+    initSaveRestoreBlossomes();
 }
 
 #endif // BLOSSOM_INITIALIZING_H

@@ -1,5 +1,5 @@
 /**
- * @file        network_init_blossom.cpp
+ * @file        init_blossom.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "network_init_blossom.h"
+#include "init_blossom.h"
 
 #include <initializing/network_initializer.h>
 
@@ -29,7 +29,7 @@
 
 using namespace Kitsunemimi::Sakura;
 
-NetworkInitBlossom::NetworkInitBlossom()
+InitBlossom::InitBlossom()
     : Blossom()
 {
     registerField("content", INPUT_TYPE, true);
@@ -37,7 +37,7 @@ NetworkInitBlossom::NetworkInitBlossom()
 }
 
 bool
-NetworkInitBlossom::runTask(BlossomLeaf &blossomLeaf,
+InitBlossom::runTask(BlossomLeaf &blossomLeaf,
                             std::string &errorMessage)
 {
     const std::string content = blossomLeaf.input.getStringByKey("content");

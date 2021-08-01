@@ -1,5 +1,5 @@
 /**
- * @file        get_metadata_blossom.cpp
+ * @file        save_net_blossom.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,27 +20,19 @@
  *      limitations under the License.
  */
 
-#include "get_metadata_blossom.h"
+#ifndef SAVE_NET_BLOSSOM_H
+#define SAVE_NET_BLOSSOM_H
 
-#include <libKitsunemimiCommon/buffer/data_buffer.h>
+#include <libKitsunemimiSakuraLang/blossom.h>
 
-using namespace Kitsunemimi::Sakura;
-
-GetMetadataBlossom::GetMetadataBlossom()
-    : Blossom()
+class SaveNetBlossom
+        : public Kitsunemimi::Sakura::Blossom
 {
-    registerField("metadata", OUTPUT_TYPE, true);
-}
+public:
+    SaveNetBlossom();
 
-bool
-GetMetadataBlossom::runTask(BlossomLeaf &blossomLeaf,
-                            std::string &errorMessage)
-{
-    const std::string content = blossomLeaf.input.getStringByKey("content");
+protected:
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
+};
 
-    Kitsunemimi::DataMap result;
-
-    blossomLeaf.output.insert("metadata", result.copy());
-
-    return true;
-}
+#endif // SAVE_NET_BLOSSOM_H

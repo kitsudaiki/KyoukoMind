@@ -1,5 +1,5 @@
 /**
- * @file        network_init_blossom.h
+ * @file        restore_net_blossom.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORKINITBLOSSOM_H
-#define NETWORKINITBLOSSOM_H
+#include "restore_net_blossom.h"
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+using namespace Kitsunemimi::Sakura;
 
-class NetworkInitBlossom
-        : public Kitsunemimi::Sakura::Blossom
+LoadNetBlossom::LoadNetBlossom()
+    : Blossom()
 {
-public:
-    NetworkInitBlossom();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
-};
+}
 
-#endif // NETWORKINITBLOSSOM_H
+bool
+LoadNetBlossom::runTask(BlossomLeaf &blossomLeaf,
+                              std::string &errorMessage)
+{
+    return true;
+}

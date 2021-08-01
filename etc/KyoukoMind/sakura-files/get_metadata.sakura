@@ -1,6 +1,0 @@
-["get_metadata"]
-- metadata = ""
-
-get_metadata("get Metadata of the whole network")
-- metadata >> metadata
- 
