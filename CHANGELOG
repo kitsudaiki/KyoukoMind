@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0] - 2021-08-01
+
+### Changed
+- complete reworked processing by merging the conecept with standard deep-learning
+- complete reworked data-structure to be more scalable and easier to handle
+
+### Added
+- readded GPU-support for the new structure, but still relative slow in the small MNIST-example, compared to the CPU
+- new blossoms for the input of data
+
+
 ## [0.3.0] - 2021-03-29
 
 ### Added
