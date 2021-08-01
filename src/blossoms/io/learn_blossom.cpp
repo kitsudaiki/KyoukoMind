@@ -22,17 +22,52 @@
 
 #include "learn_blossom.h"
 
+#include <libKitsunemimiJson/json_item.h>
+#include <core/processing/cpu_processing_unit.h>
+#include <core/objects/network_cluster.h>
+
 using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Json;
 
 LearnBlossom::LearnBlossom()
     : Blossom()
 {
-
+    registerField("request", INPUT_TYPE, true);
 }
 
 bool
 LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
-                              std::string &errorMessage)
+                      std::string &errorMessage)
 {
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    InputNode* inputNodes = cluster->synapseSegment->inputs;
+    OutputNode* outputs = cluster->synapseSegment->outputs;
+    CpuProcessingUnit cpuProcessingUnit;
+
+    const std::string requestString = blossomLeaf.input.getStringByKey("request");
+    JsonItem request;
+    if(request.parse(requestString, errorMessage) == false) {
+        return false;
+    }
+
+    const uint32_t numberOfInputs = request["number_of_inputs"].getInt();
+    const float reduction = request["reduction"].getFloat();
+
+    for(uint32_t pic = 0; pic < numberOfInputs; pic++)
+    {
+        JsonItem input = request["input"][pic];
+        JsonItem should = request["should"][pic];
+
+        for(uint32_t i = 0; i < should.size(); i++) {
+            outputs[i].shouldValue = should[i].getFloat();
+        }
+
+        for(uint32_t i = 0; i < input.size(); i++) {
+            inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
+        }
+
+        cpuProcessingUnit.learn();
+    }
+
     return true;
 }

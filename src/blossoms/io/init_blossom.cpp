@@ -25,7 +25,7 @@
 #include <initializing/network_initializer.h>
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
-#include <libKitsunemimiCommon/common_methods/object_methods.h>
+#include <libKitsunemimiJson/json_item.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -38,23 +38,14 @@ InitBlossom::InitBlossom()
 
 bool
 InitBlossom::runTask(BlossomLeaf &blossomLeaf,
-                            std::string &errorMessage)
+                     std::string &errorMessage)
 {
     const std::string content = blossomLeaf.input.getStringByKey("content");
 
-    Kitsunemimi::DataBuffer base64Buffer;
-    bool result = decodeBase64(base64Buffer, content);
+    ClusterInitializer initializer;
+    const bool result = initializer.createNewNetwork(content);
     if(result == false) {
-        errorMessage = "failed to decode base64 input";
-    }
-
-    if(result)
-    {
-        ClusterInitializer initializer;
-        //result = initializer.createNewNetwork(base64Buffer);
-        if(result == false) {
-            errorMessage = "failed to initialize new network";
-        }
+        errorMessage = "failed to initialize new network";
     }
 
     blossomLeaf.output.insert("result", new Kitsunemimi::DataValue(result));
