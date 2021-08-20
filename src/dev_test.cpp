@@ -226,5 +226,22 @@ learnTestData(const std::string &mnistRootPath)
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
+
+    uint64_t synapseCounter = 0;
+    SynapseSection* sections = synapseSegment->synapseSections;
+    for(uint64_t i = 0; i < synapseSegment->segmentHeader->synapseSections.count; i++)
+    {
+        for(uint32_t j = 0; j < SYNAPSES_PER_SYNAPSESECTION; j++)
+        {
+            if(sections[i].synapses[j].targetNodeId != UNINIT_STATE_16) {
+                synapseCounter++;
+            }
+        }
+    }
+    std::cout<<std::endl;
+    std::cout<<"======================================================================="<<std::endl;
+    std::cout<<"synapseCounter: "<<synapseCounter<<std::endl;
+    std::cout<<"======================================================================="<<std::endl;
+
 }
 
