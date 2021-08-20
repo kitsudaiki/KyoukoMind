@@ -68,7 +68,7 @@ void
 sessionCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
                       const std::string identifier)
 {
-    if(identifier == "client")
+    /*if(identifier == "client")
     {
         session->setStreamMessageCallback(&clientDataCallback);
         KyoukoRoot::m_clientHandler->setClientSession(session);
@@ -77,7 +77,7 @@ sessionCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
     {
         session->setStreamMessageCallback(&monitoringDataCallback);
         KyoukoRoot::m_monitoringHandler->setMonitoringSession(session);
-    }
+    }*/
 }
 
 void

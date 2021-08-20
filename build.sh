@@ -109,7 +109,7 @@ get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.6.6" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "v0.6.0" 4
+get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -121,11 +121,11 @@ get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.4" 4
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.8.0" 1
+get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_github "libKitsunemimiSakuraMessaging" "v0.4.1" 4
+get_required_private_repo_github "libKitsunemimiSakuraMessaging" "master" 4
 echo ""
 echo "###########################################################################################################"
 echo ""

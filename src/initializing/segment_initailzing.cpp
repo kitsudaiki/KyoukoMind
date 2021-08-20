@@ -233,6 +233,9 @@ createNewBrick(const JsonItem &brickDef, const uint32_t id)
     newBrick.brickPos.y = brickDef.get("y").getInt();
     newBrick.brickPos.z = brickDef.get("z").getInt();
 
+    // set other values
+    newBrick.numberOfNodes = brickDef.get("number_of_nodes").getInt();
+
     return newBrick;
 }
 
@@ -249,6 +252,7 @@ addBricksToSegment(Segment &segment,
 {
     uint32_t nodeBrickIdCounter = 0;
     uint32_t inputCounter = 0;
+    uint32_t nodePosCounter = 0;
     JsonItem bricks = metaBase.get("bricks");
 
     for(uint32_t i = 0; i < bricks.size(); i++)
@@ -256,21 +260,18 @@ addBricksToSegment(Segment &segment,
         Brick newBrick = createNewBrick(bricks[i], i);
 
         // handle node-brick
-        const uint32_t nodeOffset = newBrick.nodeBrickId * initMetaData->nodesPerBrick;
-        assert(nodeOffset < 0x7FFFFFFF);
-        newBrick.nodePos = nodeOffset;
-        newBrick.numberOfNodes = initMetaData->nodesPerBrick;
+        newBrick.nodePos = nodePosCounter;
 
         // handle output-brick
         if(newBrick.isOutputBrick)
         {
             Node* nodes = segment.nodes;
             for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
-                nodes[j + nodeOffset].border = -2.0f;
+                nodes[j + nodePosCounter].border = -2.0f;
             }
 
             for(uint32_t i = 0; i < segment.segmentHeader->outputs.count; i++) {
-                segment.outputs[i].targetNode = nodeOffset + i;
+                segment.outputs[i].targetNode = nodePosCounter + i;
             }
 
             newBrick.numberOfNodes = segment.segmentHeader->outputs.count;
@@ -282,21 +283,22 @@ addBricksToSegment(Segment &segment,
             Node* array = segment.nodes;
             for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++)
             {
-                array[j + nodeOffset].border = 0.0f;
-                segment.inputs[inputCounter].targetNode = j + nodeOffset;
+                array[j + nodePosCounter].border = 0.0f;
+                segment.inputs[inputCounter].targetNode = j + nodePosCounter;
                 inputCounter++;
             }
         }
 
         Node* nodes = segment.nodes;
         for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
-            nodes[j + nodeOffset].nodeBrickId = newBrick.nodeBrickId;
+            nodes[j + nodePosCounter].nodeBrickId = newBrick.nodeBrickId;
         }
 
         // copy new brick to segment
         segment.bricks[nodeBrickIdCounter] = newBrick;
         assert(nodeBrickIdCounter == newBrick.nodeBrickId);
         nodeBrickIdCounter++;
+        nodePosCounter += newBrick.numberOfNodes;
     }
 
     return;

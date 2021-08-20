@@ -133,7 +133,10 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
     settings.multiplicatorRange = parsedContent.get("settings").get("multiplicator_range").getInt();
 
     const uint32_t numberOfNodeBricks = parsedContent.get("bricks").size();
-    const uint32_t totalNumberOfNodes = numberOfNodeBricks * newCluster.initMetaData.nodesPerBrick;
+    uint32_t totalNumberOfNodes = 0;
+    for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
+        totalNumberOfNodes += parsedContent.get("bricks").get(i).get("number_of_nodes").getInt();
+    }
 
     // init segment
     KyoukoRoot::m_networkCluster = new NetworkCluster();
@@ -151,7 +154,7 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
     cluster->synapseSegment = createNewSegment(numberOfNodeBricks,
                                                totalNumberOfNodes,
                                                newCluster.initMetaData.maxSynapseSections,
-                                               1 * newCluster.initMetaData.nodesPerBrick,  // TODO: correct number of inputs
+                                               784,  // TODO: correct number of inputs
                                                10,  // TODO: correct number of outputs
                                                numberOfRandValues);
 
