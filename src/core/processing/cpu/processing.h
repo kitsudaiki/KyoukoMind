@@ -54,14 +54,6 @@ synapseProcessing(SynapseSection* section,
                   Node* sourceNode,
                   const float weightIn)
 {
-    // reinit section if necessary
-    if(section->active == 0)
-    {
-        section->active = 1;
-        section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-        section->brickBufferPos = randomValues[section->randomPos] % 1000;
-    }
-
     uint32_t pos = 0;
     float netH = weightIn;
     bool createSyn = false;
@@ -157,13 +149,20 @@ nodeProcessing(Brick* brick,
         active = node->potential > node->border;
         if(active)
         {
-            if(node->targetSectionId == UNINIT_STATE_32)
+            if(node->targetSectionId == UNINIT_STATE_32
+                    || synapseSections[node->targetSectionId].active == Kitsunemimi::ItemBuffer::DELETED_SECTION)
             {
-                // SynapseSection newSection;
-                // newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
-                // newSection.brickBufferPos = randomValues[newSection.randomPos] % 1000;
-                // node->targetSectionId = synapseSectionBuffer.addNewItem(newSection);
-                node->targetSectionId = nodeId;
+                SynapseSection newSection;
+                newSection.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+                newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
+                newSection.brickBufferPos = randomValues[newSection.randomPos] % 1000;
+
+                const uint64_t newPos = synapseSectionBuffer.addNewItem(newSection);
+                if(newPos == 0xFFFFFFFFFFFFFFFF) {
+                    continue;
+                }
+
+                node->targetSectionId = newPos;
             }
 
             synapseProcessing(&synapseSections[node->targetSectionId],

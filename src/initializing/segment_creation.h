@@ -117,7 +117,7 @@ allocateSegment(SegmentHeader &header)
     Kitsunemimi::allocateBlocks_DataBuffer(newSegment->persistenBuffer, numberOfBlocks);
 
     newSegment->dynamicBuffer.initBuffer<SynapseSection>(header.synapseSections.count);
-    //newSegment->dynamicBuffer.deleteAll();
+    newSegment->dynamicBuffer.deleteAll();
 
     return newSegment;
 }
@@ -136,10 +136,8 @@ void
 initDefaultValues(Segment &segment,
                   const uint32_t numberOfBricks,
                   const uint32_t numberOfNodes,
-                  const uint64_t numberOfSynapseSections,
                   const uint32_t numberOfInputs,
-                  const uint32_t numberOfOutputs,
-                  const uint32_t numberOfRandValues)
+                  const uint32_t numberOfOutputs)
 {
 
     // init header and metadata
@@ -169,15 +167,6 @@ initDefaultValues(Segment &segment,
     for(uint32_t i = 0; i < numberOfOutputs; i++) {
         segment.outputs[i] = OutputNode();
     }
-
-
-
-    // init synapse sections
-    for(uint32_t i = 0; i < numberOfSynapseSections; i++)
-    {
-        segment.synapseSections[i] = SynapseSection();
-        segment.synapseSections[i].randomPos = static_cast<uint32_t>(rand()) % numberOfRandValues;
-    }
 }
 
 /**
@@ -193,8 +182,7 @@ createNewSegment(const uint32_t numberOfBricks,
                  const uint32_t numberOfNodes,
                  const uint64_t numberOfSynapseSections,
                  const uint32_t numberOfInputs,
-                 const uint32_t numberOfOutputs,
-                 const uint32_t numberOfRandValues)
+                 const uint32_t numberOfOutputs)
 {
     SegmentHeader header = createNewHeader(numberOfBricks,
                                            numberOfNodes,
@@ -208,10 +196,8 @@ createNewSegment(const uint32_t numberOfBricks,
     initDefaultValues(*segment,
                       numberOfBricks,
                       numberOfNodes,
-                      numberOfSynapseSections,
                       numberOfInputs,
-                      numberOfOutputs,
-                      numberOfRandValues);
+                      numberOfOutputs);
 
     return segment;
 }

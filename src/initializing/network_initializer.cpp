@@ -156,8 +156,7 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
                                                totalNumberOfNodes,
                                                newCluster.initMetaData.maxSynapseSections,
                                                784,  // TODO: correct number of inputs
-                                               10,  // TODO: correct number of outputs
-                                               numberOfRandValues);
+                                               10);  // TODO: correct number of outputs
 
     cluster->synapseSegment->synapseSettings[0] = settings;
 

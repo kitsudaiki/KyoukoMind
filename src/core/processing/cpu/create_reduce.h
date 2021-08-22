@@ -115,11 +115,15 @@ hardenSynapses(Segment* segment)
         nodeId++)
     {
         sourceNode = &segment->nodes[nodeId];
-        section = &segment->synapseSections[nodeId];
+        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
+            continue;
+        }
+
+        section = &segment->synapseSections[sourceNode->targetSectionId];
 
         // skip if section is not active or if there were no changes within the section since the
         // last hardening-step
-        if(section->active == 0
+        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION
                 || section->updated == 0)
         {
             continue;
@@ -219,7 +223,7 @@ reduceSynapses(Segment* segment)
         if(section->hardening == 0
                 && currentPos == 0)
         {
-            section->active = 0;
+            segment->dynamicBuffer.deleteItem(sectionId);
             upToData = 1;
         }
     }
