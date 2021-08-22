@@ -45,11 +45,11 @@ struct SynapseSection
 {
     uint8_t active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
     uint8_t updated = 0;
-    uint8_t padding1[2];
+    uint16_t hardening = 0;
     uint32_t randomPos = 0;
 
     uint32_t brickBufferPos = UNINIT_STATE_32;
-    uint32_t hardening = 0;
+    uint32_t next = UNINIT_STATE_32;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 

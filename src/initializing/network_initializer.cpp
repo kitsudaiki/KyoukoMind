@@ -158,7 +158,7 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
                                                784,  // TODO: correct number of inputs
                                                10);  // TODO: correct number of outputs
 
-    cluster->synapseSegment->synapseSettings[0] = settings;
+    cluster->synapseSegment->segmentSettings[0] = settings;
 
     // fill array with empty nodes
     initializeNodes(*cluster->synapseSegment,

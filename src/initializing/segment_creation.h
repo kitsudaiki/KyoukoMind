@@ -85,7 +85,7 @@ initSegmentPointer(Segment &segment,
     segment.segmentHeader[0] = header;
 
     pos = 256;
-    segment.synapseSettings = reinterpret_cast<SegmentSettings*>(segmentData + pos);
+    segment.segmentSettings = reinterpret_cast<SegmentSettings*>(segmentData + pos);
     pos = segment.segmentHeader->bricks.bytePos;
     segment.bricks = reinterpret_cast<Brick*>(segmentData + pos);
     pos = segment.segmentHeader->brickOrder.bytePos;
@@ -141,7 +141,7 @@ initDefaultValues(Segment &segment,
 {
 
     // init header and metadata
-    segment.synapseSettings[0] = SegmentSettings();
+    segment.segmentSettings[0] = SegmentSettings();
 
     // init bricks;
     for(uint32_t i = 0; i < numberOfBricks; i++) {

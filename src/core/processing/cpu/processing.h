@@ -47,18 +47,16 @@
  */
 inline void
 synapseProcessing(SynapseSection* section,
-                  Brick* bricks,
-                  Node* nodes,
-                  uint32_t* randomValues,
-                  SegmentSettings* segmentSettings,
+                  Segment &segment,
                   Node* sourceNode,
-                  const float weightIn)
+                  const float weightIn,
+                  const float outH,
+                  const uint32_t* randomValues)
 {
     uint32_t pos = 0;
     float netH = weightIn;
     bool createSyn = false;
     Synapse* synapse = nullptr;
-    const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
     section->updated = 0;
 
     // iterate over all synapses in the section
@@ -68,16 +66,16 @@ synapseProcessing(SynapseSection* section,
         synapse = &section->synapses[pos];
         createSyn = synapse->targetNodeId == UNINIT_STATE_16
                     && pos >= section->hardening
-                    && segmentSettings->doLearn > 0;
+                    && segment.segmentSettings->doLearn > 0;
         // create new synapse if necesarry and learning is active
         if(createSyn)
         {
             createNewSynapse(section,
                              synapse,
-                             bricks,
+                             segment.bricks,
                              randomValues,
                              sourceNode,
-                             segmentSettings,
+                             segment.segmentSettings,
                              netH);
         }
 
@@ -87,12 +85,37 @@ synapseProcessing(SynapseSection* section,
         }
 
         // update synapse
-        nodes[synapse->targetNodeId].input += outH * synapse->weight;
+        segment.nodes[synapse->targetNodeId].input += outH * synapse->weight;
         synapse->activeCounter += (synapse->activeCounter < 126);
 
         // update loop-counter
         netH -= static_cast<float>(synapse->border) * BORDER_STEP;
         pos++;
+    }
+
+    if(netH > 0.1f)
+    {
+        if(section->next == UNINIT_STATE_32)
+        {
+            SynapseSection newSection;
+            newSection.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+            newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
+            newSection.brickBufferPos = randomValues[newSection.randomPos] % 1000;
+
+            const uint64_t newPos = segment.dynamicBuffer.addNewItem(newSection);
+            if(newPos == 0xFFFFFFFFFFFFFFFF) {
+                return;
+            }
+
+            section->next = newPos;
+        }
+
+        synapseProcessing(&segment.synapseSections[section->next],
+                          segment,
+                          sourceNode,
+                          netH,
+                          outH,
+                          randomValues);
     }
 }
 
@@ -109,12 +132,8 @@ synapseProcessing(SynapseSection* section,
  */
 inline void
 nodeProcessing(Brick* brick,
-               Node* nodes,
-               SynapseSection* synapseSections,
-               Brick* bricks,
-               uint32_t* randomValues,
-               SegmentSettings* segmentSettings,
-               Kitsunemimi::ItemBuffer &synapseSectionBuffer)
+               Segment &segment,
+               const uint32_t* randomValues)
 {
     bool initNode = false;
     bool active = false;
@@ -125,12 +144,12 @@ nodeProcessing(Brick* brick,
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
-        node = &nodes[nodeId];
+        node = &segment.nodes[nodeId];
         initNode = node->init == 0
                    && node->input > 0.0f;
         node->border = static_cast<float>(initNode) * node->input * 0.5f
                        + static_cast<float>(initNode == false) * node->border;
-        node->potential = segmentSettings->potentialOverflow * node->input;
+        node->potential = segment.segmentSettings->potentialOverflow * node->input;
         node->input = 0.0f;
         node->delta = 0.0f;
     }
@@ -145,7 +164,7 @@ nodeProcessing(Brick* brick,
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
-        node = &nodes[nodeId];
+        node = &segment.nodes[nodeId];
         active = node->potential > node->border;
         if(active)
         {
@@ -156,7 +175,7 @@ nodeProcessing(Brick* brick,
                 newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
                 newSection.brickBufferPos = randomValues[newSection.randomPos] % 1000;
 
-                const uint64_t newPos = synapseSectionBuffer.addNewItem(newSection);
+                const uint64_t newPos = segment.dynamicBuffer.addNewItem(newSection);
                 if(newPos == 0xFFFFFFFFFFFFFFFF) {
                     continue;
                 }
@@ -164,13 +183,13 @@ nodeProcessing(Brick* brick,
                 node->targetSectionId = newPos;
             }
 
-            synapseProcessing(&synapseSections[node->targetSectionId],
-                              bricks,
-                              nodes,
-                              randomValues,
-                              segmentSettings,
+            const float outH = 1.0f / (1.0f + exp(-1.0f * node->potential));
+            synapseProcessing(&segment.synapseSections[node->targetSectionId],
+                              segment,
                               node,
-                              node->potential);
+                              node->potential,
+                              outH,
+                              randomValues);
         }
 
         node->active = active;

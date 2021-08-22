@@ -130,12 +130,7 @@ prcessSegment(Segment* segment)
     {
         const uint32_t brickId = segment->brickOrder[pos];
         Brick* brick = &segment->bricks[brickId];
-        nodeProcessing(brick,
-                       segment->nodes,
-                       segment->synapseSections,
-                       segment->bricks,
-                       KyoukoRoot::m_networkCluster->randomValues,
-                       segment->synapseSettings,
-                       segment->dynamicBuffer);
+        const uint32_t* randomValues = KyoukoRoot::m_networkCluster->randomValues;
+        nodeProcessing(brick, *segment, randomValues);
     }
 }

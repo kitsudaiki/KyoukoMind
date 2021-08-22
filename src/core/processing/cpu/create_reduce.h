@@ -47,7 +47,7 @@ inline void
 createNewSynapse(SynapseSection* section,
                  Synapse* synapse,
                  Brick* bricks,
-                 uint32_t* randomValues,
+                 const uint32_t* randomValues,
                  Node* sourceNode,
                  SegmentSettings* segmentSettings,
                  const float remainingWeight)

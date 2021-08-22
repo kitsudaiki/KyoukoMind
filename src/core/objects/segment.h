@@ -83,7 +83,7 @@ struct Segment
     Kitsunemimi::ItemBuffer dynamicBuffer;
 
     SegmentHeader* segmentHeader = nullptr;
-    SegmentSettings* synapseSettings = nullptr;
+    SegmentSettings* segmentSettings = nullptr;
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
     Node* nodes = nullptr;
