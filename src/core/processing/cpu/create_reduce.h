@@ -96,66 +96,72 @@ createNewSynapse(SynapseSection* section,
 }
 
 /**
+ * @brief hardenSynapses
+ * @param segment
+ */
+inline void
+hardenSynapses(Segment* segment,
+               SynapseSection* section,
+               float netH)
+{
+    uint16_t pos = 0;
+    Synapse* synapse = nullptr;
+    bool updateHardening = false;
+
+    // set start-values
+    pos = 0;
+
+    // iterate over all synapses in the section
+    while(pos < SYNAPSES_PER_SYNAPSESECTION
+          && netH > 0.0f)
+    {
+        // break look, if no more synapses to process
+        synapse = &section->synapses[pos];
+        if(synapse->targetNodeId == UNINIT_STATE_16) {
+            break;
+        }
+
+        // update loop-counter
+        netH -= static_cast<float>(synapse->border) * BORDER_STEP;
+        pos++;
+    }
+
+    // harden synapse-section
+    updateHardening = pos > section->hardening;
+    section->hardening = (updateHardening == true) * pos
+                         + (updateHardening == false) * section->hardening;
+
+    if(section->next != UNINIT_STATE_32) {
+        hardenSynapses(segment, &segment->synapseSections[section->next], netH);
+    }
+}
+
+
+/**
  * @brief harden all synapses within a specific section
  *
  * @param segment current segemnt to process
  */
 inline void
-hardenSynapses(Segment* segment)
+hardenNodes(Segment* segment)
 {
-    uint16_t pos = 0;
     Node* sourceNode = nullptr;
-    SynapseSection* section = nullptr;
-    Synapse* synapse = nullptr;
-    float netH = 0.0f;
-    bool updateHardening = false;
 
     for(uint32_t nodeId = 0;
         nodeId < segment->segmentHeader->nodes.count;
         nodeId++)
     {
         sourceNode = &segment->nodes[nodeId];
-        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
-            continue;
-        }
-
-        section = &segment->synapseSections[sourceNode->targetSectionId];
-
-        // skip if section is not active or if there were no changes within the section since the
-        // last hardening-step
-        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION
-                || section->updated == 0)
-        {
-            continue;
-        }
-
         if(sourceNode->input > 0.0f) {
             sourceNode->init = 1;
         }
 
-        // set start-values
-        pos = 0;
-        netH = sourceNode->potential;
-
-        // iterate over all synapses in the section
-        while(pos < SYNAPSES_PER_SYNAPSESECTION
-              && netH > 0.0f)
+        if(sourceNode->targetSectionId != UNINIT_STATE_32)
         {
-            // break look, if no more synapses to process
-            synapse = &section->synapses[pos];
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                break;
-            }
-
-            // update loop-counter
-            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-            pos++;
+            hardenSynapses(segment,
+                           &segment->synapseSections[sourceNode->targetSectionId],
+                           sourceNode->potential);
         }
-
-        // harden synapse-section
-        updateHardening = pos > section->hardening;
-        section->hardening = (updateHardening == true) * pos
-                             + (updateHardening == false) * section->hardening;
     }
 }
 
@@ -208,7 +214,21 @@ reduceSynapses(Segment* segment,
         }
     }
 
-    const bool shouldDelete = section->hardening == 0 && currentPos == 0;
+    if(section->next != UNINIT_STATE_32)
+    {
+        const bool shouldDelete = reduceSynapses(segment, &segment->synapseSections[section->next]);
+
+        // delete if sections is empty
+        if(shouldDelete)
+        {
+            segment->dynamicBuffer.deleteItem(section->next);
+            section->next = UNINIT_STATE_32;
+        }
+    }
+
+    const bool shouldDelete = section->hardening == 0
+                              && currentPos == 0
+                              && section->next == UNINIT_STATE_32;
     return shouldDelete;
 }
 

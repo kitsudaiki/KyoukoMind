@@ -113,7 +113,7 @@ rewightSegment(Segment* segment)
 void
 hardenSegment(Segment* segment)
 {
-    hardenSynapses(segment);
+    hardenNodes(segment);
 }
 
 /**
