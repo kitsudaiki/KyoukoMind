@@ -70,7 +70,7 @@ calculateSegmentError(Segment* segment)
 void
 reduceSegment(Segment* segment)
 {
-    reduceSynapses(segment);
+    reduceNodes(segment);
 }
 
 /**
@@ -113,7 +113,7 @@ rewightSegment(Segment* segment)
 void
 hardenSegment(Segment* segment)
 {
-    hardenSynapses(segment);
+    hardenNodes(segment);
 }
 
 /**
@@ -130,11 +130,7 @@ prcessSegment(Segment* segment)
     {
         const uint32_t brickId = segment->brickOrder[pos];
         Brick* brick = &segment->bricks[brickId];
-        nodeProcessing(brick,
-                       segment->nodes,
-                       segment->synapseSections,
-                       segment->bricks,
-                       KyoukoRoot::m_networkCluster->randomValues,
-                       segment->synapseSettings);
+        const uint32_t* randomValues = KyoukoRoot::m_networkCluster->randomValues;
+        nodeProcessing(brick, *segment, randomValues);
     }
 }

@@ -17,7 +17,7 @@ bool
 CpuProcessingUnit::learn()
 {
     Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
-    synapseSegment->synapseSettings->doLearn = 1;
+    synapseSegment->segmentSettings->doLearn = 1;
 
     executeStep();
 
@@ -30,7 +30,7 @@ CpuProcessingUnit::learn()
     hardenSegment(synapseSegment);
     rewightSegment(synapseSegment);
 
-    synapseSegment->synapseSettings->doLearn = 0;
+    synapseSegment->segmentSettings->doLearn = 0;
 
     return true;
 }

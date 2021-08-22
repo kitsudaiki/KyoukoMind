@@ -231,10 +231,13 @@ learnTestData(const std::string &mnistRootPath)
     SynapseSection* sections = synapseSegment->synapseSections;
     for(uint64_t i = 0; i < synapseSegment->segmentHeader->synapseSections.count; i++)
     {
-        for(uint32_t j = 0; j < SYNAPSES_PER_SYNAPSESECTION; j++)
+        if(sections[i].active == Kitsunemimi::ItemBuffer::ACTIVE_SECTION)
         {
-            if(sections[i].synapses[j].targetNodeId != UNINIT_STATE_16) {
-                synapseCounter++;
+            for(uint32_t j = 0; j < SYNAPSES_PER_SYNAPSESECTION; j++)
+            {
+                if(sections[i].synapses[j].targetNodeId != UNINIT_STATE_16) {
+                    synapseCounter++;
+                }
             }
         }
     }

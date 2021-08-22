@@ -56,14 +56,17 @@ backpropagateNodes(Brick* brick,
         nodeId++)
     {
         // skip section, if not active
-        section = &segment->synapseSections[nodeId];
-        if(section->active == 0) {
+        sourceNode = &segment->nodes[nodeId];
+        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
+            continue;
+        }
+        section = &segment->synapseSections[sourceNode->targetSectionId];
+        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION) {
             continue;
         }
 
         // set start-values
         pos = 0;
-        sourceNode = &segment->nodes[nodeId];
         netH = sourceNode->potential;
         outH = 1.0f / (1.0f + exp(-1.0f * netH));
 
@@ -139,14 +142,17 @@ correctNewOutputSynapses(Brick* brick,
         nodeId++)
     {
         // skip section, if not active
-        section = &segment->synapseSections[nodeId];
-        if(section->active == 0) {
+        sourceNode = &segment->nodes[nodeId];
+        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
+            continue;
+        }
+        section = &segment->synapseSections[sourceNode->targetSectionId];
+        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION) {
             continue;
         }
 
         // set start-values
         pos = section->hardening;
-        sourceNode = &segment->nodes[nodeId];
         netH = sourceNode->potential;
 
         // iterate over all synapses in the section

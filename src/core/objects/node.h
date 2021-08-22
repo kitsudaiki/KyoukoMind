@@ -59,7 +59,7 @@ struct Node
     uint32_t nodeBrickId = 0;
     uint32_t targetBrickDistance = 0;
 
-    uint32_t targetSectionId = 0;
+    uint32_t targetSectionId = UNINIT_STATE_32;
 
 
     // total size: 32 Byte

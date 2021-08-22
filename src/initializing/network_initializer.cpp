@@ -29,6 +29,7 @@
 #include <core/objects/network_cluster.h>
 
 #include <initializing/segment_initailzing.h>
+#include <initializing/segment_creation.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
@@ -155,10 +156,9 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
                                                totalNumberOfNodes,
                                                newCluster.initMetaData.maxSynapseSections,
                                                784,  // TODO: correct number of inputs
-                                               10,  // TODO: correct number of outputs
-                                               numberOfRandValues);
+                                               10);  // TODO: correct number of outputs
 
-    cluster->synapseSegment->synapseSettings[0] = settings;
+    cluster->synapseSegment->segmentSettings[0] = settings;
 
     // fill array with empty nodes
     initializeNodes(*cluster->synapseSegment,
