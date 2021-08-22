@@ -172,15 +172,23 @@ reduceSynapses(Segment* segment)
     SynapseSection* section = nullptr;
     Synapse* synapse = nullptr;
     bool upToData = false;
+    Node* sourceNode = nullptr;
+    uint32_t sectionId = 0;
 
-    // iterate over all synapse-section within the segment
-    for(uint32_t sectionId = 0;
-        sectionId < segment->segmentHeader->synapseSections.count;
-        sectionId++)
+    for(uint32_t nodeId = 0;
+        nodeId < segment->segmentHeader->nodes.count;
+        nodeId++)
     {
+        sourceNode = &segment->nodes[nodeId];
+        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
+            continue;
+        }
+
         // set start-values
-        upToData = 1;
+        sectionId = sourceNode->targetSectionId;
         section = &segment->synapseSections[sectionId];
+        assert(section->active == Kitsunemimi::ItemBuffer::ACTIVE_SECTION);
+        upToData = 1;
 
         // iterate over all synapses in synapse-section
         currentPos = section->hardening;
@@ -224,6 +232,7 @@ reduceSynapses(Segment* segment)
                 && currentPos == 0)
         {
             segment->dynamicBuffer.deleteItem(sectionId);
+            sourceNode->targetSectionId = UNINIT_STATE_32;
             upToData = 1;
         }
     }

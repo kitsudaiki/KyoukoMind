@@ -149,8 +149,7 @@ nodeProcessing(Brick* brick,
         active = node->potential > node->border;
         if(active)
         {
-            if(node->targetSectionId == UNINIT_STATE_32
-                    || synapseSections[node->targetSectionId].active == Kitsunemimi::ItemBuffer::DELETED_SECTION)
+            if(node->targetSectionId == UNINIT_STATE_32)
             {
                 SynapseSection newSection;
                 newSection.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
