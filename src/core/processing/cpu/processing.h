@@ -121,7 +121,8 @@ nodeProcessing(Brick* brick,
                SynapseSection* synapseSections,
                Brick* bricks,
                uint32_t* randomValues,
-               SegmentSettings* segmentSettings)
+               SegmentSettings* segmentSettings,
+               Kitsunemimi::ItemBuffer &synapseSectionBuffer)
 {
     bool initNode = false;
     bool active = false;
@@ -156,7 +157,16 @@ nodeProcessing(Brick* brick,
         active = node->potential > node->border;
         if(active)
         {
-            synapseProcessing(&synapseSections[nodeId],
+            if(node->targetSectionId == UNINIT_STATE_32)
+            {
+                // SynapseSection newSection;
+                // newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
+                // newSection.brickBufferPos = randomValues[newSection.randomPos] % 1000;
+                // node->targetSectionId = synapseSectionBuffer.addNewItem(newSection);
+                node->targetSectionId = nodeId;
+            }
+
+            synapseProcessing(&synapseSections[node->targetSectionId],
                               bricks,
                               nodes,
                               randomValues,

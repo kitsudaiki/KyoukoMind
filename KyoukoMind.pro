@@ -101,6 +101,7 @@ HEADERS += \
     src/args.h \
     src/common.h \
     src/config.h \
+    src/initializing/segment_creation.h \
     src/initializing/segment_initailzing.h \
     src/kyouko_root.h \
     src/core/callbacks.h \

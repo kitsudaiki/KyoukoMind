@@ -135,6 +135,7 @@ prcessSegment(Segment* segment)
                        segment->synapseSections,
                        segment->bricks,
                        KyoukoRoot::m_networkCluster->randomValues,
-                       segment->synapseSettings);
+                       segment->synapseSettings,
+                       segment->dynamicBuffer);
     }
 }

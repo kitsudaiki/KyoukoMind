@@ -29,6 +29,7 @@
 #include <core/objects/network_cluster.h>
 
 #include <initializing/segment_initailzing.h>
+#include <initializing/segment_creation.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>

@@ -25,6 +25,7 @@
 
 #include <common.h>
 
+#include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiCommon/buffer/item_buffer.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
@@ -59,16 +60,17 @@ struct SegmentHeaderEntry
 
 struct SegmentHeader
 {
-    uint64_t segmentDataSize = 0;
+    uint64_t staticDataSize = 0;
 
     // synapse-segment
     SegmentHeaderEntry settings;
     SegmentHeaderEntry bricks;
     SegmentHeaderEntry brickOrder;
-    SegmentHeaderEntry synapseSections;
     SegmentHeaderEntry nodes;
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
+
+    SegmentHeaderEntry synapseSections;
 
     uint8_t padding[136];
 
@@ -78,15 +80,17 @@ struct SegmentHeader
 struct Segment
 {
     Kitsunemimi::DataBuffer persistenBuffer;
+    Kitsunemimi::ItemBuffer dynamicBuffer;
 
     SegmentHeader* segmentHeader = nullptr;
     SegmentSettings* synapseSettings = nullptr;
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
     Node* nodes = nullptr;
-    SynapseSection* synapseSections = nullptr;
     InputNode* inputs = nullptr;
     OutputNode* outputs = nullptr;
+
+    SynapseSection* synapseSections = nullptr;
 
     Segment() {}
 };

@@ -72,7 +72,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 
     oclData.addBuffer("segment_data",
                       1,
-                      segmentHeader->segmentDataSize,
+                      segmentHeader->staticDataSize,
                       false,
                       cluster->synapseSegment->persistenBuffer.data);
 

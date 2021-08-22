@@ -22,171 +22,7 @@
 
 #include "segment_initailzing.h"
 
-/**
- * @brief createNewHeader
- * @param numberOfBricks
- * @param numberOfNodes
- * @param numberOfSynapseSections
- * @param numberOfInputs
- * @param numberOfOutputs
- * @return
- */
-SegmentHeader
-createNewHeader(const uint32_t numberOfBricks,
-                const uint32_t numberOfNodes,
-                const uint64_t numberOfSynapseSections,
-                const uint32_t numberOfInputs,
-                const uint32_t numberOfOutputs)
-{
-    SegmentHeader segmentHeader;
-    uint32_t segmentDataPos = 0;
 
-    // init header
-    segmentDataPos += 1 * sizeof(SegmentHeader);
-
-    // init settings
-    segmentHeader.settings.count = 1;
-    segmentHeader.settings.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentSettings);
-
-    // init bricks
-    segmentHeader.bricks.count = numberOfBricks;
-    segmentHeader.bricks.bytePos = segmentDataPos;
-    segmentDataPos += numberOfBricks * sizeof(Brick);
-
-    // init brick-order
-    segmentHeader.brickOrder.count = numberOfBricks;
-    segmentHeader.brickOrder.bytePos = segmentDataPos;
-    segmentDataPos += numberOfBricks * sizeof(uint32_t);
-
-    // init nodes
-    segmentHeader.nodes.count = numberOfNodes;
-    segmentHeader.nodes.bytePos = segmentDataPos;
-    segmentDataPos += numberOfNodes * sizeof(Node);
-
-    // init synapse sections
-    segmentHeader.synapseSections.count = numberOfSynapseSections;
-    segmentHeader.synapseSections.bytePos = segmentDataPos;
-    segmentDataPos += numberOfSynapseSections * sizeof(SynapseSection);
-
-    // init input
-    segmentHeader.inputs.count = numberOfInputs;
-    segmentHeader.inputs.bytePos = segmentDataPos;
-    segmentDataPos += numberOfInputs * sizeof(InputNode);
-
-    // init output
-    segmentHeader.outputs.count = numberOfOutputs;
-    segmentHeader.outputs.bytePos = segmentDataPos;
-    segmentDataPos += numberOfOutputs * sizeof(OutputNode);
-
-
-    segmentHeader.segmentDataSize = segmentDataPos;
-
-    return segmentHeader;
-}
-
-/**
- * @brief initSegmentPointer
- * @param segment
- * @param header
- */
-void
-initSegmentPointer(Segment &segment,
-                   const SegmentHeader &header)
-{
-    uint8_t* segmentData = static_cast<uint8_t*>(segment.persistenBuffer.data);
-
-    segment.segmentHeader = reinterpret_cast<SegmentHeader*>(segmentData + 0);
-    segment.segmentHeader[0] = header;
-
-    segment.synapseSettings = reinterpret_cast<SegmentSettings*>(segmentData + 256);
-    segment.bricks = reinterpret_cast<Brick*>(segmentData + segment.segmentHeader->bricks.bytePos);
-    segment.brickOrder = reinterpret_cast<uint32_t*>(segmentData + segment.segmentHeader->brickOrder.bytePos);
-    segment.nodes = reinterpret_cast<Node*>(segmentData + segment.segmentHeader->nodes.bytePos);
-    segment.synapseSections = reinterpret_cast<SynapseSection*>(segmentData + segment.segmentHeader->synapseSections.bytePos);
-    segment.inputs = reinterpret_cast<InputNode*>(segmentData + segment.segmentHeader->inputs.bytePos);
-    segment.outputs = reinterpret_cast<OutputNode*>(segmentData + segment.segmentHeader->outputs.bytePos);
-}
-
-/**
- * @brief allocateSegment
- * @param header
- * @return
- */
-Segment*
-allocateSegment(SegmentHeader &header)
-{
-    Segment* newSegment = new Segment();
-
-    const uint32_t numberOfBlocks = (header.segmentDataSize / 4096) + 1;
-    header.segmentDataSize = numberOfBlocks * 4096;
-    Kitsunemimi::allocateBlocks_DataBuffer(newSegment->persistenBuffer, numberOfBlocks);
-
-    initSegmentPointer(*newSegment, header);
-
-    return newSegment;
-}
-
-/**
- * @brief Segment::initSynapseSegment
- * @param numberOfNodeBricks
- * @param numberOfNodes
- * @param numberOfSynapseSections
- * @param numberOfRandValues
- * @return
- */
-Segment*
-createNewSegment(const uint32_t numberOfBricks,
-                 const uint32_t numberOfNodes,
-                 const uint64_t numberOfSynapseSections,
-                 const uint32_t numberOfInputs,
-                 const uint32_t numberOfOutputs,
-                 const uint32_t numberOfRandValues)
-{
-    SegmentHeader header = createNewHeader(numberOfBricks,
-                                           numberOfNodes,
-                                           numberOfSynapseSections,
-                                           numberOfInputs,
-                                           numberOfOutputs);
-    Segment* segment = allocateSegment(header);
-
-    // init header and metadata
-    segment->synapseSettings[0] = SegmentSettings();
-
-    // init bricks;
-    for(uint32_t i = 0; i < numberOfBricks; i++) {
-        segment->bricks[i] = Brick();
-    }
-
-    // init brick-order
-    for(uint32_t i = 0; i < numberOfBricks; i++) {
-        segment->brickOrder[i] = i;
-    }
-
-    // init nodes
-    for(uint32_t i = 0; i < numberOfNodes; i++) {
-        segment->nodes[i] = Node();
-    }
-
-    // init synapse sections
-    for(uint32_t i = 0; i < numberOfSynapseSections; i++)
-    {
-        segment->synapseSections[i] = SynapseSection();
-        segment->synapseSections[i].randomPos = static_cast<uint32_t>(rand()) % numberOfRandValues;
-    }
-
-    // init input
-    for(uint32_t i = 0; i < numberOfInputs; i++) {
-        segment->inputs[i] = InputNode();
-    }
-
-    // init output
-    for(uint32_t i = 0; i < numberOfOutputs; i++) {
-        segment->outputs[i] = OutputNode();
-    }
-
-    return segment;
-}
 
 /**
  * @brief initializeNodes
@@ -266,7 +102,7 @@ addBricksToSegment(Segment &segment,
         if(newBrick.isOutputBrick)
         {
             Node* nodes = segment.nodes;
-            for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
+            for(uint32_t j = 0; j < newBrick.numberOfNodes; j++) {
                 nodes[j + nodePosCounter].border = -2.0f;
             }
 
@@ -281,7 +117,7 @@ addBricksToSegment(Segment &segment,
         if(newBrick.isInputBrick)
         {
             Node* array = segment.nodes;
-            for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++)
+            for(uint32_t j = 0; j < newBrick.numberOfNodes; j++)
             {
                 array[j + nodePosCounter].border = 0.0f;
                 segment.inputs[inputCounter].targetNode = j + nodePosCounter;
@@ -290,7 +126,7 @@ addBricksToSegment(Segment &segment,
         }
 
         Node* nodes = segment.nodes;
-        for(uint32_t j = 0; j < initMetaData->nodesPerBrick; j++) {
+        for(uint32_t j = 0; j < newBrick.numberOfNodes; j++) {
             nodes[j + nodePosCounter].nodeBrickId = newBrick.nodeBrickId;
         }
 
