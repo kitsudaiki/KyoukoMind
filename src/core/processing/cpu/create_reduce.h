@@ -160,18 +160,67 @@ hardenSynapses(Segment* segment)
 }
 
 /**
+ * @brief reduceSynapses
+ * @param segment
+ * @param section
+ * @return
+ */
+inline bool
+reduceSynapses(Segment* segment,
+               SynapseSection* section)
+{
+    Synapse* synapse = nullptr;
+    Synapse currentSyn;
+    uint32_t currentPos = 0;
+
+    // iterate over all synapses in synapse-section
+    currentPos = section->hardening;
+    for(uint32_t lastPos = section->hardening;
+        lastPos < SYNAPSES_PER_SYNAPSESECTION;
+        lastPos++)
+    {
+        // skip not connected synapses
+        synapse = &section->synapses[lastPos];
+        if(synapse->targetNodeId == UNINIT_STATE_16) {
+            continue;
+        }
+
+        // update dynamic-weight-value of the synapse
+        if(segment->nodes[synapse->targetNodeId].active == 0) {
+            synapse->activeCounter = -2;
+        } else {
+            synapse->activeCounter = -2;
+        }
+
+        // check for deletion of the single synapse
+        if(synapse->activeCounter < 0)
+        {
+            synapse->weight = 0.0f;
+            synapse->targetNodeId = UNINIT_STATE_16;
+            synapse->border = 0;
+        }
+        else
+        {
+            currentSyn = section->synapses[currentPos];
+            section->synapses[currentPos] = section->synapses[lastPos];
+            section->synapses[lastPos] = currentSyn;
+            currentPos++;
+        }
+    }
+
+    const bool shouldDelete = section->hardening == 0 && currentPos == 0;
+    return shouldDelete;
+}
+
+/**
  * @brief reduce all synapses within the segment and delete them, if the reach a deletion-border
  *
  * @param segment current segemnt to process
  */
 inline void
-reduceSynapses(Segment* segment)
+reduceNodes(Segment* segment)
 {
-    Synapse currentSyn;
-    uint32_t currentPos = 0;
     SynapseSection* section = nullptr;
-    Synapse* synapse = nullptr;
-    bool upToData = false;
     Node* sourceNode = nullptr;
     uint32_t sectionId = 0;
 
@@ -188,52 +237,14 @@ reduceSynapses(Segment* segment)
         sectionId = sourceNode->targetSectionId;
         section = &segment->synapseSections[sectionId];
         assert(section->active == Kitsunemimi::ItemBuffer::ACTIVE_SECTION);
-        upToData = 1;
 
-        // iterate over all synapses in synapse-section
-        currentPos = section->hardening;
-        for(uint32_t lastPos = section->hardening;
-            lastPos < SYNAPSES_PER_SYNAPSESECTION;
-            lastPos++)
-        {
-            // skip not connected synapses
-            synapse = &section->synapses[lastPos];
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                continue;
-            }
-
-            upToData = 0;
-
-            // update dynamic-weight-value of the synapse
-            if(segment->nodes[synapse->targetNodeId].active == 0) {
-                synapse->activeCounter = -2;
-            } else {
-                synapse->activeCounter = -2;
-            }
-
-            // check for deletion of the single synapse
-            if(synapse->activeCounter < 0)
-            {
-                synapse->weight = 0.0f;
-                synapse->targetNodeId = UNINIT_STATE_16;
-                synapse->border = 0;
-            }
-            else
-            {
-                currentSyn = section->synapses[currentPos];
-                section->synapses[currentPos] = section->synapses[lastPos];
-                section->synapses[lastPos] = currentSyn;
-                currentPos++;
-            }
-        }
+        const bool shouldDelete = reduceSynapses(segment, section);
 
         // delete if sections is empty
-        if(section->hardening == 0
-                && currentPos == 0)
+        if(shouldDelete)
         {
             segment->dynamicBuffer.deleteItem(sectionId);
             sourceNode->targetSectionId = UNINIT_STATE_32;
-            upToData = 1;
         }
     }
 }

@@ -70,7 +70,7 @@ calculateSegmentError(Segment* segment)
 void
 reduceSegment(Segment* segment)
 {
-    reduceSynapses(segment);
+    reduceNodes(segment);
 }
 
 /**
