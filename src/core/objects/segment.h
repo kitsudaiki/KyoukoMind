@@ -79,8 +79,7 @@ struct SegmentHeader
 
 struct Segment
 {
-    Kitsunemimi::DataBuffer persistenBuffer;
-    Kitsunemimi::ItemBuffer dynamicBuffer;
+    Kitsunemimi::ItemBuffer segmentData;
 
     SegmentHeader* segmentHeader = nullptr;
     SegmentSettings* segmentSettings = nullptr;

@@ -221,7 +221,7 @@ reduceSynapses(Segment* segment,
         // delete if sections is empty
         if(shouldDelete)
         {
-            segment->dynamicBuffer.deleteItem(section->next);
+            segment->segmentData.deleteItem(section->next);
             section->next = UNINIT_STATE_32;
         }
     }
@@ -263,7 +263,7 @@ reduceNodes(Segment* segment)
         // delete if sections is empty
         if(shouldDelete)
         {
-            segment->dynamicBuffer.deleteItem(sectionId);
+            segment->segmentData.deleteItem(sectionId);
             sourceNode->targetSectionId = UNINIT_STATE_32;
         }
     }

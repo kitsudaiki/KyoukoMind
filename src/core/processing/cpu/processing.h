@@ -102,8 +102,8 @@ synapseProcessing(SynapseSection* section,
             newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
             newSection.brickBufferPos = randomValues[newSection.randomPos] % 1000;
 
-            const uint64_t newPos = segment.dynamicBuffer.addNewItem(newSection);
-            if(newPos == 0xFFFFFFFFFFFFFFFF) {
+            const uint64_t newPos = segment.segmentData.addNewItem(newSection);
+            if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
                 return;
             }
 
@@ -175,8 +175,8 @@ nodeProcessing(Brick* brick,
                 newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
                 newSection.brickBufferPos = randomValues[newSection.randomPos] % 1000;
 
-                const uint64_t newPos = segment.dynamicBuffer.addNewItem(newSection);
-                if(newPos == 0xFFFFFFFFFFFFFFFF) {
+                const uint64_t newPos = segment.segmentData.addNewItem(newSection);
+                if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
                     continue;
                 }
 
