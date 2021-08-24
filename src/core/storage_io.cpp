@@ -37,10 +37,10 @@ bool
 StorageIO::writeToDisc(const std::string &dirPath)
 {
     const std::string coreSegPath = dirPath + "/core_segment_01";
-    DataBuffer* coreBuffer = &KyoukoRoot::m_networkCluster->synapseSegment->persistenBuffer;
+    /*DataBuffer* coreBuffer = &KyoukoRoot::m_networkCluster->synapseSegment->persistenBuffer;
     if(writeBufferToFile(coreSegPath, *coreBuffer) == false) {
         return false;
-    }
+    }*/
 
     return true;
 }
@@ -54,10 +54,10 @@ bool
 StorageIO::readFromDisc(const std::string &dirPath)
 {
     const std::string coreSegPath = dirPath + "/core_segment_01";
-    DataBuffer* coreBuffer = &KyoukoRoot::m_networkCluster->synapseSegment->persistenBuffer;
+    /*DataBuffer* coreBuffer = &KyoukoRoot::m_networkCluster->synapseSegment->persistenBuffer;
     if(readBufferFromFile(coreSegPath, *coreBuffer) == false) {
         return false;
-    }
+    }*/
 
     return true;
 }

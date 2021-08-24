@@ -78,7 +78,7 @@ void
 initSegmentPointer(Segment &segment,
                    const SegmentHeader &header)
 {
-    uint8_t* segmentData = static_cast<uint8_t*>(segment.persistenBuffer.data);
+    uint8_t* segmentData = static_cast<uint8_t*>(segment.segmentData.staticData);
     uint64_t pos = 0;
 
     segment.segmentHeader = reinterpret_cast<SegmentHeader*>(segmentData + pos);
@@ -97,7 +97,7 @@ initSegmentPointer(Segment &segment,
     pos = segment.segmentHeader->outputs.bytePos;
     segment.outputs = reinterpret_cast<OutputNode*>(segmentData + pos);
 
-    uint8_t* dynamicData = static_cast<uint8_t*>(segment.dynamicBuffer.buffer.data);
+    uint8_t* dynamicData = static_cast<uint8_t*>(segment.segmentData.itemData);
     pos = segment.segmentHeader->synapseSections.bytePos;
     segment.synapseSections = reinterpret_cast<SynapseSection*>(dynamicData + pos);
 }
@@ -112,12 +112,9 @@ allocateSegment(SegmentHeader &header)
 {
     Segment* newSegment = new Segment();
 
-    const uint32_t numberOfBlocks = (header.staticDataSize / 4096) + 1;
-    header.staticDataSize = numberOfBlocks * 4096;
-    Kitsunemimi::allocateBlocks_DataBuffer(newSegment->persistenBuffer, numberOfBlocks);
-
-    newSegment->dynamicBuffer.initBuffer<SynapseSection>(header.synapseSections.count);
-    newSegment->dynamicBuffer.deleteAll();
+    newSegment->segmentData.initBuffer<SynapseSection>(header.synapseSections.count,
+                                                         header.staticDataSize);
+    newSegment->segmentData.deleteAll();
 
     return newSegment;
 }
