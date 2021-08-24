@@ -29,7 +29,7 @@
 #include <libKitsunemimiOpencl/gpu_handler.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
-#include <core/objects/segment.h>
+#include <core/objects/segments/dynamic_segment.h>
 
 #include <kyouko_root.h>
 

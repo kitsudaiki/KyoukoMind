@@ -1,32 +1,11 @@
-﻿/**
- * @file        segment.h
- *
- * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
- *
- * @copyright   Apache License Version 2.0
- *
- *      Copyright 2019 Tobias Anker
- *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
- *
- *          http://www.apache.org/licenses/LICENSE-2.0
- *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
- */
-
-#ifndef NETWORK_SEGMENT_H
-#define NETWORK_SEGMENT_H
+#ifndef ABSTRACT_SEGMENTS_H
+#define ABSTRACT_SEGMENTS_H
 
 #include <common.h>
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiCommon/buffer/item_buffer.h>
+
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
@@ -48,6 +27,8 @@ struct SegmentSettings
     uint8_t doLearn = 0;
 
     uint8_t padding[221];
+
+    // total size: 256 Byte
 };
 
 struct SegmentHeaderEntry
@@ -60,6 +41,7 @@ struct SegmentHeaderEntry
 
 struct SegmentHeader
 {
+    uint32_t segmentID = UNINIT_STATE_32;
     uint64_t staticDataSize = 0;
 
     // synapse-segment
@@ -77,23 +59,78 @@ struct SegmentHeader
     // total size: 256 Byte
 };
 
-struct Segment
+struct TransferEntry
 {
-    Kitsunemimi::ItemBuffer segmentData;
+    float weight = 0.0f;
+    uint32_t target = 0;
 
-    SegmentHeader* segmentHeader = nullptr;
-    SegmentSettings* segmentSettings = nullptr;
-    Brick* bricks = nullptr;
-    uint32_t* brickOrder = nullptr;
-    Node* nodes = nullptr;
-    InputNode* inputs = nullptr;
-    OutputNode* outputs = nullptr;
+    // total size: 8 Byte
+};
 
-    SynapseSection* synapseSections = nullptr;
+enum NeighborDirection
+{
+    INPUT_DIRECTION = 0,
+    OUTPUT_DIRECTION = 1,
+};
 
-    Segment() {}
+struct SegmentNeighbor
+{
+    uint32_t targetSegmentId = UNINIT_STATE_32;
+
+    uint8_t targetSide = 0;
+    uint8_t direction = INPUT_DIRECTION;
+
+    bool inUse = false;
+    bool inputReady = false;
+
+    uint32_t numberOfInputs = 0;
+    uint32_t numberOfOutputs = 0;
+
+    TransferEntry* inputTransferBuffer = nullptr;
+    TransferEntry* outputTransferBuffer = nullptr;
+
+    // total size: 32 Byte
+};
+
+struct SegmentNeighborList
+{
+    SegmentNeighbor neighbors[12];
+
+    uint8_t padding[128];
+
+    // total size: 512 Byte
+};
+
+enum SegmentTypes
+{
+    UNDEFINED_SEGMENT = 0,
+    INPUT_SEGMENT = 1,
+    OUTPUT_SEGMENT = 2,
+    DYNAMIC_SEGMENT = 3,
 };
 
 //==================================================================================================
 
-#endif // NETWORK_SEGMENT_H
+class AbstractSegment
+{
+public:
+    AbstractSegment();
+    virtual ~AbstractSegment();
+
+    SegmentTypes getType() const;
+
+    Kitsunemimi::ItemBuffer segmentData;
+
+    SegmentHeader* segmentHeader = nullptr;
+    SegmentSettings* segmentSettings = nullptr;
+    SegmentNeighborList* segmentNeighbors = nullptr;
+
+    bool isReady();
+
+protected:
+    SegmentTypes m_type = UNDEFINED_SEGMENT;
+};
+
+//==================================================================================================
+
+#endif // ABSTRACT_SEGMENTS_H

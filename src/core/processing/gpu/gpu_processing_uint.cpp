@@ -26,7 +26,7 @@
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
 #include <core/objects/node.h>
-#include <core/objects/segment.h>
+#include <core/objects/segments/dynamic_segment.h>
 #include <core/objects/network_cluster.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -68,7 +68,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     //==============================================================================================
 
     // fill buffer for nodes to map on gpu
-    SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
+    /*SegmentHeader* segmentHeader = cluster->synapseSegment->segmentHeader;
 
     oclData.addBuffer("segment_data",
                       1,
@@ -129,7 +129,7 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
 
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_data"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "segment_data"));*/
 
     return true;
 }

@@ -3,19 +3,22 @@
 
 #include <common.h>
 
+class NetworkCluster;
+class DynamicSegment;
+class InputSegment;
+class OutputSegment;
+
 class CpuProcessingUnit
 {
 public:
     CpuProcessingUnit();
 
-    bool learn();
-    bool execute();
+    void processNetworkCluster(NetworkCluster* cluster);
 
 private:
-    void executeStep();
-    void reductionLearning();
-
-    uint32_t reductionCounter = 0;
+    void processDynamicSegment(DynamicSegment* segment);
+    void processInputSegment(InputSegment* segment);
+    void processOutputSegment(OutputSegment* segment);
 };
 
 #endif // CPUPROCESSINGUNIT_H

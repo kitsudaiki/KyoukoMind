@@ -28,11 +28,11 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/objects/segment.h>
+#include <core/objects/segments/dynamic_segment.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-#include <core/processing/cpu/create_reduce.h>
+#include <core/processing/cpu/dynamic_cluster/create_reduce.h>
 
 /**
  * @brief synapseProcessing
@@ -47,7 +47,7 @@
  */
 inline void
 synapseProcessing(SynapseSection* section,
-                  Segment &segment,
+                  DynamicSegment &segment,
                   Node* sourceNode,
                   const float weightIn,
                   const float outH,
@@ -132,7 +132,7 @@ synapseProcessing(SynapseSection* section,
  */
 inline void
 nodeProcessing(Brick* brick,
-               Segment &segment,
+               DynamicSegment &segment,
                const uint32_t* randomValues)
 {
     bool initNode = false;
@@ -193,6 +193,25 @@ nodeProcessing(Brick* brick,
         }
 
         node->active = active;
+    }
+}
+
+/**
+ * @brief process all nodes within a specific brick and also all synapse-sections,
+ *        which are connected to an active node
+ *
+ * @param segment segment to process
+ */
+void
+prcessSegment(DynamicSegment* segment)
+{
+    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
+    for(uint32_t pos = 0; pos < numberOfBricks; pos++)
+    {
+        const uint32_t brickId = segment->brickOrder[pos];
+        Brick* brick = &segment->bricks[brickId];
+        const uint32_t* randomValues = KyoukoRoot::m_randomValues;
+        nodeProcessing(brick, *segment, randomValues);
     }
 }
 

@@ -28,70 +28,9 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/objects/segment.h>
+#include <core/objects/segments/output_segment.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
-
-/**
- * @brief run back-propagation over the hidden neurons
- *
- * @param brick pointer to current brick
- * @param segment pointer to currect segment to process, which contains the brick
- */
-inline void
-backpropagateNodes(Brick* brick,
-                   Segment* segment)
-{
-    uint16_t pos = 0;
-    Node* sourceNode = nullptr;
-    SynapseSection* section = nullptr;
-    Synapse* synapse = nullptr;
-    float netH = 0.0f;
-    float outH = 0.0f;
-    float learnValue = 0.0f;
-
-    // iterate over all nodes within the brick
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
-        nodeId++)
-    {
-        // skip section, if not active
-        sourceNode = &segment->nodes[nodeId];
-        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
-            continue;
-        }
-        section = &segment->synapseSections[sourceNode->targetSectionId];
-        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION) {
-            continue;
-        }
-
-        // set start-values
-        pos = 0;
-        netH = sourceNode->potential;
-        outH = 1.0f / (1.0f + exp(-1.0f * netH));
-
-        // iterate over all synapses in the section
-        while(pos < SYNAPSES_PER_SYNAPSESECTION
-              && netH > 0.0f)
-        {
-            // break look, if no more synapses to process
-            synapse = &section->synapses[pos];
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                break;
-            }
-
-            // update weight
-            learnValue = static_cast<float>(pos <= section->hardening) * 0.1f
-                         + static_cast<float>(pos > section->hardening) * 0.2f;
-            sourceNode->delta += segment->nodes[synapse->targetNodeId].delta * synapse->weight;
-            synapse->weight -= learnValue * segment->nodes[synapse->targetNodeId].delta * outH;
-
-            // update loop-counter
-            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-            pos++;
-        }
-    }
-}
 
 /**
  * @brief backpropagateOutput
@@ -99,7 +38,7 @@ backpropagateNodes(Brick* brick,
  * @param segment pointer to currect segment to process
  */
 inline void
-backpropagateOutput(Segment* segment)
+backpropagateOutput(OutputSegment* segment)
 {
     float outW = 0.0f;
     OutputNode* out = nullptr;
@@ -125,8 +64,7 @@ backpropagateOutput(Segment* segment)
  * @param segment pointer to currect segment to process, which contains the brick
  */
 inline void
-correctNewOutputSynapses(Brick* brick,
-                         Segment* segment)
+correctNewOutputSynapses(OutputSegment* segment)
 {
     uint16_t pos = 0;
     Node* sourceNode = nullptr;
@@ -176,6 +114,18 @@ correctNewOutputSynapses(Brick* brick,
             pos++;
         }
     }
+}
+
+/**
+ * @brief correct wight of synapses within
+ *
+ * @param segment segment to process
+ */
+void
+rewightSegment(OutputSegment* segment)
+{
+    correctNewOutputSynapses(segment);
+    backpropagateOutput(segment);
 }
 
 #endif // CORE_BACKPROPAGATION_H

@@ -1,53 +1,136 @@
+#include "dynamic_segment.h"
+
+DynamicSegment::DynamicSegment(const uint32_t numberOfBricks,
+                               const uint32_t numberOfNodes,
+                               const uint64_t numberOfSynapseSections)
+    : AbstractSegment()
+{
+    m_type = DYNAMIC_SEGMENT;
+
+    SegmentHeader header = createNewHeader(numberOfBricks,
+                                           numberOfNodes,
+                                           numberOfSynapseSections);
+    allocateSegment(header);
+    initSegmentPointer(header);
+    initDefaultValues(numberOfBricks, numberOfNodes);
+}
+
+DynamicSegment::~DynamicSegment()
+{
+
+}
+
+SegmentHeader
+DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
+                                const uint32_t numberOfNodes,
+                                const uint64_t numberOfSynapseSections)
+{
+    SegmentHeader segmentHeader;
+    uint32_t segmentDataPos = 0;
+
+    // init header
+    segmentDataPos += 1 * sizeof(SegmentHeader);
+
+    // init settings
+    segmentHeader.settings.count = 1;
+    segmentHeader.settings.bytePos = segmentDataPos;
+    segmentDataPos += 1 * sizeof(SegmentSettings);
+
+    // init bricks
+    segmentHeader.bricks.count = numberOfBricks;
+    segmentHeader.bricks.bytePos = segmentDataPos;
+    segmentDataPos += numberOfBricks * sizeof(Brick);
+
+    // init brick-order
+    segmentHeader.brickOrder.count = numberOfBricks;
+    segmentHeader.brickOrder.bytePos = segmentDataPos;
+    segmentDataPos += numberOfBricks * sizeof(uint32_t);
+
+    // init nodes
+    segmentHeader.nodes.count = numberOfNodes;
+    segmentHeader.nodes.bytePos = segmentDataPos;
+    segmentDataPos += numberOfNodes * sizeof(Node);
+
+    segmentHeader.staticDataSize = segmentDataPos;
+
+    // init synapse sections
+    segmentDataPos = 0;
+    segmentHeader.synapseSections.count = numberOfSynapseSections;
+    segmentHeader.synapseSections.bytePos = segmentDataPos;
+
+    return segmentHeader;
+}
+
 /**
- * @file        segment_initailzing.cpp
- *
- * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
- *
- * @copyright   Apache License Version 2.0
- *
- *      Copyright 2019 Tobias Anker
- *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
- *
- *          http://www.apache.org/licenses/LICENSE-2.0
- *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
- */
-
-#include "segment_initailzing.h"
-
-
-
-/**
- * @brief initializeNodes
+ * @brief initSegmentPointer
  * @param segment
- * @param initMetaData
+ * @param header
+ */
+void
+DynamicSegment::initSegmentPointer(const SegmentHeader &header)
+{
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.staticData);
+    uint64_t pos = 0;
+
+    segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
+    segmentHeader[0] = header;
+
+    pos = 256;
+    segmentSettings = reinterpret_cast<SegmentSettings*>(dataPtr + pos);
+    pos = segmentHeader->bricks.bytePos;
+    bricks = reinterpret_cast<Brick*>(dataPtr + pos);
+    pos = segmentHeader->brickOrder.bytePos;
+    brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
+    pos = segmentHeader->nodes.bytePos;
+    nodes = reinterpret_cast<Node*>(dataPtr + pos);
+
+    dataPtr = static_cast<uint8_t*>(segmentData.itemData);
+    pos = segmentHeader->synapseSections.bytePos;
+    synapseSections = reinterpret_cast<SynapseSection*>(dataPtr + pos);
+}
+
+/**
+ * @brief allocateSegment
+ * @param header
  * @return
  */
-bool
-initializeNodes(Segment &segment,
-                InitSettings* initMetaData)
+void
+DynamicSegment::allocateSegment(SegmentHeader &header)
 {
-    const uint32_t numberOfNodes = segment.segmentHeader->nodes.count;
-    const float range = initMetaData->nodeUpperBorder - initMetaData->nodeLowerBorder;
+    segmentData.initBuffer<SynapseSection>(header.synapseSections.count, header.staticDataSize);
+    segmentData.deleteAll();
+}
 
-    for(uint32_t i = 0; i < numberOfNodes; i++)
-    {
-        segment.nodes[i].border = fmod(static_cast<float>(rand()), range);
-        segment.nodes[i].border += initMetaData->nodeLowerBorder;
+/**
+ * @brief DynamicSegment::initDefaultValues
+ * @param numberOfBricks
+ * @param numberOfNodes
+ */
+void
+DynamicSegment::initDefaultValues(const uint32_t numberOfBricks,
+                                  const uint32_t numberOfNodes)
+{
+    // init header and metadata
+    segmentSettings[0] = SegmentSettings();
+
+    // init bricks;
+    for(uint32_t i = 0; i < numberOfBricks; i++) {
+        bricks[i] = Brick();
     }
 
-    return true;
+    // init brick-order
+    for(uint32_t i = 0; i < numberOfBricks; i++) {
+        brickOrder[i] = i;
+    }
+
+    // init nodes
+    for(uint32_t i = 0; i < numberOfNodes; i++) {
+        nodes[i] = Node();
+    }
 }
 
 Brick
-createNewBrick(const JsonItem &brickDef, const uint32_t id)
+DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
 {
     Brick newBrick;
 
@@ -82,56 +165,25 @@ createNewBrick(const JsonItem &brickDef, const uint32_t id)
  * @param metaBase
  */
 void
-addBricksToSegment(Segment &segment,
-                   InitSettings* initMetaData,
-                   const JsonItem &metaBase)
+DynamicSegment::addBricksToSegment(const JsonItem &metaBase)
 {
     uint32_t nodeBrickIdCounter = 0;
-    uint32_t inputCounter = 0;
     uint32_t nodePosCounter = 0;
-    JsonItem bricks = metaBase.get("bricks");
+    JsonItem brickDef = metaBase.get("bricks");
 
-    for(uint32_t i = 0; i < bricks.size(); i++)
+    for(uint32_t i = 0; i < brickDef.size(); i++)
     {
-        Brick newBrick = createNewBrick(bricks[i], i);
+        Brick newBrick = createNewBrick(brickDef[i], i);
 
         // handle node-brick
         newBrick.nodePos = nodePosCounter;
 
-        // handle output-brick
-        if(newBrick.isOutputBrick)
-        {
-            Node* nodes = segment.nodes;
-            for(uint32_t j = 0; j < newBrick.numberOfNodes; j++) {
-                nodes[j + nodePosCounter].border = -2.0f;
-            }
-
-            for(uint32_t i = 0; i < segment.segmentHeader->outputs.count; i++) {
-                segment.outputs[i].targetNode = nodePosCounter + i;
-            }
-
-            newBrick.numberOfNodes = segment.segmentHeader->outputs.count;
-        }
-
-        // handle input-brick
-        if(newBrick.isInputBrick)
-        {
-            Node* array = segment.nodes;
-            for(uint32_t j = 0; j < newBrick.numberOfNodes; j++)
-            {
-                array[j + nodePosCounter].border = 0.0f;
-                segment.inputs[inputCounter].targetNode = j + nodePosCounter;
-                inputCounter++;
-            }
-        }
-
-        Node* nodes = segment.nodes;
         for(uint32_t j = 0; j < newBrick.numberOfNodes; j++) {
             nodes[j + nodePosCounter].nodeBrickId = newBrick.nodeBrickId;
         }
 
         // copy new brick to segment
-        segment.bricks[nodeBrickIdCounter] = newBrick;
+        bricks[nodeBrickIdCounter] = newBrick;
         assert(nodeBrickIdCounter == newBrick.nodeBrickId);
         nodeBrickIdCounter++;
         nodePosCounter += newBrick.numberOfNodes;
@@ -140,24 +192,33 @@ addBricksToSegment(Segment &segment,
     return;
 }
 
+/**
+ * @brief connectBrick
+ * @param segment
+ * @param sourceBrick
+ * @param side
+ */
 void
-connectBrick(Segment &segment,
-             Brick* sourceBrick,
-             const uint8_t side)
+DynamicSegment::connectBrick(Brick* sourceBrick,
+                             const uint8_t side)
 {
     sourceBrick->neighbors[side] = UNINIT_STATE_32;
     Position next = getNeighborPos(sourceBrick->brickPos, side);
     if(next.isValid())
     {
-        for(uint32_t t = 0; t < segment.segmentHeader->bricks.count; t++)
+        for(uint32_t t = 0; t < segmentHeader->bricks.count; t++)
         {
-            Brick* targetBrick = &segment.bricks[t];
+            Brick* targetBrick = &bricks[t];
             if(targetBrick->brickPos == next)
             {
                 sourceBrick->neighbors[side] = targetBrick->brickId;
                 targetBrick->neighbors[11 - side] = sourceBrick->brickId;
             }
         }
+    }
+    else
+    {
+        // TODO: connect to output-transfer
     }
 }
 
@@ -170,13 +231,13 @@ connectBrick(Segment &segment,
  * @param z current z-position
  */
 void
-connectAllBricks(Segment &segment)
+DynamicSegment::connectAllBricks()
 {
-    for(uint32_t i = 0; i < segment.segmentHeader->bricks.count; i++)
+    for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
     {
-        Brick* sourceBrick = &segment.bricks[i];
+        Brick* sourceBrick = &bricks[i];
         for(uint8_t side = 0; side < 12; side++) {
-            connectBrick(segment, sourceBrick, side);
+            connectBrick(sourceBrick, side);
         }
     }
 }
@@ -192,7 +253,7 @@ connectAllBricks(Segment &segment)
  * @return position of the next brick for the specific side
  */
 Position
-getNeighborPos(Position sourcePos, const uint8_t side)
+DynamicSegment::getNeighborPos(Position sourcePos, const uint8_t side)
 {
     Position result;
     result.x = UNINIT_STATE_32;
@@ -323,83 +384,18 @@ getNeighborPos(Position sourcePos, const uint8_t side)
     return result;
 }
 
-
-bool
-initializeAxons(Segment &segment)
-{
-    uint32_t nodeId = 0;
-
-    // calculate number of axons per brick
-    for(uint32_t brickId = 0;
-        brickId < segment.segmentHeader->bricks.count;
-        brickId++)
-    {
-        Brick* sourceBrick = &segment.bricks[brickId];
-
-        if(sourceBrick->isOutputBrick == 1)
-        {
-            nodeId += sourceBrick->numberOfNodes;
-            continue;
-        }
-
-        // iterate over all nodes of the brick and create an axon for each node
-        for(uint32_t nodePos = 0; nodePos < sourceBrick->numberOfNodes; nodePos++)
-        {
-            Brick* axonBrick = getAxonBrick(segment, sourceBrick);
-            assert(axonBrick->nodeBrickId <= 100);
-
-            // calculate distance with pythagoras
-            int32_t x = axonBrick->brickPos.x - sourceBrick->brickPos.x;
-            int32_t y = axonBrick->brickPos.y - sourceBrick->brickPos.y;
-            int32_t z = axonBrick->brickPos.z - sourceBrick->brickPos.z;
-            x = x * x;
-            y = y * y;
-            z = z * z;
-            const double dist = std::sqrt(x + y + z);
-
-            // set source and target in related nodes and edges
-            //edges[pos + nodePos].axonBrickId = axonBrick->brickId;
-            segment.nodes[nodeId].targetBrickDistance = static_cast<uint32_t>(dist);
-            segment.nodes[nodeId].targetSectionId = nodeId;
-
-            // post-check
-            assert(axonBrick->nodeBrickId != UNINIT_STATE_32);
-            assert(sourceBrick->brickId != UNINIT_STATE_32);
-
-            nodeId++;
-        }
-    }
-
-    assert(nodeId == segment.segmentHeader->nodes.count);
-
-    return true;
-}
-
-/**
- * @brief FanBrickInitializer::getAxonBrick
- * @param segment
- * @param sourceBrick
- * @return
- */
-Brick*
-getAxonBrick(Segment &segment, Brick *sourceBrick)
-{
-    return sourceBrick;
-}
-
 /**
  * @brief FanBrickInitializer::initTargetBrickList
  * @param segment
  * @return
  */
 bool
-initTargetBrickList(Segment &segment,
-                    InitSettings* init)
+DynamicSegment::initTargetBrickList()
 {
-    Brick* bricks = segment.bricks;
+    Brick* bricks = bricks;
 
     // iterate over all bricks
-    for(uint32_t i = 0; i < segment.segmentHeader->bricks.count; i++)
+    for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
     {
         Brick* baseBrick = &bricks[i];
         if(baseBrick->isOutputBrick != 0) {

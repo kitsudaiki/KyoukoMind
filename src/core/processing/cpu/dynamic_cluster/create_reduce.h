@@ -28,7 +28,7 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/objects/segment.h>
+#include <core/objects/segments/dynamic_segment.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
@@ -100,7 +100,7 @@ createNewSynapse(SynapseSection* section,
  * @param segment
  */
 inline void
-hardenSynapses(Segment* segment,
+hardenSynapses(DynamicSegment* segment,
                SynapseSection* section,
                float netH)
 {
@@ -143,7 +143,7 @@ hardenSynapses(Segment* segment,
  * @param segment current segemnt to process
  */
 inline void
-hardenNodes(Segment* segment)
+hardenSegment(DynamicSegment* segment)
 {
     Node* sourceNode = nullptr;
 
@@ -172,7 +172,7 @@ hardenNodes(Segment* segment)
  * @return
  */
 inline bool
-reduceSynapses(Segment* segment,
+reduceSynapses(DynamicSegment* segment,
                SynapseSection* section)
 {
     Synapse* synapse = nullptr;
@@ -238,7 +238,7 @@ reduceSynapses(Segment* segment,
  * @param segment current segemnt to process
  */
 inline void
-reduceNodes(Segment* segment)
+reduceNodes(DynamicSegment* segment)
 {
     SynapseSection* section = nullptr;
     Node* sourceNode = nullptr;

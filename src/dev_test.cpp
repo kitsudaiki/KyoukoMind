@@ -2,6 +2,8 @@
 
 #include <kyouko_root.h>
 #include <core/objects/network_cluster.h>
+#include <core/objects/segments/input_segment.h>
+#include <core/objects/segments/output_segment.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -86,11 +88,9 @@ learnTestData(const std::string &mnistRootPath)
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
     std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
-
-
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
-    InputNode* inputNodes = cluster->synapseSegment->inputs;
+    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
     for(uint32_t i = 0; i < 784; i++)  {
         inputNodes[i].weight = 0.0f;
     }
@@ -107,7 +107,7 @@ learnTestData(const std::string &mnistRootPath)
             const uint32_t label = labelBufferPtr[pic + 8];
             std::cout<<"picture: "<<pic<<std::endl;
 
-            OutputNode* outputs = cluster->synapseSegment->outputs;
+            OutputNode* outputs = cluster->outputSegments[0]->outputs;
             for(uint32_t i = 0; i < 10; i++) {
                 outputs[i].shouldValue = 0.0f;
             }
@@ -126,7 +126,7 @@ learnTestData(const std::string &mnistRootPath)
             if(useGpu) {
                 gpuProcessingUnit->learn();
             } else {
-                cpuProcessingUnit.learn();
+               // cpuProcessingUnit.learn();
             }
             end = std::chrono::system_clock::now();
             std::cout<<"run learn: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
@@ -159,7 +159,7 @@ learnTestData(const std::string &mnistRootPath)
         inputNodes[i].weight = 0.0f;
     }
 
-    Segment* synapseSegment = KyoukoRoot::m_networkCluster->synapseSegment;
+    OutputSegment* synapseSegment = KyoukoRoot::m_networkCluster->outputSegments[0];
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
@@ -178,7 +178,7 @@ learnTestData(const std::string &mnistRootPath)
         if(useGpu) {
             gpuProcessingUnit->execute();
         } else {
-            cpuProcessingUnit.execute();
+            //cpuProcessingUnit.execute();
         }
         end = std::chrono::system_clock::now();
         std::cout<<"run execute: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
@@ -226,25 +226,5 @@ learnTestData(const std::string &mnistRootPath)
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
-
-    uint64_t synapseCounter = 0;
-    SynapseSection* sections = synapseSegment->synapseSections;
-    for(uint64_t i = 0; i < synapseSegment->segmentHeader->synapseSections.count; i++)
-    {
-        if(sections[i].active == Kitsunemimi::ItemBuffer::ACTIVE_SECTION)
-        {
-            for(uint32_t j = 0; j < SYNAPSES_PER_SYNAPSESECTION; j++)
-            {
-                if(sections[i].synapses[j].targetNodeId != UNINIT_STATE_16) {
-                    synapseCounter++;
-                }
-            }
-        }
-    }
-    std::cout<<std::endl;
-    std::cout<<"======================================================================="<<std::endl;
-    std::cout<<"synapseCounter: "<<synapseCounter<<std::endl;
-    std::cout<<"======================================================================="<<std::endl;
-
 }
 

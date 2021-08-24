@@ -25,7 +25,7 @@
 
 #include <common.h>
 #include <core/objects/network_cluster.h>
-#include <core/objects/segment.h>
+#include <core/objects/segments/dynamic_segment.h>
 
 #include <libKitsunemimiOpencl/gpu_handler.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>

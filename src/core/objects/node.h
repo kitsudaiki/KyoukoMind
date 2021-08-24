@@ -29,6 +29,8 @@ struct InputNode
 {
     float weight = 0.0f;
     uint32_t targetNode = 0;
+
+    // total size: 8 Byte
 };
 
 struct OutputNode
@@ -57,10 +59,9 @@ struct Node
     uint8_t init = 0;
 
     uint32_t nodeBrickId = 0;
-    uint32_t targetBrickDistance = 0;
 
+    uint32_t borderTarget = UNINIT_STATE_32;
     uint32_t targetSectionId = UNINIT_STATE_32;
-
 
     // total size: 32 Byte
 };

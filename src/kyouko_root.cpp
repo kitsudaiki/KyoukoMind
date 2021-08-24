@@ -47,9 +47,9 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 NetworkCluster* KyoukoRoot::m_networkCluster = nullptr;
+uint32_t* KyoukoRoot::m_randomValues = nullptr;
 ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
 MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
-InputOutputProcessing* KyoukoRoot::m_ioHandler = nullptr;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
@@ -61,6 +61,13 @@ KyoukoRoot::KyoukoRoot()
     m_root = this;
     m_clientHandler = new ClientConnectionHandler();
     m_monitoringHandler = new MonitoringConnectionHandler();
+
+    // init predefinde random-values
+    const uint32_t numberOfRandValues = 10*1024*1024;
+    m_randomValues = new uint32_t[numberOfRandValues];
+    for(uint32_t i = 0; i < numberOfRandValues; i++) {
+        m_randomValues[i] = static_cast<uint32_t>(rand());
+    }
 }
 
 /**

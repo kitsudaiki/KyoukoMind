@@ -1,5 +1,5 @@
-/**
- * @file        segment_initailzing.h
+﻿/**
+ * @file        processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,30 +20,35 @@
  *      limitations under the License.
  */
 
-#ifndef SEGMENT_INITAILZING_H
-#define SEGMENT_INITAILZING_H
+#ifndef INPUT_PROCESSING_H
+#define INPUT_PROCESSING_H
 
 #include <common.h>
 
-#include <core/objects/segment.h>
+#include <kyouko_root.h>
+#include <core/objects/brick.h>
+#include <core/objects/node.h>
+#include <core/objects/segments/input_segment.h>
+#include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-bool initializeNodes(Segment &segment,
-                     InitSettings* initMetaData);
-
-void addBricksToSegment(Segment &segment,
-                        InitSettings *initMetaData,
-                        const JsonItem &metaBase);
-
-Position getNeighborPos(Position sourcePos,
-                        const uint8_t side);
-void connectAllBrick(Brick &sourceBrick);
-
-bool initializeAxons(Segment &segment);
-Brick* getAxonBrick(Segment &segment, Brick *sourceBrick);
-
-bool initTargetBrickList(Segment &segment,
-                         InitSettings* init);
+#include <core/processing/cpu/dynamic_cluster/create_reduce.h>
 
 
-#endif // SEGMENT_INITAILZING_H
+/**
+ * @brief process all nodes within a specific brick and also all synapse-sections,
+ *        which are connected to an active node
+ *
+ * @param segment segment to process
+ */
+void
+prcessSegment(InputSegment* segment)
+{
+    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
+    for(uint32_t pos = 0; pos < numberOfBricks; pos++)
+    {
+
+    }
+}
+
+#endif // INPUT_PROCESSING_H

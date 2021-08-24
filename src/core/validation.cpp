@@ -22,7 +22,7 @@
 
 #include "validation.h"
 
-#include <core/objects/segment.h>
+#include <core/objects/segments/abstract_segment.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>

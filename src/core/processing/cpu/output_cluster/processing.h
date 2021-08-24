@@ -1,5 +1,5 @@
 ﻿/**
- * @file        synapse_processing.h
+ * @file        processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,32 @@
  *      limitations under the License.
  */
 
-#ifndef SEGMENT_PROCESSING_H
-#define SEGMENT_PROCESSING_H
+#ifndef OUTPUT_PROCESSING_H
+#define OUTPUT_PROCESSING_H
 
 #include <common.h>
-#include <core/objects/segment.h>
 
-void processSegmentInput(Segment* segment);
-void processSegmentOutput(Segment* segment);
-float calculateSegmentError(Segment* segment);
+#include <kyouko_root.h>
+#include <core/objects/brick.h>
+#include <core/objects/node.h>
+#include <core/objects/segments/output_segment.h>
+#include <core/objects/synapses.h>
+#include <core/objects/network_cluster.h>
 
-void reduceSegment(Segment* segment);
-void rewightSegment(Segment* segment);
-void hardenSegment(Segment* segment);
-void prcessSegment(Segment* segment);
+/**
+ * @brief process all nodes within a specific brick and also all synapse-sections,
+ *        which are connected to an active node
+ *
+ * @param segment segment to process
+ */
+void
+prcessSegment(OutputSegment* segment)
+{
+    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
+    for(uint32_t pos = 0; pos < numberOfBricks; pos++)
+    {
 
-#endif // SEGMENT_PROCESSING_H
+    }
+}
+
+#endif // OUTPUT_PROCESSING_H

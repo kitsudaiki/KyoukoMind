@@ -28,7 +28,8 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/objects/segment.h>
+#include <core/objects/segments/input_segment.h>
+#include <core/objects/segments/output_segment.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
@@ -38,7 +39,7 @@
  * @param segment segment to process
  */
 inline void
-processInputNodes(Segment* segment)
+processInputNodes(InputSegment* segment)
 {
     InputNode* inputNode = nullptr;
 
@@ -47,7 +48,7 @@ processInputNodes(Segment* segment)
         inputNodeId++)
     {
         inputNode = &segment->inputs[inputNodeId];
-        segment->nodes[inputNode->targetNode].input = inputNode->weight;
+       // segment->nodes[inputNode->targetNode].input = inputNode->weight;
     }
 }
 
@@ -57,7 +58,7 @@ processInputNodes(Segment* segment)
  * @param segment segment to process
  */
 inline void
-processOutputNodes(Segment* segment)
+processOutputNodes(OutputSegment* segment)
 {
     OutputNode* out = nullptr;
     Node* targetNode = nullptr;
@@ -68,7 +69,7 @@ processOutputNodes(Segment* segment)
         outputNodeId++)
     {
         out = &segment->outputs[outputNodeId];
-        targetNode = &segment->nodes[out->targetNode];
+       // targetNode = &segment->nodes[out->targetNode];
         nodeWeight = targetNode->potential;
         out->outputWeight = 1.0f / (1.0f + exp(-1.0f * nodeWeight));
     }
@@ -82,7 +83,7 @@ processOutputNodes(Segment* segment)
  * @return total error value
  */
 inline float
-calcTotalError(Segment* segment)
+calcTotalError(OutputSegment* segment)
 {
     float totalError = 0.0f;
     OutputNode* out = nullptr;
@@ -92,7 +93,7 @@ calcTotalError(Segment* segment)
         outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {
-        out = &segment->outputs[outputNodeId];
+        //out = &segment->outputs[outputNodeId];
         diff = (out->shouldValue - out->outputWeight);
         totalError += 0.5f * (diff * diff);
     }

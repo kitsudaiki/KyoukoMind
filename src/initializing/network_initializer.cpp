@@ -23,13 +23,13 @@
 #include "network_initializer.h"
 #include <kyouko_root.h>
 
-#include <core/objects/segment.h>
+#include <core/objects/segments/dynamic_segment.h>
+#include <core/objects/segments/input_segment.h>
+#include <core/objects/segments/output_segment.h>
+
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
-
-#include <initializing/segment_initailzing.h>
-#include <initializing/segment_creation.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
@@ -109,29 +109,30 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
 
     NetworkCluster newCluster;
     SegmentSettings settings;
+    JsonItem paredSettings = parsedContent["settings"];
 
     // network-meta
-    newCluster.networkMetaData.cycleTime = parsedContent.get("settings").get("cycle_time").getLong();
+    newCluster.networkMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
 
     // init-meta
-    newCluster.initMetaData.nodesPerBrick = parsedContent.get("settings").get("nodes_per_brick").getInt();
-    newCluster.initMetaData.nodeLowerBorder = parsedContent.get("settings").get("node_lower_border").getFloat();
-    newCluster.initMetaData.nodeUpperBorder = parsedContent.get("settings").get("node_upper_border").getFloat();
-    newCluster.initMetaData.maxBrickDistance = parsedContent.get("settings").get("max_brick_distance").getInt();
-    newCluster.initMetaData.maxSynapseSections = parsedContent.get("settings").get("max_synapse_sections").getLong();
-    newCluster.initMetaData.layer = parsedContent.get("settings").get("layer").getInt();
+    newCluster.initMetaData.nodesPerBrick = paredSettings["nodes_per_brick"].getInt();
+    newCluster.initMetaData.nodeLowerBorder = paredSettings["node_lower_border"].getFloat();
+    newCluster.initMetaData.nodeUpperBorder = paredSettings["node_upper_border"].getFloat();
+    newCluster.initMetaData.maxBrickDistance = paredSettings["max_brick_distance"].getInt();
+    newCluster.initMetaData.maxSynapseSections = paredSettings["max_synapse_sections"].getLong();
+    newCluster.initMetaData.layer = paredSettings["layer"].getInt();
 
     // segment-meta
-    settings.synapseDeleteBorder = parsedContent.get("settings").get("synapse_delete_border").getFloat();
-    settings.actionPotential = parsedContent.get("settings").get("action_potential").getFloat();
-    settings.nodeCooldown = parsedContent.get("settings").get("node_cooldown").getFloat();
-    settings.memorizing = parsedContent.get("settings").get("memorizing").getFloat();
-    settings.gliaValue = parsedContent.get("settings").get("glia_value").getFloat();
-    settings.maxSynapseWeight = parsedContent.get("settings").get("max_synapse_weight").getFloat();
-    settings.refractionTime = parsedContent.get("settings").get("refraction_time").getInt();
-    settings.signNeg = parsedContent.get("settings").get("sign_neg").getFloat();
-    settings.potentialOverflow = parsedContent.get("settings").get("potential_overflow").getFloat();
-    settings.multiplicatorRange = parsedContent.get("settings").get("multiplicator_range").getInt();
+    settings.synapseDeleteBorder = paredSettings["synapse_delete_border"].getFloat();
+    settings.actionPotential = paredSettings["action_potential"].getFloat();
+    settings.nodeCooldown = paredSettings["node_cooldown"].getFloat();
+    settings.memorizing = paredSettings["memorizing"].getFloat();
+    settings.gliaValue = paredSettings["glia_value"].getFloat();
+    settings.maxSynapseWeight = paredSettings["max_synapse_weight"].getFloat();
+    settings.refractionTime = paredSettings["refraction_time"].getInt();
+    settings.signNeg = paredSettings["sign_neg"].getFloat();
+    settings.potentialOverflow = paredSettings["potential_overflow"].getFloat();
+    settings.multiplicatorRange = paredSettings["multiplicator_range"].getInt();
 
     const uint32_t numberOfNodeBricks = parsedContent.get("bricks").size();
     uint32_t totalNumberOfNodes = 0;
@@ -145,30 +146,15 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
     cluster->initMetaData = newCluster.initMetaData;
     cluster->networkMetaData = newCluster.networkMetaData;
 
-    // init predefinde random-values
-    const uint32_t numberOfRandValues = 10*1024*1024;
-    cluster->randomValues = new uint32_t[numberOfRandValues];
-    for(uint32_t i = 0; i < numberOfRandValues; i++) {
-        cluster->randomValues[i] = static_cast<uint32_t>(rand());
-    }
+    DynamicSegment* newSegment = new DynamicSegment(numberOfNodeBricks,
+                                                    totalNumberOfNodes,
+                                                    newCluster.initMetaData.maxSynapseSections);  // TODO: correct number of outputs
 
-    cluster->synapseSegment = createNewSegment(numberOfNodeBricks,
-                                               totalNumberOfNodes,
-                                               newCluster.initMetaData.maxSynapseSections,
-                                               784,  // TODO: correct number of inputs
-                                               10);  // TODO: correct number of outputs
-
-    cluster->synapseSegment->segmentSettings[0] = settings;
+    newSegment->segmentSettings[0] = settings;
 
     // fill array with empty nodes
-    initializeNodes(*cluster->synapseSegment,
-                    &cluster->initMetaData);
-    addBricksToSegment(*cluster->synapseSegment,
-                       &cluster->initMetaData,
-                       parsedContent);
-    initTargetBrickList(*cluster->synapseSegment,
-                        &cluster->initMetaData);
-  //  m_brickInitializer->initializeAxons(*cluster->synapseSegment);
+    newSegment->addBricksToSegment(parsedContent);
+    newSegment->initTargetBrickList();
 
     return true;
 }
