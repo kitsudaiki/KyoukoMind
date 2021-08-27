@@ -1,3 +1,25 @@
+/**
+ * @file        abstract_segment.h
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 #ifndef ABSTRACT_SEGMENTS_H
 #define ABSTRACT_SEGMENTS_H
 
@@ -42,7 +64,9 @@ struct SegmentHeaderEntry
 struct SegmentHeader
 {
     uint32_t segmentID = UNINIT_STATE_32;
+    uint8_t padding1[4];
     uint64_t staticDataSize = 0;
+    Position position;
 
     // synapse-segment
     SegmentHeaderEntry settings;
@@ -54,7 +78,7 @@ struct SegmentHeader
 
     SegmentHeaderEntry synapseSections;
 
-    uint8_t padding[136];
+    uint8_t padding2[112];
 
     // total size: 256 Byte
 };
@@ -120,6 +144,7 @@ public:
     SegmentTypes getType() const;
 
     Kitsunemimi::ItemBuffer segmentData;
+    Kitsunemimi::DataBuffer staticSegmentData;
 
     SegmentHeader* segmentHeader = nullptr;
     SegmentSettings* segmentSettings = nullptr;

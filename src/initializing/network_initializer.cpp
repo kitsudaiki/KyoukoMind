@@ -69,7 +69,24 @@ ClusterInitializer::initNetwork(const std::string &filePath)
         return false;
     }
 
-    success = createNewNetwork(fileContent);
+    // init randomizer
+    srand(time(NULL));
+
+    // check if values are valid
+    if(fileContent == "") {
+        return false;
+    }
+
+    // parse input
+    JsonItem parsedContent;
+    const bool ret = parsedContent.parse(fileContent, errorMessage);
+    if(ret == false)
+    {
+        LOG_ERROR("error while parsing input: " + errorMessage);
+        return false;
+    }
+
+    success = createNewNetwork(parsedContent);
     if(success == false)
     {
         LOG_ERROR("failed to initialize network");
@@ -87,42 +104,97 @@ ClusterInitializer::initNetwork(const std::string &filePath)
  * @return true, if successfull, else false
  */
 bool
-ClusterInitializer::createNewNetwork(const std::string &fileContent)
+ClusterInitializer::createNewNetwork(JsonItem &parsedContent)
 {
-    // init randomizer
-    srand(time(NULL));
-
-    // check if values are valid
-    if(fileContent == "") {
-        return false;
-    }
-
-    // parse input
-    std::string errorMessage = "";
-    JsonItem parsedContent;
-    const bool ret = parsedContent.parse(fileContent, errorMessage);
-    if(ret == false)
-    {
-        LOG_ERROR("error while parsing input: " + errorMessage);
-        return false;
-    }
 
     NetworkCluster newCluster;
-    SegmentSettings settings;
     JsonItem paredSettings = parsedContent["settings"];
 
     // network-meta
     newCluster.networkMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
-
-    // init-meta
-    newCluster.initMetaData.nodesPerBrick = paredSettings["nodes_per_brick"].getInt();
-    newCluster.initMetaData.nodeLowerBorder = paredSettings["node_lower_border"].getFloat();
-    newCluster.initMetaData.nodeUpperBorder = paredSettings["node_upper_border"].getFloat();
     newCluster.initMetaData.maxBrickDistance = paredSettings["max_brick_distance"].getInt();
     newCluster.initMetaData.maxSynapseSections = paredSettings["max_synapse_sections"].getLong();
-    newCluster.initMetaData.layer = paredSettings["layer"].getInt();
 
-    // segment-meta
+    KyoukoRoot::m_networkCluster = new NetworkCluster();
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    cluster->initMetaData = newCluster.initMetaData;
+    cluster->networkMetaData = newCluster.networkMetaData;
+
+    JsonItem segments = parsedContent["segments"];
+    for(uint32_t i = 0; i < segments.size(); i++)
+    {
+        JsonItem currentSegment = segments[i];
+        if(currentSegment["type"].getString() == "dynamic_segment") {
+            addDynamicSegment(currentSegment, cluster);
+        }
+        if(currentSegment["type"].getString() == "input_segment") {
+            addInputSegment(currentSegment, cluster);
+        }
+        if(currentSegment["type"].getString() == "output_segment") {
+            addOutputSegment(currentSegment, cluster);
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @brief ClusterInitializer::addInputSegment
+ * @param parsedContent
+ * @param cluster
+ */
+void
+ClusterInitializer::addInputSegment(JsonItem &parsedContent,
+                                    NetworkCluster* cluster)
+{
+    const uint32_t numberOfInputs = parsedContent["number_of_inputs"].getInt();
+    InputSegment* newSegment = new InputSegment(numberOfInputs);
+
+    // position
+    JsonItem paredPosition = parsedContent["position"];
+    newSegment->segmentHeader->position.x = paredPosition[0].getInt();
+    newSegment->segmentHeader->position.y = paredPosition[1].getInt();
+    newSegment->segmentHeader->position.z = paredPosition[2].getInt();
+
+    cluster->inputSegments.push_back(newSegment);
+    cluster->allSegments.push_back(newSegment);
+}
+
+/**
+ * @brief ClusterInitializer::addOutputSegment
+ * @param parsedContent
+ * @param cluster
+ */
+void
+ClusterInitializer::addOutputSegment(JsonItem &parsedContent,
+                                     NetworkCluster* cluster)
+{
+    const uint32_t numberOfOutputs = parsedContent["number_of_outputs"].getInt();
+    OutputSegment* newSegment = new OutputSegment(numberOfOutputs);
+
+    // position
+    JsonItem paredPosition = parsedContent["position"];
+    newSegment->segmentHeader->position.x = paredPosition[0].getInt();
+    newSegment->segmentHeader->position.y = paredPosition[1].getInt();
+    newSegment->segmentHeader->position.z = paredPosition[2].getInt();
+
+    cluster->outputSegments.push_back(newSegment);
+    cluster->allSegments.push_back(newSegment);
+}
+
+/**
+ * @brief ClusterInitializer::addDynamicSegment
+ * @param parsedContent
+ * @param cluster
+ */
+void
+ClusterInitializer::addDynamicSegment(JsonItem &parsedContent,
+                                      NetworkCluster* cluster)
+{
+    SegmentSettings settings;
+
+    // parse settings
+    JsonItem paredSettings = parsedContent["settings"];
     settings.synapseDeleteBorder = paredSettings["synapse_delete_border"].getFloat();
     settings.actionPotential = paredSettings["action_potential"].getFloat();
     settings.nodeCooldown = paredSettings["node_cooldown"].getFloat();
@@ -134,28 +206,29 @@ ClusterInitializer::createNewNetwork(const std::string &fileContent)
     settings.potentialOverflow = paredSettings["potential_overflow"].getFloat();
     settings.multiplicatorRange = paredSettings["multiplicator_range"].getInt();
 
-    const uint32_t numberOfNodeBricks = parsedContent.get("bricks").size();
+    // parse bricks
+    JsonItem paredBricks = parsedContent["bricks"];
+    const uint32_t numberOfNodeBricks = paredBricks.size();
     uint32_t totalNumberOfNodes = 0;
     for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
-        totalNumberOfNodes += parsedContent.get("bricks").get(i).get("number_of_nodes").getInt();
+        totalNumberOfNodes += paredBricks.get(i).get("number_of_nodes").getInt();
     }
 
-    // init segment
-    KyoukoRoot::m_networkCluster = new NetworkCluster();
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    cluster->initMetaData = newCluster.initMetaData;
-    cluster->networkMetaData = newCluster.networkMetaData;
-
+    // create segment
     DynamicSegment* newSegment = new DynamicSegment(numberOfNodeBricks,
                                                     totalNumberOfNodes,
-                                                    newCluster.initMetaData.maxSynapseSections);  // TODO: correct number of outputs
-
+                                                    settings.maxSynapseWeight);
     newSegment->segmentSettings[0] = settings;
+
+    // position
+    JsonItem paredPosition = parsedContent["position"];
+    newSegment->segmentHeader->position.x = paredPosition[0].getInt();
+    newSegment->segmentHeader->position.y = paredPosition[1].getInt();
+    newSegment->segmentHeader->position.z = paredPosition[2].getInt();
 
     // fill array with empty nodes
     newSegment->addBricksToSegment(parsedContent);
     newSegment->initTargetBrickList();
 
-    return true;
+    cluster->allSegments.push_back(newSegment);
 }
-

@@ -26,6 +26,7 @@
 #include <common.h>
 
 struct Brick;
+struct NetworkCluster;
 class BrickInitializer;
 
 class ClusterInitializer
@@ -34,10 +35,14 @@ public:
     ClusterInitializer();
 
     bool initNetwork(const std::string &filePath);
-    bool createNewNetwork(const std::string &fileContent);
+    bool createNewNetwork(JsonItem &parsedContent);
 
 private:
     BrickInitializer* m_brickInitializer = nullptr;
+
+    void addInputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
+    void addOutputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
+    void addDynamicSegment(JsonItem &parsedContent, NetworkCluster* cluster);
 };
 
 #endif // NETWORK_INITIALIZER_H

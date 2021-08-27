@@ -43,10 +43,11 @@ InitBlossom::runTask(BlossomLeaf &blossomLeaf,
     const std::string content = blossomLeaf.input.getStringByKey("content");
 
     ClusterInitializer initializer;
-    const bool result = initializer.createNewNetwork(content);
+    const bool result = false;
+    /*const bool result = initializer.createNewNetwork(content);
     if(result == false) {
         errorMessage = "failed to initialize new network";
-    }
+    }*/
 
     blossomLeaf.output.insert("result", new Kitsunemimi::DataValue(result));
 
