@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file        network_initializer.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -86,6 +86,8 @@ ClusterInitializer::initNetwork(const std::string &filePath)
         return false;
     }
 
+    prepareSegments(parsedContent);
+    //std::cout<<parsedContent.toString(true)<<std::endl;
     success = createNewNetwork(parsedContent);
     if(success == false)
     {
@@ -231,4 +233,251 @@ ClusterInitializer::addDynamicSegment(JsonItem &parsedContent,
     newSegment->initTargetBrickList();
 
     cluster->allSegments.push_back(newSegment);
+}
+
+/**
+ * @brief get the next position in the raster for a specific brick and side
+ *
+ * @param x current x-position
+ * @param y current y-position
+ * @param z current z-position
+ * @param side side to go to next
+ *
+ * @return position of the next brick for the specific side
+ */
+Position
+ClusterInitializer::getNeighborPos(const Position sourcePos, const uint8_t side)
+{
+    Position result;
+    result.x = UNINIT_STATE_32;
+    result.y = UNINIT_STATE_32;
+    result.z = UNINIT_STATE_32;
+
+    switch (side)
+    {
+    case 0:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x;
+            } else {
+                result.x = sourcePos.x - 1;
+            }
+            result.y = sourcePos.y - 1;
+            result.z = sourcePos.z - 1;
+            break;
+        }
+    case 1:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x + 1;
+            } else {
+                result.x = sourcePos.x;
+            }
+            result.y = sourcePos.y - 1;
+            result.z = sourcePos.z - 1;
+            break;
+        }
+    case 2:
+        {
+            result.x = sourcePos.x;
+            result.y = sourcePos.y;
+            result.z = sourcePos.z - 1;
+            break;
+        }
+    case 3:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x + 1;
+            } else {
+                result.x = sourcePos.x;
+            }
+            result.y = sourcePos.y - 1;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 4:
+        {
+            result.x = sourcePos.x + 1;
+            result.y = sourcePos.y;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 5:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x + 1;
+            } else {
+                result.x = sourcePos.x;
+            }
+            result.y = sourcePos.y + 1;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 8:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x;
+            } else {
+                result.x = sourcePos.x - 1;
+            }
+            result.y = sourcePos.y + 1;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 7:
+        {
+            result.x = sourcePos.x - 1;
+            result.y = sourcePos.y;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 6:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x;
+            } else {
+                result.x = sourcePos.x - 1;
+            }
+            result.y = sourcePos.y - 1;
+            result.z = sourcePos.z;
+            break;
+        }
+    case 9:
+        {
+            result.x = sourcePos.x;
+            result.y = sourcePos.y;
+            result.z = sourcePos.z + 1;
+            break;
+        }
+    case 10:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x;
+            } else {
+                result.x = sourcePos.x - 1;
+            }
+            result.y = sourcePos.y + 1;
+            result.z = sourcePos.z + 1;
+            break;
+        }
+    case 11:
+        {
+            if(sourcePos.y % 2 == 1) {
+                result.x = sourcePos.x + 1;
+            } else {
+                result.x = sourcePos.x;
+            }
+            result.y = sourcePos.y + 1;
+            result.z = sourcePos.z + 1;
+            break;
+        }
+    default:
+        assert(false);
+    }
+    return result;
+}
+
+/**
+ * @brief prepareSegments
+ * @param parsedContent
+ * @return
+ */
+bool
+ClusterInitializer::prepareSegments(JsonItem &parsedContent)
+{
+    JsonItem segments = parsedContent.get("segments");
+    for(uint32_t i = 0; i < segments.size(); i++)
+    {
+        JsonItem currentSegment = segments.get(i);
+
+        JsonItem parsedPosition = currentSegment.get("position");
+        Position currentPosition;
+        currentPosition.x = parsedPosition.get(0).getInt();
+        currentPosition.y = parsedPosition.get(1).getInt();
+        currentPosition.z = parsedPosition.get(2).getInt();
+
+        DataArray* nextList = new DataArray();
+        DataArray* sizeList = new DataArray();
+
+        for(uint32_t side = 0; side < 12; side++)
+        {
+            const Position nextPos = getNeighborPos(currentPosition, side);
+            const long foundNext = checkSegments(parsedContent, nextPos);
+            nextList->append(new DataValue(foundNext));
+
+            if(foundNext != UNINIT_STATE_32)
+            {
+                if(currentSegment.get("type").getString() == "dynamic_segment"
+                        && segments.get(foundNext).get("type").getString() == "dynamic_segment")
+                {
+                    sizeList->append(new DataValue(500)); // TODO: make value configurable
+                    continue;
+                }
+
+                if(currentSegment.get("type").getString() == "output_segment")
+                {
+                    const long val = currentSegment.get("number_of_outputs").getInt();
+                    sizeList->append(new DataValue(val));
+                    continue;
+                }
+
+                if(segments.get(foundNext).get("type").getString() == "output_segment")
+                {
+                    const long val = segments.get(foundNext).get("number_of_outputs").getInt();
+                    sizeList->append(new DataValue(val));
+                    continue;
+                }
+
+                if(currentSegment.get("type").getString() == "input_segment")
+                {
+                    const long val = currentSegment.get("number_of_inputs").getInt();
+                    sizeList->append(new DataValue(val));
+                    continue;
+                }
+
+                if(segments.get(foundNext).get("type").getString() == "input_segment")
+                {
+                    const long val = segments.get(foundNext).get("number_of_inputs").getInt();
+                    sizeList->append(new DataValue(val));
+                    continue;
+                }
+            }
+            else
+            {
+                sizeList->append(new DataValue(0));
+            }
+        }
+
+        currentSegment.insert("sides", nextList);
+        currentSegment.insert("border_size", sizeList);
+    }
+
+    return true;
+}
+
+/**
+ * @brief ClusterInitializer::checkSegments
+ * @param parsedContent
+ * @param nextPos
+ * @return
+ */
+uint32_t
+ClusterInitializer::checkSegments(JsonItem &parsedContent,
+                                  const Position nextPos)
+{
+    JsonItem segments = parsedContent.get("segments");
+    for(uint32_t i = 0; i < segments.size(); i++)
+    {
+        JsonItem parsedPosition = segments.get(i).get("position");
+        Position currentPosition;
+        currentPosition.x = parsedPosition.get(0).getInt();
+        currentPosition.y = parsedPosition.get(1).getInt();
+        currentPosition.z = parsedPosition.get(2).getInt();
+
+        if(currentPosition == nextPos) {
+            return i;
+        }
+    }
+
+    return UNINIT_STATE_32;
 }

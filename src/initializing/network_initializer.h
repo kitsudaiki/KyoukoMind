@@ -43,6 +43,9 @@ private:
     void addInputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
     void addOutputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
     void addDynamicSegment(JsonItem &parsedContent, NetworkCluster* cluster);
+    Position getNeighborPos(const Position sourcePos, const uint8_t side);
+    bool prepareSegments(JsonItem &parsedContent);
+    uint32_t checkSegments(JsonItem &parsedContent, const Position nextPos);
 };
 
 #endif // NETWORK_INITIALIZER_H
