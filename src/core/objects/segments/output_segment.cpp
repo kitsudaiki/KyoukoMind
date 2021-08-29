@@ -22,19 +22,33 @@
 
 #include "output_segment.h"
 
-OutputSegment::OutputSegment(const uint32_t numberOfOutputs)
+OutputSegment::OutputSegment()
     : AbstractSegment()
 {
     m_type = OUTPUT_SEGMENT;
-
-    SegmentHeader header = createNewHeader(numberOfOutputs);
-    allocateSegment(header);
-    initSegmentPointer(header);
 }
 
 OutputSegment::~OutputSegment()
 {
 
+}
+
+bool
+OutputSegment::initSegment(JsonItem &parsedContent)
+{
+    const uint32_t numberOfOutputs = parsedContent["number_of_outputs"].getInt();
+
+    SegmentHeader header = createNewHeader(numberOfOutputs);
+    allocateSegment(header);
+    initSegmentPointer(header);
+
+    // position
+    JsonItem paredPosition = parsedContent["position"];
+    segmentHeader->position.x = paredPosition[0].getInt();
+    segmentHeader->position.y = paredPosition[1].getInt();
+    segmentHeader->position.z = paredPosition[2].getInt();
+
+    return true;
 }
 
 SegmentHeader

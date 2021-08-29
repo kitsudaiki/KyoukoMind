@@ -150,6 +150,8 @@ public:
     SegmentSettings* segmentSettings = nullptr;
     SegmentNeighborList* segmentNeighbors = nullptr;
 
+    virtual bool initSegment(JsonItem &parsedContent) = 0;
+
     bool isReady();
 
 protected:

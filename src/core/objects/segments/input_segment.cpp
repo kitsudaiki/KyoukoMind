@@ -22,19 +22,33 @@
 
 #include "input_segment.h"
 
-InputSegment::InputSegment(const uint32_t numberOfInputs)
+InputSegment::InputSegment()
     : AbstractSegment()
 {
     m_type = INPUT_SEGMENT;
-
-    SegmentHeader header = createNewHeader(numberOfInputs);
-    allocateSegment(header);
-    initSegmentPointer(header);
 }
 
 InputSegment::~InputSegment()
 {
 
+}
+
+bool
+InputSegment::initSegment(JsonItem &parsedContent)
+{
+    const uint32_t numberOfInputs = parsedContent["number_of_inputs"].getInt();
+
+    SegmentHeader header = createNewHeader(numberOfInputs);
+    allocateSegment(header);
+    initSegmentPointer(header);
+
+    // position
+    JsonItem paredPosition = parsedContent["position"];
+    segmentHeader->position.x = paredPosition[0].getInt();
+    segmentHeader->position.y = paredPosition[1].getInt();
+    segmentHeader->position.z = paredPosition[2].getInt();
+
+    return true;
 }
 
 /**

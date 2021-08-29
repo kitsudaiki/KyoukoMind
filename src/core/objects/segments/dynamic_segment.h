@@ -30,19 +30,16 @@
 class DynamicSegment : public AbstractSegment
 {
 public:
-    DynamicSegment(const uint32_t numberOfBricks,
-                   const uint32_t numberOfNodes,
-                   const uint64_t numberOfSynapseSections);
+    DynamicSegment();
     ~DynamicSegment();
+
+    bool initSegment(JsonItem &parsedContent);
 
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
     Node* nodes = nullptr;
 
     SynapseSection* synapseSections = nullptr;
-
-    void addBricksToSegment(const JsonItem &metaBase);
-    bool initTargetBrickList();
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfBricks,
@@ -52,6 +49,9 @@ private:
     void allocateSegment(SegmentHeader &header);
     void initDefaultValues(const uint32_t numberOfBricks,
                            const uint32_t numberOfNodes);
+
+    void addBricksToSegment(const JsonItem &metaBase);
+    bool initTargetBrickList();
 
     Brick createNewBrick(const JsonItem &brickDef, const uint32_t id);
     void connectBrick(Brick *sourceBrick, const uint8_t side);

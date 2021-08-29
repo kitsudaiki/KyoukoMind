@@ -22,24 +22,71 @@
 
 #include "dynamic_segment.h"
 
-DynamicSegment::DynamicSegment(const uint32_t numberOfBricks,
-                               const uint32_t numberOfNodes,
-                               const uint64_t numberOfSynapseSections)
+DynamicSegment::DynamicSegment()
     : AbstractSegment()
 {
     m_type = DYNAMIC_SEGMENT;
 
-    SegmentHeader header = createNewHeader(numberOfBricks,
-                                           numberOfNodes,
-                                           numberOfSynapseSections);
-    allocateSegment(header);
-    initSegmentPointer(header);
-    initDefaultValues(numberOfBricks, numberOfNodes);
+
 }
 
 DynamicSegment::~DynamicSegment()
 {
 
+}
+
+/**
+ * @brief DynamicSegment::initSegment
+ * @param segmentDef
+ * @return
+ */
+bool
+DynamicSegment::initSegment(JsonItem &parsedContent)
+{
+    SegmentSettings settings;
+
+    // parse settings
+    JsonItem paredSettings = parsedContent["settings"];
+    settings.synapseDeleteBorder = paredSettings["synapse_delete_border"].getFloat();
+    settings.actionPotential = paredSettings["action_potential"].getFloat();
+    settings.nodeCooldown = paredSettings["node_cooldown"].getFloat();
+    settings.memorizing = paredSettings["memorizing"].getFloat();
+    settings.gliaValue = paredSettings["glia_value"].getFloat();
+    settings.maxSynapseWeight = paredSettings["max_synapse_weight"].getFloat();
+    settings.refractionTime = paredSettings["refraction_time"].getInt();
+    settings.signNeg = paredSettings["sign_neg"].getFloat();
+    settings.potentialOverflow = paredSettings["potential_overflow"].getFloat();
+    settings.multiplicatorRange = paredSettings["multiplicator_range"].getInt();
+
+    // parse bricks
+    JsonItem paredBricks = parsedContent["bricks"];
+    const uint32_t numberOfNodeBricks = paredBricks.size();
+    uint32_t totalNumberOfNodes = 0;
+    for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
+        totalNumberOfNodes += paredBricks.get(i).get("number_of_nodes").getInt();
+    }
+
+    // create segment
+    SegmentHeader header = createNewHeader(numberOfNodeBricks,
+                                           totalNumberOfNodes,
+                                           settings.maxSynapseWeight);
+    allocateSegment(header);
+    initSegmentPointer(header);
+    initDefaultValues(numberOfNodeBricks, totalNumberOfNodes);
+
+    segmentSettings[0] = settings;
+
+    // position
+    JsonItem paredPosition = parsedContent["position"];
+    segmentHeader->position.x = paredPosition[0].getInt();
+    segmentHeader->position.y = paredPosition[1].getInt();
+    segmentHeader->position.z = paredPosition[2].getInt();
+
+    // fill array with empty nodes
+    addBricksToSegment(parsedContent);
+    initTargetBrickList();
+
+    return true;
 }
 
 SegmentHeader

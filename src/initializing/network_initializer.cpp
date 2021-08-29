@@ -149,17 +149,15 @@ void
 ClusterInitializer::addInputSegment(JsonItem &parsedContent,
                                     NetworkCluster* cluster)
 {
-    const uint32_t numberOfInputs = parsedContent["number_of_inputs"].getInt();
-    InputSegment* newSegment = new InputSegment(numberOfInputs);
+    InputSegment* newSegment = new InputSegment();
+    const bool ret = newSegment->initSegment(parsedContent);
 
-    // position
-    JsonItem paredPosition = parsedContent["position"];
-    newSegment->segmentHeader->position.x = paredPosition[0].getInt();
-    newSegment->segmentHeader->position.y = paredPosition[1].getInt();
-    newSegment->segmentHeader->position.z = paredPosition[2].getInt();
-
-    cluster->inputSegments.push_back(newSegment);
-    cluster->allSegments.push_back(newSegment);
+    if(ret) {
+        cluster->inputSegments.push_back(newSegment);
+        cluster->allSegments.push_back(newSegment);
+    } else {
+        // TODO: handle error
+    }
 }
 
 /**
@@ -171,17 +169,15 @@ void
 ClusterInitializer::addOutputSegment(JsonItem &parsedContent,
                                      NetworkCluster* cluster)
 {
-    const uint32_t numberOfOutputs = parsedContent["number_of_outputs"].getInt();
-    OutputSegment* newSegment = new OutputSegment(numberOfOutputs);
+    OutputSegment* newSegment = new OutputSegment();
+    const bool ret = newSegment->initSegment(parsedContent);
 
-    // position
-    JsonItem paredPosition = parsedContent["position"];
-    newSegment->segmentHeader->position.x = paredPosition[0].getInt();
-    newSegment->segmentHeader->position.y = paredPosition[1].getInt();
-    newSegment->segmentHeader->position.z = paredPosition[2].getInt();
-
-    cluster->outputSegments.push_back(newSegment);
-    cluster->allSegments.push_back(newSegment);
+    if(ret) {
+        cluster->outputSegments.push_back(newSegment);
+        cluster->allSegments.push_back(newSegment);
+    } else {
+        // TODO: handle error
+    }
 }
 
 /**
@@ -193,46 +189,13 @@ void
 ClusterInitializer::addDynamicSegment(JsonItem &parsedContent,
                                       NetworkCluster* cluster)
 {
-    SegmentSettings settings;
-
-    // parse settings
-    JsonItem paredSettings = parsedContent["settings"];
-    settings.synapseDeleteBorder = paredSettings["synapse_delete_border"].getFloat();
-    settings.actionPotential = paredSettings["action_potential"].getFloat();
-    settings.nodeCooldown = paredSettings["node_cooldown"].getFloat();
-    settings.memorizing = paredSettings["memorizing"].getFloat();
-    settings.gliaValue = paredSettings["glia_value"].getFloat();
-    settings.maxSynapseWeight = paredSettings["max_synapse_weight"].getFloat();
-    settings.refractionTime = paredSettings["refraction_time"].getInt();
-    settings.signNeg = paredSettings["sign_neg"].getFloat();
-    settings.potentialOverflow = paredSettings["potential_overflow"].getFloat();
-    settings.multiplicatorRange = paredSettings["multiplicator_range"].getInt();
-
-    // parse bricks
-    JsonItem paredBricks = parsedContent["bricks"];
-    const uint32_t numberOfNodeBricks = paredBricks.size();
-    uint32_t totalNumberOfNodes = 0;
-    for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
-        totalNumberOfNodes += paredBricks.get(i).get("number_of_nodes").getInt();
+    DynamicSegment* newSegment = new DynamicSegment();
+    const bool ret = newSegment->initSegment(parsedContent);
+    if(ret) {
+        cluster->allSegments.push_back(newSegment);
+    } else {
+        // TODO: handle error
     }
-
-    // create segment
-    DynamicSegment* newSegment = new DynamicSegment(numberOfNodeBricks,
-                                                    totalNumberOfNodes,
-                                                    settings.maxSynapseWeight);
-    newSegment->segmentSettings[0] = settings;
-
-    // position
-    JsonItem paredPosition = parsedContent["position"];
-    newSegment->segmentHeader->position.x = paredPosition[0].getInt();
-    newSegment->segmentHeader->position.y = paredPosition[1].getInt();
-    newSegment->segmentHeader->position.z = paredPosition[2].getInt();
-
-    // fill array with empty nodes
-    newSegment->addBricksToSegment(parsedContent);
-    newSegment->initTargetBrickList();
-
-    cluster->allSegments.push_back(newSegment);
 }
 
 /**

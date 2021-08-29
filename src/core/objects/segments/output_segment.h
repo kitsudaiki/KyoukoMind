@@ -30,13 +30,15 @@
 class OutputSegment : public AbstractSegment
 {
 public:
-    OutputSegment(const uint32_t numberOfOutputs);
+    OutputSegment();
     ~OutputSegment();
 
     float lastTotalError = 0.0f;
     float actualTotalError = 0.0f;
 
     OutputNode* outputs = nullptr;
+
+    bool initSegment(JsonItem &parsedContent);
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfOutputs);

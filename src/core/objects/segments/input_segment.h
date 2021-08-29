@@ -30,10 +30,12 @@
 class InputSegment : public AbstractSegment
 {
 public:
-    InputSegment(const uint32_t numberOfInputs);
+    InputSegment();
     ~InputSegment();
 
     InputNode* inputs = nullptr;
+
+    bool initSegment(JsonItem &parsedContent);
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfInputs);
