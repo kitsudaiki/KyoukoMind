@@ -34,6 +34,14 @@
 
 //==================================================================================================
 
+enum SegmentTypes
+{
+    UNDEFINED_SEGMENT = 0,
+    INPUT_SEGMENT = 1,
+    OUTPUT_SEGMENT = 2,
+    DYNAMIC_SEGMENT = 3,
+};
+
 struct SegmentSettings
 {
     float synapseDeleteBorder = 1.0f;
@@ -44,11 +52,12 @@ struct SegmentSettings
     float signNeg = 0.6f;
     float potentialOverflow = 20.0f;
     float maxSynapseWeight = 30.0f;
+    uint64_t maxSynapseSections = 0;
     uint8_t refractionTime = 1;
     uint8_t multiplicatorRange = 0;
     uint8_t doLearn = 0;
 
-    uint8_t padding[221];
+    uint8_t padding[213];
 
     // total size: 256 Byte
 };
@@ -64,7 +73,8 @@ struct SegmentHeaderEntry
 struct SegmentHeader
 {
     uint32_t segmentID = UNINIT_STATE_32;
-    uint8_t padding1[4];
+    uint8_t segmentType = UNDEFINED_SEGMENT;
+    uint8_t padding1[3];
     uint64_t staticDataSize = 0;
     Position position;
 
@@ -125,14 +135,6 @@ struct SegmentNeighborList
     // total size: 512 Byte
 };
 
-enum SegmentTypes
-{
-    UNDEFINED_SEGMENT = 0,
-    INPUT_SEGMENT = 1,
-    OUTPUT_SEGMENT = 2,
-    DYNAMIC_SEGMENT = 3,
-};
-
 //==================================================================================================
 
 class AbstractSegment
@@ -156,6 +158,8 @@ public:
 
 protected:
     SegmentTypes m_type = UNDEFINED_SEGMENT;
+
+    bool initPosition(JsonItem &parsedContent);
 };
 
 //==================================================================================================

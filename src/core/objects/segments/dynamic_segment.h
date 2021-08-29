@@ -42,6 +42,7 @@ public:
     SynapseSection* synapseSections = nullptr;
 
 private:
+    SegmentSettings initSettings(JsonItem &parsedContent);
     SegmentHeader createNewHeader(const uint32_t numberOfBricks,
                                   const uint32_t numberOfNodes,
                                   const uint64_t numberOfSynapseSections);

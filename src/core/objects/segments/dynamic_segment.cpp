@@ -43,23 +43,8 @@ DynamicSegment::~DynamicSegment()
 bool
 DynamicSegment::initSegment(JsonItem &parsedContent)
 {
-    SegmentSettings settings;
-
-    // parse settings
-    JsonItem paredSettings = parsedContent["settings"];
-    settings.synapseDeleteBorder = paredSettings["synapse_delete_border"].getFloat();
-    settings.actionPotential = paredSettings["action_potential"].getFloat();
-    settings.nodeCooldown = paredSettings["node_cooldown"].getFloat();
-    settings.memorizing = paredSettings["memorizing"].getFloat();
-    settings.gliaValue = paredSettings["glia_value"].getFloat();
-    settings.maxSynapseWeight = paredSettings["max_synapse_weight"].getFloat();
-    settings.refractionTime = paredSettings["refraction_time"].getInt();
-    settings.signNeg = paredSettings["sign_neg"].getFloat();
-    settings.potentialOverflow = paredSettings["potential_overflow"].getFloat();
-    settings.multiplicatorRange = paredSettings["multiplicator_range"].getInt();
-
     // parse bricks
-    JsonItem paredBricks = parsedContent["bricks"];
+    JsonItem paredBricks = parsedContent.get("bricks");
     const uint32_t numberOfNodeBricks = paredBricks.size();
     uint32_t totalNumberOfNodes = 0;
     for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
@@ -67,34 +52,64 @@ DynamicSegment::initSegment(JsonItem &parsedContent)
     }
 
     // create segment
+    SegmentSettings settings = initSettings(parsedContent);
     SegmentHeader header = createNewHeader(numberOfNodeBricks,
                                            totalNumberOfNodes,
-                                           settings.maxSynapseWeight);
+                                           settings.maxSynapseSections);
     allocateSegment(header);
     initSegmentPointer(header);
     initDefaultValues(numberOfNodeBricks, totalNumberOfNodes);
 
     segmentSettings[0] = settings;
 
-    // position
-    JsonItem paredPosition = parsedContent["position"];
-    segmentHeader->position.x = paredPosition[0].getInt();
-    segmentHeader->position.y = paredPosition[1].getInt();
-    segmentHeader->position.z = paredPosition[2].getInt();
-
-    // fill array with empty nodes
+    initPosition(parsedContent);
     addBricksToSegment(parsedContent);
     initTargetBrickList();
 
     return true;
 }
 
+/**
+ * @brief DynamicSegment::initSettings
+ * @param parsedContent
+ * @return
+ */
+SegmentSettings
+DynamicSegment::initSettings(JsonItem &parsedContent)
+{
+    SegmentSettings settings;
+
+    // parse settings
+    JsonItem paredSettings = parsedContent.get("settings");
+    settings.synapseDeleteBorder = paredSettings.get("synapse_delete_border").getFloat();
+    settings.actionPotential = paredSettings.get("action_potential").getFloat();
+    settings.nodeCooldown = paredSettings.get("node_cooldown").getFloat();
+    settings.memorizing = paredSettings.get("memorizing").getFloat();
+    settings.gliaValue = paredSettings.get("glia_value").getFloat();
+    settings.maxSynapseWeight = paredSettings.get("max_synapse_weight").getFloat();
+    settings.refractionTime = paredSettings.get("refraction_time").getInt();
+    settings.signNeg = paredSettings.get("sign_neg").getFloat();
+    settings.potentialOverflow = paredSettings.get("potential_overflow").getFloat();
+    settings.multiplicatorRange = paredSettings.get("multiplicator_range").getInt();
+    settings.maxSynapseSections = paredSettings.get("max_synapse_sections").getInt();
+
+    return settings;
+}
+
+/**
+ * @brief DynamicSegment::createNewHeader
+ * @param numberOfBricks
+ * @param numberOfNodes
+ * @param numberOfSynapseSections
+ * @return
+ */
 SegmentHeader
 DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
                                 const uint32_t numberOfNodes,
                                 const uint64_t numberOfSynapseSections)
 {
     SegmentHeader segmentHeader;
+    segmentHeader.segmentType = DYNAMIC_SEGMENT;
     uint32_t segmentDataPos = 0;
 
     // init header
@@ -131,8 +146,7 @@ DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
 }
 
 /**
- * @brief initSegmentPointer
- * @param segment
+ * @brief DynamicSegment::initSegmentPointer
  * @param header
  */
 void
@@ -228,9 +242,7 @@ DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
 }
 
 /**
- * @brief addBricksToSegment
- * @param segment
- * @param initMetaData
+ * @brief DynamicSegment::addBricksToSegment
  * @param metaBase
  */
 void

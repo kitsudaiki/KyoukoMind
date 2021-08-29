@@ -41,12 +41,7 @@ InputSegment::initSegment(JsonItem &parsedContent)
     SegmentHeader header = createNewHeader(numberOfInputs);
     allocateSegment(header);
     initSegmentPointer(header);
-
-    // position
-    JsonItem paredPosition = parsedContent["position"];
-    segmentHeader->position.x = paredPosition[0].getInt();
-    segmentHeader->position.y = paredPosition[1].getInt();
-    segmentHeader->position.z = paredPosition[2].getInt();
+    initPosition(parsedContent);
 
     return true;
 }
@@ -60,6 +55,7 @@ SegmentHeader
 InputSegment::createNewHeader(const uint32_t numberOfInputs)
 {
     SegmentHeader segmentHeader;
+    segmentHeader.segmentType = INPUT_SEGMENT;
     uint32_t segmentDataPos = 0;
 
     // init header

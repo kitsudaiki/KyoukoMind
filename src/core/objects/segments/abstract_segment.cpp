@@ -52,3 +52,14 @@ AbstractSegment::isReady()
 
     return true;
 }
+
+bool
+AbstractSegment::initPosition(JsonItem &parsedContent)
+{
+    JsonItem paredPosition = parsedContent.get("position");
+    segmentHeader->position.x = paredPosition[0].getInt();
+    segmentHeader->position.y = paredPosition[1].getInt();
+    segmentHeader->position.z = paredPosition[2].getInt();
+
+    return true;
+}
