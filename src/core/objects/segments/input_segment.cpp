@@ -37,8 +37,10 @@ bool
 InputSegment::initSegment(JsonItem &parsedContent)
 {
     const uint32_t numberOfInputs = parsedContent["number_of_inputs"].getInt();
+    const uint32_t totalBorderSize = parsedContent["total_border_size"].getInt();
 
-    SegmentHeader header = createNewHeader(numberOfInputs);
+    SegmentHeader header = createNewHeader(numberOfInputs,
+                                           totalBorderSize);
     allocateSegment(header);
     initSegmentPointer(header);
     initPosition(parsedContent);
@@ -52,7 +54,8 @@ InputSegment::initSegment(JsonItem &parsedContent)
  * @return
  */
 SegmentHeader
-InputSegment::createNewHeader(const uint32_t numberOfInputs)
+InputSegment::createNewHeader(const uint32_t numberOfInputs,
+                              const uint64_t borderbufferSize)
 {
     SegmentHeader segmentHeader;
     segmentHeader.segmentType = INPUT_SEGMENT;
@@ -65,6 +68,16 @@ InputSegment::createNewHeader(const uint32_t numberOfInputs)
     segmentHeader.settings.count = 1;
     segmentHeader.settings.bytePos = segmentDataPos;
     segmentDataPos += 1 * sizeof(SegmentSettings);
+
+    // init neighborList
+    segmentHeader.neighborList.count = 1;
+    segmentHeader.neighborList.bytePos = segmentDataPos;
+    segmentDataPos += 1 * sizeof(SegmentNeighborList);
+
+    // init transferEntries
+    segmentHeader.transferEntries.count = borderbufferSize;
+    segmentHeader.transferEntries.bytePos = segmentDataPos;
+    segmentDataPos += borderbufferSize * sizeof(TransferEntry);
 
     // init bricks
     segmentHeader.inputs.count = numberOfInputs;
@@ -91,6 +104,10 @@ InputSegment::initSegmentPointer(const SegmentHeader &header)
 
     pos = 256;
     segmentSettings = reinterpret_cast<SegmentSettings*>(dataPtr + pos);
+    pos = segmentHeader->neighborList.bytePos;
+    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+    pos = segmentHeader->transferEntries.bytePos;
+    transferEntries = reinterpret_cast<TransferEntry*>(dataPtr + pos);
     pos = segmentHeader->inputs.bytePos;
     inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
 }

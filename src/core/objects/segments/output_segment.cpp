@@ -37,8 +37,10 @@ bool
 OutputSegment::initSegment(JsonItem &parsedContent)
 {
     const uint32_t numberOfOutputs = parsedContent["number_of_outputs"].getInt();
+    const uint32_t totalBorderSize = parsedContent["total_border_size"].getInt();
 
-    SegmentHeader header = createNewHeader(numberOfOutputs);
+    SegmentHeader header = createNewHeader(numberOfOutputs,
+                                           totalBorderSize);
     allocateSegment(header);
     initSegmentPointer(header);
     initPosition(parsedContent);
@@ -47,7 +49,8 @@ OutputSegment::initSegment(JsonItem &parsedContent)
 }
 
 SegmentHeader
-OutputSegment::createNewHeader(const uint32_t numberOfOutputs)
+OutputSegment::createNewHeader(const uint32_t numberOfOutputs,
+                               const uint64_t borderbufferSize)
 {
     SegmentHeader segmentHeader;
     segmentHeader.segmentType = OUTPUT_SEGMENT;
@@ -60,6 +63,16 @@ OutputSegment::createNewHeader(const uint32_t numberOfOutputs)
     segmentHeader.settings.count = 1;
     segmentHeader.settings.bytePos = segmentDataPos;
     segmentDataPos += 1 * sizeof(SegmentSettings);
+
+    // init neighborList
+    segmentHeader.neighborList.count = 1;
+    segmentHeader.neighborList.bytePos = segmentDataPos;
+    segmentDataPos += 1 * sizeof(SegmentNeighborList);
+
+    // init transferEntries
+    segmentHeader.transferEntries.count = borderbufferSize;
+    segmentHeader.transferEntries.bytePos = segmentDataPos;
+    segmentDataPos += borderbufferSize * sizeof(TransferEntry);
 
     // init bricks
     segmentHeader.outputs.count = numberOfOutputs;
@@ -82,6 +95,10 @@ OutputSegment::initSegmentPointer(const SegmentHeader &header)
 
     pos = 256;
     segmentSettings = reinterpret_cast<SegmentSettings*>(dataPtr + pos);
+    pos = segmentHeader->neighborList.bytePos;
+    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+    pos = segmentHeader->transferEntries.bytePos;
+    transferEntries = reinterpret_cast<TransferEntry*>(dataPtr + pos);
     pos = segmentHeader->outputs.bytePos;
     outputs = reinterpret_cast<OutputNode*>(dataPtr + pos);
 }

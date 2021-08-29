@@ -63,3 +63,9 @@ AbstractSegment::initPosition(JsonItem &parsedContent)
 
     return true;
 }
+
+bool
+AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
+{
+
+}

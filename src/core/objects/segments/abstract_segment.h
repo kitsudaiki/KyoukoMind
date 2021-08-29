@@ -80,6 +80,9 @@ struct SegmentHeader
 
     // synapse-segment
     SegmentHeaderEntry settings;
+    SegmentHeaderEntry neighborList;
+    SegmentHeaderEntry transferEntries;
+
     SegmentHeaderEntry bricks;
     SegmentHeaderEntry brickOrder;
     SegmentHeaderEntry nodes;
@@ -88,7 +91,7 @@ struct SegmentHeader
 
     SegmentHeaderEntry synapseSections;
 
-    uint8_t padding2[112];
+    uint8_t padding2[80];
 
     // total size: 256 Byte
 };
@@ -151,6 +154,7 @@ public:
     SegmentHeader* segmentHeader = nullptr;
     SegmentSettings* segmentSettings = nullptr;
     SegmentNeighborList* segmentNeighbors = nullptr;
+    TransferEntry* transferEntries = nullptr;
 
     virtual bool initSegment(JsonItem &parsedContent) = 0;
 
@@ -160,6 +164,7 @@ protected:
     SegmentTypes m_type = UNDEFINED_SEGMENT;
 
     bool initPosition(JsonItem &parsedContent);
+    bool initBorderBuffer(JsonItem &parsedContent);
 };
 
 //==================================================================================================

@@ -38,7 +38,8 @@ public:
     bool initSegment(JsonItem &parsedContent);
 
 private:
-    SegmentHeader createNewHeader(const uint32_t numberOfInputs);
+    SegmentHeader createNewHeader(const uint32_t numberOfInputs,
+                                  const uint64_t borderbufferSize);
     void initSegmentPointer(const SegmentHeader &header);
     void allocateSegment(SegmentHeader &header);
 };

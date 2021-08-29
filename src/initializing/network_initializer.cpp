@@ -361,6 +361,7 @@ ClusterInitializer::prepareSegments(JsonItem &parsedContent)
 
         DataArray* nextList = new DataArray();
         DataArray* sizeList = new DataArray();
+        long borderBufferSize = 0;
 
         for(uint32_t side = 0; side < 12; side++)
         {
@@ -368,51 +369,40 @@ ClusterInitializer::prepareSegments(JsonItem &parsedContent)
             const long foundNext = checkSegments(parsedContent, nextPos);
             nextList->append(new DataValue(foundNext));
 
+            long val = 0;
+
             if(foundNext != UNINIT_STATE_32)
             {
                 if(currentSegment.get("type").getString() == "dynamic_segment"
                         && segments.get(foundNext).get("type").getString() == "dynamic_segment")
                 {
-                    sizeList->append(new DataValue(500)); // TODO: make value configurable
-                    continue;
+                    val = 500;
                 }
 
-                if(currentSegment.get("type").getString() == "output_segment")
-                {
-                    const long val = currentSegment.get("number_of_outputs").getInt();
-                    sizeList->append(new DataValue(val));
-                    continue;
+                if(currentSegment.get("type").getString() == "output_segment") {
+                    val = currentSegment.get("number_of_outputs").getInt();
                 }
 
-                if(segments.get(foundNext).get("type").getString() == "output_segment")
-                {
-                    const long val = segments.get(foundNext).get("number_of_outputs").getInt();
-                    sizeList->append(new DataValue(val));
-                    continue;
+                if(segments.get(foundNext).get("type").getString() == "output_segment") {
+                    val = segments.get(foundNext).get("number_of_outputs").getInt();
                 }
 
-                if(currentSegment.get("type").getString() == "input_segment")
-                {
-                    const long val = currentSegment.get("number_of_inputs").getInt();
-                    sizeList->append(new DataValue(val));
-                    continue;
+                if(currentSegment.get("type").getString() == "input_segment") {
+                    val = currentSegment.get("number_of_inputs").getInt();
                 }
 
-                if(segments.get(foundNext).get("type").getString() == "input_segment")
-                {
-                    const long val = segments.get(foundNext).get("number_of_inputs").getInt();
-                    sizeList->append(new DataValue(val));
-                    continue;
-                }
+                if(segments.get(foundNext).get("type").getString() == "input_segment") {
+                    val = segments.get(foundNext).get("number_of_inputs").getInt();
+                }          
             }
-            else
-            {
-                sizeList->append(new DataValue(0));
-            }
+
+            sizeList->append(new DataValue(val));
+            borderBufferSize += val;
         }
 
         currentSegment.insert("sides", nextList);
         currentSegment.insert("border_size", sizeList);
+        currentSegment.insert("total_border_size", new DataValue(borderBufferSize));
     }
 
     return true;
