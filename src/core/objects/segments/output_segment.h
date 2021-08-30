@@ -39,6 +39,7 @@ public:
     OutputNode* outputs = nullptr;
 
     bool initSegment(JsonItem &parsedContent);
+    bool connectBorderBuffer();
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfOutputs,

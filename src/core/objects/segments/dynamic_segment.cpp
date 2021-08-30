@@ -65,8 +65,35 @@ DynamicSegment::initSegment(JsonItem &parsedContent)
     segmentSettings[0] = settings;
 
     initPosition(parsedContent);
+    connectBorderBuffer();
     addBricksToSegment(parsedContent);
     initTargetBrickList();
+
+    return true;
+}
+
+/**
+ * @brief DynamicSegment::connectBorderBuffer
+ * @return
+ */
+bool
+DynamicSegment::connectBorderBuffer()
+{
+    Node* brickNodes = nullptr;
+    Brick* brick = nullptr;
+
+    for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
+    {
+        brick = &bricks[i];
+        if(brick->isInputBrick
+                || brick->isOutputBrick)
+        {
+            brickNodes = &nodes[brick->nodePos];
+            for(uint32_t j = 0; j < brick->numberOfNodes; j++) {
+                brickNodes->targetBorderId = j;
+            }
+        }
+    }
 
     return true;
 }

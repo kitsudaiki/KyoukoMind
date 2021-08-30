@@ -67,5 +67,27 @@ AbstractSegment::initPosition(JsonItem &parsedContent)
 bool
 AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
 {
+    uint64_t posCounter = 0;
 
+    JsonItem neighbors = parsedContent.get("neighbors");
+
+    for(uint32_t i = 0; i < 12; i++)
+    {
+        JsonItem currentNeighbor = neighbors.get(i);
+
+        const uint32_t next = currentNeighbor.get("id").getLong();
+        if(next != UNINIT_STATE_32)
+        {
+            const uint32_t size  = currentNeighbor.get("size").getLong();
+            segmentNeighbors->neighbors[i].inUse = true;
+            segmentNeighbors->neighbors[i].size = size;
+            segmentNeighbors->neighbors[i].targetSide = 11 - i;
+            segmentNeighbors->neighbors[i].inputTransferBuffer = &transferEntries[posCounter];
+            posCounter += size;
+            segmentNeighbors->neighbors[i].outputTransferBuffer = &transferEntries[posCounter];
+            posCounter += size;
+        }
+    }
+
+    return true;
 }

@@ -360,14 +360,15 @@ ClusterInitializer::prepareSegments(JsonItem &parsedContent)
         currentPosition.z = parsedPosition.get(2).getInt();
 
         DataArray* nextList = new DataArray();
-        DataArray* sizeList = new DataArray();
         long borderBufferSize = 0;
 
         for(uint32_t side = 0; side < 12; side++)
         {
             const Position nextPos = getNeighborPos(currentPosition, side);
             const long foundNext = checkSegments(parsedContent, nextPos);
-            nextList->append(new DataValue(foundNext));
+
+            DataMap* neighborSettings = new DataMap();
+            neighborSettings->insert("id", new DataValue(foundNext));
 
             long val = 0;
 
@@ -396,12 +397,15 @@ ClusterInitializer::prepareSegments(JsonItem &parsedContent)
                 }          
             }
 
-            sizeList->append(new DataValue(val));
+            neighborSettings->insert("size", new DataValue(val));
             borderBufferSize += val;
+
+            nextList->append(neighborSettings);
         }
 
-        currentSegment.insert("sides", nextList);
-        currentSegment.insert("border_size", sizeList);
+        currentSegment.insert("neighbors", nextList);
+        // border-buffer has to be doubled, because input and output with same size
+        borderBufferSize *= 2;
         currentSegment.insert("total_border_size", new DataValue(borderBufferSize));
     }
 

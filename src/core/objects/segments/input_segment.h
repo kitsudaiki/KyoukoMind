@@ -36,6 +36,7 @@ public:
     InputNode* inputs = nullptr;
 
     bool initSegment(JsonItem &parsedContent);
+    bool connectBorderBuffer();
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfInputs,

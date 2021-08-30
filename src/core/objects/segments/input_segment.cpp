@@ -44,6 +44,21 @@ InputSegment::initSegment(JsonItem &parsedContent)
     allocateSegment(header);
     initSegmentPointer(header);
     initPosition(parsedContent);
+    connectBorderBuffer();
+
+    return true;
+}
+
+/**
+ * @brief InputSegment::connectBorderBuffer
+ * @return
+ */
+bool
+InputSegment::connectBorderBuffer()
+{
+    for(uint32_t i = 0; i < segmentHeader->inputs.count; i++) {
+        inputs[i].targetBorderId = i;
+    }
 
     return true;
 }

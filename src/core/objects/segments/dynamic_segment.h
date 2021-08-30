@@ -34,6 +34,7 @@ public:
     ~DynamicSegment();
 
     bool initSegment(JsonItem &parsedContent);
+    bool connectBorderBuffer();
 
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;

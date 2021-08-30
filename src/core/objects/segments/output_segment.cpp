@@ -44,6 +44,17 @@ OutputSegment::initSegment(JsonItem &parsedContent)
     allocateSegment(header);
     initSegmentPointer(header);
     initPosition(parsedContent);
+    connectBorderBuffer();
+
+    return true;
+}
+
+bool
+OutputSegment::connectBorderBuffer()
+{
+    for(uint32_t i = 0; i < segmentHeader->outputs.count; i++) {
+        outputs[i].targetBorderId = i;
+    }
 
     return true;
 }

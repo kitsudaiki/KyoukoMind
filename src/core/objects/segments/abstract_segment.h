@@ -120,8 +120,8 @@ struct SegmentNeighbor
     bool inUse = false;
     bool inputReady = false;
 
-    uint32_t numberOfInputs = 0;
-    uint32_t numberOfOutputs = 0;
+    uint32_t size = 0;
+    uint8_t padding[4];
 
     TransferEntry* inputTransferBuffer = nullptr;
     TransferEntry* outputTransferBuffer = nullptr;
@@ -157,6 +157,7 @@ public:
     TransferEntry* transferEntries = nullptr;
 
     virtual bool initSegment(JsonItem &parsedContent) = 0;
+    virtual bool connectBorderBuffer() = 0;
 
     bool isReady();
 
