@@ -404,8 +404,6 @@ ClusterInitializer::prepareSegments(JsonItem &parsedContent)
         }
 
         currentSegment.insert("neighbors", nextList);
-        // border-buffer has to be doubled, because input and output with same size
-        borderBufferSize *= 2;
         currentSegment.insert("total_border_size", new DataValue(borderBufferSize));
     }
 

@@ -82,9 +82,8 @@ AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
             segmentNeighbors->neighbors[i].inUse = true;
             segmentNeighbors->neighbors[i].size = size;
             segmentNeighbors->neighbors[i].targetSide = 11 - i;
-            segmentNeighbors->neighbors[i].inputTransferBuffer = &transferEntries[posCounter];
-            posCounter += size;
-            segmentNeighbors->neighbors[i].outputTransferBuffer = &transferEntries[posCounter];
+            segmentNeighbors->neighbors[i].inputTransferBuffer = &inputTransfers[posCounter];
+            segmentNeighbors->neighbors[i].outputTransferBuffer = &outputTransfers[posCounter];
             posCounter += size;
         }
     }

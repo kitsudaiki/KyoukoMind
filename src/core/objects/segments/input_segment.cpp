@@ -89,10 +89,15 @@ InputSegment::createNewHeader(const uint32_t numberOfInputs,
     segmentHeader.neighborList.bytePos = segmentDataPos;
     segmentDataPos += 1 * sizeof(SegmentNeighborList);
 
-    // init transferEntries
-    segmentHeader.transferEntries.count = borderbufferSize;
-    segmentHeader.transferEntries.bytePos = segmentDataPos;
-    segmentDataPos += borderbufferSize * sizeof(TransferEntry);
+    // init inputTransfers
+    segmentHeader.inputTransfers.count = borderbufferSize;
+    segmentHeader.inputTransfers.bytePos = segmentDataPos;
+    segmentDataPos += borderbufferSize * sizeof(float);
+
+    // init outputTransfers
+    segmentHeader.outputTransfers.count = borderbufferSize;
+    segmentHeader.outputTransfers.bytePos = segmentDataPos;
+    segmentDataPos += borderbufferSize * sizeof(float);
 
     // init bricks
     segmentHeader.inputs.count = numberOfInputs;
@@ -121,8 +126,10 @@ InputSegment::initSegmentPointer(const SegmentHeader &header)
     segmentSettings = reinterpret_cast<SegmentSettings*>(dataPtr + pos);
     pos = segmentHeader->neighborList.bytePos;
     segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
-    pos = segmentHeader->transferEntries.bytePos;
-    transferEntries = reinterpret_cast<TransferEntry*>(dataPtr + pos);
+    pos = segmentHeader->inputTransfers.bytePos;
+    inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    pos = segmentHeader->outputTransfers.bytePos;
+    outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
     pos = segmentHeader->inputs.bytePos;
     inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
 }
