@@ -41,10 +41,12 @@
 void
 prcessSegment(OutputSegment* segment)
 {
-    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
-    for(uint32_t pos = 0; pos < numberOfBricks; pos++)
+    const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
+    float* inputTransfers = segment->inputTransfers;
+    for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
     {
-
+        OutputNode* node = &segment->outputs[pos];
+        node->outputWeight = inputTransfers[node->targetBorderId];
     }
 }
 
