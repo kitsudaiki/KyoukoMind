@@ -160,6 +160,9 @@ protected:
 
     bool initPosition(JsonItem &parsedContent);
     bool initBorderBuffer(JsonItem &parsedContent);
+
+    uint32_t createGenericNewHeader(SegmentHeader &header,
+                                    const uint64_t borderbufferSize);
 };
 
 //==================================================================================================

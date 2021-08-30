@@ -74,30 +74,7 @@ InputSegment::createNewHeader(const uint32_t numberOfInputs,
 {
     SegmentHeader segmentHeader;
     segmentHeader.segmentType = INPUT_SEGMENT;
-    uint32_t segmentDataPos = 0;
-
-    // init header
-    segmentDataPos += 1 * sizeof(SegmentHeader);
-
-    // init settings
-    segmentHeader.settings.count = 1;
-    segmentHeader.settings.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentSettings);
-
-    // init neighborList
-    segmentHeader.neighborList.count = 1;
-    segmentHeader.neighborList.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentNeighborList);
-
-    // init inputTransfers
-    segmentHeader.inputTransfers.count = borderbufferSize;
-    segmentHeader.inputTransfers.bytePos = segmentDataPos;
-    segmentDataPos += borderbufferSize * sizeof(float);
-
-    // init outputTransfers
-    segmentHeader.outputTransfers.count = borderbufferSize;
-    segmentHeader.outputTransfers.bytePos = segmentDataPos;
-    segmentDataPos += borderbufferSize * sizeof(float);
+    uint32_t segmentDataPos = createGenericNewHeader(segmentHeader, borderbufferSize);
 
     // init bricks
     segmentHeader.inputs.count = numberOfInputs;
