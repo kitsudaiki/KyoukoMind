@@ -86,13 +86,13 @@ HEADERS += \
     src/core/objects/segments/dynamic_segment.h \
     src/core/objects/segments/input_segment.h \
     src/core/objects/segments/output_segment.h \
-    src/core/processing/cpu/dynamic_cluster/backpropagation.h \
-    src/core/processing/cpu/dynamic_cluster/create_reduce.h \
-    src/core/processing/cpu/dynamic_cluster/io.h \
-    src/core/processing/cpu/dynamic_cluster/processing.h \
-    src/core/processing/cpu/output_cluster/backpropagation.h \
-    src/core/processing/cpu/output_cluster/processing.h \
-    src/core/processing/cpu/input_cluster/processing.h \
+    src/core/processing/cpu/dynamic_segment/backpropagation.h \
+    src/core/processing/cpu/dynamic_segment/create_reduce.h \
+    src/core/processing/cpu/dynamic_segment/io.h \
+    src/core/processing/cpu/dynamic_segment/processing.h \
+    src/core/processing/cpu/output_segment/backpropagation.h \
+    src/core/processing/cpu/output_segment/processing.h \
+    src/core/processing/cpu/input_segment/processing.h \
     src/core/processing/cpu_processing_unit.h \
     src/core/objects/brick.h \
     src/core/processing/gpu/gpu_processing_uint.h \

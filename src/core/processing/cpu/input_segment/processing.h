@@ -32,7 +32,7 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-#include <core/processing/cpu/dynamic_cluster/create_reduce.h>
+#include <core/processing/cpu/dynamic_segment/create_reduce.h>
 
 
 /**

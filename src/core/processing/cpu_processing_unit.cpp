@@ -8,14 +8,14 @@
 
 #include <kyouko_root.h>
 
-#include <core/processing/cpu/dynamic_cluster/backpropagation.h>
-#include <core/processing/cpu/dynamic_cluster/processing.h>
-#include <core/processing/cpu/dynamic_cluster/create_reduce.h>
+#include <core/processing/cpu/dynamic_segment/backpropagation.h>
+#include <core/processing/cpu/dynamic_segment/processing.h>
+#include <core/processing/cpu/dynamic_segment/create_reduce.h>
 
-#include <core/processing/cpu/output_cluster/backpropagation.h>
-#include <core/processing/cpu/output_cluster/processing.h>
+#include <core/processing/cpu/output_segment/backpropagation.h>
+#include <core/processing/cpu/output_segment/processing.h>
 
-#include <core/processing/cpu/input_cluster/processing.h>
+#include <core/processing/cpu/input_segment/processing.h>
 
 CpuProcessingUnit::CpuProcessingUnit() {}
 
