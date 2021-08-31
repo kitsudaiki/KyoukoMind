@@ -38,7 +38,6 @@
  * @param section current processed synapse-section
  * @param synapse new synapse, which has to be initialized
  * @param bricks array of all bricks
- * @param randomValues array of precreated random values for the learning process
  * @param sourceNode source-node, who triggered the section
  * @param segmentSettings settings of the section
  * @param remainingWeight weight of which to cut of a part for the new synapse
@@ -47,7 +46,6 @@ inline void
 createNewSynapse(SynapseSection* section,
                  Synapse* synapse,
                  Brick* bricks,
-                 const uint32_t* randomValues,
                  Node* sourceNode,
                  SegmentSettings* segmentSettings,
                  const float remainingWeight)
@@ -58,6 +56,7 @@ createNewSynapse(SynapseSection* section,
     uint32_t targetNodeIdInBrick = 0;
     Brick* nodeBrick = nullptr;
     uint32_t signRand = 0;
+    const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
 
     const float maxWeight = segmentSettings->maxSynapseWeight;
