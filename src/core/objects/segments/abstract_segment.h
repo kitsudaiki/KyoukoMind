@@ -154,6 +154,7 @@ public:
     virtual bool connectBorderBuffer() = 0;
 
     bool isReady();
+    bool finishSegment();
 
 protected:
     SegmentTypes m_type = UNDEFINED_SEGMENT;

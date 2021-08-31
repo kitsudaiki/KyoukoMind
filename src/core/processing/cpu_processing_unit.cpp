@@ -43,6 +43,8 @@ CpuProcessingUnit::processNetworkCluster(NetworkCluster *cluster)
                 default:
                     break;
             }
+
+            segment->finishSegment();
         }
     }
 }

@@ -88,7 +88,6 @@ HEADERS += \
     src/core/objects/segments/output_segment.h \
     src/core/processing/cpu/dynamic_segment/backpropagation.h \
     src/core/processing/cpu/dynamic_segment/create_reduce.h \
-    src/core/processing/cpu/dynamic_segment/io.h \
     src/core/processing/cpu/dynamic_segment/processing.h \
     src/core/processing/cpu/output_segment/backpropagation.h \
     src/core/processing/cpu/output_segment/processing.h \

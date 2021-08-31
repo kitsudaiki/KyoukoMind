@@ -22,6 +22,8 @@
 
 #include "abstract_segment.h"
 
+#include <core/objects/network_cluster.h>
+
 AbstractSegment::AbstractSegment()
 {
 
@@ -47,6 +49,30 @@ AbstractSegment::isReady()
                 && segmentNeighbors->neighbors[i].inputReady == 0)
         {
             return false;
+        }
+    }
+
+    return true;
+}
+
+bool
+AbstractSegment::finishSegment()
+{
+    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+
+    for(uint8_t i = 0; i < 12; i++)
+    {
+        if(segmentNeighbors->neighbors[i].inUse == 1)
+        {
+            float* sourceBuffer = segmentNeighbors->neighbors[i].outputTransferBuffer;
+            const uint32_t targetId = segmentNeighbors->neighbors[i].targetSegmentId;
+            const uint8_t targetSide = segmentNeighbors->neighbors[i].targetSide;
+
+            AbstractSegment* segment = cluster->allSegments[targetId];
+            float* targetBuffer = segment->segmentNeighbors->neighbors[targetSide].inputTransferBuffer;
+            memcpy(targetBuffer, sourceBuffer, segmentNeighbors->neighbors[i].size);
+            memset(sourceBuffer, 0, segmentNeighbors->neighbors[i].size);
+            segment->segmentNeighbors->neighbors[targetSide].inputReady = true;
         }
     }
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file        backpropagation.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>

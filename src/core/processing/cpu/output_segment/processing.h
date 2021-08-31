@@ -50,4 +50,29 @@ prcessSegment(OutputSegment* segment)
     }
 }
 
+/**
+ * @brief calculate the total error of all outputs of a specific segment
+ *
+ * @param segment segment of which one the total error has to be calculated
+ *
+ * @return total error value
+ */
+inline float
+calcTotalError(OutputSegment* segment)
+{
+    float totalError = 0.0f;
+    OutputNode* out = nullptr;
+    float diff = 0.0f;
+
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment->segmentHeader->outputs.count;
+        outputNodeId++)
+    {
+        //out = &segment->outputs[outputNodeId];
+        diff = (out->shouldValue - out->outputWeight);
+        totalError += 0.5f * (diff * diff);
+    }
+
+    return totalError;
+}
 #endif // OUTPUT_PROCESSING_H
