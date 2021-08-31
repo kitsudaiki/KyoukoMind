@@ -123,13 +123,10 @@ learnTestData(const std::string &mnistRootPath)
             }
 
             start = std::chrono::system_clock::now();
-            if(useGpu) {
-                gpuProcessingUnit->learn();
-            } else {
-               // cpuProcessingUnit.learn();
-            }
+            cpuProcessingUnit.processNetworkCluster(cluster);
             end = std::chrono::system_clock::now();
             std::cout<<"run learn: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+            exit(0);
         }
     }
 

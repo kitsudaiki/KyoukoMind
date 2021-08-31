@@ -65,6 +65,7 @@ DynamicSegment::initSegment(JsonItem &parsedContent)
     segmentSettings[0] = settings;
 
     initPosition(parsedContent);
+    initBorderBuffer(parsedContent);
     connectBorderBuffer();
     addBricksToSegment(parsedContent);
     initTargetBrickList();

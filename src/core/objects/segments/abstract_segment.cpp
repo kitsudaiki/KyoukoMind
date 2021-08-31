@@ -59,20 +59,23 @@ bool
 AbstractSegment::finishSegment()
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    float* sourceBuffer = nullptr;
+    float* targetBuffer  = nullptr;
+    AbstractSegment* targetSegment = nullptr;
 
     for(uint8_t i = 0; i < 12; i++)
     {
         if(segmentNeighbors->neighbors[i].inUse == 1)
         {
-            float* sourceBuffer = segmentNeighbors->neighbors[i].outputTransferBuffer;
+            sourceBuffer = segmentNeighbors->neighbors[i].outputTransferBuffer;
             const uint32_t targetId = segmentNeighbors->neighbors[i].targetSegmentId;
             const uint8_t targetSide = segmentNeighbors->neighbors[i].targetSide;
 
-            AbstractSegment* segment = cluster->allSegments[targetId];
-            float* targetBuffer = segment->segmentNeighbors->neighbors[targetSide].inputTransferBuffer;
+            targetSegment = cluster->allSegments[targetId];
+            targetBuffer = targetSegment->segmentNeighbors->neighbors[targetSide].inputTransferBuffer;
             memcpy(targetBuffer, sourceBuffer, segmentNeighbors->neighbors[i].size);
             memset(sourceBuffer, 0, segmentNeighbors->neighbors[i].size);
-            segment->segmentNeighbors->neighbors[targetSide].inputReady = true;
+            targetSegment->segmentNeighbors->neighbors[targetSide].inputReady = true;
         }
     }
 
@@ -99,17 +102,19 @@ AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
 
     for(uint32_t i = 0; i < 12; i++)
     {
-        JsonItem currentNeighbor = neighbors.get(i);
+        JsonItem currentDef = neighbors.get(i);
 
-        const uint32_t next = currentNeighbor.get("id").getLong();
+        const uint32_t next = currentDef.get("id").getLong();
         if(next != UNINIT_STATE_32)
         {
-            const uint32_t size  = currentNeighbor.get("size").getLong();
-            segmentNeighbors->neighbors[i].inUse = true;
-            segmentNeighbors->neighbors[i].size = size;
-            segmentNeighbors->neighbors[i].targetSide = 11 - i;
-            segmentNeighbors->neighbors[i].inputTransferBuffer = &inputTransfers[posCounter];
-            segmentNeighbors->neighbors[i].outputTransferBuffer = &outputTransfers[posCounter];
+            const uint32_t size  = currentDef.get("size").getLong();
+            SegmentNeighbor* currentNeighbor = &segmentNeighbors->neighbors[i];
+            currentNeighbor->inUse = true;
+            currentNeighbor->size = size;
+            currentNeighbor->targetSegmentId = next;
+            currentNeighbor->targetSide = 11 - i;
+            currentNeighbor->inputTransferBuffer = &inputTransfers[posCounter];
+            currentNeighbor->outputTransferBuffer = &outputTransfers[posCounter];
             posCounter += size;
         }
     }

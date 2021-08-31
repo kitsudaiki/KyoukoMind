@@ -44,6 +44,7 @@ InputSegment::initSegment(JsonItem &parsedContent)
     allocateSegment(header);
     initSegmentPointer(header);
     initPosition(parsedContent);
+    initBorderBuffer(parsedContent);
     connectBorderBuffer();
 
     return true;
