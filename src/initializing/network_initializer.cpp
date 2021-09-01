@@ -87,7 +87,7 @@ ClusterInitializer::initNetwork(const std::string &filePath)
     }
 
     prepareSegments(parsedContent);
-    //std::cout<<parsedContent.toString(true)<<std::endl;
+    std::cout<<parsedContent.toString(true)<<std::endl;
     success = createNewNetwork(parsedContent);
     if(success == false)
     {
@@ -371,6 +371,7 @@ ClusterInitializer::prepareSegments(JsonItem &parsedContent)
             neighborSettings->insert("id", new DataValue(foundNext));
 
             long val = 0;
+            std::string direction = "";
 
             if(foundNext != UNINIT_STATE_32)
             {
@@ -380,24 +381,33 @@ ClusterInitializer::prepareSegments(JsonItem &parsedContent)
                     val = 500;
                 }
 
-                if(currentSegment.get("type").getString() == "output_segment") {
+                if(currentSegment.get("type").getString() == "output_segment")
+                {
                     val = currentSegment.get("number_of_outputs").getInt();
+                    direction = "input";
                 }
 
-                if(segments.get(foundNext).get("type").getString() == "output_segment") {
+                if(segments.get(foundNext).get("type").getString() == "output_segment")
+                {
                     val = segments.get(foundNext).get("number_of_outputs").getInt();
+                    direction = "output";
                 }
 
-                if(currentSegment.get("type").getString() == "input_segment") {
+                if(currentSegment.get("type").getString() == "input_segment")
+                {
                     val = currentSegment.get("number_of_inputs").getInt();
+                    direction = "output";
                 }
 
-                if(segments.get(foundNext).get("type").getString() == "input_segment") {
+                if(segments.get(foundNext).get("type").getString() == "input_segment")
+                {
                     val = segments.get(foundNext).get("number_of_inputs").getInt();
+                    direction = "input";
                 }          
             }
 
             neighborSettings->insert("size", new DataValue(val));
+            neighborSettings->insert("direction", new DataValue(direction));
             borderBufferSize += val;
 
             nextList->append(neighborSettings);

@@ -66,8 +66,8 @@ DynamicSegment::initSegment(JsonItem &parsedContent)
 
     initPosition(parsedContent);
     initBorderBuffer(parsedContent);
-    connectBorderBuffer();
     addBricksToSegment(parsedContent);
+    connectBorderBuffer();
     initTargetBrickList();
 
     return true;
@@ -80,18 +80,26 @@ DynamicSegment::initSegment(JsonItem &parsedContent)
 bool
 DynamicSegment::connectBorderBuffer()
 {
-    Node* brickNodes = nullptr;
+    Node* node = nullptr;
     Brick* brick = nullptr;
 
     for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
     {
         brick = &bricks[i];
-        if(brick->isInputBrick
-                || brick->isOutputBrick)
+        if(brick->isInputBrick)
         {
-            brickNodes = &nodes[brick->nodePos];
+            node = &nodes[brick->nodePos];
             for(uint32_t j = 0; j < brick->numberOfNodes; j++) {
-                brickNodes->targetBorderId = j;
+                node->targetBorderId = j;
+            }
+        }
+
+        if(brick->isOutputBrick)
+        {
+            const u_int32_t maxOutputs = segmentHeader->outputTransfers.count;
+            node = &nodes[brick->nodePos];
+            for(uint32_t j = 0; j < brick->numberOfNodes; j++) {
+                node->targetBorderId = maxOutputs - j;
             }
         }
     }
@@ -140,7 +148,7 @@ DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
                                 const uint64_t borderbufferSize)
 {
     SegmentHeader segmentHeader;
-    segmentHeader.segmentType = DYNAMIC_SEGMENT;
+    segmentHeader.segmentType = m_type;
     uint32_t segmentDataPos = createGenericNewHeader(segmentHeader, borderbufferSize);
 
     // init bricks

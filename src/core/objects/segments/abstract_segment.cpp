@@ -73,8 +73,12 @@ AbstractSegment::finishSegment()
 
             targetSegment = cluster->allSegments[targetId];
             targetBuffer = targetSegment->segmentNeighbors->neighbors[targetSide].inputTransferBuffer;
-            memcpy(targetBuffer, sourceBuffer, segmentNeighbors->neighbors[i].size);
-            memset(sourceBuffer, 0, segmentNeighbors->neighbors[i].size);
+            memcpy(targetBuffer,
+                   sourceBuffer,
+                   segmentNeighbors->neighbors[i].size * sizeof(float));
+            memset(sourceBuffer,
+                   0,
+                   segmentNeighbors->neighbors[i].size * sizeof(float));
             targetSegment->segmentNeighbors->neighbors[targetSide].inputReady = true;
         }
     }
@@ -97,17 +101,17 @@ bool
 AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
 {
     uint64_t posCounter = 0;
-
     JsonItem neighbors = parsedContent.get("neighbors");
 
     for(uint32_t i = 0; i < 12; i++)
     {
         JsonItem currentDef = neighbors.get(i);
-
         const uint32_t next = currentDef.get("id").getLong();
+        const std::string direction = currentDef.get("direction").getString();
+        const uint32_t size  = currentDef.get("size").getLong();
+
         if(next != UNINIT_STATE_32)
         {
-            const uint32_t size  = currentDef.get("size").getLong();
             SegmentNeighbor* currentNeighbor = &segmentNeighbors->neighbors[i];
             currentNeighbor->inUse = true;
             currentNeighbor->size = size;
@@ -115,6 +119,14 @@ AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
             currentNeighbor->targetSide = 11 - i;
             currentNeighbor->inputTransferBuffer = &inputTransfers[posCounter];
             currentNeighbor->outputTransferBuffer = &outputTransfers[posCounter];
+
+            if(direction == "input") {
+                currentNeighbor->direction = INPUT_DIRECTION;
+            }
+            if(direction == "output") {
+                currentNeighbor->direction = OUTPUT_DIRECTION;
+            }
+
             posCounter += size;
         }
     }

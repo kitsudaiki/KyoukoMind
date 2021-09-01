@@ -42,7 +42,7 @@
  * @param segment segment to process
  */
 void
-prcessSegment(InputSegment* segment)
+prcessInputSegment(InputSegment* segment)
 {
     const uint32_t numberOfInputs = segment->segmentHeader->inputs.count;
     float* outputTransfers = segment->outputTransfers;

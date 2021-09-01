@@ -148,9 +148,9 @@ nodeProcessing(Brick* brick,
             nodeId++)
         {
             node = &segment.nodes[nodeId];
-            initNode(node);
             node->input = segment.inputTransfers[nodeId - brick->nodePos];
             node->potential = segment.segmentSettings->potentialOverflow * node->input;
+            initNode(node);
             node->input = 0.0f;
             node->delta = 0.0f;
         }
@@ -162,9 +162,9 @@ nodeProcessing(Brick* brick,
             nodeId++)
         {
             node = &segment.nodes[nodeId];
-            initNode(node);
             node->potential = segment.segmentSettings->potentialOverflow * node->input;
             segment.outputTransfers[nodeId - brick->nodePos] = node->potential;
+            initNode(node);
             node->input = 0.0f;
             node->delta = 0.0f;
         }
@@ -176,8 +176,8 @@ nodeProcessing(Brick* brick,
             nodeId++)
         {
             node = &segment.nodes[nodeId];
-            initNode(node);
             node->potential = segment.segmentSettings->potentialOverflow * node->input;
+            initNode(node);
             node->input = 0.0f;
             node->delta = 0.0f;
         }
@@ -231,7 +231,7 @@ nodeProcessing(Brick* brick,
  * @param segment segment to process
  */
 void
-prcessSegment(DynamicSegment* segment)
+prcessDynamicSegment(DynamicSegment* segment)
 {
     const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
     for(uint32_t pos = 0; pos < numberOfBricks; pos++)

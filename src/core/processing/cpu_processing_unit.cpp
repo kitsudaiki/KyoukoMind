@@ -54,7 +54,7 @@ CpuProcessingUnit::processDynamicSegment(DynamicSegment* segment)
 {
     segment->segmentSettings->doLearn = 1;
 
-    prcessSegment(segment);
+    prcessDynamicSegment(segment);
     hardenSegment(segment);
     rewightSegment(segment);
 
@@ -64,14 +64,14 @@ CpuProcessingUnit::processDynamicSegment(DynamicSegment* segment)
 void
 CpuProcessingUnit::processInputSegment(InputSegment* segment)
 {
-    prcessSegment(segment);
+    prcessInputSegment(segment);
 
 }
 
 void
 CpuProcessingUnit::processOutputSegment(OutputSegment* segment)
 {
-    prcessSegment(segment);
+    prcessOutputSegment(segment);
 
 }
 

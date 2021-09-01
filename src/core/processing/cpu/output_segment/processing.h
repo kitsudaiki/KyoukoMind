@@ -39,7 +39,7 @@
  * @param segment segment to process
  */
 void
-prcessSegment(OutputSegment* segment)
+prcessOutputSegment(OutputSegment* segment)
 {
     const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
     float* inputTransfers = segment->inputTransfers;
@@ -47,6 +47,7 @@ prcessSegment(OutputSegment* segment)
     {
         OutputNode* node = &segment->outputs[pos];
         node->outputWeight = inputTransfers[node->targetBorderId];
+        assert(node->outputWeight ==  0.0f);
     }
 }
 

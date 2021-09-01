@@ -99,8 +99,9 @@ struct SegmentHeader
 
 enum NeighborDirection
 {
-    INPUT_DIRECTION = 0,
-    OUTPUT_DIRECTION = 1,
+    UNDEFINED_DIRECTION = 0,
+    INPUT_DIRECTION = 1,
+    OUTPUT_DIRECTION = 2,
 };
 
 struct SegmentNeighbor
@@ -108,7 +109,7 @@ struct SegmentNeighbor
     uint32_t targetSegmentId = UNINIT_STATE_32;
 
     uint8_t targetSide = 0;
-    uint8_t direction = INPUT_DIRECTION;
+    uint8_t direction = UNDEFINED_DIRECTION;
 
     bool inUse = false;
     bool inputReady = false;

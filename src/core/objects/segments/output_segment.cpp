@@ -65,7 +65,7 @@ OutputSegment::createNewHeader(const uint32_t numberOfOutputs,
                                const uint64_t borderbufferSize)
 {
     SegmentHeader segmentHeader;
-    segmentHeader.segmentType = OUTPUT_SEGMENT;
+    segmentHeader.segmentType = m_type;
     uint32_t segmentDataPos = createGenericNewHeader(segmentHeader, borderbufferSize);
 
     // init bricks
