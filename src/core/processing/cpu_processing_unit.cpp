@@ -20,26 +20,65 @@
 CpuProcessingUnit::CpuProcessingUnit() {}
 
 void
-CpuProcessingUnit::processNetworkCluster(NetworkCluster *cluster)
+CpuProcessingUnit::learnNetworkCluster(NetworkCluster *cluster)
 {
-    for(AbstractSegment* segment : cluster->allSegments)
+    for(uint32_t i = 0; i < cluster->allSegments.size(); i++)
     {
+        AbstractSegment* segment = cluster->allSegments[i];
         if(segment != nullptr)
         {
             switch(segment->getType())
             {
                 case DYNAMIC_SEGMENT:
-                    processDynamicSegment(static_cast<DynamicSegment*>(segment));
+                {
+                    DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
+                    seg->segmentSettings->doLearn = 1;
+                    prcessDynamicSegment(seg);
+                    hardenSegment(seg);
+                    seg->segmentSettings->doLearn = 0;
                     break;
-
+                }
                 case INPUT_SEGMENT:
-                    processInputSegment(static_cast<InputSegment*>(segment));
+                {
+                    InputSegment* seg = static_cast<InputSegment*>(segment);
+                    prcessInputSegment(seg);
                     break;
-
+                }
                 case OUTPUT_SEGMENT:
-                    processOutputSegment(static_cast<OutputSegment*>(segment));
+                {
+                    OutputSegment* seg = static_cast<OutputSegment*>(segment);
+                    prcessOutputSegment(seg);
                     break;
+                }
+                default:
+                    break;
+            }
 
+            segment->finishSegment();
+        }
+    }
+
+    for(int32_t i = cluster->allSegments.size()-1; i >= 0; i--)
+    {
+        AbstractSegment* segment = cluster->allSegments[i];
+        if(segment != nullptr)
+        {
+            switch(segment->getType())
+            {
+                case DYNAMIC_SEGMENT:
+                {
+                    DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
+                    seg->segmentSettings->doLearn = 1;
+                    rewightSegment(seg);
+                    seg->segmentSettings->doLearn = 0;
+                    break;
+                }
+                case OUTPUT_SEGMENT:
+                {
+                    OutputSegment* seg = static_cast<OutputSegment*>(segment);
+                    backpropagateOutput(seg);
+                    break;
+                }
                 default:
                     break;
             }
@@ -50,29 +89,39 @@ CpuProcessingUnit::processNetworkCluster(NetworkCluster *cluster)
 }
 
 void
-CpuProcessingUnit::processDynamicSegment(DynamicSegment* segment)
+CpuProcessingUnit::processNetworkCluster(NetworkCluster *cluster)
 {
-    segment->segmentSettings->doLearn = 1;
+    for(AbstractSegment* segment : cluster->allSegments)
+    {
+        if(segment != nullptr)
+        {
+            switch(segment->getType())
+            {
+                case DYNAMIC_SEGMENT:
+                {
+                    DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
+                    prcessDynamicSegment(seg);
+                    break;
+                }
+                case INPUT_SEGMENT:
+                {
+                    InputSegment* seg = static_cast<InputSegment*>(segment);
+                    prcessInputSegment(seg);
+                    break;
+                }
+                case OUTPUT_SEGMENT:
+                {
+                    OutputSegment* seg = static_cast<OutputSegment*>(segment);
+                    prcessOutputSegment(seg);
+                    break;
+                }
+                default:
+                    break;
+            }
 
-    prcessDynamicSegment(segment);
-    hardenSegment(segment);
-    rewightSegment(segment);
-
-    segment->segmentSettings->doLearn = 0;
-}
-
-void
-CpuProcessingUnit::processInputSegment(InputSegment* segment)
-{
-    prcessInputSegment(segment);
-
-}
-
-void
-CpuProcessingUnit::processOutputSegment(OutputSegment* segment)
-{
-    prcessOutputSegment(segment);
-
+            segment->finishSegment();
+        }
+    }
 }
 
 /**

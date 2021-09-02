@@ -63,9 +63,8 @@ KyoukoRoot::KyoukoRoot()
     m_monitoringHandler = new MonitoringConnectionHandler();
 
     // init predefinde random-values
-    const uint32_t numberOfRandValues = 10*1024*1024;
-    m_randomValues = new uint32_t[numberOfRandValues];
-    for(uint32_t i = 0; i < numberOfRandValues; i++) {
+    m_randomValues = new uint32_t[NUMBER_OF_RAND_VALUES];
+    for(uint32_t i = 0; i < NUMBER_OF_RAND_VALUES; i++) {
         m_randomValues[i] = static_cast<uint32_t>(rand());
     }
 }

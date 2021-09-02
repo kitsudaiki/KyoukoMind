@@ -47,7 +47,8 @@ prcessOutputSegment(OutputSegment* segment)
     {
         OutputNode* node = &segment->outputs[pos];
         node->outputWeight = inputTransfers[node->targetBorderId];
-        assert(node->outputWeight ==  0.0f);
+        //std::cout<<"+++++++  "<<node->outputWeight<<std::endl;
+
     }
 }
 

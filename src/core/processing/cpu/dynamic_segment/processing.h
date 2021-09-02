@@ -121,6 +121,9 @@ void initNode(Node* node)
     bool initNode = node->init == 0 && node->input > 0.0f;
     node->border = static_cast<float>(initNode) * node->input * 0.5f
                    + static_cast<float>(initNode == false) * node->border;
+    if(initNode) {
+        node->init = 1;
+    }
 }
 
 /**
@@ -148,11 +151,11 @@ nodeProcessing(Brick* brick,
             nodeId++)
         {
             node = &segment.nodes[nodeId];
-            node->input = segment.inputTransfers[nodeId - brick->nodePos];
+            node->input = segment.inputTransfers[node->targetBorderId];
+            //std::cout<<"+++++++  "<<node->input<<std::endl;
             node->potential = segment.segmentSettings->potentialOverflow * node->input;
             initNode(node);
             node->input = 0.0f;
-            node->delta = 0.0f;
         }
     }
     else if(brick->isOutputBrick)
@@ -163,11 +166,15 @@ nodeProcessing(Brick* brick,
         {
             node = &segment.nodes[nodeId];
             node->potential = segment.segmentSettings->potentialOverflow * node->input;
-            segment.outputTransfers[nodeId - brick->nodePos] = node->potential;
+            node->potential = 1.0f / (1.0f + exp(-1.0f * node->potential));
+            //std::cout<<"------  "<<node->potential<<std::endl;
+
+            segment.outputTransfers[node->targetBorderId] = node->potential;
             initNode(node);
             node->input = 0.0f;
-            node->delta = 0.0f;
         }
+
+        return;
     }
     else
     {
@@ -179,13 +186,7 @@ nodeProcessing(Brick* brick,
             node->potential = segment.segmentSettings->potentialOverflow * node->input;
             initNode(node);
             node->input = 0.0f;
-            node->delta = 0.0f;
         }
-    }
-
-    // do not process output-bricks any further
-    if(brick->isOutputBrick) {
-        return;
     }
 
     // process all synapse-sections, which are connected to an active node within the brick

@@ -13,12 +13,9 @@ class CpuProcessingUnit
 public:
     CpuProcessingUnit();
 
-    void processNetworkCluster(NetworkCluster* cluster);
+    void learnNetworkCluster(NetworkCluster* cluster);
 
-private:
-    void processDynamicSegment(DynamicSegment* segment);
-    void processInputSegment(InputSegment* segment);
-    void processOutputSegment(OutputSegment* segment);
+    void processNetworkCluster(NetworkCluster* cluster);
 };
 
 #endif // CPUPROCESSINGUNIT_H

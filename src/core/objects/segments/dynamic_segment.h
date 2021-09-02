@@ -59,7 +59,7 @@ private:
     Brick createNewBrick(const JsonItem &brickDef, const uint32_t id);
     void connectBrick(Brick *sourceBrick, const uint8_t side);
     void connectAllBricks();
-    Position getNeighborPos(Position sourcePos, const uint8_t side);
+    bool initializeNodes();
 };
 
 #endif // DYNAMIC_SEGMENTS_H

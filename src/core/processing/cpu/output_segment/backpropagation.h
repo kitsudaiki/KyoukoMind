@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef CORE_BACKPROPAGATION_H
-#define CORE_BACKPROPAGATION_H
+#ifndef OUTPUT_BACKPROPAGATION_H
+#define OUTPUT_BACKPROPAGATION_H
 
 #include <common.h>
 
@@ -48,8 +48,8 @@ backpropagateOutput(OutputSegment* segment)
         outputNodeId++)
     {
         out = segment->outputs[outputNodeId];
-        segment->outputTransfers[out.targetBorderId] = out.outputWeight - out.shouldValue;
+        segment->outputTransfers[out.targetBorderId] = (out.outputWeight - out.shouldValue);
     }
 }
 
-#endif // CORE_BACKPROPAGATION_H
+#endif // OUTPUT_BACKPROPAGATION_H

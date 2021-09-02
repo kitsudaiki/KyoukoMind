@@ -33,67 +33,6 @@
 #include <core/objects/network_cluster.h>
 
 /**
- * @brief run back-propagation over the hidden neurons
- *
- * @param brick pointer to current brick
- * @param segment pointer to currect segment to process, which contains the brick
- */
-inline void
-backpropagateNodes(Brick* brick,
-                   DynamicSegment* segment)
-{
-    uint16_t pos = 0;
-    Node* sourceNode = nullptr;
-    SynapseSection* section = nullptr;
-    Synapse* synapse = nullptr;
-    float netH = 0.0f;
-    float outH = 0.0f;
-    float learnValue = 0.0f;
-
-    // iterate over all nodes within the brick
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
-        nodeId++)
-    {
-        // skip section, if not active
-        sourceNode = &segment->nodes[nodeId];
-        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
-            continue;
-        }
-        section = &segment->synapseSections[sourceNode->targetSectionId];
-        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION) {
-            continue;
-        }
-
-        // set start-values
-        pos = 0;
-        netH = sourceNode->potential;
-        outH = 1.0f / (1.0f + exp(-1.0f * netH));
-
-        // iterate over all synapses in the section
-        while(pos < SYNAPSES_PER_SYNAPSESECTION
-              && netH > 0.0f)
-        {
-            // break look, if no more synapses to process
-            synapse = &section->synapses[pos];
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                break;
-            }
-
-            // update weight
-            learnValue = static_cast<float>(pos <= section->hardening) * 0.1f
-                         + static_cast<float>(pos > section->hardening) * 0.2f;
-            sourceNode->delta += segment->nodes[synapse->targetNodeId].delta * synapse->weight;
-            synapse->weight -= learnValue * segment->nodes[synapse->targetNodeId].delta * outH;
-
-            // update loop-counter
-            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-            pos++;
-        }
-    }
-}
-
-/**
  * @brief correct new created synapses, which are directly connected to the output and fix the
  *        sign of the values based on the should-value, to force the output in the right direction
  *
@@ -150,6 +89,89 @@ correctNewOutputSynapses(Brick* brick,
             // update loop-counter
             netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             pos++;
+        }
+    }
+}
+
+/**
+ * @brief run back-propagation over the hidden neurons
+ *
+ * @param brick pointer to current brick
+ * @param segment pointer to currect segment to process, which contains the brick
+ */
+inline void
+backpropagateNodes(Brick* brick,
+                   DynamicSegment* segment)
+{
+    uint16_t pos = 0;
+    Node* sourceNode = nullptr;
+    SynapseSection* section = nullptr;
+    Synapse* synapse = nullptr;
+    float netH = 0.0f;
+    float outH = 0.0f;
+    float learnValue = 0.0f;
+
+    if(brick->isOutputBrick)
+    {
+        // iterate over all nodes within the brick
+        for(uint32_t nodeId = brick->nodePos;
+            nodeId < brick->numberOfNodes + brick->nodePos;
+            nodeId++)
+        {
+            sourceNode = &segment->nodes[nodeId];
+            sourceNode->delta = segment->inputTransfers[sourceNode->targetBorderId];
+            outH = sourceNode->potential;
+            sourceNode->delta *= outH * (1.0f - outH);
+        }
+
+        return;
+    }
+
+    // iterate over all nodes within the brick
+    for(uint32_t nodeId = brick->nodePos;
+        nodeId < brick->numberOfNodes + brick->nodePos;
+        nodeId++)
+    {
+        // skip section, if not active
+        sourceNode = &segment->nodes[nodeId];
+        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
+            continue;
+        }
+        section = &segment->synapseSections[sourceNode->targetSectionId];
+        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION) {
+            continue;
+        }
+
+        // set start-values
+        pos = 0;
+        netH = sourceNode->potential;
+        outH = 1.0f / (1.0f + exp(-1.0f * netH));
+        sourceNode->delta = 0.0f;
+        // iterate over all synapses in the section
+        while(pos < SYNAPSES_PER_SYNAPSESECTION
+              && netH > 0.0f)
+        {
+            // break look, if no more synapses to process
+            synapse = &section->synapses[pos];
+            if(synapse->targetNodeId == UNINIT_STATE_16) {
+                break;
+            }
+
+            // update weight
+            learnValue = static_cast<float>(pos <= section->hardening) * 0.1f
+                         + static_cast<float>(pos > section->hardening) * 0.2f;
+            sourceNode->delta += segment->nodes[synapse->targetNodeId].delta * synapse->weight;
+            synapse->weight -= learnValue * segment->nodes[synapse->targetNodeId].delta * outH;
+
+            // update loop-counter
+            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
+            pos++;
+        }
+
+        //sourceNode->delta *= outH * (1.0f - outH);
+
+        if(brick->isInputBrick) {
+            segment->outputTransfers[sourceNode->targetBorderId] = sourceNode->delta;
         }
     }
 }

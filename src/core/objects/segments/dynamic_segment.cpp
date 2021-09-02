@@ -66,12 +66,29 @@ DynamicSegment::initSegment(JsonItem &parsedContent)
 
     initPosition(parsedContent);
     initBorderBuffer(parsedContent);
+    initializeNodes();
     addBricksToSegment(parsedContent);
     connectBorderBuffer();
     initTargetBrickList();
 
     return true;
 }
+
+bool
+DynamicSegment::initializeNodes()
+{
+    const uint32_t numberOfNodes = segmentHeader->nodes.count;
+    const float range = 0.5f;
+
+    for(uint32_t i = 0; i < numberOfNodes; i++)
+    {
+        nodes[i].border = fmod(static_cast<float>(rand()), range);
+        nodes[i].border += 0.2f;
+    }
+
+    return true;
+}
+
 
 /**
  * @brief DynamicSegment::connectBorderBuffer
@@ -88,8 +105,9 @@ DynamicSegment::connectBorderBuffer()
         brick = &bricks[i];
         if(brick->isInputBrick)
         {
-            node = &nodes[brick->nodePos];
-            for(uint32_t j = 0; j < brick->numberOfNodes; j++) {
+            for(uint32_t j = 0; j < brick->numberOfNodes; j++)
+            {
+                node = &nodes[brick->nodePos + j];
                 node->targetBorderId = j;
             }
         }
@@ -97,9 +115,10 @@ DynamicSegment::connectBorderBuffer()
         if(brick->isOutputBrick)
         {
             const u_int32_t maxOutputs = segmentHeader->outputTransfers.count;
-            node = &nodes[brick->nodePos];
-            for(uint32_t j = 0; j < brick->numberOfNodes; j++) {
-                node->targetBorderId = maxOutputs - j;
+            for(uint32_t j = 0; j < brick->numberOfNodes; j++)
+            {
+                node = &nodes[brick->nodePos + j];
+                node->targetBorderId = (maxOutputs - 10) + j;  // TODO: fix hard-coded 10
             }
         }
     }
@@ -358,148 +377,6 @@ DynamicSegment::connectAllBricks()
             connectBrick(sourceBrick, side);
         }
     }
-}
-
-/**
- * @brief get the next position in the raster for a specific brick and side
- *
- * @param x current x-position
- * @param y current y-position
- * @param z current z-position
- * @param side side to go to next
- *
- * @return position of the next brick for the specific side
- */
-Position
-DynamicSegment::getNeighborPos(Position sourcePos, const uint8_t side)
-{
-    Position result;
-    result.x = UNINIT_STATE_32;
-    result.y = UNINIT_STATE_32;
-    result.z = UNINIT_STATE_32;
-
-    switch (side)
-    {
-    case 0:
-        {
-            if(sourcePos.y % 2 == 1) {
-                result.x = sourcePos.x;
-            } else {
-                result.x = sourcePos.x - 1;
-            }
-            result.y = sourcePos.y - 1;
-            result.z = sourcePos.z - 1;
-            break;
-        }
-    case 1:
-        {
-            if(sourcePos.y % 2 == 1) {
-                result.x = sourcePos.x + 1;
-            } else {
-                result.x = sourcePos.x;
-            }
-            result.y = sourcePos.y - 1;
-            result.z = sourcePos.z - 1;
-            break;
-        }
-    case 2:
-        {
-            result.x = sourcePos.x;
-            result.y = sourcePos.y;
-            result.z = sourcePos.z - 1;
-            break;
-        }
-    case 3:
-        {
-            if(sourcePos.y % 2 == 1) {
-                result.x = sourcePos.x + 1;
-            } else {
-                result.x = sourcePos.x;
-            }
-            result.y = sourcePos.y - 1;
-            result.z = sourcePos.z;
-            break;
-        }
-    case 4:
-        {
-            result.x = sourcePos.x + 1;
-            result.y = sourcePos.y;
-            result.z = sourcePos.z;
-            break;
-        }
-    case 5:
-        {
-            if(sourcePos.y % 2 == 1) {
-                result.x = sourcePos.x + 1;
-            } else {
-                result.x = sourcePos.x;
-            }
-            result.y = sourcePos.y + 1;
-            result.z = sourcePos.z;
-            break;
-        }
-    case 8:
-        {
-            if(sourcePos.y % 2 == 1) {
-                result.x = sourcePos.x;
-            } else {
-                result.x = sourcePos.x - 1;
-            }
-            result.y = sourcePos.y + 1;
-            result.z = sourcePos.z;
-            break;
-        }
-    case 7:
-        {
-            result.x = sourcePos.x - 1;
-            result.y = sourcePos.y;
-            result.z = sourcePos.z;
-            break;
-        }
-    case 6:
-        {
-            if(sourcePos.y % 2 == 1) {
-                result.x = sourcePos.x;
-            } else {
-                result.x = sourcePos.x - 1;
-            }
-            result.y = sourcePos.y - 1;
-            result.z = sourcePos.z;
-            break;
-        }
-    case 9:
-        {
-            result.x = sourcePos.x;
-            result.y = sourcePos.y;
-            result.z = sourcePos.z + 1;
-            break;
-        }
-    case 10:
-        {
-            if(sourcePos.y % 2 == 1) {
-                result.x = sourcePos.x;
-            } else {
-                result.x = sourcePos.x - 1;
-            }
-            result.y = sourcePos.y + 1;
-            result.z = sourcePos.z + 1;
-            break;
-        }
-    case 11:
-        {
-            if(sourcePos.y % 2 == 1) {
-                result.x = sourcePos.x + 1;
-            } else {
-                result.x = sourcePos.x;
-            }
-            result.y = sourcePos.y + 1;
-            result.z = sourcePos.z + 1;
-            break;
-        }
-    default:
-        assert(false);
-    }
-    return result;
 }
 
 /**

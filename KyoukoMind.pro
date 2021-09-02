@@ -79,6 +79,7 @@ HEADERS += \
     src/blossoms/save_load/show_save_file_blossom.h \
     src/common/defines.h \
     src/common/enums.h \
+    src/common/functions.h \
     src/common/includes.h \
     src/common/typedefs.h \
     src/core/objects/network_cluster.h \

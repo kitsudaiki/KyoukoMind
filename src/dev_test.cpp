@@ -123,10 +123,10 @@ learnTestData(const std::string &mnistRootPath)
             }
 
             start = std::chrono::system_clock::now();
-            cpuProcessingUnit.processNetworkCluster(cluster);
+            cpuProcessingUnit.learnNetworkCluster(cluster);
             end = std::chrono::system_clock::now();
             std::cout<<"run learn: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
-            exit(0);
+            //exit(0);
         }
     }
 
@@ -172,11 +172,7 @@ learnTestData(const std::string &mnistRootPath)
         }
 
         start = std::chrono::system_clock::now();
-        if(useGpu) {
-            gpuProcessingUnit->execute();
-        } else {
-            //cpuProcessingUnit.execute();
-        }
+        cpuProcessingUnit.processNetworkCluster(cluster);
         end = std::chrono::system_clock::now();
         std::cout<<"run execute: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
 
@@ -184,7 +180,7 @@ learnTestData(const std::string &mnistRootPath)
         float biggest = -100000.0f;
         uint32_t pos = 0;
         std::cout<<"[";
-
+        bool found = true;
 
         for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
         {
@@ -209,6 +205,10 @@ learnTestData(const std::string &mnistRootPath)
             }
         }
 
+        if(biggest == 0.0f) {
+            found = false;
+        }
+
         std::cout<<"]  result: ";
         std::cout<<pos;
 
@@ -223,5 +223,27 @@ learnTestData(const std::string &mnistRootPath)
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
+
+    DynamicSegment* segment = static_cast<DynamicSegment*>(cluster->allSegments.at(1));
+    uint64_t synapseCounter = 0;
+    SynapseSection* sections = segment->synapseSections;
+    for(uint64_t i = 0; i < synapseSegment->segmentHeader->synapseSections.count; i++)
+    {
+        if(sections[i].active == Kitsunemimi::ItemBuffer::ACTIVE_SECTION)
+        {
+            for(uint32_t j = 0; j < SYNAPSES_PER_SYNAPSESECTION; j++)
+            {
+                if(sections[i].synapses[j].targetNodeId != UNINIT_STATE_16) {
+                    synapseCounter++;
+                }
+            }
+        }
+    }
+    std::cout<<std::endl;
+    std::cout<<"======================================================================="<<std::endl;
+    std::cout<<"synapseCounter: "<<synapseCounter<<std::endl;
+    std::cout<<"======================================================================="<<std::endl;
+
+
 }
 
