@@ -25,6 +25,9 @@
 #include <libKitsunemimiJson/json_item.h>
 #include <core/processing/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
+#include <core/objects/segments/input_segment.h>
+#include <core/objects/segments/output_segment.h>
+#include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 using namespace Kitsunemimi::Json;
@@ -41,10 +44,9 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
                     std::string &errorMessage)
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    InputNode* inputNodes = cluster->synapseSegment->inputs;
-    OutputNode* outputs = cluster->synapseSegment->outputs;
+    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
+    OutputNode* outputs = cluster->outputSegments[0]->outputs;
     CpuProcessingUnit cpuProcessingUnit;
-    Segment* synapseSegment = cluster->synapseSegment;
 
     const std::string requestString = blossomLeaf.input.getStringByKey("request");
     JsonItem request;
@@ -63,14 +65,11 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
             inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
         }
 
-        cpuProcessingUnit.execute();
+        //cpuProcessingUnit.execute();
 
-        DataArray* response = new DataArray();
-        for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++) {
-            response->append(new DataValue(outputs[i].outputWeight));
-        }
+        // TODO:get output
 
-        blossomLeaf.output.insert("result", response);
+        //blossomLeaf.output.insert("result", response);
     }
 
     return true;

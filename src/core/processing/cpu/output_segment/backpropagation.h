@@ -1,5 +1,5 @@
 /**
- * @file        validation.h
+ * @file        backpropagation.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,29 +20,36 @@
  *      limitations under the License.
  */
 
-#include "validation.h"
+#ifndef OUTPUT_BACKPROPAGATION_H
+#define OUTPUT_BACKPROPAGATION_H
 
-#include <core/objects/segments/abstract_segment.h>
+#include <common.h>
+
+#include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
+#include <core/objects/segments/output_segment.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
-void
-validateStructSizes()
+/**
+ * @brief backpropagateOutput
+ *
+ * @param segment pointer to currect segment to process
+ */
+inline void
+backpropagateOutput(OutputSegment* segment)
 {
-    assert(sizeof(Brick) == 4096);
+    OutputNode out;
 
-    assert(sizeof(Synapse) == 8);
-
-    assert(sizeof(SynapseSection) == 512);
-    assert(sizeof(SegmentHeader) == 256);
-    assert(sizeof(Brick) == 4096);
-    assert(sizeof(Node) == 32);
-
-    assert(sizeof(NetworkMetaData) == 256);
-    assert(sizeof(InitSettings) == 256);
-    assert(sizeof(SegmentSettings) == 256);
-
-    return;
+    // iterate over all output-nodes
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment->segmentHeader->outputs.count;
+        outputNodeId++)
+    {
+        out = segment->outputs[outputNodeId];
+        segment->outputTransfers[out.targetBorderId] = (out.outputWeight - out.shouldValue);
+    }
 }
+
+#endif // OUTPUT_BACKPROPAGATION_H

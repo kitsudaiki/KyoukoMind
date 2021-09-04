@@ -1,5 +1,5 @@
 /**
- * @file        network_initializer.h
+ * @file        output_segment.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,31 +20,32 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORK_INITIALIZER_H
-#define NETWORK_INITIALIZER_H
+#ifndef OUTPUT_SEGMENTS_H
+#define OUTPUT_SEGMENTS_H
 
 #include <common.h>
 
-struct Brick;
-struct NetworkCluster;
-class BrickInitializer;
+#include <core/objects/segments/abstract_segment.h>
 
-class ClusterInitializer
+class OutputSegment : public AbstractSegment
 {
 public:
-    ClusterInitializer();
+    OutputSegment();
+    ~OutputSegment();
 
-    bool initNetwork(const std::string &filePath);
-    bool createNewNetwork(JsonItem &parsedContent);
+    float lastTotalError = 0.0f;
+    float actualTotalError = 0.0f;
+
+    OutputNode* outputs = nullptr;
+
+    bool initSegment(JsonItem &parsedContent);
+    bool connectBorderBuffer();
 
 private:
-    BrickInitializer* m_brickInitializer = nullptr;
-
-    void addInputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    void addOutputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    void addDynamicSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    bool prepareSegments(JsonItem &parsedContent);
-    uint32_t checkSegments(JsonItem &parsedContent, const Position nextPos);
+    SegmentHeader createNewHeader(const uint32_t numberOfOutputs,
+                                  const uint64_t borderbufferSize);
+    void initSegmentPointer(const SegmentHeader &header);
+    void allocateSegment(SegmentHeader &header);
 };
 
-#endif // NETWORK_INITIALIZER_H
+#endif // OUTPUT_SEGMENTS_H

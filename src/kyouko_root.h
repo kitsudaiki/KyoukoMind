@@ -25,7 +25,7 @@
 
 #include <common.h>
 
-struct NetworkCluster;
+class NetworkCluster;
 class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
@@ -40,9 +40,9 @@ public:
 
     static KyoukoRoot* m_root;
     static NetworkCluster* m_networkCluster;
+    static uint32_t* m_randomValues;
     static ClientConnectionHandler* m_clientHandler;
     static MonitoringConnectionHandler* m_monitoringHandler;
-    static InputOutputProcessing* m_ioHandler;
 
     bool start();
     bool initializeSakuraFiles();

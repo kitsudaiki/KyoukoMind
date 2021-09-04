@@ -25,6 +25,9 @@
 #include <libKitsunemimiJson/json_item.h>
 #include <core/processing/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
+#include <core/objects/segments/input_segment.h>
+#include <core/objects/segments/output_segment.h>
+#include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 using namespace Kitsunemimi::Json;
@@ -40,8 +43,8 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
                       std::string &errorMessage)
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    InputNode* inputNodes = cluster->synapseSegment->inputs;
-    OutputNode* outputs = cluster->synapseSegment->outputs;
+    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
+    OutputNode* outputs = cluster->outputSegments[0]->outputs;
     CpuProcessingUnit cpuProcessingUnit;
 
     const std::string requestString = blossomLeaf.input.getStringByKey("request");
@@ -66,7 +69,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
             inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
         }
 
-        cpuProcessingUnit.learn();
+        //cpuProcessingUnit.learn();
     }
 
     return true;

@@ -1,5 +1,5 @@
-/**
- * @file        io.h
+﻿/**
+ * @file        processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,57 +20,35 @@
  *      limitations under the License.
  */
 
-#ifndef CORE_IO_H
-#define CORE_IO_H
+#ifndef OUTPUT_PROCESSING_H
+#define OUTPUT_PROCESSING_H
 
 #include <common.h>
 
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/objects/segment.h>
+#include <core/objects/segments/output_segment.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
 /**
- * @brief process all input-nodes of a specific segment
+ * @brief process all nodes within a specific brick and also all synapse-sections,
+ *        which are connected to an active node
  *
  * @param segment segment to process
  */
-inline void
-processInputNodes(Segment* segment)
+void
+prcessOutputSegment(OutputSegment* segment)
 {
-    InputNode* inputNode = nullptr;
-
-    for(uint64_t inputNodeId = 0;
-        inputNodeId < segment->segmentHeader->inputs.count;
-        inputNodeId++)
+    const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
+    float* inputTransfers = segment->inputTransfers;
+    for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
     {
-        inputNode = &segment->inputs[inputNodeId];
-        segment->nodes[inputNode->targetNode].input = inputNode->weight;
-    }
-}
+        OutputNode* node = &segment->outputs[pos];
+        node->outputWeight = inputTransfers[node->targetBorderId];
+        //std::cout<<"+++++++  "<<node->outputWeight<<std::endl;
 
-/**
- * @brief process all output-nodes of a specific segment
- *
- * @param segment segment to process
- */
-inline void
-processOutputNodes(Segment* segment)
-{
-    OutputNode* out = nullptr;
-    Node* targetNode = nullptr;
-    float nodeWeight = 0.0f;
-
-    for(uint64_t outputNodeId = 0;
-        outputNodeId < segment->segmentHeader->outputs.count;
-        outputNodeId++)
-    {
-        out = &segment->outputs[outputNodeId];
-        targetNode = &segment->nodes[out->targetNode];
-        nodeWeight = targetNode->potential;
-        out->outputWeight = 1.0f / (1.0f + exp(-1.0f * nodeWeight));
     }
 }
 
@@ -82,7 +60,7 @@ processOutputNodes(Segment* segment)
  * @return total error value
  */
 inline float
-calcTotalError(Segment* segment)
+calcTotalError(OutputSegment* segment)
 {
     float totalError = 0.0f;
     OutputNode* out = nullptr;
@@ -92,12 +70,11 @@ calcTotalError(Segment* segment)
         outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {
-        out = &segment->outputs[outputNodeId];
+        //out = &segment->outputs[outputNodeId];
         diff = (out->shouldValue - out->outputWeight);
         totalError += 0.5f * (diff * diff);
     }
 
     return totalError;
 }
-
-#endif // CORE_IO_H
+#endif // OUTPUT_PROCESSING_H

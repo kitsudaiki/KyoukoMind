@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file        network_initializer.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -23,13 +23,13 @@
 #include "network_initializer.h"
 #include <kyouko_root.h>
 
-#include <core/objects/segment.h>
+#include <core/objects/segments/dynamic_segment.h>
+#include <core/objects/segments/input_segment.h>
+#include <core/objects/segments/output_segment.h>
+
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
-
-#include <initializing/segment_initailzing.h>
-#include <initializing/segment_creation.h>
 
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
@@ -69,7 +69,26 @@ ClusterInitializer::initNetwork(const std::string &filePath)
         return false;
     }
 
-    success = createNewNetwork(fileContent);
+    // init randomizer
+    srand(time(NULL));
+
+    // check if values are valid
+    if(fileContent == "") {
+        return false;
+    }
+
+    // parse input
+    JsonItem parsedContent;
+    const bool ret = parsedContent.parse(fileContent, errorMessage);
+    if(ret == false)
+    {
+        LOG_ERROR("error while parsing input: " + errorMessage);
+        return false;
+    }
+
+    prepareSegments(parsedContent);
+    std::cout<<parsedContent.toString(true)<<std::endl;
+    success = createNewNetwork(parsedContent);
     if(success == false)
     {
         LOG_ERROR("failed to initialize network");
@@ -87,89 +106,201 @@ ClusterInitializer::initNetwork(const std::string &filePath)
  * @return true, if successfull, else false
  */
 bool
-ClusterInitializer::createNewNetwork(const std::string &fileContent)
+ClusterInitializer::createNewNetwork(JsonItem &parsedContent)
 {
-    // init randomizer
-    srand(time(NULL));
-
-    // check if values are valid
-    if(fileContent == "") {
-        return false;
-    }
-
-    // parse input
-    std::string errorMessage = "";
-    JsonItem parsedContent;
-    const bool ret = parsedContent.parse(fileContent, errorMessage);
-    if(ret == false)
-    {
-        LOG_ERROR("error while parsing input: " + errorMessage);
-        return false;
-    }
 
     NetworkCluster newCluster;
-    SegmentSettings settings;
+    JsonItem paredSettings = parsedContent["settings"];
 
     // network-meta
-    newCluster.networkMetaData.cycleTime = parsedContent.get("settings").get("cycle_time").getLong();
+    newCluster.networkMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
+    newCluster.initMetaData.maxBrickDistance = paredSettings["max_brick_distance"].getInt();
+    newCluster.initMetaData.maxSynapseSections = paredSettings["max_synapse_sections"].getLong();
 
-    // init-meta
-    newCluster.initMetaData.nodesPerBrick = parsedContent.get("settings").get("nodes_per_brick").getInt();
-    newCluster.initMetaData.nodeLowerBorder = parsedContent.get("settings").get("node_lower_border").getFloat();
-    newCluster.initMetaData.nodeUpperBorder = parsedContent.get("settings").get("node_upper_border").getFloat();
-    newCluster.initMetaData.maxBrickDistance = parsedContent.get("settings").get("max_brick_distance").getInt();
-    newCluster.initMetaData.maxSynapseSections = parsedContent.get("settings").get("max_synapse_sections").getLong();
-    newCluster.initMetaData.layer = parsedContent.get("settings").get("layer").getInt();
-
-    // segment-meta
-    settings.synapseDeleteBorder = parsedContent.get("settings").get("synapse_delete_border").getFloat();
-    settings.actionPotential = parsedContent.get("settings").get("action_potential").getFloat();
-    settings.nodeCooldown = parsedContent.get("settings").get("node_cooldown").getFloat();
-    settings.memorizing = parsedContent.get("settings").get("memorizing").getFloat();
-    settings.gliaValue = parsedContent.get("settings").get("glia_value").getFloat();
-    settings.maxSynapseWeight = parsedContent.get("settings").get("max_synapse_weight").getFloat();
-    settings.refractionTime = parsedContent.get("settings").get("refraction_time").getInt();
-    settings.signNeg = parsedContent.get("settings").get("sign_neg").getFloat();
-    settings.potentialOverflow = parsedContent.get("settings").get("potential_overflow").getFloat();
-    settings.multiplicatorRange = parsedContent.get("settings").get("multiplicator_range").getInt();
-
-    const uint32_t numberOfNodeBricks = parsedContent.get("bricks").size();
-    uint32_t totalNumberOfNodes = 0;
-    for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
-        totalNumberOfNodes += parsedContent.get("bricks").get(i).get("number_of_nodes").getInt();
-    }
-
-    // init segment
     KyoukoRoot::m_networkCluster = new NetworkCluster();
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     cluster->initMetaData = newCluster.initMetaData;
     cluster->networkMetaData = newCluster.networkMetaData;
 
-    // init predefinde random-values
-    const uint32_t numberOfRandValues = 10*1024*1024;
-    cluster->randomValues = new uint32_t[numberOfRandValues];
-    for(uint32_t i = 0; i < numberOfRandValues; i++) {
-        cluster->randomValues[i] = static_cast<uint32_t>(rand());
+    JsonItem segments = parsedContent["segments"];
+    for(uint32_t i = 0; i < segments.size(); i++)
+    {
+        JsonItem currentSegment = segments[i];
+        if(currentSegment["type"].getString() == "dynamic_segment") {
+            addDynamicSegment(currentSegment, cluster);
+        }
+        if(currentSegment["type"].getString() == "input_segment") {
+            addInputSegment(currentSegment, cluster);
+        }
+        if(currentSegment["type"].getString() == "output_segment") {
+            addOutputSegment(currentSegment, cluster);
+        }
     }
-
-    cluster->synapseSegment = createNewSegment(numberOfNodeBricks,
-                                               totalNumberOfNodes,
-                                               newCluster.initMetaData.maxSynapseSections,
-                                               784,  // TODO: correct number of inputs
-                                               10);  // TODO: correct number of outputs
-
-    cluster->synapseSegment->segmentSettings[0] = settings;
-
-    // fill array with empty nodes
-    initializeNodes(*cluster->synapseSegment,
-                    &cluster->initMetaData);
-    addBricksToSegment(*cluster->synapseSegment,
-                       &cluster->initMetaData,
-                       parsedContent);
-    initTargetBrickList(*cluster->synapseSegment,
-                        &cluster->initMetaData);
-  //  m_brickInitializer->initializeAxons(*cluster->synapseSegment);
 
     return true;
 }
 
+/**
+ * @brief ClusterInitializer::addInputSegment
+ * @param parsedContent
+ * @param cluster
+ */
+void
+ClusterInitializer::addInputSegment(JsonItem &parsedContent,
+                                    NetworkCluster* cluster)
+{
+    InputSegment* newSegment = new InputSegment();
+    const bool ret = newSegment->initSegment(parsedContent);
+
+    if(ret) {
+        cluster->inputSegments.push_back(newSegment);
+        cluster->allSegments.push_back(newSegment);
+    } else {
+        // TODO: handle error
+    }
+}
+
+/**
+ * @brief ClusterInitializer::addOutputSegment
+ * @param parsedContent
+ * @param cluster
+ */
+void
+ClusterInitializer::addOutputSegment(JsonItem &parsedContent,
+                                     NetworkCluster* cluster)
+{
+    OutputSegment* newSegment = new OutputSegment();
+    const bool ret = newSegment->initSegment(parsedContent);
+
+    if(ret) {
+        cluster->outputSegments.push_back(newSegment);
+        cluster->allSegments.push_back(newSegment);
+    } else {
+        // TODO: handle error
+    }
+}
+
+/**
+ * @brief ClusterInitializer::addDynamicSegment
+ * @param parsedContent
+ * @param cluster
+ */
+void
+ClusterInitializer::addDynamicSegment(JsonItem &parsedContent,
+                                      NetworkCluster* cluster)
+{
+    DynamicSegment* newSegment = new DynamicSegment();
+    const bool ret = newSegment->initSegment(parsedContent);
+    if(ret) {
+        cluster->allSegments.push_back(newSegment);
+    } else {
+        // TODO: handle error
+    }
+}
+
+/**
+ * @brief prepareSegments
+ * @param parsedContent
+ * @return
+ */
+bool
+ClusterInitializer::prepareSegments(JsonItem &parsedContent)
+{
+    JsonItem segments = parsedContent.get("segments");
+    for(uint32_t i = 0; i < segments.size(); i++)
+    {
+        JsonItem currentSegment = segments.get(i);
+
+        JsonItem parsedPosition = currentSegment.get("position");
+        Position currentPosition;
+        currentPosition.x = parsedPosition.get(0).getInt();
+        currentPosition.y = parsedPosition.get(1).getInt();
+        currentPosition.z = parsedPosition.get(2).getInt();
+
+        DataArray* nextList = new DataArray();
+        long borderBufferSize = 0;
+
+        for(uint32_t side = 0; side < 12; side++)
+        {
+            const Position nextPos = getNeighborPos(currentPosition, side);
+            const long foundNext = checkSegments(parsedContent, nextPos);
+
+            DataMap* neighborSettings = new DataMap();
+            neighborSettings->insert("id", new DataValue(foundNext));
+
+            long val = 0;
+            std::string direction = "";
+
+            if(foundNext != UNINIT_STATE_32)
+            {
+                if(currentSegment.get("type").getString() == "dynamic_segment"
+                        && segments.get(foundNext).get("type").getString() == "dynamic_segment")
+                {
+                    val = 500;
+                }
+
+                if(currentSegment.get("type").getString() == "output_segment")
+                {
+                    val = currentSegment.get("number_of_outputs").getInt();
+                    direction = "input";
+                }
+
+                if(segments.get(foundNext).get("type").getString() == "output_segment")
+                {
+                    val = segments.get(foundNext).get("number_of_outputs").getInt();
+                    direction = "output";
+                }
+
+                if(currentSegment.get("type").getString() == "input_segment")
+                {
+                    val = currentSegment.get("number_of_inputs").getInt();
+                    direction = "output";
+                }
+
+                if(segments.get(foundNext).get("type").getString() == "input_segment")
+                {
+                    val = segments.get(foundNext).get("number_of_inputs").getInt();
+                    direction = "input";
+                }          
+            }
+
+            neighborSettings->insert("size", new DataValue(val));
+            neighborSettings->insert("direction", new DataValue(direction));
+            borderBufferSize += val;
+
+            nextList->append(neighborSettings);
+        }
+
+        currentSegment.insert("neighbors", nextList);
+        currentSegment.insert("total_border_size", new DataValue(borderBufferSize));
+    }
+
+    return true;
+}
+
+/**
+ * @brief ClusterInitializer::checkSegments
+ * @param parsedContent
+ * @param nextPos
+ * @return
+ */
+uint32_t
+ClusterInitializer::checkSegments(JsonItem &parsedContent,
+                                  const Position nextPos)
+{
+    JsonItem segments = parsedContent.get("segments");
+    for(uint32_t i = 0; i < segments.size(); i++)
+    {
+        JsonItem parsedPosition = segments.get(i).get("position");
+        Position currentPosition;
+        currentPosition.x = parsedPosition.get(0).getInt();
+        currentPosition.y = parsedPosition.get(1).getInt();
+        currentPosition.z = parsedPosition.get(2).getInt();
+
+        if(currentPosition == nextPos) {
+            return i;
+        }
+    }
+
+    return UNINIT_STATE_32;
+}

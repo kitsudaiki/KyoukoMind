@@ -1,5 +1,5 @@
-/**
- * @file        validation.h
+﻿/**
+ * @file        processing.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,29 +20,37 @@
  *      limitations under the License.
  */
 
-#include "validation.h"
+#ifndef INPUT_PROCESSING_H
+#define INPUT_PROCESSING_H
 
-#include <core/objects/segments/abstract_segment.h>
+#include <common.h>
+
+#include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
+#include <core/objects/segments/input_segment.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
+#include <core/processing/cpu/dynamic_segment/create_reduce.h>
+
+
+/**
+ * @brief process all nodes within a specific brick and also all synapse-sections,
+ *        which are connected to an active node
+ *
+ * @param segment segment to process
+ */
 void
-validateStructSizes()
+prcessInputSegment(InputSegment* segment)
 {
-    assert(sizeof(Brick) == 4096);
-
-    assert(sizeof(Synapse) == 8);
-
-    assert(sizeof(SynapseSection) == 512);
-    assert(sizeof(SegmentHeader) == 256);
-    assert(sizeof(Brick) == 4096);
-    assert(sizeof(Node) == 32);
-
-    assert(sizeof(NetworkMetaData) == 256);
-    assert(sizeof(InitSettings) == 256);
-    assert(sizeof(SegmentSettings) == 256);
-
-    return;
+    const uint32_t numberOfInputs = segment->segmentHeader->inputs.count;
+    float* outputTransfers = segment->outputTransfers;
+    for(uint32_t pos = 0; pos < numberOfInputs; pos++)
+    {
+        const InputNode tempNode = segment->inputs[pos];
+        outputTransfers[tempNode.targetBorderId] = tempNode.weight;
+    }
 }
+
+#endif // INPUT_PROCESSING_H

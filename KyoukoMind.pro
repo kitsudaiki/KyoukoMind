@@ -79,17 +79,22 @@ HEADERS += \
     src/blossoms/save_load/show_save_file_blossom.h \
     src/common/defines.h \
     src/common/enums.h \
+    src/common/functions.h \
     src/common/includes.h \
     src/common/typedefs.h \
-    src/core/processing/cpu/backpropagation.h \
-    src/core/processing/cpu/create_reduce.h \
-    src/core/processing/cpu/io.h \
-    src/core/processing/cpu/processing.h \
-    src/core/processing/cpu/segment_processing.h \
+    src/core/objects/network_cluster.h \
+    src/core/objects/segments/abstract_segment.h \
+    src/core/objects/segments/dynamic_segment.h \
+    src/core/objects/segments/input_segment.h \
+    src/core/objects/segments/output_segment.h \
+    src/core/processing/cpu/dynamic_segment/backpropagation.h \
+    src/core/processing/cpu/dynamic_segment/create_reduce.h \
+    src/core/processing/cpu/dynamic_segment/processing.h \
+    src/core/processing/cpu/output_segment/backpropagation.h \
+    src/core/processing/cpu/output_segment/processing.h \
+    src/core/processing/cpu/input_segment/processing.h \
     src/core/processing/cpu_processing_unit.h \
     src/core/objects/brick.h \
-    src/core/objects/network_cluster.h \
-    src/core/objects/segment.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
@@ -101,8 +106,6 @@ HEADERS += \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/initializing/segment_creation.h \
-    src/initializing/segment_initailzing.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
     src/core/connection_handler/monitoring_connection_handler.h \
@@ -119,14 +122,17 @@ SOURCES += \
     src/blossoms/save_load/restore_net_blossom.cpp \
     src/blossoms/save_load/save_net_blossom.cpp \
     src/blossoms/save_load/show_save_file_blossom.cpp \
-    src/core/processing/cpu/segment_processing.cpp \
+    src/core/objects/network_cluster.cpp \
+    src/core/objects/segments/abstract_segment.cpp \
+    src/core/objects/segments/dynamic_segment.cpp \
+    src/core/objects/segments/input_segment.cpp \
+    src/core/objects/segments/output_segment.cpp \
     src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/dev_test.cpp \
     src/initializing/network_initializer.cpp \
-    src/initializing/segment_initailzing.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \

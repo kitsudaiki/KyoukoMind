@@ -1,5 +1,5 @@
-﻿/**
- * @file        synapse_processing.h
+/**
+ * @file        network_cluster.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,9 @@
  *      limitations under the License.
  */
 
-#ifndef SEGMENT_PROCESSING_H
-#define SEGMENT_PROCESSING_H
+#include "network_cluster.h"
 
-#include <common.h>
-#include <core/objects/segment.h>
+NetworkCluster::NetworkCluster()
+{
 
-void processSegmentInput(Segment* segment);
-void processSegmentOutput(Segment* segment);
-float calculateSegmentError(Segment* segment);
-
-void reduceSegment(Segment* segment);
-void rewightSegment(Segment* segment);
-void hardenSegment(Segment* segment);
-void prcessSegment(Segment* segment);
-
-#endif // SEGMENT_PROCESSING_H
+}

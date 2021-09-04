@@ -1,5 +1,5 @@
 /**
- * @file        segment_initailzing.h
+ * @file        input_segment.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,30 +20,29 @@
  *      limitations under the License.
  */
 
-#ifndef SEGMENT_INITAILZING_H
-#define SEGMENT_INITAILZING_H
+#ifndef INPUT_SEGMENTS_H
+#define INPUT_SEGMENTS_H
 
 #include <common.h>
 
-#include <core/objects/segment.h>
-#include <core/objects/network_cluster.h>
+#include <core/objects/segments/abstract_segment.h>
 
-bool initializeNodes(Segment &segment,
-                     InitSettings* initMetaData);
+class InputSegment : public AbstractSegment
+{
+public:
+    InputSegment();
+    ~InputSegment();
 
-void addBricksToSegment(Segment &segment,
-                        InitSettings *initMetaData,
-                        const JsonItem &metaBase);
+    InputNode* inputs = nullptr;
 
-Position getNeighborPos(Position sourcePos,
-                        const uint8_t side);
-void connectAllBrick(Brick &sourceBrick);
+    bool initSegment(JsonItem &parsedContent);
+    bool connectBorderBuffer();
 
-bool initializeAxons(Segment &segment);
-Brick* getAxonBrick(Segment &segment, Brick *sourceBrick);
+private:
+    SegmentHeader createNewHeader(const uint32_t numberOfInputs,
+                                  const uint64_t borderbufferSize);
+    void initSegmentPointer(const SegmentHeader &header);
+    void allocateSegment(SegmentHeader &header);
+};
 
-bool initTargetBrickList(Segment &segment,
-                         InitSettings* init);
-
-
-#endif // SEGMENT_INITAILZING_H
+#endif // INPUT_SEGMENTS_H

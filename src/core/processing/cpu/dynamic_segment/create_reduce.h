@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file        create_reduce.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -28,9 +28,20 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/objects/segment.h>
+#include <core/objects/segments/dynamic_segment.h>
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
+
+inline uint64_t
+createNewSection(DynamicSegment &segment)
+{
+    SynapseSection newSection;
+    newSection.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+    newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
+    newSection.brickBufferPos = KyoukoRoot::m_randomValues[newSection.randomPos] % 1000;
+
+    return segment.segmentData.addNewItem(newSection);
+}
 
 /**
  * @brief initialize a new specific synapse
@@ -38,7 +49,6 @@
  * @param section current processed synapse-section
  * @param synapse new synapse, which has to be initialized
  * @param bricks array of all bricks
- * @param randomValues array of precreated random values for the learning process
  * @param sourceNode source-node, who triggered the section
  * @param segmentSettings settings of the section
  * @param remainingWeight weight of which to cut of a part for the new synapse
@@ -47,7 +57,6 @@ inline void
 createNewSynapse(SynapseSection* section,
                  Synapse* synapse,
                  Brick* bricks,
-                 const uint32_t* randomValues,
                  Node* sourceNode,
                  SegmentSettings* segmentSettings,
                  const float remainingWeight)
@@ -58,6 +67,7 @@ createNewSynapse(SynapseSection* section,
     uint32_t targetNodeIdInBrick = 0;
     Brick* nodeBrick = nullptr;
     uint32_t signRand = 0;
+    const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
 
     const float maxWeight = segmentSettings->maxSynapseWeight;
@@ -100,16 +110,13 @@ createNewSynapse(SynapseSection* section,
  * @param segment
  */
 inline void
-hardenSynapses(Segment* segment,
+hardenSynapses(DynamicSegment* segment,
                SynapseSection* section,
                float netH)
 {
     uint16_t pos = 0;
     Synapse* synapse = nullptr;
     bool updateHardening = false;
-
-    // set start-values
-    pos = 0;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -143,24 +150,24 @@ hardenSynapses(Segment* segment,
  * @param segment current segemnt to process
  */
 inline void
-hardenNodes(Segment* segment)
+hardenSegment(DynamicSegment* segment)
 {
-    Node* sourceNode = nullptr;
+    Node* node = nullptr;
 
     for(uint32_t nodeId = 0;
         nodeId < segment->segmentHeader->nodes.count;
         nodeId++)
     {
-        sourceNode = &segment->nodes[nodeId];
-        if(sourceNode->input > 0.0f) {
-            sourceNode->init = 1;
-        }
+        node = &segment->nodes[nodeId];
+        /*if(sourceNode->input > 0.0f) {
+            sourceNode->isInit = 1;
+        }*/
 
-        if(sourceNode->targetSectionId != UNINIT_STATE_32)
+        if(node->targetSectionId != UNINIT_STATE_32)
         {
             hardenSynapses(segment,
-                           &segment->synapseSections[sourceNode->targetSectionId],
-                           sourceNode->potential);
+                           &segment->synapseSections[node->targetSectionId],
+                           node->potential);
         }
     }
 }
@@ -172,7 +179,7 @@ hardenNodes(Segment* segment)
  * @return
  */
 inline bool
-reduceSynapses(Segment* segment,
+reduceSynapses(DynamicSegment* segment,
                SynapseSection* section)
 {
     Synapse* synapse = nullptr;
@@ -216,9 +223,8 @@ reduceSynapses(Segment* segment,
 
     if(section->next != UNINIT_STATE_32)
     {
-        const bool shouldDelete = reduceSynapses(segment, &segment->synapseSections[section->next]);
-
         // delete if sections is empty
+        const bool shouldDelete = reduceSynapses(segment, &segment->synapseSections[section->next]);
         if(shouldDelete)
         {
             segment->segmentData.deleteItem(section->next);
@@ -238,11 +244,12 @@ reduceSynapses(Segment* segment,
  * @param segment current segemnt to process
  */
 inline void
-reduceNodes(Segment* segment)
+reduceNodes(DynamicSegment* segment)
 {
     SynapseSection* section = nullptr;
     Node* sourceNode = nullptr;
     uint32_t sectionId = 0;
+    bool shouldDelete = false;
 
     for(uint32_t nodeId = 0;
         nodeId < segment->segmentHeader->nodes.count;
@@ -256,11 +263,9 @@ reduceNodes(Segment* segment)
         // set start-values
         sectionId = sourceNode->targetSectionId;
         section = &segment->synapseSections[sectionId];
-        assert(section->active == Kitsunemimi::ItemBuffer::ACTIVE_SECTION);
-
-        const bool shouldDelete = reduceSynapses(segment, section);
 
         // delete if sections is empty
+        shouldDelete = reduceSynapses(segment, section);
         if(shouldDelete)
         {
             segment->segmentData.deleteItem(sectionId);
