@@ -93,6 +93,25 @@ correctNewOutputSynapses(Brick* brick,
     }
 }
 
+inline void
+backpropagateOutput(Brick* brick,
+                    DynamicSegment* segment)
+{
+    Node* node = nullptr;
+    float outH = 0.0f;
+
+    // iterate over all nodes within the brick
+    for(uint32_t nodeId = brick->nodePos;
+        nodeId < brick->numberOfNodes + brick->nodePos;
+        nodeId++)
+    {
+        node = &segment->nodes[nodeId];
+        node->delta = segment->inputTransfers[node->targetBorderId];
+        outH = node->potential;
+        node->delta *= outH * (1.0f - outH);
+    }
+}
+
 /**
  * @brief run back-propagation over the hidden neurons
  *
@@ -110,22 +129,6 @@ backpropagateNodes(Brick* brick,
     float netH = 0.0f;
     float outH = 0.0f;
     float learnValue = 0.0f;
-
-    if(brick->isOutputBrick)
-    {
-        // iterate over all nodes within the brick
-        for(uint32_t nodeId = brick->nodePos;
-            nodeId < brick->numberOfNodes + brick->nodePos;
-            nodeId++)
-        {
-            sourceNode = &segment->nodes[nodeId];
-            sourceNode->delta = segment->inputTransfers[sourceNode->targetBorderId];
-            outH = sourceNode->potential;
-            sourceNode->delta *= outH * (1.0f - outH);
-        }
-
-        return;
-    }
 
     // iterate over all nodes within the brick
     for(uint32_t nodeId = brick->nodePos;
@@ -168,8 +171,6 @@ backpropagateNodes(Brick* brick,
             pos++;
         }
 
-        //sourceNode->delta *= outH * (1.0f - outH);
-
         if(brick->isInputBrick) {
             segment->outputTransfers[sourceNode->targetBorderId] = sourceNode->delta;
         }
@@ -191,7 +192,11 @@ rewightSegment(DynamicSegment* segment)
     {
         const uint32_t brickId = segment->brickOrder[pos];
         Brick* brick = &segment->bricks[brickId];
-        backpropagateNodes(brick, segment);
+        if(brick->isOutputBrick) {
+            backpropagateOutput(brick, segment);
+        } else {
+            backpropagateNodes(brick, segment);
+        }
     }
 }
 

@@ -94,12 +94,7 @@ synapseProcessing(SynapseSection* section,
     {
         if(section->next == UNINIT_STATE_32)
         {
-            SynapseSection newSection;
-            newSection.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-            newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
-            newSection.brickBufferPos = KyoukoRoot::m_randomValues[newSection.randomPos] % 1000;
-
-            const uint64_t newPos = segment.segmentData.addNewItem(newSection);
+            const uint64_t newPos = createNewSection(segment);
             if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
                 return;
             }
@@ -118,11 +113,63 @@ synapseProcessing(SynapseSection* section,
 inline
 void initNode(Node* node)
 {
-    bool initNode = node->init == 0 && node->input > 0.0f;
+    bool initNode = node->isInit == false && node->input > 0.0f;
+    node->isInit = node->isInit || initNode;
     node->border = static_cast<float>(initNode) * node->input * 0.5f
                    + static_cast<float>(initNode == false) * node->border;
-    if(initNode) {
-        node->init = 1;
+}
+
+inline void
+prepareNodesOfInputBrick(Brick* brick,
+                         DynamicSegment &segment)
+{
+    Node* node = nullptr;
+
+    for(uint32_t nodeId = brick->nodePos;
+        nodeId < brick->numberOfNodes + brick->nodePos;
+        nodeId++)
+    {
+        node = &segment.nodes[nodeId];
+        node->input = segment.inputTransfers[node->targetBorderId];
+        node->potential = segment.segmentSettings->potentialOverflow * node->input;
+        initNode(node);
+        node->input = 0.0f;
+    }
+}
+
+inline void
+prepareNodesOfOutputBrick(Brick* brick,
+                          DynamicSegment &segment)
+{
+    Node* node = nullptr;
+
+    for(uint32_t nodeId = brick->nodePos;
+        nodeId < brick->numberOfNodes + brick->nodePos;
+        nodeId++)
+    {
+        node = &segment.nodes[nodeId];
+        node->potential = segment.segmentSettings->potentialOverflow * node->input;
+        node->potential = 1.0f / (1.0f + exp(-1.0f * node->potential));
+        segment.outputTransfers[node->targetBorderId] = node->potential;
+        initNode(node);
+        node->input = 0.0f;
+    }
+}
+
+inline void
+prepareNodesOfNormalBrick(Brick* brick,
+                          DynamicSegment &segment)
+{
+    Node* node = nullptr;
+
+    for(uint32_t nodeId = brick->nodePos;
+        nodeId < brick->numberOfNodes + brick->nodePos;
+        nodeId++)
+    {
+        node = &segment.nodes[nodeId];
+        node->potential = segment.segmentSettings->potentialOverflow * node->input;
+        initNode(node);
+        node->input = 0.0f;
     }
 }
 
@@ -142,51 +189,21 @@ nodeProcessing(Brick* brick,
                DynamicSegment &segment)
 {
     bool active = false;
+    float outH = 0.0f;
     Node* node = nullptr;
 
     if(brick->isInputBrick)
     {
-        for(uint32_t nodeId = brick->nodePos;
-            nodeId < brick->numberOfNodes + brick->nodePos;
-            nodeId++)
-        {
-            node = &segment.nodes[nodeId];
-            node->input = segment.inputTransfers[node->targetBorderId];
-            //std::cout<<"+++++++  "<<node->input<<std::endl;
-            node->potential = segment.segmentSettings->potentialOverflow * node->input;
-            initNode(node);
-            node->input = 0.0f;
-        }
+        prepareNodesOfInputBrick(brick, segment);
     }
     else if(brick->isOutputBrick)
     {
-        for(uint32_t nodeId = brick->nodePos;
-            nodeId < brick->numberOfNodes + brick->nodePos;
-            nodeId++)
-        {
-            node = &segment.nodes[nodeId];
-            node->potential = segment.segmentSettings->potentialOverflow * node->input;
-            node->potential = 1.0f / (1.0f + exp(-1.0f * node->potential));
-            //std::cout<<"------  "<<node->potential<<std::endl;
-
-            segment.outputTransfers[node->targetBorderId] = node->potential;
-            initNode(node);
-            node->input = 0.0f;
-        }
-
+        prepareNodesOfOutputBrick(brick, segment);
         return;
     }
     else
     {
-        for(uint32_t nodeId = brick->nodePos;
-            nodeId < brick->numberOfNodes + brick->nodePos;
-            nodeId++)
-        {
-            node = &segment.nodes[nodeId];
-            node->potential = segment.segmentSettings->potentialOverflow * node->input;
-            initNode(node);
-            node->input = 0.0f;
-        }
+        prepareNodesOfNormalBrick(brick, segment);
     }
 
     // process all synapse-sections, which are connected to an active node within the brick
@@ -200,12 +217,7 @@ nodeProcessing(Brick* brick,
         {
             if(node->targetSectionId == UNINIT_STATE_32)
             {
-                SynapseSection newSection;
-                newSection.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-                newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
-                newSection.brickBufferPos = KyoukoRoot::m_randomValues[newSection.randomPos] % 1000;
-
-                const uint64_t newPos = segment.segmentData.addNewItem(newSection);
+                const uint64_t newPos = createNewSection(segment);
                 if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
                     continue;
                 }
@@ -213,7 +225,7 @@ nodeProcessing(Brick* brick,
                 node->targetSectionId = newPos;
             }
 
-            const float outH = 1.0f / (1.0f + exp(-1.0f * node->potential));
+            outH = 1.0f / (1.0f + exp(-1.0f * node->potential));
             synapseProcessing(&segment.synapseSections[node->targetSectionId],
                               segment,
                               node,
