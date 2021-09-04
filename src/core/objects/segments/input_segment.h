@@ -35,13 +35,13 @@ public:
 
     InputNode* inputs = nullptr;
 
-    bool initSegment(JsonItem &parsedContent);
-    bool connectBorderBuffer();
+    bool initSegment(const JsonItem &parsedContent);
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfInputs,
                                   const uint64_t borderbufferSize);
     void initSegmentPointer(const SegmentHeader &header);
+    bool connectBorderBuffer();
     void allocateSegment(SegmentHeader &header);
 };
 

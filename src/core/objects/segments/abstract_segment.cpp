@@ -24,22 +24,30 @@
 
 #include <core/objects/network_cluster.h>
 
-AbstractSegment::AbstractSegment()
-{
+/**
+ * @brief constructor
+ */
+AbstractSegment::AbstractSegment() {}
 
-}
+/**
+ * @brief destructor
+ */
+AbstractSegment::~AbstractSegment() {}
 
-AbstractSegment::~AbstractSegment()
-{
-
-}
-
+/**
+ * @brief AbstractSegment::getType
+ * @return
+ */
 SegmentTypes
 AbstractSegment::getType() const
 {
     return m_type;
 }
 
+/**
+ * @brief AbstractSegment::isReady
+ * @return
+ */
 bool
 AbstractSegment::isReady()
 {
@@ -55,30 +63,42 @@ AbstractSegment::isReady()
     return true;
 }
 
+/**
+ * @brief AbstractSegment::finishSegment
+ * @return
+ */
 bool
 AbstractSegment::finishSegment()
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     float* sourceBuffer = nullptr;
     float* targetBuffer  = nullptr;
+    uint32_t targetId = 0;
+    uint8_t targetSide = 0;
     AbstractSegment* targetSegment = nullptr;
+    SegmentNeighborList* targetNeighbors = nullptr;
 
     for(uint8_t i = 0; i < 12; i++)
     {
         if(segmentNeighbors->neighbors[i].inUse == 1)
         {
+            // get information of the neighbor
             sourceBuffer = segmentNeighbors->neighbors[i].outputTransferBuffer;
-            const uint32_t targetId = segmentNeighbors->neighbors[i].targetSegmentId;
-            const uint8_t targetSide = segmentNeighbors->neighbors[i].targetSide;
+            targetId = segmentNeighbors->neighbors[i].targetSegmentId;
+            targetSide = segmentNeighbors->neighbors[i].targetSide;
 
+            // copy data to the target buffer and wipe the source buffer
             targetSegment = cluster->allSegments[targetId];
-            targetBuffer = targetSegment->segmentNeighbors->neighbors[targetSide].inputTransferBuffer;
+            targetNeighbors = targetSegment->segmentNeighbors;
+            targetBuffer = targetNeighbors->neighbors[targetSide].inputTransferBuffer;
             memcpy(targetBuffer,
                    sourceBuffer,
                    segmentNeighbors->neighbors[i].size * sizeof(float));
             memset(sourceBuffer,
                    0,
                    segmentNeighbors->neighbors[i].size * sizeof(float));
+
+            // mark the target as ready for processing
             targetSegment->segmentNeighbors->neighbors[targetSide].inputReady = true;
         }
     }
@@ -86,19 +106,29 @@ AbstractSegment::finishSegment()
     return true;
 }
 
+/**
+ * @brief AbstractSegment::initPosition
+ * @param parsedContent
+ * @return
+ */
 bool
-AbstractSegment::initPosition(JsonItem &parsedContent)
+AbstractSegment::initPosition(const JsonItem &parsedContent)
 {
     JsonItem paredPosition = parsedContent.get("position");
-    segmentHeader->position.x = paredPosition[0].getInt();
-    segmentHeader->position.y = paredPosition[1].getInt();
-    segmentHeader->position.z = paredPosition[2].getInt();
+    segmentHeader->position.x = paredPosition.get(0).getInt();
+    segmentHeader->position.y = paredPosition.get(1).getInt();
+    segmentHeader->position.z = paredPosition.get(2).getInt();
 
     return true;
 }
 
+/**
+ * @brief AbstractSegment::initBorderBuffer
+ * @param parsedContent
+ * @return
+ */
 bool
-AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
+AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)
 {
     uint64_t posCounter = 0;
     JsonItem neighbors = parsedContent.get("neighbors");

@@ -28,16 +28,13 @@ OutputSegment::OutputSegment()
     m_type = OUTPUT_SEGMENT;
 }
 
-OutputSegment::~OutputSegment()
-{
-
-}
+OutputSegment::~OutputSegment() {}
 
 bool
-OutputSegment::initSegment(JsonItem &parsedContent)
+OutputSegment::initSegment(const JsonItem &parsedContent)
 {
-    const uint32_t numberOfOutputs = parsedContent["number_of_outputs"].getInt();
-    const uint32_t totalBorderSize = parsedContent["total_border_size"].getInt();
+    const uint32_t numberOfOutputs = parsedContent.get("number_of_outputs").getInt();
+    const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
     SegmentHeader header = createNewHeader(numberOfOutputs,
                                            totalBorderSize);

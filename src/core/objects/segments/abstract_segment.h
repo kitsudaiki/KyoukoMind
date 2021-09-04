@@ -151,8 +151,7 @@ public:
     float* inputTransfers = nullptr;
     float* outputTransfers = nullptr;
 
-    virtual bool initSegment(JsonItem &parsedContent) = 0;
-    virtual bool connectBorderBuffer() = 0;
+    virtual bool initSegment(const JsonItem &parsedContent) = 0;
 
     bool isReady();
     bool finishSegment();
@@ -160,11 +159,15 @@ public:
 protected:
     SegmentTypes m_type = UNDEFINED_SEGMENT;
 
-    bool initPosition(JsonItem &parsedContent);
-    bool initBorderBuffer(JsonItem &parsedContent);
-
+    bool initPosition(const JsonItem &parsedContent);
+    bool initBorderBuffer(const JsonItem &parsedContent);
     uint32_t createGenericNewHeader(SegmentHeader &header,
                                     const uint64_t borderbufferSize);
+
+private:
+    virtual void initSegmentPointer(const SegmentHeader &header) = 0;
+    virtual bool connectBorderBuffer() = 0;
+    virtual void allocateSegment(SegmentHeader &header) = 0;
 };
 
 //==================================================================================================

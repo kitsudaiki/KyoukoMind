@@ -26,22 +26,17 @@ DynamicSegment::DynamicSegment()
     : AbstractSegment()
 {
     m_type = DYNAMIC_SEGMENT;
-
-
 }
 
-DynamicSegment::~DynamicSegment()
-{
-
-}
+DynamicSegment::~DynamicSegment() {}
 
 /**
  * @brief DynamicSegment::initSegment
- * @param segmentDef
+ * @param parsedContent
  * @return
  */
 bool
-DynamicSegment::initSegment(JsonItem &parsedContent)
+DynamicSegment::initSegment(const JsonItem &parsedContent)
 {
     // parse bricks
     JsonItem paredBricks = parsedContent.get("bricks");
@@ -50,7 +45,7 @@ DynamicSegment::initSegment(JsonItem &parsedContent)
     for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
         totalNumberOfNodes += paredBricks.get(i).get("number_of_nodes").getInt();
     }
-    const uint32_t totalBorderSize = parsedContent["total_border_size"].getInt();
+    const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
     // create segment
     SegmentSettings settings = initSettings(parsedContent);
@@ -74,6 +69,10 @@ DynamicSegment::initSegment(JsonItem &parsedContent)
     return true;
 }
 
+/**
+ * @brief DynamicSegment::initializeNodes
+ * @return
+ */
 bool
 DynamicSegment::initializeNodes()
 {
@@ -88,7 +87,6 @@ DynamicSegment::initializeNodes()
 
     return true;
 }
-
 
 /**
  * @brief DynamicSegment::connectBorderBuffer
@@ -132,7 +130,7 @@ DynamicSegment::connectBorderBuffer()
  * @return
  */
 SegmentSettings
-DynamicSegment::initSettings(JsonItem &parsedContent)
+DynamicSegment::initSettings(const JsonItem &parsedContent)
 {
     SegmentSettings settings;
 

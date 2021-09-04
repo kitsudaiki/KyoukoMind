@@ -43,9 +43,7 @@
 /**
  * @brief constructor
  */
-ClusterInitializer::ClusterInitializer()
-{
-}
+ClusterInitializer::ClusterInitializer() {}
 
 /**
  * @brief initialize new network
@@ -108,7 +106,6 @@ ClusterInitializer::initCluster(const std::string &filePath)
 bool
 ClusterInitializer::createNewNetwork(JsonItem &parsedContent)
 {
-
     NetworkCluster newCluster;
     JsonItem paredSettings = parsedContent["settings"];
 
