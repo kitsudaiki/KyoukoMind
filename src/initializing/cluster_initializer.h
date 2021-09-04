@@ -1,5 +1,5 @@
 /**
- * @file        output_segment.h
+ * @file        cluster_initializer.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,32 +20,31 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_OUTPUT_SEGMENTS_H
-#define KYOUKOMIND_OUTPUT_SEGMENTS_H
+#ifndef KYOUKOMIND_CLUSTER_INITIALIZER_H
+#define KYOUKOMIND_CLUSTER_INITIALIZER_H
 
 #include <common.h>
 
-#include <core/objects/segments/abstract_segment.h>
+struct Brick;
+struct NetworkCluster;
+class BrickInitializer;
 
-class OutputSegment : public AbstractSegment
+class ClusterInitializer
 {
 public:
-    OutputSegment();
-    ~OutputSegment();
+    ClusterInitializer();
 
-    float lastTotalError = 0.0f;
-    float actualTotalError = 0.0f;
-
-    OutputNode* outputs = nullptr;
-
-    bool initSegment(JsonItem &parsedContent);
-    bool connectBorderBuffer();
+    bool initCluster(const std::string &filePath);
+    bool createNewNetwork(JsonItem &parsedContent);
 
 private:
-    SegmentHeader createNewHeader(const uint32_t numberOfOutputs,
-                                  const uint64_t borderbufferSize);
-    void initSegmentPointer(const SegmentHeader &header);
-    void allocateSegment(SegmentHeader &header);
+    BrickInitializer* m_brickInitializer = nullptr;
+
+    void addInputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
+    void addOutputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
+    void addDynamicSegment(JsonItem &parsedContent, NetworkCluster* cluster);
+    bool prepareSegments(JsonItem &parsedContent);
+    uint32_t checkSegments(JsonItem &parsedContent, const Position nextPos);
 };
 
-#endif // KYOUKOMIND_OUTPUT_SEGMENTS_H
+#endif // KYOUKOMIND_CLUSTER_INITIALIZER_H

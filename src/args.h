@@ -20,11 +20,18 @@
  *      limitations under the License.
  */
 
-#ifndef ARGS_H
-#define ARGS_H
+#ifndef KYOUKOMIND_ARGS_H
+#define KYOUKOMIND_ARGS_H
 
 #include <libKitsunemimiArgs/arg_parser.h>
 
+/**
+ * @brief register all available arguments for the CLI input
+ *
+ * @param argparser
+ *
+ * @return
+ */
 bool
 registerArguments(Kitsunemimi::Args::ArgParser &argparser)
 {
@@ -36,4 +43,4 @@ registerArguments(Kitsunemimi::Args::ArgParser &argparser)
     return true;
 }
 
-#endif // ARGS_H
+#endif // KYOUKOMIND_ARGS_H

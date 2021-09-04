@@ -1,5 +1,5 @@
 /**
- * @file        network_initializer.cpp
+ * @file        cluster_initializer.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "network_initializer.h"
+#include "cluster_initializer.h"
 #include <kyouko_root.h>
 
 #include <core/objects/segments/dynamic_segment.h>
@@ -53,7 +53,7 @@ ClusterInitializer::ClusterInitializer()
  * @return true, if successfull, else false
  */
 bool
-ClusterInitializer::initNetwork(const std::string &filePath)
+ClusterInitializer::initCluster(const std::string &filePath)
 {
     bool success = false;
 

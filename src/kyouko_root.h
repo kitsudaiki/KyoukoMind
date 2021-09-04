@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKO_ROOT_OBJECT_H
-#define KYOUKO_ROOT_OBJECT_H
+#ifndef KYOUKOMIND_KYOUKO_ROOT_H
+#define KYOUKOMIND_KYOUKO_ROOT_H
 
 #include <common.h>
 
@@ -51,4 +51,4 @@ private:
     uint32_t m_serverId = 0;
 };
 
-#endif //KYOUKO_ROOT_OBJECT_H
+#endif //KYOUKOMIND_KYOUKO_ROOT_H

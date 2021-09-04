@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORKCLUSTER_H
-#define NETWORKCLUSTER_H
+#ifndef KYOUKOMIND_NETWORK_CLUSTER_H
+#define KYOUKOMIND_NETWORK_CLUSTER_H
 
 #include <common.h>
 
@@ -59,4 +59,4 @@ public:
     std::deque<AbstractSegment*> segmentQueue;
 };
 
-#endif // NETWORKCLUSTER_H
+#endif // KYOUKOMIND_NETWORK_CLUSTER_H

@@ -23,7 +23,7 @@
 #include "learn_blossom.h"
 
 #include <libKitsunemimiJson/json_item.h>
-#include <core/processing/cpu_processing_unit.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
 #include <core/objects/segments/input_segment.h>
 #include <core/objects/segments/output_segment.h>

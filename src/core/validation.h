@@ -1,5 +1,5 @@
 /**
- * @file        kyouko_root.cpp
+ * @file        validation.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,11 +20,11 @@
  *      limitations under the License.
  */
 
-#ifndef VALIDATION_H
-#define VALIDATION_H
+#ifndef KYOUKOMIND_VALIDATION_H
+#define KYOUKOMIND_VALIDATION_H
 
 #include <common.h>
 
 void validateStructSizes();
 
-#endif // VALIDATION_H
+#endif // KYOUKOMIND_VALIDATION_H

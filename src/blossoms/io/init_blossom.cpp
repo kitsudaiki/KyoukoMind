@@ -22,7 +22,7 @@
 
 #include "init_blossom.h"
 
-#include <initializing/network_initializer.h>
+#include <initializing/cluster_initializer.h>
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiJson/json_item.h>

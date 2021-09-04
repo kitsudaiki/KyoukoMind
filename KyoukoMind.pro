@@ -93,7 +93,7 @@ HEADERS += \
     src/core/processing/cpu/output_segment/backpropagation.h \
     src/core/processing/cpu/output_segment/processing.h \
     src/core/processing/cpu/input_segment/processing.h \
-    src/core/processing/cpu_processing_unit.h \
+    src/core/processing/cpu/cpu_processing_unit.h \
     src/core/objects/brick.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \
@@ -102,10 +102,10 @@ HEADERS += \
     src/core/storage_io.h \
     src/core/validation.h \
     src/dev_test.h \
-    src/initializing/network_initializer.h \
     src/args.h \
     src/common.h \
     src/config.h \
+    src/initializing/cluster_initializer.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
     src/core/connection_handler/monitoring_connection_handler.h \
@@ -127,12 +127,12 @@ SOURCES += \
     src/core/objects/segments/dynamic_segment.cpp \
     src/core/objects/segments/input_segment.cpp \
     src/core/objects/segments/output_segment.cpp \
-    src/core/processing/cpu_processing_unit.cpp \
+    src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/dev_test.cpp \
-    src/initializing/network_initializer.cpp \
+    src/initializing/cluster_initializer.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \

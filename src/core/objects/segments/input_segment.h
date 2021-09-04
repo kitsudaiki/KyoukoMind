@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef INPUT_SEGMENTS_H
-#define INPUT_SEGMENTS_H
+#ifndef KYOUKOMIND_INPUT_SEGMENTS_H
+#define KYOUKOMIND_INPUT_SEGMENTS_H
 
 #include <common.h>
 
@@ -45,4 +45,4 @@ private:
     void allocateSegment(SegmentHeader &header);
 };
 
-#endif // INPUT_SEGMENTS_H
+#endif // KYOUKOMIND_INPUT_SEGMENTS_H

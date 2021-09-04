@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef ENUMS_H
-#define ENUMS_H
+#ifndef KYOUKOMIND_ENUMS_H
+#define KYOUKOMIND_ENUMS_H
 
 enum ThreadTask {
     NOTHING = 0,
@@ -32,4 +32,4 @@ enum ThreadTask {
     OUTPUT_PROCESSING = 5,
 };
 
-#endif // ENUMS_H
+#endif // KYOUKOMIND_ENUMS_H

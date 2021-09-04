@@ -1,3 +1,25 @@
+/**
+ * @file        dev_test.h
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 #include "dev_test.h"
 
 #include <kyouko_root.h>
@@ -9,33 +31,22 @@
 #include <libKitsunemimiPersistence/files/text_file.h>
 #include <libKitsunemimiConfig/config_handler.h>
 
-#include <core/processing/cpu_processing_unit.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
+/**
+ * @brief only a test-function for fast tests
+ *
+ * @param mnistRootPath absolute path to the directory with the MNIST test-files
+ */
 void
 learnTestData(const std::string &mnistRootPath)
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     CpuProcessingUnit cpuProcessingUnit;
-    GpuProcessingUnit* gpuProcessingUnit = nullptr;
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     bool success = false;
-    bool useGpu = GET_BOOL_CONFIG("DevMode", "use_gpu", success);
-    if(useGpu)
-    {
-        Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
-        if(m_gpuHandler->m_interfaces.size() == 0)
-        {
-            LOG_INFO("no gpu device found");
-            useGpu = false;
-        }
-        else
-        {
-            gpuProcessingUnit = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(0));
-            assert(gpuProcessingUnit->initializeGpu(cluster));
-        }
-    }
 
     // /home/neptune/Schreibtisch/mnist
 
@@ -125,8 +136,8 @@ learnTestData(const std::string &mnistRootPath)
             start = std::chrono::system_clock::now();
             cpuProcessingUnit.learnNetworkCluster(cluster);
             end = std::chrono::system_clock::now();
-            std::cout<<"run learn: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
-            //exit(0);
+            const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
+            std::cout<<"run learn: "<<time<<"us"<<std::endl;
         }
     }
 
@@ -174,7 +185,8 @@ learnTestData(const std::string &mnistRootPath)
         start = std::chrono::system_clock::now();
         cpuProcessingUnit.processNetworkCluster(cluster);
         end = std::chrono::system_clock::now();
-        std::cout<<"run execute: "<<std::chrono::duration_cast<chronoMicroSec>(end - start).count()<<"us"<<std::endl;
+        const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
+        std::cout<<"run execute: "<<time<<"us"<<std::endl;
 
         // print result
         float biggest = -100000.0f;
@@ -227,7 +239,7 @@ learnTestData(const std::string &mnistRootPath)
     DynamicSegment* segment = static_cast<DynamicSegment*>(cluster->allSegments.at(1));
     uint64_t synapseCounter = 0;
     SynapseSection* sections = segment->synapseSections;
-    for(uint64_t i = 0; i < synapseSegment->segmentHeader->synapseSections.count; i++)
+    for(uint64_t i = 0; i < segment->segmentHeader->synapseSections.count; i++)
     {
         if(sections[i].active == Kitsunemimi::ItemBuffer::ACTIVE_SECTION)
         {
@@ -243,7 +255,5 @@ learnTestData(const std::string &mnistRootPath)
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"synapseCounter: "<<synapseCounter<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
-
-
 }
 

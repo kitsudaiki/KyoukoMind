@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef OUTPUT_PROCESSING_H
-#define OUTPUT_PROCESSING_H
+#ifndef KYOUKOMIND_OUTPUT_PROCESSING_H
+#define KYOUKOMIND_OUTPUT_PROCESSING_H
 
 #include <common.h>
 
@@ -77,4 +77,4 @@ calcTotalError(OutputSegment* segment)
 
     return totalError;
 }
-#endif // OUTPUT_PROCESSING_H
+#endif // KYOUKOMIND_OUTPUT_PROCESSING_H

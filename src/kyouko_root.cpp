@@ -25,12 +25,12 @@
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
-#include <core/processing/cpu_processing_unit.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
 #include <core/objects/node.h>
 #include <core/storage_io.h>
 
-#include <initializing/network_initializer.h>
+#include <initializing/cluster_initializer.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>

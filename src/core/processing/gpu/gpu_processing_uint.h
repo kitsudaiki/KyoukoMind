@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef GPU_INTERFACE_H
-#define GPU_INTERFACE_H
+#ifndef KYOUKOMIND_GPU_PROCESSING_UNIT_H
+#define KYOUKOMIND_GPU_PROCESSING_UNIT_H
 
 #include <common.h>
 #include <core/objects/network_cluster.h>
@@ -49,4 +49,4 @@ private:
     bool closeDevice();
 };
 
-#endif // GPU_INTERFACE_H
+#endif // KYOUKOMIND_GPU_PROCESSING_UNIT_H

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef KYOUKOMIND_COMMON_H
+#define KYOUKOMIND_COMMON_H
 
 #include <common/enums.h>
 #include <common/includes.h>
@@ -30,4 +30,4 @@
 #include <common/structs.h>
 #include <common/functions.h>
 
-#endif // COMMON_H
+#endif // KYOUKOMIND_COMMON_H

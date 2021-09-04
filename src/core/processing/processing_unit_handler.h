@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef PROCESSING_UNIT_HANDLER_H
-#define PROCESSING_UNIT_HANDLER_H
+#ifndef KYOUKOMIND_PROCESSING_UNIT_HANDLER_H
+#define KYOUKOMIND_PROCESSING_UNIT_HANDLER_H
 
 #include <common.h>
 
@@ -53,4 +53,4 @@ private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
 };
 
-#endif // PROCESSING_UNIT_HANDLER_H
+#endif // KYOUKOMIND_PROCESSING_UNIT_HANDLER_H

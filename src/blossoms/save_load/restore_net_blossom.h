@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef RESTORE_NET_BLOSSOM_H
-#define RESTORE_NET_BLOSSOM_H
+#ifndef KYOUKOMIND_RESTORE_NET_BLOSSOM_H
+#define KYOUKOMIND_RESTORE_NET_BLOSSOM_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
@@ -35,4 +35,4 @@ protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
 };
 
-#endif // RESTORE_NET_BLOSSOM_H
+#endif // KYOUKOMIND_RESTORE_NET_BLOSSOM_H

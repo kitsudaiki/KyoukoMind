@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef ABSTRACT_SEGMENTS_H
-#define ABSTRACT_SEGMENTS_H
+#ifndef KYOUKOMIND_ABSTRACT_SEGMENTS_H
+#define KYOUKOMIND_ABSTRACT_SEGMENTS_H
 
 #include <common.h>
 
@@ -169,4 +169,4 @@ protected:
 
 //==================================================================================================
 
-#endif // ABSTRACT_SEGMENTS_H
+#endif // KYOUKOMIND_ABSTRACT_SEGMENTS_H

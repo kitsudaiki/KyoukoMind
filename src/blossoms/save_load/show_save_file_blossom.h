@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef SHOW_SAVE_FILE_BLOSSOM_H
-#define SHOW_SAVE_FILE_BLOSSOM_H
+#ifndef KYOUKOMIND_SHOW_SAVE_FILE_BLOSSOM_H
+#define KYOUKOMIND_SHOW_SAVE_FILE_BLOSSOM_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
@@ -35,4 +35,4 @@ protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
 };
 
-#endif // SHOW_SAVE_FILE_BLOSSOM_H
+#endif // KYOUKOMIND_SHOW_SAVE_FILE_BLOSSOM_H

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef CLIENT_HANDLER_H
-#define CLIENT_HANDLER_H
+#ifndef KYOUKOMIND_CLIENT_CONNECTION_HANDLER_H
+#define KYOUKOMIND_CLIENT_CONNECTION_HANDLER_H
 
 #include <common.h>
 
@@ -53,4 +53,4 @@ private:
     uint32_t m_outputBrick = 0;
 };
 
-#endif // CLIENT_HANDLER_H
+#endif // KYOUKOMIND_CLIENT_CONNECTION_HANDLER_H

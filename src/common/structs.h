@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef STRUCTS_H
-#define STRUCTS_H
+#ifndef KYOUKOMIND_STRUCTS_H
+#define KYOUKOMIND_STRUCTS_H
 
 #include <stdint.h>
 #include <common/defines.h>
@@ -47,4 +47,4 @@ struct Position
     }
 };
 
-#endif // STRUCTS_H
+#endif // KYOUKOMIND_STRUCTS_H

@@ -25,18 +25,21 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 
+/**
+ * @brief define all available entries in the config file with default-values
+ */
 void
 registerConfigs()
 {
     REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", "/etc/KyoukoMind/sakura-files");
 
-    REGISTER_BOOL_CONFIG("DevMode", "enable", false);
-    REGISTER_BOOL_CONFIG("DevMode", "use_gpu", false);
-    REGISTER_STRING_CONFIG("DevMode", "file", "");
-    REGISTER_STRING_CONFIG("DevMode", "config", "");
-    REGISTER_STRING_CONFIG("DevMode", "mnist_path", "");
-    REGISTER_INT_CONFIG("DevMode", "learn_images", 100);
-    REGISTER_INT_CONFIG("DevMode", "learn_iterations", 1);
+    //                     group      entry               default
+    REGISTER_BOOL_CONFIG(  "DevMode", "enable",           false);
+    REGISTER_STRING_CONFIG("DevMode", "file",             "");
+    REGISTER_STRING_CONFIG("DevMode", "config",           "");
+    REGISTER_STRING_CONFIG("DevMode", "mnist_path",       "");
+    REGISTER_INT_CONFIG(   "DevMode", "learn_images",     100);
+    REGISTER_INT_CONFIG(   "DevMode", "learn_iterations", 1);
 }
 
 #endif // KYOUKOMIND_CONFIG_H

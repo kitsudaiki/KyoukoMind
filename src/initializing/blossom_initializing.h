@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef BLOSSOM_INITIALIZING_H
-#define BLOSSOM_INITIALIZING_H
+#ifndef KYOUKOMIND_BLOSSOM_INITIALIZING_H
+#define KYOUKOMIND_BLOSSOM_INITIALIZING_H
 
 #include <common.h>
 
@@ -92,4 +92,4 @@ initBlossoms()
     initSaveRestoreBlossomes();
 }
 
-#endif // BLOSSOM_INITIALIZING_H
+#endif // KYOUKOMIND_BLOSSOM_INITIALIZING_H

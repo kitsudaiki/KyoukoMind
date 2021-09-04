@@ -1,5 +1,5 @@
 /**
- * @file        kyouko_root.cpp
+ * @file        callbacks.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef CALLBACKS_H
-#define CALLBACKS_H
+#ifndef KYOUKOMIND_CALLBACKS_H
+#define KYOUKOMIND_CALLBACKS_H
 
 #include <kyouko_root.h>
 #include <core/connection_handler/client_connection_handler.h>
@@ -91,4 +91,4 @@ sessionCloseCallback(const std::string identifier)
     }
 }
 
-#endif // CALLBACKS_H
+#endif // KYOUKOMIND_CALLBACKS_H

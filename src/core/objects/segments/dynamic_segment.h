@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef DYNAMIC_SEGMENTS_H
-#define DYNAMIC_SEGMENTS_H
+#ifndef KYOUKOMIND_DYNAMIC_SEGMENTS_H
+#define KYOUKOMIND_DYNAMIC_SEGMENTS_H
 
 #include <common.h>
 
@@ -62,4 +62,4 @@ private:
     bool initializeNodes();
 };
 
-#endif // DYNAMIC_SEGMENTS_H
+#endif // KYOUKOMIND_DYNAMIC_SEGMENTS_H

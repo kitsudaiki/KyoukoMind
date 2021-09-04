@@ -275,7 +275,6 @@ DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
 
     // copy metadata
     newBrick.brickId = id;
-    newBrick.nodeBrickId = id;
     if(brickDef.contains("type"))
     {
         if(brickDef.get("type").getString() == "output") {
@@ -316,12 +315,12 @@ DynamicSegment::addBricksToSegment(const JsonItem &metaBase)
         newBrick.nodePos = nodePosCounter;
 
         for(uint32_t j = 0; j < newBrick.numberOfNodes; j++) {
-            nodes[j + nodePosCounter].nodeBrickId = newBrick.nodeBrickId;
+            nodes[j + nodePosCounter].brickId = newBrick.brickId;
         }
 
         // copy new brick to segment
         bricks[nodeBrickIdCounter] = newBrick;
-        assert(nodeBrickIdCounter == newBrick.nodeBrickId);
+        assert(nodeBrickIdCounter == newBrick.brickId);
         nodeBrickIdCounter++;
         nodePosCounter += newBrick.numberOfNodes;
     }

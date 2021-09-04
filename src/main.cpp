@@ -27,8 +27,9 @@
 #include <config.h>
 #include <core/callbacks.h>
 #include <dev_test.h>
+
 #include <initializing/blossom_initializing.h>
-#include <initializing/network_initializer.h>
+#include <initializing/cluster_initializer.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -56,9 +57,8 @@ main(int argc, char *argv[])
     Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
     Kitsunemimi::Persistence::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
 
-    // init config
+    // init config by using the file defined over the CLI-input or the default config file
     std::string configFile = "/etc/KyoukoMind/KyoukoMind.conf";
-
     if(argParser.wasSet("config")) {
         configFile = argParser.getStringValue("config");
     }
@@ -75,10 +75,11 @@ main(int argc, char *argv[])
     const bool devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
     if(devMode)
     {
+        // run the dev-test based on the MNIST test files, if defined by the config
         const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
         const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
         ClusterInitializer initializer;
-        initializer.initNetwork(initialFile);
+        initializer.initCluster(initialFile);
 
         const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
         learnTestData(mnistTestPath);
@@ -93,10 +94,11 @@ main(int argc, char *argv[])
 
         // initialize server and connections based on the config-file
         std::vector<std::string> groupNames = {};
-        const bool sakuraMessageInit = MessagingController::initializeMessagingController("KyoukoMind",
-                                                                                          groupNames,
-                                                                                          &sessionCreateCallback,
-                                                                                          &sessionCloseCallback);
+        const bool sakuraMessageInit = MessagingController::initializeMessagingController(
+                    "KyoukoMind",
+                    groupNames,
+                    &sessionCreateCallback,
+                    &sessionCloseCallback);
         if(sakuraMessageInit == false)
         {
             return 1;

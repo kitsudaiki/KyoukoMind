@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef CORE_BACKPROPAGATION_H
-#define CORE_BACKPROPAGATION_H
+#ifndef KYOUKOMIND_DYNAMIC_BACKPROPAGATION_H
+#define KYOUKOMIND_DYNAMIC_BACKPROPAGATION_H
 
 #include <common.h>
 
@@ -62,9 +62,6 @@ correctNewOutputSynapses(Brick* brick,
             continue;
         }
         section = &segment->synapseSections[sourceNode->targetSectionId];
-        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION) {
-            continue;
-        }
 
         // set start-values
         pos = section->hardening;
@@ -141,9 +138,6 @@ backpropagateNodes(Brick* brick,
             continue;
         }
         section = &segment->synapseSections[sourceNode->targetSectionId];
-        if(section->active == Kitsunemimi::ItemBuffer::DELETED_SECTION) {
-            continue;
-        }
 
         // set start-values
         pos = 0;
@@ -200,4 +194,4 @@ rewightSegment(DynamicSegment* segment)
     }
 }
 
-#endif // CORE_BACKPROPAGATION_H
+#endif // KYOUKOMIND_DYNAMIC_BACKPROPAGATION_H

@@ -1,5 +1,5 @@
 /**
- * @file        network_initializer.h
+ * @file        cpu_processing_unit.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,31 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORK_INITIALIZER_H
-#define NETWORK_INITIALIZER_H
+#ifndef KYOUKOMIND_CPU_PROCESSING_UNIT_H
+#define KYOUKOMIND_CPU_PROCESSING_UNIT_H
 
 #include <common.h>
 
-struct Brick;
-struct NetworkCluster;
-class BrickInitializer;
+class NetworkCluster;
+class DynamicSegment;
+class InputSegment;
+class OutputSegment;
 
-class ClusterInitializer
+class CpuProcessingUnit
 {
 public:
-    ClusterInitializer();
+    CpuProcessingUnit();
 
-    bool initNetwork(const std::string &filePath);
-    bool createNewNetwork(JsonItem &parsedContent);
+    void learnNetworkCluster(NetworkCluster* cluster);
 
-private:
-    BrickInitializer* m_brickInitializer = nullptr;
-
-    void addInputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    void addOutputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    void addDynamicSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    bool prepareSegments(JsonItem &parsedContent);
-    uint32_t checkSegments(JsonItem &parsedContent, const Position nextPos);
+    void processNetworkCluster(NetworkCluster* cluster);
 };
 
-#endif // NETWORK_INITIALIZER_H
+#endif // KYOUKOMIND_CPU_PROCESSING_UNIT_H

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef CORE_CREATE_RESUCE_H
-#define CORE_CREATE_RESUCE_H
+#ifndef KYOUKOMIND_CREATE_RESUCE_H
+#define KYOUKOMIND_CREATE_RESUCE_H
 
 #include <common.h>
 
@@ -94,7 +94,7 @@ createNewSynapse(SynapseSection* section,
 
     // set target node id
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    nodeBrick = &bricks[sourceNode->nodeBrickId];
+    nodeBrick = &bricks[sourceNode->brickId];
     const uint32_t targetBrickId = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos];
 
     Brick* targetBrick = &bricks[targetBrickId];
@@ -274,4 +274,4 @@ reduceNodes(DynamicSegment* segment)
     }
 }
 
-#endif // CORE_CREATE_RESUCE_H
+#endif // KYOUKOMIND_CREATE_RESUCE_H

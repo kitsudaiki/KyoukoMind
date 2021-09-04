@@ -1,5 +1,5 @@
 /**
- * @file        validation.h
+ * @file        validation.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -28,6 +28,9 @@
 #include <core/objects/synapses.h>
 #include <core/objects/network_cluster.h>
 
+/**
+ * @brief validate to sized of all structs to ensure, that they have all the defined size of 2^x
+ */
 void
 validateStructSizes()
 {
