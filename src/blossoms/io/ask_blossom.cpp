@@ -45,7 +45,6 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     InputNode* inputNodes = cluster->inputSegments[0]->inputs;
-    OutputNode* outputs = cluster->outputSegments[0]->outputs;
     CpuProcessingUnit cpuProcessingUnit;
 
     const std::string requestString = blossomLeaf.input.getStringByKey("request");
@@ -65,11 +64,17 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
             inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
         }
 
-        //cpuProcessingUnit.execute();
+        cpuProcessingUnit.processNetworkCluster(cluster);
 
-        // TODO:get output
+        DataArray* response = new DataArray();
+        OutputSegment* synapseSegment = KyoukoRoot::m_networkCluster->outputSegments[0];
+        for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
+        {
+            OutputNode* out = &synapseSegment->outputs[i];
+            response->append(new DataValue(out->outputWeight));
+        }
 
-        //blossomLeaf.output.insert("result", response);
+        blossomLeaf.output.insert("result", response);
     }
 
     return true;

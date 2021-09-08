@@ -50,8 +50,7 @@ private:
     void initSegmentPointer(const SegmentHeader &header);
     bool connectBorderBuffer();
     void allocateSegment(SegmentHeader &header);
-    void initDefaultValues(const uint32_t numberOfBricks,
-                           const uint32_t numberOfNodes);
+    void initDefaultValues();
 
     void addBricksToSegment(const JsonItem &metaBase);
     bool initTargetBrickList();

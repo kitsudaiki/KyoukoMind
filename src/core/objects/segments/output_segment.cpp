@@ -22,14 +22,25 @@
 
 #include "output_segment.h"
 
+/**
+ * @brief constructor
+ */
 OutputSegment::OutputSegment()
     : AbstractSegment()
 {
     m_type = OUTPUT_SEGMENT;
 }
 
+/**
+ * @brief destructor
+ */
 OutputSegment::~OutputSegment() {}
 
+/**
+ * @brief OutputSegment::initSegment
+ * @param parsedContent
+ * @return
+ */
 bool
 OutputSegment::initSegment(const JsonItem &parsedContent)
 {
@@ -47,6 +58,10 @@ OutputSegment::initSegment(const JsonItem &parsedContent)
     return true;
 }
 
+/**
+ * @brief OutputSegment::connectBorderBuffer
+ * @return
+ */
 bool
 OutputSegment::connectBorderBuffer()
 {
@@ -57,6 +72,12 @@ OutputSegment::connectBorderBuffer()
     return true;
 }
 
+/**
+ * @brief OutputSegment::createNewHeader
+ * @param numberOfOutputs
+ * @param borderbufferSize
+ * @return
+ */
 SegmentHeader
 OutputSegment::createNewHeader(const uint32_t numberOfOutputs,
                                const uint64_t borderbufferSize)
@@ -65,16 +86,21 @@ OutputSegment::createNewHeader(const uint32_t numberOfOutputs,
     segmentHeader.segmentType = m_type;
     uint32_t segmentDataPos = createGenericNewHeader(segmentHeader, borderbufferSize);
 
-    // init bricks
+    // init outputs
     segmentHeader.outputs.count = numberOfOutputs;
     segmentHeader.outputs.bytePos = segmentDataPos;
     segmentDataPos += numberOfOutputs * sizeof(OutputNode);
 
+    // set total size of the segment
     segmentHeader.staticDataSize = segmentDataPos;
 
     return segmentHeader;
 }
 
+/**
+ * @brief OutputSegment::initSegmentPointer
+ * @param header
+ */
 void
 OutputSegment::initSegmentPointer(const SegmentHeader &header)
 {
@@ -96,6 +122,10 @@ OutputSegment::initSegmentPointer(const SegmentHeader &header)
     outputs = reinterpret_cast<OutputNode*>(dataPtr + pos);
 }
 
+/**
+ * @brief OutputSegment::allocateSegment
+ * @param header
+ */
 void
 OutputSegment::allocateSegment(SegmentHeader &header)
 {

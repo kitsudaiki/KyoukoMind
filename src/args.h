@@ -28,18 +28,25 @@
 /**
  * @brief register all available arguments for the CLI input
  *
- * @param argparser
+ * @param argparser reference to predefined argument-parser
  *
- * @return
+ * @return false, if registering argument failed, else true
  */
 bool
 registerArguments(Kitsunemimi::Args::ArgParser &argparser)
 {
-    argparser.registerString("config,c",
-                             "absolute path to config-file");
+    std::string helpText = "";
 
-    argparser.registerPlain("debug,d",
-                            "enable debug-mode");
+    helpText = "absolute path to config-file";
+    if(argparser.registerString("config,c", helpText) == false) {
+        return false;
+    }
+
+    helpText = "enable debug-mode";
+    if(argparser.registerPlain("debug,d", helpText) == false) {
+        return false;
+    }
+
     return true;
 }
 

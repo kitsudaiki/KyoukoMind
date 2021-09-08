@@ -107,8 +107,10 @@ AbstractSegment::finishSegment()
 }
 
 /**
- * @brief AbstractSegment::initPosition
- * @param parsedContent
+ * @brief initialize the position-entry of the segment based on the input
+ *
+ * @param parsedContent parsed json-item of the segment
+ *
  * @return
  */
 bool
@@ -123,42 +125,51 @@ AbstractSegment::initPosition(const JsonItem &parsedContent)
 }
 
 /**
- * @brief AbstractSegment::initBorderBuffer
- * @param parsedContent
- * @return
+ * @brief initialize the border-buffer and neighbor-list of the segment for each side
+ *
+ * @param parsedContent parsend content with the required information
+ *
+ * @return true, if successfull, else false
  */
 bool
 AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)
 {
     uint64_t posCounter = 0;
-    JsonItem neighbors = parsedContent.get("neighbors");
+    const JsonItem neighbors = parsedContent.get("neighbors");
 
     for(uint32_t i = 0; i < 12; i++)
     {
-        JsonItem currentDef = neighbors.get(i);
+        // get data about the neighbor for the side
+        const JsonItem currentDef = neighbors.get(i);
         const uint32_t next = currentDef.get("id").getLong();
-        const std::string direction = currentDef.get("direction").getString();
         const uint32_t size  = currentDef.get("size").getLong();
 
-        if(next != UNINIT_STATE_32)
-        {
-            SegmentNeighbor* currentNeighbor = &segmentNeighbors->neighbors[i];
-            currentNeighbor->inUse = true;
-            currentNeighbor->size = size;
-            currentNeighbor->targetSegmentId = next;
-            currentNeighbor->targetSide = 11 - i;
-            currentNeighbor->inputTransferBuffer = &inputTransfers[posCounter];
-            currentNeighbor->outputTransferBuffer = &outputTransfers[posCounter];
-
-            if(direction == "input") {
-                currentNeighbor->direction = INPUT_DIRECTION;
-            }
-            if(direction == "output") {
-                currentNeighbor->direction = OUTPUT_DIRECTION;
-            }
-
-            posCounter += size;
+        // go to next side, if no neighbor was found here
+        if(next == UNINIT_STATE_32) {
+            continue;
         }
+
+        // init new segment-neighbor
+        SegmentNeighbor* currentNeighbor = &segmentNeighbors->neighbors[i];
+        currentNeighbor->inUse = true;
+        currentNeighbor->size = size;
+        currentNeighbor->targetSegmentId = next;
+        currentNeighbor->targetSide = 11 - i;
+        currentNeighbor->inputTransferBuffer = &inputTransfers[posCounter];
+        currentNeighbor->outputTransferBuffer = &outputTransfers[posCounter];
+
+        // set direction of the neighbor-buffer
+        const std::string direction = currentDef.get("direction").getString();
+        if(direction == "input") {
+            currentNeighbor->direction = INPUT_DIRECTION;
+        }
+        if(direction == "output") {
+            currentNeighbor->direction = OUTPUT_DIRECTION;
+        }
+
+        // update total position pointer, because all border-buffers are in the same blog
+        // beside each other
+        posCounter += size;
     }
 
     return true;
@@ -166,8 +177,10 @@ AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)
 
 /**
  * @brief AbstractSegment::createGenericNewHeader
+ *
  * @param header
  * @param borderbufferSize
+ *
  * @return
  */
 uint32_t

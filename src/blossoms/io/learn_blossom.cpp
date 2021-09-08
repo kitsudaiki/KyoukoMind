@@ -69,7 +69,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
             inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
         }
 
-        //cpuProcessingUnit.learn();
+        cpuProcessingUnit.learnNetworkCluster(cluster);
     }
 
     return true;

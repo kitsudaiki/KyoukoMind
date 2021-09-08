@@ -55,7 +55,7 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
                                            totalBorderSize);
     allocateSegment(header);
     initSegmentPointer(header);
-    initDefaultValues(numberOfNodeBricks, totalNumberOfNodes);
+    initDefaultValues();
 
     segmentSettings[0] = settings;
 
@@ -244,24 +244,23 @@ DynamicSegment::allocateSegment(SegmentHeader &header)
  * @param numberOfNodes
  */
 void
-DynamicSegment::initDefaultValues(const uint32_t numberOfBricks,
-                                  const uint32_t numberOfNodes)
+DynamicSegment::initDefaultValues()
 {
     // init header and metadata
     segmentSettings[0] = SegmentSettings();
 
     // init bricks;
-    for(uint32_t i = 0; i < numberOfBricks; i++) {
+    for(uint32_t i = 0; i < segmentHeader->bricks.count; i++) {
         bricks[i] = Brick();
     }
 
     // init brick-order
-    for(uint32_t i = 0; i < numberOfBricks; i++) {
+    for(uint32_t i = 0; i < segmentHeader->bricks.count; i++) {
         brickOrder[i] = i;
     }
 
     // init nodes
-    for(uint32_t i = 0; i < numberOfNodes; i++) {
+    for(uint32_t i = 0; i < segmentHeader->nodes.count; i++) {
         nodes[i] = Node();
     }
 }
