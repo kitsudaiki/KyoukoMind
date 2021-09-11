@@ -106,6 +106,7 @@ HEADERS += \
     src/common.h \
     src/config.h \
     src/initializing/cluster_initializer.h \
+    src/initializing/routing_functions.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
     src/core/connection_handler/monitoring_connection_handler.h \

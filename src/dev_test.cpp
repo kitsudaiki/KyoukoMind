@@ -192,7 +192,6 @@ learnTestData(const std::string &mnistRootPath)
         float biggest = -100000.0f;
         uint32_t pos = 0;
         std::cout<<"[";
-        bool found = true;
 
         for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
         {
@@ -215,10 +214,6 @@ learnTestData(const std::string &mnistRootPath)
                 biggest = read;
                 pos = i;
             }
-        }
-
-        if(biggest == 0.0f) {
-            found = false;
         }
 
         std::cout<<"]  result: ";

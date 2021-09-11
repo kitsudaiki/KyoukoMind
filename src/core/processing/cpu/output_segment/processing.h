@@ -47,8 +47,6 @@ prcessOutputSegment(OutputSegment* segment)
     {
         OutputNode* node = &segment->outputs[pos];
         node->outputWeight = inputTransfers[node->targetBorderId];
-        //std::cout<<"+++++++  "<<node->outputWeight<<std::endl;
-
     }
 }
 
@@ -70,11 +68,39 @@ calcTotalError(OutputSegment* segment)
         outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {
-        //out = &segment->outputs[outputNodeId];
+        out = &segment->outputs[outputNodeId];
         diff = (out->shouldValue - out->outputWeight);
         totalError += 0.5f * (diff * diff);
     }
 
     return totalError;
 }
+
+/**
+ * @brief getHighestOutput
+ * @param segment
+ * @return
+ */
+uint64_t
+getHighestOutput(OutputSegment* segment)
+{
+    float hightest = -0.1f;
+    uint64_t hightestPos = 0;
+    OutputNode* out = nullptr;
+
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment->segmentHeader->outputs.count;
+        outputNodeId++)
+    {
+        out = &segment->outputs[outputNodeId];
+        if(out->outputWeight > hightest)
+        {
+            hightest = out->outputWeight;
+            hightestPos = outputNodeId;
+        }
+    }
+
+    return hightestPos;
+}
+
 #endif // KYOUKOMIND_OUTPUT_PROCESSING_H

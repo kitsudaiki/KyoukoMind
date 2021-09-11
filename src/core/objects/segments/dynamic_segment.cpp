@@ -22,6 +22,8 @@
 
 #include "dynamic_segment.h"
 
+#include <initializing/routing_functions.h>
+
 DynamicSegment::DynamicSegment()
     : AbstractSegment()
 {
@@ -240,8 +242,6 @@ DynamicSegment::allocateSegment(SegmentHeader &header)
 
 /**
  * @brief DynamicSegment::initDefaultValues
- * @param numberOfBricks
- * @param numberOfNodes
  */
 void
 DynamicSegment::initDefaultValues()
@@ -265,6 +265,12 @@ DynamicSegment::initDefaultValues()
     }
 }
 
+/**
+ * @brief DynamicSegment::createNewBrick
+ * @param brickDef
+ * @param id
+ * @return
+ */
 Brick
 DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
 {
@@ -326,8 +332,7 @@ DynamicSegment::addBricksToSegment(const JsonItem &metaBase)
 }
 
 /**
- * @brief connectBrick
- * @param segment
+ * @brief DynamicSegment::connectBrick
  * @param sourceBrick
  * @param side
  */
@@ -356,12 +361,7 @@ DynamicSegment::connectBrick(Brick* sourceBrick,
 }
 
 /**
- * @brief connect all bricks in the parser-output based on its coordinates to identify neighbors
- *
- * @param parserOutput output coming from the parser
- * @param x current x-position
- * @param y current y-position
- * @param z current z-position
+ * @brief DynamicSegment::connectAllBricks
  */
 void
 DynamicSegment::connectAllBricks()

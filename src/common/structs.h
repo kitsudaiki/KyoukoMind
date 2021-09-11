@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <common/defines.h>
+
 struct Position
 {
     int32_t x = UNINTI_POINT_32;
@@ -45,6 +46,11 @@ struct Position
                && this->y == other.y
                && this->z == other.z);
     }
+};
+
+struct NextSides
+{
+    uint8_t sides[5];
 };
 
 #endif // KYOUKOMIND_STRUCTS_H

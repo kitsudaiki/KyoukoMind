@@ -34,6 +34,8 @@
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
+#include <initializing/routing_functions.h>
+
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/file_methods.h>
