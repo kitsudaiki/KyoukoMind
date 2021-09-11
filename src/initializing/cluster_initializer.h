@@ -35,16 +35,16 @@ public:
     ClusterInitializer();
 
     bool initCluster(const std::string &filePath);
-    bool createNewNetwork(JsonItem &parsedContent);
+    bool createNewNetwork(const JsonItem &parsedContent);
 
 private:
     BrickInitializer* m_brickInitializer = nullptr;
 
-    void addInputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    void addOutputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    void addDynamicSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    bool prepareSegments(JsonItem &parsedContent);
-    uint32_t checkSegments(JsonItem &parsedContent, const Position nextPos);
+    void addInputSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
+    void addOutputSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
+    void addDynamicSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
+    bool prepareSegments(const JsonItem &parsedContent);
+    uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
 };
 
 #endif // KYOUKOMIND_CLUSTER_INITIALIZER_H

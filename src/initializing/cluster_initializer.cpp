@@ -106,10 +106,10 @@ ClusterInitializer::initCluster(const std::string &filePath)
  * @return true, if successfull, else false
  */
 bool
-ClusterInitializer::createNewNetwork(JsonItem &parsedContent)
+ClusterInitializer::createNewNetwork(const JsonItem &parsedContent)
 {
     NetworkCluster newCluster;
-    JsonItem paredSettings = parsedContent["settings"];
+    JsonItem paredSettings = parsedContent.get("settings");
 
     // network-meta
     newCluster.networkMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
@@ -121,17 +121,17 @@ ClusterInitializer::createNewNetwork(JsonItem &parsedContent)
     cluster->initMetaData = newCluster.initMetaData;
     cluster->networkMetaData = newCluster.networkMetaData;
 
-    JsonItem segments = parsedContent["segments"];
+    JsonItem segments = parsedContent.get("segments");
     for(uint32_t i = 0; i < segments.size(); i++)
     {
-        JsonItem currentSegment = segments[i];
-        if(currentSegment["type"].getString() == "dynamic_segment") {
+        const JsonItem currentSegment = segments.get(i);
+        if(currentSegment.get("type").getString() == "dynamic_segment") {
             addDynamicSegment(currentSegment, cluster);
         }
-        if(currentSegment["type"].getString() == "input_segment") {
+        if(currentSegment.get("type").getString() == "input_segment") {
             addInputSegment(currentSegment, cluster);
         }
-        if(currentSegment["type"].getString() == "output_segment") {
+        if(currentSegment.get("type").getString() == "output_segment") {
             addOutputSegment(currentSegment, cluster);
         }
     }
@@ -145,7 +145,7 @@ ClusterInitializer::createNewNetwork(JsonItem &parsedContent)
  * @param cluster
  */
 void
-ClusterInitializer::addInputSegment(JsonItem &parsedContent,
+ClusterInitializer::addInputSegment(const JsonItem &parsedContent,
                                     NetworkCluster* cluster)
 {
     InputSegment* newSegment = new InputSegment();
@@ -165,7 +165,7 @@ ClusterInitializer::addInputSegment(JsonItem &parsedContent,
  * @param cluster
  */
 void
-ClusterInitializer::addOutputSegment(JsonItem &parsedContent,
+ClusterInitializer::addOutputSegment(const JsonItem &parsedContent,
                                      NetworkCluster* cluster)
 {
     OutputSegment* newSegment = new OutputSegment();
@@ -185,7 +185,7 @@ ClusterInitializer::addOutputSegment(JsonItem &parsedContent,
  * @param cluster
  */
 void
-ClusterInitializer::addDynamicSegment(JsonItem &parsedContent,
+ClusterInitializer::addDynamicSegment(const JsonItem &parsedContent,
                                       NetworkCluster* cluster)
 {
     DynamicSegment* newSegment = new DynamicSegment();
@@ -203,7 +203,7 @@ ClusterInitializer::addDynamicSegment(JsonItem &parsedContent,
  * @return
  */
 bool
-ClusterInitializer::prepareSegments(JsonItem &parsedContent)
+ClusterInitializer::prepareSegments(const JsonItem &parsedContent)
 {
     JsonItem segments = parsedContent.get("segments");
     for(uint32_t i = 0; i < segments.size(); i++)
@@ -284,7 +284,7 @@ ClusterInitializer::prepareSegments(JsonItem &parsedContent)
  * @return
  */
 uint32_t
-ClusterInitializer::checkSegments(JsonItem &parsedContent,
+ClusterInitializer::checkSegments(const JsonItem &parsedContent,
                                   const Position nextPos)
 {
     JsonItem segments = parsedContent.get("segments");
