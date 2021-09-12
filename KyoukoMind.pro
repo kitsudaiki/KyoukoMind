@@ -64,7 +64,7 @@ LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
 
-LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL
+LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL -luuid
 
 INCLUDEPATH += $$PWD \
                src
@@ -82,6 +82,7 @@ HEADERS += \
     src/common/functions.h \
     src/common/includes.h \
     src/common/typedefs.h \
+    src/core/cluster_handler.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segments/abstract_segment.h \
     src/core/objects/segments/dynamic_segment.h \
@@ -123,6 +124,7 @@ SOURCES += \
     src/blossoms/save_load/restore_net_blossom.cpp \
     src/blossoms/save_load/save_net_blossom.cpp \
     src/blossoms/save_load/show_save_file_blossom.cpp \
+    src/core/cluster_handler.cpp \
     src/core/objects/network_cluster.cpp \
     src/core/objects/segments/abstract_segment.cpp \
     src/core/objects/segments/dynamic_segment.cpp \

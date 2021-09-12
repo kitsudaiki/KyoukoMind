@@ -45,6 +45,7 @@ validateStructSizes()
 
     assert(sizeof(NetworkMetaData) == 256);
     assert(sizeof(SegmentSettings) == 256);
+    assert(sizeof(kuuid) == 40);
 
     return;
 }

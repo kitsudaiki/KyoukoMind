@@ -34,15 +34,18 @@
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
+#include <core/cluster_handler.h>
+
 /**
  * @brief only a test-function for fast tests
  *
  * @param mnistRootPath absolute path to the directory with the MNIST test-files
  */
 void
-learnTestData(const std::string &mnistRootPath)
+learnTestData(const std::string &mnistRootPath,
+              const std::string &uuid)
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    NetworkCluster* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
     CpuProcessingUnit cpuProcessingUnit;
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
@@ -167,7 +170,7 @@ learnTestData(const std::string &mnistRootPath)
         inputNodes[i].weight = 0.0f;
     }
 
-    OutputSegment* synapseSegment = KyoukoRoot::m_networkCluster->outputSegments[0];
+    OutputSegment* synapseSegment = cluster->outputSegments[0];
 
     for(uint32_t pic = 0; pic < total; pic++)
     {

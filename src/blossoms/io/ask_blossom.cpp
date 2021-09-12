@@ -27,6 +27,7 @@
 #include <core/objects/network_cluster.h>
 #include <core/objects/segments/input_segment.h>
 #include <core/objects/segments/output_segment.h>
+#include <core/cluster_handler.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -35,6 +36,7 @@ using namespace Kitsunemimi::Json;
 AskBlossom::AskBlossom()
     : Blossom()
 {
+    registerField("cluster_uuid", INPUT_TYPE, true);
     registerField("request", INPUT_TYPE, true);
     registerField("response", OUTPUT_TYPE, true);
 }
@@ -43,15 +45,17 @@ bool
 AskBlossom::runTask(BlossomLeaf &blossomLeaf,
                     std::string &errorMessage)
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
-    CpuProcessingUnit cpuProcessingUnit;
-
     const std::string requestString = blossomLeaf.input.getStringByKey("request");
     JsonItem request;
     if(request.parse(requestString, errorMessage) == false) {
         return false;
     }
+
+    const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
+    NetworkCluster* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    // TODO: handle if not found
+    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
+    CpuProcessingUnit cpuProcessingUnit;
 
     const uint32_t numberOfInputs = request["number_of_inputs"].getInt();
     const float reduction = request["reduction"].getFloat();
@@ -67,7 +71,7 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
         cpuProcessingUnit.processNetworkCluster(cluster);
 
         DataArray* response = new DataArray();
-        OutputSegment* synapseSegment = KyoukoRoot::m_networkCluster->outputSegments[0];
+        OutputSegment* synapseSegment = cluster->outputSegments[0];
         for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
         {
             OutputNode* out = &synapseSegment->outputs[i];

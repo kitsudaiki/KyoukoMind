@@ -72,11 +72,14 @@ struct SegmentHeaderEntry
 
 struct SegmentHeader
 {
-    uint32_t segmentID = UNINIT_STATE_32;
     uint8_t segmentType = UNDEFINED_SEGMENT;
-    uint8_t padding1[3];
+    uint8_t padding1[1];
+    uint16_t version = 1;
+    uint32_t segmentID = UNINIT_STATE_32;
     uint64_t staticDataSize = 0;
     Position position;
+
+    kuuid parentClusterId;
 
     // synapse-segment
     SegmentHeaderEntry settings;
@@ -92,7 +95,7 @@ struct SegmentHeader
 
     SegmentHeaderEntry synapseSections;
 
-    uint8_t padding2[64];
+    uint8_t padding2[24];
 
     // total size: 256 Byte
 };
@@ -150,6 +153,7 @@ public:
     SegmentNeighborList* segmentNeighbors = nullptr;
     float* inputTransfers = nullptr;
     float* outputTransfers = nullptr;
+    NetworkCluster* parentCluster = nullptr;
 
     virtual bool initSegment(const JsonItem &parsedContent) = 0;
 

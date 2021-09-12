@@ -52,6 +52,7 @@
 #include <cmath>
 #include <utility>
 #include <atomic>
+#include <uuid/uuid.h>
 
 #include <boost/filesystem.hpp>
 namespace bfs = boost::filesystem;

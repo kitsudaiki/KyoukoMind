@@ -42,6 +42,7 @@ class NetworkCluster
 public:
     NetworkCluster();
 
+    kuuid uuid;
     NetworkMetaData networkMetaData;
 
     std::vector<InputSegment*> inputSegments;

@@ -70,7 +70,6 @@ AbstractSegment::isReady()
 bool
 AbstractSegment::finishSegment()
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     float* sourceBuffer = nullptr;
     float* targetBuffer  = nullptr;
     uint32_t targetId = 0;
@@ -88,7 +87,7 @@ AbstractSegment::finishSegment()
             targetSide = segmentNeighbors->neighbors[i].targetSide;
 
             // copy data to the target buffer and wipe the source buffer
-            targetSegment = cluster->allSegments[targetId];
+            targetSegment = parentCluster->allSegments[targetId];
             targetNeighbors = targetSegment->segmentNeighbors;
             targetBuffer = targetNeighbors->neighbors[targetSide].inputTransferBuffer;
             memcpy(targetBuffer,

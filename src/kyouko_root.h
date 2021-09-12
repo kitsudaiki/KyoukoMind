@@ -30,6 +30,7 @@ class InputOutputProcessing;
 class ClientConnectionHandler;
 class MonitoringConnectionHandler;
 class CpuProcessingUnit;
+class ClusterHandler;
 
 class KyoukoRoot
 {
@@ -39,7 +40,7 @@ public:
     ~KyoukoRoot();
 
     static KyoukoRoot* m_root;
-    static NetworkCluster* m_networkCluster;
+    static ClusterHandler* m_clusterHandler;
     static uint32_t* m_randomValues;
     static ClientConnectionHandler* m_clientHandler;
     static MonitoringConnectionHandler* m_monitoringHandler;

@@ -28,21 +28,22 @@
 struct Brick;
 struct NetworkCluster;
 class BrickInitializer;
+class AbstractSegment;
 
 class ClusterInitializer
 {
 public:
     ClusterInitializer();
 
-    bool initCluster(const std::string &filePath);
-    bool createNewNetwork(const JsonItem &parsedContent);
+    const std::string initCluster(const std::string &filePath);
+    const std::string createNewNetwork(const JsonItem &parsedContent);
 
 private:
     BrickInitializer* m_brickInitializer = nullptr;
 
-    void addInputSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
-    void addOutputSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
-    void addDynamicSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
+    AbstractSegment* addInputSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
+    AbstractSegment* addOutputSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
+    AbstractSegment* addDynamicSegment(const JsonItem &parsedContent, NetworkCluster* cluster);
     bool prepareSegments(const JsonItem &parsedContent);
     uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
 };

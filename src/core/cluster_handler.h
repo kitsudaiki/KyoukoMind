@@ -1,5 +1,5 @@
 /**
- * @file        dev_test.h
+ * @file        cluster_handler.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,12 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_DEV_TEST_H
-#define KYOUKOMIND_DEV_TEST_H
+#ifndef CLUSTERHANDLER_H
+#define CLUSTERHANDLER_H
 
 #include <common.h>
 
-void learnTestData(const std::string &mnistRootPath,
-                   const std::string &uuid);
+struct NetworkCluster;
 
-#endif // KYOUKOMIND_DEV_TEST_H
+class ClusterHandler
+{
+public:
+    ClusterHandler();
+
+    bool addCluster(const std::string uuid, NetworkCluster* newCluster);
+    bool removeCluster(const std::string uuid);
+    NetworkCluster* getCluster(const std::string uuid);
+
+private:
+    std::map<std::string, NetworkCluster*> m_allCluster;
+};
+
+#endif // CLUSTERHANDLER_H

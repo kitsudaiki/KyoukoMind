@@ -27,6 +27,7 @@
 #include <core/objects/network_cluster.h>
 #include <core/objects/segments/input_segment.h>
 #include <core/objects/segments/output_segment.h>
+#include <core/cluster_handler.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -42,7 +43,10 @@ bool
 LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
                       std::string &errorMessage)
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
+    NetworkCluster* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    // TODO: handle if not found
+
     InputNode* inputNodes = cluster->inputSegments[0]->inputs;
     OutputNode* outputs = cluster->outputSegments[0]->outputs;
     CpuProcessingUnit cpuProcessingUnit;

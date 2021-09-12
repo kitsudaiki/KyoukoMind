@@ -34,6 +34,7 @@
 #include <core/processing/processing_unit_handler.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
+#include <core/cluster_handler.h>
 #include <initializing/routing_functions.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
@@ -52,11 +53,9 @@ ClusterInitializer::ClusterInitializer() {}
  *
  * @return true, if successfull, else false
  */
-bool
+const std::string
 ClusterInitializer::initCluster(const std::string &filePath)
 {
-    bool success = false;
-
     LOG_INFO("no files found. Try to create a new cluster");
 
     LOG_INFO("use init-file: " + filePath);
@@ -66,7 +65,7 @@ ClusterInitializer::initCluster(const std::string &filePath)
     if(Kitsunemimi::Persistence::readFile(fileContent, filePath, errorMessage) == false)
     {
         LOG_ERROR(errorMessage);
-        return false;
+        return std::string("");
     }
 
     // init randomizer
@@ -74,7 +73,7 @@ ClusterInitializer::initCluster(const std::string &filePath)
 
     // check if values are valid
     if(fileContent == "") {
-        return false;
+        return std::string("");
     }
 
     // parse input
@@ -83,19 +82,19 @@ ClusterInitializer::initCluster(const std::string &filePath)
     if(ret == false)
     {
         LOG_ERROR("error while parsing input: " + errorMessage);
-        return false;
+        return std::string("");
     }
 
     prepareSegments(parsedContent);
     std::cout<<parsedContent.toString(true)<<std::endl;
-    success = createNewNetwork(parsedContent);
-    if(success == false)
+    const std::string uuid = createNewNetwork(parsedContent);
+    if(uuid == "")
     {
         LOG_ERROR("failed to initialize network");
-        return false;
+        return std::string("");
     }
 
-    return true;
+    return uuid;
 }
 
 /**
@@ -105,7 +104,7 @@ ClusterInitializer::initCluster(const std::string &filePath)
  *
  * @return true, if successfull, else false
  */
-bool
+const std::string
 ClusterInitializer::createNewNetwork(const JsonItem &parsedContent)
 {
     NetworkCluster newCluster;
@@ -114,26 +113,37 @@ ClusterInitializer::createNewNetwork(const JsonItem &parsedContent)
     // network-meta
     newCluster.networkMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
 
-    KyoukoRoot::m_networkCluster = new NetworkCluster();
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    NetworkCluster* cluster = new NetworkCluster();
+    cluster->uuid = generateUuid();
+    KyoukoRoot::m_root->m_clusterHandler->addCluster(cluster->uuid.toString(), cluster);
+
+    LOG_INFO("create new cluster with uuid: " + cluster->uuid.toString());
     cluster->networkMetaData = newCluster.networkMetaData;
 
     JsonItem segments = parsedContent.get("segments");
     for(uint32_t i = 0; i < segments.size(); i++)
     {
-        const JsonItem currentSegment = segments.get(i);
-        if(currentSegment.get("type").getString() == "dynamic_segment") {
-            addDynamicSegment(currentSegment, cluster);
+        const JsonItem segmentDef = segments.get(i);
+        AbstractSegment* newSegment = nullptr;
+        if(segmentDef.get("type").getString() == "dynamic_segment") {
+            newSegment = addDynamicSegment(segmentDef, cluster);
         }
-        if(currentSegment.get("type").getString() == "input_segment") {
-            addInputSegment(currentSegment, cluster);
+        if(segmentDef.get("type").getString() == "input_segment") {
+            newSegment = addInputSegment(segmentDef, cluster);
         }
-        if(currentSegment.get("type").getString() == "output_segment") {
-            addOutputSegment(currentSegment, cluster);
+        if(segmentDef.get("type").getString() == "output_segment") {
+            newSegment = addOutputSegment(segmentDef, cluster);
+        }
+
+        if(newSegment != nullptr) {
+            newSegment->segmentHeader->parentClusterId = cluster->uuid;
+            newSegment->parentCluster = cluster;
+        } else {
+            // TODO: error-handling
         }
     }
 
-    return true;
+    return cluster->uuid.toString();
 }
 
 /**
@@ -141,19 +151,24 @@ ClusterInitializer::createNewNetwork(const JsonItem &parsedContent)
  * @param parsedContent
  * @param cluster
  */
-void
+AbstractSegment*
 ClusterInitializer::addInputSegment(const JsonItem &parsedContent,
                                     NetworkCluster* cluster)
 {
     InputSegment* newSegment = new InputSegment();
     const bool ret = newSegment->initSegment(parsedContent);
 
-    if(ret) {
+    if(ret)
+    {
         cluster->inputSegments.push_back(newSegment);
         cluster->allSegments.push_back(newSegment);
-    } else {
+    }
+    else
+    {
         // TODO: handle error
     }
+
+    return newSegment;
 }
 
 /**
@@ -161,7 +176,7 @@ ClusterInitializer::addInputSegment(const JsonItem &parsedContent,
  * @param parsedContent
  * @param cluster
  */
-void
+AbstractSegment*
 ClusterInitializer::addOutputSegment(const JsonItem &parsedContent,
                                      NetworkCluster* cluster)
 {
@@ -174,6 +189,8 @@ ClusterInitializer::addOutputSegment(const JsonItem &parsedContent,
     } else {
         // TODO: handle error
     }
+
+    return newSegment;
 }
 
 /**
@@ -181,7 +198,7 @@ ClusterInitializer::addOutputSegment(const JsonItem &parsedContent,
  * @param parsedContent
  * @param cluster
  */
-void
+AbstractSegment*
 ClusterInitializer::addDynamicSegment(const JsonItem &parsedContent,
                                       NetworkCluster* cluster)
 {
@@ -192,6 +209,8 @@ ClusterInitializer::addDynamicSegment(const JsonItem &parsedContent,
     } else {
         // TODO: handle error
     }
+
+    return newSegment;
 }
 
 /**
