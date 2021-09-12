@@ -1,5 +1,5 @@
 /**
- * @file        network_initializer.h
+ * @file        cluster_handler.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,31 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORK_INITIALIZER_H
-#define NETWORK_INITIALIZER_H
+#ifndef CLUSTERHANDLER_H
+#define CLUSTERHANDLER_H
 
 #include <common.h>
 
-struct Brick;
-struct NetworkCluster;
-class BrickInitializer;
+class NetworkCluster;
 
-class ClusterInitializer
+class ClusterHandler
 {
 public:
-    ClusterInitializer();
+    ClusterHandler();
 
-    bool initNetwork(const std::string &filePath);
-    bool createNewNetwork(JsonItem &parsedContent);
+    bool addCluster(const std::string uuid, NetworkCluster* newCluster);
+    bool removeCluster(const std::string uuid);
+    NetworkCluster* getCluster(const std::string uuid);
 
 private:
-    BrickInitializer* m_brickInitializer = nullptr;
-
-    void addInputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    void addOutputSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    void addDynamicSegment(JsonItem &parsedContent, NetworkCluster* cluster);
-    bool prepareSegments(JsonItem &parsedContent);
-    uint32_t checkSegments(JsonItem &parsedContent, const Position nextPos);
+    std::map<std::string, NetworkCluster*> m_allCluster;
 };
 
-#endif // NETWORK_INITIALIZER_H
+#endif // CLUSTERHANDLER_H

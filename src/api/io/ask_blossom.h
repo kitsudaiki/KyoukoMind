@@ -1,5 +1,5 @@
 /**
- * @file        list_save_files_blossom.h
+ * @file        ask_blossom.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef LIST_SAVE_FILES_BLOSSOM_H
-#define LIST_SAVE_FILES_BLOSSOM_H
+#ifndef KYOUKOMIND_ASK_BLOSSOM_H
+#define KYOUKOMIND_ASK_BLOSSOM_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class ListSaveFilesBlossom
+class AskBlossom
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    ListSaveFilesBlossom();
+    AskBlossom();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
 };
 
-#endif // LIST_SAVE_FILES_BLOSSOM_H
+#endif // KYOUKOMIND_ASK_BLOSSOM_H

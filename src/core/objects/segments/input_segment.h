@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef INPUT_SEGMENTS_H
-#define INPUT_SEGMENTS_H
+#ifndef KYOUKOMIND_INPUT_SEGMENTS_H
+#define KYOUKOMIND_INPUT_SEGMENTS_H
 
 #include <common.h>
 
@@ -35,14 +35,14 @@ public:
 
     InputNode* inputs = nullptr;
 
-    bool initSegment(JsonItem &parsedContent);
-    bool connectBorderBuffer();
+    bool initSegment(const JsonItem &parsedContent);
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfInputs,
                                   const uint64_t borderbufferSize);
     void initSegmentPointer(const SegmentHeader &header);
+    bool connectBorderBuffer();
     void allocateSegment(SegmentHeader &header);
 };
 
-#endif // INPUT_SEGMENTS_H
+#endif // KYOUKOMIND_INPUT_SEGMENTS_H

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef INPUT_PROCESSING_H
-#define INPUT_PROCESSING_H
+#ifndef KYOUKOMIND_INPUT_PROCESSING_H
+#define KYOUKOMIND_INPUT_PROCESSING_H
 
 #include <common.h>
 
@@ -42,7 +42,7 @@
  * @param segment segment to process
  */
 void
-prcessInputSegment(InputSegment* segment)
+prcessInputSegment(const InputSegment* segment)
 {
     const uint32_t numberOfInputs = segment->segmentHeader->inputs.count;
     float* outputTransfers = segment->outputTransfers;
@@ -53,4 +53,4 @@ prcessInputSegment(InputSegment* segment)
     }
 }
 
-#endif // INPUT_PROCESSING_H
+#endif // KYOUKOMIND_INPUT_PROCESSING_H

@@ -1,5 +1,5 @@
 /**
- * @file        save_net_blossom.h
+ * @file        cpu_processing_unit.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef SAVE_NET_BLOSSOM_H
-#define SAVE_NET_BLOSSOM_H
+#ifndef KYOUKOMIND_CPU_PROCESSING_UNIT_H
+#define KYOUKOMIND_CPU_PROCESSING_UNIT_H
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <common.h>
 
-class SaveNetBlossom
-        : public Kitsunemimi::Sakura::Blossom
+class NetworkCluster;
+class DynamicSegment;
+class InputSegment;
+class OutputSegment;
+
+class CpuProcessingUnit
 {
 public:
-    SaveNetBlossom();
+    CpuProcessingUnit();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
+    void learnNetworkCluster(NetworkCluster* cluster);
+
+    void processNetworkCluster(NetworkCluster* cluster);
 };
 
-#endif // SAVE_NET_BLOSSOM_H
+#endif // KYOUKOMIND_CPU_PROCESSING_UNIT_H

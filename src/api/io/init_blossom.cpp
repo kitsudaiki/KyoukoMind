@@ -22,8 +22,6 @@
 
 #include "init_blossom.h"
 
-#include <initializing/network_initializer.h>
-
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiJson/json_item.h>
 
@@ -42,7 +40,6 @@ InitBlossom::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string content = blossomLeaf.input.getStringByKey("content");
 
-    ClusterInitializer initializer;
     const bool result = false;
     /*const bool result = initializer.createNewNetwork(content);
     if(result == false) {

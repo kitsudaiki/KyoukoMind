@@ -64,24 +64,25 @@ LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
 LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
 INCLUDEPATH += ../libKitsunemimiPersistence/include
 
-LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL
+LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL -luuid
 
 INCLUDEPATH += $$PWD \
                src
 
 HEADERS += \
-    src/blossoms/io/ask_blossom.h \
-    src/blossoms/io/init_blossom.h \
-    src/blossoms/io/learn_blossom.h \
-    src/blossoms/save_load/list_save_files_blossom.h \
-    src/blossoms/save_load/restore_net_blossom.h \
-    src/blossoms/save_load/save_net_blossom.h \
-    src/blossoms/save_load/show_save_file_blossom.h \
+    src/api/io/ask_blossom.h \
+    src/api/io/init_blossom.h \
+    src/api/io/learn_blossom.h \
+    src/api/save_load/list_save_files_blossom.h \
+    src/api/save_load/restore_net_blossom.h \
+    src/api/save_load/save_net_blossom.h \
+    src/api/save_load/show_save_file_blossom.h \
     src/common/defines.h \
     src/common/enums.h \
     src/common/functions.h \
     src/common/includes.h \
     src/common/typedefs.h \
+    src/core/cluster_handler.h \
     src/core/objects/network_cluster.h \
     src/core/objects/segments/abstract_segment.h \
     src/core/objects/segments/dynamic_segment.h \
@@ -93,7 +94,7 @@ HEADERS += \
     src/core/processing/cpu/output_segment/backpropagation.h \
     src/core/processing/cpu/output_segment/processing.h \
     src/core/processing/cpu/input_segment/processing.h \
-    src/core/processing/cpu_processing_unit.h \
+    src/core/processing/cpu/cpu_processing_unit.h \
     src/core/objects/brick.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/objects/node.h \
@@ -102,42 +103,42 @@ HEADERS += \
     src/core/storage_io.h \
     src/core/validation.h \
     src/dev_test.h \
-    src/initializing/network_initializer.h \
     src/args.h \
     src/common.h \
     src/config.h \
+    src/core/routing_functions.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
     src/core/connection_handler/monitoring_connection_handler.h \
     src/core/connection_handler/client_connection_handler.h \
-    src/blossoms/special/special_blossoms.h \
-    src/initializing/blossom_initializing.h \
+    src/api/special/special_blossoms.h \
+    src/api/blossom_initializing.h \
     src/common/structs.h
 
 SOURCES += \
-    src/blossoms/io/ask_blossom.cpp \
-    src/blossoms/io/init_blossom.cpp \
-    src/blossoms/io/learn_blossom.cpp \
-    src/blossoms/save_load/list_save_files_blossom.cpp \
-    src/blossoms/save_load/restore_net_blossom.cpp \
-    src/blossoms/save_load/save_net_blossom.cpp \
-    src/blossoms/save_load/show_save_file_blossom.cpp \
+    src/api/io/ask_blossom.cpp \
+    src/api/io/init_blossom.cpp \
+    src/api/io/learn_blossom.cpp \
+    src/api/save_load/list_save_files_blossom.cpp \
+    src/api/save_load/restore_net_blossom.cpp \
+    src/api/save_load/save_net_blossom.cpp \
+    src/api/save_load/show_save_file_blossom.cpp \
+    src/core/cluster_handler.cpp \
     src/core/objects/network_cluster.cpp \
     src/core/objects/segments/abstract_segment.cpp \
     src/core/objects/segments/dynamic_segment.cpp \
     src/core/objects/segments/input_segment.cpp \
     src/core/objects/segments/output_segment.cpp \
-    src/core/processing/cpu_processing_unit.cpp \
+    src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/dev_test.cpp \
-    src/initializing/network_initializer.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \
     src/core/connection_handler/client_connection_handler.cpp \
-    src/blossoms/special/special_blossoms.cpp
+    src/api/special/special_blossoms.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

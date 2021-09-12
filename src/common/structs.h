@@ -20,11 +20,12 @@
  *      limitations under the License.
  */
 
-#ifndef STRUCTS_H
-#define STRUCTS_H
+#ifndef KYOUKOMIND_STRUCTS_H
+#define KYOUKOMIND_STRUCTS_H
 
 #include <stdint.h>
 #include <common/defines.h>
+
 struct Position
 {
     int32_t x = UNINTI_POINT_32;
@@ -32,7 +33,7 @@ struct Position
     int32_t z = UNINTI_POINT_32;
     int32_t w = UNINTI_POINT_32;
 
-    bool isValid()
+    bool isValid() const
     {
         return(x != UNINTI_POINT_32
                && y != UNINTI_POINT_32
@@ -47,4 +48,9 @@ struct Position
     }
 };
 
-#endif // STRUCTS_H
+struct NextSides
+{
+    uint8_t sides[5];
+};
+
+#endif // KYOUKOMIND_STRUCTS_H

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef ABSTRACT_SEGMENTS_H
-#define ABSTRACT_SEGMENTS_H
+#ifndef KYOUKOMIND_ABSTRACT_SEGMENTS_H
+#define KYOUKOMIND_ABSTRACT_SEGMENTS_H
 
 #include <common.h>
 
@@ -72,11 +72,14 @@ struct SegmentHeaderEntry
 
 struct SegmentHeader
 {
-    uint32_t segmentID = UNINIT_STATE_32;
     uint8_t segmentType = UNDEFINED_SEGMENT;
-    uint8_t padding1[3];
+    uint8_t padding1[1];
+    uint16_t version = 1;
+    uint32_t segmentID = UNINIT_STATE_32;
     uint64_t staticDataSize = 0;
     Position position;
+
+    kuuid parentClusterId;
 
     // synapse-segment
     SegmentHeaderEntry settings;
@@ -92,7 +95,7 @@ struct SegmentHeader
 
     SegmentHeaderEntry synapseSections;
 
-    uint8_t padding2[64];
+    uint8_t padding2[24];
 
     // total size: 256 Byte
 };
@@ -150,9 +153,9 @@ public:
     SegmentNeighborList* segmentNeighbors = nullptr;
     float* inputTransfers = nullptr;
     float* outputTransfers = nullptr;
+    NetworkCluster* parentCluster = nullptr;
 
-    virtual bool initSegment(JsonItem &parsedContent) = 0;
-    virtual bool connectBorderBuffer() = 0;
+    virtual bool initSegment(const JsonItem &parsedContent) = 0;
 
     bool isReady();
     bool finishSegment();
@@ -160,13 +163,17 @@ public:
 protected:
     SegmentTypes m_type = UNDEFINED_SEGMENT;
 
-    bool initPosition(JsonItem &parsedContent);
-    bool initBorderBuffer(JsonItem &parsedContent);
-
+    Position convertPosition(const JsonItem &parsedContent);
+    bool initBorderBuffer(const JsonItem &parsedContent);
     uint32_t createGenericNewHeader(SegmentHeader &header,
                                     const uint64_t borderbufferSize);
+
+private:
+    virtual void initSegmentPointer(const SegmentHeader &header) = 0;
+    virtual bool connectBorderBuffer() = 0;
+    virtual void allocateSegment(SegmentHeader &header) = 0;
 };
 
 //==================================================================================================
 
-#endif // ABSTRACT_SEGMENTS_H
+#endif // KYOUKOMIND_ABSTRACT_SEGMENTS_H

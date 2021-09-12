@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef INCLUDES_H
-#define INCLUDES_H
+#ifndef KYOUKOMIND_INCLUDES_H
+#define KYOUKOMIND_INCLUDES_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -52,6 +52,7 @@
 #include <cmath>
 #include <utility>
 #include <atomic>
+#include <uuid/uuid.h>
 
 #include <boost/filesystem.hpp>
 namespace bfs = boost::filesystem;
@@ -71,4 +72,4 @@ using Kitsunemimi::DataMap;
 #include <libKitsunemimiJson/json_item.h>
 using Kitsunemimi::Json::JsonItem;
 
-#endif // INCLUDES_H
+#endif // KYOUKOMIND_INCLUDES_H

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef SYNAPSES_H
-#define SYNAPSES_H
+#ifndef KYOUKOMIND_SYNAPSES_H
+#define KYOUKOMIND_SYNAPSES_H
 
 #include <common.h>
 
@@ -64,4 +64,4 @@ struct SynapseSection
 
 //==================================================================================================
 
-#endif // SYNAPSES_H
+#endif // KYOUKOMIND_SYNAPSES_H

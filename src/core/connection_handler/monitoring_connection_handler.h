@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef MONITORING_CONNECTION_HANDLER_H
-#define MONITORING_CONNECTION_HANDLER_H
+#ifndef KYOUKOMIND_MONITORING_CONNECTION_HANDLER_H
+#define KYOUKOMIND_MONITORING_CONNECTION_HANDLER_H
 
 #include <common.h>
 
@@ -50,4 +50,4 @@ private:
     MessagingClient* m_monitoring = nullptr;
 };
 
-#endif // MONITORING_CONNECTION_HANDLER_H
+#endif // KYOUKOMIND_MONITORING_CONNECTION_HANDLER_H

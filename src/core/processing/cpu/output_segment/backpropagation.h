@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef OUTPUT_BACKPROPAGATION_H
-#define OUTPUT_BACKPROPAGATION_H
+#ifndef KYOUKOMIND_OUTPUT_BACKPROPAGATION_H
+#define KYOUKOMIND_OUTPUT_BACKPROPAGATION_H
 
 #include <common.h>
 
@@ -52,4 +52,4 @@ backpropagateOutput(OutputSegment* segment)
     }
 }
 
-#endif // OUTPUT_BACKPROPAGATION_H
+#endif // KYOUKOMIND_OUTPUT_BACKPROPAGATION_H

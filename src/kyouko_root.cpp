@@ -25,12 +25,11 @@
 #include <core/validation.h>
 #include <core/connection_handler/client_connection_handler.h>
 #include <core/connection_handler/monitoring_connection_handler.h>
-#include <core/processing/cpu_processing_unit.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
 #include <core/objects/node.h>
 #include <core/storage_io.h>
-
-#include <initializing/network_initializer.h>
+#include <core/cluster_handler.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -46,7 +45,7 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
-NetworkCluster* KyoukoRoot::m_networkCluster = nullptr;
+ClusterHandler* KyoukoRoot::m_clusterHandler = nullptr;
 uint32_t* KyoukoRoot::m_randomValues = nullptr;
 ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
 MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
@@ -61,6 +60,7 @@ KyoukoRoot::KyoukoRoot()
     m_root = this;
     m_clientHandler = new ClientConnectionHandler();
     m_monitoringHandler = new MonitoringConnectionHandler();
+    m_clusterHandler = new ClusterHandler();
 
     // init predefinde random-values
     m_randomValues = new uint32_t[NUMBER_OF_RAND_VALUES];
@@ -106,4 +106,50 @@ KyoukoRoot::start()
 {
     // network-manager
     return true;
+}
+
+const std::string
+KyoukoRoot::initCluster(const std::string &filePath)
+{
+    LOG_INFO("no files found. Try to create a new cluster");
+
+    LOG_INFO("use init-file: " + filePath);
+
+    std::string fileContent = "";
+    std::string errorMessage = "";
+    if(Kitsunemimi::Persistence::readFile(fileContent, filePath, errorMessage) == false)
+    {
+        LOG_ERROR(errorMessage);
+        return std::string("");
+    }
+
+    // init randomizer
+    srand(time(NULL));
+
+    // check if values are valid
+    if(fileContent == "") {
+        return std::string("");
+    }
+
+    // parse input
+    JsonItem parsedContent;
+    const bool ret = parsedContent.parse(fileContent, errorMessage);
+    if(ret == false)
+    {
+        LOG_ERROR("error while parsing input: " + errorMessage);
+        return std::string("");
+    }
+
+    NetworkCluster* newCluster = new NetworkCluster();
+    const std::string uuid = newCluster->initNewCluster(parsedContent);
+    if(uuid == "")
+    {
+        delete newCluster;
+        LOG_ERROR("failed to initialize network");
+        return std::string("");
+    }
+
+    m_clusterHandler->addCluster(uuid, newCluster);
+
+    return uuid;
 }

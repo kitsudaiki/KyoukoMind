@@ -24,22 +24,30 @@
 
 #include <core/objects/network_cluster.h>
 
-AbstractSegment::AbstractSegment()
-{
+/**
+ * @brief constructor
+ */
+AbstractSegment::AbstractSegment() {}
 
-}
+/**
+ * @brief destructor
+ */
+AbstractSegment::~AbstractSegment() {}
 
-AbstractSegment::~AbstractSegment()
-{
-
-}
-
+/**
+ * @brief AbstractSegment::getType
+ * @return
+ */
 SegmentTypes
 AbstractSegment::getType() const
 {
     return m_type;
 }
 
+/**
+ * @brief AbstractSegment::isReady
+ * @return
+ */
 bool
 AbstractSegment::isReady()
 {
@@ -55,30 +63,41 @@ AbstractSegment::isReady()
     return true;
 }
 
+/**
+ * @brief AbstractSegment::finishSegment
+ * @return
+ */
 bool
 AbstractSegment::finishSegment()
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
     float* sourceBuffer = nullptr;
     float* targetBuffer  = nullptr;
+    uint32_t targetId = 0;
+    uint8_t targetSide = 0;
     AbstractSegment* targetSegment = nullptr;
+    SegmentNeighborList* targetNeighbors = nullptr;
 
     for(uint8_t i = 0; i < 12; i++)
     {
         if(segmentNeighbors->neighbors[i].inUse == 1)
         {
+            // get information of the neighbor
             sourceBuffer = segmentNeighbors->neighbors[i].outputTransferBuffer;
-            const uint32_t targetId = segmentNeighbors->neighbors[i].targetSegmentId;
-            const uint8_t targetSide = segmentNeighbors->neighbors[i].targetSide;
+            targetId = segmentNeighbors->neighbors[i].targetSegmentId;
+            targetSide = segmentNeighbors->neighbors[i].targetSide;
 
-            targetSegment = cluster->allSegments[targetId];
-            targetBuffer = targetSegment->segmentNeighbors->neighbors[targetSide].inputTransferBuffer;
+            // copy data to the target buffer and wipe the source buffer
+            targetSegment = parentCluster->allSegments[targetId];
+            targetNeighbors = targetSegment->segmentNeighbors;
+            targetBuffer = targetNeighbors->neighbors[targetSide].inputTransferBuffer;
             memcpy(targetBuffer,
                    sourceBuffer,
                    segmentNeighbors->neighbors[i].size * sizeof(float));
             memset(sourceBuffer,
                    0,
                    segmentNeighbors->neighbors[i].size * sizeof(float));
+
+            // mark the target as ready for processing
             targetSegment->segmentNeighbors->neighbors[targetSide].inputReady = true;
         }
     }
@@ -86,49 +105,71 @@ AbstractSegment::finishSegment()
     return true;
 }
 
-bool
-AbstractSegment::initPosition(JsonItem &parsedContent)
+/**
+ * @brief initialize the position-entry of the segment based on the input
+ *
+ * @param parsedContent parsed json-item of the segment
+ *
+ * @return
+ */
+Position
+AbstractSegment::convertPosition(const JsonItem &parsedContent)
 {
+    Position result;
     JsonItem paredPosition = parsedContent.get("position");
-    segmentHeader->position.x = paredPosition[0].getInt();
-    segmentHeader->position.y = paredPosition[1].getInt();
-    segmentHeader->position.z = paredPosition[2].getInt();
+    result.x = paredPosition.get(0).getInt();
+    result.y = paredPosition.get(1).getInt();
+    result.z = paredPosition.get(2).getInt();
 
-    return true;
+    return result;
 }
 
+/**
+ * @brief initialize the border-buffer and neighbor-list of the segment for each side
+ *
+ * @param parsedContent parsend content with the required information
+ *
+ * @return true, if successfull, else false
+ */
 bool
-AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
+AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)
 {
     uint64_t posCounter = 0;
-    JsonItem neighbors = parsedContent.get("neighbors");
+    const JsonItem neighbors = parsedContent.get("neighbors");
 
     for(uint32_t i = 0; i < 12; i++)
     {
-        JsonItem currentDef = neighbors.get(i);
+        // get data about the neighbor for the side
+        const JsonItem currentDef = neighbors.get(i);
         const uint32_t next = currentDef.get("id").getLong();
-        const std::string direction = currentDef.get("direction").getString();
         const uint32_t size  = currentDef.get("size").getLong();
 
-        if(next != UNINIT_STATE_32)
-        {
-            SegmentNeighbor* currentNeighbor = &segmentNeighbors->neighbors[i];
-            currentNeighbor->inUse = true;
-            currentNeighbor->size = size;
-            currentNeighbor->targetSegmentId = next;
-            currentNeighbor->targetSide = 11 - i;
-            currentNeighbor->inputTransferBuffer = &inputTransfers[posCounter];
-            currentNeighbor->outputTransferBuffer = &outputTransfers[posCounter];
-
-            if(direction == "input") {
-                currentNeighbor->direction = INPUT_DIRECTION;
-            }
-            if(direction == "output") {
-                currentNeighbor->direction = OUTPUT_DIRECTION;
-            }
-
-            posCounter += size;
+        // go to next side, if no neighbor was found here
+        if(next == UNINIT_STATE_32) {
+            continue;
         }
+
+        // init new segment-neighbor
+        SegmentNeighbor* currentNeighbor = &segmentNeighbors->neighbors[i];
+        currentNeighbor->inUse = true;
+        currentNeighbor->size = size;
+        currentNeighbor->targetSegmentId = next;
+        currentNeighbor->targetSide = 11 - i;
+        currentNeighbor->inputTransferBuffer = &inputTransfers[posCounter];
+        currentNeighbor->outputTransferBuffer = &outputTransfers[posCounter];
+
+        // set direction of the neighbor-buffer
+        const std::string direction = currentDef.get("direction").getString();
+        if(direction == "input") {
+            currentNeighbor->direction = INPUT_DIRECTION;
+        }
+        if(direction == "output") {
+            currentNeighbor->direction = OUTPUT_DIRECTION;
+        }
+
+        // update total position pointer, because all border-buffers are in the same blog
+        // beside each other
+        posCounter += size;
     }
 
     return true;
@@ -136,8 +177,10 @@ AbstractSegment::initBorderBuffer(JsonItem &parsedContent)
 
 /**
  * @brief AbstractSegment::createGenericNewHeader
+ *
  * @param header
  * @param borderbufferSize
+ *
  * @return
  */
 uint32_t

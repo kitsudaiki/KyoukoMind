@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef INIT_BLOSSOM_H
-#define INIT_BLOSSOM_H
+#ifndef KYOUKOMIND_INIT_BLOSSOM_H
+#define KYOUKOMIND_INIT_BLOSSOM_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
@@ -35,4 +35,4 @@ protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
 };
 
-#endif // INIT_BLOSSOM_H
+#endif // KYOUKOMIND_INIT_BLOSSOM_H

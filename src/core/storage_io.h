@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef STORAGEIO_H
-#define STORAGEIO_H
+#ifndef KYOUKOMIND_STORAGEIO_H
+#define KYOUKOMIND_STORAGEIO_H
 
 #include <common.h>
 
@@ -45,4 +45,4 @@ private:
 
 };
 
-#endif // STORAGEIO_H
+#endif // KYOUKOMIND_STORAGEIO_H

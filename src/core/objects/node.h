@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef NODES_H
-#define NODES_H
+#ifndef KYOUKOMIND_NODES_H
+#define KYOUKOMIND_NODES_H
 
 #include <common.h>
 
@@ -58,7 +58,7 @@ struct Node
     uint8_t upToDate = 0;
     bool isInit = false;
 
-    uint32_t nodeBrickId = 0;
+    uint32_t brickId = 0;
 
     uint32_t targetBorderId = UNINIT_STATE_32;
     uint32_t targetSectionId = UNINIT_STATE_32;
@@ -68,4 +68,4 @@ struct Node
 
 //==================================================================================================
 
-#endif // NODES_H
+#endif // KYOUKOMIND_NODES_H

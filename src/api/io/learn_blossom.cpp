@@ -1,5 +1,5 @@
 /**
- * @file        ask_blossom.cpp
+ * @file        learn_blossom.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,30 +20,33 @@
  *      limitations under the License.
  */
 
-#include "ask_blossom.h"
+#include "learn_blossom.h"
 
 #include <libKitsunemimiJson/json_item.h>
-#include <core/processing/cpu_processing_unit.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
 #include <core/objects/segments/input_segment.h>
 #include <core/objects/segments/output_segment.h>
+#include <core/cluster_handler.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 using namespace Kitsunemimi::Json;
 
-AskBlossom::AskBlossom()
+LearnBlossom::LearnBlossom()
     : Blossom()
 {
     registerField("request", INPUT_TYPE, true);
-    registerField("response", OUTPUT_TYPE, true);
 }
 
 bool
-AskBlossom::runTask(BlossomLeaf &blossomLeaf,
-                    std::string &errorMessage)
+LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
+                      std::string &errorMessage)
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
+    const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
+    NetworkCluster* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    // TODO: handle if not found
+
     InputNode* inputNodes = cluster->inputSegments[0]->inputs;
     OutputNode* outputs = cluster->outputSegments[0]->outputs;
     CpuProcessingUnit cpuProcessingUnit;
@@ -60,16 +63,17 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
     for(uint32_t pic = 0; pic < numberOfInputs; pic++)
     {
         JsonItem input = request["input"][pic];
+        JsonItem should = request["should"][pic];
+
+        for(uint32_t i = 0; i < should.size(); i++) {
+            outputs[i].shouldValue = should[i].getFloat();
+        }
 
         for(uint32_t i = 0; i < input.size(); i++) {
             inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
         }
 
-        //cpuProcessingUnit.execute();
-
-        // TODO:get output
-
-        //blossomLeaf.output.insert("result", response);
+        cpuProcessingUnit.learnNetworkCluster(cluster);
     }
 
     return true;

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef BRICK_H
-#define BRICK_H
+#ifndef KYOUKOMIND_BRICK_H
+#define KYOUKOMIND_BRICK_H
 
 #include <common.h>
 #include <kyouko_root.h>
@@ -30,16 +30,15 @@ struct Brick
 {
     // common
     uint32_t brickId = UNINIT_STATE_32;
-    uint32_t nodeBrickId = UNINIT_STATE_32;
-    uint32_t layerId = UNINIT_STATE_32;
     bool isOutputBrick = false;
     bool isInputBrick = false;
-    uint8_t padding[6];
+    uint8_t padding1[14];
+
     uint32_t nodeActivity = 0;
 
     Position brickPos;
-
     uint32_t neighbors[12];
+
     uint32_t possibleTargetNodeBrickIds[1000];
     uint32_t nodePos = UNINIT_STATE_32;
     uint32_t numberOfNodes = 0;
@@ -47,4 +46,4 @@ struct Brick
     // total size: 4096 Bytes
 };
 
-#endif // BRICK_H
+#endif // KYOUKOMIND_BRICK_H

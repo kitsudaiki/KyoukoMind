@@ -28,22 +28,19 @@ InputSegment::InputSegment()
     m_type = INPUT_SEGMENT;
 }
 
-InputSegment::~InputSegment()
-{
-
-}
+InputSegment::~InputSegment() {}
 
 bool
-InputSegment::initSegment(JsonItem &parsedContent)
+InputSegment::initSegment(const JsonItem &parsedContent)
 {
-    const uint32_t numberOfInputs = parsedContent["number_of_inputs"].getInt();
-    const uint32_t totalBorderSize = parsedContent["total_border_size"].getInt();
+    const uint32_t numberOfInputs = parsedContent.get("number_of_inputs").getInt();
+    const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
     SegmentHeader header = createNewHeader(numberOfInputs,
                                            totalBorderSize);
     allocateSegment(header);
     initSegmentPointer(header);
-    initPosition(parsedContent);
+    segmentHeader->position = convertPosition(parsedContent);
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
 

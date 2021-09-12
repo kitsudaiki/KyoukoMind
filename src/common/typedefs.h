@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef TYPEDEFS_H
-#define TYPEDEFS_H
+#ifndef KYOUKOMIND_TYPEDEFS_H
+#define KYOUKOMIND_TYPEDEFS_H
 
 #include <chrono>
 
@@ -32,4 +32,4 @@ typedef std::chrono::seconds chronoSec;
 typedef std::chrono::high_resolution_clock::time_point chronoTimePoint;
 typedef std::chrono::high_resolution_clock chronoClock;
 
-#endif // TYPEDEFS_H
+#endif // KYOUKOMIND_TYPEDEFS_H

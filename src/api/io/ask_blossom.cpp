@@ -1,5 +1,5 @@
 /**
- * @file        learn_blossom.cpp
+ * @file        ask_blossom.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,38 +20,42 @@
  *      limitations under the License.
  */
 
-#include "learn_blossom.h"
+#include "ask_blossom.h"
 
 #include <libKitsunemimiJson/json_item.h>
-#include <core/processing/cpu_processing_unit.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
 #include <core/objects/segments/input_segment.h>
 #include <core/objects/segments/output_segment.h>
+#include <core/cluster_handler.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 using namespace Kitsunemimi::Json;
 
-LearnBlossom::LearnBlossom()
+AskBlossom::AskBlossom()
     : Blossom()
 {
+    registerField("cluster_uuid", INPUT_TYPE, true);
     registerField("request", INPUT_TYPE, true);
+    registerField("response", OUTPUT_TYPE, true);
 }
 
 bool
-LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
-                      std::string &errorMessage)
+AskBlossom::runTask(BlossomLeaf &blossomLeaf,
+                    std::string &errorMessage)
 {
-    NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
-    OutputNode* outputs = cluster->outputSegments[0]->outputs;
-    CpuProcessingUnit cpuProcessingUnit;
-
     const std::string requestString = blossomLeaf.input.getStringByKey("request");
     JsonItem request;
     if(request.parse(requestString, errorMessage) == false) {
         return false;
     }
+
+    const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
+    NetworkCluster* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    // TODO: handle if not found
+    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
+    CpuProcessingUnit cpuProcessingUnit;
 
     const uint32_t numberOfInputs = request["number_of_inputs"].getInt();
     const float reduction = request["reduction"].getFloat();
@@ -59,17 +63,22 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     for(uint32_t pic = 0; pic < numberOfInputs; pic++)
     {
         JsonItem input = request["input"][pic];
-        JsonItem should = request["should"][pic];
-
-        for(uint32_t i = 0; i < should.size(); i++) {
-            outputs[i].shouldValue = should[i].getFloat();
-        }
 
         for(uint32_t i = 0; i < input.size(); i++) {
             inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
         }
 
-        //cpuProcessingUnit.learn();
+        cpuProcessingUnit.processNetworkCluster(cluster);
+
+        DataArray* response = new DataArray();
+        OutputSegment* synapseSegment = cluster->outputSegments[0];
+        for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
+        {
+            OutputNode* out = &synapseSegment->outputs[i];
+            response->append(new DataValue(out->outputWeight));
+        }
+
+        blossomLeaf.output.insert("result", response);
     }
 
     return true;

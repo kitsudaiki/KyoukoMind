@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef BLOSSOM_INITIALIZING_H
-#define BLOSSOM_INITIALIZING_H
+#ifndef KYOUKOMIND_BLOSSOM_INITIALIZING_H
+#define KYOUKOMIND_BLOSSOM_INITIALIZING_H
 
 #include <common.h>
 
@@ -31,16 +31,16 @@
 #include <libKitsunemimiPersistence/files/text_file.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-#include <src/blossoms/special/special_blossoms.h>
+#include <api/special/special_blossoms.h>
 
-#include <src/blossoms/save_load/list_save_files_blossom.h>
-#include <src/blossoms/save_load/restore_net_blossom.h>
-#include <src/blossoms/save_load/save_net_blossom.h>
-#include <src/blossoms/save_load/show_save_file_blossom.h>
+#include <api/save_load/list_save_files_blossom.h>
+#include <api/save_load/restore_net_blossom.h>
+#include <api/save_load/save_net_blossom.h>
+#include <api/save_load/show_save_file_blossom.h>
 
-#include <src/blossoms/io/ask_blossom.h>
-#include <src/blossoms/io/init_blossom.h>
-#include <src/blossoms/io/learn_blossom.h>
+#include <api/io/ask_blossom.h>
+#include <api/io/init_blossom.h>
+#include <api/io/learn_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -92,4 +92,4 @@ initBlossoms()
     initSaveRestoreBlossomes();
 }
 
-#endif // BLOSSOM_INITIALIZING_H
+#endif // KYOUKOMIND_BLOSSOM_INITIALIZING_H

@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef NETWORKCLUSTER_H
-#define NETWORKCLUSTER_H
+#ifndef KYOUKOMIND_NETWORK_CLUSTER_H
+#define KYOUKOMIND_NETWORK_CLUSTER_H
 
 #include <common.h>
 
@@ -34,15 +34,7 @@ struct NetworkMetaData
     float lerningValue = 0.0f;
     uint32_t cycleTime = 1000000;
 
-    uint8_t padding[247];
-};
-
-struct InitSettings
-{
-    uint64_t maxSynapseSections = 0;
-    uint16_t maxBrickDistance = 0;
-
-    uint8_t padding[246];
+    uint8_t padding[248];
 };
 
 class NetworkCluster
@@ -50,13 +42,22 @@ class NetworkCluster
 public:
     NetworkCluster();
 
+    kuuid uuid;
     NetworkMetaData networkMetaData;
-    InitSettings initMetaData;
 
     std::vector<InputSegment*> inputSegments;
     std::vector<OutputSegment*> outputSegments;
     std::vector<AbstractSegment*> allSegments;
     std::deque<AbstractSegment*> segmentQueue;
+
+    const std::string initNewCluster(const JsonItem &parsedContent);
+
+private:
+    AbstractSegment* addInputSegment(const JsonItem &parsedContent);
+    AbstractSegment* addOutputSegment(const JsonItem &parsedContent);
+    AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
+    bool prepareSegments(const JsonItem &parsedContent);
+    uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
 };
 
-#endif // NETWORKCLUSTER_H
+#endif // KYOUKOMIND_NETWORK_CLUSTER_H

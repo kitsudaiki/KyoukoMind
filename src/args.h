@@ -20,20 +20,34 @@
  *      limitations under the License.
  */
 
-#ifndef ARGS_H
-#define ARGS_H
+#ifndef KYOUKOMIND_ARGS_H
+#define KYOUKOMIND_ARGS_H
 
 #include <libKitsunemimiArgs/arg_parser.h>
 
+/**
+ * @brief register all available arguments for the CLI input
+ *
+ * @param argparser reference to predefined argument-parser
+ *
+ * @return false, if registering argument failed, else true
+ */
 bool
 registerArguments(Kitsunemimi::Args::ArgParser &argparser)
 {
-    argparser.registerString("config,c",
-                             "absolute path to config-file");
+    std::string helpText = "";
 
-    argparser.registerPlain("debug,d",
-                            "enable debug-mode");
+    helpText = "absolute path to config-file";
+    if(argparser.registerString("config,c", helpText) == false) {
+        return false;
+    }
+
+    helpText = "enable debug-mode";
+    if(argparser.registerPlain("debug,d", helpText) == false) {
+        return false;
+    }
+
     return true;
 }
 
-#endif // ARGS_H
+#endif // KYOUKOMIND_ARGS_H

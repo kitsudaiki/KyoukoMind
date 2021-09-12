@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef SYNAPSE_PROCESSING_H
-#define SYNAPSE_PROCESSING_H
+#ifndef KYOUKOMIND_DYNAMIC_PROCESSING_H
+#define KYOUKOMIND_DYNAMIC_PROCESSING_H
 
 #include <common.h>
 
@@ -255,4 +255,4 @@ prcessDynamicSegment(DynamicSegment* segment)
     }
 }
 
-#endif // SYNAPSE_PROCESSING_H
+#endif // KYOUKOMIND_DYNAMIC_PROCESSING_H

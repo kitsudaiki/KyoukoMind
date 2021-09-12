@@ -1,5 +1,5 @@
 /**
- * @file        restore_net_blossom.h
+ * @file        learn_blossom.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef RESTORE_NET_BLOSSOM_H
-#define RESTORE_NET_BLOSSOM_H
+#ifndef KYOUKOMIND_LEARN_BLOSSOM_H
+#define KYOUKOMIND_LEARN_BLOSSOM_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class LoadNetBlossom
+class LearnBlossom
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    LoadNetBlossom();
+    LearnBlossom();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
 };
 
-#endif // RESTORE_NET_BLOSSOM_H
+#endif // KYOUKOMIND_LEARN_BLOSSOM_H
