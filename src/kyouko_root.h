@@ -47,6 +47,7 @@ public:
 
     bool start();
     bool initializeSakuraFiles();
+    const std::string initCluster(const std::string &filePath);
 
 private:
     uint32_t m_serverId = 0;

@@ -29,7 +29,6 @@
 #include <dev_test.h>
 
 #include <initializing/blossom_initializing.h>
-#include <initializing/cluster_initializer.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -78,8 +77,7 @@ main(int argc, char *argv[])
         // run the dev-test based on the MNIST test files, if defined by the config
         const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
         const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
-        ClusterInitializer initializer;
-        const std::string uuid = initializer.initCluster(initialFile);
+        const std::string uuid = rootObject->initCluster(initialFile);
 
         const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
         learnTestData(mnistTestPath, uuid);

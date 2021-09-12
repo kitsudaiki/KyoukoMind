@@ -31,8 +31,6 @@
 #include <core/storage_io.h>
 #include <core/cluster_handler.h>
 
-#include <initializing/cluster_initializer.h>
-
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
 
@@ -108,4 +106,50 @@ KyoukoRoot::start()
 {
     // network-manager
     return true;
+}
+
+const std::string
+KyoukoRoot::initCluster(const std::string &filePath)
+{
+    LOG_INFO("no files found. Try to create a new cluster");
+
+    LOG_INFO("use init-file: " + filePath);
+
+    std::string fileContent = "";
+    std::string errorMessage = "";
+    if(Kitsunemimi::Persistence::readFile(fileContent, filePath, errorMessage) == false)
+    {
+        LOG_ERROR(errorMessage);
+        return std::string("");
+    }
+
+    // init randomizer
+    srand(time(NULL));
+
+    // check if values are valid
+    if(fileContent == "") {
+        return std::string("");
+    }
+
+    // parse input
+    JsonItem parsedContent;
+    const bool ret = parsedContent.parse(fileContent, errorMessage);
+    if(ret == false)
+    {
+        LOG_ERROR("error while parsing input: " + errorMessage);
+        return std::string("");
+    }
+
+    NetworkCluster* newCluster = new NetworkCluster();
+    const std::string uuid = newCluster->initNewCluster(parsedContent);
+    if(uuid == "")
+    {
+        delete newCluster;
+        LOG_ERROR("failed to initialize network");
+        return std::string("");
+    }
+
+    m_clusterHandler->addCluster(uuid, newCluster);
+
+    return uuid;
 }

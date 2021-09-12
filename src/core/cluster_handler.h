@@ -25,7 +25,7 @@
 
 #include <common.h>
 
-struct NetworkCluster;
+class NetworkCluster;
 
 class ClusterHandler
 {

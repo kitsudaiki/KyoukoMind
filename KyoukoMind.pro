@@ -106,7 +106,6 @@ HEADERS += \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/initializing/cluster_initializer.h \
     src/initializing/routing_functions.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
@@ -135,7 +134,6 @@ SOURCES += \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/dev_test.cpp \
-    src/initializing/cluster_initializer.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \

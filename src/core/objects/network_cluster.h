@@ -49,6 +49,15 @@ public:
     std::vector<OutputSegment*> outputSegments;
     std::vector<AbstractSegment*> allSegments;
     std::deque<AbstractSegment*> segmentQueue;
+
+    const std::string initNewCluster(const JsonItem &parsedContent);
+
+private:
+    AbstractSegment* addInputSegment(const JsonItem &parsedContent);
+    AbstractSegment* addOutputSegment(const JsonItem &parsedContent);
+    AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
+    bool prepareSegments(const JsonItem &parsedContent);
+    uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H
