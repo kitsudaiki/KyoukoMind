@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file        dynamic_segment.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -23,6 +23,7 @@
 #include "dynamic_segment.h"
 
 #include <initializing/routing_functions.h>
+#include <libKitsunemimiPersistence/logger/logger.h>
 
 DynamicSegment::DynamicSegment()
     : AbstractSegment()
@@ -41,7 +42,7 @@ bool
 DynamicSegment::initSegment(const JsonItem &parsedContent)
 {
     // parse bricks
-    JsonItem paredBricks = parsedContent.get("bricks");
+    const JsonItem paredBricks = parsedContent.get("bricks");
     const uint32_t numberOfNodeBricks = paredBricks.size();
     uint32_t totalNumberOfNodes = 0;
     for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
@@ -49,24 +50,28 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
     }
     const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
-    // create segment
-    SegmentSettings settings = initSettings(parsedContent);
+    // create segment metadata
+    const SegmentSettings settings = initSettings(parsedContent);
     SegmentHeader header = createNewHeader(numberOfNodeBricks,
                                            totalNumberOfNodes,
                                            settings.maxSynapseSections,
                                            totalBorderSize);
+    // initialize segment itself
     allocateSegment(header);
     initSegmentPointer(header);
     initDefaultValues();
-
+    segmentHeader->position = convertPosition(parsedContent);
     segmentSettings[0] = settings;
 
-    initPosition(parsedContent);
-    initBorderBuffer(parsedContent);
+    // init content
     initializeNodes();
     addBricksToSegment(parsedContent);
-    connectBorderBuffer();
+    connectAllBricks();
     initTargetBrickList();
+
+    // init border
+    initBorderBuffer(parsedContent);
+    connectBorderBuffer();
 
     return true;
 }
@@ -288,13 +293,12 @@ DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
         }
     }
 
-    // copy position
-    newBrick.brickPos.x = brickDef.get("x").getInt();
-    newBrick.brickPos.y = brickDef.get("y").getInt();
-    newBrick.brickPos.z = brickDef.get("z").getInt();
-
-    // set other values
+    // convert other values
+    newBrick.brickPos = convertPosition(brickDef);
     newBrick.numberOfNodes = brickDef.get("number_of_nodes").getInt();
+    for(uint8_t side = 0; side < 12; side++) {
+        newBrick.neighbors[side] = UNINIT_STATE_32;
+    }
 
     return newBrick;
 }
@@ -308,11 +312,11 @@ DynamicSegment::addBricksToSegment(const JsonItem &metaBase)
 {
     uint32_t nodeBrickIdCounter = 0;
     uint32_t nodePosCounter = 0;
-    JsonItem brickDef = metaBase.get("bricks");
+    const JsonItem brickDef = metaBase.get("bricks");
 
     for(uint32_t i = 0; i < brickDef.size(); i++)
     {
-        Brick newBrick = createNewBrick(brickDef[i], i);
+        Brick newBrick = createNewBrick(brickDef.get(i), i);
 
         // handle node-brick
         newBrick.nodePos = nodePosCounter;
@@ -340,8 +344,8 @@ void
 DynamicSegment::connectBrick(Brick* sourceBrick,
                              const uint8_t side)
 {
-    sourceBrick->neighbors[side] = UNINIT_STATE_32;
-    Position next = getNeighborPos(sourceBrick->brickPos, side);
+    const Position next = getNeighborPos(sourceBrick->brickPos, side);
+    std::cout<<next.x<<" : "<<next.y<<" : "<<next.z<<std::endl;
     if(next.isValid())
     {
         for(uint32_t t = 0; t < segmentHeader->bricks.count; t++)
@@ -353,10 +357,6 @@ DynamicSegment::connectBrick(Brick* sourceBrick,
                 targetBrick->neighbors[11 - side] = sourceBrick->brickId;
             }
         }
-    }
-    else
-    {
-        // TODO: connect to output-transfer
     }
 }
 
@@ -376,6 +376,42 @@ DynamicSegment::connectAllBricks()
 }
 
 /**
+ * @brief DynamicSegment::goToNextInitBrick
+ * @param currentBrick
+ * @return
+ */
+uint32_t
+DynamicSegment::goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength)
+{
+    // check path-length to not go too far
+    (*maxPathLength)--;
+    if(*maxPathLength == 0) {
+        return currentBrick->brickId;
+    }
+
+    // check based on the chance, if you go to the next, or not
+    const float chanceForNext = 0.0f;  // TODO: make hard-coded value configurable
+    if(1000.0f * chanceForNext > (rand() % 1000)) {
+        return currentBrick->brickId;
+    }
+
+    // get a random possible next brick
+    const uint8_t possibleNextSides[7] = {9, 3, 1, 4, 11, 5, 2};
+    const uint8_t startSide = possibleNextSides[rand() % 7];
+    for(uint32_t i = 0; i < 7; i++)
+    {
+        const uint8_t side = possibleNextSides[(i + startSide) % 7];
+        const uint32_t nextBrickId = currentBrick->neighbors[side];
+        if(nextBrickId != UNINIT_STATE_32) {
+            return goToNextInitBrick(&bricks[nextBrickId], maxPathLength);
+        }
+    }
+
+    // if no further next brick was found, the give back tha actual one as end of the path
+    return currentBrick->brickId;
+}
+
+/**
  * @brief FanBrickInitializer::initTargetBrickList
  * @param segment
  * @return
@@ -383,32 +419,27 @@ DynamicSegment::connectAllBricks()
 bool
 DynamicSegment::initTargetBrickList()
 {
-    // iterate over all bricks
     for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
     {
         Brick* baseBrick = &bricks[i];
+
+        // ignore output-bricks, because they only forward to the border-buffer
+        // and not to other bricks
         if(baseBrick->isOutputBrick != 0) {
             continue;
         }
 
-        // get 1000 samples
-        uint32_t counter = 0;
-        while(counter < 1000)
+        // test 1000 samples for possible next bricks
+        for(uint32_t counter = 0; counter < 1000; counter++)
         {
-            baseBrick->possibleTargetNodeBrickIds[counter] = baseBrick->brickId + 1;
-            counter++;
-            /*uint8_t nextSide = getPossibleNext();
-            const uint32_t nextBrickId = baseBrick->neighbors[nextSide];
-            if(nextBrickId != UNINIT_STATE_32)
-            {
-                baseBrick->possibleTargetNodeBrickIds[counter] = nextBrickId;
-                counter++;
-                if(counter >= 1000) {
-                    break;
-                }
-            }*/
+            uint32_t maxPathLength = 2; // TODO: make configurable
+            const uint32_t brickId = goToNextInitBrick(baseBrick, &maxPathLength);
+            if(brickId == baseBrick->brickId) {
+                LOG_WARNING("brick has no next brick and is a dead-end. Brick-ID: "
+                            + std::to_string(brickId));
+            }
+            baseBrick->possibleTargetNodeBrickIds[counter] = brickId;
         }
-        assert(counter == 1000);
     }
 
     return true;

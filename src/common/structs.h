@@ -33,7 +33,7 @@ struct Position
     int32_t z = UNINTI_POINT_32;
     int32_t w = UNINTI_POINT_32;
 
-    bool isValid()
+    bool isValid() const
     {
         return(x != UNINTI_POINT_32
                && y != UNINTI_POINT_32

@@ -59,6 +59,7 @@ private:
     void connectBrick(Brick *sourceBrick, const uint8_t side);
     void connectAllBricks();
     bool initializeNodes();
+    uint32_t goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength);
 };
 
 #endif // KYOUKOMIND_DYNAMIC_SEGMENTS_H

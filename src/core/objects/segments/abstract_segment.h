@@ -159,7 +159,7 @@ public:
 protected:
     SegmentTypes m_type = UNDEFINED_SEGMENT;
 
-    bool initPosition(const JsonItem &parsedContent);
+    Position convertPosition(const JsonItem &parsedContent);
     bool initBorderBuffer(const JsonItem &parsedContent);
     uint32_t createGenericNewHeader(SegmentHeader &header,
                                     const uint64_t borderbufferSize);

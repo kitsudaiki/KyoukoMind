@@ -40,7 +40,7 @@ InputSegment::initSegment(const JsonItem &parsedContent)
                                            totalBorderSize);
     allocateSegment(header);
     initSegmentPointer(header);
-    initPosition(parsedContent);
+    segmentHeader->position = convertPosition(parsedContent);
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
 

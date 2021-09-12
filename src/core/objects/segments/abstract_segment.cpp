@@ -113,15 +113,16 @@ AbstractSegment::finishSegment()
  *
  * @return
  */
-bool
-AbstractSegment::initPosition(const JsonItem &parsedContent)
+Position
+AbstractSegment::convertPosition(const JsonItem &parsedContent)
 {
+    Position result;
     JsonItem paredPosition = parsedContent.get("position");
-    segmentHeader->position.x = paredPosition.get(0).getInt();
-    segmentHeader->position.y = paredPosition.get(1).getInt();
-    segmentHeader->position.z = paredPosition.get(2).getInt();
+    result.x = paredPosition.get(0).getInt();
+    result.y = paredPosition.get(1).getInt();
+    result.z = paredPosition.get(2).getInt();
 
-    return true;
+    return result;
 }
 
 /**
