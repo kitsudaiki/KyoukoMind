@@ -113,12 +113,9 @@ ClusterInitializer::createNewNetwork(const JsonItem &parsedContent)
 
     // network-meta
     newCluster.networkMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
-    newCluster.initMetaData.maxBrickDistance = paredSettings["max_brick_distance"].getInt();
-    newCluster.initMetaData.maxSynapseSections = paredSettings["max_synapse_sections"].getLong();
 
     KyoukoRoot::m_networkCluster = new NetworkCluster();
     NetworkCluster* cluster = KyoukoRoot::m_networkCluster;
-    cluster->initMetaData = newCluster.initMetaData;
     cluster->networkMetaData = newCluster.networkMetaData;
 
     JsonItem segments = parsedContent.get("segments");

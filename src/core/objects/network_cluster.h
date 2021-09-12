@@ -34,15 +34,7 @@ struct NetworkMetaData
     float lerningValue = 0.0f;
     uint32_t cycleTime = 1000000;
 
-    uint8_t padding[247];
-};
-
-struct InitSettings
-{
-    uint64_t maxSynapseSections = 0;
-    uint16_t maxBrickDistance = 0;
-
-    uint8_t padding[246];
+    uint8_t padding[248];
 };
 
 class NetworkCluster
@@ -51,7 +43,6 @@ public:
     NetworkCluster();
 
     NetworkMetaData networkMetaData;
-    InitSettings initMetaData;
 
     std::vector<InputSegment*> inputSegments;
     std::vector<OutputSegment*> outputSegments;

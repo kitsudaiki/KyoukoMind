@@ -44,7 +44,6 @@ validateStructSizes()
     assert(sizeof(Node) == 32);
 
     assert(sizeof(NetworkMetaData) == 256);
-    assert(sizeof(InitSettings) == 256);
     assert(sizeof(SegmentSettings) == 256);
 
     return;
