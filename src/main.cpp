@@ -28,7 +28,7 @@
 #include <core/callbacks.h>
 #include <dev_test.h>
 
-#include <initializing/blossom_initializing.h>
+#include <api/blossom_initializing.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>

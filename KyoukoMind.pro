@@ -70,13 +70,13 @@ INCLUDEPATH += $$PWD \
                src
 
 HEADERS += \
-    src/blossoms/io/ask_blossom.h \
-    src/blossoms/io/init_blossom.h \
-    src/blossoms/io/learn_blossom.h \
-    src/blossoms/save_load/list_save_files_blossom.h \
-    src/blossoms/save_load/restore_net_blossom.h \
-    src/blossoms/save_load/save_net_blossom.h \
-    src/blossoms/save_load/show_save_file_blossom.h \
+    src/api/io/ask_blossom.h \
+    src/api/io/init_blossom.h \
+    src/api/io/learn_blossom.h \
+    src/api/save_load/list_save_files_blossom.h \
+    src/api/save_load/restore_net_blossom.h \
+    src/api/save_load/save_net_blossom.h \
+    src/api/save_load/show_save_file_blossom.h \
     src/common/defines.h \
     src/common/enums.h \
     src/common/functions.h \
@@ -106,23 +106,23 @@ HEADERS += \
     src/args.h \
     src/common.h \
     src/config.h \
-    src/initializing/routing_functions.h \
+    src/core/routing_functions.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
     src/core/connection_handler/monitoring_connection_handler.h \
     src/core/connection_handler/client_connection_handler.h \
-    src/blossoms/special/special_blossoms.h \
-    src/initializing/blossom_initializing.h \
+    src/api/special/special_blossoms.h \
+    src/api/blossom_initializing.h \
     src/common/structs.h
 
 SOURCES += \
-    src/blossoms/io/ask_blossom.cpp \
-    src/blossoms/io/init_blossom.cpp \
-    src/blossoms/io/learn_blossom.cpp \
-    src/blossoms/save_load/list_save_files_blossom.cpp \
-    src/blossoms/save_load/restore_net_blossom.cpp \
-    src/blossoms/save_load/save_net_blossom.cpp \
-    src/blossoms/save_load/show_save_file_blossom.cpp \
+    src/api/io/ask_blossom.cpp \
+    src/api/io/init_blossom.cpp \
+    src/api/io/learn_blossom.cpp \
+    src/api/save_load/list_save_files_blossom.cpp \
+    src/api/save_load/restore_net_blossom.cpp \
+    src/api/save_load/save_net_blossom.cpp \
+    src/api/save_load/show_save_file_blossom.cpp \
     src/core/cluster_handler.cpp \
     src/core/objects/network_cluster.cpp \
     src/core/objects/segments/abstract_segment.cpp \
@@ -138,7 +138,7 @@ SOURCES += \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/connection_handler/monitoring_connection_handler.cpp \
     src/core/connection_handler/client_connection_handler.cpp \
-    src/blossoms/special/special_blossoms.cpp
+    src/api/special/special_blossoms.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test

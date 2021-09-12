@@ -29,7 +29,7 @@
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 
-#include <initializing/routing_functions.h>
+#include <core/routing_functions.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
