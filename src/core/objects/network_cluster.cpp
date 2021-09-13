@@ -40,6 +40,23 @@ NetworkCluster::NetworkCluster()
 }
 
 /**
+ * @brief InputSegment::initSegmentPointer
+ * @param header
+ */
+void
+NetworkCluster::initSegmentPointer(const NetworkMetaData &metaData)
+{
+    const uint32_t numberOfBlocks = 1;
+    Kitsunemimi::allocateBlocks_DataBuffer(clusterData, numberOfBlocks);
+
+    uint8_t* dataPtr = static_cast<uint8_t*>(clusterData.data);
+    uint64_t pos = 0;
+
+    networkMetaData = reinterpret_cast<NetworkMetaData*>(dataPtr + pos);
+    networkMetaData[0] = metaData;
+}
+
+/**
  * @brief create blank new network
  *
  * @param fileContent file to parse with the basic structure of the network
@@ -54,12 +71,13 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
     JsonItem paredSettings = parsedContent.get("settings");
 
     // network-meta
-    networkMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
+    NetworkMetaData newMetaData;
+    newMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
+    newMetaData.uuid = generateUuid();
 
-    uuid = generateUuid();
+    initSegmentPointer(newMetaData);
 
-    LOG_INFO("create new cluster with uuid: " + uuid.toString());
-    networkMetaData = networkMetaData;
+    LOG_INFO("create new cluster with uuid: " + networkMetaData->uuid.toString());
 
     JsonItem segments = parsedContent.get("segments");
     for(uint32_t i = 0; i < segments.size(); i++)
@@ -77,14 +95,14 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
         }
 
         if(newSegment != nullptr) {
-            newSegment->segmentHeader->parentClusterId = uuid;
+            newSegment->segmentHeader->parentClusterId = networkMetaData->uuid;
             newSegment->parentCluster = this;
         } else {
             // TODO: error-handling
         }
     }
 
-    return uuid.toString();
+    return networkMetaData->uuid.toString();
 }
 
 /**

@@ -31,10 +31,15 @@ class AbstractSegment;
 
 struct NetworkMetaData
 {
+    kuuid uuid;
+
     float lerningValue = 0.0f;
     uint32_t cycleTime = 1000000;
+    uint32_t numberOfInputSegments = 0;
+    uint32_t numberOfOutputSegments = 0;
+    uint32_t numberOfSegments = 0;
 
-    uint8_t padding[248];
+    uint8_t padding[196];
 };
 
 class NetworkCluster
@@ -42,8 +47,9 @@ class NetworkCluster
 public:
     NetworkCluster();
 
-    kuuid uuid;
-    NetworkMetaData networkMetaData;
+    Kitsunemimi::DataBuffer clusterData;
+
+    NetworkMetaData* networkMetaData = nullptr;
 
     std::vector<InputSegment*> inputSegments;
     std::vector<OutputSegment*> outputSegments;
@@ -58,6 +64,8 @@ private:
     AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
     bool prepareSegments(const JsonItem &parsedContent);
     uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
+
+    void initSegmentPointer(const NetworkMetaData &metaData);
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H
