@@ -44,7 +44,7 @@ NetworkCluster::NetworkCluster()
  * @param header
  */
 void
-NetworkCluster::initSegmentPointer(const NetworkMetaData &metaData)
+NetworkCluster::initSegmentPointer(const ClusterMetaData &metaData)
 {
     const uint32_t numberOfBlocks = 1;
     Kitsunemimi::allocateBlocks_DataBuffer(clusterData, numberOfBlocks);
@@ -52,7 +52,7 @@ NetworkCluster::initSegmentPointer(const NetworkMetaData &metaData)
     uint8_t* dataPtr = static_cast<uint8_t*>(clusterData.data);
     uint64_t pos = 0;
 
-    networkMetaData = reinterpret_cast<NetworkMetaData*>(dataPtr + pos);
+    networkMetaData = reinterpret_cast<ClusterMetaData*>(dataPtr + pos);
     networkMetaData[0] = metaData;
 }
 
@@ -71,7 +71,7 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
     JsonItem paredSettings = parsedContent.get("settings");
 
     // network-meta
-    NetworkMetaData newMetaData;
+    ClusterMetaData newMetaData;
     newMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
     newMetaData.uuid = generateUuid();
 

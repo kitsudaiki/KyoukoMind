@@ -29,7 +29,7 @@ class InputSegment;
 class OutputSegment;
 class AbstractSegment;
 
-struct NetworkMetaData
+struct ClusterMetaData
 {
     kuuid uuid;
 
@@ -49,7 +49,7 @@ public:
 
     Kitsunemimi::DataBuffer clusterData;
 
-    NetworkMetaData* networkMetaData = nullptr;
+    ClusterMetaData* networkMetaData = nullptr;
 
     std::vector<InputSegment*> inputSegments;
     std::vector<OutputSegment*> outputSegments;
@@ -65,7 +65,7 @@ private:
     bool prepareSegments(const JsonItem &parsedContent);
     uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
 
-    void initSegmentPointer(const NetworkMetaData &metaData);
+    void initSegmentPointer(const ClusterMetaData &metaData);
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H

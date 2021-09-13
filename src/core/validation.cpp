@@ -43,7 +43,7 @@ validateStructSizes()
     assert(sizeof(Brick) == 4096);
     assert(sizeof(Node) == 32);
 
-    assert(sizeof(NetworkMetaData) == 256);
+    assert(sizeof(ClusterMetaData) == 256);
     assert(sizeof(SegmentSettings) == 256);
     assert(sizeof(kuuid) == 40);
 
