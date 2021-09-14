@@ -39,11 +39,13 @@ validateStructSizes()
     assert(sizeof(Synapse) == 8);
 
     assert(sizeof(SynapseSection) == 512);
+    std::cout<<"sizeof(SegmentHeader): "<<sizeof(SegmentHeader)<<std::endl;
     assert(sizeof(SegmentHeader) == 256);
     assert(sizeof(Brick) == 4096);
     assert(sizeof(Node) == 32);
 
-    assert(sizeof(ClusterMetaData) == 256);
+    assert(sizeof(ClusterMetaData) == 2048);
+    assert(sizeof(ClusterSettings) == 256);
     assert(sizeof(SegmentSettings) == 256);
     assert(sizeof(kuuid) == 40);
 

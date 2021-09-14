@@ -31,15 +31,31 @@ class AbstractSegment;
 
 struct ClusterMetaData
 {
-    kuuid uuid;
+    uint8_t objectType = CLUSTER_OBJECT;
+    uint8_t version = 1;
+    uint8_t padding1[6];
+    uint64_t clusterSize = 0;
 
-    float lerningValue = 0.0f;
-    uint32_t cycleTime = 1000000;
+    kuuid uuid;
+    char name[1024];
+
     uint32_t numberOfInputSegments = 0;
     uint32_t numberOfOutputSegments = 0;
     uint32_t numberOfSegments = 0;
 
-    uint8_t padding[196];
+    uint8_t padding2[956];
+
+    // total size: 2048 Byte
+};
+
+struct ClusterSettings
+{
+    float lerningValue = 0.0f;
+    uint32_t cycleTime = 1000000;
+
+    uint8_t padding[248];
+
+    // total size: 256 Byte
 };
 
 class NetworkCluster
@@ -50,6 +66,7 @@ public:
     Kitsunemimi::DataBuffer clusterData;
 
     ClusterMetaData* networkMetaData = nullptr;
+    ClusterSettings* networkSettings = nullptr;
 
     std::vector<InputSegment*> inputSegments;
     std::vector<OutputSegment*> outputSegments;
@@ -62,10 +79,15 @@ private:
     AbstractSegment* addInputSegment(const JsonItem &parsedContent);
     AbstractSegment* addOutputSegment(const JsonItem &parsedContent);
     AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
+
+    const std::string getName();
+    bool setName(const std::string newName);
+
     bool prepareSegments(const JsonItem &parsedContent);
     uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
 
-    void initSegmentPointer(const ClusterMetaData &metaData);
+    void initSegmentPointer(const ClusterMetaData &metaData,
+                            const ClusterSettings &settings);
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H
