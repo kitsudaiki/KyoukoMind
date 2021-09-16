@@ -109,8 +109,6 @@ HEADERS += \
     src/core/routing_functions.h \
     src/kyouko_root.h \
     src/core/callbacks.h \
-    src/core/connection_handler/monitoring_connection_handler.h \
-    src/core/connection_handler/client_connection_handler.h \
     src/api/special/special_blossoms.h \
     src/api/blossom_initializing.h \
     src/common/structs.h
@@ -136,8 +134,6 @@ SOURCES += \
     src/dev_test.cpp \
     src/kyouko_root.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
-    src/core/connection_handler/monitoring_connection_handler.cpp \
-    src/core/connection_handler/client_connection_handler.cpp \
     src/api/special/special_blossoms.cpp
 
 CONFIG(run_tests) {

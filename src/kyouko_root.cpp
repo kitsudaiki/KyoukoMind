@@ -23,8 +23,6 @@
 #include <kyouko_root.h>
 
 #include <core/validation.h>
-#include <core/connection_handler/client_connection_handler.h>
-#include <core/connection_handler/monitoring_connection_handler.h>
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/objects/network_cluster.h>
 #include <core/objects/node.h>
@@ -47,8 +45,6 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 ClusterHandler* KyoukoRoot::m_clusterHandler = nullptr;
 uint32_t* KyoukoRoot::m_randomValues = nullptr;
-ClientConnectionHandler* KyoukoRoot::m_clientHandler = nullptr;
-MonitoringConnectionHandler* KyoukoRoot::m_monitoringHandler = nullptr;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
@@ -58,8 +54,6 @@ KyoukoRoot::KyoukoRoot()
     validateStructSizes();
 
     m_root = this;
-    m_clientHandler = new ClientConnectionHandler();
-    m_monitoringHandler = new MonitoringConnectionHandler();
     m_clusterHandler = new ClusterHandler();
 
     // init predefinde random-values
