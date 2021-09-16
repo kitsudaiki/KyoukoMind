@@ -72,9 +72,10 @@ struct SegmentHeaderEntry
 
 struct SegmentHeader
 {
+    uint8_t objectType = SEGMENT_OBJECT;
+    uint8_t version = 1;
     uint8_t segmentType = UNDEFINED_SEGMENT;
-    uint8_t padding1[1];
-    uint16_t version = 1;
+    uint8_t padding;
     uint32_t segmentID = UNINIT_STATE_32;
     uint64_t staticDataSize = 0;
     Position position;

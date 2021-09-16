@@ -23,13 +23,20 @@
 #ifndef KYOUKOMIND_ENUMS_H
 #define KYOUKOMIND_ENUMS_H
 
-enum ThreadTask {
+enum ThreadTask
+{
     NOTHING = 0,
     OUTPUT_LEARN = 1,
     NODE_PROCESSING = 2,
     UPDATE_CORE = 3,
     CORE_PROCESSING = 4,
     OUTPUT_PROCESSING = 5,
+};
+
+enum ObjectTypes
+{
+    CLUSTER_OBJECT = 0,
+    SEGMENT_OBJECT = 1,
 };
 
 #endif // KYOUKOMIND_ENUMS_H

@@ -34,9 +34,28 @@
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-NetworkCluster::NetworkCluster()
-{
+NetworkCluster::NetworkCluster() {}
 
+/**
+ * @brief InputSegment::initSegmentPointer
+ * @param header
+ */
+void
+NetworkCluster::initSegmentPointer(const ClusterMetaData &metaData,
+                                   const ClusterSettings &settings)
+{
+    const uint32_t numberOfBlocks = 1;
+    Kitsunemimi::allocateBlocks_DataBuffer(clusterData, numberOfBlocks);
+
+    uint8_t* dataPtr = static_cast<uint8_t*>(clusterData.data);
+    uint64_t pos = 0;
+
+    networkMetaData = reinterpret_cast<ClusterMetaData*>(dataPtr + pos);
+    networkMetaData[0] = metaData;
+
+    pos += sizeof(ClusterMetaData);
+    networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
+    networkSettings[0] = settings;
 }
 
 /**
@@ -54,12 +73,18 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
     JsonItem paredSettings = parsedContent.get("settings");
 
     // network-meta
-    networkMetaData.cycleTime = paredSettings.get("cycle_time").getLong();
+    ClusterMetaData newMetaData;
+    newMetaData.uuid = generateUuid();
 
-    uuid = generateUuid();
+    ClusterSettings newSettings;
+    newSettings.cycleTime = paredSettings.get("cycle_time").getLong();
 
-    LOG_INFO("create new cluster with uuid: " + uuid.toString());
-    networkMetaData = networkMetaData;
+    initSegmentPointer(newMetaData, newSettings);
+
+    const std::string name = parsedContent.get("name").getString();
+    const bool ret = setName(name);  // TODO: handle return
+
+    LOG_INFO("create new cluster with uuid: " + networkMetaData->uuid.toString());
 
     JsonItem segments = parsedContent.get("segments");
     for(uint32_t i = 0; i < segments.size(); i++)
@@ -76,15 +101,16 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
             newSegment = addOutputSegment(segmentDef);
         }
 
-        if(newSegment != nullptr) {
-            newSegment->segmentHeader->parentClusterId = uuid;
-            newSegment->parentCluster = this;
-        } else {
+        if(newSegment == nullptr) {
             // TODO: error-handling
         }
+
+        // update segment information with cluster infos
+        newSegment->segmentHeader->parentClusterId = networkMetaData->uuid;
+        newSegment->parentCluster = this;
     }
 
-    return uuid.toString();
+    return networkMetaData->uuid.toString();
 }
 
 /**
@@ -105,7 +131,8 @@ NetworkCluster::addInputSegment(const JsonItem &parsedContent)
     }
     else
     {
-        // TODO: handle error
+        delete newSegment;
+        newSegment = nullptr;
     }
 
     return newSegment;
@@ -129,7 +156,8 @@ NetworkCluster::addOutputSegment(const JsonItem &parsedContent)
     }
     else
     {
-        // TODO: handle error
+        delete newSegment;
+        newSegment = nullptr;
     }
 
     return newSegment;
@@ -151,10 +179,53 @@ NetworkCluster::addDynamicSegment(const JsonItem &parsedContent)
     }
     else
     {
-        // TODO: handle error
+        delete newSegment;
+        newSegment = nullptr;
     }
 
     return newSegment;
+}
+
+/**
+ * @brief NetworkCluster::getName
+ * @return
+ */
+const std::string
+NetworkCluster::getName()
+{
+    // precheck
+    if(networkMetaData == nullptr) {
+        return std::string("");
+    }
+
+    const std::string nameStr = std::string(networkMetaData->name);
+    assert(nameStr.size() <= 1024);
+
+    return nameStr;
+}
+
+/**
+ * @brief NetworkCluster::setName
+ * @param newName
+ * @return
+ */
+bool
+NetworkCluster::setName(const std::string newName)
+{
+    // precheck
+    if(networkMetaData == nullptr
+            || newName.size() > 1023
+            || newName.size() == 0)
+    {
+        return false;
+    }
+
+    // copy string into char-buffer and set explicit the escape symbol to be absolut sure
+    // that it is set to absolut avoid buffer-overflows
+    strncpy(networkMetaData->name, newName.c_str(), newName.size());
+    networkMetaData->name[newName.size()] = '\0';
+
+    return true;
 }
 
 /**
