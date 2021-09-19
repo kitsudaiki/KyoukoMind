@@ -29,6 +29,7 @@
 #include <core/objects/network_cluster.h>
 
 #include <core/processing/segment_queue.h>
+#include <core/processing/task_queue.h>
 
 #include <kyouko_root.h>
 
@@ -138,6 +139,9 @@ CpuProcessingUnit::processSegment(AbstractSegment* segment)
         {
             OutputSegment* seg = static_cast<OutputSegment*>(segment);
             prcessOutputSegment(seg);
+            const uint32_t hightest = getHighestOutput(seg);
+            Task* actualTask = &seg->parentCluster->taskQueue->actualTask;
+            actualTask->resultData[actualTask->actualCycle] = hightest;
             break;
         }
         default:
@@ -166,8 +170,16 @@ CpuProcessingUnit::run()
 
             if(currentSegment->parentCluster->learnMode)
             {
-                learnSegmentBackward(currentSegment);
-                learnSegmentForward(currentSegment);
+                if(currentSegment->getType() == OUTPUT_SEGMENT)
+                {
+                    learnSegmentForward(currentSegment);
+                    learnSegmentBackward(currentSegment);
+                }
+                else
+                {
+                    learnSegmentBackward(currentSegment);
+                    learnSegmentForward(currentSegment);
+                }
             }
             else
             {

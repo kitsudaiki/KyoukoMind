@@ -87,14 +87,14 @@ prcessOutputSegment(OutputSegment* segment)
  * @param segment
  * @return
  */
-uint64_t
+uint32_t
 getHighestOutput(OutputSegment* segment)
 {
     float hightest = -0.1f;
-    uint64_t hightestPos = 0;
+    uint32_t hightestPos = 0;
     OutputNode* out = nullptr;
 
-    for(uint64_t outputNodeId = 0;
+    for(uint32_t outputNodeId = 0;
         outputNodeId < segment->segmentHeader->outputs.count;
         outputNodeId++)
     {

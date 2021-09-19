@@ -149,18 +149,19 @@ learnTestData(const std::string &mnistRootPath,
         // wait until task is finished
         start = std::chrono::system_clock::now();
         while(cluster->taskQueue->isFinish(taskUuid) == false) {
+            std::cout<<"+++++++++++++++++++++++++++++++++++++++ sleep"<<std::endl;
             usleep(100000);
         }
         end = std::chrono::system_clock::now();
-        const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
-        std::cout<<"run learn: "<<time<<"us"<<std::endl;
+        const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
+        std::cout<<"run learn: "<<time<<"s"<<std::endl;
     }
 
 
     //==============================================================================================
     // test
     //==============================================================================================
-/*
+
     // read train-data
     Kitsunemimi::Persistence::BinaryFile testData(testDataPath);
     Kitsunemimi::DataBuffer testDataBuffer;
@@ -178,70 +179,53 @@ learnTestData(const std::string &mnistRootPath,
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    OutputSegment* synapseSegment = cluster->outputSegments[0];
+    uint64_t dataPos = 0;
+    uint64_t dataSize = numberOfLearningPictures * (pictureSize + 10);
+    float* taskData = new float[dataSize];
+
+    for(uint32_t pic = 0; pic < total; pic++)
+    {
+        // input
+        for(uint32_t i = 0; i < pictureSize; i++)
+        {
+            const uint32_t pos = pic * pictureSize + i + 16;
+            int32_t total = testDataBufferPtr[pos];
+            taskData[dataPos] = (static_cast<float>(total) / 255.0f);
+            dataPos++;
+        }
+    }
+
+    // create task
+    const std::string taskUuid = cluster->taskQueue->addRequestTask(taskData,
+                                                                    pictureSize,
+                                                                    total);
+    cluster->updateClusterState();
+    // wait until task is finished
+    start = std::chrono::system_clock::now();
+    while(cluster->taskQueue->isFinish(taskUuid) == false) {
+        std::cout<<"+++++++++++++++++++++++++++++++++++++++ sleep"<<std::endl;
+        usleep(100000);
+    }
+    end = std::chrono::system_clock::now();
+    const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
+    std::cout<<"run request: "<<time<<"s"<<std::endl;
+
+
+    const uint32_t* resultData = cluster->taskQueue->getResultData(taskUuid);
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
         uint32_t label = testLabelBufferPtr[pic + 8];
 
-        std::cout<<pic<<" should: "<<label<<"   is: ";
-
-        for(uint32_t i = 0; i < pictureSize; i++)
-        {
-            const uint32_t pos = pic * pictureSize + i + 16;
-            int32_t total = testDataBufferPtr[pos];
-            inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
-        }
-
-        start = std::chrono::system_clock::now();
-        //cpuProcessingUnit.processSegment(cluster);
-        end = std::chrono::system_clock::now();
-        const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
-        std::cout<<"run execute: "<<time<<"us"<<std::endl;
-
-        // print result
-        float biggest = -100000.0f;
-        uint32_t pos = 0;
-        std::cout<<"[";
-
-        for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
-        {
-            OutputNode* out = &synapseSegment->outputs[i];
-
-            if(i > 0) {
-                std::cout<<" | ";
-            }
-
-            float read = out->outputWeight;
-
-            std::cout.precision(3);
-            if(read < 0.001f) {
-                read = 0.0f;
-            }
-            std::cout<<read<<"\t";
-
-            if(read > biggest)
-            {
-                biggest = read;
-                pos = i;
-            }
-        }
-
-        std::cout<<"]  result: ";
-        std::cout<<pos;
-
-        if(testLabelBufferPtr[pic + 8] == pos) {
+        if(resultData[pic] == label) {
             match++;
-        } else {
-            std::cout<<"     FAIL!!!!!!!";
         }
-        std::cout<<std::endl;
     }
 
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
-*/
+
     DynamicSegment* segment = static_cast<DynamicSegment*>(cluster->allSegments.at(1));
     uint64_t synapseCounter = 0;
     SynapseSection* sections = segment->synapseSections;

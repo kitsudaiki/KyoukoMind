@@ -29,6 +29,7 @@ enum TaskType
 {
     UNDEFINED_TASK = 0,
     LEARN_TASK = 1,
+    REQUEST_TASK = 2,
 };
 
 enum TaskState
@@ -44,6 +45,7 @@ struct Task
 {
     kuuid uuid;
     float* data = nullptr;
+    uint32_t* resultData = nullptr;
     uint64_t numberOfInputsPerCycle = 0;
     uint64_t numberOfOuputsPerCycle = 0;
     uint64_t numberOfCycle = 0;
@@ -61,7 +63,13 @@ public:
                                    const uint64_t numberOfInputsPerCycle,
                                    const uint64_t numberOfOuputsPerCycle,
                                    const uint64_t numberOfCycle);
+    const std::string addRequestTask(float* inputData,
+                                     const uint64_t numberOfInputsPerCycle,
+                                     const uint64_t numberOfCycle);
+
     TaskState getState(const std::string &taskUuid);
+    uint32_t* getResultData(const std::string &taskUuid);
+
     bool isFinish(const std::string &taskUuid);
     void removeTask(const std::string &taskUuid);
     bool getNextTask();

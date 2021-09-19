@@ -60,6 +60,39 @@ TaskQueue::addLearnTask(float* data,
 }
 
 /**
+ * @brief TaskQueue::addRequestTask
+ * @param data
+ * @param numberOfInputsPerCycle
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+TaskQueue::addRequestTask(float* inputData,
+                          const uint64_t numberOfInputsPerCycle,
+                          const uint64_t numberOfCycle)
+{
+    Task newTask;
+    newTask.uuid = generateUuid();
+    newTask.data = inputData;
+    newTask.resultData = new uint32_t[numberOfCycle];
+    newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
+    newTask.numberOfCycle = numberOfCycle;
+    newTask.type = REQUEST_TASK;
+    newTask.state = QUEUED_TASK_STATE;
+
+    const std::string uuid = newTask.uuid.toString();
+
+    m_mutex.lock();
+
+    m_taskMap.insert(std::make_pair(uuid, newTask));
+    m_taskQueue.push_back(uuid);
+
+    m_mutex.unlock();
+
+    return uuid;
+}
+
+/**
  * @brief TaskQueue::getState
  * @param taskUuid
  * @return
@@ -81,6 +114,29 @@ TaskQueue::getState(const std::string &taskUuid)
     m_mutex.unlock();
 
     return state;
+}
+
+/**
+ * @brief TaskQueue::getResultData
+ * @param taskUuid
+ * @return
+ */
+uint32_t *TaskQueue::getResultData(const std::string &taskUuid)
+{
+    uint32_t* data = nullptr;
+
+    m_mutex.lock();
+
+    std::map<std::string, Task>::const_iterator it;
+    it = m_taskMap.find(taskUuid);
+
+    if(it != m_taskMap.end()) {
+        data = it->second.resultData;
+    }
+
+    m_mutex.unlock();
+
+    return data;
 }
 
 /**
@@ -148,7 +204,9 @@ TaskQueue::getNextTask()
 {
     m_mutex.lock();
 
-    if(m_taskQueue.size() == 0) {
+    if(m_taskQueue.size() == 0)
+    {
+        m_mutex.unlock();
         return false;
     }
 
