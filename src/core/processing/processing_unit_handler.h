@@ -25,14 +25,7 @@
 
 #include <common.h>
 
-namespace Kitsunemimi {
-class Barrier;
-namespace Opencl {
-class GpuHandler;
-}
-}
-
-class GpuProcessingUnit;
+class CpuProcessingUnit;
 
 class ProcessingUnitHandler
 {
@@ -40,17 +33,11 @@ public:
     ProcessingUnitHandler();
     ~ProcessingUnitHandler();
 
-    void shareNewTask(const ThreadTask newTask);
-
-    std::vector<GpuProcessingUnit*> m_gpuProcessingUnits;
-
-    bool initProcessingUnits(Kitsunemimi::Barrier* startBarrier,
-                             Kitsunemimi::Barrier* endBarrier,
-                             const uint16_t numberOfThreads);
+    bool initProcessingUnits(const uint16_t numberOfThreads);
     bool closeAllProcessingUnits();
 
 private:
-    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
+    std::vector<CpuProcessingUnit*> m_processingUnits;
 };
 
 #endif // KYOUKOMIND_PROCESSING_UNIT_HANDLER_H

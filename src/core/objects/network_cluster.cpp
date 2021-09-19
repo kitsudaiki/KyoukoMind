@@ -30,11 +30,16 @@
 #include <core/objects/synapses.h>
 
 #include <core/routing_functions.h>
+#include <core/processing/task_queue.h>
+#include <core/processing/segment_queue.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-NetworkCluster::NetworkCluster() {}
+NetworkCluster::NetworkCluster()
+{
+    taskQueue = new TaskQueue();
+}
 
 /**
  * @brief InputSegment::initSegmentPointer
@@ -111,6 +116,64 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
     }
 
     return networkMetaData->uuid.toString();
+}
+
+/**
+ * @brief NetworkCluster::startNewCycle
+ */
+void
+NetworkCluster::startNewCycle()
+{
+    OutputNode* outputs = outputSegments[0]->outputs;
+    Task* actualTask = &taskQueue->actualTask;
+    uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
+    offset *= actualTask->actualCycle;
+
+    if(actualTask->type == LEARN_TASK) {
+        learnMode = true;
+    }
+
+    InputNode* inputNodes = inputSegments[0]->inputs;
+    for(uint64_t i = 0; i < actualTask->numberOfInputsPerCycle; i++) {
+        inputNodes[i].weight = actualTask->data[offset + i];
+    }
+
+    offset += actualTask->numberOfInputsPerCycle;
+    for(uint64_t i = 0; i < actualTask->numberOfOuputsPerCycle; i++) {
+        outputs[i].shouldValue = actualTask->data[offset + i];
+    }
+
+    KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
+}
+
+/**
+ * @brief NetworkCluster::updateClusterState
+ */
+void
+NetworkCluster::updateClusterState()
+{
+    learnMode = false;
+    if(taskQueue->actualTask.state == UNDEFINED_TASK_STATE)
+    {
+        if(taskQueue->getNextTask()) {
+            startNewCycle();
+        }
+    }
+    else
+    {
+        taskQueue->actualTask.actualCycle++;
+        if(taskQueue->actualTask.actualCycle == taskQueue->actualTask.numberOfCycle)
+        {
+            taskQueue->finishTask();
+            if(taskQueue->getNextTask()) {
+                startNewCycle();
+            }
+        }
+        else
+        {
+            startNewCycle();
+        }
+    }
 }
 
 /**

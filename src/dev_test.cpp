@@ -36,6 +36,8 @@
 
 #include <core/cluster_handler.h>
 
+#include <core/processing/task_queue.h>
+
 /**
  * @brief only a test-function for fast tests
  *
@@ -104,44 +106,55 @@ learnTestData(const std::string &mnistRootPath,
 
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
-    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
-    for(uint32_t i = 0; i < 784; i++)  {
-        inputNodes[i].weight = 0.0f;
-    }
 
     std::cout<<"learn"<<std::endl;
 
     const uint32_t numberOfIteractions = GET_INT_CONFIG("DevMode", "learn_iterations", success);
     const uint32_t numberOfLearningPictures = GET_INT_CONFIG("DevMode", "learn_images", success);
 
-    for(uint32_t poi = 0; poi < numberOfIteractions; poi++)
+    for(uint32_t poi = 0; poi < 1; poi++)
     {
+        uint64_t dataPos = 0;
+        uint64_t dataSize = numberOfLearningPictures * (pictureSize + 10);
+        float* taskData = new float[dataSize];
+
         for(uint32_t pic = 0; pic < numberOfLearningPictures; pic++)
         {
-            const uint32_t label = labelBufferPtr[pic + 8];
-            std::cout<<"picture: "<<pic<<std::endl;
-
-            OutputNode* outputs = cluster->outputSegments[0]->outputs;
-            for(uint32_t i = 0; i < 10; i++) {
-                outputs[i].shouldValue = 0.0f;
-            }
-
-            outputs[label].shouldValue = 1.0f;
-            std::cout<<"label: "<<label<<std::endl;
-
+            // input
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
+                taskData[dataPos] = (static_cast<float>(total) / 255.0f);
+                dataPos++;
             }
 
-            start = std::chrono::system_clock::now();
-            cpuProcessingUnit.learnNetworkCluster(cluster);
-            end = std::chrono::system_clock::now();
-            const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
-            std::cout<<"run learn: "<<time<<"us"<<std::endl;
+            // output
+            for(uint32_t i = 0; i < 10; i++)
+            {
+                taskData[dataPos] = 0.0f;
+                dataPos++;
+            }
+            const uint32_t label = labelBufferPtr[pic + 8];
+            taskData[(dataPos - 10) + label] = 1.0f;
         }
+
+        // create task
+        const std::string taskUuid = cluster->taskQueue->addLearnTask(taskData,
+                                                                      pictureSize,
+                                                                      10,
+                                                                      numberOfLearningPictures);
+        cluster->updateClusterState();
+
+        // wait until task is finished
+        start = std::chrono::system_clock::now();
+        while(cluster->taskQueue->isFinish(taskUuid) == false) {
+            std::cout<<"+++++++++++++++++++++++++++++++++++++++ sleep"<<std::endl;
+            usleep(100000);
+        }
+        end = std::chrono::system_clock::now();
+        const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
+        std::cout<<"run learn: "<<time<<"s"<<std::endl;
     }
 
 
@@ -166,68 +179,47 @@ learnTestData(const std::string &mnistRootPath,
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    for(uint32_t i = 0; i < 784; i++)  {
-        inputNodes[i].weight = 0.0f;
+    uint64_t dataPos = 0;
+    uint64_t dataSize = numberOfLearningPictures * (pictureSize + 10);
+    float* taskData = new float[dataSize];
+
+    for(uint32_t pic = 0; pic < total; pic++)
+    {
+        // input
+        for(uint32_t i = 0; i < pictureSize; i++)
+        {
+            const uint32_t pos = pic * pictureSize + i + 16;
+            int32_t total = testDataBufferPtr[pos];
+            taskData[dataPos] = (static_cast<float>(total) / 255.0f);
+            dataPos++;
+        }
     }
 
-    OutputSegment* synapseSegment = cluster->outputSegments[0];
+    // create task
+    const std::string taskUuid = cluster->taskQueue->addRequestTask(taskData,
+                                                                    pictureSize,
+                                                                    total);
+    cluster->updateClusterState();
+    // wait until task is finished
+    start = std::chrono::system_clock::now();
+    while(cluster->taskQueue->isFinish(taskUuid) == false) {
+        std::cout<<"+++++++++++++++++++++++++++++++++++++++ sleep"<<std::endl;
+        usleep(100000);
+    }
+    end = std::chrono::system_clock::now();
+    const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
+    std::cout<<"run request: "<<time<<"s"<<std::endl;
+
+
+    const uint32_t* resultData = cluster->taskQueue->getResultData(taskUuid);
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
         uint32_t label = testLabelBufferPtr[pic + 8];
 
-        std::cout<<pic<<" should: "<<label<<"   is: ";
-
-        for(uint32_t i = 0; i < pictureSize; i++)
-        {
-            const uint32_t pos = pic * pictureSize + i + 16;
-            int32_t total = testDataBufferPtr[pos];
-            inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
-        }
-
-        start = std::chrono::system_clock::now();
-        cpuProcessingUnit.processNetworkCluster(cluster);
-        end = std::chrono::system_clock::now();
-        const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
-        std::cout<<"run execute: "<<time<<"us"<<std::endl;
-
-        // print result
-        float biggest = -100000.0f;
-        uint32_t pos = 0;
-        std::cout<<"[";
-
-        for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
-        {
-            OutputNode* out = &synapseSegment->outputs[i];
-
-            if(i > 0) {
-                std::cout<<" | ";
-            }
-
-            float read = out->outputWeight;
-
-            std::cout.precision(3);
-            if(read < 0.001f) {
-                read = 0.0f;
-            }
-            std::cout<<read<<"\t";
-
-            if(read > biggest)
-            {
-                biggest = read;
-                pos = i;
-            }
-        }
-
-        std::cout<<"]  result: ";
-        std::cout<<pos;
-
-        if(testLabelBufferPtr[pic + 8] == pos) {
+        if(resultData[pic] == label) {
             match++;
-        } else {
-            std::cout<<"     FAIL!!!!!!!";
         }
-        std::cout<<std::endl;
     }
 
     std::cout<<"======================================================================="<<std::endl;

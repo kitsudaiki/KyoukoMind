@@ -58,6 +58,8 @@ struct ClusterSettings
     // total size: 256 Byte
 };
 
+class TaskQueue;
+
 class NetworkCluster
 {
 public:
@@ -71,9 +73,14 @@ public:
     std::vector<InputSegment*> inputSegments;
     std::vector<OutputSegment*> outputSegments;
     std::vector<AbstractSegment*> allSegments;
-    std::deque<AbstractSegment*> segmentQueue;
 
     const std::string initNewCluster(const JsonItem &parsedContent);
+
+    void startNewCycle();
+    void updateClusterState();
+
+    TaskQueue* taskQueue = nullptr;
+    bool learnMode = false;
 
 private:
     AbstractSegment* addInputSegment(const JsonItem &parsedContent);

@@ -51,6 +51,7 @@ AbstractSegment::getType() const
 bool
 AbstractSegment::isReady()
 {
+    return true;
     for(uint8_t i = 0; i < 12; i++)
     {
         if(segmentNeighbors->neighbors[i].inUse == 1
@@ -100,6 +101,10 @@ AbstractSegment::finishSegment()
             // mark the target as ready for processing
             targetSegment->segmentNeighbors->neighbors[targetSide].inputReady = true;
         }
+    }
+
+    if(m_type == OUTPUT_SEGMENT) {
+        parentCluster->updateClusterState();
     }
 
     return true;

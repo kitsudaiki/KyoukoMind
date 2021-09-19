@@ -32,7 +32,7 @@ struct kuuid
     char uuid[UUID_STR_LEN];
     uint8_t padding[3];
 
-    const std::string toString() {
+    const std::string toString() const {
         return std::string(uuid);
     }
 

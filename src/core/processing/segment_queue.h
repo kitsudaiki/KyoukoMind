@@ -1,5 +1,5 @@
-﻿/**
- * @file        kyouko_root.h
+/**
+ * @file        processing_unit_handler.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,34 +20,26 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_KYOUKO_ROOT_H
-#define KYOUKOMIND_KYOUKO_ROOT_H
+#ifndef KYOUKOMIND_SEGMENTQUEUE_H
+#define KYOUKOMIND_SEGMENTQUEUE_H
 
 #include <common.h>
 
-class ClusterHandler;
-class SegmentQueue;
-class ProcessingUnitHandler;
+class AbstractSegment;
 
-class KyoukoRoot
+class SegmentQueue
 {
-
 public:
-    KyoukoRoot();
-    ~KyoukoRoot();
+    SegmentQueue();
 
-    static KyoukoRoot* m_root;
-    static ClusterHandler* m_clusterHandler;
-    static uint32_t* m_randomValues;
-    static SegmentQueue* m_segmentQueue;
-    static ProcessingUnitHandler* m_processingUnitHandler;
+    void addSegmentToQueue(AbstractSegment* newSegment);
+    void addSegmentListToQueue(const std::vector<AbstractSegment *> &semgnetList);
 
-    bool start();
-    bool initializeSakuraFiles();
-    const std::string initCluster(const std::string &filePath);
+    AbstractSegment* getSegmentFromQueue();
 
 private:
-    uint32_t m_serverId = 0;
+    std::atomic_flag m_queue_lock = ATOMIC_FLAG_INIT;
+    std::deque<AbstractSegment*> m_segmentQueue;
 };
 
-#endif //KYOUKOMIND_KYOUKO_ROOT_H
+#endif // KYOUKOMIND_SEGMENTQUEUE_H
