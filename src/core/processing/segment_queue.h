@@ -1,5 +1,5 @@
 /**
- * @file        functions.h
+ * @file        processing_unit_handler.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,40 +20,26 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_FUNCTIONS_H
-#define KYOUKOMIND_FUNCTIONS_H
+#ifndef KYOUKOMIND_SEGMENTQUEUE_H
+#define KYOUKOMIND_SEGMENTQUEUE_H
 
-#include <stdint.h>
-#include "structs.h"
-#include <uuid/uuid.h>
+#include <common.h>
 
-struct kuuid
+class AbstractSegment;
+
+class SegmentQueue
 {
-    char uuid[UUID_STR_LEN];
-    uint8_t padding[3];
+public:
+    SegmentQueue();
 
-    const std::string toString() const {
-        return std::string(uuid);
-    }
+    void addSegmentToQueue(AbstractSegment* newSegment);
+    void addSegmentListToQueue(const std::vector<AbstractSegment*> &semgnetList);
 
-    // total size: 40 Bytes
+    AbstractSegment* getSegmentFromQueue();
+
+private:
+    std::atomic_flag m_queue_lock = ATOMIC_FLAG_INIT;
+    std::deque<AbstractSegment*> m_segmentQueue;
 };
 
-/**
- * @brief generate a new uuid with external library
- *
- * @return new uuid
- */
-inline const kuuid
-generateUuid()
-{
-    uuid_t binaryUuid;
-    kuuid result;
-
-    uuid_generate_random(binaryUuid);
-    uuid_unparse_lower(binaryUuid, result.uuid);
-
-    return result;
-}
-
-#endif // KYOUKOMIND_FUNCTIONS_H
+#endif // KYOUKOMIND_SEGMENTQUEUE_H

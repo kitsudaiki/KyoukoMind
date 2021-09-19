@@ -100,6 +100,8 @@ HEADERS += \
     src/core/objects/node.h \
     src/core/objects/synapses.h \
     src/core/processing/processing_unit_handler.h \
+    src/core/processing/segment_queue.h \
+    src/core/processing/task_queue.h \
     src/core/storage_io.h \
     src/core/validation.h \
     src/dev_test.h \
@@ -129,6 +131,8 @@ SOURCES += \
     src/core/objects/segments/output_segment.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
+    src/core/processing/segment_queue.cpp \
+    src/core/processing/task_queue.cpp \
     src/core/storage_io.cpp \
     src/core/validation.cpp \
     src/dev_test.cpp \
