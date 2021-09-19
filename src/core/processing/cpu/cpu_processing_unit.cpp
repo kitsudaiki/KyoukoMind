@@ -164,8 +164,15 @@ CpuProcessingUnit::run()
                 continue;
             }
 
-            learnSegmentBackward(currentSegment);
-            learnSegmentForward(currentSegment);
+            if(currentSegment->parentCluster->learnMode)
+            {
+                learnSegmentBackward(currentSegment);
+                learnSegmentForward(currentSegment);
+            }
+            else
+            {
+                processSegment(currentSegment);
+            }
 
             currentSegment->finishSegment();
         }

@@ -80,6 +80,7 @@ public:
     void updateClusterState();
 
     TaskQueue* taskQueue = nullptr;
+    bool learnMode = false;
 
 private:
     AbstractSegment* addInputSegment(const JsonItem &parsedContent);

@@ -129,6 +129,10 @@ NetworkCluster::startNewCycle()
     uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
     offset *= actualTask->actualCycle;
 
+    if(actualTask->type == LEARN_TASK) {
+        learnMode = true;
+    }
+
     InputNode* inputNodes = inputSegments[0]->inputs;
     for(uint64_t i = 0; i < actualTask->numberOfInputsPerCycle; i++) {
         inputNodes[i].weight = actualTask->data[offset + i];
@@ -148,6 +152,7 @@ NetworkCluster::startNewCycle()
 void
 NetworkCluster::updateClusterState()
 {
+    learnMode = false;
     if(taskQueue->actualTask.state == UNDEFINED_TASK_STATE)
     {
         if(taskQueue->getNextTask()) {
