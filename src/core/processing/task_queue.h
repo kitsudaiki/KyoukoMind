@@ -62,6 +62,7 @@ public:
                                    const uint64_t numberOfOuputsPerCycle,
                                    const uint64_t numberOfCycle);
     TaskState getState(const std::string &taskUuid);
+    bool isFinish(const std::string &taskUuid);
     void removeTask(const std::string &taskUuid);
     Task getNextTask();
     void finishTask(const std::string &taskUuid);

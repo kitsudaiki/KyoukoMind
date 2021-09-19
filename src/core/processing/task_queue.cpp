@@ -84,6 +84,18 @@ TaskQueue::getState(const std::string &taskUuid)
 }
 
 /**
+ * @brief TaskQueue::isFinish
+ * @param taskUuid
+ * @return
+ */
+bool
+TaskQueue::isFinish(const std::string &taskUuid)
+{
+    const TaskState state = getState(taskUuid);
+    return state == FINISHED_TASK_STATE;
+}
+
+/**
  * @brief TaskQueue::removeTask
  * @param taskUuid
  */

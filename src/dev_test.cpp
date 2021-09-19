@@ -36,6 +36,8 @@
 
 #include <core/cluster_handler.h>
 
+#include <core/processing/task_queue.h>
+
 /**
  * @brief only a test-function for fast tests
  *
@@ -104,40 +106,49 @@ learnTestData(const std::string &mnistRootPath,
 
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
-    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
-    for(uint32_t i = 0; i < 784; i++)  {
-        inputNodes[i].weight = 0.0f;
-    }
 
     std::cout<<"learn"<<std::endl;
 
     const uint32_t numberOfIteractions = GET_INT_CONFIG("DevMode", "learn_iterations", success);
     const uint32_t numberOfLearningPictures = GET_INT_CONFIG("DevMode", "learn_images", success);
 
-    for(uint32_t poi = 0; poi < numberOfIteractions; poi++)
+    for(uint32_t poi = 0; poi < 1; poi++)
     {
+        uint64_t dataPos = 0;
+        uint64_t dataSize = numberOfLearningPictures * (pictureSize + 10);
+        float* taskData = new float[dataSize];
+
         for(uint32_t pic = 0; pic < numberOfLearningPictures; pic++)
         {
-            const uint32_t label = labelBufferPtr[pic + 8];
-            std::cout<<"picture: "<<pic<<std::endl;
-
-            OutputNode* outputs = cluster->outputSegments[0]->outputs;
-            for(uint32_t i = 0; i < 10; i++) {
-                outputs[i].shouldValue = 0.0f;
-            }
-
-            outputs[label].shouldValue = 1.0f;
-            std::cout<<"label: "<<label<<std::endl;
-
+            // input
             for(uint32_t i = 0; i < pictureSize; i++)
             {
                 const uint32_t pos = pic * pictureSize + i + 16;
                 int32_t total = dataBufferPtr[pos];
-                inputNodes[i].weight = (static_cast<float>(total) / 255.0f);
+                taskData[dataPos] = (static_cast<float>(total) / 255.0f);
+                dataPos++;
             }
 
+            // output
+            for(uint32_t i = 0; i < 10; i++)
+            {
+                taskData[dataPos] = 0.0f;
+                dataPos++;
+            }
+            const uint32_t label = labelBufferPtr[pic + 8];
+            taskData[(dataPos - 10) + label] = 1.0f;
+
+            // create task
+            const std::string taskUuid = cluster->testQueue->addLearnTask(taskData,
+                                                                          pictureSize,
+                                                                          10,
+                                                                          numberOfLearningPictures);
+
+            // wait until task is finished
             start = std::chrono::system_clock::now();
-            cpuProcessingUnit.learnNetworkCluster(cluster);
+            while(cluster->testQueue->isFinish(taskUuid) == false) {
+                usleep(100000);
+            }
             end = std::chrono::system_clock::now();
             const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
             std::cout<<"run learn: "<<time<<"us"<<std::endl;
@@ -148,7 +159,7 @@ learnTestData(const std::string &mnistRootPath,
     //==============================================================================================
     // test
     //==============================================================================================
-
+/*
     // read train-data
     Kitsunemimi::Persistence::BinaryFile testData(testDataPath);
     Kitsunemimi::DataBuffer testDataBuffer;
@@ -166,10 +177,6 @@ learnTestData(const std::string &mnistRootPath,
     uint32_t match = 0;
     uint32_t total = 10000;
 
-    for(uint32_t i = 0; i < 784; i++)  {
-        inputNodes[i].weight = 0.0f;
-    }
-
     OutputSegment* synapseSegment = cluster->outputSegments[0];
 
     for(uint32_t pic = 0; pic < total; pic++)
@@ -186,7 +193,7 @@ learnTestData(const std::string &mnistRootPath,
         }
 
         start = std::chrono::system_clock::now();
-        cpuProcessingUnit.processNetworkCluster(cluster);
+        //cpuProcessingUnit.processSegment(cluster);
         end = std::chrono::system_clock::now();
         const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
         std::cout<<"run execute: "<<time<<"us"<<std::endl;
@@ -233,7 +240,7 @@ learnTestData(const std::string &mnistRootPath,
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
-
+*/
     DynamicSegment* segment = static_cast<DynamicSegment*>(cluster->allSegments.at(1));
     uint64_t synapseCounter = 0;
     SynapseSection* sections = segment->synapseSections;
