@@ -68,7 +68,7 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
             inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
         }
 
-        cpuProcessingUnit.processNetworkCluster(cluster);
+        //cpuProcessingUnit.processSegment(cluster);
 
         DataArray* response = new DataArray();
         OutputSegment* synapseSegment = cluster->outputSegments[0];

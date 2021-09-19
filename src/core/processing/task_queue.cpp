@@ -143,30 +143,28 @@ TaskQueue::removeTask(const std::string &taskUuid)
  * @brief TaskQueue::getNextTask
  * @return
  */
-Task
+bool
 TaskQueue::getNextTask()
 {
-    Task result;
-
     m_mutex.lock();
 
     if(m_taskQueue.size() == 0) {
-        return result;
+        return false;
     }
 
     const std::string nextUuid = m_taskQueue.front();
     m_taskQueue.pop_front();
 
-    std::map<std::string, Task>::const_iterator it;
+    std::map<std::string, Task>::iterator it;
     it = m_taskMap.find(nextUuid);
 
-    if(it != m_taskMap.end()) {
-        result = it->second;
-    }
+    actualTask = it->second;
+    it->second.state = ACTIVE_TASK_STATE;
+    actualTask.state = ACTIVE_TASK_STATE;
 
     m_mutex.unlock();
 
-    return result;
+    return true;
 }
 
 /**
@@ -174,17 +172,20 @@ TaskQueue::getNextTask()
  * @param taskUuid
  */
 void
-TaskQueue::finishTask(const std::string &taskUuid)
+TaskQueue::finishTask()
 {
     m_mutex.lock();
 
+    const std::string actualUuid = actualTask.uuid.toString();
     std::map<std::string, Task>::iterator it;
-    it = m_taskMap.find(taskUuid);
 
+    it = m_taskMap.find(actualUuid);
     if(it != m_taskMap.end())
     {
         delete it->second.data;
         it->second.state = FINISHED_TASK_STATE;
+        Task emptyTask;
+        actualTask = emptyTask;
     }
 
     m_mutex.unlock();

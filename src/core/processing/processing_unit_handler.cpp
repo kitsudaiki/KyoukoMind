@@ -21,17 +21,7 @@
  */
 
 #include <core/processing/processing_unit_handler.h>
-#include <core/processing/gpu/gpu_processing_uint.h>
-
-#include <libKitsunemimiCommon/threading/thread.h>
-#include <libKitsunemimiCommon/threading/barrier.h>
-
-#include <libKitsunemimiOpencl/gpu_handler.h>
-#include <libKitsunemimiOpencl/gpu_interface.h>
-
-#include <core/objects/segments/dynamic_segment.h>
-
-#include <kyouko_root.h>
+#include <core/processing/cpu/cpu_processing_unit.h>
 
 /**
  * @brief ProcessingUnitHandler::ProcessingUnitHandler
@@ -49,54 +39,21 @@ ProcessingUnitHandler::~ProcessingUnitHandler()
     closeAllProcessingUnits();
 }
 
-void
-ProcessingUnitHandler::shareNewTask(const ThreadTask newTask)
-{
-
-}
-
 /**
  * @brief ProcessingUnitHandler::initProcessingUnits
  * @param numberOfThreads
  * @return
  */
 bool
-ProcessingUnitHandler::initProcessingUnits(Kitsunemimi::Barrier* startBarrier,
-                                           Kitsunemimi::Barrier* endBarrier,
-                                           const uint16_t numberOfThreads)
+ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
 {
     // init cpu
-    /*for(uint16_t i = 0; i < numberOfThreads; i++)
+    for(uint16_t i = 0; i < numberOfThreads; i++)
     {
-        CpuProcessingUnit* newUnit = new CpuProcessingUnit(i, numberOfThreads);
-        m_cpuProcessingUnits.push_back(newUnit);
-
-        newUnit->startBarrier = startBarrier;
-        newUnit->endBarrier = endBarrier;
-
+        CpuProcessingUnit* newUnit = new CpuProcessingUnit();
+        m_processingUnits.push_back(newUnit);
         newUnit->startThread();
     }
-
-    // init gpu
-    /*m_gpuHandler = new Kitsunemimi::Opencl::GpuHandler();
-    for(uint16_t i = 0; i < m_gpuHandler->m_interfaces.size(); i++)
-    {
-        GpuProcessingUnit* newUnit = new GpuProcessingUnit(m_gpuHandler->m_interfaces.at(i));
-        m_gpuProcessingUnits.push_back(newUnit);
-
-        // init gpu
-        Segment* segment = KyoukoRoot::m_segment;
-        const uint32_t numberOfBricks = static_cast<uint32_t>(segment->bricks.itemCapacity);
-        if(newUnit->initializeGpu(*segment, numberOfBricks) == false) {
-            return false;
-        }
-
-        newUnit->m_phase1 = phase1;
-        newUnit->m_phase2 = phase2;
-        newUnit->m_phase3 = phase3;
-
-        newUnit->startThread();
-    }*/
 
     return true;
 }

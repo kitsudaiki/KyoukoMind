@@ -32,6 +32,8 @@
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 
+class NetworkCluster;
+
 //==================================================================================================
 
 enum SegmentTypes

@@ -25,10 +25,9 @@
 
 #include <common.h>
 
-class NetworkCluster;
-class InputOutputProcessing;
-class CpuProcessingUnit;
 class ClusterHandler;
+class SegmentQueue;
+class ProcessingUnitHandler;
 
 class KyoukoRoot
 {
@@ -40,6 +39,8 @@ public:
     static KyoukoRoot* m_root;
     static ClusterHandler* m_clusterHandler;
     static uint32_t* m_randomValues;
+    static SegmentQueue* m_segmentQueue;
+    static ProcessingUnitHandler* m_processingUnitHandler;
 
     bool start();
     bool initializeSakuraFiles();

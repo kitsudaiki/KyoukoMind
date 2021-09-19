@@ -64,8 +64,10 @@ public:
     TaskState getState(const std::string &taskUuid);
     bool isFinish(const std::string &taskUuid);
     void removeTask(const std::string &taskUuid);
-    Task getNextTask();
-    void finishTask(const std::string &taskUuid);
+    bool getNextTask();
+    void finishTask();
+
+    Task actualTask;
 
 private:
     std::mutex m_mutex;

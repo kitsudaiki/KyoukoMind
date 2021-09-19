@@ -137,22 +137,23 @@ learnTestData(const std::string &mnistRootPath,
             }
             const uint32_t label = labelBufferPtr[pic + 8];
             taskData[(dataPos - 10) + label] = 1.0f;
-
-            // create task
-            const std::string taskUuid = cluster->testQueue->addLearnTask(taskData,
-                                                                          pictureSize,
-                                                                          10,
-                                                                          numberOfLearningPictures);
-
-            // wait until task is finished
-            start = std::chrono::system_clock::now();
-            while(cluster->testQueue->isFinish(taskUuid) == false) {
-                usleep(100000);
-            }
-            end = std::chrono::system_clock::now();
-            const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
-            std::cout<<"run learn: "<<time<<"us"<<std::endl;
         }
+
+        // create task
+        const std::string taskUuid = cluster->taskQueue->addLearnTask(taskData,
+                                                                      pictureSize,
+                                                                      10,
+                                                                      numberOfLearningPictures);
+        cluster->updateClusterState();
+
+        // wait until task is finished
+        start = std::chrono::system_clock::now();
+        while(cluster->taskQueue->isFinish(taskUuid) == false) {
+            usleep(100000);
+        }
+        end = std::chrono::system_clock::now();
+        const float time = std::chrono::duration_cast<chronoMicroSec>(end - start).count();
+        std::cout<<"run learn: "<<time<<"us"<<std::endl;
     }
 
 

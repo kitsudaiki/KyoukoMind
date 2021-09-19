@@ -22,6 +22,8 @@
 
 #include "segment_queue.h"
 
+#include <core/objects/segments/abstract_segment.h>
+
 SegmentQueue::SegmentQueue()
 {
 

@@ -33,7 +33,7 @@ public:
     SegmentQueue();
 
     void addSegmentToQueue(AbstractSegment* newSegment);
-    void addSegmentListToQueue(const std::vector<AbstractSegment*> &semgnetList);
+    void addSegmentListToQueue(const std::vector<AbstractSegment *> &semgnetList);
 
     AbstractSegment* getSegmentFromQueue();
 

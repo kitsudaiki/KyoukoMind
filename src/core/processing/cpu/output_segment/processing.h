@@ -33,24 +33,6 @@
 #include <core/objects/network_cluster.h>
 
 /**
- * @brief process all nodes within a specific brick and also all synapse-sections,
- *        which are connected to an active node
- *
- * @param segment segment to process
- */
-void
-prcessOutputSegment(OutputSegment* segment)
-{
-    const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
-    float* inputTransfers = segment->inputTransfers;
-    for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
-    {
-        OutputNode* node = &segment->outputs[pos];
-        node->outputWeight = inputTransfers[node->targetBorderId];
-    }
-}
-
-/**
  * @brief calculate the total error of all outputs of a specific segment
  *
  * @param segment segment of which one the total error has to be calculated
@@ -74,6 +56,30 @@ calcTotalError(OutputSegment* segment)
     }
 
     return totalError;
+}
+
+/**
+ * @brief process all nodes within a specific brick and also all synapse-sections,
+ *        which are connected to an active node
+ *
+ * @param segment segment to process
+ */
+void
+prcessOutputSegment(OutputSegment* segment)
+{
+    const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
+    float* inputTransfers = segment->inputTransfers;
+    for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
+    {
+        OutputNode* node = &segment->outputs[pos];
+        node->outputWeight = inputTransfers[node->targetBorderId];
+    }
+
+    /*float error = calcTotalError(segment);
+    if(error < 0.01f) {
+        error = 0.0f;
+    }
+    std::cout<<"error: "<<error<<std::endl;*/
 }
 
 /**

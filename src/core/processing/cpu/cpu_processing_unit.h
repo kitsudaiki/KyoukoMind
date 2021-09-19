@@ -24,20 +24,26 @@
 #define KYOUKOMIND_CPU_PROCESSING_UNIT_H
 
 #include <common.h>
+#include <libKitsunemimiCommon/threading/thread.h>
 
-class NetworkCluster;
+class AbstractSegment;
 class DynamicSegment;
 class InputSegment;
 class OutputSegment;
 
 class CpuProcessingUnit
+        : public Kitsunemimi::Thread
 {
 public:
     CpuProcessingUnit();
+    ~CpuProcessingUnit();
 
-    void learnNetworkCluster(NetworkCluster* cluster);
+protected:
+    void run();
 
-    void processNetworkCluster(NetworkCluster* cluster);
+    void learnSegmentForward(AbstractSegment* segment);
+    void learnSegmentBackward(AbstractSegment* segment);
+    void processSegment(AbstractSegment* segment);
 };
 
 #endif // KYOUKOMIND_CPU_PROCESSING_UNIT_H

@@ -28,6 +28,8 @@
 
 #include <core/objects/network_cluster.h>
 
+#include <core/processing/segment_queue.h>
+
 #include <kyouko_root.h>
 
 #include <core/processing/cpu/dynamic_segment/backpropagation.h>
@@ -39,109 +41,137 @@
 
 #include <core/processing/cpu/input_segment/processing.h>
 
-CpuProcessingUnit::CpuProcessingUnit() {}
+/**
+ * @brief CpuProcessingUnit::CpuProcessingUnit
+ */
+CpuProcessingUnit::CpuProcessingUnit()
+    : Kitsunemimi::Thread() {}
 
+/**
+ * @brief CpuProcessingUnit::~CpuProcessingUnit
+ */
+CpuProcessingUnit::~CpuProcessingUnit() {}
+
+/**
+ * @brief CpuProcessingUnit::learnNetworkCluster
+ * @param cluster
+ */
 void
-CpuProcessingUnit::learnNetworkCluster(NetworkCluster *cluster)
+CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
 {
-    for(uint32_t i = 0; i < cluster->allSegments.size(); i++)
+    switch(segment->getType())
     {
-        AbstractSegment* segment = cluster->allSegments[i];
-        if(segment != nullptr)
+        case DYNAMIC_SEGMENT:
         {
-            switch(segment->getType())
-            {
-                case DYNAMIC_SEGMENT:
-                {
-                    DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-                    seg->segmentSettings->doLearn = 1;
-                    prcessDynamicSegment(seg);
-                    hardenSegment(seg);
-                    seg->segmentSettings->doLearn = 0;
-                    break;
-                }
-                case INPUT_SEGMENT:
-                {
-                    InputSegment* seg = static_cast<InputSegment*>(segment);
-                    prcessInputSegment(seg);
-                    break;
-                }
-                case OUTPUT_SEGMENT:
-                {
-                    OutputSegment* seg = static_cast<OutputSegment*>(segment);
-                    prcessOutputSegment(seg);
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            segment->finishSegment();
+            DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
+            seg->segmentSettings->doLearn = 1;
+            prcessDynamicSegment(seg);
+            hardenSegment(seg);
+            seg->segmentSettings->doLearn = 0;
+            break;
         }
-    }
-
-    for(int32_t i = cluster->allSegments.size()-1; i >= 0; i--)
-    {
-        AbstractSegment* segment = cluster->allSegments[i];
-        if(segment != nullptr)
+        case INPUT_SEGMENT:
         {
-            switch(segment->getType())
-            {
-                case DYNAMIC_SEGMENT:
-                {
-                    DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-                    seg->segmentSettings->doLearn = 1;
-                    rewightSegment(seg);
-                    seg->segmentSettings->doLearn = 0;
-                    break;
-                }
-                case OUTPUT_SEGMENT:
-                {
-                    OutputSegment* seg = static_cast<OutputSegment*>(segment);
-                    backpropagateOutput(seg);
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            segment->finishSegment();
+            InputSegment* seg = static_cast<InputSegment*>(segment);
+            prcessInputSegment(seg);
+            break;
         }
+        case OUTPUT_SEGMENT:
+        {
+            OutputSegment* seg = static_cast<OutputSegment*>(segment);
+            prcessOutputSegment(seg);
+            break;
+        }
+        default:
+            break;
     }
 }
 
+/**
+ * @brief CpuProcessingUnit::learnSegmentBackward
+ * @param segment
+ */
 void
-CpuProcessingUnit::processNetworkCluster(NetworkCluster *cluster)
+CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
 {
-    for(AbstractSegment* segment : cluster->allSegments)
+    switch(segment->getType())
     {
-        if(segment != nullptr)
+        case DYNAMIC_SEGMENT:
         {
-            switch(segment->getType())
+            DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
+            rewightSegment(seg);
+            break;
+        }
+        case OUTPUT_SEGMENT:
+        {
+            OutputSegment* seg = static_cast<OutputSegment*>(segment);
+            backpropagateOutput(seg);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+/**
+ * @brief CpuProcessingUnit::processNetworkCluster
+ * @param cluster
+ */
+void
+CpuProcessingUnit::processSegment(AbstractSegment* segment)
+{
+    switch(segment->getType())
+    {
+        case DYNAMIC_SEGMENT:
+        {
+            DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
+            prcessDynamicSegment(seg);
+            break;
+        }
+        case INPUT_SEGMENT:
+        {
+            InputSegment* seg = static_cast<InputSegment*>(segment);
+            prcessInputSegment(seg);
+            break;
+        }
+        case OUTPUT_SEGMENT:
+        {
+            OutputSegment* seg = static_cast<OutputSegment*>(segment);
+            prcessOutputSegment(seg);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+/**
+ * @brief CpuProcessingUnit::run
+ */
+void
+CpuProcessingUnit::run()
+{
+    AbstractSegment* currentSegment = nullptr;
+
+    while(m_abort == false)
+    {
+        currentSegment = KyoukoRoot::m_segmentQueue->getSegmentFromQueue();
+        if(currentSegment != nullptr)
+        {
+            if(currentSegment->isReady() == false)
             {
-                case DYNAMIC_SEGMENT:
-                {
-                    DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-                    prcessDynamicSegment(seg);
-                    break;
-                }
-                case INPUT_SEGMENT:
-                {
-                    InputSegment* seg = static_cast<InputSegment*>(segment);
-                    prcessInputSegment(seg);
-                    break;
-                }
-                case OUTPUT_SEGMENT:
-                {
-                    OutputSegment* seg = static_cast<OutputSegment*>(segment);
-                    prcessOutputSegment(seg);
-                    break;
-                }
-                default:
-                    break;
+                KyoukoRoot::m_segmentQueue->addSegmentToQueue(currentSegment);
+                continue;
             }
 
-            segment->finishSegment();
+            learnSegmentBackward(currentSegment);
+            learnSegmentForward(currentSegment);
+
+            currentSegment->finishSegment();
+        }
+        else
+        {
+            sleepThread(10000);
         }
     }
 }

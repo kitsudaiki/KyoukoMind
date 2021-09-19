@@ -23,7 +23,11 @@
 #include <kyouko_root.h>
 
 #include <core/validation.h>
+
 #include <core/processing/cpu/cpu_processing_unit.h>
+#include <core/processing/segment_queue.h>
+#include <core/processing/processing_unit_handler.h>
+
 #include <core/objects/network_cluster.h>
 #include <core/objects/node.h>
 #include <core/storage_io.h>
@@ -45,6 +49,8 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 KyoukoRoot* KyoukoRoot::m_root = nullptr;
 ClusterHandler* KyoukoRoot::m_clusterHandler = nullptr;
 uint32_t* KyoukoRoot::m_randomValues = nullptr;
+SegmentQueue* KyoukoRoot::m_segmentQueue = nullptr;
+ProcessingUnitHandler* KyoukoRoot::m_processingUnitHandler = nullptr;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
@@ -54,13 +60,17 @@ KyoukoRoot::KyoukoRoot()
     validateStructSizes();
 
     m_root = this;
-    m_clusterHandler = new ClusterHandler();
 
     // init predefinde random-values
     m_randomValues = new uint32_t[NUMBER_OF_RAND_VALUES];
     for(uint32_t i = 0; i < NUMBER_OF_RAND_VALUES; i++) {
         m_randomValues[i] = static_cast<uint32_t>(rand());
     }
+
+    m_clusterHandler = new ClusterHandler();
+    m_segmentQueue = new SegmentQueue();
+    m_processingUnitHandler = new ProcessingUnitHandler();
+    m_processingUnitHandler->initProcessingUnits(1);
 }
 
 /**
