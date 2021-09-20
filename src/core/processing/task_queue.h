@@ -51,7 +51,6 @@ public:
     Task* actualTask = nullptr;
 
 private:
-    std::mutex m_mutex;
     std::deque<std::string> m_taskQueue;
     std::map<std::string, Task> m_taskMap;
 };

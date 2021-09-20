@@ -38,7 +38,7 @@
 
 NetworkCluster::NetworkCluster()
 {
-    taskQueue = new TaskQueue();
+    m_taskQueue = new TaskQueue();
 }
 
 /**
@@ -125,7 +125,8 @@ void
 NetworkCluster::startNewCycle()
 {
     OutputNode* outputs = outputSegments[0]->outputs;
-    Task* actualTask = taskQueue->actualTask;
+
+    Task* actualTask = m_taskQueue->actualTask;
     uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
     offset *= actualTask->actualCycle;
 
@@ -152,23 +153,25 @@ NetworkCluster::startNewCycle()
 void
 NetworkCluster::updateClusterState()
 {
+    m_task_mutex.lock();
+
     learnMode = false;
-    if(taskQueue->actualTask == nullptr)
+    if(m_taskQueue->actualTask == nullptr)
     {
-        if(taskQueue->getNextTask()) {
+        if(m_taskQueue->getNextTask()) {
             startNewCycle();
         }
     }
     else
     {
-        taskQueue->actualTask->actualCycle++;
-        const float actualF = static_cast<float>(taskQueue->actualTask->actualCycle);
-        const float shouldF = static_cast<float>(taskQueue->actualTask->numberOfCycle);
-        taskQueue->actualTask->progress.percentageFinished = actualF / shouldF;
-        if(taskQueue->actualTask->actualCycle == taskQueue->actualTask->numberOfCycle)
+        m_taskQueue->actualTask->actualCycle++;
+        const float actualF = static_cast<float>(m_taskQueue->actualTask->actualCycle);
+        const float shouldF = static_cast<float>(m_taskQueue->actualTask->numberOfCycle);
+        m_taskQueue->actualTask->progress.percentageFinished = actualF / shouldF;
+        if(m_taskQueue->actualTask->actualCycle == m_taskQueue->actualTask->numberOfCycle)
         {
-            taskQueue->finishTask();
-            if(taskQueue->getNextTask()) {
+            m_taskQueue->finishTask();
+            if(m_taskQueue->getNextTask()) {
                 startNewCycle();
             }
         }
@@ -177,6 +180,8 @@ NetworkCluster::updateClusterState()
             startNewCycle();
         }
     }
+
+    m_task_mutex.unlock();
 }
 
 /**
@@ -193,10 +198,15 @@ NetworkCluster::addLearnTask(float *data,
                              const uint64_t numberOfOuputsPerCycle,
                              const uint64_t numberOfCycle)
 {
-    return taskQueue->addLearnTask(data,
-                                   numberOfInputsPerCycle,
-                                   numberOfOuputsPerCycle,
-                                   numberOfCycle);
+    m_task_mutex.lock();
+
+    const std::string result = m_taskQueue->addLearnTask(data,
+                                                         numberOfInputsPerCycle,
+                                                         numberOfOuputsPerCycle,
+                                                         numberOfCycle);
+    m_task_mutex.unlock();
+
+    return result;
 }
 
 /**
@@ -211,9 +221,14 @@ NetworkCluster::addRequestTask(float *inputData,
                                const uint64_t numberOfInputsPerCycle,
                                const uint64_t numberOfCycle)
 {
-    return taskQueue->addRequestTask(inputData,
-                                     numberOfInputsPerCycle,
-                                     numberOfCycle);
+    m_task_mutex.lock();
+
+    const std::string result = m_taskQueue->addRequestTask(inputData,
+                                                           numberOfInputsPerCycle,
+                                                           numberOfCycle);
+    m_task_mutex.unlock();
+
+    return result;
 }
 
 /**
@@ -223,7 +238,11 @@ NetworkCluster::addRequestTask(float *inputData,
 uint64_t
 NetworkCluster::getActualTaskCycle()
 {
-    return taskQueue->actualTask->actualCycle;
+    m_task_mutex.lock();
+    const uint64_t result = m_taskQueue->actualTask->actualCycle;
+    m_task_mutex.unlock();
+
+    return result;
 }
 
 /**
@@ -234,7 +253,11 @@ NetworkCluster::getActualTaskCycle()
 const TaskProgress
 NetworkCluster::getProgress(const std::string &taskUuid)
 {
-    return taskQueue->getProgress(taskUuid);
+    m_task_mutex.lock();
+    const TaskProgress result = m_taskQueue->getProgress(taskUuid);
+    m_task_mutex.unlock();
+
+    return result;
 }
 
 /**
@@ -242,10 +265,14 @@ NetworkCluster::getProgress(const std::string &taskUuid)
  * @param taskUuid
  * @return
  */
-uint32_t*
+const uint32_t*
 NetworkCluster::getResultData(const std::string &taskUuid)
 {
-    return taskQueue->getResultData(taskUuid);
+    m_task_mutex.lock();
+    const uint32_t* result = m_taskQueue->getResultData(taskUuid);
+    m_task_mutex.unlock();
+
+    return result;
 }
 
 /**
@@ -256,7 +283,11 @@ NetworkCluster::getResultData(const std::string &taskUuid)
 bool
 NetworkCluster::isFinish(const std::string &taskUuid)
 {
-    return taskQueue->isFinish(taskUuid);
+    m_task_mutex.lock();
+    const bool result = m_taskQueue->isFinish(taskUuid);
+    m_task_mutex.unlock();
+
+    return result;
 }
 
 /**
@@ -266,7 +297,9 @@ NetworkCluster::isFinish(const std::string &taskUuid)
 void
 NetworkCluster::setResultForActualCycle(const uint32_t result)
 {
-    taskQueue->actualTask->resultData[taskQueue->actualTask->actualCycle] = result;
+    m_task_mutex.lock();
+    m_taskQueue->actualTask->resultData[m_taskQueue->actualTask->actualCycle] = result;
+    m_task_mutex.unlock();
 }
 
 /**

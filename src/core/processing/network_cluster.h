@@ -60,11 +60,10 @@ public:
                                      const uint64_t numberOfCycle);
     uint64_t getActualTaskCycle();
     const TaskProgress getProgress(const std::string &taskUuid);
-    uint32_t* getResultData(const std::string &taskUuid);
+    const uint32_t* getResultData(const std::string &taskUuid);
     bool isFinish(const std::string &taskUuid);
     void setResultForActualCycle(const uint32_t result);
 
-    void startNewCycle();
     void updateClusterState();
 
 private:
@@ -72,7 +71,8 @@ private:
     AbstractSegment* addOutputSegment(const JsonItem &parsedContent);
     AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
 
-    TaskQueue* taskQueue = nullptr;
+    TaskQueue* m_taskQueue = nullptr;
+    std::mutex m_task_mutex;
 
     const std::string getName();
     bool setName(const std::string newName);
@@ -82,6 +82,8 @@ private:
 
     void initSegmentPointer(const ClusterMetaData &metaData,
                             const ClusterSettings &settings);
+
+    void startNewCycle();
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H
