@@ -24,45 +24,7 @@
 #define KYOUKOMIND_TASKQUEUE_H
 
 #include <common.h>
-
-enum TaskType
-{
-    UNDEFINED_TASK = 0,
-    LEARN_TASK = 1,
-    REQUEST_TASK = 2,
-};
-
-enum TaskState
-{
-    UNDEFINED_TASK_STATE = 0,
-    QUEUED_TASK_STATE = 1,
-    ACTIVE_TASK_STATE = 2,
-    ABORTED_TASK_STATE = 3,
-    FINISHED_TASK_STATE = 4,
-};
-
-struct TaskProgress
-{
-    TaskState state = UNDEFINED_TASK_STATE;
-    float percentageFinished = 0.0f;
-    std::chrono::high_resolution_clock::time_point queuedTimeStamp;
-    std::chrono::high_resolution_clock::time_point startActiveTimeStamp;
-    std::chrono::high_resolution_clock::time_point endActiveTimeStamp;
-    uint64_t estimatedRemaningTime = 0;
-};
-
-struct Task
-{
-    kuuid uuid;
-    float* data = nullptr;
-    uint32_t* resultData = nullptr;
-    uint64_t numberOfInputsPerCycle = 0;
-    uint64_t numberOfOuputsPerCycle = 0;
-    uint64_t numberOfCycle = 0;
-    uint64_t actualCycle = 0;
-    TaskType type = UNDEFINED_TASK;
-    TaskProgress progress;
-};
+#include <core/objects/task.h>
 
 class TaskQueue
 {

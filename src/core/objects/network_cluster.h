@@ -24,6 +24,7 @@
 #define KYOUKOMIND_NETWORK_CLUSTER_H
 
 #include <common.h>
+#include <core/objects/task.h>
 
 class InputSegment;
 class OutputSegment;
@@ -76,16 +77,30 @@ public:
 
     const std::string initNewCluster(const JsonItem &parsedContent);
 
+    bool learnMode = false;
+
+    const std::string addLearnTask(float* data,
+                                   const uint64_t numberOfInputsPerCycle,
+                                   const uint64_t numberOfOuputsPerCycle,
+                                   const uint64_t numberOfCycle);
+    const std::string addRequestTask(float* inputData,
+                                     const uint64_t numberOfInputsPerCycle,
+                                     const uint64_t numberOfCycle);
+    uint64_t getActualTaskCycle();
+    const TaskProgress getProgress(const std::string &taskUuid);
+    uint32_t* getResultData(const std::string &taskUuid);
+    bool isFinish(const std::string &taskUuid);
+    void setResultForActualCycle(const uint32_t result);
+
     void startNewCycle();
     void updateClusterState();
-
-    TaskQueue* taskQueue = nullptr;
-    bool learnMode = false;
 
 private:
     AbstractSegment* addInputSegment(const JsonItem &parsedContent);
     AbstractSegment* addOutputSegment(const JsonItem &parsedContent);
     AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
+
+    TaskQueue* taskQueue = nullptr;
 
     const std::string getName();
     bool setName(const std::string newName);

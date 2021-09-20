@@ -143,17 +143,19 @@ learnTestData(const std::string &mnistRootPath,
             }
 
             // create task
-            const std::string taskUuid = cluster->taskQueue->addLearnTask(taskData,
-                                                                          pictureSize,
-                                                                          10,
-                                                                          numberOfLearningPictures);
+            const std::string taskUuid = cluster->addLearnTask(taskData,
+                                                               pictureSize,
+                                                               10,
+                                                               numberOfLearningPictures);
             cluster->updateClusterState();
 
             // wait until task is finished
             start = std::chrono::system_clock::now();
             Kitsunemimi::ProgressBar* progressBar = new Kitsunemimi::ProgressBar();
-            while(cluster->taskQueue->isFinish(taskUuid) == false) {
-                progressBar->updateProgress(cluster->taskQueue->actualTask->progress.percentageFinished);
+            while(cluster->isFinish(taskUuid) == false)
+            {
+                const TaskProgress progress = cluster->getProgress(taskUuid);
+                progressBar->updateProgress(progress.percentageFinished);
                 usleep(100000);
             }
             progressBar->updateProgress(1.0f);
@@ -202,15 +204,17 @@ learnTestData(const std::string &mnistRootPath,
     }
 
     // create task
-    const std::string taskUuid = cluster->taskQueue->addRequestTask(taskData,
-                                                                    pictureSize,
-                                                                    total);
+    const std::string taskUuid = cluster->addRequestTask(taskData,
+                                                         pictureSize,
+                                                         total);
     cluster->updateClusterState();
     // wait until task is finished
     start = std::chrono::system_clock::now();
     Kitsunemimi::ProgressBar* progressBar = new Kitsunemimi::ProgressBar();
-    while(cluster->taskQueue->isFinish(taskUuid) == false) {
-        progressBar->updateProgress(cluster->taskQueue->actualTask->progress.percentageFinished);
+    while(cluster->isFinish(taskUuid) == false)
+    {
+        const TaskProgress progress = cluster->getProgress(taskUuid);
+        progressBar->updateProgress(progress.percentageFinished);
         usleep(100000);
     }
     progressBar->updateProgress(1.0f);
@@ -220,7 +224,7 @@ learnTestData(const std::string &mnistRootPath,
     std::cout<<"run request: "<<time<<"s"<<std::endl;
 
 
-    const uint32_t* resultData = cluster->taskQueue->getResultData(taskUuid);
+    const uint32_t* resultData = cluster->getResultData(taskUuid);
 
     for(uint32_t pic = 0; pic < total; pic++)
     {

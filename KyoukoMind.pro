@@ -88,6 +88,7 @@ HEADERS += \
     src/core/objects/segments/dynamic_segment.h \
     src/core/objects/segments/input_segment.h \
     src/core/objects/segments/output_segment.h \
+    src/core/objects/task.h \
     src/core/processing/cpu/dynamic_segment/backpropagation.h \
     src/core/processing/cpu/dynamic_segment/create_reduce.h \
     src/core/processing/cpu/dynamic_segment/processing.h \

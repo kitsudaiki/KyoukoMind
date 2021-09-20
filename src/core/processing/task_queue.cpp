@@ -149,7 +149,8 @@ TaskQueue::getProgress(const std::string &taskUuid)
  * @param taskUuid
  * @return
  */
-uint32_t *TaskQueue::getResultData(const std::string &taskUuid)
+uint32_t*
+TaskQueue::getResultData(const std::string &taskUuid)
 {
     uint32_t* data = nullptr;
 

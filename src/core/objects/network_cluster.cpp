@@ -180,6 +180,96 @@ NetworkCluster::updateClusterState()
 }
 
 /**
+ * @brief NetworkCluster::addLearnTask
+ * @param data
+ * @param numberOfInputsPerCycle
+ * @param numberOfOuputsPerCycle
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+NetworkCluster::addLearnTask(float *data,
+                             const uint64_t numberOfInputsPerCycle,
+                             const uint64_t numberOfOuputsPerCycle,
+                             const uint64_t numberOfCycle)
+{
+    return taskQueue->addLearnTask(data,
+                                   numberOfInputsPerCycle,
+                                   numberOfOuputsPerCycle,
+                                   numberOfCycle);
+}
+
+/**
+ * @brief NetworkCluster::addRequestTask
+ * @param inputData
+ * @param numberOfInputsPerCycle
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+NetworkCluster::addRequestTask(float *inputData,
+                               const uint64_t numberOfInputsPerCycle,
+                               const uint64_t numberOfCycle)
+{
+    return taskQueue->addRequestTask(inputData,
+                                     numberOfInputsPerCycle,
+                                     numberOfCycle);
+}
+
+/**
+ * @brief NetworkCluster::getActualTaskCycle
+ * @return
+ */
+uint64_t
+NetworkCluster::getActualTaskCycle()
+{
+    return taskQueue->actualTask->actualCycle;
+}
+
+/**
+ * @brief NetworkCluster::getProgress
+ * @param taskUuid
+ * @return
+ */
+const TaskProgress
+NetworkCluster::getProgress(const std::string &taskUuid)
+{
+    return taskQueue->getProgress(taskUuid);
+}
+
+/**
+ * @brief NetworkCluster::getResultData
+ * @param taskUuid
+ * @return
+ */
+uint32_t*
+NetworkCluster::getResultData(const std::string &taskUuid)
+{
+    return taskQueue->getResultData(taskUuid);
+}
+
+/**
+ * @brief NetworkCluster::isFinish
+ * @param taskUuid
+ * @return
+ */
+bool
+NetworkCluster::isFinish(const std::string &taskUuid)
+{
+    return taskQueue->isFinish(taskUuid);
+}
+
+/**
+ * @brief NetworkCluster::setResultForActualCycle
+ * @param result
+ */
+void
+NetworkCluster::setResultForActualCycle(const uint32_t result)
+{
+    taskQueue->actualTask->resultData[taskQueue->actualTask->actualCycle] = result;
+}
+
+/**
  * @brief ClusterInitializer::addInputSegment
  * @param parsedContent
  * @param cluster
