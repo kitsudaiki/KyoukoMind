@@ -25,39 +25,11 @@
 
 #include <common.h>
 #include <core/objects/task.h>
+#include <core/objects/cluster_meta.h>
 
 class InputSegment;
 class OutputSegment;
 class AbstractSegment;
-
-struct ClusterMetaData
-{
-    uint8_t objectType = CLUSTER_OBJECT;
-    uint8_t version = 1;
-    uint8_t padding1[6];
-    uint64_t clusterSize = 0;
-
-    kuuid uuid;
-    char name[1024];
-
-    uint32_t numberOfInputSegments = 0;
-    uint32_t numberOfOutputSegments = 0;
-    uint32_t numberOfSegments = 0;
-
-    uint8_t padding2[956];
-
-    // total size: 2048 Byte
-};
-
-struct ClusterSettings
-{
-    float lerningValue = 0.0f;
-    uint32_t cycleTime = 1000000;
-
-    uint8_t padding[248];
-
-    // total size: 256 Byte
-};
 
 class TaskQueue;
 

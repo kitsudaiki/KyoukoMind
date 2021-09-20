@@ -1,5 +1,5 @@
 /**
- * @file        synapses.h
+ * @file        task.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *

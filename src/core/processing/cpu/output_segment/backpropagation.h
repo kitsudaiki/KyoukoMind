@@ -30,7 +30,7 @@
 #include <core/objects/node.h>
 #include <core/objects/segments/output_segment.h>
 #include <core/objects/synapses.h>
-#include <core/objects/network_cluster.h>
+#include <core/processing/network_cluster.h>
 
 /**
  * @brief backpropagateOutput

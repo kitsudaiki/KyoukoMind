@@ -1,5 +1,5 @@
 /**
- * @file        gpu_processing_uint.h
+ * @file        cluster_meta.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,33 +20,38 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_GPU_PROCESSING_UNIT_H
-#define KYOUKOMIND_GPU_PROCESSING_UNIT_H
+#ifndef KYOUKOMIND_CLUSTER_META_H
+#define KYOUKOMIND_CLUSTER_META_H
 
 #include <common.h>
-#include <core/processing/network_cluster.h>
-#include <core/objects/segments/dynamic_segment.h>
 
-#include <libKitsunemimiOpencl/gpu_handler.h>
-#include <libKitsunemimiOpencl/gpu_interface.h>
-
-class GpuProcessingUnit
+struct ClusterMetaData
 {
-public:
-    GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInterface);
+    uint8_t objectType = CLUSTER_OBJECT;
+    uint8_t version = 1;
+    uint8_t padding1[6];
+    uint64_t clusterSize = 0;
 
-    bool initializeGpu(NetworkCluster *cluster);
+    kuuid uuid;
+    char name[1024];
 
-    bool learn();
-    bool execute();
+    uint32_t numberOfInputSegments = 0;
+    uint32_t numberOfOutputSegments = 0;
+    uint32_t numberOfSegments = 0;
 
-private:
-    Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;
-    Kitsunemimi::Opencl::GpuInterface* m_gpuInterface = nullptr;
+    uint8_t padding2[956];
 
-    Kitsunemimi::Opencl::GpuData oclData;
-
-    bool closeDevice();
+    // total size: 2048 Byte
 };
 
-#endif // KYOUKOMIND_GPU_PROCESSING_UNIT_H
+struct ClusterSettings
+{
+    float lerningValue = 0.0f;
+    uint32_t cycleTime = 1000000;
+
+    uint8_t padding[248];
+
+    // total size: 256 Byte
+};
+
+#endif // CLUSTER_META_H

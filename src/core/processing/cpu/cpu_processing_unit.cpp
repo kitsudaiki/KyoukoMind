@@ -26,7 +26,7 @@
 #include <core/objects/segments/input_segment.h>
 #include <core/objects/segments/output_segment.h>
 
-#include <core/objects/network_cluster.h>
+#include <core/processing/network_cluster.h>
 
 #include <core/processing/segment_queue.h>
 #include <core/processing/task_queue.h>

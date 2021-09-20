@@ -26,7 +26,7 @@
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
-#include <core/objects/network_cluster.h>
+#include <core/processing/network_cluster.h>
 
 /**
  * @brief validate to sized of all structs to ensure, that they have all the defined size of 2^x

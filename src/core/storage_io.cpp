@@ -24,7 +24,7 @@
 
 #include <libKitsunemimiPersistence/files/binary_file.h>
 #include <kyouko_root.h>
-#include <core/objects/network_cluster.h>
+#include <core/processing/network_cluster.h>
 
 StorageIO::StorageIO() {}
 

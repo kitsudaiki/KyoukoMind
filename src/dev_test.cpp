@@ -23,7 +23,7 @@
 #include "dev_test.h"
 
 #include <kyouko_root.h>
-#include <core/objects/network_cluster.h>
+#include <core/processing/network_cluster.h>
 #include <core/objects/segments/input_segment.h>
 #include <core/objects/segments/output_segment.h>
 
