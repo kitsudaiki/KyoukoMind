@@ -45,8 +45,8 @@
 /**
  * @brief CpuProcessingUnit::CpuProcessingUnit
  */
-CpuProcessingUnit::CpuProcessingUnit()
-    : Kitsunemimi::Thread() {}
+CpuProcessingUnit::CpuProcessingUnit(int coreId)
+    : Kitsunemimi::Thread(coreId) {}
 
 /**
  * @brief CpuProcessingUnit::~CpuProcessingUnit
@@ -140,7 +140,7 @@ CpuProcessingUnit::processSegment(AbstractSegment* segment)
             OutputSegment* seg = static_cast<OutputSegment*>(segment);
             prcessOutputSegment(seg);
             const uint32_t hightest = getHighestOutput(seg);
-            Task* actualTask = &seg->parentCluster->taskQueue->actualTask;
+            Task* actualTask = seg->parentCluster->taskQueue->actualTask;
             actualTask->resultData[actualTask->actualCycle] = hightest;
             break;
         }

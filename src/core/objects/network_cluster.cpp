@@ -125,7 +125,7 @@ void
 NetworkCluster::startNewCycle()
 {
     OutputNode* outputs = outputSegments[0]->outputs;
-    Task* actualTask = &taskQueue->actualTask;
+    Task* actualTask = taskQueue->actualTask;
     uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
     offset *= actualTask->actualCycle;
 
@@ -153,7 +153,7 @@ void
 NetworkCluster::updateClusterState()
 {
     learnMode = false;
-    if(taskQueue->actualTask.state == UNDEFINED_TASK_STATE)
+    if(taskQueue->actualTask == nullptr)
     {
         if(taskQueue->getNextTask()) {
             startNewCycle();
@@ -161,8 +161,11 @@ NetworkCluster::updateClusterState()
     }
     else
     {
-        taskQueue->actualTask.actualCycle++;
-        if(taskQueue->actualTask.actualCycle == taskQueue->actualTask.numberOfCycle)
+        taskQueue->actualTask->actualCycle++;
+        const float actualF = static_cast<float>(taskQueue->actualTask->actualCycle);
+        const float shouldF = static_cast<float>(taskQueue->actualTask->numberOfCycle);
+        taskQueue->actualTask->progress.percentageFinished = actualF / shouldF;
+        if(taskQueue->actualTask->actualCycle == taskQueue->actualTask->numberOfCycle)
         {
             taskQueue->finishTask();
             if(taskQueue->getNextTask()) {

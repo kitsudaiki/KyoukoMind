@@ -41,6 +41,16 @@ enum TaskState
     FINISHED_TASK_STATE = 4,
 };
 
+struct TaskProgress
+{
+    TaskState state = UNDEFINED_TASK_STATE;
+    float percentageFinished = 0.0f;
+    std::chrono::high_resolution_clock::time_point queuedTimeStamp;
+    std::chrono::high_resolution_clock::time_point startActiveTimeStamp;
+    std::chrono::high_resolution_clock::time_point endActiveTimeStamp;
+    uint64_t estimatedRemaningTime = 0;
+};
+
 struct Task
 {
     kuuid uuid;
@@ -51,7 +61,7 @@ struct Task
     uint64_t numberOfCycle = 0;
     uint64_t actualCycle = 0;
     TaskType type = UNDEFINED_TASK;
-    TaskState state = UNDEFINED_TASK_STATE;
+    TaskProgress progress;
 };
 
 class TaskQueue
@@ -68,6 +78,7 @@ public:
                                      const uint64_t numberOfCycle);
 
     TaskState getState(const std::string &taskUuid);
+    const TaskProgress getProgress(const std::string &taskUuid);
     uint32_t* getResultData(const std::string &taskUuid);
 
     bool isFinish(const std::string &taskUuid);
@@ -75,7 +86,7 @@ public:
     bool getNextTask();
     void finishTask();
 
-    Task actualTask;
+    Task* actualTask = nullptr;
 
 private:
     std::mutex m_mutex;

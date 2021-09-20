@@ -30,6 +30,7 @@
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
 #include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiCommon/progress_bar.h>
 
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
@@ -112,51 +113,56 @@ learnTestData(const std::string &mnistRootPath,
     const uint32_t numberOfIteractions = GET_INT_CONFIG("DevMode", "learn_iterations", success);
     const uint32_t numberOfLearningPictures = GET_INT_CONFIG("DevMode", "learn_images", success);
 
-    for(uint32_t poi = 0; poi < 1; poi++)
+    for(uint32_t iter = 0; iter < 5; iter++)
     {
-        uint64_t dataPos = 0;
-        uint64_t dataSize = numberOfLearningPictures * (pictureSize + 10);
-        float* taskData = new float[dataSize];
-
-        for(uint32_t pic = 0; pic < numberOfLearningPictures; pic++)
+        for(uint32_t poi = 0; poi < 1; poi++)
         {
-            // input
-            for(uint32_t i = 0; i < pictureSize; i++)
+            uint64_t dataPos = 0;
+            uint64_t dataSize = numberOfLearningPictures * (pictureSize + 10);
+            float* taskData = new float[dataSize];
+
+            for(uint32_t pic = 0; pic < numberOfLearningPictures; pic++)
             {
-                const uint32_t pos = pic * pictureSize + i + 16;
-                int32_t total = dataBufferPtr[pos];
-                taskData[dataPos] = (static_cast<float>(total) / 255.0f);
-                dataPos++;
+                // input
+                for(uint32_t i = 0; i < pictureSize; i++)
+                {
+                    const uint32_t pos = pic * pictureSize + i + 16;
+                    int32_t total = dataBufferPtr[pos];
+                    taskData[dataPos] = (static_cast<float>(total) / 255.0f);
+                    dataPos++;
+                }
+
+                // output
+                for(uint32_t i = 0; i < 10; i++)
+                {
+                    taskData[dataPos] = 0.0f;
+                    dataPos++;
+                }
+                const uint32_t label = labelBufferPtr[pic + 8];
+                taskData[(dataPos - 10) + label] = 1.0f;
             }
 
-            // output
-            for(uint32_t i = 0; i < 10; i++)
-            {
-                taskData[dataPos] = 0.0f;
-                dataPos++;
+            // create task
+            const std::string taskUuid = cluster->taskQueue->addLearnTask(taskData,
+                                                                          pictureSize,
+                                                                          10,
+                                                                          numberOfLearningPictures);
+            cluster->updateClusterState();
+
+            // wait until task is finished
+            start = std::chrono::system_clock::now();
+            Kitsunemimi::ProgressBar* progressBar = new Kitsunemimi::ProgressBar();
+            while(cluster->taskQueue->isFinish(taskUuid) == false) {
+                progressBar->updateProgress(cluster->taskQueue->actualTask->progress.percentageFinished);
+                usleep(100000);
             }
-            const uint32_t label = labelBufferPtr[pic + 8];
-            taskData[(dataPos - 10) + label] = 1.0f;
+            progressBar->updateProgress(1.0f);
+            end = std::chrono::system_clock::now();
+            const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
+            delete progressBar;
+            std::cout<<"run learn: "<<time<<"s"<<std::endl;
         }
-
-        // create task
-        const std::string taskUuid = cluster->taskQueue->addLearnTask(taskData,
-                                                                      pictureSize,
-                                                                      10,
-                                                                      numberOfLearningPictures);
-        cluster->updateClusterState();
-
-        // wait until task is finished
-        start = std::chrono::system_clock::now();
-        while(cluster->taskQueue->isFinish(taskUuid) == false) {
-            std::cout<<"+++++++++++++++++++++++++++++++++++++++ sleep"<<std::endl;
-            usleep(100000);
-        }
-        end = std::chrono::system_clock::now();
-        const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
-        std::cout<<"run learn: "<<time<<"s"<<std::endl;
     }
-
 
     //==============================================================================================
     // test
@@ -202,12 +208,15 @@ learnTestData(const std::string &mnistRootPath,
     cluster->updateClusterState();
     // wait until task is finished
     start = std::chrono::system_clock::now();
+    Kitsunemimi::ProgressBar* progressBar = new Kitsunemimi::ProgressBar();
     while(cluster->taskQueue->isFinish(taskUuid) == false) {
-        std::cout<<"+++++++++++++++++++++++++++++++++++++++ sleep"<<std::endl;
+        progressBar->updateProgress(cluster->taskQueue->actualTask->progress.percentageFinished);
         usleep(100000);
     }
+    progressBar->updateProgress(1.0f);
     end = std::chrono::system_clock::now();
     const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
+    delete progressBar;
     std::cout<<"run request: "<<time<<"s"<<std::endl;
 
 
