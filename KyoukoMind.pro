@@ -83,11 +83,13 @@ HEADERS += \
     src/common/includes.h \
     src/common/typedefs.h \
     src/core/cluster_handler.h \
-    src/core/objects/network_cluster.h \
+    src/core/objects/cluster_meta.h \
+    src/core/processing/network_cluster.h \
     src/core/objects/segments/abstract_segment.h \
     src/core/objects/segments/dynamic_segment.h \
     src/core/objects/segments/input_segment.h \
     src/core/objects/segments/output_segment.h \
+    src/core/objects/task.h \
     src/core/processing/cpu/dynamic_segment/backpropagation.h \
     src/core/processing/cpu/dynamic_segment/create_reduce.h \
     src/core/processing/cpu/dynamic_segment/processing.h \
@@ -124,7 +126,7 @@ SOURCES += \
     src/api/save_load/save_net_blossom.cpp \
     src/api/save_load/show_save_file_blossom.cpp \
     src/core/cluster_handler.cpp \
-    src/core/objects/network_cluster.cpp \
+    src/core/processing/network_cluster.cpp \
     src/core/objects/segments/abstract_segment.cpp \
     src/core/objects/segments/dynamic_segment.cpp \
     src/core/objects/segments/input_segment.cpp \

@@ -27,7 +27,7 @@
 
 #include <core/objects/node.h>
 #include <core/objects/segments/dynamic_segment.h>
-#include <core/objects/network_cluster.h>
+#include <core/processing/network_cluster.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 

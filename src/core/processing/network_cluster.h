@@ -24,39 +24,12 @@
 #define KYOUKOMIND_NETWORK_CLUSTER_H
 
 #include <common.h>
+#include <core/objects/task.h>
+#include <core/objects/cluster_meta.h>
 
 class InputSegment;
 class OutputSegment;
 class AbstractSegment;
-
-struct ClusterMetaData
-{
-    uint8_t objectType = CLUSTER_OBJECT;
-    uint8_t version = 1;
-    uint8_t padding1[6];
-    uint64_t clusterSize = 0;
-
-    kuuid uuid;
-    char name[1024];
-
-    uint32_t numberOfInputSegments = 0;
-    uint32_t numberOfOutputSegments = 0;
-    uint32_t numberOfSegments = 0;
-
-    uint8_t padding2[956];
-
-    // total size: 2048 Byte
-};
-
-struct ClusterSettings
-{
-    float lerningValue = 0.0f;
-    uint32_t cycleTime = 1000000;
-
-    uint8_t padding[248];
-
-    // total size: 256 Byte
-};
 
 class TaskQueue;
 
@@ -76,16 +49,30 @@ public:
 
     const std::string initNewCluster(const JsonItem &parsedContent);
 
-    void startNewCycle();
-    void updateClusterState();
-
-    TaskQueue* taskQueue = nullptr;
     bool learnMode = false;
+
+    const std::string addLearnTask(float* data,
+                                   const uint64_t numberOfInputsPerCycle,
+                                   const uint64_t numberOfOuputsPerCycle,
+                                   const uint64_t numberOfCycle);
+    const std::string addRequestTask(float* inputData,
+                                     const uint64_t numberOfInputsPerCycle,
+                                     const uint64_t numberOfCycle);
+    uint64_t getActualTaskCycle();
+    const TaskProgress getProgress(const std::string &taskUuid);
+    const uint32_t* getResultData(const std::string &taskUuid);
+    bool isFinish(const std::string &taskUuid);
+    void setResultForActualCycle(const uint32_t result);
+
+    void updateClusterState();
 
 private:
     AbstractSegment* addInputSegment(const JsonItem &parsedContent);
     AbstractSegment* addOutputSegment(const JsonItem &parsedContent);
     AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
+
+    TaskQueue* m_taskQueue = nullptr;
+    std::mutex m_task_mutex;
 
     const std::string getName();
     bool setName(const std::string newName);
@@ -95,6 +82,8 @@ private:
 
     void initSegmentPointer(const ClusterMetaData &metaData,
                             const ClusterSettings &settings);
+
+    void startNewCycle();
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H

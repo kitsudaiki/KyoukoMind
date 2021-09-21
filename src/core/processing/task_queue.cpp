@@ -45,16 +45,14 @@ TaskQueue::addLearnTask(float* data,
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
     newTask.type = LEARN_TASK;
-    newTask.state = QUEUED_TASK_STATE;
+
+    newTask.progress.state = QUEUED_TASK_STATE;
+    newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
     const std::string uuid = newTask.uuid.toString();
 
-    m_mutex.lock();
-
     m_taskMap.insert(std::make_pair(uuid, newTask));
     m_taskQueue.push_back(uuid);
-
-    m_mutex.unlock();
 
     return uuid;
 }
@@ -78,16 +76,14 @@ TaskQueue::addRequestTask(float* inputData,
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
     newTask.type = REQUEST_TASK;
-    newTask.state = QUEUED_TASK_STATE;
+
+    newTask.progress.state = QUEUED_TASK_STATE;
+    newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
     const std::string uuid = newTask.uuid.toString();
 
-    m_mutex.lock();
-
     m_taskMap.insert(std::make_pair(uuid, newTask));
     m_taskQueue.push_back(uuid);
-
-    m_mutex.unlock();
 
     return uuid;
 }
@@ -102,18 +98,34 @@ TaskQueue::getState(const std::string &taskUuid)
 {
     TaskState state = UNDEFINED_TASK_STATE;
 
-    m_mutex.lock();
+    std::map<std::string, Task>::const_iterator it;
+    it = m_taskMap.find(taskUuid);
+
+    if(it != m_taskMap.end()) {
+        state = it->second.progress.state;
+    }
+
+    return state;
+}
+
+/**
+ * @brief TaskQueue::getProgress
+ * @param taskUuid
+ * @return
+ */
+const TaskProgress
+TaskQueue::getProgress(const std::string &taskUuid)
+{
+    TaskProgress progress;
 
     std::map<std::string, Task>::const_iterator it;
     it = m_taskMap.find(taskUuid);
 
     if(it != m_taskMap.end()) {
-        state = it->second.state;
+        progress = it->second.progress;
     }
 
-    m_mutex.unlock();
-
-    return state;
+    return progress;
 }
 
 /**
@@ -121,11 +133,10 @@ TaskQueue::getState(const std::string &taskUuid)
  * @param taskUuid
  * @return
  */
-uint32_t *TaskQueue::getResultData(const std::string &taskUuid)
+uint32_t*
+TaskQueue::getResultData(const std::string &taskUuid)
 {
     uint32_t* data = nullptr;
-
-    m_mutex.lock();
 
     std::map<std::string, Task>::const_iterator it;
     it = m_taskMap.find(taskUuid);
@@ -133,8 +144,6 @@ uint32_t *TaskQueue::getResultData(const std::string &taskUuid)
     if(it != m_taskMap.end()) {
         data = it->second.resultData;
     }
-
-    m_mutex.unlock();
 
     return data;
 }
@@ -160,14 +169,12 @@ TaskQueue::removeTask(const std::string &taskUuid)
 {
     TaskState state = UNDEFINED_TASK_STATE;
 
-    m_mutex.lock();
-
     // check and update map
     std::map<std::string, Task>::iterator itMap;
     itMap = m_taskMap.find(taskUuid);
     if(itMap != m_taskMap.end())
     {
-        state = itMap->second.state;
+        state = itMap->second.progress.state;
 
         // if only queue but not activly processed at the moment, it can easily deleted
         if(state == QUEUED_TASK_STATE)
@@ -178,7 +185,7 @@ TaskQueue::removeTask(const std::string &taskUuid)
 
         // if task is active at the moment, then only mark it as aborted
         if(state == ACTIVE_TASK_STATE) {
-            itMap->second.state = ABORTED_TASK_STATE;
+            itMap->second.progress.state = ABORTED_TASK_STATE;
         }
     }
 
@@ -191,8 +198,6 @@ TaskQueue::removeTask(const std::string &taskUuid)
             m_taskQueue.erase(itQueue);
         }
     }
-
-    m_mutex.unlock();
 }
 
 /**
@@ -202,11 +207,7 @@ TaskQueue::removeTask(const std::string &taskUuid)
 bool
 TaskQueue::getNextTask()
 {
-    m_mutex.lock();
-
-    if(m_taskQueue.size() == 0)
-    {
-        m_mutex.unlock();
+    if(m_taskQueue.size() == 0) {
         return false;
     }
 
@@ -216,11 +217,9 @@ TaskQueue::getNextTask()
     std::map<std::string, Task>::iterator it;
     it = m_taskMap.find(nextUuid);
 
-    actualTask = it->second;
-    it->second.state = ACTIVE_TASK_STATE;
-    actualTask.state = ACTIVE_TASK_STATE;
-
-    m_mutex.unlock();
+    it->second.progress.state = ACTIVE_TASK_STATE;
+    it->second.progress.startActiveTimeStamp = std::chrono::system_clock::now();
+    actualTask = &it->second;
 
     return true;
 }
@@ -232,19 +231,19 @@ TaskQueue::getNextTask()
 void
 TaskQueue::finishTask()
 {
-    m_mutex.lock();
+    if(actualTask == nullptr) {
+        return;
+    }
 
-    const std::string actualUuid = actualTask.uuid.toString();
+    const std::string actualUuid = actualTask->uuid.toString();
     std::map<std::string, Task>::iterator it;
 
     it = m_taskMap.find(actualUuid);
     if(it != m_taskMap.end())
     {
         delete it->second.data;
-        it->second.state = FINISHED_TASK_STATE;
-        Task emptyTask;
-        actualTask = emptyTask;
+        it->second.progress.state = FINISHED_TASK_STATE;
+        it->second.progress.endActiveTimeStamp = std::chrono::system_clock::now();
+        actualTask = nullptr;
     }
-
-    m_mutex.unlock();
 }

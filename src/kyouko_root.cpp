@@ -28,7 +28,7 @@
 #include <core/processing/segment_queue.h>
 #include <core/processing/processing_unit_handler.h>
 
-#include <core/objects/network_cluster.h>
+#include <core/processing/network_cluster.h>
 #include <core/objects/node.h>
 #include <core/storage_io.h>
 #include <core/cluster_handler.h>

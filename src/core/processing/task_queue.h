@@ -24,35 +24,7 @@
 #define KYOUKOMIND_TASKQUEUE_H
 
 #include <common.h>
-
-enum TaskType
-{
-    UNDEFINED_TASK = 0,
-    LEARN_TASK = 1,
-    REQUEST_TASK = 2,
-};
-
-enum TaskState
-{
-    UNDEFINED_TASK_STATE = 0,
-    QUEUED_TASK_STATE = 1,
-    ACTIVE_TASK_STATE = 2,
-    ABORTED_TASK_STATE = 3,
-    FINISHED_TASK_STATE = 4,
-};
-
-struct Task
-{
-    kuuid uuid;
-    float* data = nullptr;
-    uint32_t* resultData = nullptr;
-    uint64_t numberOfInputsPerCycle = 0;
-    uint64_t numberOfOuputsPerCycle = 0;
-    uint64_t numberOfCycle = 0;
-    uint64_t actualCycle = 0;
-    TaskType type = UNDEFINED_TASK;
-    TaskState state = UNDEFINED_TASK_STATE;
-};
+#include <core/objects/task.h>
 
 class TaskQueue
 {
@@ -68,6 +40,7 @@ public:
                                      const uint64_t numberOfCycle);
 
     TaskState getState(const std::string &taskUuid);
+    const TaskProgress getProgress(const std::string &taskUuid);
     uint32_t* getResultData(const std::string &taskUuid);
 
     bool isFinish(const std::string &taskUuid);
@@ -75,10 +48,9 @@ public:
     bool getNextTask();
     void finishTask();
 
-    Task actualTask;
+    Task* actualTask = nullptr;
 
 private:
-    std::mutex m_mutex;
     std::deque<std::string> m_taskQueue;
     std::map<std::string, Task> m_taskMap;
 };
