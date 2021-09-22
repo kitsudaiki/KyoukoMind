@@ -50,7 +50,7 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
     // init cpu
     for(uint16_t i = 0; i < numberOfThreads; i++)
     {
-        CpuProcessingUnit* newUnit = new CpuProcessingUnit();
+        CpuProcessingUnit* newUnit = new CpuProcessingUnit(i);
         m_processingUnits.push_back(newUnit);
         newUnit->startThread();
     }

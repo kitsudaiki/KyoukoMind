@@ -70,7 +70,7 @@ KyoukoRoot::KyoukoRoot()
     m_clusterHandler = new ClusterHandler();
     m_segmentQueue = new SegmentQueue();
     m_processingUnitHandler = new ProcessingUnitHandler();
-    m_processingUnitHandler->initProcessingUnits(1);
+    m_processingUnitHandler->initProcessingUnits(3);
 }
 
 /**
