@@ -33,6 +33,13 @@ class AbstractSegment;
 
 class TaskQueue;
 
+enum ClusterMode
+{
+    NORMAL_MODE = 0,
+    LEARN_FORWARD_MODE = 1,
+    LEARN_BACKWARD_MODE = 2
+};
+
 class NetworkCluster
 {
 public:
@@ -49,7 +56,8 @@ public:
 
     const std::string initNewCluster(const JsonItem &parsedContent);
 
-    bool learnMode = false;
+    ClusterMode mode = NORMAL_MODE;
+    uint32_t segmentCounter = 0;
 
     const std::string addLearnTask(float* data,
                                    const uint64_t numberOfInputsPerCycle,
@@ -83,7 +91,8 @@ private:
     void initSegmentPointer(const ClusterMetaData &metaData,
                             const ClusterSettings &settings);
 
-    void startNewCycle();
+    void startForwardLearnCycle();
+    void startBackwardLearnCycle();
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H

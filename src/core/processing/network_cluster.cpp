@@ -122,7 +122,7 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
  * @brief NetworkCluster::startNewCycle
  */
 void
-NetworkCluster::startNewCycle()
+NetworkCluster::startForwardLearnCycle()
 {
     OutputNode* outputs = outputSegments[0]->outputs;
 
@@ -130,8 +130,9 @@ NetworkCluster::startNewCycle()
     uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
     offset *= actualTask->actualCycle;
 
+    // set cluster mode
     if(actualTask->type == LEARN_TASK) {
-        learnMode = true;
+        mode = LEARN_FORWARD_MODE;
     }
 
     InputNode* inputNodes = inputSegments[0]->inputs;
@@ -144,6 +145,44 @@ NetworkCluster::startNewCycle()
         outputs[i].shouldValue = actualTask->data[offset + i];
     }
 
+    // set ready-states of all neighbors of all segments
+    for(AbstractSegment* segment: allSegments)
+    {
+        for(uint8_t side = 0; side < 12; side++)
+        {
+            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            neighbor->inputReady = true;
+            if(neighbor->direction == INPUT_DIRECTION) {
+                neighbor->inputReady = false;
+            }
+        }
+    }
+
+    KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
+}
+
+/**
+ * @brief NetworkCluster::startBackwardLearnCycle
+ */
+void
+NetworkCluster::startBackwardLearnCycle()
+{
+    // set cluster mode
+    mode = LEARN_BACKWARD_MODE;
+
+    // set ready-states of all neighbors of all segments
+    for(AbstractSegment* segment: allSegments)
+    {
+        for(uint8_t side = 0; side < 12; side++)
+        {
+            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            neighbor->inputReady = true;
+            if(neighbor->direction == OUTPUT_DIRECTION) {
+                neighbor->inputReady = false;
+            }
+        }
+    }
+
     KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
 }
 
@@ -153,13 +192,27 @@ NetworkCluster::startNewCycle()
 void
 NetworkCluster::updateClusterState()
 {
+    segmentCounter++;
+    if(segmentCounter < allSegments.size()) {
+        return;
+    }
+
+    segmentCounter = 0;
+
+    if(mode == LEARN_FORWARD_MODE)
+    {
+        startBackwardLearnCycle();
+        return;
+    }
+
     m_task_mutex.lock();
 
-    learnMode = false;
+    mode = NORMAL_MODE;
+
     if(m_taskQueue->actualTask == nullptr)
     {
         if(m_taskQueue->getNextTask()) {
-            startNewCycle();
+            startForwardLearnCycle();
         }
     }
     else
@@ -168,16 +221,17 @@ NetworkCluster::updateClusterState()
         const float actualF = static_cast<float>(m_taskQueue->actualTask->actualCycle);
         const float shouldF = static_cast<float>(m_taskQueue->actualTask->numberOfCycle);
         m_taskQueue->actualTask->progress.percentageFinished = actualF / shouldF;
+
         if(m_taskQueue->actualTask->actualCycle == m_taskQueue->actualTask->numberOfCycle)
         {
             m_taskQueue->finishTask();
             if(m_taskQueue->getNextTask()) {
-                startNewCycle();
+                startForwardLearnCycle();
             }
         }
         else
         {
-            startNewCycle();
+            startForwardLearnCycle();
         }
     }
 
