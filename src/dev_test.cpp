@@ -147,6 +147,7 @@ learnTestData(const std::string &mnistRootPath,
                                                                pictureSize,
                                                                10,
                                                                numberOfLearningPictures);
+            cluster->segmentCounter = cluster->allSegments.size();
             cluster->updateClusterState();
 
             // wait until task is finished
@@ -207,6 +208,7 @@ learnTestData(const std::string &mnistRootPath,
     const std::string taskUuid = cluster->addRequestTask(taskData,
                                                          pictureSize,
                                                          total);
+    cluster->segmentCounter = cluster->allSegments.size();
     cluster->updateClusterState();
     // wait until task is finished
     start = std::chrono::system_clock::now();

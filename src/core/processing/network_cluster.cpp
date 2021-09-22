@@ -74,8 +74,8 @@ const std::string
 NetworkCluster::initNewCluster(const JsonItem &parsedContent)
 {
     prepareSegments(parsedContent);
-
-    JsonItem paredSettings = parsedContent.get("settings");
+    std::cout<<parsedContent.toString(true)<<std::endl;
+    const JsonItem paredSettings = parsedContent.get("settings");
 
     // network-meta
     ClusterMetaData newMetaData;
@@ -122,7 +122,7 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
  * @brief NetworkCluster::startNewCycle
  */
 void
-NetworkCluster::startNewCycle()
+NetworkCluster::startForwardLearnCycle()
 {
     OutputNode* outputs = outputSegments[0]->outputs;
 
@@ -130,8 +130,9 @@ NetworkCluster::startNewCycle()
     uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
     offset *= actualTask->actualCycle;
 
+    // set cluster mode
     if(actualTask->type == LEARN_TASK) {
-        learnMode = true;
+        mode = LEARN_FORWARD_MODE;
     }
 
     InputNode* inputNodes = inputSegments[0]->inputs;
@@ -144,6 +145,44 @@ NetworkCluster::startNewCycle()
         outputs[i].shouldValue = actualTask->data[offset + i];
     }
 
+    // set ready-states of all neighbors of all segments
+    for(AbstractSegment* segment: allSegments)
+    {
+        for(uint8_t side = 0; side < 12; side++)
+        {
+            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            neighbor->inputReady = true;
+            if(neighbor->direction == INPUT_DIRECTION) {
+                neighbor->inputReady = false;
+            }
+        }
+    }
+
+    KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
+}
+
+/**
+ * @brief NetworkCluster::startBackwardLearnCycle
+ */
+void
+NetworkCluster::startBackwardLearnCycle()
+{
+    // set cluster mode
+    mode = LEARN_BACKWARD_MODE;
+
+    // set ready-states of all neighbors of all segments
+    for(AbstractSegment* segment: allSegments)
+    {
+        for(uint8_t side = 0; side < 12; side++)
+        {
+            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            neighbor->inputReady = true;
+            if(neighbor->direction == OUTPUT_DIRECTION) {
+                neighbor->inputReady = false;
+            }
+        }
+    }
+
     KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
 }
 
@@ -153,13 +192,27 @@ NetworkCluster::startNewCycle()
 void
 NetworkCluster::updateClusterState()
 {
+    segmentCounter++;
+    if(segmentCounter < allSegments.size()) {
+        return;
+    }
+
+    segmentCounter = 0;
+
+    if(mode == LEARN_FORWARD_MODE)
+    {
+        startBackwardLearnCycle();
+        return;
+    }
+
     m_task_mutex.lock();
 
-    learnMode = false;
+    mode = NORMAL_MODE;
+
     if(m_taskQueue->actualTask == nullptr)
     {
         if(m_taskQueue->getNextTask()) {
-            startNewCycle();
+            startForwardLearnCycle();
         }
     }
     else
@@ -168,16 +221,17 @@ NetworkCluster::updateClusterState()
         const float actualF = static_cast<float>(m_taskQueue->actualTask->actualCycle);
         const float shouldF = static_cast<float>(m_taskQueue->actualTask->numberOfCycle);
         m_taskQueue->actualTask->progress.percentageFinished = actualF / shouldF;
+
         if(m_taskQueue->actualTask->actualCycle == m_taskQueue->actualTask->numberOfCycle)
         {
             m_taskQueue->finishTask();
             if(m_taskQueue->getNextTask()) {
-                startNewCycle();
+                startForwardLearnCycle();
             }
         }
         else
         {
-            startNewCycle();
+            startForwardLearnCycle();
         }
     }
 
@@ -418,6 +472,149 @@ NetworkCluster::setName(const std::string newName)
 }
 
 /**
+ * @brief NetworkCluster::prepareDirection
+ * @param currentSegment
+ * @param segments
+ * @param foundNext
+ * @return
+ */
+const std::string
+NetworkCluster::prepareDirection(const JsonItem &currentSegment,
+                                 const JsonItem &segments,
+                                 const uint32_t foundNext,
+                                 const uint8_t side)
+{
+    std::string direction = "";
+
+    if(foundNext != UNINIT_STATE_32)
+    {
+        JsonItem nextSegment = segments.get(foundNext);
+        if(nextSegment.contains("neighbors") == false)
+        {
+            direction = "output";
+        }
+        else
+        {
+            const JsonItem neighbor = nextSegment.get("neighbors").get(11 - side);
+            const std::string otherDirection = neighbor.get("direction").getString();
+            if(otherDirection == "input") {
+                direction = "output";
+            } else if(otherDirection == "output") {
+                direction = "input";
+            } else {
+                assert(false);
+            }
+        }
+    }
+
+    return direction;
+}
+
+/**
+ * @brief NetworkCluster::getNeighborBorderSize
+ * @param currentSegment
+ * @param segments
+ * @param foundNext
+ * @return
+ */
+long
+NetworkCluster::getNeighborBorderSize(const JsonItem &currentSegment,
+                                      const JsonItem &segments,
+                                      const uint32_t foundNext)
+{
+    long val = 0;
+
+    if(foundNext != UNINIT_STATE_32)
+    {
+        if(currentSegment.get("type").getString() == "dynamic_segment"
+                && segments.get(foundNext).get("type").getString() == "dynamic_segment")
+        {
+            val = 500;
+        }
+
+        if(currentSegment.get("type").getString() == "input_segment") {
+            val = currentSegment.get("number_of_inputs").getInt();
+        }
+
+        if(currentSegment.get("type").getString() == "output_segment") {
+            val = currentSegment.get("number_of_outputs").getInt();
+        }
+
+        if(segments.get(foundNext).get("type").getString() == "output_segment") {
+            val = segments.get(foundNext).get("number_of_outputs").getInt();
+        }
+
+        if(segments.get(foundNext).get("type").getString() == "input_segment") {
+            val = segments.get(foundNext).get("number_of_inputs").getInt();
+        }
+    }
+
+    return val;
+}
+
+/**
+ * @brief NetworkCluster::prepareSingleSegment
+ * @param parsedContent
+ * @param parsedSegments
+ * @return
+ */
+bool
+NetworkCluster::prepareSingleSegment(std::deque<uint32_t> &segmentQueue,
+                                     const JsonItem &segments,
+                                     JsonItem &currentSegment)
+{
+    const Position currentPosition = convertPosition(currentSegment);
+    DataArray* nextList = new DataArray();
+    long borderBufferSize = 0;
+
+    for(uint32_t side = 0; side < 12; side++)
+    {
+        const Position nextPos = getNeighborPos(currentPosition, side);
+        const uint32_t foundNext = checkNextPosition(segments, nextPos);
+        DataMap* neighborSettings = new DataMap();
+
+        // add next segment to initializing-queue, if not already processed
+        if(foundNext != UNINIT_STATE_32
+                && segments.get(foundNext).contains("neighbors") == false)
+        {
+            segmentQueue.push_back(foundNext);
+        }
+
+        // get id of the next
+        neighborSettings->insert("id", new DataValue(static_cast<long>(foundNext)));
+
+        // get size of the border for the side
+        const long val = getNeighborBorderSize(currentSegment, segments, foundNext);
+        borderBufferSize += val;
+        neighborSettings->insert("size", new DataValue(val));
+
+        // get direction of the side
+        std::string direction = "";
+        if(foundNext != UNINIT_STATE_32
+                && currentSegment.get("type").getString() == "input_segment")
+        {
+            direction = "output";
+        }
+        else
+        {
+            direction = prepareDirection(currentSegment,
+                                         segments,
+                                         foundNext,
+                                         side);
+        }
+        neighborSettings->insert("direction", new DataValue(direction));
+
+        nextList->append(neighborSettings);
+    }
+
+    // update segment with the new collected data
+    currentSegment.insert("neighbors", nextList);
+    currentSegment.insert("total_border_size", new DataValue(borderBufferSize));
+
+    return true;
+}
+
+/**
  * @brief prepareSegments
  * @param parsedContent
  * @return
@@ -425,74 +622,29 @@ NetworkCluster::setName(const std::string newName)
 bool
 NetworkCluster::prepareSegments(const JsonItem &parsedContent)
 {
+    std::deque<uint32_t> segmentQueue;
     JsonItem segments = parsedContent.get("segments");
+
+    // search input-segments
     for(uint32_t i = 0; i < segments.size(); i++)
     {
         JsonItem currentSegment = segments.get(i);
-
-        JsonItem parsedPosition = currentSegment.get("position");
-        Position currentPosition;
-        currentPosition.x = parsedPosition.get(0).getInt();
-        currentPosition.y = parsedPosition.get(1).getInt();
-        currentPosition.z = parsedPosition.get(2).getInt();
-
-        DataArray* nextList = new DataArray();
-        long borderBufferSize = 0;
-
-        for(uint32_t side = 0; side < 12; side++)
-        {
-            const Position nextPos = getNeighborPos(currentPosition, side);
-            const long foundNext = checkSegments(parsedContent, nextPos);
-
-            DataMap* neighborSettings = new DataMap();
-            neighborSettings->insert("id", new DataValue(foundNext));
-
-            long val = 0;
-            std::string direction = "";
-
-            if(foundNext != UNINIT_STATE_32)
-            {
-                if(currentSegment.get("type").getString() == "dynamic_segment"
-                        && segments.get(foundNext).get("type").getString() == "dynamic_segment")
-                {
-                    val = 500;
-                }
-
-                if(currentSegment.get("type").getString() == "output_segment")
-                {
-                    val = currentSegment.get("number_of_outputs").getInt();
-                    direction = "input";
-                }
-
-                if(segments.get(foundNext).get("type").getString() == "output_segment")
-                {
-                    val = segments.get(foundNext).get("number_of_outputs").getInt();
-                    direction = "output";
-                }
-
-                if(currentSegment.get("type").getString() == "input_segment")
-                {
-                    val = currentSegment.get("number_of_inputs").getInt();
-                    direction = "output";
-                }
-
-                if(segments.get(foundNext).get("type").getString() == "input_segment")
-                {
-                    val = segments.get(foundNext).get("number_of_inputs").getInt();
-                    direction = "input";
-                }
-            }
-
-            neighborSettings->insert("size", new DataValue(val));
-            neighborSettings->insert("direction", new DataValue(direction));
-            borderBufferSize += val;
-
-            nextList->append(neighborSettings);
+        if(currentSegment.get("type").getString() == "input_segment") {
+            segmentQueue.push_back(i);
         }
-
-        currentSegment.insert("neighbors", nextList);
-        currentSegment.insert("total_border_size", new DataValue(borderBufferSize));
     }
+
+    // iterate over all segments
+    while(segmentQueue.size() > 0)
+    {
+        const uint32_t id = segmentQueue.front();
+        segmentQueue.pop_front();
+        JsonItem currentSegment = segments.get(id);
+
+        prepareSingleSegment(segmentQueue, segments, currentSegment);
+    }
+
+    std::cout<<parsedContent.toString(true)<<std::endl;
 
     return true;
 }
@@ -504,13 +656,12 @@ NetworkCluster::prepareSegments(const JsonItem &parsedContent)
  * @return
  */
 uint32_t
-NetworkCluster::checkSegments(const JsonItem &parsedContent,
-                              const Position nextPos)
+NetworkCluster::checkNextPosition(const JsonItem &segments,
+                                  const Position nextPos)
 {
-    JsonItem segments = parsedContent.get("segments");
     for(uint32_t i = 0; i < segments.size(); i++)
     {
-        JsonItem parsedPosition = segments.get(i).get("position");
+        const JsonItem parsedPosition = segments.get(i).get("position");
         Position currentPosition;
         currentPosition.x = parsedPosition.get(0).getInt();
         currentPosition.y = parsedPosition.get(1).getInt();
@@ -522,4 +673,21 @@ NetworkCluster::checkSegments(const JsonItem &parsedContent,
     }
 
     return UNINIT_STATE_32;
+}
+
+/**
+ * @brief NetworkCluster::convertPosition
+ * @param parsedContent
+ * @return
+ */
+Position
+NetworkCluster::convertPosition(const JsonItem &parsedContent)
+{
+    JsonItem parsedPosition = parsedContent.get("position");
+    Position currentPosition;
+    currentPosition.x = parsedPosition.get(0).getInt();
+    currentPosition.y = parsedPosition.get(1).getInt();
+    currentPosition.z = parsedPosition.get(2).getInt();
+
+    return currentPosition;
 }

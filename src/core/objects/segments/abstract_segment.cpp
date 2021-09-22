@@ -51,11 +51,10 @@ AbstractSegment::getType() const
 bool
 AbstractSegment::isReady()
 {
-    return true;
     for(uint8_t i = 0; i < 12; i++)
     {
-        if(segmentNeighbors->neighbors[i].inUse == 1
-                && segmentNeighbors->neighbors[i].inputReady == 0)
+        if(segmentNeighbors->neighbors[i].inUse == true
+                && segmentNeighbors->neighbors[i].inputReady == false)
         {
             return false;
         }
@@ -103,9 +102,7 @@ AbstractSegment::finishSegment()
         }
     }
 
-    if(m_type == OUTPUT_SEGMENT) {
-        parentCluster->updateClusterState();
-    }
+    parentCluster->updateClusterState();
 
     return true;
 }

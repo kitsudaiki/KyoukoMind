@@ -33,6 +33,13 @@ class AbstractSegment;
 
 class TaskQueue;
 
+enum ClusterMode
+{
+    NORMAL_MODE = 0,
+    LEARN_FORWARD_MODE = 1,
+    LEARN_BACKWARD_MODE = 2
+};
+
 class NetworkCluster
 {
 public:
@@ -49,7 +56,8 @@ public:
 
     const std::string initNewCluster(const JsonItem &parsedContent);
 
-    bool learnMode = false;
+    ClusterMode mode = NORMAL_MODE;
+    uint32_t segmentCounter = 0;
 
     const std::string addLearnTask(float* data,
                                    const uint64_t numberOfInputsPerCycle,
@@ -77,13 +85,25 @@ private:
     const std::string getName();
     bool setName(const std::string newName);
 
+    const std::string prepareDirection(const JsonItem &currentSegment,
+                                       const JsonItem &segments,
+                                       const uint32_t foundNext,
+                                       const uint8_t side);
+    long getNeighborBorderSize(const JsonItem &currentSegment,
+                               const JsonItem &segments,
+                               const uint32_t foundNext);
+    bool prepareSingleSegment(std::deque<uint32_t> &segmentQueue,
+                              const JsonItem &segments,
+                              JsonItem &parsedSegments);
     bool prepareSegments(const JsonItem &parsedContent);
-    uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
+    uint32_t checkNextPosition(const JsonItem &segments, const Position nextPos);
+    Position convertPosition(const JsonItem &parsedContent);
 
     void initSegmentPointer(const ClusterMetaData &metaData,
                             const ClusterSettings &settings);
 
-    void startNewCycle();
+    void startForwardLearnCycle();
+    void startBackwardLearnCycle();
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H

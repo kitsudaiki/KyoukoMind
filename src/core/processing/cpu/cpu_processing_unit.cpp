@@ -161,27 +161,23 @@ CpuProcessingUnit::run()
         currentSegment = KyoukoRoot::m_segmentQueue->getSegmentFromQueue();
         if(currentSegment != nullptr)
         {
+            // check if segment is ready, else requeue
             if(currentSegment->isReady() == false)
             {
                 KyoukoRoot::m_segmentQueue->addSegmentToQueue(currentSegment);
                 continue;
             }
 
-            if(currentSegment->parentCluster->learnMode)
-            {
-                if(currentSegment->getType() == OUTPUT_SEGMENT)
-                {
-                    learnSegmentForward(currentSegment);
-                    learnSegmentBackward(currentSegment);
-                }
-                else
-                {
-                    learnSegmentBackward(currentSegment);
-                    learnSegmentForward(currentSegment);
-                }
+            // reset input ready status
+            for(uint8_t side = 0; side < 12; side++) {
+                currentSegment->segmentNeighbors->neighbors[side].inputReady = false;
             }
-            else
-            {
+
+            if(currentSegment->parentCluster->mode == LEARN_FORWARD_MODE) {
+                learnSegmentForward(currentSegment);
+            } else if(currentSegment->parentCluster->mode == LEARN_BACKWARD_MODE) {
+                learnSegmentBackward(currentSegment);
+            } else {
                 processSegment(currentSegment);
             }
 
