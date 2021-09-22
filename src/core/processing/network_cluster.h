@@ -85,8 +85,19 @@ private:
     const std::string getName();
     bool setName(const std::string newName);
 
+    const std::string prepareDirection(const JsonItem &currentSegment,
+                                       const JsonItem &segments,
+                                       const uint32_t foundNext,
+                                       const uint8_t side);
+    long getNeighborBorderSize(const JsonItem &currentSegment,
+                               const JsonItem &segments,
+                               const uint32_t foundNext);
+    bool prepareSingleSegment(std::deque<uint32_t> &segmentQueue,
+                              const JsonItem &segments,
+                              JsonItem &parsedSegments);
     bool prepareSegments(const JsonItem &parsedContent);
-    uint32_t checkSegments(const JsonItem &parsedContent, const Position nextPos);
+    uint32_t checkNextPosition(const JsonItem &segments, const Position nextPos);
+    Position convertPosition(const JsonItem &parsedContent);
 
     void initSegmentPointer(const ClusterMetaData &metaData,
                             const ClusterSettings &settings);
