@@ -69,7 +69,9 @@ LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL -luuid
 INCLUDEPATH += $$PWD \
                src
 
+
 HEADERS += \
+    src/api/blossom_initializing.h \
     src/api/io/ask_blossom.h \
     src/api/io/init_blossom.h \
     src/api/io/learn_blossom.h \
@@ -77,45 +79,46 @@ HEADERS += \
     src/api/save_load/restore_net_blossom.h \
     src/api/save_load/save_net_blossom.h \
     src/api/save_load/show_save_file_blossom.h \
+    src/api/special/special_blossoms.h \
+    src/args.h \
+    src/common.h \
     src/common/defines.h \
     src/common/enums.h \
     src/common/functions.h \
     src/common/includes.h \
+    src/common/structs.h \
     src/common/typedefs.h \
-    src/core/cluster_handler.h \
+    src/config.h \
+    src/core/callbacks.h \
+    src/core/initializing/preprocess_cluster_json.h \
+    src/core/initializing/struct_validation.h \
+    src/core/objects/brick.h \
     src/core/objects/cluster_meta.h \
-    src/core/processing/network_cluster.h \
-    src/core/objects/segments/abstract_segment.h \
-    src/core/objects/segments/dynamic_segment.h \
-    src/core/objects/segments/input_segment.h \
-    src/core/objects/segments/output_segment.h \
+    src/core/objects/node.h \
+    src/core/objects/segment_meta.h \
+    src/core/objects/synapses.h \
     src/core/objects/task.h \
+    src/core/orchestration/cluster_handler.h \
+    src/core/orchestration/task_queue.h \
+    src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/cpu/dynamic_segment/backpropagation.h \
     src/core/processing/cpu/dynamic_segment/create_reduce.h \
     src/core/processing/cpu/dynamic_segment/processing.h \
+    src/core/processing/cpu/input_segment/processing.h \
     src/core/processing/cpu/output_segment/backpropagation.h \
     src/core/processing/cpu/output_segment/processing.h \
-    src/core/processing/cpu/input_segment/processing.h \
-    src/core/processing/cpu/cpu_processing_unit.h \
-    src/core/objects/brick.h \
     src/core/processing/gpu/gpu_processing_uint.h \
-    src/core/objects/node.h \
-    src/core/objects/synapses.h \
     src/core/processing/processing_unit_handler.h \
     src/core/processing/segment_queue.h \
-    src/core/processing/task_queue.h \
-    src/core/storage_io.h \
-    src/core/validation.h \
-    src/dev_test.h \
-    src/args.h \
-    src/common.h \
-    src/config.h \
     src/core/routing_functions.h \
-    src/kyouko_root.h \
-    src/core/callbacks.h \
-    src/api/special/special_blossoms.h \
-    src/api/blossom_initializing.h \
-    src/common/structs.h
+    src/core/storage_io.h \
+    src/core/structure/network_cluster.h \
+    src/core/structure/segments/abstract_segment.h \
+    src/core/structure/segments/dynamic_segment.h \
+    src/core/structure/segments/input_segment.h \
+    src/core/structure/segments/output_segment.h \
+    src/dev_test.h \
+    src/kyouko_root.h
 
 SOURCES += \
     src/api/io/ask_blossom.cpp \
@@ -125,22 +128,23 @@ SOURCES += \
     src/api/save_load/restore_net_blossom.cpp \
     src/api/save_load/save_net_blossom.cpp \
     src/api/save_load/show_save_file_blossom.cpp \
-    src/core/cluster_handler.cpp \
-    src/core/processing/network_cluster.cpp \
-    src/core/objects/segments/abstract_segment.cpp \
-    src/core/objects/segments/dynamic_segment.cpp \
-    src/core/objects/segments/input_segment.cpp \
-    src/core/objects/segments/output_segment.cpp \
+    src/api/special/special_blossoms.cpp \
+    src/core/initializing/preprocess_cluster_json.cpp \
+    src/core/initializing/struct_validation.cpp \
+    src/core/orchestration/cluster_handler.cpp \
+    src/core/orchestration/task_queue.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
+    src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/processing/segment_queue.cpp \
-    src/core/processing/task_queue.cpp \
     src/core/storage_io.cpp \
-    src/core/validation.cpp \
+    src/core/structure/network_cluster.cpp \
+    src/core/structure/segments/abstract_segment.cpp \
+    src/core/structure/segments/dynamic_segment.cpp \
+    src/core/structure/segments/input_segment.cpp \
+    src/core/structure/segments/output_segment.cpp \
     src/dev_test.cpp \
-    src/kyouko_root.cpp \
-    src/core/processing/gpu/gpu_processing_uint.cpp \
-    src/api/special/special_blossoms.cpp
+    src/kyouko_root.cpp
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
@@ -166,4 +170,3 @@ gpu_processing.variable_out = HEADERS
 gpu_processing.CONFIG += target_predeps no_link
 
 QMAKE_EXTRA_COMPILERS += gpu_processing
-

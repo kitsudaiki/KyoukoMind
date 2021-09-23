@@ -23,9 +23,9 @@
 #include "dev_test.h"
 
 #include <kyouko_root.h>
-#include <core/processing/network_cluster.h>
-#include <core/objects/segments/input_segment.h>
-#include <core/objects/segments/output_segment.h>
+#include <core/structure/network_cluster.h>
+#include <core/structure/segments/input_segment.h>
+#include <core/structure/segments/output_segment.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -35,9 +35,9 @@
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
-#include <core/cluster_handler.h>
+#include <core/orchestration/cluster_handler.h>
 
-#include <core/processing/task_queue.h>
+#include <core/orchestration/task_queue.h>
 
 /**
  * @brief only a test-function for fast tests
@@ -113,7 +113,7 @@ learnTestData(const std::string &mnistRootPath,
     const uint32_t numberOfIteractions = GET_INT_CONFIG("DevMode", "learn_iterations", success);
     const uint32_t numberOfLearningPictures = GET_INT_CONFIG("DevMode", "learn_images", success);
 
-    for(uint32_t iter = 0; iter < 5; iter++)
+    for(uint32_t iter = 0; iter < 1; iter++)
     {
         for(uint32_t poi = 0; poi < 1; poi++)
         {

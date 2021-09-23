@@ -24,10 +24,10 @@
 
 #include <libKitsunemimiJson/json_item.h>
 #include <core/processing/cpu/cpu_processing_unit.h>
-#include <core/processing/network_cluster.h>
-#include <core/objects/segments/input_segment.h>
-#include <core/objects/segments/output_segment.h>
-#include <core/cluster_handler.h>
+#include <core/structure/network_cluster.h>
+#include <core/structure/segments/input_segment.h>
+#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/cluster_handler.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;

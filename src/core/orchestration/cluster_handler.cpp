@@ -22,7 +22,7 @@
 
 #include "cluster_handler.h"
 
-#include <core/processing/network_cluster.h>
+#include <core/structure/network_cluster.h>
 
 ClusterHandler::ClusterHandler()
 {

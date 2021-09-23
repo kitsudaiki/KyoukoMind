@@ -22,7 +22,7 @@
 
 #include "abstract_segment.h"
 
-#include <core/processing/network_cluster.h>
+#include <core/structure/network_cluster.h>
 
 /**
  * @brief constructor
@@ -108,22 +108,60 @@ AbstractSegment::finishSegment()
 }
 
 /**
- * @brief initialize the position-entry of the segment based on the input
+ * @brief AbstractSegment::createGenericNewHeader
  *
- * @param parsedContent parsed json-item of the segment
+ * @param header
+ * @param borderbufferSize
  *
+ * @return
+ */
+uint32_t
+AbstractSegment::createGenericNewHeader(SegmentHeader &header,
+                                        const uint64_t borderbufferSize)
+{
+    uint32_t segmentDataPos = 0;
+
+    // init header
+    segmentDataPos += 1 * sizeof(SegmentHeader);
+
+    // init settings
+    header.settings.count = 1;
+    header.settings.bytePos = segmentDataPos;
+    segmentDataPos += 1 * sizeof(SegmentSettings);
+
+    // init neighborList
+    header.neighborList.count = 1;
+    header.neighborList.bytePos = segmentDataPos;
+    segmentDataPos += 1 * sizeof(SegmentNeighborList);
+
+    // init inputTransfers
+    header.inputTransfers.count = borderbufferSize;
+    header.inputTransfers.bytePos = segmentDataPos;
+    segmentDataPos += borderbufferSize * sizeof(float);
+
+    // init outputTransfers
+    header.outputTransfers.count = borderbufferSize;
+    header.outputTransfers.bytePos = segmentDataPos;
+    segmentDataPos += borderbufferSize * sizeof(float);
+
+    return segmentDataPos;
+}
+
+/**
+ * @brief NetworkCluster::convertPosition
+ * @param parsedContent
  * @return
  */
 Position
 AbstractSegment::convertPosition(const JsonItem &parsedContent)
 {
-    Position result;
-    JsonItem paredPosition = parsedContent.get("position");
-    result.x = paredPosition.get(0).getInt();
-    result.y = paredPosition.get(1).getInt();
-    result.z = paredPosition.get(2).getInt();
+    JsonItem parsedPosition = parsedContent.get("position");
+    Position currentPosition;
+    currentPosition.x = parsedPosition.get(0).getInt();
+    currentPosition.y = parsedPosition.get(1).getInt();
+    currentPosition.z = parsedPosition.get(2).getInt();
 
-    return result;
+    return currentPosition;
 }
 
 /**
@@ -175,44 +213,4 @@ AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)
     }
 
     return true;
-}
-
-/**
- * @brief AbstractSegment::createGenericNewHeader
- *
- * @param header
- * @param borderbufferSize
- *
- * @return
- */
-uint32_t
-AbstractSegment::createGenericNewHeader(SegmentHeader &header,
-                                        const uint64_t borderbufferSize)
-{
-    uint32_t segmentDataPos = 0;
-
-    // init header
-    segmentDataPos += 1 * sizeof(SegmentHeader);
-
-    // init settings
-    header.settings.count = 1;
-    header.settings.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentSettings);
-
-    // init neighborList
-    header.neighborList.count = 1;
-    header.neighborList.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentNeighborList);
-
-    // init inputTransfers
-    header.inputTransfers.count = borderbufferSize;
-    header.inputTransfers.bytePos = segmentDataPos;
-    segmentDataPos += borderbufferSize * sizeof(float);
-
-    // init outputTransfers
-    header.outputTransfers.count = borderbufferSize;
-    header.outputTransfers.bytePos = segmentDataPos;
-    segmentDataPos += borderbufferSize * sizeof(float);
-
-    return segmentDataPos;
 }

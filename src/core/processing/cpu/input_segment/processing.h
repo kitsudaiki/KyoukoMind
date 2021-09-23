@@ -28,9 +28,9 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/objects/segments/input_segment.h>
+#include <core/structure/segments/input_segment.h>
 #include <core/objects/synapses.h>
-#include <core/processing/network_cluster.h>
+#include <core/structure/network_cluster.h>
 
 #include <core/processing/cpu/dynamic_segment/create_reduce.h>
 

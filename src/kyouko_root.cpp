@@ -22,16 +22,17 @@
 
 #include <kyouko_root.h>
 
-#include <core/validation.h>
+#include <core/initializing/struct_validation.h>
+#include <core/initializing/preprocess_cluster_json.h>
 
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/segment_queue.h>
 #include <core/processing/processing_unit_handler.h>
 
-#include <core/processing/network_cluster.h>
+#include <core/structure/network_cluster.h>
 #include <core/objects/node.h>
 #include <core/storage_io.h>
-#include <core/cluster_handler.h>
+#include <core/orchestration/cluster_handler.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -150,7 +151,7 @@ KyoukoRoot::initCluster(const std::string &filePath)
     {
         delete newCluster;
         LOG_ERROR("failed to initialize network");
-        return std::string("");
+        return uuid;
     }
 
     m_clusterHandler->addCluster(uuid, newCluster);

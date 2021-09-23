@@ -54,8 +54,6 @@ public:
     std::vector<OutputSegment*> outputSegments;
     std::vector<AbstractSegment*> allSegments;
 
-    const std::string initNewCluster(const JsonItem &parsedContent);
-
     ClusterMode mode = NORMAL_MODE;
     uint32_t segmentCounter = 0;
 
@@ -74,36 +72,23 @@ public:
 
     void updateClusterState();
 
-private:
-    AbstractSegment* addInputSegment(const JsonItem &parsedContent);
-    AbstractSegment* addOutputSegment(const JsonItem &parsedContent);
-    AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
+    const std::string initNewCluster(const JsonItem &parsedContent);
 
+private:
     TaskQueue* m_taskQueue = nullptr;
     std::mutex m_task_mutex;
 
+    void startForwardLearnCycle();
+    void startBackwardLearnCycle();
+
     const std::string getName();
     bool setName(const std::string newName);
-
-    const std::string prepareDirection(const JsonItem &currentSegment,
-                                       const JsonItem &segments,
-                                       const uint32_t foundNext,
-                                       const uint8_t side);
-    long getNeighborBorderSize(const JsonItem &currentSegment,
-                               const JsonItem &segments,
-                               const uint32_t foundNext);
-    bool prepareSingleSegment(std::deque<uint32_t> &segmentQueue,
-                              const JsonItem &segments,
-                              JsonItem &parsedSegments);
-    bool prepareSegments(const JsonItem &parsedContent);
-    uint32_t checkNextPosition(const JsonItem &segments, const Position nextPos);
-    Position convertPosition(const JsonItem &parsedContent);
-
     void initSegmentPointer(const ClusterMetaData &metaData,
                             const ClusterSettings &settings);
 
-    void startForwardLearnCycle();
-    void startBackwardLearnCycle();
+    AbstractSegment* addInputSegment(const JsonItem &parsedContent);
+    AbstractSegment* addOutputSegment(const JsonItem &parsedContent);
+    AbstractSegment* addDynamicSegment(const JsonItem &parsedContent);
 };
 
 #endif // KYOUKOMIND_NETWORK_CLUSTER_H

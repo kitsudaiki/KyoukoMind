@@ -26,8 +26,8 @@
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
 #include <core/objects/node.h>
-#include <core/objects/segments/dynamic_segment.h>
-#include <core/processing/network_cluster.h>
+#include <core/structure/segments/dynamic_segment.h>
+#include <core/structure/network_cluster.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 
