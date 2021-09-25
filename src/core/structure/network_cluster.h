@@ -24,21 +24,13 @@
 #define KYOUKOMIND_NETWORK_CLUSTER_H
 
 #include <common.h>
-#include <core/objects/task.h>
 #include <core/objects/cluster_meta.h>
 
 class InputSegment;
 class OutputSegment;
 class AbstractSegment;
 
-class TaskQueue;
-
-enum ClusterMode
-{
-    NORMAL_MODE = 0,
-    LEARN_FORWARD_MODE = 1,
-    LEARN_BACKWARD_MODE = 2
-};
+class ClusterInterface;
 
 class NetworkCluster
 {
@@ -54,33 +46,9 @@ public:
     std::vector<OutputSegment*> outputSegments;
     std::vector<AbstractSegment*> allSegments;
 
-    ClusterMode mode = NORMAL_MODE;
-    uint32_t segmentCounter = 0;
-
-    const std::string addLearnTask(float* data,
-                                   const uint64_t numberOfInputsPerCycle,
-                                   const uint64_t numberOfOuputsPerCycle,
-                                   const uint64_t numberOfCycle);
-    const std::string addRequestTask(float* inputData,
-                                     const uint64_t numberOfInputsPerCycle,
-                                     const uint64_t numberOfCycle);
-    uint64_t getActualTaskCycle();
-    const TaskProgress getProgress(const std::string &taskUuid);
-    const uint32_t* getResultData(const std::string &taskUuid);
-    bool isFinish(const std::string &taskUuid);
-    void setResultForActualCycle(const uint32_t result);
-
-    void updateClusterState();
-
-    const std::string initNewCluster(const JsonItem &parsedContent);
+    const std::string initNewCluster(const JsonItem &parsedContent, ClusterInterface *interface);
 
 private:
-    TaskQueue* m_taskQueue = nullptr;
-    std::mutex m_task_mutex;
-
-    void startForwardLearnCycle();
-    void startBackwardLearnCycle();
-
     const std::string getName();
     bool setName(const std::string newName);
     void initSegmentPointer(const ClusterMetaData &metaData,

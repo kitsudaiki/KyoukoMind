@@ -33,7 +33,7 @@
 #include <core/objects/synapses.h>
 #include <core/objects/segment_meta.h>
 
-class NetworkCluster;
+class ClusterInterface;
 
 class AbstractSegment
 {
@@ -51,7 +51,7 @@ public:
     SegmentNeighborList* segmentNeighbors = nullptr;
     float* inputTransfers = nullptr;
     float* outputTransfers = nullptr;
-    NetworkCluster* parentCluster = nullptr;
+    ClusterInterface* parentCluster = nullptr;
 
     virtual bool initSegment(const JsonItem &parsedContent) = 0;
 

@@ -23,6 +23,7 @@
 #include "abstract_segment.h"
 
 #include <core/structure/network_cluster.h>
+#include <core/orchestration/cluster_interface.h>
 
 /**
  * @brief constructor
@@ -87,7 +88,7 @@ AbstractSegment::finishSegment()
             targetSide = segmentNeighbors->neighbors[i].targetSide;
 
             // copy data to the target buffer and wipe the source buffer
-            targetSegment = parentCluster->allSegments[targetId];
+            targetSegment = parentCluster->getSegment(targetId);
             targetNeighbors = targetSegment->segmentNeighbors;
             targetBuffer = targetNeighbors->neighbors[targetSide].inputTransferBuffer;
             memcpy(targetBuffer,

@@ -29,10 +29,10 @@
 #include <core/processing/segment_queue.h>
 #include <core/processing/processing_unit_handler.h>
 
-#include <core/structure/network_cluster.h>
 #include <core/objects/node.h>
 #include <core/storage_io.h>
 #include <core/orchestration/cluster_handler.h>
+#include <core/orchestration/cluster_interface.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -145,7 +145,7 @@ KyoukoRoot::initCluster(const std::string &filePath)
         return std::string("");
     }
 
-    NetworkCluster* newCluster = new NetworkCluster();
+    ClusterInterface* newCluster = new ClusterInterface();
     const std::string uuid = newCluster->initNewCluster(parsedContent);
     if(uuid == "")
     {

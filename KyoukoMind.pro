@@ -99,6 +99,7 @@ HEADERS += \
     src/core/objects/synapses.h \
     src/core/objects/task.h \
     src/core/orchestration/cluster_handler.h \
+    src/core/orchestration/cluster_interface.h \
     src/core/orchestration/task_queue.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/cpu/dynamic_segment/backpropagation.h \
@@ -132,6 +133,7 @@ SOURCES += \
     src/core/initializing/preprocess_cluster_json.cpp \
     src/core/initializing/struct_validation.cpp \
     src/core/orchestration/cluster_handler.cpp \
+    src/core/orchestration/cluster_interface.cpp \
     src/core/orchestration/task_queue.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \

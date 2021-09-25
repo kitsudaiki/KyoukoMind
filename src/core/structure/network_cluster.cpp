@@ -31,15 +31,13 @@
 
 #include <core/routing_functions.h>
 #include <core/initializing/preprocess_cluster_json.h>
-#include <core/orchestration/task_queue.h>
-#include <core/processing/segment_queue.h>
+#include <core/orchestration/cluster_interface.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 NetworkCluster::NetworkCluster()
 {
-    m_taskQueue = new TaskQueue();
 }
 
 /**
@@ -62,244 +60,6 @@ NetworkCluster::initSegmentPointer(const ClusterMetaData &metaData,
     pos += sizeof(ClusterMetaData);
     networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
     networkSettings[0] = settings;
-}
-
-/**
- * @brief NetworkCluster::startNewCycle
- */
-void
-NetworkCluster::startForwardLearnCycle()
-{
-    OutputNode* outputs = outputSegments[0]->outputs;
-
-    Task* actualTask = m_taskQueue->actualTask;
-    uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
-    offset *= actualTask->actualCycle;
-
-    // set cluster mode
-    if(actualTask->type == LEARN_TASK) {
-        mode = LEARN_FORWARD_MODE;
-    }
-
-    InputNode* inputNodes = inputSegments[0]->inputs;
-    for(uint64_t i = 0; i < actualTask->numberOfInputsPerCycle; i++) {
-        inputNodes[i].weight = actualTask->data[offset + i];
-    }
-
-    offset += actualTask->numberOfInputsPerCycle;
-    for(uint64_t i = 0; i < actualTask->numberOfOuputsPerCycle; i++) {
-        outputs[i].shouldValue = actualTask->data[offset + i];
-    }
-
-    // set ready-states of all neighbors of all segments
-    for(AbstractSegment* segment: allSegments)
-    {
-        for(uint8_t side = 0; side < 12; side++)
-        {
-            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
-            neighbor->inputReady = true;
-            if(neighbor->direction == INPUT_DIRECTION) {
-                neighbor->inputReady = false;
-            }
-        }
-    }
-
-    KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
-}
-
-/**
- * @brief NetworkCluster::startBackwardLearnCycle
- */
-void
-NetworkCluster::startBackwardLearnCycle()
-{
-    // set cluster mode
-    mode = LEARN_BACKWARD_MODE;
-
-    // set ready-states of all neighbors of all segments
-    for(AbstractSegment* segment: allSegments)
-    {
-        for(uint8_t side = 0; side < 12; side++)
-        {
-            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
-            neighbor->inputReady = true;
-            if(neighbor->direction == OUTPUT_DIRECTION) {
-                neighbor->inputReady = false;
-            }
-        }
-    }
-
-    KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
-}
-
-/**
- * @brief NetworkCluster::updateClusterState
- */
-void
-NetworkCluster::updateClusterState()
-{
-    segmentCounter++;
-    if(segmentCounter < allSegments.size()) {
-        return;
-    }
-
-    segmentCounter = 0;
-
-    if(mode == LEARN_FORWARD_MODE)
-    {
-        startBackwardLearnCycle();
-        return;
-    }
-
-    m_task_mutex.lock();
-
-    mode = NORMAL_MODE;
-
-    if(m_taskQueue->actualTask == nullptr)
-    {
-        if(m_taskQueue->getNextTask()) {
-            startForwardLearnCycle();
-        }
-    }
-    else
-    {
-        m_taskQueue->actualTask->actualCycle++;
-        const float actualF = static_cast<float>(m_taskQueue->actualTask->actualCycle);
-        const float shouldF = static_cast<float>(m_taskQueue->actualTask->numberOfCycle);
-        m_taskQueue->actualTask->progress.percentageFinished = actualF / shouldF;
-
-        if(m_taskQueue->actualTask->actualCycle == m_taskQueue->actualTask->numberOfCycle)
-        {
-            m_taskQueue->finishTask();
-            if(m_taskQueue->getNextTask()) {
-                startForwardLearnCycle();
-            }
-        }
-        else
-        {
-            startForwardLearnCycle();
-        }
-    }
-
-    m_task_mutex.unlock();
-}
-
-/**
- * @brief NetworkCluster::addLearnTask
- * @param data
- * @param numberOfInputsPerCycle
- * @param numberOfOuputsPerCycle
- * @param numberOfCycle
- * @return
- */
-const std::string
-NetworkCluster::addLearnTask(float *data,
-                             const uint64_t numberOfInputsPerCycle,
-                             const uint64_t numberOfOuputsPerCycle,
-                             const uint64_t numberOfCycle)
-{
-    m_task_mutex.lock();
-
-    const std::string result = m_taskQueue->addLearnTask(data,
-                                                         numberOfInputsPerCycle,
-                                                         numberOfOuputsPerCycle,
-                                                         numberOfCycle);
-    m_task_mutex.unlock();
-
-    return result;
-}
-
-/**
- * @brief NetworkCluster::addRequestTask
- * @param inputData
- * @param numberOfInputsPerCycle
- * @param numberOfCycle
- * @return
- */
-const std::string
-NetworkCluster::addRequestTask(float *inputData,
-                               const uint64_t numberOfInputsPerCycle,
-                               const uint64_t numberOfCycle)
-{
-    m_task_mutex.lock();
-
-    const std::string result = m_taskQueue->addRequestTask(inputData,
-                                                           numberOfInputsPerCycle,
-                                                           numberOfCycle);
-    m_task_mutex.unlock();
-
-    return result;
-}
-
-/**
- * @brief NetworkCluster::getActualTaskCycle
- * @return
- */
-uint64_t
-NetworkCluster::getActualTaskCycle()
-{
-    m_task_mutex.lock();
-    const uint64_t result = m_taskQueue->actualTask->actualCycle;
-    m_task_mutex.unlock();
-
-    return result;
-}
-
-/**
- * @brief NetworkCluster::getProgress
- * @param taskUuid
- * @return
- */
-const TaskProgress
-NetworkCluster::getProgress(const std::string &taskUuid)
-{
-    m_task_mutex.lock();
-    const TaskProgress result = m_taskQueue->getProgress(taskUuid);
-    m_task_mutex.unlock();
-
-    return result;
-}
-
-/**
- * @brief NetworkCluster::getResultData
- * @param taskUuid
- * @return
- */
-const uint32_t*
-NetworkCluster::getResultData(const std::string &taskUuid)
-{
-    m_task_mutex.lock();
-    const uint32_t* result = m_taskQueue->getResultData(taskUuid);
-    m_task_mutex.unlock();
-
-    return result;
-}
-
-/**
- * @brief NetworkCluster::isFinish
- * @param taskUuid
- * @return
- */
-bool
-NetworkCluster::isFinish(const std::string &taskUuid)
-{
-    m_task_mutex.lock();
-    const bool result = m_taskQueue->isFinish(taskUuid);
-    m_task_mutex.unlock();
-
-    return result;
-}
-
-/**
- * @brief NetworkCluster::setResultForActualCycle
- * @param result
- */
-void
-NetworkCluster::setResultForActualCycle(const uint32_t result)
-{
-    m_task_mutex.lock();
-    m_taskQueue->actualTask->resultData[m_taskQueue->actualTask->actualCycle] = result;
-    m_task_mutex.unlock();
 }
 
 /**
@@ -351,7 +111,8 @@ NetworkCluster::setName(const std::string newName)
  * @return true, if successfull, else false
  */
 const std::string
-NetworkCluster::initNewCluster(const JsonItem &parsedContent)
+NetworkCluster::initNewCluster(const JsonItem &parsedContent,
+                               ClusterInterface* interface)
 {
     prepareSegments(parsedContent);
     std::cout<<parsedContent.toString(true)<<std::endl;
@@ -392,7 +153,7 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent)
 
         // update segment information with cluster infos
         newSegment->segmentHeader->parentClusterId = networkMetaData->uuid;
-        newSegment->parentCluster = this;
+        newSegment->parentCluster = interface;
     }
 
     return networkMetaData->uuid.toString();

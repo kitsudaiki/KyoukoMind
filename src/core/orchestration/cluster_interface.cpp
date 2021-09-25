@@ -1,0 +1,310 @@
+/**
+ * @file        cluster_interface.cpp
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
+#include "cluster_interface.h"
+
+#include <core/structure/segments/dynamic_segment.h>
+#include <core/structure/segments/input_segment.h>
+#include <core/structure/segments/output_segment.h>
+
+#include <core/orchestration/task_queue.h>
+#include <core/structure/network_cluster.h>
+#include <core/processing/segment_queue.h>
+
+#include <libKitsunemimiPersistence/logger/logger.h>
+#include <kyouko_root.h>
+
+ClusterInterface::ClusterInterface()
+{
+    m_cluster = new NetworkCluster;
+    m_taskQueue = new TaskQueue();
+}
+
+const std::string
+ClusterInterface::initNewCluster(const JsonItem &parsedContent)
+{
+    return m_cluster->initNewCluster(parsedContent, this);
+}
+
+/**
+ * @brief NetworkCluster::startNewCycle
+ */
+void
+ClusterInterface::startForwardLearnCycle()
+{
+    OutputNode* outputs = m_cluster->outputSegments[0]->outputs;
+
+    Task* actualTask = m_taskQueue->actualTask;
+    uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
+    offset *= actualTask->actualCycle;
+
+    // set cluster mode
+    if(actualTask->type == LEARN_TASK) {
+        m_mode = LEARN_FORWARD_MODE;
+    }
+
+    InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
+    for(uint64_t i = 0; i < actualTask->numberOfInputsPerCycle; i++) {
+        inputNodes[i].weight = actualTask->data[offset + i];
+    }
+
+    offset += actualTask->numberOfInputsPerCycle;
+    for(uint64_t i = 0; i < actualTask->numberOfOuputsPerCycle; i++) {
+        outputs[i].shouldValue = actualTask->data[offset + i];
+    }
+
+    // set ready-states of all neighbors of all segments
+    for(AbstractSegment* segment: m_cluster->allSegments)
+    {
+        for(uint8_t side = 0; side < 12; side++)
+        {
+            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            neighbor->inputReady = true;
+            if(neighbor->direction == INPUT_DIRECTION) {
+                neighbor->inputReady = false;
+            }
+        }
+    }
+
+    KyoukoRoot::m_segmentQueue->addSegmentListToQueue(m_cluster->allSegments);
+}
+
+/**
+ * @brief NetworkCluster::startBackwardLearnCycle
+ */
+void
+ClusterInterface::startBackwardLearnCycle()
+{
+    // set cluster mode
+    m_mode = LEARN_BACKWARD_MODE;
+
+    // set ready-states of all neighbors of all segments
+    for(AbstractSegment* segment: m_cluster->allSegments)
+    {
+        for(uint8_t side = 0; side < 12; side++)
+        {
+            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            neighbor->inputReady = true;
+            if(neighbor->direction == OUTPUT_DIRECTION) {
+                neighbor->inputReady = false;
+            }
+        }
+    }
+
+    KyoukoRoot::m_segmentQueue->addSegmentListToQueue(m_cluster->allSegments);
+}
+
+/**
+ * @brief NetworkCluster::updateClusterState
+ */
+void
+ClusterInterface::updateClusterState()
+{
+    m_segmentCounter++;
+    if(m_segmentCounter < m_cluster->allSegments.size()) {
+        return;
+    }
+
+    m_segmentCounter = 0;
+
+    if(m_mode == LEARN_FORWARD_MODE)
+    {
+        startBackwardLearnCycle();
+        return;
+    }
+
+    m_task_mutex.lock();
+
+    m_mode = NORMAL_MODE;
+
+    if(m_taskQueue->actualTask == nullptr)
+    {
+        if(m_taskQueue->getNextTask()) {
+            startForwardLearnCycle();
+        }
+    }
+    else
+    {
+        m_taskQueue->actualTask->actualCycle++;
+        const float actualF = static_cast<float>(m_taskQueue->actualTask->actualCycle);
+        const float shouldF = static_cast<float>(m_taskQueue->actualTask->numberOfCycle);
+        m_taskQueue->actualTask->progress.percentageFinished = actualF / shouldF;
+
+        if(m_taskQueue->actualTask->actualCycle == m_taskQueue->actualTask->numberOfCycle)
+        {
+            m_taskQueue->finishTask();
+            if(m_taskQueue->getNextTask()) {
+                startForwardLearnCycle();
+            }
+        }
+        else
+        {
+            startForwardLearnCycle();
+        }
+    }
+
+    m_task_mutex.unlock();
+}
+
+ClusterMode ClusterInterface::getMode() const
+{
+    return m_mode;
+}
+
+/**
+ * @brief NetworkCluster::addLearnTask
+ * @param data
+ * @param numberOfInputsPerCycle
+ * @param numberOfOuputsPerCycle
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+ClusterInterface::addLearnTask(float *data,
+                             const uint64_t numberOfInputsPerCycle,
+                             const uint64_t numberOfOuputsPerCycle,
+                             const uint64_t numberOfCycle)
+{
+    m_task_mutex.lock();
+
+    const std::string result = m_taskQueue->addLearnTask(data,
+                                                         numberOfInputsPerCycle,
+                                                         numberOfOuputsPerCycle,
+                                                         numberOfCycle);
+    m_task_mutex.unlock();
+
+    return result;
+}
+
+/**
+ * @brief NetworkCluster::addRequestTask
+ * @param inputData
+ * @param numberOfInputsPerCycle
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+ClusterInterface::addRequestTask(float *inputData,
+                               const uint64_t numberOfInputsPerCycle,
+                               const uint64_t numberOfCycle)
+{
+    m_task_mutex.lock();
+
+    const std::string result = m_taskQueue->addRequestTask(inputData,
+                                                           numberOfInputsPerCycle,
+                                                           numberOfCycle);
+    m_task_mutex.unlock();
+
+    return result;
+}
+
+/**
+ * @brief NetworkCluster::getActualTaskCycle
+ * @return
+ */
+uint64_t
+ClusterInterface::getActualTaskCycle()
+{
+    m_task_mutex.lock();
+    const uint64_t result = m_taskQueue->actualTask->actualCycle;
+    m_task_mutex.unlock();
+
+    return result;
+}
+
+/**
+ * @brief NetworkCluster::getProgress
+ * @param taskUuid
+ * @return
+ */
+const TaskProgress
+ClusterInterface::getProgress(const std::string &taskUuid)
+{
+    m_task_mutex.lock();
+    const TaskProgress result = m_taskQueue->getProgress(taskUuid);
+    m_task_mutex.unlock();
+
+    return result;
+}
+
+/**
+ * @brief NetworkCluster::getResultData
+ * @param taskUuid
+ * @return
+ */
+const uint32_t*
+ClusterInterface::getResultData(const std::string &taskUuid)
+{
+    m_task_mutex.lock();
+    const uint32_t* result = m_taskQueue->getResultData(taskUuid);
+    m_task_mutex.unlock();
+
+    return result;
+}
+
+/**
+ * @brief NetworkCluster::isFinish
+ * @param taskUuid
+ * @return
+ */
+bool
+ClusterInterface::isFinish(const std::string &taskUuid)
+{
+    m_task_mutex.lock();
+    const bool result = m_taskQueue->isFinish(taskUuid);
+    m_task_mutex.unlock();
+
+    return result;
+}
+
+/**
+ * @brief NetworkCluster::setResultForActualCycle
+ * @param result
+ */
+void
+ClusterInterface::setResultForActualCycle(const uint32_t result)
+{
+    m_task_mutex.lock();
+    m_taskQueue->actualTask->resultData[m_taskQueue->actualTask->actualCycle] = result;
+    m_task_mutex.unlock();
+}
+
+/**
+ * @brief ClusterInterface::getNumberOfSegments
+ * @return
+ */
+uint64_t
+ClusterInterface::getNumberOfSegments() const
+{
+    return m_cluster->allSegments.size();
+}
+
+/**
+ * @brief ClusterInterface::getSegment
+ * @param id
+ * @return
+ */
+AbstractSegment*
+ClusterInterface::getSegment(const uint64_t id) const
+{
+    return m_cluster->allSegments.at(id);
+}
