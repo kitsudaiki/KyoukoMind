@@ -24,9 +24,9 @@
 
 #include <libKitsunemimiJson/json_item.h>
 #include <core/processing/cpu/cpu_processing_unit.h>
-#include <core/structure/network_cluster.h>
-#include <core/structure/segments/input_segment.h>
-#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/network_cluster.h>
+#include <core/orchestration/segments/input_segment.h>
+#include <core/orchestration/segments/output_segment.h>
 #include <core/orchestration/cluster_handler.h>
 #include <kyouko_root.h>
 
@@ -44,7 +44,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
                       std::string &errorMessage)
 {
     const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
-    ClusterInterface* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    ClusterInterface* interface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
     // TODO: handle if not found
 
     CpuProcessingUnit cpuProcessingUnit;

@@ -22,11 +22,11 @@
 
 #include "struct_validation.h"
 
-#include <core/structure/segments/abstract_segment.h>
+#include <core/orchestration/segments/abstract_segment.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
-#include <core/structure/network_cluster.h>
+#include <core/orchestration/network_cluster.h>
 
 /**
  * @brief validate to sized of all structs to ensure, that they have all the defined size of 2^x

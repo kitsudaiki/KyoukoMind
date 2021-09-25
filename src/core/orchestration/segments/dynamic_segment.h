@@ -25,7 +25,7 @@
 
 #include <common.h>
 
-#include <core/structure/segments/abstract_segment.h>
+#include <core/orchestration/segments/abstract_segment.h>
 
 class DynamicSegment : public AbstractSegment
 {

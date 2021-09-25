@@ -22,7 +22,7 @@
 
 #include "abstract_segment.h"
 
-#include <core/structure/network_cluster.h>
+#include <core/orchestration/network_cluster.h>
 #include <core/orchestration/cluster_interface.h>
 
 /**

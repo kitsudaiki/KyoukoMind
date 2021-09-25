@@ -22,12 +22,12 @@
 
 #include "cluster_interface.h"
 
-#include <core/structure/segments/dynamic_segment.h>
-#include <core/structure/segments/input_segment.h>
-#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/segments/dynamic_segment.h>
+#include <core/orchestration/segments/input_segment.h>
+#include <core/orchestration/segments/output_segment.h>
 
 #include <core/orchestration/task_queue.h>
-#include <core/structure/network_cluster.h>
+#include <core/orchestration/network_cluster.h>
 #include <core/processing/segment_queue.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
@@ -185,7 +185,6 @@ ClusterInterface::addLearnTask(float *data,
                              const uint64_t numberOfCycle)
 {
     m_task_mutex.lock();
-
     const std::string result = m_taskQueue->addLearnTask(data,
                                                          numberOfInputsPerCycle,
                                                          numberOfOuputsPerCycle,
@@ -208,12 +207,34 @@ ClusterInterface::addRequestTask(float *inputData,
                                const uint64_t numberOfCycle)
 {
     m_task_mutex.lock();
-
     const std::string result = m_taskQueue->addRequestTask(inputData,
                                                            numberOfInputsPerCycle,
                                                            numberOfCycle);
     m_task_mutex.unlock();
 
+    return result;
+}
+
+/**
+ * @brief ClusterInterface::request
+ * @param inputData
+ * @param numberOfInputsPerCycle
+ * @return
+ */
+uint32_t
+ClusterInterface::request(float* inputData,
+                          const uint64_t numberOfInputes)
+{
+
+    const std::string taskUuid = addRequestTask(inputData, numberOfInputes, 1);
+    m_segmentCounter = getNumberOfSegments();
+    updateClusterState();
+    // wait until task is finished
+    while(isFinish(taskUuid) == false) {
+        usleep(10000);
+    }
+
+    const uint32_t result = getResultData(taskUuid)[0];
     return result;
 }
 
@@ -256,6 +277,21 @@ ClusterInterface::getResultData(const std::string &taskUuid)
 {
     m_task_mutex.lock();
     const uint32_t* result = m_taskQueue->getResultData(taskUuid);
+    m_task_mutex.unlock();
+
+    return result;
+}
+
+/**
+ * @brief ClusterInterface::removeResultData
+ * @param taskUuid
+ * @return
+ */
+bool
+ClusterInterface::removeResultData(const std::string &taskUuid)
+{
+    m_task_mutex.lock();
+    const bool result = m_taskQueue->removeTask(taskUuid);
     m_task_mutex.unlock();
 
     return result;

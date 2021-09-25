@@ -23,9 +23,9 @@
 #include "dev_test.h"
 
 #include <kyouko_root.h>
-#include <core/structure/network_cluster.h>
-#include <core/structure/segments/input_segment.h>
-#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/network_cluster.h>
+#include <core/orchestration/segments/input_segment.h>
+#include <core/orchestration/segments/output_segment.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>

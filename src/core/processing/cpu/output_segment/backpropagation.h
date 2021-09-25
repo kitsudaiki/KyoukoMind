@@ -28,9 +28,9 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/segments/output_segment.h>
 #include <core/objects/synapses.h>
-#include <core/structure/network_cluster.h>
+#include <core/orchestration/network_cluster.h>
 
 /**
  * @brief backpropagateOutput

@@ -4,10 +4,10 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++14
 
-LIBS += -L../libKitsunemimiSakuraMessaging/src -lKitsunemimiSakuraMessaging
-LIBS += -L../libKitsunemimiSakuraMessaging/src/debug -lKitsunemimiSakuraMessaging
-LIBS += -L../libKitsunemimiSakuraMessaging/src/release -lKitsunemimiSakuraMessaging
-INCLUDEPATH += ../libKitsunemimiSakuraMessaging/include
+LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
+INCLUDEPATH += ../libKitsunemimiHanamiMessaging/include
 
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
@@ -113,11 +113,11 @@ HEADERS += \
     src/core/processing/segment_queue.h \
     src/core/routing_functions.h \
     src/core/storage_io.h \
-    src/core/structure/network_cluster.h \
-    src/core/structure/segments/abstract_segment.h \
-    src/core/structure/segments/dynamic_segment.h \
-    src/core/structure/segments/input_segment.h \
-    src/core/structure/segments/output_segment.h \
+    src/core/orchestration/network_cluster.h \
+    src/core/orchestration/segments/abstract_segment.h \
+    src/core/orchestration/segments/dynamic_segment.h \
+    src/core/orchestration/segments/input_segment.h \
+    src/core/orchestration/segments/output_segment.h \
     src/dev_test.h \
     src/kyouko_root.h
 
@@ -140,11 +140,11 @@ SOURCES += \
     src/core/processing/processing_unit_handler.cpp \
     src/core/processing/segment_queue.cpp \
     src/core/storage_io.cpp \
-    src/core/structure/network_cluster.cpp \
-    src/core/structure/segments/abstract_segment.cpp \
-    src/core/structure/segments/dynamic_segment.cpp \
-    src/core/structure/segments/input_segment.cpp \
-    src/core/structure/segments/output_segment.cpp \
+    src/core/orchestration/network_cluster.cpp \
+    src/core/orchestration/segments/abstract_segment.cpp \
+    src/core/orchestration/segments/dynamic_segment.cpp \
+    src/core/orchestration/segments/input_segment.cpp \
+    src/core/orchestration/segments/output_segment.cpp \
     src/dev_test.cpp \
     src/kyouko_root.cpp
 

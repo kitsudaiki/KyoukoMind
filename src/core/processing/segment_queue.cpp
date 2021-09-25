@@ -22,7 +22,7 @@
 
 #include "segment_queue.h"
 
-#include <core/structure/segments/abstract_segment.h>
+#include <core/orchestration/segments/abstract_segment.h>
 
 SegmentQueue::SegmentQueue()
 {

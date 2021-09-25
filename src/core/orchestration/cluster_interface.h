@@ -54,11 +54,16 @@ public:
     const std::string addRequestTask(float* inputData,
                                      const uint64_t numberOfInputsPerCycle,
                                      const uint64_t numberOfCycle);
+    uint32_t request(float* inputData, const uint64_t numberOfInputes);
+
     uint64_t getActualTaskCycle();
     const TaskProgress getProgress(const std::string &taskUuid);
     const uint32_t* getResultData(const std::string &taskUuid);
+    bool removeResultData(const std::string &taskUuid);
     bool isFinish(const std::string &taskUuid);
     void setResultForActualCycle(const uint32_t result);
+
+
 
     // cluster-handling
     uint64_t getNumberOfSegments() const;

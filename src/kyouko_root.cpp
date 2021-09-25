@@ -39,8 +39,8 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 
-#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
-#include <libKitsunemimiSakuraMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiMessaging/messaging_client.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 

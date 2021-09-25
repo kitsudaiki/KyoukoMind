@@ -22,9 +22,9 @@
 
 #include "network_cluster.h"
 
-#include <core/structure/segments/dynamic_segment.h>
-#include <core/structure/segments/input_segment.h>
-#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/segments/dynamic_segment.h>
+#include <core/orchestration/segments/input_segment.h>
+#include <core/orchestration/segments/output_segment.h>
 
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>

@@ -1,5 +1,5 @@
 /**
- * @file        output_segment.h
+ * @file        input_segment.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,32 +20,29 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_OUTPUT_SEGMENTS_H
-#define KYOUKOMIND_OUTPUT_SEGMENTS_H
+#ifndef KYOUKOMIND_INPUT_SEGMENTS_H
+#define KYOUKOMIND_INPUT_SEGMENTS_H
 
 #include <common.h>
 
-#include <core/structure/segments/abstract_segment.h>
+#include <core/orchestration/segments/abstract_segment.h>
 
-class OutputSegment : public AbstractSegment
+class InputSegment : public AbstractSegment
 {
 public:
-    OutputSegment();
-    ~OutputSegment();
+    InputSegment();
+    ~InputSegment();
 
-    float lastTotalError = 0.0f;
-    float actualTotalError = 0.0f;
-
-    OutputNode* outputs = nullptr;
+    InputNode* inputs = nullptr;
 
     bool initSegment(const JsonItem &parsedContent);
 
 private:
-    SegmentHeader createNewHeader(const uint32_t numberOfOutputs,
+    SegmentHeader createNewHeader(const uint32_t numberOfInputs,
                                   const uint64_t borderbufferSize);
     void initSegmentPointer(const SegmentHeader &header);
     bool connectBorderBuffer();
     void allocateSegment(SegmentHeader &header);
 };
 
-#endif // KYOUKOMIND_OUTPUT_SEGMENTS_H
+#endif // KYOUKOMIND_INPUT_SEGMENTS_H
