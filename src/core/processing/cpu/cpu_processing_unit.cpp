@@ -22,16 +22,17 @@
 
 #include "cpu_processing_unit.h"
 
-#include <core/objects/segments/dynamic_segment.h>
-#include <core/objects/segments/input_segment.h>
-#include <core/objects/segments/output_segment.h>
+#include <core/structure/segments/dynamic_segment.h>
+#include <core/structure/segments/input_segment.h>
+#include <core/structure/segments/output_segment.h>
 
-#include <core/processing/network_cluster.h>
-
-#include <core/processing/segment_queue.h>
-#include <core/processing/task_queue.h>
+#include <core/orchestration/task_queue.h>
+#include <core/orchestration/cluster_interface.h>
+#include <core/structure/network_cluster.h>
 
 #include <kyouko_root.h>
+
+#include <core/processing/segment_queue.h>
 
 #include <core/processing/cpu/dynamic_segment/backpropagation.h>
 #include <core/processing/cpu/dynamic_segment/processing.h>
@@ -173,9 +174,10 @@ CpuProcessingUnit::run()
                 currentSegment->segmentNeighbors->neighbors[side].inputReady = false;
             }
 
-            if(currentSegment->parentCluster->mode == LEARN_FORWARD_MODE) {
+            ClusterInterface* clusterInterface = currentSegment->parentCluster;
+            if(clusterInterface->getMode() == LEARN_FORWARD_MODE) {
                 learnSegmentForward(currentSegment);
-            } else if(currentSegment->parentCluster->mode == LEARN_BACKWARD_MODE) {
+            } else if(clusterInterface->getMode() == LEARN_BACKWARD_MODE) {
                 learnSegmentBackward(currentSegment);
             } else {
                 processSegment(currentSegment);

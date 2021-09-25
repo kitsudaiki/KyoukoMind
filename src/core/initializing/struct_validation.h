@@ -20,11 +20,11 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_VALIDATION_H
-#define KYOUKOMIND_VALIDATION_H
+#ifndef KYOUKOMIND_STRUCT_VALIDATION_H
+#define KYOUKOMIND_STRUCT_VALIDATION_H
 
 #include <common.h>
 
 void validateStructSizes();
 
-#endif // KYOUKOMIND_VALIDATION_H
+#endif // KYOUKOMIND_STRUCT_VALIDATION_H

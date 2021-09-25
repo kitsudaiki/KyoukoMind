@@ -24,8 +24,8 @@
 #define KYOUKOMIND_GPU_PROCESSING_UNIT_H
 
 #include <common.h>
-#include <core/processing/network_cluster.h>
-#include <core/objects/segments/dynamic_segment.h>
+#include <core/structure/network_cluster.h>
+#include <core/structure/segments/dynamic_segment.h>
 
 #include <libKitsunemimiOpencl/gpu_handler.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>

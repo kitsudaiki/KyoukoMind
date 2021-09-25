@@ -24,10 +24,10 @@
 
 #include <libKitsunemimiJson/json_item.h>
 #include <core/processing/cpu/cpu_processing_unit.h>
-#include <core/processing/network_cluster.h>
-#include <core/objects/segments/input_segment.h>
-#include <core/objects/segments/output_segment.h>
-#include <core/cluster_handler.h>
+#include <core/structure/network_cluster.h>
+#include <core/structure/segments/input_segment.h>
+#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/cluster_handler.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -44,11 +44,9 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
                       std::string &errorMessage)
 {
     const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
-    NetworkCluster* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    ClusterInterface* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
     // TODO: handle if not found
 
-    InputNode* inputNodes = cluster->inputSegments[0]->inputs;
-    OutputNode* outputs = cluster->outputSegments[0]->outputs;
     CpuProcessingUnit cpuProcessingUnit;
 
     const std::string requestString = blossomLeaf.input.getStringByKey("request");
@@ -65,13 +63,13 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
         JsonItem input = request["input"][pic];
         JsonItem should = request["should"][pic];
 
-        for(uint32_t i = 0; i < should.size(); i++) {
+        /*for(uint32_t i = 0; i < should.size(); i++) {
             outputs[i].shouldValue = should[i].getFloat();
         }
 
         for(uint32_t i = 0; i < input.size(); i++) {
             inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
-        }
+        }*/
 
         //cpuProcessingUnit.learnSegmentForward(cluster);
     }

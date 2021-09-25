@@ -1,5 +1,5 @@
 /**
- * @file        abstract_segment.h
+ * @file        segment_meta.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,21 +20,10 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_ABSTRACT_SEGMENTS_H
-#define KYOUKOMIND_ABSTRACT_SEGMENTS_H
+#ifndef KYOUKOMIND_SEGMENT_META_H
+#define KYOUKOMIND_SEGMENT_META_H
 
 #include <common.h>
-
-#include <libKitsunemimiCommon/buffer/data_buffer.h>
-#include <libKitsunemimiCommon/buffer/item_buffer.h>
-
-#include <core/objects/brick.h>
-#include <core/objects/node.h>
-#include <core/objects/synapses.h>
-
-class NetworkCluster;
-
-//==================================================================================================
 
 enum SegmentTypes
 {
@@ -138,45 +127,4 @@ struct SegmentNeighborList
     // total size: 512 Byte
 };
 
-//==================================================================================================
-
-class AbstractSegment
-{
-public:
-    AbstractSegment();
-    virtual ~AbstractSegment();
-
-    SegmentTypes getType() const;
-
-    Kitsunemimi::ItemBuffer segmentData;
-    Kitsunemimi::DataBuffer staticSegmentData;
-
-    SegmentHeader* segmentHeader = nullptr;
-    SegmentSettings* segmentSettings = nullptr;
-    SegmentNeighborList* segmentNeighbors = nullptr;
-    float* inputTransfers = nullptr;
-    float* outputTransfers = nullptr;
-    NetworkCluster* parentCluster = nullptr;
-
-    virtual bool initSegment(const JsonItem &parsedContent) = 0;
-
-    bool isReady();
-    bool finishSegment();
-
-protected:
-    SegmentTypes m_type = UNDEFINED_SEGMENT;
-
-    Position convertPosition(const JsonItem &parsedContent);
-    bool initBorderBuffer(const JsonItem &parsedContent);
-    uint32_t createGenericNewHeader(SegmentHeader &header,
-                                    const uint64_t borderbufferSize);
-
-private:
-    virtual void initSegmentPointer(const SegmentHeader &header) = 0;
-    virtual bool connectBorderBuffer() = 0;
-    virtual void allocateSegment(SegmentHeader &header) = 0;
-};
-
-//==================================================================================================
-
-#endif // KYOUKOMIND_ABSTRACT_SEGMENTS_H
+#endif // SEGMENT_META_H

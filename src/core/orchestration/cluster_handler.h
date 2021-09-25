@@ -25,19 +25,19 @@
 
 #include <common.h>
 
-class NetworkCluster;
+class ClusterInterface;
 
 class ClusterHandler
 {
 public:
     ClusterHandler();
 
-    bool addCluster(const std::string uuid, NetworkCluster* newCluster);
+    bool addCluster(const std::string uuid, ClusterInterface* newCluster);
     bool removeCluster(const std::string uuid);
-    NetworkCluster* getCluster(const std::string uuid);
+    ClusterInterface* getCluster(const std::string uuid);
 
 private:
-    std::map<std::string, NetworkCluster*> m_allCluster;
+    std::map<std::string, ClusterInterface*> m_allCluster;
 };
 
 #endif // CLUSTERHANDLER_H

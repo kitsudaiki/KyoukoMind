@@ -28,9 +28,9 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/objects/segments/output_segment.h>
+#include <core/structure/segments/output_segment.h>
 #include <core/objects/synapses.h>
-#include <core/processing/network_cluster.h>
+#include <core/structure/network_cluster.h>
 
 /**
  * @brief calculate the total error of all outputs of a specific segment

@@ -23,9 +23,9 @@
 #include "dev_test.h"
 
 #include <kyouko_root.h>
-#include <core/processing/network_cluster.h>
-#include <core/objects/segments/input_segment.h>
-#include <core/objects/segments/output_segment.h>
+#include <core/structure/network_cluster.h>
+#include <core/structure/segments/input_segment.h>
+#include <core/structure/segments/output_segment.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <libKitsunemimiPersistence/files/text_file.h>
@@ -35,9 +35,10 @@
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
-#include <core/cluster_handler.h>
+#include <core/orchestration/cluster_handler.h>
+#include <core/orchestration/cluster_interface.h>
 
-#include <core/processing/task_queue.h>
+#include <core/orchestration/task_queue.h>
 
 /**
  * @brief only a test-function for fast tests
@@ -48,7 +49,8 @@ void
 learnTestData(const std::string &mnistRootPath,
               const std::string &uuid)
 {
-    NetworkCluster* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    ClusterInterface* clusterInterface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+
     CpuProcessingUnit cpuProcessingUnit;
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
@@ -113,7 +115,7 @@ learnTestData(const std::string &mnistRootPath,
     const uint32_t numberOfIteractions = GET_INT_CONFIG("DevMode", "learn_iterations", success);
     const uint32_t numberOfLearningPictures = GET_INT_CONFIG("DevMode", "learn_images", success);
 
-    for(uint32_t iter = 0; iter < 5; iter++)
+    for(uint32_t iter = 0; iter < 1; iter++)
     {
         for(uint32_t poi = 0; poi < 1; poi++)
         {
@@ -143,19 +145,19 @@ learnTestData(const std::string &mnistRootPath,
             }
 
             // create task
-            const std::string taskUuid = cluster->addLearnTask(taskData,
+            const std::string taskUuid = clusterInterface->addLearnTask(taskData,
                                                                pictureSize,
                                                                10,
                                                                numberOfLearningPictures);
-            cluster->segmentCounter = cluster->allSegments.size();
-            cluster->updateClusterState();
+            clusterInterface->m_segmentCounter = clusterInterface->getNumberOfSegments();
+            clusterInterface->updateClusterState();
 
             // wait until task is finished
             start = std::chrono::system_clock::now();
             Kitsunemimi::ProgressBar* progressBar = new Kitsunemimi::ProgressBar();
-            while(cluster->isFinish(taskUuid) == false)
+            while(clusterInterface->isFinish(taskUuid) == false)
             {
-                const TaskProgress progress = cluster->getProgress(taskUuid);
+                const TaskProgress progress = clusterInterface->getProgress(taskUuid);
                 progressBar->updateProgress(progress.percentageFinished);
                 usleep(100000);
             }
@@ -205,17 +207,17 @@ learnTestData(const std::string &mnistRootPath,
     }
 
     // create task
-    const std::string taskUuid = cluster->addRequestTask(taskData,
+    const std::string taskUuid = clusterInterface->addRequestTask(taskData,
                                                          pictureSize,
                                                          total);
-    cluster->segmentCounter = cluster->allSegments.size();
-    cluster->updateClusterState();
+    clusterInterface->m_segmentCounter = clusterInterface->getNumberOfSegments();
+    clusterInterface->updateClusterState();
     // wait until task is finished
     start = std::chrono::system_clock::now();
     Kitsunemimi::ProgressBar* progressBar = new Kitsunemimi::ProgressBar();
-    while(cluster->isFinish(taskUuid) == false)
+    while(clusterInterface->isFinish(taskUuid) == false)
     {
-        const TaskProgress progress = cluster->getProgress(taskUuid);
+        const TaskProgress progress = clusterInterface->getProgress(taskUuid);
         progressBar->updateProgress(progress.percentageFinished);
         usleep(100000);
     }
@@ -226,7 +228,7 @@ learnTestData(const std::string &mnistRootPath,
     std::cout<<"run request: "<<time<<"s"<<std::endl;
 
 
-    const uint32_t* resultData = cluster->getResultData(taskUuid);
+    const uint32_t* resultData = clusterInterface->getResultData(taskUuid);
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
@@ -239,26 +241,6 @@ learnTestData(const std::string &mnistRootPath,
 
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
-    std::cout<<"======================================================================="<<std::endl;
-
-    DynamicSegment* segment = static_cast<DynamicSegment*>(cluster->allSegments.at(1));
-    uint64_t synapseCounter = 0;
-    SynapseSection* sections = segment->synapseSections;
-    for(uint64_t i = 0; i < segment->segmentHeader->synapseSections.count; i++)
-    {
-        if(sections[i].active == Kitsunemimi::ItemBuffer::ACTIVE_SECTION)
-        {
-            for(uint32_t j = 0; j < SYNAPSES_PER_SYNAPSESECTION; j++)
-            {
-                if(sections[i].synapses[j].targetNodeId != UNINIT_STATE_16) {
-                    synapseCounter++;
-                }
-            }
-        }
-    }
-    std::cout<<std::endl;
-    std::cout<<"======================================================================="<<std::endl;
-    std::cout<<"synapseCounter: "<<synapseCounter<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
 }
 

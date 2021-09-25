@@ -22,7 +22,7 @@
 
 #include "cluster_handler.h"
 
-#include <core/processing/network_cluster.h>
+#include <core/orchestration/cluster_interface.h>
 
 ClusterHandler::ClusterHandler()
 {
@@ -36,10 +36,10 @@ ClusterHandler::ClusterHandler()
  * @return
  */
 bool
-ClusterHandler::addCluster(const std::string uuid, NetworkCluster *newCluster)
+ClusterHandler::addCluster(const std::string uuid, ClusterInterface *newCluster)
 {
     // check if key already exist
-    std::map<std::string, NetworkCluster*>::iterator it;
+    std::map<std::string, ClusterInterface*>::iterator it;
     it = m_allCluster.find(uuid);
     if(it != m_allCluster.end()) {
         return false;
@@ -58,7 +58,7 @@ ClusterHandler::addCluster(const std::string uuid, NetworkCluster *newCluster)
 bool
 ClusterHandler::removeCluster(const std::string uuid)
 {
-    std::map<std::string, NetworkCluster*>::const_iterator it;
+    std::map<std::string, ClusterInterface*>::const_iterator it;
     it = m_allCluster.find(uuid);
 
     if(it != m_allCluster.end())
@@ -78,10 +78,10 @@ ClusterHandler::removeCluster(const std::string uuid)
  * @param uuid
  * @return
  */
-NetworkCluster*
+ClusterInterface*
 ClusterHandler::getCluster(const std::string uuid)
 {
-    std::map<std::string, NetworkCluster*>::const_iterator it;
+    std::map<std::string, ClusterInterface*>::const_iterator it;
     it = m_allCluster.find(uuid);
 
     if(it != m_allCluster.end()) {
