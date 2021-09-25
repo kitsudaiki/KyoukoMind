@@ -22,63 +22,61 @@
 
 #include "ask_blossom.h"
 
-#include <libKitsunemimiJson/json_item.h>
-#include <core/processing/cpu/cpu_processing_unit.h>
-#include <core/orchestration/network_cluster.h>
-#include <core/orchestration/segments/input_segment.h>
-#include <core/orchestration/segments/output_segment.h>
 #include <core/orchestration/cluster_handler.h>
+#include <core/orchestration/cluster_interface.h>
+
+#include <libKitsunemimiCommon/common_methods/object_methods.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
-using namespace Kitsunemimi::Json;
 
 AskBlossom::AskBlossom()
     : Blossom()
 {
     registerField("cluster_uuid", INPUT_TYPE, true);
     registerField("inputs", INPUT_TYPE, true);
-    registerField("number_of_inputs", INPUT_TYPE, true);
-    registerField("response", OUTPUT_TYPE, true);
+    registerField("number_of_inputs_per_cycle", INPUT_TYPE, true);
+    registerField("number_of_cycles", INPUT_TYPE, true);
+    registerField("task_uuid", OUTPUT_TYPE, true);
 }
 
+/**
+ * @brief AskBlossom::runTask
+ * @param blossomLeaf
+ * @param errorMessage
+ * @return
+ */
 bool
 AskBlossom::runTask(BlossomLeaf &blossomLeaf,
                     std::string &errorMessage)
 {
-    const std::string requestString = blossomLeaf.input.getStringByKey("request");
-    JsonItem request;
-    if(request.parse(requestString, errorMessage) == false) {
+    // get id
+    const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
+    ClusterInterface* interface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    if(interface == nullptr)
+    {
+        errorMessage = "interface with uuid not found: " + uuid;
         return false;
     }
 
-    const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
-    ClusterInterface* interface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
-    // TODO: handle if not found
+    // get sizes
+    const uint32_t inputsPerCycle = blossomLeaf.input.getIntByKey("number_of_inputs_per_cycle");
+    const uint32_t numberOfCycles = blossomLeaf.input.getIntByKey("number_of_cycles");
 
-    const uint32_t numberOfInputs = request["number_of_inputs"].getInt();
-    const float reduction = request["reduction"].getFloat();
-
-    for(uint32_t pic = 0; pic < numberOfInputs; pic++)
+    // get input-data
+    const std::string inputs = blossomLeaf.input.getStringByKey("inputs");
+    DataBuffer resultBuffer;
+    const bool ret = Kitsunemimi::decodeBase64(resultBuffer, inputs);
+    if(ret == false)
     {
-        JsonItem input = request["input"][pic];
-
-       /* for(uint32_t i = 0; i < input.size(); i++) {
-            inputNodes[i].weight = (static_cast<float>(input[i].getFloat()) / reduction);
-        }*/
-
-        //cpuProcessingUnit.processSegment(cluster);
-
-        DataArray* response = new DataArray();
-        /*OutputSegment* synapseSegment = cluster->outputSegments[0];
-        for(uint64_t i = 0; i < synapseSegment->segmentHeader->outputs.count; i++)
-        {
-            OutputNode* out = &synapseSegment->outputs[i];
-            response->append(new DataValue(out->outputWeight));
-        }*/
-
-        blossomLeaf.output.insert("result", response);
+        errorMessage = "base64-decoding of the input failes";
+        return false;
     }
+
+    const std::string taskUuid = interface->addRequestTask((float*)resultBuffer.data,
+                                                           inputsPerCycle,
+                                                           numberOfCycles);
+    blossomLeaf.output.insert("task_uuid", new DataValue(taskUuid));
 
     return true;
 }
