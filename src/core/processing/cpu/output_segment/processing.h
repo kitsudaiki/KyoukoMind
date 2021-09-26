@@ -64,7 +64,7 @@ calcTotalError(OutputSegment* segment)
  *
  * @param segment segment to process
  */
-void
+inline void
 prcessOutputSegment(OutputSegment* segment)
 {
     const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
@@ -74,12 +74,6 @@ prcessOutputSegment(OutputSegment* segment)
         OutputNode* node = &segment->outputs[pos];
         node->outputWeight = inputTransfers[node->targetBorderId];
     }
-
-    /*float error = calcTotalError(segment);
-    if(error < 0.01f) {
-        error = 0.0f;
-    }
-    std::cout<<"error: "<<error<<std::endl;*/
 }
 
 /**
@@ -87,7 +81,7 @@ prcessOutputSegment(OutputSegment* segment)
  * @param segment
  * @return
  */
-uint32_t
+inline uint32_t
 getHighestOutput(OutputSegment* segment)
 {
     float hightest = -0.1f;

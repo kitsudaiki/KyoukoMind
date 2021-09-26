@@ -29,6 +29,7 @@
 #include <core/orchestration/task_queue.h>
 #include <core/orchestration/network_cluster.h>
 #include <core/processing/segment_queue.h>
+#include <core/processing/cpu/output_segment/processing.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 #include <kyouko_root.h>
@@ -128,8 +129,12 @@ ClusterInterface::updateClusterState()
 
     if(m_mode == LEARN_FORWARD_MODE)
     {
-        startBackwardLearnCycle();
-        return;
+        const float error = calcTotalError(m_cluster->outputSegments[0]);
+        if(error > 0.05f) // TODO: make configurable
+        {
+            startBackwardLearnCycle();
+            return;
+        }
     }
 
     m_task_mutex.lock();

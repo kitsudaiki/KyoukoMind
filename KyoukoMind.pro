@@ -111,7 +111,7 @@ HEADERS += \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/processing/processing_unit_handler.h \
     src/core/processing/segment_queue.h \
-    src/core/routing_functions.h \
+    src/core/initializing/routing_functions.h \
     src/core/storage_io.h \
     src/core/orchestration/network_cluster.h \
     src/core/orchestration/segments/abstract_segment.h \
