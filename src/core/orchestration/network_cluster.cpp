@@ -22,16 +22,16 @@
 
 #include "network_cluster.h"
 
-#include <core/structure/segments/dynamic_segment.h>
-#include <core/structure/segments/input_segment.h>
-#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/segments/dynamic_segment.h>
+#include <core/orchestration/segments/input_segment.h>
+#include <core/orchestration/segments/output_segment.h>
+#include <core/orchestration/cluster_interface.h>
 
 #include <core/objects/node.h>
 #include <core/objects/synapses.h>
 
-#include <core/routing_functions.h>
+#include <core/initializing/routing_functions.h>
 #include <core/initializing/preprocess_cluster_json.h>
-#include <core/orchestration/cluster_interface.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiPersistence/logger/logger.h>

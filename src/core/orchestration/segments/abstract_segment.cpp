@@ -22,7 +22,7 @@
 
 #include "abstract_segment.h"
 
-#include <core/structure/network_cluster.h>
+#include <core/orchestration/network_cluster.h>
 #include <core/orchestration/cluster_interface.h>
 
 /**
@@ -36,8 +36,9 @@ AbstractSegment::AbstractSegment() {}
 AbstractSegment::~AbstractSegment() {}
 
 /**
- * @brief AbstractSegment::getType
- * @return
+ * @brief get type of the segment
+ *
+ * @return type
  */
 SegmentTypes
 AbstractSegment::getType() const
@@ -46,8 +47,9 @@ AbstractSegment::getType() const
 }
 
 /**
- * @brief AbstractSegment::isReady
- * @return
+ * @brief check if all border-buffer, which are in use, are ready for processing
+ *
+ * @return true, if all border-buffer are ready, else false
  */
 bool
 AbstractSegment::isReady()

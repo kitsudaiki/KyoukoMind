@@ -22,7 +22,7 @@
 
 #include "dynamic_segment.h"
 
-#include <core/routing_functions.h>
+#include <core/initializing/routing_functions.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
 DynamicSegment::DynamicSegment()

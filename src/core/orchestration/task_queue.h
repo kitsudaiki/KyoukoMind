@@ -44,7 +44,7 @@ public:
     uint32_t* getResultData(const std::string &taskUuid);
 
     bool isFinish(const std::string &taskUuid);
-    void removeTask(const std::string &taskUuid);
+    bool removeTask(const std::string &taskUuid);
     bool getNextTask();
     void finishTask();
 

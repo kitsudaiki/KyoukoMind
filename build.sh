@@ -81,15 +81,15 @@ function get_required_private_repo_github () {
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "master" 4
+get_required_kitsune_lib_repo "libKitsunemimiCommon" "master" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiPersistence" "v0.10.2" 4
+get_required_kitsune_lib_repo "libKitsunemimiPersistence" "v0.10.2" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiOpencl" "v0.3.0" 4
+get_required_kitsune_lib_repo "libKitsunemimiOpencl" "v0.3.0" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -105,19 +105,19 @@ get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.4.7" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.6.6" 4
+get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.6.6" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "master" 4
+get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "master" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.2.2" 4
+get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.2.2" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.4" 4
+get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.2.4" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -125,7 +125,7 @@ get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "master" 1
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_github "libKitsunemimiSakuraMessaging" "master" 4
+get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" 8
 echo ""
 echo "###########################################################################################################"
 echo ""

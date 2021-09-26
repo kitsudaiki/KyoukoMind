@@ -21,9 +21,12 @@
  */
 
 #include "init_blossom.h"
+#include <core/orchestration/cluster_handler.h>
+#include <core/orchestration/cluster_interface.h>
 
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiJson/json_item.h>
+#include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -31,22 +34,39 @@ InitBlossom::InitBlossom()
     : Blossom()
 {
     registerField("content", INPUT_TYPE, true);
-    registerField("result", OUTPUT_TYPE, true);
+    registerField("cluster_uuid", OUTPUT_TYPE, true);
 }
 
+/**
+ * @brief InitBlossom::runTask
+ * @param blossomLeaf
+ * @param errorMessage
+ * @return
+ */
 bool
 InitBlossom::runTask(BlossomLeaf &blossomLeaf,
                      std::string &errorMessage)
 {
     const std::string content = blossomLeaf.input.getStringByKey("content");
 
-    const bool result = false;
-    /*const bool result = initializer.createNewNetwork(content);
-    if(result == false) {
-        errorMessage = "failed to initialize new network";
-    }*/
+    // parse input
+    Kitsunemimi::Json::JsonItem parsedContent;
+    const bool ret = parsedContent.parse(content, errorMessage);
+    if(ret == false) {
+        return false;
+    }
 
-    blossomLeaf.output.insert("result", new Kitsunemimi::DataValue(result));
+    ClusterInterface* newCluster = new ClusterInterface();
+    const std::string uuid = newCluster->initNewCluster(parsedContent);
+    if(uuid == "")
+    {
+        delete newCluster;
+        return false;
+    }
 
-    return result;
+    KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster);
+
+    blossomLeaf.output.insert("cluster_uuid", new Kitsunemimi::DataValue(uuid));
+
+    return true;
 }

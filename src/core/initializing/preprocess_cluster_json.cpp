@@ -22,7 +22,7 @@
 
 #include "preprocess_cluster_json.h"
 
-#include <core/routing_functions.h>
+#include <core/initializing/routing_functions.h>
 #include <core/objects/cluster_meta.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>

@@ -28,9 +28,9 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/segments/output_segment.h>
 #include <core/objects/synapses.h>
-#include <core/structure/network_cluster.h>
+#include <core/orchestration/network_cluster.h>
 
 /**
  * @brief calculate the total error of all outputs of a specific segment
@@ -64,7 +64,7 @@ calcTotalError(OutputSegment* segment)
  *
  * @param segment segment to process
  */
-void
+inline void
 prcessOutputSegment(OutputSegment* segment)
 {
     const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
@@ -74,12 +74,6 @@ prcessOutputSegment(OutputSegment* segment)
         OutputNode* node = &segment->outputs[pos];
         node->outputWeight = inputTransfers[node->targetBorderId];
     }
-
-    /*float error = calcTotalError(segment);
-    if(error < 0.01f) {
-        error = 0.0f;
-    }
-    std::cout<<"error: "<<error<<std::endl;*/
 }
 
 /**
@@ -87,7 +81,7 @@ prcessOutputSegment(OutputSegment* segment)
  * @param segment
  * @return
  */
-uint32_t
+inline uint32_t
 getHighestOutput(OutputSegment* segment)
 {
     float hightest = -0.1f;

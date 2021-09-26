@@ -22,13 +22,13 @@
 
 #include "cpu_processing_unit.h"
 
-#include <core/structure/segments/dynamic_segment.h>
-#include <core/structure/segments/input_segment.h>
-#include <core/structure/segments/output_segment.h>
+#include <core/orchestration/segments/dynamic_segment.h>
+#include <core/orchestration/segments/input_segment.h>
+#include <core/orchestration/segments/output_segment.h>
 
 #include <core/orchestration/task_queue.h>
 #include <core/orchestration/cluster_interface.h>
-#include <core/structure/network_cluster.h>
+#include <core/orchestration/network_cluster.h>
 
 #include <kyouko_root.h>
 
@@ -150,7 +150,7 @@ CpuProcessingUnit::processSegment(AbstractSegment* segment)
 }
 
 /**
- * @brief CpuProcessingUnit::run
+ * @brief run loop to process all available segments
  */
 void
 CpuProcessingUnit::run()
@@ -174,6 +174,7 @@ CpuProcessingUnit::run()
                 currentSegment->segmentNeighbors->neighbors[side].inputReady = false;
             }
 
+            // handle type of processing
             ClusterInterface* clusterInterface = currentSegment->parentCluster;
             if(clusterInterface->getMode() == LEARN_FORWARD_MODE) {
                 learnSegmentForward(currentSegment);
@@ -183,10 +184,12 @@ CpuProcessingUnit::run()
                 processSegment(currentSegment);
             }
 
+            // finish segment by sharing border-buffer and register in cluster
             currentSegment->finishSegment();
         }
         else
         {
+            // if no segments are available then sleep
             sleepThread(10000);
         }
     }

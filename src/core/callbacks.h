@@ -25,8 +25,8 @@
 
 #include <kyouko_root.h>
 
-#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
-#include <libKitsunemimiSakuraMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiMessaging/messaging_client.h>
 
 #include <libKitsunemimiPersistence/logger/logger.h>
 

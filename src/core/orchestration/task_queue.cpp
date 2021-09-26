@@ -164,7 +164,7 @@ TaskQueue::isFinish(const std::string &taskUuid)
  * @brief TaskQueue::removeTask
  * @param taskUuid
  */
-void
+bool
 TaskQueue::removeTask(const std::string &taskUuid)
 {
     TaskState state = UNDEFINED_TASK_STATE;
@@ -198,6 +198,8 @@ TaskQueue::removeTask(const std::string &taskUuid)
             m_taskQueue.erase(itQueue);
         }
     }
+
+    return true;
 }
 
 /**

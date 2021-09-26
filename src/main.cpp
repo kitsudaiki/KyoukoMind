@@ -33,7 +33,7 @@
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiPersistence/logger/logger.h>
 
-#include <libKitsunemimiSakuraMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
 
 using Kitsunemimi::Sakura::MessagingController;
 
