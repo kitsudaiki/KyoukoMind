@@ -25,7 +25,7 @@
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
 
-#include <libKitsunemimiCommon/common_methods/object_methods.h>
+#include <libKitsunemimiCrypto/common.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -66,7 +66,7 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
     // get input-data
     const std::string inputs = blossomLeaf.input.getStringByKey("inputs");
     DataBuffer resultBuffer;
-    const bool ret = Kitsunemimi::decodeBase64(resultBuffer, inputs);
+    const bool ret = Kitsunemimi::Crypto::decodeBase64(resultBuffer, inputs);
     if(ret == false)
     {
         errorMessage = "base64-decoding of the input failes";

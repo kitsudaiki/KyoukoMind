@@ -34,8 +34,8 @@
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
-#include <libKitsunemimiPersistence/files/text_file.h>
+#include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiCommon/files/text_file.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
 
@@ -122,7 +122,7 @@ KyoukoRoot::initCluster(const std::string &filePath)
 
     std::string fileContent = "";
     std::string errorMessage = "";
-    if(Kitsunemimi::Persistence::readFile(fileContent, filePath, errorMessage) == false)
+    if(Kitsunemimi::readFile(fileContent, filePath, errorMessage) == false)
     {
         LOG_ERROR(errorMessage);
         return std::string("");

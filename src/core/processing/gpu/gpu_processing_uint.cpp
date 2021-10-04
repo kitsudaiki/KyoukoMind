@@ -29,7 +29,7 @@
 #include <core/orchestration/segments/dynamic_segment.h>
 #include <core/orchestration/network_cluster.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
 /**
  * @brief constructor

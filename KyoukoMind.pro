@@ -2,7 +2,7 @@ QT -= qt core gui
 
 TARGET = KyoukoMind
 CONFIG += console
-CONFIG += c++14
+CONFIG += c++17
 
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
@@ -59,12 +59,12 @@ LIBS += -L../libKitsunemimiJson/src/debug -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/release -lKitsunemimiJson
 INCLUDEPATH += ../libKitsunemimiJson/include
 
-LIBS += -L../libKitsunemimiPersistence/src -lKitsunemimiPersistence
-LIBS += -L../libKitsunemimiPersistence/src/debug -lKitsunemimiPersistence
-LIBS += -L../libKitsunemimiPersistence/src/release -lKitsunemimiPersistence
-INCLUDEPATH += ../libKitsunemimiPersistence/include
+LIBS += -L../libKitsunemimiCrypto/src -lKitsunemimiCrypto
+LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
+LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
+INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS +=  -lboost_filesystem -lboost_system -lssl -lcrypt -lOpenCL -luuid
+LIBS += -lssl -lcrypt -lOpenCL -luuid -lcrypto -lcryptopp
 
 INCLUDEPATH += $$PWD \
                src

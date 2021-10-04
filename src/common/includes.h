@@ -54,9 +54,6 @@
 #include <atomic>
 #include <uuid/uuid.h>
 
-#include <boost/filesystem.hpp>
-namespace bfs = boost::filesystem;
-
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 using Kitsunemimi::DataBuffer;
 

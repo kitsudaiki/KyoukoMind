@@ -27,9 +27,9 @@
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 #include <libKitsunemimiConfig/config_handler.h>
-#include <libKitsunemimiPersistence/files/file_methods.h>
-#include <libKitsunemimiPersistence/files/text_file.h>
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/common_methods/file_methods.h>
+#include <libKitsunemimiCommon/files/text_file.h>
+#include <libKitsunemimiCommon/logger.h>
 
 #include <api/special/special_blossoms.h>
 

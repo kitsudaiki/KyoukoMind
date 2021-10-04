@@ -31,7 +31,7 @@
 #include <core/processing/segment_queue.h>
 #include <core/processing/cpu/output_segment/processing.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 #include <kyouko_root.h>
 
 ClusterInterface::ClusterInterface()
