@@ -27,8 +27,8 @@
 #include <core/orchestration/segments/input_segment.h>
 #include <core/orchestration/segments/output_segment.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
-#include <libKitsunemimiPersistence/files/text_file.h>
+#include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiCommon/files/text_file.h>
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiCommon/progress_bar.h>
 
@@ -68,12 +68,12 @@ learnTestData(const std::string &mnistRootPath,
     //==============================================================================================
 
     // read train-data
-    Kitsunemimi::Persistence::BinaryFile trainData(trainDataPath);
+    Kitsunemimi::BinaryFile trainData(trainDataPath);
     Kitsunemimi::DataBuffer trainDataBuffer;
     trainData.readCompleteFile(trainDataBuffer);
 
     // read train-labels
-    Kitsunemimi::Persistence::BinaryFile trainLabel(trainLabelPath);
+    Kitsunemimi::BinaryFile trainLabel(trainLabelPath);
     Kitsunemimi::DataBuffer trainLabelBuffer;
     trainLabel.readCompleteFile(trainLabelBuffer);
 
@@ -174,12 +174,12 @@ learnTestData(const std::string &mnistRootPath,
     //==============================================================================================
 
     // read train-data
-    Kitsunemimi::Persistence::BinaryFile testData(testDataPath);
+    Kitsunemimi::BinaryFile testData(testDataPath);
     Kitsunemimi::DataBuffer testDataBuffer;
     testData.readCompleteFile(testDataBuffer);
 
     // read train-labels
-    Kitsunemimi::Persistence::BinaryFile testLabel(testLabelPath);
+    Kitsunemimi::BinaryFile testLabel(testLabelPath);
     Kitsunemimi::DataBuffer testLabelBuffer;
     testLabel.readCompleteFile(testLabelBuffer);
 

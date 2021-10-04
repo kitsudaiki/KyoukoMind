@@ -34,7 +34,7 @@
 #include <core/initializing/preprocess_cluster_json.h>
 
 #include <libKitsunemimiConfig/config_handler.h>
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
 NetworkCluster::NetworkCluster()
 {

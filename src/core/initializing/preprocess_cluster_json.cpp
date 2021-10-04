@@ -25,7 +25,7 @@
 #include <core/initializing/routing_functions.h>
 #include <core/objects/cluster_meta.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
 
 /**

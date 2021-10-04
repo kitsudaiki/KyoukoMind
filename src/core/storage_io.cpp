@@ -22,7 +22,7 @@
 
 #include "storage_io.h"
 
-#include <libKitsunemimiPersistence/files/binary_file.h>
+#include <libKitsunemimiCommon/files/binary_file.h>
 #include <kyouko_root.h>
 #include <core/orchestration/network_cluster.h>
 
@@ -73,7 +73,7 @@ StorageIO::writeBufferToFile(const std::string &filePath,
                              Kitsunemimi::DataBuffer &buffer)
 {
     bool ret = true;
-    Kitsunemimi::Persistence::BinaryFile segWriter(filePath, true);
+    Kitsunemimi::BinaryFile segWriter(filePath, true);
     if(segWriter.writeCompleteFile(buffer) == false) {
         ret = false;
     }
@@ -93,7 +93,7 @@ StorageIO::readBufferFromFile(const std::string &filePath,
                               Kitsunemimi::DataBuffer &buffer)
 {
     bool ret = true;
-    Kitsunemimi::Persistence::BinaryFile segReader(filePath, true);
+    Kitsunemimi::BinaryFile segReader(filePath, true);
     if(segReader.readCompleteFile(buffer) == false) {
         ret = false;
     }

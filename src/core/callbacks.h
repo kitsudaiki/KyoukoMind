@@ -28,7 +28,7 @@
 #include <libKitsunemimiHanamiMessaging/messaging_controller.h>
 #include <libKitsunemimiHanamiMessaging/messaging_client.h>
 
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
 /**
  * @brief clientDataCallback
@@ -63,7 +63,7 @@ monitoringDataCallback(Kitsunemimi::Sakura::Session*,
  * @param identifier
  */
 void
-sessionCreateCallback(Kitsunemimi::Sakura::MessagingClient* session,
+sessionCreateCallback(Kitsunemimi::Hanami::MessagingClient* session,
                       const std::string identifier)
 {
 }

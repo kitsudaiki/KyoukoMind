@@ -23,7 +23,7 @@
 #include "dynamic_segment.h"
 
 #include <core/initializing/routing_functions.h>
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
 DynamicSegment::DynamicSegment()
     : AbstractSegment()

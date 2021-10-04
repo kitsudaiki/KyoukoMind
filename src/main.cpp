@@ -31,16 +31,16 @@
 #include <api/blossom_initializing.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
-#include <libKitsunemimiPersistence/logger/logger.h>
+#include <libKitsunemimiCommon/logger.h>
 
 #include <libKitsunemimiHanamiMessaging/messaging_controller.h>
 
-using Kitsunemimi::Sakura::MessagingController;
+using Kitsunemimi::Hanami::MessagingController;
 
 int
 main(int argc, char *argv[])
 {
-    Kitsunemimi::Persistence::initConsoleLogger(true);
+    Kitsunemimi::initConsoleLogger(true);
 
     // create and init argument-parser
     Kitsunemimi::Args::ArgParser argParser;
@@ -53,8 +53,8 @@ main(int argc, char *argv[])
 
     // init logging
     const bool enableDebug = argParser.wasSet("debug");
-    Kitsunemimi::Persistence::initConsoleLogger(enableDebug);
-    Kitsunemimi::Persistence::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
+    Kitsunemimi::initConsoleLogger(enableDebug);
+    Kitsunemimi::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
 
     // init config by using the file defined over the CLI-input or the default config file
     std::string configFile = "/etc/KyoukoMind/KyoukoMind.conf";
