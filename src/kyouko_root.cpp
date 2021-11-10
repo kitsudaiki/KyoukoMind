@@ -39,15 +39,15 @@
 
 #include <libKitsunemimiConfig/config_handler.h>
 
-#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
-#include <libKitsunemimiHanamiMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
-KyoukoRoot* KyoukoRoot::m_root = nullptr;
+KyoukoRoot* KyoukoRoot::m_root = new KyoukoRoot();
+
 ClusterHandler* KyoukoRoot::m_clusterHandler = nullptr;
 uint32_t* KyoukoRoot::m_randomValues = nullptr;
 SegmentQueue* KyoukoRoot::m_segmentQueue = nullptr;
@@ -60,10 +60,9 @@ KyoukoRoot::KyoukoRoot()
 {
     validateStructSizes();
 
-    m_root = this;
-
     // init predefinde random-values
     m_randomValues = new uint32_t[NUMBER_OF_RAND_VALUES];
+    srand(time(NULL));
     for(uint32_t i = 0; i < NUMBER_OF_RAND_VALUES; i++) {
         m_randomValues[i] = static_cast<uint32_t>(rand());
     }
@@ -71,8 +70,13 @@ KyoukoRoot::KyoukoRoot()
     m_clusterHandler = new ClusterHandler();
     m_segmentQueue = new SegmentQueue();
     m_processingUnitHandler = new ProcessingUnitHandler();
-    m_processingUnitHandler->initProcessingUnits(3);
+    m_processingUnitHandler->initProcessingUnits(1);
 }
+
+/**
+ * @brief KyoukoRoot::~KyoukoRoot
+ */
+KyoukoRoot::~KyoukoRoot() {}
 
 /**
  * @brief KyoukoRoot::initializeSakuraFiles
@@ -87,11 +91,11 @@ KyoukoRoot::initializeSakuraFiles()
         return false;
     }
 
-    std::string errorMessage = "";
-    success = SakuraLangInterface::getInstance()->readFilesInDir(sakuraDir, errorMessage);
+    Kitsunemimi::ErrorContainer error;
+    success = SakuraLangInterface::getInstance()->readFilesInDir(sakuraDir, error);
     if(success == false)
     {
-        LOG_ERROR(errorMessage);
+        LOG_ERROR(error);
         return false;
     }
 
@@ -99,20 +103,10 @@ KyoukoRoot::initializeSakuraFiles()
 }
 
 /**
- * @brief KyoukoRoot::~KyoukoRoot
+ * @brief KyoukoRoot::initCluster
+ * @param filePath
+ * @return
  */
-KyoukoRoot::~KyoukoRoot() {}
-
-/**
- * init all components
- */
-bool
-KyoukoRoot::start()
-{
-    // network-manager
-    return true;
-}
-
 const std::string
 KyoukoRoot::initCluster(const std::string &filePath)
 {
@@ -124,12 +118,11 @@ KyoukoRoot::initCluster(const std::string &filePath)
     std::string errorMessage = "";
     if(Kitsunemimi::readFile(fileContent, filePath, errorMessage) == false)
     {
-        LOG_ERROR(errorMessage);
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = errorMessage;
+        LOG_ERROR(error);
         return std::string("");
     }
-
-    // init randomizer
-    srand(time(NULL));
 
     // check if values are valid
     if(fileContent == "") {
@@ -141,7 +134,9 @@ KyoukoRoot::initCluster(const std::string &filePath)
     const bool ret = parsedContent.parse(fileContent, errorMessage);
     if(ret == false)
     {
-        LOG_ERROR("error while parsing input: " + errorMessage);
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "error while parsing input: " + errorMessage;
+        LOG_ERROR(error);
         return std::string("");
     }
 
@@ -150,7 +145,9 @@ KyoukoRoot::initCluster(const std::string &filePath)
     if(uuid == "")
     {
         delete newCluster;
-        LOG_ERROR("failed to initialize network");
+        Kitsunemimi::ErrorContainer error;
+        error.errorMessage = "failed to initialize network";
+        LOG_ERROR(error);
         return uuid;
     }
 

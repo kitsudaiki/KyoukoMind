@@ -46,8 +46,8 @@
 /**
  * @brief CpuProcessingUnit::CpuProcessingUnit
  */
-CpuProcessingUnit::CpuProcessingUnit(int coreId)
-    : Kitsunemimi::Thread(coreId) {}
+CpuProcessingUnit::CpuProcessingUnit(const std::string &threadName)
+    : Kitsunemimi::Thread(threadName) {}
 
 /**
  * @brief CpuProcessingUnit::~CpuProcessingUnit
@@ -194,6 +194,7 @@ CpuProcessingUnit::run()
         }
     }
 }
+
 
 /**
  * @brief SingleThreadProcessingStatic::reductionLearning

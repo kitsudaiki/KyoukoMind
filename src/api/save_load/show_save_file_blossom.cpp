@@ -31,7 +31,7 @@ ShowSaveFileBlossom::ShowSaveFileBlossom()
 }
 
 bool
-ShowSaveFileBlossom::runTask(BlossomLeaf &blossomLeaf,
+ShowSaveFileBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status,
                              std::string &errorMessage)
 {
     return true;

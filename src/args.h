@@ -24,6 +24,7 @@
 #define KYOUKOMIND_ARGS_H
 
 #include <libKitsunemimiArgs/arg_parser.h>
+#include <libKitsunemimiHanamiCommon/args.h>
 
 /**
  * @brief register all available arguments for the CLI input
@@ -33,17 +34,9 @@
  * @return false, if registering argument failed, else true
  */
 bool
-registerArguments(Kitsunemimi::Args::ArgParser &argparser)
+registerArguments(Kitsunemimi::Args::ArgParser* argparser)
 {
-    std::string helpText = "";
-
-    helpText = "absolute path to config-file";
-    if(argparser.registerString("config,c", helpText) == false) {
-        return false;
-    }
-
-    helpText = "enable debug-mode";
-    if(argparser.registerPlain("debug,d", helpText) == false) {
+    if(Kitsunemimi::Hanami::registerArguments(*argparser) == false) {
         return false;
     }
 

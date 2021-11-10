@@ -1,8 +1,0 @@
-["execute_net"]
-- request = "{{}}"
-- response = "{{}}"
-
-io("ask new input")
--> ask:
-	- request = request
- 	- response >> response

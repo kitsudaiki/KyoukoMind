@@ -32,6 +32,8 @@
 #include <libKitsunemimiCommon/logger.h>
 
 #include <api/special/special_blossoms.h>
+#include <api/special/test_list_blossom.h>
+#include <api/special/test_single_blossom.h>
 
 #include <api/save_load/list_save_files_blossom.h>
 #include <api/save_load/restore_net_blossom.h>
@@ -45,7 +47,7 @@
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 void
-initIoBlossoms()
+initTokenBlossoms()
 {
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     const std::string group = "io";
@@ -59,7 +61,7 @@ initIoBlossoms()
  * @brief init save_load blossoms
  */
 void
-initSaveRestoreBlossomes()
+initUserBlossomes()
 {
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     const std::string group = "save_load";
@@ -82,14 +84,17 @@ initSpecialBlossoms()
     assert(interface->addBlossom(group, "print", new PrintBlossom()));
     assert(interface->addBlossom(group, "assert", new AssertBlossom()));
     assert(interface->addBlossom(group, "item_update", new ItemUpdateBlossom()));
+    assert(interface->addBlossom(group, "test_list_blossom", new TestList_Blossom()));
+    assert(interface->addBlossom(group, "test_single_blossom", new TestSingle_Blossom()));
+
 }
 
 void
 initBlossoms()
 {
     initSpecialBlossoms();
-    initIoBlossoms();
-    initSaveRestoreBlossomes();
+    initTokenBlossoms();
+    initUserBlossomes();
 }
 
 #endif // KYOUKOMIND_BLOSSOM_INITIALIZING_H

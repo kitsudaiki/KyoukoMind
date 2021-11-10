@@ -53,7 +53,7 @@ struct TaskProgress
 
 struct Task
 {
-    kuuid uuid;
+    Kitsunemimi::Hanami::kuuid uuid;
     float* data = nullptr;
     uint32_t* resultData = nullptr;
     uint64_t numberOfInputsPerCycle = 0;

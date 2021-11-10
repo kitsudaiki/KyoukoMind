@@ -41,11 +41,11 @@ AssertBlossom::AssertBlossom()
  * runTask
  */
 bool
-AssertBlossom::runTask(BlossomLeaf &blossomLeaf, std::string &errorMessage)
+AssertBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status, std::string &errorMessage)
 {
     std::map<std::string, Kitsunemimi::DataItem*>::iterator it;
-    for(it = blossomLeaf.input.m_map.begin();
-        it != blossomLeaf.input.m_map.end();
+    for(it = blossomLeaf.input.map.begin();
+        it != blossomLeaf.input.map.end();
         it++)
     {
         const std::string isValue = blossomLeaf.parentValues->get(it->first)->toString();
@@ -80,17 +80,17 @@ ItemUpdateBlossom::ItemUpdateBlossom()
  * runTask
  */
 bool
-ItemUpdateBlossom::runTask(BlossomLeaf &blossomLeaf, std::string &errorMessage)
+ItemUpdateBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status, std::string &errorMessage)
 {
     std::map<std::string, Kitsunemimi::DataItem*>::iterator it;
-    for(it = blossomLeaf.input.m_map.begin();
-        it != blossomLeaf.input.m_map.end();
+    for(it = blossomLeaf.input.map.begin();
+        it != blossomLeaf.input.map.end();
         it++)
     {
         std::map<std::string, Kitsunemimi::DataItem*>::iterator originalIt;
-        originalIt = blossomLeaf.parentValues->m_map.find(it->first);
+        originalIt = blossomLeaf.parentValues->map.find(it->first);
 
-        if(originalIt != blossomLeaf.parentValues->m_map.end())
+        if(originalIt != blossomLeaf.parentValues->map.end())
         {
             blossomLeaf.parentValues->insert(it->first,
                                              it->second->copy(),
@@ -114,7 +114,7 @@ PrintBlossom::PrintBlossom()
  * runTask
  */
 bool
-PrintBlossom::runTask(BlossomLeaf &blossomLeaf, std::string &errorMessage)
+PrintBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status, std::string &errorMessage)
 {
     std::string output = "";
     Kitsunemimi::TableItem tableItem;
@@ -122,8 +122,8 @@ PrintBlossom::runTask(BlossomLeaf &blossomLeaf, std::string &errorMessage)
     tableItem.addColumn("value", "Value");
 
     std::map<std::string, Kitsunemimi::DataItem*>::iterator it;
-    for(it = blossomLeaf.input.m_map.begin();
-        it != blossomLeaf.input.m_map.end();
+    for(it = blossomLeaf.input.map.begin();
+        it != blossomLeaf.input.map.end();
         it++)
     {
         tableItem.addRow(std::vector<std::string>{it->first, it->second->toString(true)});

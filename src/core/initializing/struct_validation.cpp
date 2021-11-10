@@ -43,7 +43,7 @@ validateStructSizes()
     assert(sizeof(ClusterMetaData) == 2048);
     assert(sizeof(ClusterSettings) == 256);
     assert(sizeof(SegmentSettings) == 256);
-    assert(sizeof(kuuid) == 40);
+    assert(sizeof(Kitsunemimi::Hanami::kuuid) == 40);
 
     return;
 }

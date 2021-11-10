@@ -4,6 +4,11 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++17
 
+LIBS += -L../libKitsunemimiHanamiCommon/src -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
+INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
+
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
@@ -64,7 +69,12 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -lssl -lcrypt -lOpenCL -luuid -lcrypto -lcryptopp
+LIBS += -L../libKitsunemimiHanamiEndpoints/src -lKitsunemimiHanamiEndpoints
+LIBS += -L../libKitsunemimiHanamiEndpoints/src/debug -lKitsunemimiHanamiEndpoints
+LIBS += -L../libKitsunemimiHanamiEndpoints/src/release -lKitsunemimiHanamiEndpoints
+INCLUDEPATH += ../libKitsunemimiHanamiEndpoints/include
+
+LIBS += -lssl -lOpenCL -luuid -lcrypto++
 
 INCLUDEPATH += $$PWD \
                src
@@ -80,6 +90,8 @@ HEADERS += \
     src/api/save_load/save_net_blossom.h \
     src/api/save_load/show_save_file_blossom.h \
     src/api/special/special_blossoms.h \
+    src/api/special/test_list_blossom.h \
+    src/api/special/test_single_blossom.h \
     src/args.h \
     src/common.h \
     src/common/defines.h \
@@ -130,6 +142,8 @@ SOURCES += \
     src/api/save_load/save_net_blossom.cpp \
     src/api/save_load/show_save_file_blossom.cpp \
     src/api/special/special_blossoms.cpp \
+    src/api/special/test_list_blossom.cpp \
+    src/api/special/test_single_blossom.cpp \
     src/core/initializing/preprocess_cluster_json.cpp \
     src/core/initializing/struct_validation.cpp \
     src/core/orchestration/cluster_handler.cpp \

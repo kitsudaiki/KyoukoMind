@@ -42,7 +42,6 @@ public:
     static SegmentQueue* m_segmentQueue;
     static ProcessingUnitHandler* m_processingUnitHandler;
 
-    bool start();
     bool initializeSakuraFiles();
     const std::string initCluster(const std::string &filePath);
 

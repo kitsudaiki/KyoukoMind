@@ -32,7 +32,9 @@ public:
     ListSaveFilesBlossom();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
+                 uint64_t &status,
+                 std::string &errorMessage);
 };
 
 #endif // KYOUKOMIND_LIST_SAVE_FILES_BLOSSOM_H

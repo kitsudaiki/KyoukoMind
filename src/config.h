@@ -24,6 +24,7 @@
 #define KYOUKOMIND_CONFIG_H
 
 #include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiHanamiCommon/config.h>
 
 /**
  * @brief define all available entries in the config file with default-values
@@ -31,6 +32,8 @@
 void
 registerConfigs()
 {
+    Kitsunemimi::Hanami::registerBasicConfigs();
+
     REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", "/etc/KyoukoMind/sakura-files");
 
     //                     group      entry               default

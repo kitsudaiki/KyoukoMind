@@ -33,8 +33,8 @@ using namespace Kitsunemimi::Sakura;
 InitBlossom::InitBlossom()
     : Blossom()
 {
-    registerField("content", INPUT_TYPE, true);
-    registerField("cluster_uuid", OUTPUT_TYPE, true);
+    registerInputField("content", true);
+    registerOutputField("cluster_uuid", true);
 }
 
 /**
@@ -45,6 +45,7 @@ InitBlossom::InitBlossom()
  */
 bool
 InitBlossom::runTask(BlossomLeaf &blossomLeaf,
+                     uint64_t &status,
                      std::string &errorMessage)
 {
     const std::string content = blossomLeaf.input.getStringByKey("content");

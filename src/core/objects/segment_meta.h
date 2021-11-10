@@ -71,7 +71,7 @@ struct SegmentHeader
     uint64_t staticDataSize = 0;
     Position position;
 
-    kuuid parentClusterId;
+    Kitsunemimi::Hanami::kuuid parentClusterId;
 
     // synapse-segment
     SegmentHeaderEntry settings;
