@@ -21,13 +21,7 @@
  */
 
 #include <common/includes.h>
-
-// const predefined values
-#define UNINIT_STATE_64 0xFFFFFFFFFFFFFFFF
-#define UNINIT_STATE_32 0xFFFFFFFF
-#define UNINIT_STATE_24 0xFFFFFF
-#define UNINIT_STATE_16 0xFFFF
-#define UNINIT_STATE_8 0xFF
+#include <libKitsunemimiHanamiCommon/defines.h>
 
 #define UNINTI_POINT_32 0x0FFFFFFF
 

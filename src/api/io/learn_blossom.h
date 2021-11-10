@@ -32,7 +32,9 @@ public:
     LearnBlossom();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf, std::string &errorMessage);
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
+                 uint64_t &status,
+                 std::string &errorMessage);
 };
 
 #endif // KYOUKOMIND_LEARN_BLOSSOM_H

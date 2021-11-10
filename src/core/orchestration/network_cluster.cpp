@@ -120,7 +120,7 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent,
 
     // network-meta
     ClusterMetaData newMetaData;
-    newMetaData.uuid = generateUuid();
+    newMetaData.uuid = Kitsunemimi::Hanami::generateUuid();
 
     ClusterSettings newSettings;
     newSettings.cycleTime = paredSettings.get("cycle_time").getLong();

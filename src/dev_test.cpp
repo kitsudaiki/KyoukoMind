@@ -51,7 +51,7 @@ learnTestData(const std::string &mnistRootPath,
 {
     ClusterInterface* clusterInterface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
 
-    CpuProcessingUnit cpuProcessingUnit;
+    CpuProcessingUnit cpuProcessingUnit("dev_test");
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     bool success = false;
@@ -77,8 +77,8 @@ learnTestData(const std::string &mnistRootPath,
     Kitsunemimi::DataBuffer trainLabelBuffer;
     trainLabel.readCompleteFile(trainLabelBuffer);
 
-    std::cout<<trainDataBuffer.bufferPosition<<std::endl;
-    std::cout<<trainLabelBuffer.bufferPosition<<std::endl;
+    std::cout<<trainDataBuffer.usedBufferSize<<std::endl;
+    std::cout<<trainLabelBuffer.usedBufferSize<<std::endl;
 
     uint8_t* dataBufferPtr = static_cast<uint8_t*>(trainDataBuffer.data);
     uint8_t* labelBufferPtr = static_cast<uint8_t*>(trainLabelBuffer.data);
@@ -115,7 +115,7 @@ learnTestData(const std::string &mnistRootPath,
     const uint32_t numberOfIteractions = GET_INT_CONFIG("DevMode", "learn_iterations", success);
     const uint32_t numberOfLearningPictures = GET_INT_CONFIG("DevMode", "learn_images", success);
 
-    for(uint32_t iter = 0; iter < 1; iter++)
+    for(uint32_t iter = 0; iter < numberOfIteractions; iter++)
     {
         for(uint32_t poi = 0; poi < 1; poi++)
         {
@@ -146,25 +146,25 @@ learnTestData(const std::string &mnistRootPath,
 
             // create task
             const std::string taskUuid = clusterInterface->addLearnTask(taskData,
-                                                               pictureSize,
-                                                               10,
-                                                               numberOfLearningPictures);
+                                                                        pictureSize,
+                                                                        10,
+                                                                        numberOfLearningPictures);
             clusterInterface->m_segmentCounter = clusterInterface->getNumberOfSegments();
             clusterInterface->updateClusterState();
 
             // wait until task is finished
             start = std::chrono::system_clock::now();
-            Kitsunemimi::ProgressBar* progressBar = new Kitsunemimi::ProgressBar();
+            Kitsunemimi::ProgressBar progressBar;
             while(clusterInterface->isFinish(taskUuid) == false)
             {
                 const TaskProgress progress = clusterInterface->getProgress(taskUuid);
-                progressBar->updateProgress(progress.percentageFinished);
+                progressBar.updateProgress(progress.percentageFinished);
                 usleep(100000);
             }
-            progressBar->updateProgress(1.0f);
+            progressBar.updateProgress(1.0f);
             end = std::chrono::system_clock::now();
             const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
-            delete progressBar;
+
             std::cout<<"run learn: "<<time<<"s"<<std::endl;
         }
     }
@@ -208,32 +208,29 @@ learnTestData(const std::string &mnistRootPath,
 
     // create task
     const std::string taskUuid = clusterInterface->addRequestTask(taskData,
-                                                         pictureSize,
-                                                         total);
+                                                                  pictureSize,
+                                                                  total);
     clusterInterface->m_segmentCounter = clusterInterface->getNumberOfSegments();
     clusterInterface->updateClusterState();
     // wait until task is finished
     start = std::chrono::system_clock::now();
-    Kitsunemimi::ProgressBar* progressBar = new Kitsunemimi::ProgressBar();
+    Kitsunemimi::ProgressBar progressBar;
     while(clusterInterface->isFinish(taskUuid) == false)
     {
         const TaskProgress progress = clusterInterface->getProgress(taskUuid);
-        progressBar->updateProgress(progress.percentageFinished);
+        progressBar.updateProgress(progress.percentageFinished);
         usleep(100000);
     }
-    progressBar->updateProgress(1.0f);
+    progressBar.updateProgress(1.0f);
     end = std::chrono::system_clock::now();
     const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
-    delete progressBar;
     std::cout<<"run request: "<<time<<"s"<<std::endl;
-
 
     const uint32_t* resultData = clusterInterface->getResultData(taskUuid);
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
-        uint32_t label = testLabelBufferPtr[pic + 8];
-
+        const uint32_t label = testLabelBufferPtr[pic + 8];
         if(resultData[pic] == label) {
             match++;
         }

@@ -32,7 +32,7 @@ struct ClusterMetaData
     uint8_t padding1[6];
     uint64_t clusterSize = 0;
 
-    kuuid uuid;
+    Kitsunemimi::Hanami::kuuid uuid;
     char name[1024];
 
     uint32_t numberOfInputSegments = 0;

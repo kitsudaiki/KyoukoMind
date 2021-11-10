@@ -33,42 +33,18 @@
 #include <libKitsunemimiArgs/arg_parser.h>
 #include <libKitsunemimiCommon/logger.h>
 
-#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
+#include <libKitsunemimiHanamiCommon/generic_main.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
-using Kitsunemimi::Hanami::MessagingController;
+using Kitsunemimi::Hanami::HanamiMessaging;
+using Kitsunemimi::Hanami::initMain;
 
 int
 main(int argc, char *argv[])
 {
-    Kitsunemimi::initConsoleLogger(true);
-
-    // create and init argument-parser
-    Kitsunemimi::Args::ArgParser argParser;
-    registerArguments(argParser);
-
-    // parse cli-input
-    if(argParser.parse(argc, argv) == false) {
+    if(initMain(argc, argv, "KyoukoMind", &registerArguments, &registerConfigs) == false) {
         return 1;
     }
-
-    // init logging
-    const bool enableDebug = argParser.wasSet("debug");
-    Kitsunemimi::initConsoleLogger(enableDebug);
-    Kitsunemimi::initFileLogger("/var/log/", "KyoukoMind", enableDebug);
-
-    // init config by using the file defined over the CLI-input or the default config file
-    std::string configFile = "/etc/KyoukoMind/KyoukoMind.conf";
-    if(argParser.wasSet("config")) {
-        configFile = argParser.getStringValue("config");
-    }
-    if(Kitsunemimi::Config::initConfig(configFile) == false) {
-        return 1;
-    }
-    registerConfigs();
-
-    // create core
-    KyoukoRoot* rootObject = new KyoukoRoot();
-    rootObject->start();
 
     bool success = false;
     const bool devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
@@ -77,7 +53,7 @@ main(int argc, char *argv[])
         // run the dev-test based on the MNIST test files, if defined by the config
         const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
         const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
-        const std::string uuid = rootObject->initCluster(initialFile);
+        const std::string uuid = KyoukoRoot::m_root->initCluster(initialFile);
 
         const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
         learnTestData(mnistTestPath, uuid);
@@ -86,18 +62,14 @@ main(int argc, char *argv[])
     {
         // init blossoms
         initBlossoms();
-        if(rootObject->initializeSakuraFiles() == false) {
+        if(KyoukoRoot::m_root->initializeSakuraFiles() == false) {
             return 1;
         }
 
         // initialize server and connections based on the config-file
-        std::vector<std::string> groupNames = {};
-        const bool sakuraMessageInit = MessagingController::initializeMessagingController(
-                    "KyoukoMind",
-                    groupNames,
-                    &sessionCreateCallback,
-                    &sessionCloseCallback);
-        if(sakuraMessageInit == false)
+        const std::vector<std::string> groupNames = {};
+        const bool ret = HanamiMessaging::getInstance()->initialize("Kyouko", groupNames, true);
+        if(ret == false)
         {
             return 1;
         }

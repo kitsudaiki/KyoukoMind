@@ -35,7 +35,7 @@ class CpuProcessingUnit
         : public Kitsunemimi::Thread
 {
 public:
-    CpuProcessingUnit(int coreId = -1);
+    CpuProcessingUnit(const std::string &threadName);
     ~CpuProcessingUnit();
 
 protected:

@@ -39,7 +39,7 @@ TaskQueue::addLearnTask(float* data,
                         const uint64_t numberOfCycle)
 {
     Task newTask;
-    newTask.uuid = generateUuid();
+    newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.data = data;
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
@@ -70,7 +70,7 @@ TaskQueue::addRequestTask(float* inputData,
                           const uint64_t numberOfCycle)
 {
     Task newTask;
-    newTask.uuid = generateUuid();
+    newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.data = inputData;
     newTask.resultData = new uint32_t[numberOfCycle];
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;

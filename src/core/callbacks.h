@@ -25,8 +25,7 @@
 
 #include <kyouko_root.h>
 
-#include <libKitsunemimiHanamiMessaging/messaging_controller.h>
-#include <libKitsunemimiHanamiMessaging/messaging_client.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
 #include <libKitsunemimiCommon/logger.h>
 
@@ -52,24 +51,6 @@ void
 monitoringDataCallback(Kitsunemimi::Sakura::Session*,
                        const void*,
                        const uint64_t)
-{
-}
-
-/**
- * @brief sessionCallback
- * @param target
- * @param isInit
- * @param session
- * @param identifier
- */
-void
-sessionCreateCallback(Kitsunemimi::Hanami::MessagingClient* session,
-                      const std::string identifier)
-{
-}
-
-void
-sessionCloseCallback(const std::string identifier)
 {
 }
 

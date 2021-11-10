@@ -31,7 +31,7 @@ LoadNetBlossom::LoadNetBlossom()
 }
 
 bool
-LoadNetBlossom::runTask(BlossomLeaf &blossomLeaf,
+LoadNetBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status,
                               std::string &errorMessage)
 {
     return true;

@@ -33,12 +33,13 @@ using namespace Kitsunemimi::Sakura;
 LearnBlossom::LearnBlossom()
     : Blossom()
 {
-    registerField("cluster_uuid", INPUT_TYPE, true);
-    registerField("inputs", INPUT_TYPE, true);
-    registerField("number_of_inputs_per_cycle", INPUT_TYPE, true);
-    registerField("number_of_outputs_per_cycle", INPUT_TYPE, true);
-    registerField("number_of_cycles", INPUT_TYPE, true);
-    registerField("task_uuid", OUTPUT_TYPE, true);
+    registerInputField("cluster_uuid", true);
+    registerInputField("inputs", true);
+    registerInputField("number_of_inputs_per_cycle", true);
+    registerInputField("number_of_outputs_per_cycle", true);
+    registerInputField("number_of_cycles", true);
+
+    registerOutputField("task_uuid", true);
 }
 
 /**
@@ -49,6 +50,7 @@ LearnBlossom::LearnBlossom()
  */
 bool
 LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
+                      uint64_t &status,
                       std::string &errorMessage)
 {
     // get id
