@@ -31,7 +31,8 @@ SaveNetBlossom::SaveNetBlossom()
 }
 
 bool
-SaveNetBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status,
+SaveNetBlossom::runTask(BlossomLeaf &blossomLeaf,
+                        BlossomStatus &status,
                         std::string &errorMessage)
 {
     return true;

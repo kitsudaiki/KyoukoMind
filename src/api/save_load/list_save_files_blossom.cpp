@@ -31,7 +31,8 @@ ListSaveFilesBlossom::ListSaveFilesBlossom()
 }
 
 bool
-ListSaveFilesBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status,
+ListSaveFilesBlossom::runTask(BlossomLeaf &blossomLeaf,
+                              BlossomStatus &status,
                               std::string &errorMessage)
 {
     return true;

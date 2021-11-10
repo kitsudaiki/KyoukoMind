@@ -50,7 +50,7 @@ LearnBlossom::LearnBlossom()
  */
 bool
 LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
-                      uint64_t &status,
+                      BlossomStatus &status,
                       std::string &errorMessage)
 {
     // get id

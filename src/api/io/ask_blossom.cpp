@@ -49,7 +49,7 @@ AskBlossom::AskBlossom()
  */
 bool
 AskBlossom::runTask(BlossomLeaf &blossomLeaf,
-                    uint64_t &status,
+                    BlossomStatus &status,
                     std::string &errorMessage)
 {
     // get id

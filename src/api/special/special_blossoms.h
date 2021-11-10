@@ -37,7 +37,7 @@ public:
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 uint64_t &status,
+                 Kitsunemimi::Sakura::BlossomStatus &status,
                  std::string &errorMessage);
 };
 
@@ -53,7 +53,7 @@ public:
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 uint64_t &status,
+                 Kitsunemimi::Sakura::BlossomStatus &status,
                  std::string &errorMessage);
 };
 
@@ -69,7 +69,7 @@ public:
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 uint64_t &status,
+                 Kitsunemimi::Sakura::BlossomStatus &status,
                  std::string &errorMessage);
 };
 

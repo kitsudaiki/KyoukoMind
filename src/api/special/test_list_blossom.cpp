@@ -13,7 +13,8 @@ TestList_Blossom::TestList_Blossom()
 }
 
 bool
-TestList_Blossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status,
+TestList_Blossom::runTask(BlossomLeaf &blossomLeaf,
+                          BlossomStatus &status,
                           std::string &)
 {
     const std::string input = blossomLeaf.input.getStringByKey("test_input");

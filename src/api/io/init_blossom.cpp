@@ -45,7 +45,7 @@ InitBlossom::InitBlossom()
  */
 bool
 InitBlossom::runTask(BlossomLeaf &blossomLeaf,
-                     uint64_t &status,
+                     BlossomStatus &status,
                      std::string &errorMessage)
 {
     const std::string content = blossomLeaf.input.getStringByKey("content");

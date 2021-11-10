@@ -41,7 +41,9 @@ AssertBlossom::AssertBlossom()
  * runTask
  */
 bool
-AssertBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status, std::string &errorMessage)
+AssertBlossom::runTask(BlossomLeaf &blossomLeaf,
+                       BlossomStatus &status,
+                       std::string &errorMessage)
 {
     std::map<std::string, Kitsunemimi::DataItem*>::iterator it;
     for(it = blossomLeaf.input.map.begin();
@@ -80,7 +82,9 @@ ItemUpdateBlossom::ItemUpdateBlossom()
  * runTask
  */
 bool
-ItemUpdateBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status, std::string &errorMessage)
+ItemUpdateBlossom::runTask(BlossomLeaf &blossomLeaf,
+                           BlossomStatus &status,
+                           std::string &errorMessage)
 {
     std::map<std::string, Kitsunemimi::DataItem*>::iterator it;
     for(it = blossomLeaf.input.map.begin();
@@ -114,7 +118,9 @@ PrintBlossom::PrintBlossom()
  * runTask
  */
 bool
-PrintBlossom::runTask(BlossomLeaf &blossomLeaf, uint64_t &status, std::string &errorMessage)
+PrintBlossom::runTask(BlossomLeaf &blossomLeaf,
+                      BlossomStatus &status,
+                      std::string &errorMessage)
 {
     std::string output = "";
     Kitsunemimi::TableItem tableItem;

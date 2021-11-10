@@ -14,7 +14,7 @@ TestSingle_Blossom::TestSingle_Blossom()
 
 bool
 TestSingle_Blossom::runTask(BlossomLeaf &blossomLeaf,
-                            uint64_t &status,
+                            BlossomStatus &status,
                             std::string &)
 {
     const std::string input = blossomLeaf.input.getStringByKey("test_input");
