@@ -15,7 +15,7 @@ TestSingle_Blossom::TestSingle_Blossom()
 bool
 TestSingle_Blossom::runTask(BlossomLeaf &blossomLeaf,
                             BlossomStatus &status,
-                            std::string &)
+                            Kitsunemimi::ErrorContainer &error)
 {
     const std::string input = blossomLeaf.input.getStringByKey("test_input");
     const std::string output = input + "_output";

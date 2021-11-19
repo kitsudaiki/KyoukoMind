@@ -83,14 +83,14 @@ echo ""
 echo "###########################################################################################################"
 echo ""
 get_required_kitsune_lib_repo "libKitsunemimiCommon" "master" 8
-get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.10.8" 1
-get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.8.3" 1
-get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.4.9" 1
-get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.7.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.3.1" 8
-get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.3.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiOpencl" "v0.3.2" 8
-get_required_kitsune_lib_repo "libKitsunemimiObj" "v0.1.3" 8
+get_required_kitsune_lib_repo "libKitsunemimiJson" "master" 1
+get_required_kitsune_lib_repo "libKitsunemimiJinja2" "master" 1
+get_required_kitsune_lib_repo "libKitsunemimiIni" "master" 1
+get_required_kitsune_lib_repo "libKitsunemimiNetwork" "master" 8
+get_required_kitsune_lib_repo "libKitsunemimiArgs" "master" 8
+get_required_kitsune_lib_repo "libKitsunemimiConfig" "master" 8
+get_required_kitsune_lib_repo "libKitsunemimiOpencl" "master" 8
+get_required_kitsune_lib_repo "libKitsunemimiObj" "master" 8
 echo ""
 echo "###########################################################################################################"
 echo ""

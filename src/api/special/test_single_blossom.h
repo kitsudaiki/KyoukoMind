@@ -12,7 +12,7 @@ public:
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  Kitsunemimi::Sakura::BlossomStatus &status,
-                 std::string &);
+                 Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // TEST_LIST_BLOSSOM_H

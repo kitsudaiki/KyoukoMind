@@ -46,13 +46,13 @@ InitBlossom::InitBlossom()
 bool
 InitBlossom::runTask(BlossomLeaf &blossomLeaf,
                      BlossomStatus &status,
-                     std::string &errorMessage)
+                     Kitsunemimi::ErrorContainer &error)
 {
     const std::string content = blossomLeaf.input.getStringByKey("content");
 
     // parse input
     Kitsunemimi::Json::JsonItem parsedContent;
-    const bool ret = parsedContent.parse(content, errorMessage);
+    const bool ret = parsedContent.parse(content, error);
     if(ret == false) {
         return false;
     }

@@ -33,7 +33,7 @@ ShowSaveFileBlossom::ShowSaveFileBlossom()
 bool
 ShowSaveFileBlossom::runTask(BlossomLeaf &blossomLeaf,
                              BlossomStatus &status,
-                             std::string &errorMessage)
+                             Kitsunemimi::ErrorContainer &error)
 {
     return true;
 }

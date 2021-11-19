@@ -38,7 +38,7 @@ public:
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  Kitsunemimi::Sakura::BlossomStatus &status,
-                 std::string &errorMessage);
+                 Kitsunemimi::ErrorContainer &error);
 };
 
 //==================================================================================================
@@ -54,7 +54,7 @@ public:
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  Kitsunemimi::Sakura::BlossomStatus &status,
-                 std::string &errorMessage);
+                 Kitsunemimi::ErrorContainer &error);
 };
 
 //==================================================================================================
@@ -70,7 +70,7 @@ public:
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  Kitsunemimi::Sakura::BlossomStatus &status,
-                 std::string &errorMessage);
+                 Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // KYOUKOMIND_SPECIAL_BLOSSOMS_H

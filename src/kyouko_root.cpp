@@ -83,7 +83,7 @@ KyoukoRoot::~KyoukoRoot() {}
  * @return
  */
 bool
-KyoukoRoot::initializeSakuraFiles()
+KyoukoRoot::initializeSakuraFiles(Kitsunemimi::ErrorContainer &error)
 {
     bool success = false;
     const std::string sakuraDir = GET_STRING_CONFIG("DEFAULT", "sakura-file-locaion", success);
@@ -91,7 +91,6 @@ KyoukoRoot::initializeSakuraFiles()
         return false;
     }
 
-    Kitsunemimi::ErrorContainer error;
     success = SakuraLangInterface::getInstance()->readFilesInDir(sakuraDir, error);
     if(success == false)
     {
@@ -108,7 +107,8 @@ KyoukoRoot::initializeSakuraFiles()
  * @return
  */
 const std::string
-KyoukoRoot::initCluster(const std::string &filePath)
+KyoukoRoot::initCluster(const std::string &filePath,
+                        Kitsunemimi::ErrorContainer &error)
 {
     LOG_INFO("no files found. Try to create a new cluster");
 
@@ -116,10 +116,8 @@ KyoukoRoot::initCluster(const std::string &filePath)
 
     std::string fileContent = "";
     std::string errorMessage = "";
-    if(Kitsunemimi::readFile(fileContent, filePath, errorMessage) == false)
+    if(Kitsunemimi::readFile(fileContent, filePath, error) == false)
     {
-        Kitsunemimi::ErrorContainer error;
-        error.errorMessage = errorMessage;
         LOG_ERROR(error);
         return std::string("");
     }
@@ -131,11 +129,9 @@ KyoukoRoot::initCluster(const std::string &filePath)
 
     // parse input
     JsonItem parsedContent;
-    const bool ret = parsedContent.parse(fileContent, errorMessage);
+    const bool ret = parsedContent.parse(fileContent, error);
     if(ret == false)
     {
-        Kitsunemimi::ErrorContainer error;
-        error.errorMessage = "error while parsing input: " + errorMessage;
         LOG_ERROR(error);
         return std::string("");
     }
@@ -145,8 +141,6 @@ KyoukoRoot::initCluster(const std::string &filePath)
     if(uuid == "")
     {
         delete newCluster;
-        Kitsunemimi::ErrorContainer error;
-        error.errorMessage = "failed to initialize network";
         LOG_ERROR(error);
         return uuid;
     }

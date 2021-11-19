@@ -42,7 +42,9 @@ using Kitsunemimi::Hanami::initMain;
 int
 main(int argc, char *argv[])
 {
-    if(initMain(argc, argv, "KyoukoMind", &registerArguments, &registerConfigs) == false) {
+    Kitsunemimi::ErrorContainer error;
+
+    if(initMain(argc, argv, "KyoukoMind", &registerArguments, &registerConfigs, error) == false) {
         return 1;
     }
 
@@ -53,7 +55,7 @@ main(int argc, char *argv[])
         // run the dev-test based on the MNIST test files, if defined by the config
         const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
         const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
-        const std::string uuid = KyoukoRoot::m_root->initCluster(initialFile);
+        const std::string uuid = KyoukoRoot::m_root->initCluster(initialFile, error);
 
         const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
         learnTestData(mnistTestPath, uuid);
@@ -62,15 +64,17 @@ main(int argc, char *argv[])
     {
         // init blossoms
         initBlossoms();
-        if(KyoukoRoot::m_root->initializeSakuraFiles() == false) {
+        if(KyoukoRoot::m_root->initializeSakuraFiles(error) == false)
+        {
+            LOG_ERROR(error);
             return 1;
         }
 
         // initialize server and connections based on the config-file
         const std::vector<std::string> groupNames = {};
-        const bool ret = HanamiMessaging::getInstance()->initialize("Kyouko", groupNames, true);
-        if(ret == false)
+        if(HanamiMessaging::getInstance()->initialize("Kyouko", groupNames, error, true) == false)
         {
+            LOG_ERROR(error);
             return 1;
         }
     }

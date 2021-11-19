@@ -42,8 +42,9 @@ public:
     static SegmentQueue* m_segmentQueue;
     static ProcessingUnitHandler* m_processingUnitHandler;
 
-    bool initializeSakuraFiles();
-    const std::string initCluster(const std::string &filePath);
+    bool initializeSakuraFiles(Kitsunemimi::ErrorContainer &error);
+    const std::string initCluster(const std::string &filePath,
+                                  Kitsunemimi::ErrorContainer &error);
 
 private:
     uint32_t m_serverId = 0;

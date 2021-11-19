@@ -37,8 +37,8 @@ public:
 
     bool initializeGpu(NetworkCluster *cluster);
 
-    bool learn();
-    bool execute();
+    bool learn(Kitsunemimi::ErrorContainer &error);
+    bool execute(Kitsunemimi::ErrorContainer &error);
 
 private:
     Kitsunemimi::Opencl::GpuHandler* m_gpuHandler = nullptr;

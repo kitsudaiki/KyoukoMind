@@ -51,14 +51,14 @@ LearnBlossom::LearnBlossom()
 bool
 LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
                       BlossomStatus &status,
-                      std::string &errorMessage)
+                      Kitsunemimi::ErrorContainer &error)
 {
     // get id
     const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
     ClusterInterface* interface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
     if(interface == nullptr)
     {
-        errorMessage = "interface with uuid not found: " + uuid;
+        error.addMeesage("interface with uuid not found: " + uuid);
         return false;
     }
 
@@ -73,7 +73,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     const bool ret = Kitsunemimi::Crypto::decodeBase64(resultBuffer, inputs);
     if(ret == false)
     {
-        errorMessage = "base64-decoding of the input failes";
+        error.addMeesage("base64-decoding of the input failes");
         return false;
     }
 

@@ -43,7 +43,7 @@ AssertBlossom::AssertBlossom()
 bool
 AssertBlossom::runTask(BlossomLeaf &blossomLeaf,
                        BlossomStatus &status,
-                       std::string &errorMessage)
+                       Kitsunemimi::ErrorContainer &error)
 {
     std::map<std::string, Kitsunemimi::DataItem*>::iterator it;
     for(it = blossomLeaf.input.map.begin();
@@ -55,13 +55,13 @@ AssertBlossom::runTask(BlossomLeaf &blossomLeaf,
 
         if(isValue != shouldValue)
         {
-            errorMessage = "the variable \""
-                           + it->first
-                           + "\" has the value \""
-                           + isValue
-                           + "\", but it should have the value \""
-                           + shouldValue
-                           + "\"";
+            error.addMeesage("the variable \""
+                             + it->first
+                             + "\" has the value \""
+                             + isValue
+                             + "\", but it should have the value \""
+                             + shouldValue
+                             + "\"");
             return false;
         }
     }
@@ -84,7 +84,7 @@ ItemUpdateBlossom::ItemUpdateBlossom()
 bool
 ItemUpdateBlossom::runTask(BlossomLeaf &blossomLeaf,
                            BlossomStatus &status,
-                           std::string &errorMessage)
+                           Kitsunemimi::ErrorContainer &error)
 {
     std::map<std::string, Kitsunemimi::DataItem*>::iterator it;
     for(it = blossomLeaf.input.map.begin();
@@ -120,7 +120,7 @@ PrintBlossom::PrintBlossom()
 bool
 PrintBlossom::runTask(BlossomLeaf &blossomLeaf,
                       BlossomStatus &status,
-                      std::string &errorMessage)
+                      Kitsunemimi::ErrorContainer &error)
 {
     std::string output = "";
     Kitsunemimi::TableItem tableItem;

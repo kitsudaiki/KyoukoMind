@@ -135,23 +135,23 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 }
 
 bool
-GpuProcessingUnit::learn()
+GpuProcessingUnit::learn(Kitsunemimi::ErrorContainer &error)
 {
     std::cout<<"learn"<<std::endl;
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
-    assert(m_gpuInterface->run(oclData, "learn"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs", error));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs", error));
+    assert(m_gpuInterface->run(oclData, "learn", error));
 
     return true;
 }
 
 bool
-GpuProcessingUnit::execute()
+GpuProcessingUnit::execute(Kitsunemimi::ErrorContainer &error)
 {
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs"));
-    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs"));
-    assert(m_gpuInterface->run(oclData, "execute"));
-    assert(m_gpuInterface->copyFromDevice(oclData, "outputs"));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs", error));
+    assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs", error));
+    assert(m_gpuInterface->run(oclData, "execute", error));
+    assert(m_gpuInterface->copyFromDevice(oclData, "outputs", error));
 
     return true;
 }

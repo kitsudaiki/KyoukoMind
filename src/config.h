@@ -30,19 +30,19 @@
  * @brief define all available entries in the config file with default-values
  */
 void
-registerConfigs()
+registerConfigs(Kitsunemimi::ErrorContainer &error)
 {
-    Kitsunemimi::Hanami::registerBasicConfigs();
+    Kitsunemimi::Hanami::registerBasicConfigs(error);
 
-    REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", "/etc/KyoukoMind/sakura-files");
+    REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", error, "/etc/KyoukoMind/sakura-files");
 
-    //                     group      entry               default
-    REGISTER_BOOL_CONFIG(  "DevMode", "enable",           false);
-    REGISTER_STRING_CONFIG("DevMode", "file",             "");
-    REGISTER_STRING_CONFIG("DevMode", "config",           "");
-    REGISTER_STRING_CONFIG("DevMode", "mnist_path",       "");
-    REGISTER_INT_CONFIG(   "DevMode", "learn_images",     100);
-    REGISTER_INT_CONFIG(   "DevMode", "learn_iterations", 1);
+    //                     group      entry                      default
+    REGISTER_BOOL_CONFIG(  "DevMode", "enable",           error, false);
+    REGISTER_STRING_CONFIG("DevMode", "file",             error, "");
+    REGISTER_STRING_CONFIG("DevMode", "config",           error, "");
+    REGISTER_STRING_CONFIG("DevMode", "mnist_path",       error, "");
+    REGISTER_INT_CONFIG(   "DevMode", "learn_images",     error, 100);
+    REGISTER_INT_CONFIG(   "DevMode", "learn_iterations", error, 1);
 }
 
 #endif // KYOUKOMIND_CONFIG_H
