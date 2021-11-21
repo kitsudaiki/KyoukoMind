@@ -93,6 +93,7 @@ HEADERS += \
     src/api/special/test_list_blossom.h \
     src/api/special/test_single_blossom.h \
     src/args.h \
+    src/callbacks.h \
     src/common.h \
     src/common/defines.h \
     src/common/enums.h \

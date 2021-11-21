@@ -27,6 +27,7 @@
 #include <config.h>
 #include <core/callbacks.h>
 #include <dev_test.h>
+#include <callbacks.h>
 
 #include <api/blossom_initializing.h>
 
@@ -72,7 +73,12 @@ main(int argc, char *argv[])
 
         // initialize server and connections based on the config-file
         const std::vector<std::string> groupNames = {};
-        if(HanamiMessaging::getInstance()->initialize("Kyouko", groupNames, error, true) == false)
+        if(HanamiMessaging::getInstance()->initialize("Kyouko",
+                                                      groupNames,
+                                                      nullptr,
+                                                      streamDataCallback,
+                                                      error,
+                                                      true) == false)
         {
             LOG_ERROR(error);
             return 1;
