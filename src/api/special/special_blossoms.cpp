@@ -42,6 +42,7 @@ AssertBlossom::AssertBlossom()
  */
 bool
 AssertBlossom::runTask(BlossomLeaf &blossomLeaf,
+                       const Kitsunemimi::DataMap &,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
@@ -83,6 +84,7 @@ ItemUpdateBlossom::ItemUpdateBlossom()
  */
 bool
 ItemUpdateBlossom::runTask(BlossomLeaf &blossomLeaf,
+                           const Kitsunemimi::DataMap &,
                            BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
 {
@@ -119,6 +121,7 @@ PrintBlossom::PrintBlossom()
  */
 bool
 PrintBlossom::runTask(BlossomLeaf &blossomLeaf,
+                      const Kitsunemimi::DataMap &,
                       BlossomStatus &status,
                       Kitsunemimi::ErrorContainer &error)
 {

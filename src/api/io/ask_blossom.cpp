@@ -38,7 +38,7 @@ AskBlossom::AskBlossom()
     registerInputField("number_of_inputs_per_cycle", true);
     registerInputField("number_of_cycles", true);
 
-    registerOutputField("task_uuid", true);
+    registerOutputField("task_uuid");
 }
 
 /**
@@ -49,6 +49,7 @@ AskBlossom::AskBlossom()
  */
 bool
 AskBlossom::runTask(BlossomLeaf &blossomLeaf,
+                    const Kitsunemimi::DataMap &,
                     BlossomStatus &status,
                     Kitsunemimi::ErrorContainer &error)
 {

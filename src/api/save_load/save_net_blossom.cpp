@@ -32,6 +32,7 @@ SaveNetBlossom::SaveNetBlossom()
 
 bool
 SaveNetBlossom::runTask(BlossomLeaf &blossomLeaf,
+                        const Kitsunemimi::DataMap &,
                         BlossomStatus &status,
                         Kitsunemimi::ErrorContainer &error)
 {

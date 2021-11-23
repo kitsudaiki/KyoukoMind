@@ -34,7 +34,8 @@ InitBlossom::InitBlossom()
     : Blossom()
 {
     registerInputField("content", true);
-    registerOutputField("cluster_uuid", true);
+
+    registerOutputField("cluster_uuid");
 }
 
 /**
@@ -45,6 +46,7 @@ InitBlossom::InitBlossom()
  */
 bool
 InitBlossom::runTask(BlossomLeaf &blossomLeaf,
+                     const Kitsunemimi::DataMap &,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {

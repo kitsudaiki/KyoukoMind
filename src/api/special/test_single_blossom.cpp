@@ -9,11 +9,12 @@ TestSingle_Blossom::TestSingle_Blossom()
     : Blossom()
 {
     registerInputField("test_input", true);
-    registerOutputField("test_output", true);
+    registerOutputField("test_output");
 }
 
 bool
 TestSingle_Blossom::runTask(BlossomLeaf &blossomLeaf,
+                            const Kitsunemimi::DataMap &,
                             BlossomStatus &status,
                             Kitsunemimi::ErrorContainer &error)
 {

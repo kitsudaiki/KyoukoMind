@@ -32,6 +32,7 @@ ShowSaveFileBlossom::ShowSaveFileBlossom()
 
 bool
 ShowSaveFileBlossom::runTask(BlossomLeaf &blossomLeaf,
+                             const Kitsunemimi::DataMap &,
                              BlossomStatus &status,
                              Kitsunemimi::ErrorContainer &error)
 {

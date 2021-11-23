@@ -74,7 +74,7 @@ LIBS += -L../libKitsunemimiHanamiEndpoints/src/debug -lKitsunemimiHanamiEndpoint
 LIBS += -L../libKitsunemimiHanamiEndpoints/src/release -lKitsunemimiHanamiEndpoints
 INCLUDEPATH += ../libKitsunemimiHanamiEndpoints/include
 
-LIBS += -lssl -lOpenCL -luuid -lcrypto++
+LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -lOpenCL
 
 INCLUDEPATH += $$PWD \
                src

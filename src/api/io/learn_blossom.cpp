@@ -39,7 +39,7 @@ LearnBlossom::LearnBlossom()
     registerInputField("number_of_outputs_per_cycle", true);
     registerInputField("number_of_cycles", true);
 
-    registerOutputField("task_uuid", true);
+    registerOutputField("task_uuid");
 }
 
 /**
@@ -50,6 +50,7 @@ LearnBlossom::LearnBlossom()
  */
 bool
 LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
+                      const Kitsunemimi::DataMap &,
                       BlossomStatus &status,
                       Kitsunemimi::ErrorContainer &error)
 {

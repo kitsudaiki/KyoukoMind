@@ -32,6 +32,7 @@ LoadNetBlossom::LoadNetBlossom()
 
 bool
 LoadNetBlossom::runTask(BlossomLeaf &blossomLeaf,
+                        const Kitsunemimi::DataMap &,
                         BlossomStatus &status,
                         Kitsunemimi::ErrorContainer &error)
 {
