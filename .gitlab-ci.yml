@@ -1,7 +1,8 @@
 image: registry.gitlab.com/kitsudaiki/kitsunemimi-ci-docker-images/opencl-tests:1.1.0
 
 stages:
-  - build
+  - build  
+  - create_image
 
 build:
   stage: build
@@ -25,6 +26,17 @@ build:
     paths:
       - upload
     expire_in: 1 week
+  tags:
+    - docker
+
+
+create_image:
+  image: docker:20.10.11
+  stage: create_image
+  script:
+    - docker build -t 10.0.2.10:5000/kyouko_mind:$CI_COMMIT_BRANCH .
+  dependencies:
+    - build
   tags:
     - docker
 
