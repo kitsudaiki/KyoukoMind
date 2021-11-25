@@ -45,7 +45,7 @@ main(int argc, char *argv[])
 {
     Kitsunemimi::ErrorContainer error;
 
-    if(initMain(argc, argv, "KyoukoMind", &registerArguments, &registerConfigs, error) == false) {
+    if(initMain(argc, argv, "kyouko", &registerArguments, &registerConfigs, error) == false) {
         return 1;
     }
 
@@ -73,7 +73,7 @@ main(int argc, char *argv[])
 
         // initialize server and connections based on the config-file
         const std::vector<std::string> groupNames = {};
-        if(HanamiMessaging::getInstance()->initialize("Kyouko",
+        if(HanamiMessaging::getInstance()->initialize("kyouko",
                                                       groupNames,
                                                       nullptr,
                                                       streamDataCallback,

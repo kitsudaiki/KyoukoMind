@@ -90,8 +90,6 @@ HEADERS += \
     src/api/save_load/save_net_blossom.h \
     src/api/save_load/show_save_file_blossom.h \
     src/api/special/special_blossoms.h \
-    src/api/special/test_list_blossom.h \
-    src/api/special/test_single_blossom.h \
     src/args.h \
     src/callbacks.h \
     src/common.h \
@@ -143,8 +141,6 @@ SOURCES += \
     src/api/save_load/save_net_blossom.cpp \
     src/api/save_load/show_save_file_blossom.cpp \
     src/api/special/special_blossoms.cpp \
-    src/api/special/test_list_blossom.cpp \
-    src/api/special/test_single_blossom.cpp \
     src/core/initializing/preprocess_cluster_json.cpp \
     src/core/initializing/struct_validation.cpp \
     src/core/orchestration/cluster_handler.cpp \

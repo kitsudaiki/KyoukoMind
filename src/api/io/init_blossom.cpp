@@ -54,8 +54,7 @@ InitBlossom::runTask(BlossomLeaf &blossomLeaf,
 
     // parse input
     Kitsunemimi::Json::JsonItem parsedContent;
-    const bool ret = parsedContent.parse(content, error);
-    if(ret == false) {
+    if(parsedContent.parse(content, error) == false) {
         return false;
     }
 

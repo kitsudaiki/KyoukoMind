@@ -32,8 +32,6 @@
 #include <libKitsunemimiCommon/logger.h>
 
 #include <api/special/special_blossoms.h>
-#include <api/special/test_list_blossom.h>
-#include <api/special/test_single_blossom.h>
 
 #include <api/save_load/list_save_files_blossom.h>
 #include <api/save_load/restore_net_blossom.h>
@@ -79,13 +77,11 @@ void
 initSpecialBlossoms()
 {
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
-    const std::string group = "special";
+    const std::string group = "-";
 
     assert(interface->addBlossom(group, "print", new PrintBlossom()));
     assert(interface->addBlossom(group, "assert", new AssertBlossom()));
     assert(interface->addBlossom(group, "item_update", new ItemUpdateBlossom()));
-    assert(interface->addBlossom(group, "test_list_blossom", new TestList_Blossom()));
-    assert(interface->addBlossom(group, "test_single_blossom", new TestSingle_Blossom()));
 
 }
 

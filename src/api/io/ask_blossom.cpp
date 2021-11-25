@@ -21,12 +21,14 @@
  */
 
 #include "ask_blossom.h"
+#include <kyouko_root.h>
 
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
 
 #include <libKitsunemimiCrypto/common.h>
-#include <kyouko_root.h>
+
+#include <libKitsunemimiHanamiCommon/enums.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -53,21 +55,21 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
                     BlossomStatus &status,
                     Kitsunemimi::ErrorContainer &error)
 {
-    // get id
+    const uint32_t inputsPerCycle = blossomLeaf.input.getIntByKey("number_of_inputs_per_cycle");
+    const uint32_t numberOfCycles = blossomLeaf.input.getIntByKey("number_of_cycles");
     const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
-    ClusterInterface* interface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
-    if(interface == nullptr)
+    const std::string inputs = blossomLeaf.input.getStringByKey("inputs");
+
+    ClusterInterface* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    if(cluster == nullptr)
     {
-        error.addMeesage("interface with uuid not found: " + uuid);
+        status.errorMessage = "cluster with uuid '" + uuid + "'not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
-    // get sizes
-    const uint32_t inputsPerCycle = blossomLeaf.input.getIntByKey("number_of_inputs_per_cycle");
-    const uint32_t numberOfCycles = blossomLeaf.input.getIntByKey("number_of_cycles");
-
     // get input-data
-    const std::string inputs = blossomLeaf.input.getStringByKey("inputs");
     DataBuffer resultBuffer;
     const bool ret = Kitsunemimi::Crypto::decodeBase64(resultBuffer, inputs);
     if(ret == false)
@@ -76,9 +78,10 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    const std::string taskUuid = interface->addRequestTask((float*)resultBuffer.data,
-                                                           inputsPerCycle,
-                                                           numberOfCycles);
+    const std::string taskUuid = cluster->addRequestTask((float*)resultBuffer.data,
+                                                         inputsPerCycle,
+                                                         numberOfCycles);
+
     blossomLeaf.output.insert("task_uuid", new DataValue(taskUuid));
 
     return true;

@@ -54,19 +54,18 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
                       BlossomStatus &status,
                       Kitsunemimi::ErrorContainer &error)
 {
-    // get id
+    const uint32_t inputsPerCycle = blossomLeaf.input.getIntByKey("number_of_inputs_per_cycle");
+    const uint32_t outputsPerCycle = blossomLeaf.input.getIntByKey("number_of_outputs_per_cycle");
+    const uint32_t numberOfCycles = blossomLeaf.input.getIntByKey("number_of_cycles");
     const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
-    ClusterInterface* interface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
-    if(interface == nullptr)
+
+    // get cluster
+    ClusterInterface* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    if(cluster == nullptr)
     {
         error.addMeesage("interface with uuid not found: " + uuid);
         return false;
     }
-
-    // get sizes
-    const uint32_t inputsPerCycle = blossomLeaf.input.getIntByKey("number_of_inputs_per_cycle");
-    const uint32_t outputsPerCycle = blossomLeaf.input.getIntByKey("number_of_outputs_per_cycle");
-    const uint32_t numberOfCycles = blossomLeaf.input.getIntByKey("number_of_cycles");
 
     // get input-data
     const std::string inputs = blossomLeaf.input.getStringByKey("inputs");
@@ -78,10 +77,10 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    const std::string taskUuid = interface->addLearnTask((float*)resultBuffer.data,
-                                                         inputsPerCycle,
-                                                         outputsPerCycle,
-                                                         numberOfCycles);
+    const std::string taskUuid = cluster->addLearnTask((float*)resultBuffer.data,
+                                                       inputsPerCycle,
+                                                       outputsPerCycle,
+                                                       numberOfCycles);
     blossomLeaf.output.insert("task_uuid", new DataValue(taskUuid));
 
     return true;
