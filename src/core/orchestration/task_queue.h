@@ -31,7 +31,8 @@ class TaskQueue
 public:
     TaskQueue();
 
-    const std::string addLearnTask(float* data,
+    const std::string addLearnTask(float* inputData,
+                                   float* labels,
                                    const uint64_t numberOfInputsPerCycle,
                                    const uint64_t numberOfOuputsPerCycle,
                                    const uint64_t numberOfCycle);

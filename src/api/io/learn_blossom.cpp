@@ -35,6 +35,7 @@ LearnBlossom::LearnBlossom()
 {
     registerInputField("cluster_uuid", true);
     registerInputField("inputs", true);
+    registerInputField("label", true);
     registerInputField("number_of_inputs_per_cycle", true);
     registerInputField("number_of_outputs_per_cycle", true);
     registerInputField("number_of_cycles", true);
@@ -69,18 +70,31 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
 
     // get input-data
     const std::string inputs = blossomLeaf.input.getStringByKey("inputs");
-    DataBuffer resultBuffer;
-    const bool ret = Kitsunemimi::Crypto::decodeBase64(resultBuffer, inputs);
-    if(ret == false)
+    DataBuffer inputBuffer;
+    if(Kitsunemimi::Crypto::decodeBase64(inputBuffer, inputs) == false)
     {
         error.addMeesage("base64-decoding of the input failes");
         return false;
     }
 
-    const std::string taskUuid = cluster->addLearnTask((float*)resultBuffer.data,
+    // get label-data
+    const std::string label = blossomLeaf.input.getStringByKey("label");
+    DataBuffer labelBuffer;
+    if(Kitsunemimi::Crypto::decodeBase64(labelBuffer, label) == false)
+    {
+        error.addMeesage("base64-decoding of the input failes");
+        return false;
+    }
+
+    // init learn-task
+    const std::string taskUuid = cluster->addLearnTask((float*)inputBuffer.data,
+                                                       (float*)labelBuffer.data,
                                                        inputsPerCycle,
                                                        outputsPerCycle,
                                                        numberOfCycles);
+    inputBuffer.data = nullptr;
+    labelBuffer.data = nullptr;
+
     blossomLeaf.output.insert("task_uuid", new DataValue(taskUuid));
 
     return true;

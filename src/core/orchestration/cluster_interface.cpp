@@ -55,8 +55,8 @@ ClusterInterface::startForwardLearnCycle()
     OutputNode* outputs = m_cluster->outputSegments[0]->outputs;
 
     Task* actualTask = m_taskQueue->actualTask;
-    uint64_t offset = actualTask->numberOfInputsPerCycle + actualTask->numberOfOuputsPerCycle;
-    offset *= actualTask->actualCycle;
+    const uint64_t offsetInput = actualTask->numberOfInputsPerCycle * actualTask->actualCycle;
+    const uint64_t offsetLabels = actualTask->numberOfOuputsPerCycle * actualTask->actualCycle;
 
     // set cluster mode
     if(actualTask->type == LEARN_TASK) {
@@ -65,12 +65,11 @@ ClusterInterface::startForwardLearnCycle()
 
     InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
     for(uint64_t i = 0; i < actualTask->numberOfInputsPerCycle; i++) {
-        inputNodes[i].weight = actualTask->data[offset + i];
+        inputNodes[i].weight = actualTask->inputData[offsetInput + i];
     }
 
-    offset += actualTask->numberOfInputsPerCycle;
     for(uint64_t i = 0; i < actualTask->numberOfOuputsPerCycle; i++) {
-        outputs[i].shouldValue = actualTask->data[offset + i];
+        outputs[i].shouldValue = actualTask->labels[offsetLabels + i];
     }
 
     // set ready-states of all neighbors of all segments
@@ -184,13 +183,15 @@ ClusterMode ClusterInterface::getMode() const
  * @return
  */
 const std::string
-ClusterInterface::addLearnTask(float *data,
-                             const uint64_t numberOfInputsPerCycle,
-                             const uint64_t numberOfOuputsPerCycle,
-                             const uint64_t numberOfCycle)
+ClusterInterface::addLearnTask(float* inputData,
+                               float* labels,
+                               const uint64_t numberOfInputsPerCycle,
+                               const uint64_t numberOfOuputsPerCycle,
+                               const uint64_t numberOfCycle)
 {
     m_task_mutex.lock();
-    const std::string result = m_taskQueue->addLearnTask(data,
+    const std::string result = m_taskQueue->addLearnTask(inputData,
+                                                         labels,
                                                          numberOfInputsPerCycle,
                                                          numberOfOuputsPerCycle,
                                                          numberOfCycle);
@@ -207,9 +208,9 @@ ClusterInterface::addLearnTask(float *data,
  * @return
  */
 const std::string
-ClusterInterface::addRequestTask(float *inputData,
-                               const uint64_t numberOfInputsPerCycle,
-                               const uint64_t numberOfCycle)
+ClusterInterface::addRequestTask(float* inputData,
+                                 const uint64_t numberOfInputsPerCycle,
+                                 const uint64_t numberOfCycle)
 {
     m_task_mutex.lock();
     const std::string result = m_taskQueue->addRequestTask(inputData,

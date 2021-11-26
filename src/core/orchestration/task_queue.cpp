@@ -33,14 +33,16 @@ TaskQueue::TaskQueue() {}
  * @return
  */
 const std::string
-TaskQueue::addLearnTask(float* data,
+TaskQueue::addLearnTask(float* inputData,
+                        float* labels,
                         const uint64_t numberOfInputsPerCycle,
                         const uint64_t numberOfOuputsPerCycle,
                         const uint64_t numberOfCycle)
 {
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
-    newTask.data = data;
+    newTask.inputData = inputData;
+    newTask.labels = labels;
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
@@ -71,7 +73,7 @@ TaskQueue::addRequestTask(float* inputData,
 {
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
-    newTask.data = inputData;
+    newTask.inputData = inputData;
     newTask.resultData = new uint32_t[numberOfCycle];
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
@@ -179,7 +181,8 @@ TaskQueue::removeTask(const std::string &taskUuid)
         // if only queue but not activly processed at the moment, it can easily deleted
         if(state == QUEUED_TASK_STATE)
         {
-            delete itMap->second.data;
+            delete itMap->second.inputData;
+            delete itMap->second.labels;
             m_taskMap.erase(itMap);
         }
 
@@ -243,7 +246,8 @@ TaskQueue::finishTask()
     it = m_taskMap.find(actualUuid);
     if(it != m_taskMap.end())
     {
-        delete it->second.data;
+        delete it->second.inputData;
+        delete it->second.labels;
         it->second.progress.state = FINISHED_TASK_STATE;
         it->second.progress.endActiveTimeStamp = std::chrono::system_clock::now();
         actualTask = nullptr;

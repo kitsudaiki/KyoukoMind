@@ -71,8 +71,7 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
 
     // get input-data
     DataBuffer resultBuffer;
-    const bool ret = Kitsunemimi::Crypto::decodeBase64(resultBuffer, inputs);
-    if(ret == false)
+    if(Kitsunemimi::Crypto::decodeBase64(resultBuffer, inputs) == false)
     {
         error.addMeesage("base64-decoding of the input failes");
         return false;
@@ -81,6 +80,7 @@ AskBlossom::runTask(BlossomLeaf &blossomLeaf,
     const std::string taskUuid = cluster->addRequestTask((float*)resultBuffer.data,
                                                          inputsPerCycle,
                                                          numberOfCycles);
+    resultBuffer.data = nullptr;
 
     blossomLeaf.output.insert("task_uuid", new DataValue(taskUuid));
 
