@@ -90,7 +90,6 @@ HEADERS += \
     src/api/io/ask_blossom.h \
     src/api/io/init_blossom.h \
     src/api/io/learn_blossom.h \
-    src/api/special/special_blossoms.h \
     src/args.h \
     src/callbacks.h \
     src/common.h \
@@ -137,7 +136,6 @@ SOURCES += \
     src/api/io/ask_blossom.cpp \
     src/api/io/init_blossom.cpp \
     src/api/io/learn_blossom.cpp \
-    src/api/special/special_blossoms.cpp \
     src/core/initializing/preprocess_cluster_json.cpp \
     src/core/initializing/struct_validation.cpp \
     src/core/orchestration/cluster_handler.cpp \

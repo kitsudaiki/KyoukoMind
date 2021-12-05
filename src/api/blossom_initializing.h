@@ -31,8 +31,6 @@
 #include <libKitsunemimiCommon/files/text_file.h>
 #include <libKitsunemimiCommon/logger.h>
 
-#include <api/special/special_blossoms.h>
-
 
 #include <api/io/ask_blossom.h>
 #include <api/io/init_blossom.h>
@@ -51,25 +49,9 @@ initTokenBlossoms()
     assert(interface->addBlossom(group, "init", new InitBlossom()));
 }
 
-/**
- * @brief init special blossoms
- */
-void
-initSpecialBlossoms()
-{
-    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
-    const std::string group = "-";
-
-    assert(interface->addBlossom(group, "print", new PrintBlossom()));
-    assert(interface->addBlossom(group, "assert", new AssertBlossom()));
-    assert(interface->addBlossom(group, "item_update", new ItemUpdateBlossom()));
-
-}
-
 void
 initBlossoms()
 {
-    initSpecialBlossoms();
     initTokenBlossoms();
 }
 
