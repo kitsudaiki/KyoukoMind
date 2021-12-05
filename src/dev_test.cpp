@@ -121,9 +121,12 @@ learnTestData(const std::string &mnistRootPath,
         uint64_t dataSize = numberOfLearningPictures * pictureSize;
         float* taskData = new float[dataSize];
 
+
+
         uint64_t labelPos = 0;
         uint64_t labelSize = numberOfLearningPictures * 10;
         float* labelData = new float[labelSize];
+
 
         for(uint32_t pic = 0; pic < numberOfLearningPictures; pic++)
         {
@@ -145,6 +148,24 @@ learnTestData(const std::string &mnistRootPath,
             const uint32_t label = labelBufferPtr[pic + 8];
             labelData[(labelPos - 10) + label] = 1.0f;
         }
+
+        Kitsunemimi::BinaryFile dataPlainFile("/tmp/dataPlainFile");
+        DataBuffer dataOutput;
+        dataOutput.data = taskData;
+        dataOutput.usedBufferSize = dataSize;
+        dataOutput.totalBufferSize = dataSize;
+        dataPlainFile.writeCompleteFile(dataOutput);
+        dataPlainFile.closeFile();
+
+
+        Kitsunemimi::BinaryFile labelPlainFile("/tmp/labelPlainFile");
+        DataBuffer labelOutput;
+        labelOutput.data = labelData;
+        labelOutput.usedBufferSize = labelSize;
+        labelOutput.totalBufferSize = labelSize;
+        labelPlainFile.writeCompleteFile(labelOutput);
+        labelPlainFile.closeFile();
+
 
         // create task
         const std::string taskUuid = clusterInterface->addLearnTask(taskData,

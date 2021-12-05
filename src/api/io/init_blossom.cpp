@@ -24,6 +24,7 @@
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
 
+#include <libKitsunemimiCrypto/common.h>
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiJson/json_item.h>
 #include <kyouko_root.h>
@@ -31,11 +32,17 @@
 using namespace Kitsunemimi::Sakura;
 
 InitBlossom::InitBlossom()
-    : Blossom()
+    : Blossom("Create a new cluster based on an input-definition.")
 {
-    registerInputField("content", true);
+    registerInputField("input",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Input-file with the definition of the new cluster "
+                       "as base64 encoded string.");
 
-    registerOutputField("cluster_uuid");
+    registerOutputField("cluster_uuid",
+                        SAKURA_STRING_TYPE,
+                        "UUID of the new created cluster.");
 }
 
 /**
@@ -50,13 +57,26 @@ InitBlossom::runTask(BlossomLeaf &blossomLeaf,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
-    const std::string content = blossomLeaf.input.getStringByKey("content");
+    const std::string input = blossomLeaf.input.getStringByKey("content");
+
+    DataBuffer resultBuffer;
+    if(Kitsunemimi::Crypto::decodeBase64(resultBuffer, input) == false)
+    {
+        error.addMeesage("base64-decoding of the input failes");
+        return false;
+    }
+
+    const std::string content = std::string(static_cast<char*>(resultBuffer.data),
+                                            resultBuffer.usedBufferSize);
 
     // parse input
     Kitsunemimi::Json::JsonItem parsedContent;
     if(parsedContent.parse(content, error) == false) {
         return false;
     }
+
+    std::cout<<"###################################################################"<<std::endl;
+    std::cout<<parsedContent.toString(true)<<std::endl;
 
     ClusterInterface* newCluster = new ClusterInterface();
     const std::string uuid = newCluster->initNewCluster(parsedContent);

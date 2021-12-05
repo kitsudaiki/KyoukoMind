@@ -32,7 +32,7 @@ using namespace Kitsunemimi::Sakura;
 // PrintBlossom
 //==================================================================================================
 AssertBlossom::AssertBlossom()
-    : Blossom()
+    : Blossom("Assert a list of values to validate a state.")
 {
     allowUnmatched = true;
 }
@@ -74,7 +74,7 @@ AssertBlossom::runTask(BlossomLeaf &blossomLeaf,
 // PrintBlossom
 //==================================================================================================
 ItemUpdateBlossom::ItemUpdateBlossom()
-    : Blossom()
+    : Blossom("Change a value of an item.")
 {
     allowUnmatched = true;
 }
@@ -111,7 +111,7 @@ ItemUpdateBlossom::runTask(BlossomLeaf &blossomLeaf,
 // PrintBlossom
 //==================================================================================================
 PrintBlossom::PrintBlossom()
-    : Blossom()
+    : Blossom("Print values")
 {
     allowUnmatched = true;
 }

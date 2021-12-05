@@ -33,14 +33,28 @@
 using namespace Kitsunemimi::Sakura;
 
 AskBlossom::AskBlossom()
-    : Blossom()
+    : Blossom("Request information from the network.")
 {
-    registerInputField("cluster_uuid", true);
-    registerInputField("inputs", true);
-    registerInputField("number_of_inputs_per_cycle", true);
-    registerInputField("number_of_cycles", true);
+    registerInputField("cluster_uuid",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "UUID of the cluster, which should process the request");
+    registerInputField("inputs",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Input-data as base64 encoded string.");
+    registerInputField("number_of_inputs_per_cycle",
+                       SAKURA_INT_TYPE,
+                       true,
+                       "Number of inputs per set.");
+    registerInputField("number_of_cycles",
+                       SAKURA_INT_TYPE,
+                       true,
+                       "Number of sets.");
 
-    registerOutputField("task_uuid");
+    registerOutputField("task_uuid",
+                        SAKURA_STRING_TYPE,
+                        "UUID of the new created task.");
 }
 
 /**

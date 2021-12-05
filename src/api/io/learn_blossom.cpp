@@ -31,16 +31,36 @@
 using namespace Kitsunemimi::Sakura;
 
 LearnBlossom::LearnBlossom()
-    : Blossom()
+    : Blossom("Learn a new set of data.")
 {
-    registerInputField("cluster_uuid", true);
-    registerInputField("inputs", true);
-    registerInputField("label", true);
-    registerInputField("number_of_inputs_per_cycle", true);
-    registerInputField("number_of_outputs_per_cycle", true);
-    registerInputField("number_of_cycles", true);
+    registerInputField("cluster_uuid",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "UUID of the cluster, which should process the request");
+    registerInputField("inputs",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Input-data as base64 encoded string.");
+    registerInputField("label",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "List with the labels for the input-data as base64 encoded string.");
+    registerInputField("number_of_inputs_per_cycle",
+                       SAKURA_INT_TYPE,
+                       true,
+                       "Number of input-data per input-set.");
+    registerInputField("number_of_outputs_per_cycle",
+                       SAKURA_INT_TYPE,
+                       true,
+                       "Number of labels-data per input-set");
+    registerInputField("Number_of_cycles",
+                       SAKURA_INT_TYPE,
+                       true,
+                       "Total number of sets.");
 
-    registerOutputField("task_uuid");
+    registerOutputField("task_uuid",
+                        SAKURA_STRING_TYPE,
+                        "UUID of the new created task.");
 }
 
 /**

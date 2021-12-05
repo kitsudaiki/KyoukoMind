@@ -4,15 +4,25 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++17
 
-LIBS += -L../libKitsunemimiHanamiCommon/src -lKitsunemimiHanamiCommon
-LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
-LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
-INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
-
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
 INCLUDEPATH += ../libKitsunemimiHanamiMessaging/include
+
+LIBS += -L../libKitsunemimiHanamiEndpoints/src -lKitsunemimiHanamiEndpoints
+LIBS += -L../libKitsunemimiHanamiEndpoints/src/debug -lKitsunemimiHanamiEndpoints
+LIBS += -L../libKitsunemimiHanamiEndpoints/src/release -lKitsunemimiHanamiEndpoints
+INCLUDEPATH += ../libKitsunemimiHanamiEndpoints/include
+
+LIBS += -L../libKitsunemimiHanamiDatabase/src -lKitsunemimiHanamiDatabase
+LIBS += -L../libKitsunemimiHanamiDatabase/src/debug -lKitsunemimiHanamiDatabase
+LIBS += -L../libKitsunemimiHanamiDatabase/src/release -lKitsunemimiHanamiDatabase
+INCLUDEPATH += ../libKitsunemimiHanamiDatabase/include
+
+LIBS += -L../libKitsunemimiHanamiCommon/src -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
+LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
+INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
 
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
@@ -69,11 +79,6 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -L../libKitsunemimiHanamiEndpoints/src -lKitsunemimiHanamiEndpoints
-LIBS += -L../libKitsunemimiHanamiEndpoints/src/debug -lKitsunemimiHanamiEndpoints
-LIBS += -L../libKitsunemimiHanamiEndpoints/src/release -lKitsunemimiHanamiEndpoints
-INCLUDEPATH += ../libKitsunemimiHanamiEndpoints/include
-
 LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -lOpenCL
 
 INCLUDEPATH += $$PWD \
@@ -85,10 +90,6 @@ HEADERS += \
     src/api/io/ask_blossom.h \
     src/api/io/init_blossom.h \
     src/api/io/learn_blossom.h \
-    src/api/save_load/list_save_files_blossom.h \
-    src/api/save_load/restore_net_blossom.h \
-    src/api/save_load/save_net_blossom.h \
-    src/api/save_load/show_save_file_blossom.h \
     src/api/special/special_blossoms.h \
     src/args.h \
     src/callbacks.h \
@@ -136,10 +137,6 @@ SOURCES += \
     src/api/io/ask_blossom.cpp \
     src/api/io/init_blossom.cpp \
     src/api/io/learn_blossom.cpp \
-    src/api/save_load/list_save_files_blossom.cpp \
-    src/api/save_load/restore_net_blossom.cpp \
-    src/api/save_load/save_net_blossom.cpp \
-    src/api/save_load/show_save_file_blossom.cpp \
     src/api/special/special_blossoms.cpp \
     src/core/initializing/preprocess_cluster_json.cpp \
     src/core/initializing/struct_validation.cpp \

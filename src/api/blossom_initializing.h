@@ -33,10 +33,6 @@
 
 #include <api/special/special_blossoms.h>
 
-#include <api/save_load/list_save_files_blossom.h>
-#include <api/save_load/restore_net_blossom.h>
-#include <api/save_load/save_net_blossom.h>
-#include <api/save_load/show_save_file_blossom.h>
 
 #include <api/io/ask_blossom.h>
 #include <api/io/init_blossom.h>
@@ -53,21 +49,6 @@ initTokenBlossoms()
     assert(interface->addBlossom(group, "ask", new AskBlossom()));
     assert(interface->addBlossom(group, "learn", new LearnBlossom()));
     assert(interface->addBlossom(group, "init", new InitBlossom()));
-}
-
-/**
- * @brief init save_load blossoms
- */
-void
-initUserBlossomes()
-{
-    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
-    const std::string group = "save_load";
-
-    assert(interface->addBlossom(group, "list", new ListSaveFilesBlossom()));
-    assert(interface->addBlossom(group, "show", new ShowSaveFileBlossom()));
-    assert(interface->addBlossom(group, "save", new SaveNetBlossom()));
-    assert(interface->addBlossom(group, "load", new LoadNetBlossom()));
 }
 
 /**
@@ -90,7 +71,6 @@ initBlossoms()
 {
     initSpecialBlossoms();
     initTokenBlossoms();
-    initUserBlossomes();
 }
 
 #endif // KYOUKOMIND_BLOSSOM_INITIALIZING_H
