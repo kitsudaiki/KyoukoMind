@@ -34,7 +34,10 @@ create_image:
   image: docker:20.10.11
   stage: create_image
   script:
-    - docker build -t 10.0.2.10:5000/kyouko_mind:$CI_COMMIT_BRANCH .
+    - echo "172.17.0.1  registry.kitsunemimi.moe" >> /etc/hosts
+    - docker build -t registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH .
+    - docker push registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
+    - docker rmi registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
   dependencies:
     - build
   tags:
