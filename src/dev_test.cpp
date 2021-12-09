@@ -49,7 +49,7 @@ void
 learnTestData(const std::string &mnistRootPath,
               const std::string &uuid)
 {
-    ClusterInterface* clusterInterface = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    ClusterInterface* clusterInterface = KyoukoRoot::m_clusterHandler->getCluster(uuid);
 
     CpuProcessingUnit cpuProcessingUnit("dev_test");
     std::chrono::high_resolution_clock::time_point start;

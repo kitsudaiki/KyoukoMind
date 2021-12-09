@@ -44,6 +44,7 @@ int
 main(int argc, char *argv[])
 {
     Kitsunemimi::ErrorContainer error;
+    KyoukoRoot rootObj;
 
     if(initMain(argc, argv, "kyouko", &registerArguments, &registerConfigs, error) == false) {
         return 1;
@@ -56,7 +57,7 @@ main(int argc, char *argv[])
         // run the dev-test based on the MNIST test files, if defined by the config
         const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
         const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
-        const std::string uuid = KyoukoRoot::m_root->initCluster(initialFile, error);
+        const std::string uuid = rootObj.initCluster(initialFile, error);
 
         const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
         learnTestData(mnistTestPath, uuid);
@@ -65,7 +66,8 @@ main(int argc, char *argv[])
     {
         // init blossoms
         initBlossoms();
-        if(KyoukoRoot::m_root->initializeSakuraFiles(error) == false)
+        rootObj.init();
+        if(rootObj.initializeSakuraFiles(error) == false)
         {
             LOG_ERROR(error);
             return 1;

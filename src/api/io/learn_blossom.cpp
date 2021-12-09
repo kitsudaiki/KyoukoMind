@@ -81,7 +81,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
 
     // get cluster
-    ClusterInterface* cluster = KyoukoRoot::m_root->m_clusterHandler->getCluster(uuid);
+    ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
     if(cluster == nullptr)
     {
         error.addMeesage("interface with uuid not found: " + uuid);

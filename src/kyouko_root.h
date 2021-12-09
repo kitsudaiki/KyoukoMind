@@ -36,7 +36,8 @@ public:
     KyoukoRoot();
     ~KyoukoRoot();
 
-    static KyoukoRoot* m_root;
+    bool init();
+
     static ClusterHandler* m_clusterHandler;
     static uint32_t* m_randomValues;
     static SegmentQueue* m_segmentQueue;

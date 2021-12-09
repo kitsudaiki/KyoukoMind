@@ -46,8 +46,6 @@
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
-KyoukoRoot* KyoukoRoot::m_root = new KyoukoRoot();
-
 ClusterHandler* KyoukoRoot::m_clusterHandler = nullptr;
 uint32_t* KyoukoRoot::m_randomValues = nullptr;
 SegmentQueue* KyoukoRoot::m_segmentQueue = nullptr;
@@ -57,6 +55,21 @@ ProcessingUnitHandler* KyoukoRoot::m_processingUnitHandler = nullptr;
  * @brief KyoukoRoot::KyoukoRoot
  */
 KyoukoRoot::KyoukoRoot()
+{
+
+}
+
+/**
+ * @brief KyoukoRoot::~KyoukoRoot
+ */
+KyoukoRoot::~KyoukoRoot() {}
+
+/**
+ * @brief KyoukoRoot::init
+ * @return
+ */
+bool
+KyoukoRoot::init()
 {
     validateStructSizes();
 
@@ -71,12 +84,9 @@ KyoukoRoot::KyoukoRoot()
     m_segmentQueue = new SegmentQueue();
     m_processingUnitHandler = new ProcessingUnitHandler();
     m_processingUnitHandler->initProcessingUnits(1);
-}
 
-/**
- * @brief KyoukoRoot::~KyoukoRoot
- */
-KyoukoRoot::~KyoukoRoot() {}
+    return true;
+}
 
 /**
  * @brief KyoukoRoot::initializeSakuraFiles
