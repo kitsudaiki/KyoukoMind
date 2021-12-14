@@ -96,6 +96,7 @@ echo "##########################################################################
 echo ""
 get_required_private_repo_github "libKitsunemimiSqlite" "master" 8
 get_required_private_repo_github "libKitsunemimiCrypto" "master" 8
+get_required_private_repo_github "libKitsunemimiJwt" "master" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
