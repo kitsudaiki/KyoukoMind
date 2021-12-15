@@ -72,13 +72,13 @@ LearnBlossom::LearnBlossom()
 bool
 LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
                       const Kitsunemimi::DataMap &,
-                      BlossomStatus &status,
+                      BlossomStatus &,
                       Kitsunemimi::ErrorContainer &error)
 {
-    const uint32_t inputsPerCycle = blossomLeaf.input.getIntByKey("number_of_inputs_per_cycle");
-    const uint32_t outputsPerCycle = blossomLeaf.input.getIntByKey("number_of_outputs_per_cycle");
-    const uint32_t numberOfCycles = blossomLeaf.input.getIntByKey("number_of_cycles");
-    const std::string uuid = blossomLeaf.input.getStringByKey("cluster_uuid");
+    const uint32_t inputsPerCycle = blossomLeaf.input.get("number_of_inputs_per_cycle").getInt();
+    const uint32_t outputsPerCycle = blossomLeaf.input.get("number_of_outputs_per_cycle").getInt();
+    const uint32_t numberOfCycles = blossomLeaf.input.get("number_of_cycles").getInt();
+    const std::string uuid = blossomLeaf.input.get("cluster_uuid").getString();
 
     // get cluster
     ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
@@ -89,7 +89,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    const std::string inputs = blossomLeaf.input.getStringByKey("inputs");
+    const std::string inputs = blossomLeaf.input.get("inputs").getString();
     DataBuffer inputBuffer;
     if(Kitsunemimi::Crypto::decodeBase64(inputBuffer, inputs) == false)
     {
@@ -98,7 +98,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get label-data
-    const std::string label = blossomLeaf.input.getStringByKey("label");
+    const std::string label = blossomLeaf.input.get("label").getString();
     DataBuffer labelBuffer;
     if(Kitsunemimi::Crypto::decodeBase64(labelBuffer, label) == false)
     {
@@ -115,7 +115,7 @@ LearnBlossom::runTask(BlossomLeaf &blossomLeaf,
     inputBuffer.data = nullptr;
     labelBuffer.data = nullptr;
 
-    blossomLeaf.output.insert("task_uuid", new DataValue(taskUuid));
+    blossomLeaf.output.insert("task_uuid", taskUuid);
 
     return true;
 }

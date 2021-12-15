@@ -54,10 +54,10 @@ InitBlossom::InitBlossom()
 bool
 InitBlossom::runTask(BlossomLeaf &blossomLeaf,
                      const Kitsunemimi::DataMap &,
-                     BlossomStatus &status,
+                     BlossomStatus &,
                      Kitsunemimi::ErrorContainer &error)
 {
-    const std::string input = blossomLeaf.input.getStringByKey("content");
+    const std::string input = blossomLeaf.input.get("content").getString();
 
     DataBuffer resultBuffer;
     if(Kitsunemimi::Crypto::decodeBase64(resultBuffer, input) == false)
@@ -88,7 +88,7 @@ InitBlossom::runTask(BlossomLeaf &blossomLeaf,
 
     KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster);
 
-    blossomLeaf.output.insert("cluster_uuid", new Kitsunemimi::DataValue(uuid));
+    blossomLeaf.output.insert("cluster_uuid", uuid);
 
     return true;
 }

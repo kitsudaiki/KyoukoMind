@@ -110,6 +110,7 @@ get_required_private_repo_gitlab "libKitsunemimiHanamiCommon" "master" "2ue6RNxk
 get_required_private_repo_gitlab "libKitsunemimiHanamiDatabase" "master" "UjDbSSJzoU3uK4pZynmD" 8
 get_required_private_repo_gitlab "libKitsunemimiHanamiEndpoints" "master" "ysR35grcGsLpFQiXXf1A" 1
 get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" "vkEae-QF8jvt9W2xz3LR" 8
+get_required_private_repo_gitlab "libKitsunemimiHanamiPredefinitions" "master" "8_D9Z_gRjC7TmFQi-tsD" 8
 echo ""
 echo "###########################################################################################################"
 

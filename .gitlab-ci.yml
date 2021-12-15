@@ -12,6 +12,7 @@ build:
     - mkdir -p ~/.ssh
     - touch ~/.ssh/known_hosts
     - ssh-keyscan -H 10.0.3.120 >> ~/.ssh/known_hosts
+    - echo "nameserver 1.1.1.1" > /etc/resolv.conf
 
     - apt-get update
     - apt-get install -y openssl libssl-dev opencl-headers ocl-icd-opencl-dev xxd uuid-dev libcrypto++-dev libsqlite3-dev

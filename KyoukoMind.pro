@@ -4,6 +4,11 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++17
 
+LIBS += -L../libKitsunemimiHanamiPredefinitions/src -lKitsunemimiHanamiPredefinitions
+LIBS += -L../libKitsunemimiHanamiPredefinitions/src/debug -lKitsunemimiHanamiPredefinitions
+LIBS += -L../libKitsunemimiHanamiPredefinitions/src/release -lKitsunemimiHanamiPredefinitions
+INCLUDEPATH += ../libKitsunemimiHanamiPredefinitions/include
+
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging

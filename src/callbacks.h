@@ -27,8 +27,8 @@
 
 void streamDataCallback(void*,
                         Kitsunemimi::Sakura::Session*,
-                        const void* data,
-                        const uint64_t dataSize)
+                        const void*,
+                        const uint64_t)
 {
 
 }
