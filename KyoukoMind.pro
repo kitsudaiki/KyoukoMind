@@ -97,9 +97,9 @@ INCLUDEPATH += $$PWD \
 
 HEADERS += \
     src/api/blossom_initializing.h \
-    src/api/io/ask_blossom.h \
-    src/api/io/init_blossom.h \
-    src/api/io/learn_blossom.h \
+    src/api/v1/io/ask_blossom.h \
+    src/api/v1/io/init_blossom.h \
+    src/api/v1/io/learn_blossom.h \
     src/args.h \
     src/callbacks.h \
     src/common.h \
@@ -143,9 +143,9 @@ HEADERS += \
     src/kyouko_root.h
 
 SOURCES += \
-    src/api/io/ask_blossom.cpp \
-    src/api/io/init_blossom.cpp \
-    src/api/io/learn_blossom.cpp \
+    src/api/v1/io/ask_blossom.cpp \
+    src/api/v1/io/init_blossom.cpp \
+    src/api/v1/io/learn_blossom.cpp \
     src/core/initializing/preprocess_cluster_json.cpp \
     src/core/initializing/struct_validation.cpp \
     src/core/orchestration/cluster_handler.cpp \

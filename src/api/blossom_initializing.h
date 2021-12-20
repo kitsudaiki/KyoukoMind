@@ -33,9 +33,9 @@
 
 #include <libKitsunemimiHanamiEndpoints/endpoint.h>
 
-#include <api/io/ask_blossom.h>
-#include <api/io/init_blossom.h>
-#include <api/io/learn_blossom.h>
+#include <api/v1/io/ask_blossom.h>
+#include <api/v1/io/init_blossom.h>
+#include <api/v1/io/learn_blossom.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -47,21 +47,21 @@ initTokenBlossoms()
     const std::string group = "io";
 
     assert(interface->addBlossom(group, "ask", new AskBlossom()));
-    assert(endpoints->addEndpoint("io",
+    assert(endpoints->addEndpoint("v1/io",
                                   Kitsunemimi::Hanami::GET_TYPE,
                                   Kitsunemimi::Hanami::BLOSSOM_TYPE,
                                   group,
                                   "ask"));
 
     assert(interface->addBlossom(group, "learn", new LearnBlossom()));
-    assert(endpoints->addEndpoint("io",
+    assert(endpoints->addEndpoint("v1/io",
                                   Kitsunemimi::Hanami::POST_TYPE,
                                   Kitsunemimi::Hanami::BLOSSOM_TYPE,
                                   group,
                                   "learn"));
 
     assert(interface->addBlossom(group, "init", new InitBlossom()));
-    assert(endpoints->addEndpoint("cluster",
+    assert(endpoints->addEndpoint("v1/cluster",
                                   Kitsunemimi::Hanami::POST_TYPE,
                                   Kitsunemimi::Hanami::BLOSSOM_TYPE,
                                   group,
