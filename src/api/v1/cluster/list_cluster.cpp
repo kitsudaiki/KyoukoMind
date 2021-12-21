@@ -1,5 +1,5 @@
 /**
- * @file        init_blossom.h
+ * @file        list_cluster.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,22 +20,21 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_INIT_BLOSSOM_H
-#define KYOUKOMIND_INIT_BLOSSOM_H
+#include "list_cluster.h"
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+using namespace Kitsunemimi::Sakura;
 
-class InitBlossom
-        : public Kitsunemimi::Sakura::Blossom
+ListCluster::ListCluster()
+    : Blossom("List all clusters.")
 {
-public:
-    InitBlossom();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 const Kitsunemimi::DataMap &,
-                 Kitsunemimi::Sakura::BlossomStatus &,
-                 Kitsunemimi::ErrorContainer &error);
-};
+}
 
-#endif // KYOUKOMIND_INIT_BLOSSOM_H
+bool
+ListCluster::runTask(BlossomLeaf &blossomLeaf,
+                     const Kitsunemimi::DataMap &,
+                     BlossomStatus &status,
+                     Kitsunemimi::ErrorContainer &error)
+{
+
+}

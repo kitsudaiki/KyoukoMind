@@ -39,6 +39,11 @@ LIBS += -L../libKitsunemimiConfig/src/debug -lKitsunemimiConfig
 LIBS += -L../libKitsunemimiConfig/src/release -lKitsunemimiConfig
 INCLUDEPATH += ../libKitsunemimiConfig/include
 
+LIBS += -L../libKitsunemimiSakuraDatabase/src -lKitsunemimiSakuraDatabase
+LIBS += -L../libKitsunemimiSakuraDatabase/src/debug -lKitsunemimiSakuraDatabase
+LIBS += -L../libKitsunemimiSakuraDatabase/src/release -lKitsunemimiSakuraDatabase
+INCLUDEPATH += ../libKitsunemimiSakuraDatabase/include
+
 LIBS += -L../libKitsunemimiSakuraNetwork/src -lKitsunemimiSakuraNetwork
 LIBS += -L../libKitsunemimiSakuraNetwork/src/debug -lKitsunemimiSakuraNetwork
 LIBS += -L../libKitsunemimiSakuraNetwork/src/release -lKitsunemimiSakuraNetwork
@@ -63,6 +68,11 @@ LIBS += -L../libKitsunemimiCommon/src -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/debug -lKitsunemimiCommon
 LIBS += -L../libKitsunemimiCommon/src/release -lKitsunemimiCommon
 INCLUDEPATH += ../libKitsunemimiCommon/include
+
+LIBS += -L../libKitsunemimiSqlite/src -lKitsunemimiSqlite
+LIBS += -L../libKitsunemimiSqlite/src/debug -lKitsunemimiSqlite
+LIBS += -L../libKitsunemimiSqlite/src/release -lKitsunemimiSqlite
+INCLUDEPATH += ../libKitsunemimiSqlite/include
 
 LIBS += -L../libKitsunemimiIni/src -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/debug -lKitsunemimiIni
@@ -97,9 +107,15 @@ INCLUDEPATH += $$PWD \
 
 HEADERS += \
     src/api/blossom_initializing.h \
-    src/api/v1/io/ask_blossom.h \
-    src/api/v1/io/init_blossom.h \
-    src/api/v1/io/learn_blossom.h \
+    src/api/v1/cluster/create_cluster.h \
+    src/api/v1/cluster/delete_cluster.h \
+    src/api/v1/cluster/list_cluster.h \
+    src/api/v1/cluster/show_cluster.h \
+    src/api/v1/task/create_learn_task.h \
+    src/api/v1/task/create_request_task.h \
+    src/api/v1/task/delete_task.h \
+    src/api/v1/task/list_task.h \
+    src/api/v1/task/show_task.h \
     src/args.h \
     src/callbacks.h \
     src/common.h \
@@ -139,13 +155,20 @@ HEADERS += \
     src/core/orchestration/segments/dynamic_segment.h \
     src/core/orchestration/segments/input_segment.h \
     src/core/orchestration/segments/output_segment.h \
+    src/database/cluster_table.h \
     src/dev_test.h \
     src/kyouko_root.h
 
 SOURCES += \
-    src/api/v1/io/ask_blossom.cpp \
-    src/api/v1/io/init_blossom.cpp \
-    src/api/v1/io/learn_blossom.cpp \
+    src/api/v1/cluster/create_cluster.cpp \
+    src/api/v1/cluster/delete_cluster.cpp \
+    src/api/v1/cluster/list_cluster.cpp \
+    src/api/v1/cluster/show_cluster.cpp \
+    src/api/v1/task/create_learn_task.cpp \
+    src/api/v1/task/create_request_task.cpp \
+    src/api/v1/task/delete_task.cpp \
+    src/api/v1/task/list_task.cpp \
+    src/api/v1/task/show_task.cpp \
     src/core/initializing/preprocess_cluster_json.cpp \
     src/core/initializing/struct_validation.cpp \
     src/core/orchestration/cluster_handler.cpp \
@@ -161,6 +184,7 @@ SOURCES += \
     src/core/orchestration/segments/dynamic_segment.cpp \
     src/core/orchestration/segments/input_segment.cpp \
     src/core/orchestration/segments/output_segment.cpp \
+    src/database/cluster_table.cpp \
     src/dev_test.cpp \
     src/kyouko_root.cpp
 

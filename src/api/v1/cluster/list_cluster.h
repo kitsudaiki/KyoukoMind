@@ -1,5 +1,5 @@
 /**
- * @file        learn_blossom.h
+ * @file        list_cluster.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,16 +20,16 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_LEARN_BLOSSOM_H
-#define KYOUKOMIND_LEARN_BLOSSOM_H
+#ifndef KYOUKOMIND_SHOWCLUSTERS_H
+#define KYOUKOMIND_SHOWCLUSTERS_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class LearnBlossom
+class ListCluster
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    LearnBlossom();
+    ListCluster();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
@@ -38,4 +38,4 @@ protected:
                  Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_LEARN_BLOSSOM_H
+#endif // KYOUKOMIND_SHOWCLUSTERS_H

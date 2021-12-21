@@ -1,5 +1,5 @@
 /**
- * @file        ask_blossom.cpp
+ * @file        create_learn_task.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,20 +20,18 @@
  *      limitations under the License.
  */
 
-#include "ask_blossom.h"
-#include <kyouko_root.h>
+#include "create_learn_task.h"
 
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
 
 #include <libKitsunemimiCrypto/common.h>
-
-#include <libKitsunemimiHanamiCommon/enums.h>
+#include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 
-AskBlossom::AskBlossom()
-    : Blossom("Request information from the network.")
+CreateLearnTask::CreateLearnTask()
+    : Blossom("Add new learn-task to the task-queue of a cluster.")
 {
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
@@ -43,58 +41,73 @@ AskBlossom::AskBlossom()
                        SAKURA_STRING_TYPE,
                        true,
                        "Input-data as base64 encoded string.");
+    registerInputField("label",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "List with the labels for the input-data as base64 encoded string.");
     registerInputField("number_of_inputs_per_cycle",
                        SAKURA_INT_TYPE,
                        true,
-                       "Number of inputs per set.");
-    registerInputField("number_of_cycles",
+                       "Number of input-data per input-set.");
+    registerInputField("number_of_outputs_per_cycle",
                        SAKURA_INT_TYPE,
                        true,
-                       "Number of sets.");
+                       "Number of labels-data per input-set");
+    registerInputField("Number_of_cycles",
+                       SAKURA_INT_TYPE,
+                       true,
+                       "Total number of sets.");
 
     registerOutputField("task_uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created task.");
 }
 
-/**
- * @brief AskBlossom::runTask
- * @param blossomLeaf
- * @param errorMessage
- * @return
- */
 bool
-AskBlossom::runTask(BlossomLeaf &blossomLeaf,
-                    const Kitsunemimi::DataMap &,
-                    BlossomStatus &status,
-                    Kitsunemimi::ErrorContainer &error)
+CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
+                         const Kitsunemimi::DataMap &,
+                         BlossomStatus &status,
+                         Kitsunemimi::ErrorContainer &error)
 {
     const uint32_t inputsPerCycle = blossomLeaf.input.get("number_of_inputs_per_cycle").getInt();
+    const uint32_t outputsPerCycle = blossomLeaf.input.get("number_of_outputs_per_cycle").getInt();
     const uint32_t numberOfCycles = blossomLeaf.input.get("number_of_cycles").getInt();
     const std::string uuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string inputs = blossomLeaf.input.get("inputs").getString();
 
+    // get cluster
     ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
     if(cluster == nullptr)
     {
-        status.errorMessage = "cluster with uuid '" + uuid + "'not found";
-        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
-        error.addMeesage(status.errorMessage);
+        error.addMeesage("interface with uuid not found: " + uuid);
         return false;
     }
 
     // get input-data
-    DataBuffer resultBuffer;
-    if(Kitsunemimi::Crypto::decodeBase64(resultBuffer, inputs) == false)
+    const std::string inputs = blossomLeaf.input.get("inputs").getString();
+    DataBuffer inputBuffer;
+    if(Kitsunemimi::Crypto::decodeBase64(inputBuffer, inputs) == false)
     {
         error.addMeesage("base64-decoding of the input failes");
         return false;
     }
 
-    const std::string taskUuid = cluster->addRequestTask((float*)resultBuffer.data,
-                                                         inputsPerCycle,
-                                                         numberOfCycles);
-    resultBuffer.data = nullptr;
+    // get label-data
+    const std::string label = blossomLeaf.input.get("label").getString();
+    DataBuffer labelBuffer;
+    if(Kitsunemimi::Crypto::decodeBase64(labelBuffer, label) == false)
+    {
+        error.addMeesage("base64-decoding of the input failes");
+        return false;
+    }
+
+    // init learn-task
+    const std::string taskUuid = cluster->addLearnTask((float*)inputBuffer.data,
+                                                       (float*)labelBuffer.data,
+                                                       inputsPerCycle,
+                                                       outputsPerCycle,
+                                                       numberOfCycles);
+    inputBuffer.data = nullptr;
+    labelBuffer.data = nullptr;
 
     blossomLeaf.output.insert("task_uuid", taskUuid);
 

@@ -1,5 +1,5 @@
 /**
- * @file        init_blossom.cpp
+ * @file        create_cluster.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,8 @@
  *      limitations under the License.
  */
 
-#include "init_blossom.h"
+#include "create_cluster.h"
+
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
 
@@ -31,10 +32,15 @@
 
 using namespace Kitsunemimi::Sakura;
 
-InitBlossom::InitBlossom()
-    : Blossom("Create a new cluster based on an input-definition.")
+CreateCluster::CreateCluster()
+    : Blossom("Create complete new cluster.")
 {
-    registerInputField("input",
+    registerInputField("name",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Name for the new cluster.");
+
+    registerInputField("template",
                        SAKURA_STRING_TYPE,
                        true,
                        "Input-file with the definition of the new cluster "
@@ -43,19 +49,16 @@ InitBlossom::InitBlossom()
     registerOutputField("cluster_uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created cluster.");
+    registerOutputField("name",
+                        SAKURA_STRING_TYPE,
+                        "Name of the new created cluster.");
 }
 
-/**
- * @brief InitBlossom::runTask
- * @param blossomLeaf
- * @param errorMessage
- * @return
- */
 bool
-InitBlossom::runTask(BlossomLeaf &blossomLeaf,
-                     const Kitsunemimi::DataMap &,
-                     BlossomStatus &,
-                     Kitsunemimi::ErrorContainer &error)
+CreateCluster::runTask(BlossomLeaf &blossomLeaf,
+                       const Kitsunemimi::DataMap &,
+                       BlossomStatus &status,
+                       Kitsunemimi::ErrorContainer &error)
 {
     const std::string input = blossomLeaf.input.get("content").getString();
 

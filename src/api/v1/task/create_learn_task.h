@@ -1,5 +1,5 @@
 /**
- * @file        ask_blossom.h
+ * @file        create_learn_task.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,16 +20,16 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_ASK_BLOSSOM_H
-#define KYOUKOMIND_ASK_BLOSSOM_H
+#ifndef KYOUKOMIND_CREATELEARNTASK_H
+#define KYOUKOMIND_CREATELEARNTASK_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class AskBlossom
+class CreateLearnTask
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    AskBlossom();
+    CreateLearnTask();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
@@ -38,4 +38,4 @@ protected:
                  Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_ASK_BLOSSOM_H
+#endif // KYOUKOMIND_CREATELEARNTASK_H
