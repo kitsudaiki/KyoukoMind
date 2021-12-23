@@ -36,12 +36,12 @@
 
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/files/text_file.h>
-
 #include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
+#include <libKitsunemimiSakuraDatabase/sql_database.h>
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
@@ -50,6 +50,8 @@ ClusterHandler* KyoukoRoot::m_clusterHandler = nullptr;
 uint32_t* KyoukoRoot::m_randomValues = nullptr;
 SegmentQueue* KyoukoRoot::m_segmentQueue = nullptr;
 ProcessingUnitHandler* KyoukoRoot::m_processingUnitHandler = nullptr;
+Kitsunemimi::Sakura::SqlDatabase* KyoukoRoot::database = nullptr;
+ClusterTable* KyoukoRoot::clustersTable = nullptr;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
@@ -71,6 +73,9 @@ KyoukoRoot::~KyoukoRoot() {}
 bool
 KyoukoRoot::init()
 {
+    Kitsunemimi::ErrorContainer error;
+    bool success = false;
+
     validateStructSizes();
 
     // init predefinde random-values
@@ -78,6 +83,34 @@ KyoukoRoot::init()
     srand(time(NULL));
     for(uint32_t i = 0; i < NUMBER_OF_RAND_VALUES; i++) {
         m_randomValues[i] = static_cast<uint32_t>(rand());
+    }
+
+
+    // read database-path from config
+    database = new Kitsunemimi::Sakura::SqlDatabase();
+    const std::string databasePath = GET_STRING_CONFIG("DEFAULT", "database", success);
+    if(success == false)
+    {
+        error.addMeesage("No database-path defined in config.");
+        LOG_ERROR(error);
+        return false;
+    }
+
+    // initalize database
+    if(database->initDatabase(databasePath, error) == false)
+    {
+        error.addMeesage("Failed to initialize sql-database.");
+        LOG_ERROR(error);
+        return false;
+    }
+
+    // initialize users-table
+    clustersTable = new ClusterTable(database);
+    if(clustersTable->initTable(error) == false)
+    {
+        error.addMeesage("Failed to initialize user-table in database.");
+        LOG_ERROR(error);
+        return false;
     }
 
     m_clusterHandler = new ClusterHandler();

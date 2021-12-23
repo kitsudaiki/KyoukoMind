@@ -27,7 +27,14 @@ using namespace Kitsunemimi::Sakura;
 DeleteCluster::DeleteCluster()
     : Blossom("Delete a cluster.")
 {
-
+    // input
+    registerInputField("cluster_name",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Name of the cluster.");
+    // column in database is limited to 256 characters size
+    assert(addFieldBorder("cluster_name", 4, 256));
+    assert(addFieldRegex("cluster_name", "[a-zA-Z][a-zA-Z_0-9]*"));
 }
 
 bool

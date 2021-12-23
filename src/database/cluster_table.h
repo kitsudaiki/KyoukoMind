@@ -1,5 +1,5 @@
 /**
- * @file        users_database.h
+ * @file        cluster_table.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -37,6 +37,17 @@ class ClusterTable
 public:
     ClusterTable(Kitsunemimi::Sakura::SqlDatabase* db);
     ~ClusterTable();
+
+    bool addCluster(Kitsunemimi::Json::JsonItem &clusterData,
+                    Kitsunemimi::ErrorContainer &error);
+    bool getClusterByName(Kitsunemimi::Json::JsonItem &result,
+                          const std::string &clusterName,
+                          Kitsunemimi::ErrorContainer &error,
+                          const bool showHiddenValues = false);
+    bool getAllCluster(Kitsunemimi::TableItem &result,
+                       Kitsunemimi::ErrorContainer &error);
+    bool deleteCluster(const std::string &clusterName,
+                       Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // CLUSTERTABLE_H

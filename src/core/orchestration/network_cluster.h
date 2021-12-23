@@ -46,7 +46,8 @@ public:
     std::vector<OutputSegment*> outputSegments;
     std::vector<AbstractSegment*> allSegments;
 
-    const std::string initNewCluster(const JsonItem &parsedContent, ClusterInterface *interface);
+    const std::string initNewCluster(const JsonItem &parsedContent,
+                                     ClusterInterface* interface);
 
 private:
     const std::string getName();

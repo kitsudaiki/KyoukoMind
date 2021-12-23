@@ -25,9 +25,13 @@
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
 
+#include <libKitsunemimiHanamiCommon/uuid.h>
+#include <libKitsunemimiHanamiCommon/enums.h>
+
 #include <libKitsunemimiCrypto/common.h>
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiJson/json_item.h>
+
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -35,10 +39,14 @@ using namespace Kitsunemimi::Sakura;
 CreateCluster::CreateCluster()
     : Blossom("Create complete new cluster.")
 {
-    registerInputField("name",
+    // input
+    registerInputField("cluster_name",
                        SAKURA_STRING_TYPE,
                        true,
                        "Name for the new cluster.");
+    // column in database is limited to 256 characters size
+    assert(addFieldBorder("cluster_name", 4, 256));
+    assert(addFieldRegex("cluster_name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
     registerInputField("template",
                        SAKURA_STRING_TYPE,
@@ -46,40 +54,53 @@ CreateCluster::CreateCluster()
                        "Input-file with the definition of the new cluster "
                        "as base64 encoded string.");
 
-    registerOutputField("cluster_uuid",
+    // output
+    registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created cluster.");
-    registerOutputField("name",
+    registerOutputField("cluster_name",
                         SAKURA_STRING_TYPE,
                         "Name of the new created cluster.");
 }
 
+/**
+ * @brief CreateCluster::runTask
+ * @param blossomLeaf
+ * @param status
+ * @param error
+ * @return
+ */
 bool
 CreateCluster::runTask(BlossomLeaf &blossomLeaf,
                        const Kitsunemimi::DataMap &,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
-    const std::string input = blossomLeaf.input.get("content").getString();
+    const std::string clusterName = blossomLeaf.input.get("cluster_name").getString();
+    const std::string content = blossomLeaf.input.get("template").getString();
 
-    DataBuffer resultBuffer;
-    if(Kitsunemimi::Crypto::decodeBase64(resultBuffer, input) == false)
+    // check if user already exist within the table
+    Kitsunemimi::Json::JsonItem getResult;
+    if(KyoukoRoot::clustersTable->getClusterByName(getResult, clusterName, error))
+    {
+        status.errorMessage = "Cluster with name '" + clusterName + "' already exist.";
+        status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
+        return false;
+    }
+
+    // decode template
+    std::string contentDecoded;
+    if(Kitsunemimi::Crypto::decodeBase64(contentDecoded, content) == false)
     {
         error.addMeesage("base64-decoding of the input failes");
         return false;
     }
 
-    const std::string content = std::string(static_cast<char*>(resultBuffer.data),
-                                            resultBuffer.usedBufferSize);
-
-    // parse input
+    // parse template
     Kitsunemimi::Json::JsonItem parsedContent;
-    if(parsedContent.parse(content, error) == false) {
+    if(parsedContent.parse(contentDecoded, error) == false) {
         return false;
     }
-
-    std::cout<<"###################################################################"<<std::endl;
-    std::cout<<parsedContent.toString(true)<<std::endl;
 
     ClusterInterface* newCluster = new ClusterInterface();
     const std::string uuid = newCluster->initNewCluster(parsedContent);
@@ -91,7 +112,31 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 
     KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster);
 
-    blossomLeaf.output.insert("cluster_uuid", uuid);
+    // convert values
+    Kitsunemimi::Json::JsonItem clusterData;
+    clusterData.insert("cluster_name", clusterName);
+    clusterData.insert("internal_cluster_uuid", uuid);
+    clusterData.insert("template", content);
+
+    // add new user to table
+    if(KyoukoRoot::clustersTable->addCluster(clusterData, error) == false)
+    {
+        status.errorMessage = error.toString();
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+
+    // get new created user from database
+    if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output, clusterName, error) == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+
+    // remove irrelevant fields
+    blossomLeaf.output.remove("owner_uuid");
+    blossomLeaf.output.remove("project_uuid");
+    blossomLeaf.output.remove("visibility");
 
     return true;
 }

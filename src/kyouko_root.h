@@ -24,6 +24,7 @@
 #define KYOUKOMIND_KYOUKO_ROOT_H
 
 #include <common.h>
+#include <database/cluster_table.h>
 
 class ClusterHandler;
 class SegmentQueue;
@@ -42,6 +43,8 @@ public:
     static uint32_t* m_randomValues;
     static SegmentQueue* m_segmentQueue;
     static ProcessingUnitHandler* m_processingUnitHandler;
+    static Kitsunemimi::Sakura::SqlDatabase* database;
+    static ClusterTable* clustersTable;
 
     bool initializeSakuraFiles(Kitsunemimi::ErrorContainer &error);
     const std::string initCluster(const std::string &filePath,
