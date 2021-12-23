@@ -22,12 +22,24 @@
 
 #include "list_cluster.h"
 
+#include <kyouko_root.h>
+
+#include <libKitsunemimiHanamiCommon/enums.h>
+
 using namespace Kitsunemimi::Sakura;
 
 ListCluster::ListCluster()
     : Blossom("List all clusters.")
 {
-
+    // output
+    registerOutputField("header",
+                        SAKURA_ARRAY_TYPE,
+                        "Array with the namings all columns of the table.");
+    assert(addFieldMatch("header", new Kitsunemimi::DataValue("[\"uuid\","
+                                                              "\"cluster_name\"]")));
+    registerOutputField("body",
+                        SAKURA_ARRAY_TYPE,
+                        "Array with all rows of the table, which array arrays too.");
 }
 
 bool
@@ -36,5 +48,20 @@ ListCluster::runTask(BlossomLeaf &blossomLeaf,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
+    // get data from table
+    Kitsunemimi::TableItem table;
+    if(KyoukoRoot::clustersTable->getAllCluster(table, error) == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
 
+    table.deleteColumn("visibility");
+    table.deleteColumn("owner_uuid");
+    table.deleteColumn("project_uuid");
+
+    blossomLeaf.output.insert("header", table.getInnerHeader());
+    blossomLeaf.output.insert("body", table.getBody());
+
+    return true;
 }

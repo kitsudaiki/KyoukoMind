@@ -22,12 +22,33 @@
 
 #include "show_cluster.h"
 
+#include <kyouko_root.h>
+
+#include <libKitsunemimiJson/json_item.h>
+
+#include <libKitsunemimiHanamiCommon/enums.h>
+
 using namespace Kitsunemimi::Sakura;
 
 ShowCluster::ShowCluster()
     : Blossom("Show information of a specific cluster.")
 {
+    // input
+    registerInputField("cluster_name",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Name of the cluster.");
+    // column in database is limited to 256 characters size
+    assert(addFieldBorder("cluster_name", 4, 256));
+    assert(addFieldRegex("cluster_name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
+    // output
+    registerOutputField("uuid",
+                        SAKURA_STRING_TYPE,
+                        "UUID of the cluster.");
+    registerOutputField("cluster_name",
+                        SAKURA_STRING_TYPE,
+                        "Name of the cluster.");
 }
 
 bool
@@ -36,5 +57,21 @@ ShowCluster::runTask(BlossomLeaf &blossomLeaf,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
+    // get information from request
+    const std::string clusterName = blossomLeaf.input.get("cluster_name").getString();
 
+    // get data from table
+    if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output, clusterName, error) == false)
+    {
+        status.errorMessage = "Cluster with name '" + clusterName + "' not found.";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        return false;
+    }
+
+    // remove irrelevant fields
+    blossomLeaf.output.remove("owner_uuid");
+    blossomLeaf.output.remove("project_uuid");
+    blossomLeaf.output.remove("visibility");
+
+    return true;
 }

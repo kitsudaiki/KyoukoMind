@@ -40,10 +40,11 @@ ClusterInterface::ClusterInterface()
     m_taskQueue = new TaskQueue();
 }
 
-const std::string
-ClusterInterface::initNewCluster(const JsonItem &parsedContent)
+bool
+ClusterInterface::initNewCluster(const JsonItem &parsedContent,
+                                 const std::string &uuid)
 {
-    return m_cluster->initNewCluster(parsedContent, this);
+    return m_cluster->initNewCluster(parsedContent, uuid, this);
 }
 
 /**

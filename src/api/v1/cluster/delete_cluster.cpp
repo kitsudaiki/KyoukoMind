@@ -22,6 +22,12 @@
 
 #include "delete_cluster.h"
 
+#include <kyouko_root.h>
+
+#include <libKitsunemimiJson/json_item.h>
+
+#include <libKitsunemimiHanamiCommon/enums.h>
+
 using namespace Kitsunemimi::Sakura;
 
 DeleteCluster::DeleteCluster()
@@ -37,11 +43,37 @@ DeleteCluster::DeleteCluster()
     assert(addFieldRegex("cluster_name", "[a-zA-Z][a-zA-Z_0-9]*"));
 }
 
+/**
+ * @brief DeleteCluster::runTask
+ * @param blossomLeaf
+ * @param status
+ * @param error
+ * @return
+ */
 bool
 DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
                        const Kitsunemimi::DataMap &,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
+    // get information from request
+    const std::string clusterName = blossomLeaf.input.get("cluster_name").getString();
 
+    // check if user exist within the table
+    Kitsunemimi::Json::JsonItem getResult;
+    if(KyoukoRoot::clustersTable->getClusterByName(getResult, clusterName, error) == false)
+    {
+        status.errorMessage = "Cluster with name '" + clusterName + "' not found.";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        return false;
+    }
+
+    // get data from table
+    if(KyoukoRoot::clustersTable->deleteCluster(clusterName, error) == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+
+    return true;
 }

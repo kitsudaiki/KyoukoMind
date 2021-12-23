@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file        network_cluster.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
@@ -110,8 +110,9 @@ NetworkCluster::setName(const std::string newName)
  *
  * @return true, if successfull, else false
  */
-const std::string
+bool
 NetworkCluster::initNewCluster(const JsonItem &parsedContent,
+                               const std::string &uuid,
                                ClusterInterface* interface)
 {
     prepareSegments(parsedContent);
@@ -120,7 +121,8 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent,
 
     // network-meta
     ClusterMetaData newMetaData;
-    newMetaData.uuid = Kitsunemimi::Hanami::generateUuid();
+    strncpy(newMetaData.uuid.uuid, uuid.c_str(), 36);
+    newMetaData.uuid.uuid[36] = '\0';
 
     ClusterSettings newSettings;
     newSettings.cycleTime = paredSettings.get("cycle_time").getLong();
@@ -156,7 +158,7 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent,
         newSegment->parentCluster = interface;
     }
 
-    return networkMetaData->uuid.toString();
+    return true;
 }
 
 

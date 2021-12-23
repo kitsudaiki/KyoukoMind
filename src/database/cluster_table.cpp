@@ -41,13 +41,9 @@ ClusterTable::ClusterTable(Kitsunemimi::Sakura::SqlDatabase* db)
     clusterName.maxLength = 256;
     m_tableHeader.push_back(clusterName);
 
-    DbHeaderEntry clusterUuid;
-    clusterUuid.name = "internal_cluster_uuid";
-    clusterUuid.maxLength = 36;
-    m_tableHeader.push_back(clusterUuid);
-
     DbHeaderEntry templateString;
     templateString.name = "template";
+    templateString.hide = true;
     m_tableHeader.push_back(templateString);
 }
 

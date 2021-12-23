@@ -47,8 +47,6 @@ public:
     static ClusterTable* clustersTable;
 
     bool initializeSakuraFiles(Kitsunemimi::ErrorContainer &error);
-    const std::string initCluster(const std::string &filePath,
-                                  Kitsunemimi::ErrorContainer &error);
 
 private:
     uint32_t m_serverId = 0;

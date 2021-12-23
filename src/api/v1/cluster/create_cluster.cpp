@@ -93,29 +93,22 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     if(Kitsunemimi::Crypto::decodeBase64(contentDecoded, content) == false)
     {
         error.addMeesage("base64-decoding of the input failes");
+        status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
+        status.errorMessage = "Given template is not a valid base64 string";
         return false;
     }
 
     // parse template
     Kitsunemimi::Json::JsonItem parsedContent;
-    if(parsedContent.parse(contentDecoded, error) == false) {
-        return false;
-    }
-
-    ClusterInterface* newCluster = new ClusterInterface();
-    const std::string uuid = newCluster->initNewCluster(parsedContent);
-    if(uuid == "")
+    if(parsedContent.parse(contentDecoded, error) == false)
     {
-        delete newCluster;
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
-
-    KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster);
 
     // convert values
     Kitsunemimi::Json::JsonItem clusterData;
     clusterData.insert("cluster_name", clusterName);
-    clusterData.insert("internal_cluster_uuid", uuid);
     clusterData.insert("template", content);
 
     // add new user to table
@@ -132,6 +125,17 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
+
+    const std::string uuid = blossomLeaf.output.get("uuid").getString();
+    ClusterInterface* newCluster = new ClusterInterface();
+    if(newCluster->initNewCluster(parsedContent, uuid))
+    {
+        delete newCluster;
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+
+    KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster);
 
     // remove irrelevant fields
     blossomLeaf.output.remove("owner_uuid");

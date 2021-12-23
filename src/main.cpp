@@ -58,10 +58,10 @@ main(int argc, char *argv[])
         // run the dev-test based on the MNIST test files, if defined by the config
         const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
         const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
-        const std::string uuid = rootObj.initCluster(initialFile, error);
+        //const std::string uuid = rootObj.initCluster(initialFile, error);
 
         const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
-        learnTestData(mnistTestPath, uuid);
+        //learnTestData(mnistTestPath, uuid);
     }
     else
     {

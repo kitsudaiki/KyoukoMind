@@ -43,7 +43,8 @@ class ClusterInterface
 public:
     ClusterInterface();
 
-    const std::string initNewCluster(const JsonItem &parsedContent);
+    bool initNewCluster(const JsonItem &parsedContent,
+                        const std::string &uuid);
 
     // task-handling
     void updateClusterState();
