@@ -24,6 +24,9 @@
 
 #include <kyouko_root.h>
 
+#include <core/orchestration/cluster_handler.h>
+#include <core/orchestration/cluster_interface.h>
+
 #include <libKitsunemimiJson/json_item.h>
 
 #include <libKitsunemimiHanamiCommon/enums.h>
@@ -72,6 +75,14 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
     if(KyoukoRoot::clustersTable->deleteCluster(clusterName, error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+
+    // remove internal data
+    const std::string uuid = getResult.get("uuid").getString();
+    if(KyoukoRoot::m_clusterHandler->removeCluster(uuid) == false)
+    {
+        // should never be false, because the uuid is already defined as unique by the database
         return false;
     }
 
