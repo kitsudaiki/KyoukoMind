@@ -71,10 +71,9 @@ KyoukoRoot::~KyoukoRoot() {}
  * @return
  */
 bool
-KyoukoRoot::init()
+KyoukoRoot::initBase()
 {
     Kitsunemimi::ErrorContainer error;
-    bool success = false;
 
     validateStructSizes();
 
@@ -85,6 +84,36 @@ KyoukoRoot::init()
         m_randomValues[i] = static_cast<uint32_t>(rand());
     }
 
+    if(initDatabase(error) == false) {
+        return false;
+    }
+
+    m_clusterHandler = new ClusterHandler();
+    m_segmentQueue = new SegmentQueue();
+
+    return true;
+}
+
+bool
+KyoukoRoot::initThreads()
+{
+    m_processingUnitHandler = new ProcessingUnitHandler();
+    if(m_processingUnitHandler->initProcessingUnits(1) == false) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief KyoukoRoot::initDatabase
+ * @param error
+ * @return
+ */
+bool
+KyoukoRoot::initDatabase(Kitsunemimi::ErrorContainer &error)
+{
+    bool success = false;
 
     // read database-path from config
     database = new Kitsunemimi::Sakura::SqlDatabase();
@@ -112,11 +141,6 @@ KyoukoRoot::init()
         LOG_ERROR(error);
         return false;
     }
-
-    m_clusterHandler = new ClusterHandler();
-    m_segmentQueue = new SegmentQueue();
-    m_processingUnitHandler = new ProcessingUnitHandler();
-    m_processingUnitHandler->initProcessingUnits(1);
 
     return true;
 }

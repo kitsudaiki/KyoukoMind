@@ -51,23 +51,30 @@ main(int argc, char *argv[])
         return 1;
     }
 
+    initBlossoms();
+
     bool success = false;
     const bool devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
     if(devMode)
     {
+        if(rootObj.initBase() == false) {
+            return 1;
+        }
+
         // run the dev-test based on the MNIST test files, if defined by the config
         const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
         const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
-        //const std::string uuid = rootObj.initCluster(initialFile, error);
-
         const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
-        //learnTestData(mnistTestPath, uuid);
+
+        learnTestData(mnistTestPath, "");
     }
     else
     {
         // init blossoms
-        initBlossoms();
-        rootObj.init();
+        if(rootObj.initBase() == false) {
+            return 1;
+        }
+
         if(rootObj.initializeSakuraFiles(error) == false)
         {
             LOG_ERROR(error);
@@ -75,6 +82,8 @@ main(int argc, char *argv[])
         }
 
         Kitsunemimi::Hanami::initPredefinedBlossoms();
+
+        rootObj.initThreads();
 
         // initialize server and connections based on the config-file
         const std::vector<std::string> groupNames = {};

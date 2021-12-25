@@ -84,9 +84,7 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("cluster_name", clusterName);
 
     // get user from db
-    if(get(result, conditions, error, showHiddenValues) == false)
-    {
-        LOG_ERROR(error);
+    if(get(result, conditions, error, showHiddenValues) == false) {
         return false;
     }
 

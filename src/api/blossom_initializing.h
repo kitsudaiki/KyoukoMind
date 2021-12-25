@@ -136,6 +136,8 @@ initTaskBlossoms()
 void
 initBlossoms()
 {
+    initClusterBlossoms();
+    initTaskBlossoms();
 }
 
 #endif // KYOUKOMIND_BLOSSOM_INITIALIZING_H

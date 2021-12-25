@@ -96,6 +96,11 @@ CreateClusterGenerate::runTask(BlossomLeaf &blossomLeaf,
 
     DataItem* generatedContent = generateNewCluster(clusterName, numberOfInputs, numberOfOutputs);
 
+    // debug-output
+    // std::cout<<"####################################################################"<<std::endl;
+    // std::cout<<generatedContent->toString(true)<<std::endl;
+    // std::cout<<"####################################################################"<<std::endl;
+
     const std::string contentString = generatedContent->toString();
     std::string base64Content;
     Kitsunemimi::Crypto::encodeBase64(base64Content, contentString.c_str(), contentString.size());
@@ -104,6 +109,9 @@ CreateClusterGenerate::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem clusterData;
     clusterData.insert("cluster_name", clusterName);
     clusterData.insert("template", base64Content);
+    clusterData.insert("project_uuid", "-");
+    clusterData.insert("owner_uuid", "-");
+    clusterData.insert("visibility", 0);
 
     // add new user to table
     if(KyoukoRoot::clustersTable->addCluster(clusterData, error) == false)
@@ -130,7 +138,11 @@ CreateClusterGenerate::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster);
+    if(KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster) == false)
+    {
+        // should never be false, because the uuid is already defined as unique by the database
+        return false;
+    }
 
     // remove irrelevant fields
     blossomLeaf.output.remove("owner_uuid");
@@ -299,8 +311,8 @@ CreateClusterGenerate::createSegmentBricks(DataMap* result,
 
     DataMap* internalBrick = new DataMap();
     DataArray* internalBrickPosition = new DataArray();
-    internalBrickPosition->append(new DataValue(1));
     internalBrickPosition->append(new DataValue(2));
+    internalBrickPosition->append(new DataValue(1));
     internalBrickPosition->append(new DataValue(1));
     internalBrick->insert("type", new DataValue("normal"));
     internalBrick->insert("number_of_nodes", new DataValue(300));
@@ -309,8 +321,8 @@ CreateClusterGenerate::createSegmentBricks(DataMap* result,
 
     DataMap* outputBrick = new DataMap();
     DataArray* outputBrickPosition = new DataArray();
-    outputBrickPosition->append(new DataValue(1));
     outputBrickPosition->append(new DataValue(3));
+    outputBrickPosition->append(new DataValue(1));
     outputBrickPosition->append(new DataValue(1));
     outputBrick->insert("type", new DataValue("output"));
     outputBrick->insert("number_of_nodes", new DataValue(numberOfOutputNodes));

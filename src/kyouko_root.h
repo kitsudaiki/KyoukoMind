@@ -37,7 +37,8 @@ public:
     KyoukoRoot();
     ~KyoukoRoot();
 
-    bool init();
+    bool initBase();
+    bool initThreads();
 
     static ClusterHandler* m_clusterHandler;
     static uint32_t* m_randomValues;
@@ -50,6 +51,7 @@ public:
 
 private:
     uint32_t m_serverId = 0;
+    bool initDatabase(Kitsunemimi::ErrorContainer &error);
 };
 
 #endif //KYOUKOMIND_KYOUKO_ROOT_H

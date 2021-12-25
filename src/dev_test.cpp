@@ -40,6 +40,10 @@
 
 #include <core/orchestration/task_queue.h>
 
+#include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
+
+using Kitsunemimi::Sakura::SakuraLangInterface;
+
 /**
  * @brief only a test-function for fast tests
  *
@@ -49,6 +53,52 @@ void
 learnTestData(const std::string &mnistRootPath,
               const std::string &uuid)
 {
+    SakuraLangInterface* iface = SakuraLangInterface::getInstance();
+    DataMap result;
+    DataMap context;
+    Kitsunemimi::Sakura::BlossomStatus status;
+    Kitsunemimi::ErrorContainer error;
+
+    DataMap clusterGenerateValues;
+    clusterGenerateValues.insert("cluster_name", new DataValue("test_cluster"));
+    clusterGenerateValues.insert("number_of_inputs", new DataValue(784));
+    clusterGenerateValues.insert("number_of_outputs", new DataValue(10));
+    iface->triggerBlossom(result,
+                          "create_generate",
+                          "cluster",
+                          context,
+                          clusterGenerateValues,
+                          status,
+                          error);
+    std::cout<<"result create: "<<result.toString()<<std::endl;
+    result.clear();
+    error._errorMessages.clear();
+
+
+    DataMap genericClusterValues;
+    genericClusterValues.insert("cluster_name", new DataValue("test_cluster"));
+    iface->triggerBlossom(result,
+                          "show",
+                          "cluster",
+                          context,
+                          genericClusterValues,
+                          status,
+                          error);
+    std::cout<<"result show: "<<result.toString()<<std::endl;
+    result.clear();
+    error._errorMessages.clear();
+
+    iface->triggerBlossom(result,
+                          "delete",
+                          "cluster",
+                          context,
+                          genericClusterValues,
+                          status,
+                          error);
+    std::cout<<"result delete: "<<result.toString()<<std::endl;
+
+    return;
+
     ClusterInterface* clusterInterface = KyoukoRoot::m_clusterHandler->getCluster(uuid);
 
     CpuProcessingUnit cpuProcessingUnit("dev_test");
