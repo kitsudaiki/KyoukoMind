@@ -33,7 +33,8 @@
 
 #include <libKitsunemimiHanamiEndpoints/endpoint.h>
 
-#include <api/v1/cluster/create_cluster.h>
+#include <api/v1/cluster/create_cluster_generate.h>
+#include <api/v1/cluster/create_cluster_template.h>
 #include <api/v1/cluster/show_cluster.h>
 #include <api/v1/cluster/list_cluster.h>
 #include <api/v1/cluster/delete_cluster.h>
@@ -53,12 +54,19 @@ initClusterBlossoms()
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     const std::string group = "cluster";
 
-    assert(interface->addBlossom(group, "create", new CreateCluster()));
-    endpoints->addEndpoint("v1/cluster",
+    assert(interface->addBlossom(group, "create_template", new CreateClusterTemplate()));
+    endpoints->addEndpoint("v1/cluster/template",
                            Kitsunemimi::Hanami::POST_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
-                           "create");
+                           "create_template");
+
+    assert(interface->addBlossom(group, "create_generate", new CreateClusterGenerate()));
+    endpoints->addEndpoint("v1/cluster/generate",
+                           Kitsunemimi::Hanami::POST_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "create_generate");
 
     assert(interface->addBlossom(group, "show", new ShowCluster()));
     endpoints->addEndpoint("v1/cluster",

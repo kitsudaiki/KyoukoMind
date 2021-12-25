@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster.cpp
+ * @file        create_cluster_template.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "create_cluster.h"
+#include "create_cluster_template.h"
 
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
@@ -36,7 +36,7 @@
 
 using namespace Kitsunemimi::Sakura;
 
-CreateCluster::CreateCluster()
+CreateClusterTemplate::CreateClusterTemplate()
     : Blossom("Create complete new cluster.")
 {
     // input
@@ -71,10 +71,10 @@ CreateCluster::CreateCluster()
  * @return
  */
 bool
-CreateCluster::runTask(BlossomLeaf &blossomLeaf,
-                       const Kitsunemimi::DataMap &,
-                       BlossomStatus &status,
-                       Kitsunemimi::ErrorContainer &error)
+CreateClusterTemplate::runTask(BlossomLeaf &blossomLeaf,
+                               const Kitsunemimi::DataMap &,
+                               BlossomStatus &status,
+                               Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterName = blossomLeaf.input.get("cluster_name").getString();
     const std::string content = blossomLeaf.input.get("template").getString();

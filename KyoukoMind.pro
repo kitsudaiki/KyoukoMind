@@ -107,7 +107,8 @@ INCLUDEPATH += $$PWD \
 
 HEADERS += \
     src/api/blossom_initializing.h \
-    src/api/v1/cluster/create_cluster.h \
+    src/api/v1/cluster/create_cluster_generate.h \
+    src/api/v1/cluster/create_cluster_template.h \
     src/api/v1/cluster/delete_cluster.h \
     src/api/v1/cluster/list_cluster.h \
     src/api/v1/cluster/show_cluster.h \
@@ -160,7 +161,8 @@ HEADERS += \
     src/kyouko_root.h
 
 SOURCES += \
-    src/api/v1/cluster/create_cluster.cpp \
+    src/api/v1/cluster/create_cluster_generate.cpp \
+    src/api/v1/cluster/create_cluster_template.cpp \
     src/api/v1/cluster/delete_cluster.cpp \
     src/api/v1/cluster/list_cluster.cpp \
     src/api/v1/cluster/show_cluster.cpp \
