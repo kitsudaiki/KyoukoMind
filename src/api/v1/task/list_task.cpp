@@ -22,12 +22,27 @@
 
 #include "list_task.h"
 
+#include <core/orchestration/cluster_handler.h>
+#include <core/orchestration/cluster_interface.h>
+#include <kyouko_root.h>
+
 using namespace Kitsunemimi::Sakura;
 
 ListTask::ListTask()
     : Blossom("List all tasks of a cluster.")
 {
+    registerInputField("cluster_uuid",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "UUID of the cluster, which should process the request");
 
+    // output
+    registerOutputField("header",
+                        SAKURA_ARRAY_TYPE,
+                        "Array with the namings all columns of the table.");
+    registerOutputField("body",
+                        SAKURA_ARRAY_TYPE,
+                        "Array with all rows of the table, which array arrays too.");
 }
 
 bool

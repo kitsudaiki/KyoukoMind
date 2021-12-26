@@ -137,7 +137,7 @@ ClusterInterface::updateClusterState()
         }
     }
 
-    m_task_mutex.lock();
+    std::lock_guard<std::mutex> guard(m_task_mutex);
 
     m_mode = NORMAL_MODE;
 
@@ -166,11 +166,14 @@ ClusterInterface::updateClusterState()
             startForwardLearnCycle();
         }
     }
-
-    m_task_mutex.unlock();
 }
 
-ClusterMode ClusterInterface::getMode() const
+/**
+ * @brief ClusterInterface::getMode
+ * @return
+ */
+ClusterMode
+ClusterInterface::getMode() const
 {
     return m_mode;
 }
@@ -190,15 +193,12 @@ ClusterInterface::addLearnTask(float* inputData,
                                const uint64_t numberOfOuputsPerCycle,
                                const uint64_t numberOfCycle)
 {
-    m_task_mutex.lock();
-    const std::string result = m_taskQueue->addLearnTask(inputData,
-                                                         labels,
-                                                         numberOfInputsPerCycle,
-                                                         numberOfOuputsPerCycle,
-                                                         numberOfCycle);
-    m_task_mutex.unlock();
-
-    return result;
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskQueue->addLearnTask(inputData,
+                                     labels,
+                                     numberOfInputsPerCycle,
+                                     numberOfOuputsPerCycle,
+                                     numberOfCycle);
 }
 
 /**
@@ -213,13 +213,10 @@ ClusterInterface::addRequestTask(float* inputData,
                                  const uint64_t numberOfInputsPerCycle,
                                  const uint64_t numberOfCycle)
 {
-    m_task_mutex.lock();
-    const std::string result = m_taskQueue->addRequestTask(inputData,
-                                                           numberOfInputsPerCycle,
-                                                           numberOfCycle);
-    m_task_mutex.unlock();
-
-    return result;
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskQueue->addRequestTask(inputData,
+                                       numberOfInputsPerCycle,
+                                       numberOfCycle);
 }
 
 /**
@@ -252,11 +249,8 @@ ClusterInterface::request(float* inputData,
 uint64_t
 ClusterInterface::getActualTaskCycle()
 {
-    m_task_mutex.lock();
-    const uint64_t result = m_taskQueue->actualTask->actualCycle;
-    m_task_mutex.unlock();
-
-    return result;
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskQueue->actualTask->actualCycle;
 }
 
 /**
@@ -267,11 +261,8 @@ ClusterInterface::getActualTaskCycle()
 const TaskProgress
 ClusterInterface::getProgress(const std::string &taskUuid)
 {
-    m_task_mutex.lock();
-    const TaskProgress result = m_taskQueue->getProgress(taskUuid);
-    m_task_mutex.unlock();
-
-    return result;
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskQueue->getProgress(taskUuid);
 }
 
 /**
@@ -282,11 +273,8 @@ ClusterInterface::getProgress(const std::string &taskUuid)
 const uint32_t*
 ClusterInterface::getResultData(const std::string &taskUuid)
 {
-    m_task_mutex.lock();
-    const uint32_t* result = m_taskQueue->getResultData(taskUuid);
-    m_task_mutex.unlock();
-
-    return result;
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskQueue->getResultData(taskUuid);
 }
 
 /**
@@ -297,11 +285,8 @@ ClusterInterface::getResultData(const std::string &taskUuid)
 bool
 ClusterInterface::removeResultData(const std::string &taskUuid)
 {
-    m_task_mutex.lock();
-    const bool result = m_taskQueue->removeTask(taskUuid);
-    m_task_mutex.unlock();
-
-    return result;
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskQueue->removeTask(taskUuid);
 }
 
 /**
@@ -312,11 +297,8 @@ ClusterInterface::removeResultData(const std::string &taskUuid)
 bool
 ClusterInterface::isFinish(const std::string &taskUuid)
 {
-    m_task_mutex.lock();
-    const bool result = m_taskQueue->isFinish(taskUuid);
-    m_task_mutex.unlock();
-
-    return result;
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskQueue->isFinish(taskUuid);
 }
 
 /**
@@ -326,9 +308,8 @@ ClusterInterface::isFinish(const std::string &taskUuid)
 void
 ClusterInterface::setResultForActualCycle(const uint32_t result)
 {
-    m_task_mutex.lock();
+    std::lock_guard<std::mutex> guard(m_task_mutex);
     m_taskQueue->actualTask->resultData[m_taskQueue->actualTask->actualCycle] = result;
-    m_task_mutex.unlock();
 }
 
 /**

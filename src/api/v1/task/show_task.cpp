@@ -22,12 +22,52 @@
 
 #include "show_task.h"
 
+#include <core/orchestration/cluster_handler.h>
+#include <core/orchestration/cluster_interface.h>
+#include <kyouko_root.h>
+
 using namespace Kitsunemimi::Sakura;
 
 ShowTask::ShowTask()
     : Blossom("Show information of a specific task.")
 {
+    registerInputField("cluster_uuid",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "UUID of the cluster, which should process the request");
+    registerInputField("task_uuid",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "UUID of the cluster, which should process the request");
 
+
+    registerOutputField("percentage_finished",
+                        SAKURA_FLOAT_TYPE,
+                        "Percentation of the progress between 0.0 and 1.0.");
+    registerOutputField("state",
+                        SAKURA_STRING_TYPE,
+                        "Actual state of the task."); // TODO: add state-names
+    registerOutputField("queue_timestamp",
+                        SAKURA_STRING_TYPE,
+                        "Timestamp in UTC when the task entered the queued state, "
+                        "which is basicall the timestamp when the task was created");
+    registerOutputField("start_timestamp",
+                        SAKURA_STRING_TYPE,
+                        "Timestamp in UTC when the task entered the active state.");
+    registerOutputField("end_timestamp",
+                        SAKURA_STRING_TYPE,
+                        "Timestamp in UTC when the task was finished.");
+}
+
+const std::string
+serializeTimePoint(const std::chrono::high_resolution_clock::time_point& time,
+                   const std::string& format = "UTC: %Y-%m-%d %H:%M:%S")
+{
+    std::time_t tt = std::chrono::system_clock::to_time_t(time);
+    std::tm tm = *std::gmtime(&tt);
+    std::stringstream ss;
+    ss << std::put_time(&tm, format.c_str() );
+    return ss.str();
 }
 
 bool
@@ -36,5 +76,48 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
                   BlossomStatus &status,
                   Kitsunemimi::ErrorContainer &error)
 {
+    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
+    const std::string taskUuid = blossomLeaf.input.get("task_uuid").getString();
 
+    // get cluster
+    ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
+    if(cluster == nullptr)
+    {
+        error.addMeesage("interface with uuid not found: " + clusterUuid);
+        return false;
+    }
+
+    const TaskProgress progress = cluster->getProgress(taskUuid);
+
+    blossomLeaf.output.insert("percentage_finished", std::to_string(progress.percentageFinished));
+    blossomLeaf.output.insert("queue_timestamp", serializeTimePoint(progress.queuedTimeStamp));
+    if(progress.state == QUEUED_TASK_STATE)
+    {
+        blossomLeaf.output.insert("state", "queued");
+        blossomLeaf.output.insert("start_timestamp", "-");
+        blossomLeaf.output.insert("end_timestamp", "-");
+    }
+    else if(progress.state == ACTIVE_TASK_STATE)
+    {
+        blossomLeaf.output.insert("state", "active");
+        blossomLeaf.output.insert("start_timestamp",
+                                  serializeTimePoint(progress.startActiveTimeStamp));
+        blossomLeaf.output.insert("end_timestamp", "-");
+    }
+    else if(progress.state == ABORTED_TASK_STATE)
+    {
+        blossomLeaf.output.insert("state", "aborted");
+        blossomLeaf.output.insert("start_timestamp",
+                                  serializeTimePoint(progress.startActiveTimeStamp));
+        blossomLeaf.output.insert("end_timestamp", "-");
+    }
+    else if(progress.state == FINISHED_TASK_STATE)
+    {
+        blossomLeaf.output.insert("state", "finished");
+        blossomLeaf.output.insert("start_timestamp",
+                                  serializeTimePoint(progress.startActiveTimeStamp));
+        blossomLeaf.output.insert("end_timestamp", serializeTimePoint(progress.endActiveTimeStamp));
+    }
+
+    return true;
 }
