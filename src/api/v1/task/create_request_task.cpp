@@ -43,30 +43,31 @@ CreateRequestTask::CreateRequestTask()
                        SAKURA_STRING_TYPE,
                        true,
                        "Input-data as base64 encoded string.");
-    registerInputField("number_of_inputs_per_cycle",
-                       SAKURA_INT_TYPE,
+    registerInputField("type",
+                       SAKURA_STRING_TYPE,
                        true,
-                       "Number of inputs per set.");
-    registerInputField("number_of_cycles",
-                       SAKURA_INT_TYPE,
-                       true,
-                       "Number of sets.");
+                       "Type of the data (MNIST, CSV).");
 
     registerOutputField("task_uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created task.");
 }
 
+/**
+ * @brief CreateRequestTask::runTask
+ * @param blossomLeaf
+ * @param status
+ * @param error
+ * @return
+ */
 bool
 CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
                            const Kitsunemimi::DataMap &,
                            BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
 {
-    const uint32_t inputsPerCycle = blossomLeaf.input.get("number_of_inputs_per_cycle").getInt();
-    const uint32_t numberOfCycles = blossomLeaf.input.get("number_of_cycles").getInt();
     const std::string uuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string inputs = blossomLeaf.input.get("inputs").getString();
+    const std::string type = blossomLeaf.input.get("type").getString();
 
     ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
     if(cluster == nullptr)
@@ -78,19 +79,87 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer resultBuffer;
-    if(Kitsunemimi::Crypto::decodeBase64(resultBuffer, inputs) == false)
+    DataBuffer inputBuffer;
+    if(Kitsunemimi::Crypto::decodeBase64(inputBuffer,
+                                         blossomLeaf.input.get("inputs").getString()) == false)
     {
         error.addMeesage("base64-decoding of the input failes");
         return false;
     }
 
-    const std::string taskUuid = cluster->addRequestTask((float*)resultBuffer.data,
-                                                         inputsPerCycle,
-                                                         numberOfCycles);
-    resultBuffer.data = nullptr;
+
+    // init learn-task
+    std::string taskUuid = "";
+    if(type == "mnist") {
+        taskUuid = startMnistTask(cluster, inputBuffer);
+    }
 
     blossomLeaf.output.insert("task_uuid", taskUuid);
 
     return true;
+}
+
+/**
+ * @brief CreateRequestTask::startMnistTask
+ * @param cluster
+ * @param inputBuffer
+ * @return
+ */
+const std::string
+CreateRequestTask::startMnistTask(ClusterInterface* cluster,
+                                  const Kitsunemimi::DataBuffer &inputBuffer)
+{
+    uint8_t* dataBufferPtr = static_cast<uint8_t*>(inputBuffer.data);
+
+    // get number of images
+    uint32_t numberOfImages = 0;
+    numberOfImages |= dataBufferPtr[7];
+    numberOfImages |= static_cast<uint32_t>(dataBufferPtr[6]) << 8;
+    numberOfImages |= static_cast<uint32_t>(dataBufferPtr[5]) << 16;
+    numberOfImages |= static_cast<uint32_t>(dataBufferPtr[4]) << 24;
+    std::cout<<"number of images: "<<numberOfImages<<std::endl;
+
+    // get number of rows
+    uint32_t numberOfRows = 0;
+    numberOfRows |= dataBufferPtr[11];
+    numberOfRows |= static_cast<uint32_t>(dataBufferPtr[10]) << 8;
+    numberOfRows |= static_cast<uint32_t>(dataBufferPtr[9]) << 16;
+    numberOfRows |= static_cast<uint32_t>(dataBufferPtr[8]) << 24;
+    std::cout<<"number of rows: "<<numberOfRows<<std::endl;
+
+    // get number of columns
+    uint32_t numberOfColumns = 0;
+    numberOfColumns |= dataBufferPtr[15];
+    numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[14]) << 8;
+    numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[13]) << 16;
+    numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
+    std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
+
+    // get pictures
+    const uint32_t pictureSize = numberOfRows * numberOfColumns;
+
+
+    uint64_t dataPos = 0;
+    uint64_t dataSize = numberOfImages * pictureSize;
+    float* taskData = new float[dataSize];
+
+    for(uint32_t pic = 0; pic < numberOfImages; pic++)
+    {
+        // input
+        for(uint32_t i = 0; i < pictureSize; i++)
+        {
+            const uint32_t pos = pic * pictureSize + i + 16;
+            taskData[dataPos] = (static_cast<float>(dataBufferPtr[pos]) / 255.0f);
+            dataPos++;
+        }
+    }
+
+    // create task
+    const std::string taskUuid = cluster->addRequestTask(taskData,
+                                                         pictureSize,
+                                                         numberOfImages);
+    cluster->m_segmentCounter = cluster->getNumberOfSegments();
+    cluster->updateClusterState();
+
+    return taskUuid;
 }

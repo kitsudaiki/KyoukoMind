@@ -23,7 +23,10 @@
 #ifndef KYOUKOMIND_CREATEREQUESTTASK_H
 #define KYOUKOMIND_CREATEREQUESTTASK_H
 
+#include <common.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
+
+class ClusterInterface;
 
 class CreateRequestTask
         : public Kitsunemimi::Sakura::Blossom
@@ -36,6 +39,10 @@ protected:
                  const Kitsunemimi::DataMap &,
                  Kitsunemimi::Sakura::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
+
+private:
+    const std::string startMnistTask(ClusterInterface* cluster,
+                                     const DataBuffer &inputBuffer);
 };
 
 #endif // KYOUKOMIND_CREATEREQUESTTASK_H
