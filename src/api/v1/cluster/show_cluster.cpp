@@ -34,21 +34,24 @@ ShowCluster::ShowCluster()
     : Blossom("Show information of a specific cluster.")
 {
     // input
-    registerInputField("cluster_name",
+    registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
                        "Name of the cluster.");
     // column in database is limited to 256 characters size
-    assert(addFieldBorder("cluster_name", 4, 256));
-    assert(addFieldRegex("cluster_name", "[a-zA-Z][a-zA-Z_0-9]*"));
+    assert(addFieldBorder("name", 4, 256));
+    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
     // output
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the cluster.");
-    registerOutputField("cluster_name",
+    registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the cluster.");
+    registerOutputField("template_uuid",
+                        SAKURA_STRING_TYPE,
+                        "UUID of the template, which should be used as base for the cluster.");
 }
 
 bool
@@ -58,7 +61,7 @@ ShowCluster::runTask(BlossomLeaf &blossomLeaf,
                      Kitsunemimi::ErrorContainer &error)
 {
     // get information from request
-    const std::string clusterName = blossomLeaf.input.get("cluster_name").getString();
+    const std::string clusterName = blossomLeaf.input.get("name").getString();
 
     // get data from table
     if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output, clusterName, error) == false)

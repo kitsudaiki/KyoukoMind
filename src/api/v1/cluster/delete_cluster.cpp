@@ -37,13 +37,13 @@ DeleteCluster::DeleteCluster()
     : Blossom("Delete a cluster.")
 {
     // input
-    registerInputField("cluster_name",
+    registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
                        "Name of the cluster.");
     // column in database is limited to 256 characters size
-    assert(addFieldBorder("cluster_name", 4, 256));
-    assert(addFieldRegex("cluster_name", "[a-zA-Z][a-zA-Z_0-9]*"));
+    assert(addFieldBorder("name", 4, 256));
+    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 }
 
 /**
@@ -60,7 +60,7 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
                        Kitsunemimi::ErrorContainer &error)
 {
     // get information from request
-    const std::string clusterName = blossomLeaf.input.get("cluster_name").getString();
+    const std::string clusterName = blossomLeaf.input.get("name").getString();
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;

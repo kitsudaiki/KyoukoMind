@@ -40,27 +40,29 @@ CreateCluster::CreateCluster()
     : Blossom("Create complete new cluster.")
 {
     // input
-    registerInputField("cluster_name",
+    registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
                        "Name for the new cluster.");
     // column in database is limited to 256 characters size
-    assert(addFieldBorder("cluster_name", 4, 256));
-    assert(addFieldRegex("cluster_name", "[a-zA-Z][a-zA-Z_0-9]*"));
+    assert(addFieldBorder("name", 4, 256));
+    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
     registerInputField("template_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Input-file with the definition of the new cluster "
-                       "as base64 encoded string.");
+                       "UUID of the template, which should be used as base for the cluster.");
 
     // output
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created cluster.");
-    registerOutputField("cluster_name",
+    registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the new created cluster.");
+    registerOutputField("template_uuid",
+                        SAKURA_STRING_TYPE,
+                        "UUID of the template, which should be used as base for the cluster.");
 }
 
 /**
@@ -76,7 +78,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
-    const std::string clusterName = blossomLeaf.input.get("cluster_name").getString();
+    const std::string clusterName = blossomLeaf.input.get("name").getString();
     const std::string templateUuid = blossomLeaf.input.get("template_uuid").getString();
 
     // check if user already exist within the table
@@ -92,7 +94,8 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     JsonItem templateData;
     if(KyoukoRoot::templateTable->getTemplate(templateData,
                                               templateUuid,
-                                              error) == false)
+                                              error,
+                                              true) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         status.errorMessage = "Template with UUID '" + templateUuid + "' doesn't exist";
@@ -122,11 +125,13 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem clusterData;
     clusterData.insert("name", clusterName);
     clusterData.insert("template_uuid", templateUuid);
+    clusterData.insert("project_uuid", "-");
+    clusterData.insert("owner_uuid", "-");
+    clusterData.insert("visibility", 0);
 
     // add new user to table
     if(KyoukoRoot::clustersTable->addCluster(clusterData, error) == false)
     {
-        status.errorMessage = error.toString();
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
@@ -140,7 +145,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 
     const std::string uuid = blossomLeaf.output.get("uuid").getString();
     ClusterInterface* newCluster = new ClusterInterface();
-    if(newCluster->initNewCluster(parsedContent, uuid))
+    if(newCluster->initNewCluster(parsedContent, uuid) == false)
     {
         delete newCluster;
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
