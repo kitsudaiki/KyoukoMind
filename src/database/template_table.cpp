@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "cluster_table.h"
+#include "template_table.h"
 
 #include <libKitsunemimiCommon/common_items/table_item.h>
 #include <libKitsunemimiCommon/common_methods/string_methods.h>
@@ -31,26 +31,26 @@
 /**
  * @brief constructor
  */
-ClusterTable::ClusterTable(Kitsunemimi::Sakura::SqlDatabase* db)
+TemplateTable::TemplateTable(Kitsunemimi::Sakura::SqlDatabase* db)
     : HanamiSqlTable(db)
 {
-    m_tableName = "clusters";
+    m_tableName = "templates";
 
     DbHeaderEntry clusterName;
     clusterName.name = "name";
     clusterName.maxLength = 256;
     m_tableHeader.push_back(clusterName);
 
-    DbHeaderEntry templateUuid;
-    templateUuid.name = "template_uuid";
-    templateUuid.maxLength = 36;
-    m_tableHeader.push_back(templateUuid);
+    DbHeaderEntry templateString;
+    templateString.name = "data";
+    templateString.hide = true;
+    m_tableHeader.push_back(templateString);
 }
 
-ClusterTable::~ClusterTable() {}
+TemplateTable::~TemplateTable() {}
 
 /**
- * @brief add a new cluster to the database
+ * @brief add a new template to the database
  *
  * @param userData json-item with all information of the cluster to add to database
  * @param error reference for error-output
@@ -58,30 +58,30 @@ ClusterTable::~ClusterTable() {}
  * @return true, if successfull, else false
  */
 bool
-ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
-                         Kitsunemimi::ErrorContainer &error)
+TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
+                           Kitsunemimi::ErrorContainer &error)
 {
     return add(clusterData, error);
 }
 
 /**
- * @brief get a cluster from the database by his name
+ * @brief get a template from the database by his name
  *
  * @param result reference for the result-output in case that a cluster with this name was found
- * @param clusterName name of the requested cluster
+ * @param templateUuid uuid of the requested template
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
  * @return true, if successfull, else false
  */
 bool
-ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
-                               const std::string &clusterName,
-                               Kitsunemimi::ErrorContainer &error,
-                               const bool showHiddenValues)
+TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
+                           const std::string &templateUuid,
+                           Kitsunemimi::ErrorContainer &error,
+                           const bool showHiddenValues)
 {
     std::vector<RequestCondition> conditions;
-    conditions.emplace_back("name", clusterName);
+    conditions.emplace_back("uuid", templateUuid);
 
     // get user from db
     if(get(result, conditions, error, showHiddenValues) == false) {
@@ -92,7 +92,34 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
 }
 
 /**
- * @brief get all clusters from the database table
+ * @brief get a template from the database by his name
+ *
+ * @param result reference for the result-output in case that a cluster with this name was found
+ * @param templateName name of the requested template
+ * @param error reference for error-output
+ * @param showHiddenValues set to true to also show as hidden marked fields
+ *
+ * @return true, if successfull, else false
+ */
+bool
+TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
+                                 const std::string &templateName,
+                                 Kitsunemimi::ErrorContainer &error,
+                                 const bool showHiddenValues)
+{
+    std::vector<RequestCondition> conditions;
+    conditions.emplace_back("name", templateName);
+
+    // get user from db
+    if(get(result, conditions, error, showHiddenValues) == false) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief get all templates from the database table
  *
  * @param result reference for the result-output
  * @param error reference for error-output
@@ -100,8 +127,8 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
  * @return true, if successfull, else false
  */
 bool
-ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
-                            Kitsunemimi::ErrorContainer &error)
+TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
+                              Kitsunemimi::ErrorContainer &error)
 {
     return getAll(result, error);
 }
@@ -109,17 +136,17 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
 /**
  * @brief delete a cluster from the table
  *
- * @param clusterName name of the cluster to delete
+ * @param templateName name of the template to delete
  * @param error reference for error-output
  *
  * @return true, if successfull, else false
  */
 bool
-ClusterTable::deleteCluster(const std::string &clusterName,
-                            Kitsunemimi::ErrorContainer &error)
+TemplateTable::deleteTemplate(const std::string &templateName,
+                              Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
-    conditions.emplace_back("name", clusterName);
+    conditions.emplace_back("name", templateName);
 
     return deleteFromDb(conditions, error);
 }

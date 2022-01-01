@@ -20,16 +20,16 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATECLUSTER_TEMPLATE_H
-#define KYOUKOMIND_CREATECLUSTER_TEMPLATE_H
+#ifndef KYOUKOMIND_SHOW_TEMPLATE_H
+#define KYOUKOMIND_SHOW_TEMPLATE_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class CreateClusterTemplate
+class ShowTemplate
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateClusterTemplate();
+    ShowTemplate();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
@@ -38,4 +38,4 @@ protected:
                  Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_CREATECLUSTER_TEMPLATE_H
+#endif // SHOW_TEMPLATE_H

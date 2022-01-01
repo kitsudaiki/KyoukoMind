@@ -60,8 +60,8 @@ ShowTask::ShowTask()
 }
 
 const std::string
-serializeTimePoint(const std::chrono::high_resolution_clock::time_point& time,
-                   const std::string& format = "UTC: %Y-%m-%d %H:%M:%S")
+serializeTimePoint(const std::chrono::high_resolution_clock::time_point &time,
+                   const std::string &format = "UTC: %Y-%m-%d %H:%M:%S")
 {
     std::time_t tt = std::chrono::system_clock::to_time_t(time);
     std::tm tm = *std::gmtime(&tt);
@@ -73,7 +73,7 @@ serializeTimePoint(const std::chrono::high_resolution_clock::time_point& time,
 bool
 ShowTask::runTask(BlossomLeaf &blossomLeaf,
                   const Kitsunemimi::DataMap &,
-                  BlossomStatus &status,
+                  BlossomStatus &,
                   Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
@@ -91,6 +91,7 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
 
     blossomLeaf.output.insert("percentage_finished", std::to_string(progress.percentageFinished));
     blossomLeaf.output.insert("queue_timestamp", serializeTimePoint(progress.queuedTimeStamp));
+
     if(progress.state == QUEUED_TASK_STATE)
     {
         blossomLeaf.output.insert("state", "queued");

@@ -52,14 +52,12 @@ SegmentQueue* KyoukoRoot::m_segmentQueue = nullptr;
 ProcessingUnitHandler* KyoukoRoot::m_processingUnitHandler = nullptr;
 Kitsunemimi::Sakura::SqlDatabase* KyoukoRoot::database = nullptr;
 ClusterTable* KyoukoRoot::clustersTable = nullptr;
+TemplateTable* KyoukoRoot::templateTable = nullptr;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
  */
-KyoukoRoot::KyoukoRoot()
-{
-
-}
+KyoukoRoot::KyoukoRoot() {}
 
 /**
  * @brief KyoukoRoot::~KyoukoRoot
@@ -133,11 +131,20 @@ KyoukoRoot::initDatabase(Kitsunemimi::ErrorContainer &error)
         return false;
     }
 
-    // initialize users-table
+    // initialize cluster-table
     clustersTable = new ClusterTable(database);
     if(clustersTable->initTable(error) == false)
     {
-        error.addMeesage("Failed to initialize user-table in database.");
+        error.addMeesage("Failed to initialize cluster-table in database.");
+        LOG_ERROR(error);
+        return false;
+    }
+
+    // initialize template-table
+    templateTable = new TemplateTable(database);
+    if(templateTable->initTable(error) == false)
+    {
+        error.addMeesage("Failed to initialize template-table in database.");
         LOG_ERROR(error);
         return false;
     }

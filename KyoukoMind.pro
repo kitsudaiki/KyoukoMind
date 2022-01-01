@@ -107,8 +107,7 @@ INCLUDEPATH += $$PWD \
 
 HEADERS += \
     src/api/blossom_initializing.h \
-    src/api/v1/cluster/create_cluster_generate.h \
-    src/api/v1/cluster/create_cluster_template.h \
+    src/api/v1/cluster/create_cluster.h \
     src/api/v1/cluster/delete_cluster.h \
     src/api/v1/cluster/list_cluster.h \
     src/api/v1/cluster/show_cluster.h \
@@ -117,6 +116,10 @@ HEADERS += \
     src/api/v1/task/delete_task.h \
     src/api/v1/task/list_task.h \
     src/api/v1/task/show_task.h \
+    src/api/v1/template/create_template.h \
+    src/api/v1/template/delete_template.h \
+    src/api/v1/template/list_templates.h \
+    src/api/v1/template/show_template.h \
     src/args.h \
     src/callbacks.h \
     src/common.h \
@@ -157,12 +160,12 @@ HEADERS += \
     src/core/orchestration/segments/input_segment.h \
     src/core/orchestration/segments/output_segment.h \
     src/database/cluster_table.h \
+    src/database/template_table.h \
     src/dev_test.h \
     src/kyouko_root.h
 
 SOURCES += \
-    src/api/v1/cluster/create_cluster_generate.cpp \
-    src/api/v1/cluster/create_cluster_template.cpp \
+    src/api/v1/cluster/create_cluster.cpp \
     src/api/v1/cluster/delete_cluster.cpp \
     src/api/v1/cluster/list_cluster.cpp \
     src/api/v1/cluster/show_cluster.cpp \
@@ -171,6 +174,10 @@ SOURCES += \
     src/api/v1/task/delete_task.cpp \
     src/api/v1/task/list_task.cpp \
     src/api/v1/task/show_task.cpp \
+    src/api/v1/template/create_template.cpp \
+    src/api/v1/template/delete_template.cpp \
+    src/api/v1/template/list_templates.cpp \
+    src/api/v1/template/show_template.cpp \
     src/core/initializing/preprocess_cluster_json.cpp \
     src/core/initializing/struct_validation.cpp \
     src/core/orchestration/cluster_handler.cpp \
@@ -187,6 +194,7 @@ SOURCES += \
     src/core/orchestration/segments/input_segment.cpp \
     src/core/orchestration/segments/output_segment.cpp \
     src/database/cluster_table.cpp \
+    src/database/template_table.cpp \
     src/dev_test.cpp \
     src/kyouko_root.cpp
 

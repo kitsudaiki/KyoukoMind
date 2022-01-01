@@ -1,5 +1,5 @@
 /**
- * @file        show_task.h
+ * @file        create_cluster_template.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,22 +20,22 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_SHOWTASK_H
-#define KYOUKOMIND_SHOWTASK_H
+#ifndef KYOUKOMIND_LISTTEMPLATES_H
+#define KYOUKOMIND_LISTTEMPLATES_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class ShowTask
+class ListTemplates
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    ShowTask();
+    ListTemplates();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  const Kitsunemimi::DataMap &,
-                 Kitsunemimi::Sakura::BlossomStatus &,
+                 Kitsunemimi::Sakura::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_SHOWTASK_H
+#endif // LISTTEMPLATES_H

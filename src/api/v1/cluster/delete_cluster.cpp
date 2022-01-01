@@ -71,7 +71,7 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    // get data from table
+    // remove data from table
     if(KyoukoRoot::clustersTable->deleteCluster(clusterName, error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;

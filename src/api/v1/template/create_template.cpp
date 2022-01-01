@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_generate.cpp
+ * @file        create_cluster_template.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,127 +20,92 @@
  *      limitations under the License.
  */
 
-#include "create_cluster_generate.h"
-
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
+#include "create_template.h"
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
 
 #include <libKitsunemimiCrypto/common.h>
-#include <libKitsunemimiCommon/buffer/data_buffer.h>
-#include <libKitsunemimiJson/json_item.h>
 
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 
-CreateClusterGenerate::CreateClusterGenerate()
-    : Blossom("Create complete new cluster by generating a complete new one.")
+CreateTemplate::CreateTemplate()
+    : Blossom("Create new template-file and store it within the database.")
 {
     // input
-    registerInputField("cluster_name",
+    registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Name for the new cluster.");
+                       "Name for the new template.");
     // column in database is limited to 256 characters size
-    assert(addFieldBorder("cluster_name", 4, 256));
-    assert(addFieldRegex("cluster_name", "[a-zA-Z][a-zA-Z_0-9]*"));
+    assert(addFieldBorder("name", 4, 256));
+    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
     registerInputField("number_of_inputs",
                        SAKURA_INT_TYPE,
                        true,
-                       "Number of input-nodes of the new cluster.");
+                       "Number of input-nodes of the new template.");
     assert(addFieldBorder("number_of_inputs", 1, 100000000));
     registerInputField("number_of_outputs",
                        SAKURA_INT_TYPE,
                        true,
-                       "Number of output-nodes of the new cluster.");
+                       "Number of output-nodes of the new template.");
     assert(addFieldBorder("number_of_outputs", 1, 100000000));
 
     // output
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
-                        "UUID of the new created cluster.");
-    registerOutputField("cluster_name",
+                        "UUID of the new created template.");
+    registerOutputField("name",
                         SAKURA_STRING_TYPE,
-                        "Name of the new created cluster.");
+                        "Name of the new created template.");
 }
 
-/**
- * @brief CreateCluster::runTask
- * @param blossomLeaf
- * @param status
- * @param error
- * @return
- */
 bool
-CreateClusterGenerate::runTask(BlossomLeaf &blossomLeaf,
-                               const Kitsunemimi::DataMap &,
-                               BlossomStatus &status,
-                               Kitsunemimi::ErrorContainer &error)
+CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
+                        const Kitsunemimi::DataMap &,
+                        BlossomStatus &status,
+                        Kitsunemimi::ErrorContainer &error)
 {
-    const std::string clusterName = blossomLeaf.input.get("cluster_name").getString();
+    const std::string name = blossomLeaf.input.get("name").getString();
     const long numberOfInputs = blossomLeaf.input.get("number_of_inputs").getLong();
     const long numberOfOutputs = blossomLeaf.input.get("number_of_outputs").getLong();
 
     // check if user already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::clustersTable->getClusterByName(getResult, clusterName, error))
+    if(KyoukoRoot::templateTable->getTemplateByName(getResult, name, error))
     {
-        status.errorMessage = "Cluster with name '" + clusterName + "' already exist.";
+        status.errorMessage = "Template with name '" + name + "' already exist.";
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
         return false;
     }
 
-    DataItem* generatedContent = generateNewCluster(clusterName, numberOfInputs, numberOfOutputs);
-
-    // debug-output
-    // std::cout<<"####################################################################"<<std::endl;
-    // std::cout<<generatedContent->toString(true)<<std::endl;
-    // std::cout<<"####################################################################"<<std::endl;
-
-    const std::string contentString = generatedContent->toString();
+    DataItem* generatedContent = generateNewCluster(name, numberOfInputs, numberOfOutputs);
+    const std::string stringContent = generatedContent->toString();
     std::string base64Content;
-    Kitsunemimi::Crypto::encodeBase64(base64Content, contentString.c_str(), contentString.size());
+    Kitsunemimi::Crypto::encodeBase64(base64Content, stringContent.c_str(), stringContent.size());
 
     // convert values
-    Kitsunemimi::Json::JsonItem clusterData;
-    clusterData.insert("cluster_name", clusterName);
-    clusterData.insert("template", base64Content);
-    clusterData.insert("project_uuid", "-");
-    clusterData.insert("owner_uuid", "-");
-    clusterData.insert("visibility", 0);
+    Kitsunemimi::Json::JsonItem templateData;
+    templateData.insert("name", name);
+    templateData.insert("data", base64Content);
+    templateData.insert("project_uuid", "-");
+    templateData.insert("owner_uuid", "-");
+    templateData.insert("visibility", 0);
 
     // add new user to table
-    if(KyoukoRoot::clustersTable->addCluster(clusterData, error) == false)
+    if(KyoukoRoot::templateTable->addTemplate(templateData, error) == false)
     {
-        status.errorMessage = error.toString();
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 
     // get new created user from database
-    if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output, clusterName, error) == false)
+    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output, name, error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
-    const std::string uuid = blossomLeaf.output.get("uuid").getString();
-    ClusterInterface* newCluster = new ClusterInterface();
-    const JsonItem parsedContent(generatedContent);
-    if(newCluster->initNewCluster(parsedContent, uuid))
-    {
-        delete newCluster;
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
-    if(KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster) == false)
-    {
-        // should never be false, because the uuid is already defined as unique by the database
         return false;
     }
 
@@ -160,9 +125,9 @@ CreateClusterGenerate::runTask(BlossomLeaf &blossomLeaf,
  * @return
  */
 DataMap*
-CreateClusterGenerate::generateNewCluster(const std::string name,
-                                          const long numberOfInputNodes,
-                                          const long numberOfOutputNodes)
+CreateTemplate::generateNewCluster(const std::string name,
+                                   const long numberOfInputNodes,
+                                   const long numberOfOutputNodes)
 {
     DataMap* result = new DataMap();
     result->insert("name", new DataValue(name));
@@ -178,7 +143,7 @@ CreateClusterGenerate::generateNewCluster(const std::string name,
  * @param result
  */
 void
-CreateClusterGenerate::createClusterSettings(DataMap* result)
+CreateTemplate::createClusterSettings(DataMap* result)
 {
     DataMap* settings = new DataMap();
 
@@ -195,9 +160,9 @@ CreateClusterGenerate::createClusterSettings(DataMap* result)
  * @param numberOfOutputNodes
  */
 void
-CreateClusterGenerate::createSegments(DataMap* result,
-                                      const long numberOfInputNodes,
-                                      const long numberOfOutputNodes)
+CreateTemplate::createSegments(DataMap* result,
+                               const long numberOfInputNodes,
+                               const long numberOfOutputNodes)
 {
     DataArray* segments = new DataArray();
     result->insert("segments", segments);
@@ -214,8 +179,8 @@ CreateClusterGenerate::createSegments(DataMap* result,
  * @return
  */
 uint32_t
-CreateClusterGenerate::createInputSegments(DataArray* result,
-                                           const long numberOfInputNodes)
+CreateTemplate::createInputSegments(DataArray* result,
+                                    const long numberOfInputNodes)
 {
     DataMap* newSegment = new DataMap();
 
@@ -240,9 +205,9 @@ CreateClusterGenerate::createInputSegments(DataArray* result,
  * @param numberOfOutputNodes
  */
 void
-CreateClusterGenerate::createDynamicSegments(DataArray* result,
-                                             const long numberOfInputNodes,
-                                             const long numberOfOutputNodes)
+CreateTemplate::createDynamicSegments(DataArray* result,
+                                      const long numberOfInputNodes,
+                                      const long numberOfOutputNodes)
 {
     DataMap* newSegment = new DataMap();
 
@@ -265,7 +230,7 @@ CreateClusterGenerate::createDynamicSegments(DataArray* result,
  * @param result
  */
 void
-CreateClusterGenerate::createSegmentSettings(DataMap* result)
+CreateTemplate::createSegmentSettings(DataMap* result)
 {
     DataMap* settings = new DataMap();
 
@@ -293,9 +258,9 @@ CreateClusterGenerate::createSegmentSettings(DataMap* result)
  * @param numberOfOutputNodes
  */
 void
-CreateClusterGenerate::createSegmentBricks(DataMap* result,
-                                           const long numberOfInputNodes,
-                                           const long numberOfOutputNodes)
+CreateTemplate::createSegmentBricks(DataMap* result,
+                                    const long numberOfInputNodes,
+                                    const long numberOfOutputNodes)
 {
     DataArray* bricks = new DataArray();
 
@@ -339,8 +304,8 @@ CreateClusterGenerate::createSegmentBricks(DataMap* result,
  * @return
  */
 uint32_t
-CreateClusterGenerate::createOutputSegments(DataArray* result,
-                                            const long numberOfOutputNodes)
+CreateTemplate::createOutputSegments(DataArray* result,
+                                     const long numberOfOutputNodes)
 {
     DataMap* newSegment = new DataMap();
 

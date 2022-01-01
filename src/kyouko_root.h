@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <database/cluster_table.h>
+#include <database/template_table.h>
 
 class ClusterHandler;
 class SegmentQueue;
@@ -46,6 +47,7 @@ public:
     static ProcessingUnitHandler* m_processingUnitHandler;
     static Kitsunemimi::Sakura::SqlDatabase* database;
     static ClusterTable* clustersTable;
+    static TemplateTable* templateTable;
 
     bool initializeSakuraFiles(Kitsunemimi::ErrorContainer &error);
 

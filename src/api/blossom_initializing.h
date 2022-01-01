@@ -33,11 +33,15 @@
 
 #include <libKitsunemimiHanamiEndpoints/endpoint.h>
 
-#include <api/v1/cluster/create_cluster_generate.h>
-#include <api/v1/cluster/create_cluster_template.h>
+#include <api/v1/cluster/create_cluster.h>
 #include <api/v1/cluster/show_cluster.h>
 #include <api/v1/cluster/list_cluster.h>
 #include <api/v1/cluster/delete_cluster.h>
+
+#include <api/v1/template/create_template.h>
+#include <api/v1/template/delete_template.h>
+#include <api/v1/template/list_templates.h>
+#include <api/v1/template/show_template.h>
 
 #include <api/v1/task/create_learn_task.h>
 #include <api/v1/task/create_request_task.h>
@@ -54,19 +58,12 @@ initClusterBlossoms()
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     const std::string group = "cluster";
 
-    assert(interface->addBlossom(group, "create_template", new CreateClusterTemplate()));
-    endpoints->addEndpoint("v1/cluster/template",
+    assert(interface->addBlossom(group, "create", new CreateCluster()));
+    endpoints->addEndpoint("v1/cluster",
                            Kitsunemimi::Hanami::POST_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
-                           "create_template");
-
-    assert(interface->addBlossom(group, "create_generate", new CreateClusterGenerate()));
-    endpoints->addEndpoint("v1/cluster/generate",
-                           Kitsunemimi::Hanami::POST_TYPE,
-                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
-                           group,
-                           "create_generate");
+                           "create");
 
     assert(interface->addBlossom(group, "show", new ShowCluster()));
     endpoints->addEndpoint("v1/cluster",
@@ -84,6 +81,42 @@ initClusterBlossoms()
 
     assert(interface->addBlossom(group, "delete", new DeleteCluster()));
     endpoints->addEndpoint("v1/cluster",
+                           Kitsunemimi::Hanami::DELETE_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "delete");
+}
+
+void
+initTemplateBlossoms()
+{
+    Kitsunemimi::Hanami::Endpoint* endpoints = Kitsunemimi::Hanami::Endpoint::getInstance();
+    SakuraLangInterface* interface = SakuraLangInterface::getInstance();
+    const std::string group = "template";
+
+    assert(interface->addBlossom(group, "create", new CreateTemplate()));
+    endpoints->addEndpoint("v1/template",
+                           Kitsunemimi::Hanami::POST_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "create");
+
+    assert(interface->addBlossom(group, "show", new ShowTemplate()));
+    endpoints->addEndpoint("v1/template",
+                           Kitsunemimi::Hanami::GET_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "show");
+
+    assert(interface->addBlossom(group, "list", new ListTemplates()));
+    endpoints->addEndpoint("v1/template/all",
+                           Kitsunemimi::Hanami::GET_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "list");
+
+    assert(interface->addBlossom(group, "delete", new DeleteTemplate()));
+    endpoints->addEndpoint("v1/template",
                            Kitsunemimi::Hanami::DELETE_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
@@ -137,6 +170,7 @@ void
 initBlossoms()
 {
     initClusterBlossoms();
+    initTemplateBlossoms();
     initTaskBlossoms();
 }
 
