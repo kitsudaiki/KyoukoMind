@@ -26,11 +26,14 @@
 #include <core/orchestration/cluster_handler.h>
 #include <core/orchestration/cluster_interface.h>
 
+#include <libKitsunemimiHanamiCommon/component_support.h>
+#include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+
 #include <libKitsunemimiCrypto/common.h>
 
-#include <libKitsunemimiHanamiCommon/enums.h>
-
 using namespace Kitsunemimi::Sakura;
+using Kitsunemimi::Hanami::SupportedComponents;
 
 CreateRequestTask::CreateRequestTask()
     : Blossom("Add new request-task to the task-queue of a cluster.")
@@ -39,18 +42,60 @@ CreateRequestTask::CreateRequestTask()
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
-    registerInputField("inputs",
+    registerInputField("input_data_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Input-data as base64 encoded string.");
+                       "UUID to identifiy the train-data with the input in sagiri.");
     registerInputField("type",
                        SAKURA_STRING_TYPE,
                        true,
                        "Type of the data (MNIST, CSV).");
 
-    registerOutputField("task_uuid",
+    registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created task.");
+}
+
+
+bool
+getDataFromSagiri(DataBuffer &result,
+                  const std::string &token,
+                  const std::string &uuid,
+                  Kitsunemimi::ErrorContainer &error)
+{
+    Kitsunemimi::Hanami::ResponseMessage response;
+    Kitsunemimi::Hanami::HanamiMessaging* msg = Kitsunemimi::Hanami::HanamiMessaging::getInstance();
+
+    Kitsunemimi::Hanami::RequestMessage request;
+    request.id = "v1/train_data";
+    request.httpType = Kitsunemimi::Hanami::GET_TYPE;
+
+
+    request.inputValues = "{ \"token\" : \"" + token + "\", \"uuid\" : \"" + uuid + "\",\"with_data\":true}";
+    if(msg->triggerSakuraFile("sagiri", response, request, error) == false) {
+        return false;
+    }
+
+    if(response.success == false)
+    {
+        error.addMeesage(response.responseContent);
+        return false;
+    }
+
+    // parse result
+    Kitsunemimi::Json::JsonItem jsonItem;
+    if(jsonItem.parse(response.responseContent, error) == false) {
+        return false;
+    }
+
+    // get input-data
+    if(Kitsunemimi::Crypto::decodeBase64(result, jsonItem.get("data").getString()) == false)
+    {
+        error.addMeesage("base64-decoding of the input failes");
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -62,13 +107,25 @@ CreateRequestTask::CreateRequestTask()
  */
 bool
 CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
-                           const Kitsunemimi::DataMap &,
+                           const Kitsunemimi::DataMap &context,
                            BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
 {
     const std::string uuid = blossomLeaf.input.get("cluster_uuid").getString();
+    const std::string inputUuid = blossomLeaf.input.get("input_data_uuid").getString();
     const std::string type = blossomLeaf.input.get("type").getString();
+    const std::string token = context.getStringByKey("token");
+    SupportedComponents* scomp = SupportedComponents::getInstance();
 
+    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
+        status.errorMessage = "Sagiri is not configured for Kyouko.";
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
+
+    // get cluster
     ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
     if(cluster == nullptr)
     {
@@ -80,13 +137,11 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
 
     // get input-data
     DataBuffer inputBuffer;
-    if(Kitsunemimi::Crypto::decodeBase64(inputBuffer,
-                                         blossomLeaf.input.get("inputs").getString()) == false)
+    if(getDataFromSagiri(inputBuffer, token, inputUuid, error) == false)
     {
-        error.addMeesage("base64-decoding of the input failes");
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
-
 
     // init learn-task
     std::string taskUuid = "";
@@ -94,7 +149,7 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
         taskUuid = startMnistTask(cluster, inputBuffer);
     }
 
-    blossomLeaf.output.insert("task_uuid", taskUuid);
+    blossomLeaf.output.insert("uuid", taskUuid);
 
     return true;
 }

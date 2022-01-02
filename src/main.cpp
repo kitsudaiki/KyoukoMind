@@ -86,7 +86,7 @@ main(int argc, char *argv[])
         rootObj.initThreads();
 
         // initialize server and connections based on the config-file
-        const std::vector<std::string> groupNames = {"misaka"};
+        const std::vector<std::string> groupNames = {"misaka", "sagiri"};
         if(HanamiMessaging::getInstance()->initialize("kyouko",
                                                       groupNames,
                                                       nullptr,

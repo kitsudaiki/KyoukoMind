@@ -151,6 +151,24 @@ TaskQueue::getResultData(const std::string &taskUuid)
 }
 
 /**
+ * @brief TaskQueue::getResultData
+ * @param taskUuid
+ * @return
+ */
+uint32_t
+TaskQueue::getResultSize(const std::string &taskUuid)
+{
+    std::map<std::string, Task>::const_iterator it;
+    it = m_taskMap.find(taskUuid);
+
+    if(it != m_taskMap.end()) {
+        return it->second.numberOfCycle;
+    }
+
+    return UNINIT_STATE_32;
+}
+
+/**
  * @brief TaskQueue::isFinish
  * @param taskUuid
  * @return

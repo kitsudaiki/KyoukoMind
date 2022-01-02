@@ -278,6 +278,18 @@ ClusterInterface::getResultData(const std::string &taskUuid)
 }
 
 /**
+ * @brief NetworkCluster::getResultData
+ * @param taskUuid
+ * @return
+ */
+uint32_t
+ClusterInterface::getResultSize(const std::string &taskUuid)
+{
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskQueue->getResultSize(taskUuid);
+}
+
+/**
  * @brief ClusterInterface::removeResultData
  * @param taskUuid
  * @return

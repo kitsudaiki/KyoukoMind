@@ -35,10 +35,15 @@ ShowTask::ShowTask()
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
-    registerInputField("task_uuid",
+    registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
+
+    registerInputField("with_result",
+                       SAKURA_STRING_TYPE,
+                       false,
+                       "Set to true to also retrun the result of the task.");
 
 
     registerOutputField("percentage_finished",
@@ -57,6 +62,9 @@ ShowTask::ShowTask()
     registerOutputField("end_timestamp",
                         SAKURA_STRING_TYPE,
                         "Timestamp in UTC when the task was finished.");
+    registerOutputField("result",
+                        SAKURA_ARRAY_TYPE,
+                        "Array with results.");
 }
 
 const std::string
@@ -77,7 +85,8 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
                   Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string taskUuid = blossomLeaf.input.get("task_uuid").getString();
+    const std::string taskUuid = blossomLeaf.input.get("uuid").getString();
+    const bool withResult = blossomLeaf.input.get("with_result").getString() == "true";
 
     // get cluster
     ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
@@ -89,7 +98,7 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
 
     const TaskProgress progress = cluster->getProgress(taskUuid);
 
-    blossomLeaf.output.insert("percentage_finished", std::to_string(progress.percentageFinished));
+    blossomLeaf.output.insert("percentage_finished", progress.percentageFinished);
     blossomLeaf.output.insert("queue_timestamp", serializeTimePoint(progress.queuedTimeStamp));
 
     if(progress.state == QUEUED_TASK_STATE)
@@ -118,6 +127,20 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
         blossomLeaf.output.insert("start_timestamp",
                                   serializeTimePoint(progress.startActiveTimeStamp));
         blossomLeaf.output.insert("end_timestamp", serializeTimePoint(progress.endActiveTimeStamp));
+    }
+
+    if(withResult)
+    {
+        const uint32_t* resultData = cluster->getResultData(taskUuid);
+        const uint32_t resultSize = cluster->getResultSize(taskUuid);
+
+        Kitsunemimi::DataArray* results = new Kitsunemimi::DataArray();
+
+        for(uint32_t i = 0; i < resultSize; i++) {
+            results->append(new DataValue(static_cast<int>(resultData[i])));
+        }
+
+        blossomLeaf.output.insert("result", results);
     }
 
     return true;

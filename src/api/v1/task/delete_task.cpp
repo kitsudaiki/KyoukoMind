@@ -31,7 +31,7 @@ using namespace Kitsunemimi::Sakura;
 DeleteTask::DeleteTask()
     : Blossom("Delete a task or abort a task, if it is actually running.")
 {
-    registerInputField("cluster_uuid",
+    registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
@@ -43,7 +43,7 @@ DeleteTask::runTask(BlossomLeaf &blossomLeaf,
                     BlossomStatus &status,
                     Kitsunemimi::ErrorContainer &error)
 {
-    const std::string uuid = blossomLeaf.input.get("cluster_uuid").getString();
+    const std::string uuid = blossomLeaf.input.get("uuid").getString();
 
 
     // get cluster
