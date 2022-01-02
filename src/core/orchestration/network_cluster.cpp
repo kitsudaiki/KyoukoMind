@@ -116,7 +116,7 @@ NetworkCluster::initNewCluster(const JsonItem &parsedContent,
                                ClusterInterface* interface)
 {
     prepareSegments(parsedContent);
-    std::cout<<parsedContent.toString(true)<<std::endl;
+
     const JsonItem paredSettings = parsedContent.get("settings");
 
     // network-meta

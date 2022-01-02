@@ -84,6 +84,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     DataItem* generatedContent = generateNewCluster(name, numberOfInputs, numberOfOutputs);
     const std::string stringContent = generatedContent->toString();
+
     std::string base64Content;
     Kitsunemimi::Crypto::encodeBase64(base64Content, stringContent.c_str(), stringContent.size());
 

@@ -50,8 +50,7 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
  * @param mnistRootPath absolute path to the directory with the MNIST test-files
  */
 void
-learnTestData(const std::string &mnistRootPath,
-              const std::string &uuid)
+learnTestData(const std::string &mnistRootPath)
 {
     SakuraLangInterface* iface = SakuraLangInterface::getInstance();
     DataMap result;
@@ -59,47 +58,44 @@ learnTestData(const std::string &mnistRootPath,
     Kitsunemimi::Sakura::BlossomStatus status;
     Kitsunemimi::ErrorContainer error;
 
-    DataMap clusterGenerateValues;
-    clusterGenerateValues.insert("cluster_name", new DataValue("test_cluster"));
-    clusterGenerateValues.insert("number_of_inputs", new DataValue(784));
-    clusterGenerateValues.insert("number_of_outputs", new DataValue(10));
+    DataMap templateCreateValues;
+    templateCreateValues.insert("name", new DataValue("test_template"));
+    templateCreateValues.insert("number_of_inputs", new DataValue(784));
+    templateCreateValues.insert("number_of_outputs", new DataValue(10));
     iface->triggerBlossom(result,
-                          "create_generate",
+                          "create",
+                          "template",
+                          context,
+                          templateCreateValues,
+                          status,
+                          error);
+    std::cout<<"result create template: "<<result.toString()<<std::endl;
+
+    const std::string templateUuid = result.getStringByKey("uuid");
+    std::cout<<"template uuid: "<<templateUuid<<std::endl;
+
+    result.clear();
+    error._errorMessages.clear();
+
+    DataMap clusterCreateValues;
+    clusterCreateValues.insert("name", new DataValue("test_cluster"));
+    clusterCreateValues.insert("template_uuid", new DataValue(templateUuid));
+    iface->triggerBlossom(result,
+                          "create",
                           "cluster",
                           context,
-                          clusterGenerateValues,
+                          clusterCreateValues,
                           status,
                           error);
     std::cout<<"result create: "<<result.toString()<<std::endl;
+
+    const std::string clusterUuid = result.getStringByKey("uuid");
+    std::cout<<"cluster uuid: "<<templateUuid<<std::endl;
+
     result.clear();
     error._errorMessages.clear();
 
-
-    DataMap genericClusterValues;
-    genericClusterValues.insert("cluster_name", new DataValue("test_cluster"));
-    iface->triggerBlossom(result,
-                          "show",
-                          "cluster",
-                          context,
-                          genericClusterValues,
-                          status,
-                          error);
-    std::cout<<"result show: "<<result.toString()<<std::endl;
-    result.clear();
-    error._errorMessages.clear();
-
-    iface->triggerBlossom(result,
-                          "delete",
-                          "cluster",
-                          context,
-                          genericClusterValues,
-                          status,
-                          error);
-    std::cout<<"result delete: "<<result.toString()<<std::endl;
-
-    return;
-
-    ClusterInterface* clusterInterface = KyoukoRoot::m_clusterHandler->getCluster(uuid);
+    ClusterInterface* clusterInterface = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
 
     CpuProcessingUnit cpuProcessingUnit("dev_test");
     std::chrono::high_resolution_clock::time_point start;
@@ -198,24 +194,6 @@ learnTestData(const std::string &mnistRootPath,
             const uint32_t label = labelBufferPtr[pic + 8];
             labelData[(labelPos - 10) + label] = 1.0f;
         }
-
-        Kitsunemimi::BinaryFile dataPlainFile("/tmp/dataPlainFile");
-        DataBuffer dataOutput;
-        dataOutput.data = taskData;
-        dataOutput.usedBufferSize = dataSize;
-        dataOutput.totalBufferSize = dataSize;
-        dataPlainFile.writeCompleteFile(dataOutput);
-        dataPlainFile.closeFile();
-
-
-        Kitsunemimi::BinaryFile labelPlainFile("/tmp/labelPlainFile");
-        DataBuffer labelOutput;
-        labelOutput.data = labelData;
-        labelOutput.usedBufferSize = labelSize;
-        labelOutput.totalBufferSize = labelSize;
-        labelPlainFile.writeCompleteFile(labelOutput);
-        labelPlainFile.closeFile();
-
 
         // create task
         const std::string taskUuid = clusterInterface->addLearnTask(taskData,
