@@ -55,6 +55,16 @@ CreateLearnTask::CreateLearnTask()
                        true,
                        "Type of the data (MNIST, CSV).");
 
+
+    registerInputField("input_data",
+                       SAKURA_STRING_TYPE,
+                       false,
+                       "Type of the data (MNIST, CSV).");
+    registerInputField("label_data",
+                       SAKURA_STRING_TYPE,
+                       false,
+                       "Type of the data (MNIST, CSV).");
+
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created task.");
@@ -119,14 +129,23 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string labelUuid = blossomLeaf.input.get("label_data_uuid").getString();
     const std::string type = blossomLeaf.input.get("type").getString();
     const std::string token = context.getStringByKey("token");
+
+    const std::string inputData = blossomLeaf.input.get("input_data").getString();
+    const std::string labelData = blossomLeaf.input.get("label_data").getString();
+
+
     SupportedComponents* scomp = SupportedComponents::getInstance();
 
-    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+    if(inputData == ""
+            || labelData == "")
     {
-        status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
-        status.errorMessage = "Sagiri is not configured for Kyouko.";
-        error.addMeesage(status.errorMessage);
-        return false;
+        if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+        {
+            status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
+            status.errorMessage = "Sagiri is not configured for Kyouko.";
+            error.addMeesage(status.errorMessage);
+            return false;
+        }
     }
 
     // get cluster
@@ -137,19 +156,34 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
+    // get input-data
     DataBuffer inputBuffer;
-    if(getData(inputBuffer, token, inputUuid, error) == false)
+    if(inputData == "")
     {
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
+        if(getData(inputBuffer, token, inputUuid, error) == false)
+        {
+            status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+            return false;
+        }
+    }
+    else
+    {
+        Kitsunemimi::Crypto::decodeBase64(inputBuffer, inputData);
     }
 
     // get label-data
     DataBuffer labelBuffer;
-    if(getData(labelBuffer, token, labelUuid, error) == false)
+    if(labelData == "")
     {
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
+        if(getData(labelBuffer, token, labelUuid, error) == false)
+        {
+            status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+            return false;
+        }
+    }
+    else
+    {
+        Kitsunemimi::Crypto::decodeBase64(labelBuffer, labelData);
     }
 
     // init learn-task

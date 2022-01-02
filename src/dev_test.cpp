@@ -31,6 +31,7 @@
 #include <libKitsunemimiCommon/files/text_file.h>
 #include <libKitsunemimiConfig/config_handler.h>
 #include <libKitsunemimiCommon/progress_bar.h>
+#include <libKitsunemimiCrypto/common.h>
 
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
@@ -58,6 +59,30 @@ learnTestData(const std::string &mnistRootPath)
     Kitsunemimi::Sakura::BlossomStatus status;
     Kitsunemimi::ErrorContainer error;
 
+    //----------------------------------------------------------------------------------------------
+
+    DataMap deleteClusterValues2;
+    deleteClusterValues2.insert("name", new DataValue("test_cluster"));
+    iface->triggerBlossom(result,
+                          "delete",
+                          "cluster",
+                          context,
+                          deleteClusterValues2,
+                          status,
+                          error);
+
+    DataMap deleteTemplateValues2;
+    deleteTemplateValues2.insert("name", new DataValue("test_template"));
+    iface->triggerBlossom(result,
+                          "delete",
+                          "template",
+                          context,
+                          deleteTemplateValues2,
+                          status,
+                          error);
+
+    //----------------------------------------------------------------------------------------------
+
     DataMap templateCreateValues;
     templateCreateValues.insert("name", new DataValue("test_template"));
     templateCreateValues.insert("number_of_inputs", new DataValue(784));
@@ -77,6 +102,8 @@ learnTestData(const std::string &mnistRootPath)
     result.clear();
     error._errorMessages.clear();
 
+    //----------------------------------------------------------------------------------------------
+
     DataMap clusterCreateValues;
     clusterCreateValues.insert("name", new DataValue("test_cluster"));
     clusterCreateValues.insert("template_uuid", new DataValue(templateUuid));
@@ -95,9 +122,10 @@ learnTestData(const std::string &mnistRootPath)
     result.clear();
     error._errorMessages.clear();
 
+    //----------------------------------------------------------------------------------------------
+
     ClusterInterface* clusterInterface = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
 
-    CpuProcessingUnit cpuProcessingUnit("dev_test");
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
     bool success = false;
@@ -126,90 +154,44 @@ learnTestData(const std::string &mnistRootPath)
     std::cout<<trainDataBuffer.usedBufferSize<<std::endl;
     std::cout<<trainLabelBuffer.usedBufferSize<<std::endl;
 
-    uint8_t* dataBufferPtr = static_cast<uint8_t*>(trainDataBuffer.data);
-    uint8_t* labelBufferPtr = static_cast<uint8_t*>(trainLabelBuffer.data);
+    std::string inputData;
+    Kitsunemimi::Crypto::encodeBase64(inputData, trainDataBuffer.data, trainDataBuffer.usedBufferSize);
+    std::string labelData;
+    Kitsunemimi::Crypto::encodeBase64(labelData, trainLabelBuffer.data, trainLabelBuffer.usedBufferSize);
 
-    // get number of images
-    uint32_t numberOfImages = 0;
-    numberOfImages |= dataBufferPtr[7];
-    numberOfImages |= static_cast<uint32_t>(dataBufferPtr[6]) << 8;
-    numberOfImages |= static_cast<uint32_t>(dataBufferPtr[5]) << 16;
-    numberOfImages |= static_cast<uint32_t>(dataBufferPtr[4]) << 24;
-    std::cout<<"number of images: "<<numberOfImages<<std::endl;
+    //----------------------------------------------------------------------------------------------
 
-    // get number of rows
-    uint32_t numberOfRows = 0;
-    numberOfRows |= dataBufferPtr[11];
-    numberOfRows |= static_cast<uint32_t>(dataBufferPtr[10]) << 8;
-    numberOfRows |= static_cast<uint32_t>(dataBufferPtr[9]) << 16;
-    numberOfRows |= static_cast<uint32_t>(dataBufferPtr[8]) << 24;
-    std::cout<<"number of rows: "<<numberOfRows<<std::endl;
-
-    // get number of columns
-    uint32_t numberOfColumns = 0;
-    numberOfColumns |= dataBufferPtr[15];
-    numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[14]) << 8;
-    numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[13]) << 16;
-    numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
-    std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
-
-    // get pictures
-    const uint32_t pictureSize = numberOfRows * numberOfColumns;
-
-    std::cout<<"learn"<<std::endl;
-
-    const uint32_t numberOfIteractions = GET_INT_CONFIG("DevMode", "learn_iterations", success);
-    const uint32_t numberOfLearningPictures = GET_INT_CONFIG("DevMode", "learn_images", success);
-
-    for(uint32_t iter = 0; iter < numberOfIteractions; iter++)
+    for(uint32_t learnRun = 0; learnRun < 5; learnRun++)
     {
-        uint64_t dataPos = 0;
-        uint64_t dataSize = numberOfLearningPictures * pictureSize;
-        float* taskData = new float[dataSize];
+        DataMap taskLearnValues;
+        taskLearnValues.insert("cluster_uuid", new DataValue(clusterUuid));
+        taskLearnValues.insert("input_data_uuid", new DataValue(""));
+        taskLearnValues.insert("label_data_uuid", new DataValue(""));
+        taskLearnValues.insert("type", new DataValue("mnist"));
+        taskLearnValues.insert("input_data", new DataValue(inputData));
+        taskLearnValues.insert("label_data", new DataValue(labelData));
+        iface->triggerBlossom(result,
+                              "create_learn",
+                              "task",
+                              context,
+                              taskLearnValues,
+                              status,
+                              error);
+        std::cout<<"result create: "<<result.toString()<<std::endl;
 
+        const std::string learnTaskUuid = result.getStringByKey("uuid");
+        std::cout<<"cluster uuid: "<<templateUuid<<std::endl;
 
+        result.clear();
+        error._errorMessages.clear();
 
-        uint64_t labelPos = 0;
-        uint64_t labelSize = numberOfLearningPictures * 10;
-        float* labelData = new float[labelSize];
-
-
-        for(uint32_t pic = 0; pic < numberOfLearningPictures; pic++)
-        {
-            // input
-            for(uint32_t i = 0; i < pictureSize; i++)
-            {
-                const uint32_t pos = pic * pictureSize + i + 16;
-                int32_t total = dataBufferPtr[pos];
-                taskData[dataPos] = (static_cast<float>(total) / 255.0f);
-                dataPos++;
-            }
-
-            // output
-            for(uint32_t i = 0; i < 10; i++)
-            {
-                taskData[labelPos] = 0.0f;
-                labelPos++;
-            }
-            const uint32_t label = labelBufferPtr[pic + 8];
-            labelData[(labelPos - 10) + label] = 1.0f;
-        }
-
-        // create task
-        const std::string taskUuid = clusterInterface->addLearnTask(taskData,
-                                                                    labelData,
-                                                                    pictureSize,
-                                                                    10,
-                                                                    numberOfLearningPictures);
-        clusterInterface->m_segmentCounter = clusterInterface->getNumberOfSegments();
-        clusterInterface->updateClusterState();
 
         // wait until task is finished
         start = std::chrono::system_clock::now();
         Kitsunemimi::ProgressBar progressBar;
-        while(clusterInterface->isFinish(taskUuid) == false)
+        while(clusterInterface->isFinish(learnTaskUuid) == false)
         {
-            const TaskProgress progress = clusterInterface->getProgress(taskUuid);
+            const TaskProgress progress = clusterInterface->getProgress(learnTaskUuid);
             progressBar.updateProgress(progress.percentageFinished);
             usleep(100000);
         }
@@ -234,50 +216,58 @@ learnTestData(const std::string &mnistRootPath)
     Kitsunemimi::DataBuffer testLabelBuffer;
     testLabel.readCompleteFile(testLabelBuffer);
 
+
     uint8_t* testDataBufferPtr = static_cast<uint8_t*>(testDataBuffer.data);
     uint8_t* testLabelBufferPtr = static_cast<uint8_t*>(testLabelBuffer.data);
 
-    std::cout<<"test"<<std::endl;
-    uint32_t match = 0;
-    uint32_t total = 10000;
+    std::string requestInputData;
+    Kitsunemimi::Crypto::encodeBase64(requestInputData, testDataBuffer.data, testDataBuffer.usedBufferSize);
+    std::string  requestLabelData;
+    Kitsunemimi::Crypto::encodeBase64(requestLabelData, testLabelBuffer.data, testLabelBuffer.usedBufferSize);
 
-    uint64_t dataPos = 0;
-    uint64_t dataSize = numberOfLearningPictures * (pictureSize + 10);
-    float* taskData = new float[dataSize];
+    //----------------------------------------------------------------------------------------------
 
-    for(uint32_t pic = 0; pic < total; pic++)
-    {
-        // input
-        for(uint32_t i = 0; i < pictureSize; i++)
-        {
-            const uint32_t pos = pic * pictureSize + i + 16;
-            int32_t total = testDataBufferPtr[pos];
-            taskData[dataPos] = (static_cast<float>(total) / 255.0f);
-            dataPos++;
-        }
-    }
+    DataMap taskRequestValues;
+    taskRequestValues.insert("cluster_uuid", new DataValue(clusterUuid));
+    taskRequestValues.insert("input_data_uuid", new DataValue(""));
+    taskRequestValues.insert("type", new DataValue("mnist"));
+    taskRequestValues.insert("input_data", new DataValue(requestInputData));
+    iface->triggerBlossom(result,
+                          "create_request",
+                          "task",
+                          context,
+                          taskRequestValues,
+                          status,
+                          error);
+    std::cout<<"result create: "<<result.toString()<<std::endl;
 
-    // create task
-    const std::string taskUuid = clusterInterface->addRequestTask(taskData,
-                                                                  pictureSize,
-                                                                  total);
-    clusterInterface->m_segmentCounter = clusterInterface->getNumberOfSegments();
-    clusterInterface->updateClusterState();
+    const std::string requestTaskUuid = result.getStringByKey("uuid");
+    std::cout<<"cluster uuid: "<<templateUuid<<std::endl;
+
+    result.clear();
+    error._errorMessages.clear();
+
+
     // wait until task is finished
     start = std::chrono::system_clock::now();
-    Kitsunemimi::ProgressBar progressBar;
-    while(clusterInterface->isFinish(taskUuid) == false)
+    Kitsunemimi::ProgressBar progressBar2;
+    while(clusterInterface->isFinish(requestTaskUuid) == false)
     {
-        const TaskProgress progress = clusterInterface->getProgress(taskUuid);
-        progressBar.updateProgress(progress.percentageFinished);
+        const TaskProgress progress = clusterInterface->getProgress(requestTaskUuid);
+        progressBar2.updateProgress(progress.percentageFinished);
         usleep(100000);
     }
-    progressBar.updateProgress(1.0f);
+    progressBar2.updateProgress(1.0f);
     end = std::chrono::system_clock::now();
-    const float time = std::chrono::duration_cast<chronoSec>(end - start).count();
-    std::cout<<"run request: "<<time<<"s"<<std::endl;
+    const float time2 = std::chrono::duration_cast<chronoSec>(end - start).count();
 
-    const uint32_t* resultData = clusterInterface->getResultData(taskUuid);
+    std::cout<<"run learn: "<<time2<<"s"<<std::endl;
+
+    //----------------------------------------------------------------------------------------------
+
+    uint32_t match = 0;
+    uint32_t total = 10000;
+    const uint32_t* resultData = clusterInterface->getResultData(requestTaskUuid);
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
@@ -290,5 +280,7 @@ learnTestData(const std::string &mnistRootPath)
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
+
+    //----------------------------------------------------------------------------------------------
 }
 

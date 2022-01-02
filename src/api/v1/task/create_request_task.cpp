@@ -51,6 +51,11 @@ CreateRequestTask::CreateRequestTask()
                        true,
                        "Type of the data (MNIST, CSV).");
 
+    registerInputField("input_data",
+                       SAKURA_STRING_TYPE,
+                       false,
+                       "Type of the data (MNIST, CSV).");
+
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created task.");
@@ -115,14 +120,20 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string inputUuid = blossomLeaf.input.get("input_data_uuid").getString();
     const std::string type = blossomLeaf.input.get("type").getString();
     const std::string token = context.getStringByKey("token");
+
+    const std::string inputData = blossomLeaf.input.get("input_data").getString();
+
     SupportedComponents* scomp = SupportedComponents::getInstance();
 
-    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+    if(inputData == "")
     {
-        status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
-        status.errorMessage = "Sagiri is not configured for Kyouko.";
-        error.addMeesage(status.errorMessage);
-        return false;
+        if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+        {
+            status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
+            status.errorMessage = "Sagiri is not configured for Kyouko.";
+            error.addMeesage(status.errorMessage);
+            return false;
+        }
     }
 
     // get cluster
@@ -137,10 +148,17 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
 
     // get input-data
     DataBuffer inputBuffer;
-    if(getDataFromSagiri(inputBuffer, token, inputUuid, error) == false)
+    if(inputData == "")
     {
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
+        if(getDataFromSagiri(inputBuffer, token, inputUuid, error) == false)
+        {
+            status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+            return false;
+        }
+    }
+    else
+    {
+        Kitsunemimi::Crypto::decodeBase64(inputBuffer, inputData);
     }
 
     // init learn-task
