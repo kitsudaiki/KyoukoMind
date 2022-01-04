@@ -265,7 +265,7 @@ CreateLearnTask::startMnistTask(ClusterInterface* cluster,
         // output
         for(uint32_t i = 0; i < 10; i++)
         {
-            taskData[labelPos] = 0.0f;
+            labelData[labelPos] = 0.0f;
             labelPos++;
         }
         const uint32_t label = labelBufferPtr[pic + 8];
