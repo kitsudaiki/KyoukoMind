@@ -36,6 +36,7 @@ class NetworkCluster
 {
 public:
     NetworkCluster();
+    ~NetworkCluster();
 
     Kitsunemimi::DataBuffer clusterData;
 

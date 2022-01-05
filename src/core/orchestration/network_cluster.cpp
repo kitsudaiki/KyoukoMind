@@ -40,6 +40,13 @@ NetworkCluster::NetworkCluster()
 {
 }
 
+NetworkCluster::~NetworkCluster()
+{
+    for(AbstractSegment* segment : allSegments) {
+        delete segment;
+    }
+}
+
 /**
  * @brief InputSegment::initSegmentPointer
  * @param header

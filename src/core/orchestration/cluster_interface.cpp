@@ -40,6 +40,12 @@ ClusterInterface::ClusterInterface()
     m_taskQueue = new TaskQueue();
 }
 
+ClusterInterface::~ClusterInterface()
+{
+    delete m_cluster;
+    delete m_taskQueue;
+}
+
 bool
 ClusterInterface::initNewCluster(const JsonItem &parsedContent,
                                  const std::string &uuid)
