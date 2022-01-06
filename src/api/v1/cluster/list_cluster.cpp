@@ -31,7 +31,10 @@ using namespace Kitsunemimi::Sakura;
 ListCluster::ListCluster()
     : Blossom("List all clusters.")
 {
+    //----------------------------------------------------------------------------------------------
     // output
+    //----------------------------------------------------------------------------------------------
+
     registerOutputField("header",
                         SAKURA_ARRAY_TYPE,
                         "Array with the namings all columns of the table.");
@@ -41,8 +44,15 @@ ListCluster::ListCluster()
     registerOutputField("body",
                         SAKURA_ARRAY_TYPE,
                         "Array with all rows of the table, which array arrays too.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
+/**
+ * @brief runTask
+ */
 bool
 ListCluster::runTask(BlossomLeaf &blossomLeaf,
                      const Kitsunemimi::DataMap &,

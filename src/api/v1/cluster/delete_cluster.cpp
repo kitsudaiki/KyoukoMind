@@ -24,8 +24,8 @@
 
 #include <kyouko_root.h>
 
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
+#include <core/data_structure/cluster_handler.h>
+#include <core/data_structure/cluster.h>
 
 #include <libKitsunemimiJson/json_item.h>
 
@@ -36,7 +36,10 @@ using namespace Kitsunemimi::Sakura;
 DeleteCluster::DeleteCluster()
     : Blossom("Delete a cluster.")
 {
+    //----------------------------------------------------------------------------------------------
     // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
@@ -44,14 +47,14 @@ DeleteCluster::DeleteCluster()
     // column in database is limited to 256 characters size
     assert(addFieldBorder("name", 4, 256));
     assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
 /**
- * @brief DeleteCluster::runTask
- * @param blossomLeaf
- * @param status
- * @param error
- * @return
+ * @brief runTask
  */
 bool
 DeleteCluster::runTask(BlossomLeaf &blossomLeaf,

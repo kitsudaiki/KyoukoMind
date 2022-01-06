@@ -24,8 +24,8 @@
 #define KYOUKOMIND_GPU_PROCESSING_UNIT_H
 
 #include <common.h>
-#include <core/orchestration/network_cluster.h>
-#include <core/orchestration/segments/dynamic_segment.h>
+#include <core/data_structure/segments/dynamic_segment.h>
+#include <core/data_structure/cluster.h>
 
 #include <libKitsunemimiOpencl/gpu_handler.h>
 #include <libKitsunemimiOpencl/gpu_interface.h>
@@ -35,7 +35,7 @@ class GpuProcessingUnit
 public:
     GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInterface);
 
-    bool initializeGpu(NetworkCluster *cluster);
+    bool initializeGpu(Cluster *);
 
     bool learn(Kitsunemimi::ErrorContainer &error);
     bool execute(Kitsunemimi::ErrorContainer &error);

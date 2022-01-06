@@ -22,16 +22,17 @@
 
 #include "segment_queue.h"
 
-#include <core/orchestration/segments/abstract_segment.h>
-
-SegmentQueue::SegmentQueue()
-{
-
-}
+#include <core/data_structure/segments/abstract_segment.h>
 
 /**
- * @brief SegmentQueue::addSegmentToQueue
- * @param newSegment
+ * @brief constructor
+ */
+SegmentQueue::SegmentQueue() {}
+
+/**
+ * @brief add segment to queue
+ *
+ * @param newSegment segment to add to queue
  */
 void
 SegmentQueue::addSegmentToQueue(AbstractSegment* newSegment)
@@ -42,8 +43,9 @@ SegmentQueue::addSegmentToQueue(AbstractSegment* newSegment)
 }
 
 /**
- * @brief SegmentQueue::addSegmentListToQueue
- * @param semgnetList
+ * @brief add a list of segments to the queue
+ *
+ * @param semgnetList list with segments to add
  */
 void
 SegmentQueue::addSegmentListToQueue(const std::vector<AbstractSegment*> &semgnetList)
@@ -58,8 +60,9 @@ SegmentQueue::addSegmentListToQueue(const std::vector<AbstractSegment*> &semgnet
 }
 
 /**
- * @brief SegmentQueue::getSegmentFromQueue
- * @return
+ * @brief get next segment in the queue
+ *
+ * @return nullptr, if queue is empty, else next segment in queue
  */
 AbstractSegment*
 SegmentQueue::getSegmentFromQueue()

@@ -26,8 +26,7 @@
 #include <libKitsunemimiOpencl/gpu_interface.h>
 
 #include <core/objects/node.h>
-#include <core/orchestration/segments/dynamic_segment.h>
-#include <core/orchestration/network_cluster.h>
+#include <core/data_structure/segments/dynamic_segment.h>
 
 #include <libKitsunemimiCommon/logger.h>
 
@@ -50,10 +49,10 @@ GpuProcessingUnit::GpuProcessingUnit(Kitsunemimi::Opencl::GpuInterface* gpuInter
  * @param segment segment with the buffer
  * @param numberOfBricks number of bricks to scale the number of working-groups
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
-GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
+GpuProcessingUnit::initializeGpu(Cluster* )
 {
     const std::string processingCode(reinterpret_cast<char*>(synapse_node_processing_cl),
                                      synapse_node_processing_cl_len);
@@ -137,7 +136,6 @@ GpuProcessingUnit::initializeGpu(NetworkCluster* cluster)
 bool
 GpuProcessingUnit::learn(Kitsunemimi::ErrorContainer &error)
 {
-    std::cout<<"learn"<<std::endl;
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "inputs", error));
     assert(m_gpuInterface->updateBufferOnDevice(oclData, "outputs", error));
     assert(m_gpuInterface->run(oclData, "learn", error));

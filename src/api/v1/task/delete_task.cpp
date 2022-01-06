@@ -22,8 +22,8 @@
 
 #include "delete_task.h"
 
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
+#include <core/data_structure/cluster_handler.h>
+#include <core/data_structure/cluster.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -31,27 +31,40 @@ using namespace Kitsunemimi::Sakura;
 DeleteTask::DeleteTask()
     : Blossom("Delete a task or abort a task, if it is actually running.")
 {
+    //----------------------------------------------------------------------------------------------
+    // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
+    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
+/**
+ * @brief runTask
+ */
 bool
 DeleteTask::runTask(BlossomLeaf &blossomLeaf,
                     const Kitsunemimi::DataMap &,
-                    BlossomStatus &status,
+                    BlossomStatus &,
                     Kitsunemimi::ErrorContainer &error)
 {
     const std::string uuid = blossomLeaf.input.get("uuid").getString();
 
-
     // get cluster
-    ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
+    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
     if(cluster == nullptr)
     {
         error.addMeesage("interface with uuid not found: " + uuid);
         return false;
     }
 
+    return true;
 }

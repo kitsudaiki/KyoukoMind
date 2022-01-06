@@ -25,6 +25,6 @@
 
 #include <common.h>
 
-void learnTestData(const std::string &mnistRootPath);
+void learnTestData();
 
 #endif // KYOUKOMIND_DEV_TEST_H

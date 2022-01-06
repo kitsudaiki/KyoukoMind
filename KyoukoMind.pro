@@ -104,7 +104,6 @@ LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -lOpenCL
 INCLUDEPATH += $$PWD \
                src
 
-
 HEADERS += \
     src/api/blossom_initializing.h \
     src/api/v1/cluster/create_cluster.h \
@@ -131,17 +130,20 @@ HEADERS += \
     src/common/typedefs.h \
     src/config.h \
     src/core/callbacks.h \
-    src/core/initializing/preprocess_cluster_json.h \
-    src/core/initializing/struct_validation.h \
+    src/core/data_structure/cluster.h \
+    src/core/data_structure/cluster_handler.h \
+    src/core/data_structure/init/cluster_init.h \
+    src/core/data_structure/init/struct_validation.h \
+    src/core/data_structure/segments/abstract_segment.h \
+    src/core/data_structure/segments/dynamic_segment.h \
+    src/core/data_structure/segments/input_segment.h \
+    src/core/data_structure/segments/output_segment.h \
     src/core/objects/brick.h \
     src/core/objects/cluster_meta.h \
     src/core/objects/node.h \
     src/core/objects/segment_meta.h \
     src/core/objects/synapses.h \
     src/core/objects/task.h \
-    src/core/orchestration/cluster_handler.h \
-    src/core/orchestration/cluster_interface.h \
-    src/core/orchestration/task_queue.h \
     src/core/processing/cpu/cpu_processing_unit.h \
     src/core/processing/cpu/dynamic_segment/backpropagation.h \
     src/core/processing/cpu/dynamic_segment/create_reduce.h \
@@ -152,13 +154,7 @@ HEADERS += \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/processing/processing_unit_handler.h \
     src/core/processing/segment_queue.h \
-    src/core/initializing/routing_functions.h \
-    src/core/storage_io.h \
-    src/core/orchestration/network_cluster.h \
-    src/core/orchestration/segments/abstract_segment.h \
-    src/core/orchestration/segments/dynamic_segment.h \
-    src/core/orchestration/segments/input_segment.h \
-    src/core/orchestration/segments/output_segment.h \
+    src/core/routing_functions.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
     src/dev_test.h \
@@ -178,25 +174,23 @@ SOURCES += \
     src/api/v1/template/delete_template.cpp \
     src/api/v1/template/list_templates.cpp \
     src/api/v1/template/show_template.cpp \
-    src/core/initializing/preprocess_cluster_json.cpp \
-    src/core/initializing/struct_validation.cpp \
-    src/core/orchestration/cluster_handler.cpp \
-    src/core/orchestration/cluster_interface.cpp \
-    src/core/orchestration/task_queue.cpp \
+    src/core/data_structure/cluster.cpp \
+    src/core/data_structure/cluster_handler.cpp \
+    src/core/data_structure/init/cluster_init.cpp \
+    src/core/data_structure/init/struct_validation.cpp \
+    src/core/data_structure/segments/abstract_segment.cpp \
+    src/core/data_structure/segments/dynamic_segment.cpp \
+    src/core/data_structure/segments/input_segment.cpp \
+    src/core/data_structure/segments/output_segment.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/processing/segment_queue.cpp \
-    src/core/storage_io.cpp \
-    src/core/orchestration/network_cluster.cpp \
-    src/core/orchestration/segments/abstract_segment.cpp \
-    src/core/orchestration/segments/dynamic_segment.cpp \
-    src/core/orchestration/segments/input_segment.cpp \
-    src/core/orchestration/segments/output_segment.cpp \
     src/database/cluster_table.cpp \
     src/database/template_table.cpp \
     src/dev_test.cpp \
     src/kyouko_root.cpp
+
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
@@ -222,3 +216,4 @@ gpu_processing.variable_out = HEADERS
 gpu_processing.CONFIG += target_predeps no_link
 
 QMAKE_EXTRA_COMPILERS += gpu_processing
+

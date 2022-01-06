@@ -57,22 +57,27 @@ main(int argc, char *argv[])
     const bool devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
     if(devMode)
     {
-        if(rootObj.initBase() == false) {
+        Kitsunemimi::ErrorContainer error;
+        if(rootObj.init(error) == false)
+        {
+            LOG_ERROR(error);
             return 1;
         }
         rootObj.initThreads();
 
-        // run the dev-test based on the MNIST test files, if defined by the config
-        const std::string initialFile = GET_STRING_CONFIG("DevMode", "file", success);
-        const std::string configFile = GET_STRING_CONFIG("DevMode", "config", success);
-        const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
+        for(int i = 0; i < 1; i++) {
+            learnTestData();
+        }
 
-        learnTestData(mnistTestPath);
+        exit(0);
     }
     else
     {
         // init blossoms
-        if(rootObj.initBase() == false) {
+        Kitsunemimi::ErrorContainer error;
+        if(rootObj.init(error) == false)
+        {
+            LOG_ERROR(error);
             return 1;
         }
 

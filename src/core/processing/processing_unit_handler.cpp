@@ -24,25 +24,21 @@
 #include <core/processing/cpu/cpu_processing_unit.h>
 
 /**
- * @brief ProcessingUnitHandler::ProcessingUnitHandler
- * @param brickHandler
+ * @brief constructor
  */
-ProcessingUnitHandler::ProcessingUnitHandler()
-{
-}
+ProcessingUnitHandler::ProcessingUnitHandler() {}
 
 /**
- * @brief ProcessingUnitHandler::~ProcessingUnitHandler
+ * @brief destructor
  */
-ProcessingUnitHandler::~ProcessingUnitHandler()
-{
-    closeAllProcessingUnits();
-}
+ProcessingUnitHandler::~ProcessingUnitHandler() {}
 
 /**
- * @brief ProcessingUnitHandler::initProcessingUnits
- * @param numberOfThreads
- * @return
+ * @brief init processing-threads
+ *
+ * @param numberOfThreads number of threads to create
+ *
+ * @return always true
  */
 bool
 ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
@@ -57,17 +53,6 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
         sleep(1);
         newUnit->bindThreadToCore(2);
     }
-
-    return true;
-}
-
-/**
- * @brief ProcessingUnitHandler::closeAllProcessingUnits close all processing-units, if exist
- * @return false, if no processing-units exist, else true
- */
-bool
-ProcessingUnitHandler::closeAllProcessingUnits()
-{
 
     return true;
 }

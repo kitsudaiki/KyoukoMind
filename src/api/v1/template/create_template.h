@@ -57,6 +57,10 @@ private:
 
     uint32_t createOutputSegments(Kitsunemimi::DataArray* result,
                                   const long numberOfOutputNodes);
+
+    Kitsunemimi::DataArray* createPosition(const long x,
+                                           const long y,
+                                           const long z);
 };
 
 #endif // CREATETEMPLATE_H

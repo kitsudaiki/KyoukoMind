@@ -1,5 +1,5 @@
 /**
- * @file        output_segment.cpp
+ * @file        input_segment.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,34 +20,36 @@
  *      limitations under the License.
  */
 
-#include "output_segment.h"
+#include "input_segment.h"
 
 /**
  * @brief constructor
  */
-OutputSegment::OutputSegment()
+InputSegment::InputSegment()
     : AbstractSegment()
 {
-    m_type = OUTPUT_SEGMENT;
+    m_type = INPUT_SEGMENT;
 }
 
 /**
  * @brief destructor
  */
-OutputSegment::~OutputSegment() {}
+InputSegment::~InputSegment() {}
 
 /**
- * @brief OutputSegment::initSegment
- * @param parsedContent
- * @return
+ * @brief initalize segment
+ *
+ * @param parsedContent json-object with the segment-description
+ *
+ * @return true, if successful, else false
  */
 bool
-OutputSegment::initSegment(const JsonItem &parsedContent)
+InputSegment::initSegment(const JsonItem &parsedContent)
 {
-    const uint32_t numberOfOutputs = parsedContent.get("number_of_outputs").getInt();
+    const uint32_t numberOfInputs = parsedContent.get("number_of_inputs").getInt();
     const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
-    SegmentHeader header = createNewHeader(numberOfOutputs,
+    SegmentHeader header = createNewHeader(numberOfInputs,
                                            totalBorderSize);
     allocateSegment(header);
     initSegmentPointer(header);
@@ -59,50 +61,53 @@ OutputSegment::initSegment(const JsonItem &parsedContent)
 }
 
 /**
- * @brief OutputSegment::connectBorderBuffer
- * @return
+ * @brief init border-buffer
+ *
+ * @return true, if successful, else false
  */
 bool
-OutputSegment::connectBorderBuffer()
+InputSegment::connectBorderBuffer()
 {
-    for(uint32_t i = 0; i < segmentHeader->outputs.count; i++) {
-        outputs[i].targetBorderId = i;
+    for(uint32_t i = 0; i < segmentHeader->inputs.count; i++) {
+        inputs[i].targetBorderId = i;
     }
 
     return true;
 }
 
 /**
- * @brief OutputSegment::createNewHeader
- * @param numberOfOutputs
- * @param borderbufferSize
- * @return
+ * @brief create new segment-header with size and position information
+ *
+ * @param numberOfInputs number of inputs
+ * @param borderbufferSize size of border-buffer
+ *
+ * @return new segment-header
  */
 SegmentHeader
-OutputSegment::createNewHeader(const uint32_t numberOfOutputs,
-                               const uint64_t borderbufferSize)
+InputSegment::createNewHeader(const uint32_t numberOfInputs,
+                              const uint64_t borderbufferSize)
 {
     SegmentHeader segmentHeader;
     segmentHeader.segmentType = m_type;
     uint32_t segmentDataPos = createGenericNewHeader(segmentHeader, borderbufferSize);
 
-    // init outputs
-    segmentHeader.outputs.count = numberOfOutputs;
-    segmentHeader.outputs.bytePos = segmentDataPos;
-    segmentDataPos += numberOfOutputs * sizeof(OutputNode);
+    // init bricks
+    segmentHeader.inputs.count = numberOfInputs;
+    segmentHeader.inputs.bytePos = segmentDataPos;
+    segmentDataPos += numberOfInputs * sizeof(InputNode);
 
-    // set total size of the segment
     segmentHeader.staticDataSize = segmentDataPos;
 
     return segmentHeader;
 }
 
 /**
- * @brief OutputSegment::initSegmentPointer
- * @param header
+ * @brief init pointer within the segment-header
+ *
+ * @param header segment-header
  */
 void
-OutputSegment::initSegmentPointer(const SegmentHeader &header)
+InputSegment::initSegmentPointer(const SegmentHeader &header)
 {
     uint8_t* dataPtr = static_cast<uint8_t*>(staticSegmentData.data);
     uint64_t pos = 0;
@@ -118,16 +123,17 @@ OutputSegment::initSegmentPointer(const SegmentHeader &header)
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
     pos = segmentHeader->outputTransfers.bytePos;
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
-    pos = segmentHeader->outputs.bytePos;
-    outputs = reinterpret_cast<OutputNode*>(dataPtr + pos);
+    pos = segmentHeader->inputs.bytePos;
+    inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
 }
 
 /**
- * @brief OutputSegment::allocateSegment
- * @param header
+ * @brief allocate memory for the segment
+ *
+ * @param header header with the size-information
  */
 void
-OutputSegment::allocateSegment(SegmentHeader &header)
+InputSegment::allocateSegment(SegmentHeader &header)
 {
     const uint32_t numberOfBlocks = (header.staticDataSize / 4096) + 1;
     header.staticDataSize = numberOfBlocks * 4096;

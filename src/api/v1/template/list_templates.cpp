@@ -32,7 +32,10 @@ using namespace Kitsunemimi::Sakura;
 ListTemplates::ListTemplates()
     : Blossom("List all templates of a user.")
 {
+    //----------------------------------------------------------------------------------------------
     // output
+    //----------------------------------------------------------------------------------------------
+
     registerOutputField("header",
                         SAKURA_ARRAY_TYPE,
                         "Array with the namings all columns of the table.");
@@ -41,8 +44,15 @@ ListTemplates::ListTemplates()
     registerOutputField("body",
                         SAKURA_ARRAY_TYPE,
                         "Array with all rows of the table, which array arrays too.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
+/**
+ * @brief runTask
+ */
 bool
 ListTemplates::runTask(BlossomLeaf &blossomLeaf,
                        const Kitsunemimi::DataMap &,

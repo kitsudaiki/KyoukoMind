@@ -38,7 +38,7 @@ public:
     KyoukoRoot();
     ~KyoukoRoot();
 
-    bool initBase();
+    bool init(Kitsunemimi::ErrorContainer &error);
     bool initThreads();
 
     static ClusterHandler* m_clusterHandler;

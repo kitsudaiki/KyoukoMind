@@ -22,8 +22,8 @@
 
 #include "create_cluster.h"
 
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
+#include <core/data_structure/cluster_handler.h>
+#include <core/data_structure/cluster.h>
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
@@ -39,7 +39,10 @@ using namespace Kitsunemimi::Sakura;
 CreateCluster::CreateCluster()
     : Blossom("Create complete new cluster.")
 {
+    //----------------------------------------------------------------------------------------------
     // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
@@ -52,8 +55,13 @@ CreateCluster::CreateCluster()
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the template, which should be used as base for the cluster.");
+    assert(addFieldRegex("template_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
+    //----------------------------------------------------------------------------------------------
     // output
+    //----------------------------------------------------------------------------------------------
+
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created cluster.");
@@ -63,14 +71,14 @@ CreateCluster::CreateCluster()
     registerOutputField("template_uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the template, which should be used as base for the cluster.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
 /**
- * @brief CreateCluster::runTask
- * @param blossomLeaf
- * @param status
- * @param error
- * @return
+ * @brief runTask
  */
 bool
 CreateCluster::runTask(BlossomLeaf &blossomLeaf,
@@ -144,8 +152,8 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     }
 
     const std::string uuid = blossomLeaf.output.get("uuid").getString();
-    ClusterInterface* newCluster = new ClusterInterface();
-    if(newCluster->initNewCluster(parsedContent, uuid) == false)
+    Cluster* newCluster = new Cluster();
+    if(newCluster->init(parsedContent, uuid) == false)
     {
         delete newCluster;
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;

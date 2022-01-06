@@ -23,6 +23,4 @@
 #ifndef KYOUKOMIND_FUNCTIONS_H
 #define KYOUKOMIND_FUNCTIONS_H
 
-#include <libKitsunemimiHanamiCommon/uuid.h>
-
 #endif // KYOUKOMIND_FUNCTIONS_H

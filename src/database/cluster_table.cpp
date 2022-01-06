@@ -55,7 +55,7 @@ ClusterTable::~ClusterTable() {}
  * @param userData json-item with all information of the cluster to add to database
  * @param error reference for error-output
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
@@ -72,7 +72,7 @@ ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
@@ -97,7 +97,7 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
  * @param result reference for the result-output
  * @param error reference for error-output
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
@@ -112,7 +112,7 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
  * @param clusterName name of the cluster to delete
  * @param error reference for error-output
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 ClusterTable::deleteCluster(const std::string &clusterName,

@@ -20,24 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef CLUSTERHANDLER_H
-#define CLUSTERHANDLER_H
+#ifndef KYOUKOMIND_CLUSTERHANDLER_H
+#define KYOUKOMIND_CLUSTERHANDLER_H
 
 #include <common.h>
 
-class ClusterInterface;
+class Cluster;
 
 class ClusterHandler
 {
 public:
     ClusterHandler();
 
-    bool addCluster(const std::string uuid, ClusterInterface* newCluster);
+    bool addCluster(const std::string uuid, Cluster* newCluster);
     bool removeCluster(const std::string uuid);
-    ClusterInterface* getCluster(const std::string uuid);
+    Cluster* getCluster(const std::string uuid);
 
 private:
-    std::map<std::string, ClusterInterface*> m_allCluster;
+    std::map<std::string, Cluster*> m_allCluster;
 };
 
-#endif // CLUSTERHANDLER_H
+#endif // KYOUKOMIND_CLUSTERHANDLER_H

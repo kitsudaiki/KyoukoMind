@@ -22,24 +22,26 @@
 
 #include "cluster_handler.h"
 
-#include <core/orchestration/cluster_interface.h>
-
-ClusterHandler::ClusterHandler()
-{
-
-}
+#include <core/data_structure/cluster.h>
 
 /**
- * @brief ClusterHandler::addCluster
- * @param uuid
- * @param newCluster
- * @return
+ * @brief constructor
+ */
+ClusterHandler::ClusterHandler() {}
+
+/**
+ * @brief add new cluster to handler
+ *
+ * @param uuid uuid of the cluster
+ * @param newCluster pointer to cluster-object
+ *
+ * @return false if uuid is already registered, else true
  */
 bool
-ClusterHandler::addCluster(const std::string uuid, ClusterInterface *newCluster)
+ClusterHandler::addCluster(const std::string uuid, Cluster* newCluster)
 {
     // check if key already exist
-    std::map<std::string, ClusterInterface*>::iterator it;
+    std::map<std::string, Cluster*>::iterator it;
     it = m_allCluster.find(uuid);
     if(it != m_allCluster.end()) {
         return false;
@@ -51,14 +53,16 @@ ClusterHandler::addCluster(const std::string uuid, ClusterInterface *newCluster)
 }
 
 /**
- * @brief ClusterHandler::removeCluster
- * @param uuid
- * @return
+ * @brief remove a cluster from the handler
+ *
+ * @param uuid uuid of the cluster
+ *
+ * @return false, if uuid was not found, else true
  */
 bool
 ClusterHandler::removeCluster(const std::string uuid)
 {
-    std::map<std::string, ClusterInterface*>::const_iterator it;
+    std::map<std::string, Cluster*>::const_iterator it;
     it = m_allCluster.find(uuid);
 
     if(it != m_allCluster.end())
@@ -74,14 +78,16 @@ ClusterHandler::removeCluster(const std::string uuid)
 }
 
 /**
- * @brief KyoukoRoot::getCluster
- * @param uuid
- * @return
+ * @brief request a specific cluster from the handler
+ *
+ * @param uuid uuid of the cluster
+ *
+ * @return pointer to the requested cluster
  */
-ClusterInterface*
+Cluster*
 ClusterHandler::getCluster(const std::string uuid)
 {
-    std::map<std::string, ClusterInterface*>::const_iterator it;
+    std::map<std::string, Cluster*>::const_iterator it;
     it = m_allCluster.find(uuid);
 
     if(it != m_allCluster.end()) {

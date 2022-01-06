@@ -28,10 +28,16 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/orchestration/segments/dynamic_segment.h>
+#include <core/data_structure/segments/dynamic_segment.h>
 #include <core/objects/synapses.h>
-#include <core/orchestration/network_cluster.h>
 
+/**
+ * @brief add new basic synapse-section to segment
+ *
+ * @param segment refernce to segment
+ *
+ * @return position in buffer, where the section was added
+ */
 inline uint64_t
 createNewSection(DynamicSegment &segment)
 {
@@ -106,8 +112,11 @@ createNewSynapse(SynapseSection* section,
 }
 
 /**
- * @brief hardenSynapses
- * @param segment
+ * @brief harden synapses of a specific section
+ *
+ * @param segment segment where the section belongs to
+ * @param section section to harden
+ * @param netH node-potential
  */
 inline void
 hardenSynapses(DynamicSegment* segment,
@@ -173,10 +182,12 @@ hardenSegment(DynamicSegment* segment)
 }
 
 /**
- * @brief reduceSynapses
- * @param segment
- * @param section
- * @return
+ * @brief reduce synapses of a specific section
+ *
+ * @param segment segment where the section belongs to
+ * @param section section to resuce
+ *
+ * @return true, if section is empty and can be deleted, else false
  */
 inline bool
 reduceSynapses(DynamicSegment* segment,

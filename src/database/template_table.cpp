@@ -55,7 +55,7 @@ TemplateTable::~TemplateTable() {}
  * @param userData json-item with all information of the cluster to add to database
  * @param error reference for error-output
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
@@ -72,7 +72,7 @@ TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
@@ -99,7 +99,7 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
@@ -124,7 +124,7 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
  * @param result reference for the result-output
  * @param error reference for error-output
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
@@ -139,7 +139,7 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
  * @param templateName name of the template to delete
  * @param error reference for error-output
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 TemplateTable::deleteTemplate(const std::string &templateName,

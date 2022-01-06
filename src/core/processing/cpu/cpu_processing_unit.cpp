@@ -22,13 +22,11 @@
 
 #include "cpu_processing_unit.h"
 
-#include <core/orchestration/segments/dynamic_segment.h>
-#include <core/orchestration/segments/input_segment.h>
-#include <core/orchestration/segments/output_segment.h>
+#include <core/data_structure/segments/dynamic_segment.h>
+#include <core/data_structure/segments/input_segment.h>
+#include <core/data_structure/segments/output_segment.h>
 
-#include <core/orchestration/task_queue.h>
-#include <core/orchestration/cluster_interface.h>
-#include <core/orchestration/network_cluster.h>
+#include <core/data_structure/cluster.h>
 
 #include <kyouko_root.h>
 
@@ -44,19 +42,20 @@
 #include <core/processing/cpu/input_segment/processing.h>
 
 /**
- * @brief CpuProcessingUnit::CpuProcessingUnit
+ * @brief constructor
  */
 CpuProcessingUnit::CpuProcessingUnit(const std::string &threadName)
     : Kitsunemimi::Thread(threadName) {}
 
 /**
- * @brief CpuProcessingUnit::~CpuProcessingUnit
+ * @brief destructor
  */
 CpuProcessingUnit::~CpuProcessingUnit() {}
 
 /**
- * @brief CpuProcessingUnit::learnNetworkCluster
- * @param cluster
+ * @brief run forward-propagation on a segment
+ *
+ * @param segment segment to process
  */
 void
 CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
@@ -90,8 +89,9 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
 }
 
 /**
- * @brief CpuProcessingUnit::learnSegmentBackward
- * @param segment
+ * @brief run back-propagation on a segment
+ *
+ * @param segment segment to process
  */
 void
 CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
@@ -116,8 +116,9 @@ CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
 }
 
 /**
- * @brief CpuProcessingUnit::processNetworkCluster
- * @param cluster
+ * @brief process segments
+ *
+ * @param segment segment to process
  */
 void
 CpuProcessingUnit::processSegment(AbstractSegment* segment)
@@ -175,10 +176,10 @@ CpuProcessingUnit::run()
             }
 
             // handle type of processing
-            ClusterInterface* clusterInterface = currentSegment->parentCluster;
-            if(clusterInterface->getMode() == LEARN_FORWARD_MODE) {
+            Cluster* clusterInterface = currentSegment->parentCluster;
+            if(clusterInterface->getMode() == Cluster::LEARN_FORWARD_MODE) {
                 learnSegmentForward(currentSegment);
-            } else if(clusterInterface->getMode() == LEARN_BACKWARD_MODE) {
+            } else if(clusterInterface->getMode() == Cluster::LEARN_BACKWARD_MODE) {
                 learnSegmentBackward(currentSegment);
             } else {
                 processSegment(currentSegment);

@@ -22,8 +22,7 @@
 
 #include "abstract_segment.h"
 
-#include <core/orchestration/network_cluster.h>
-#include <core/orchestration/cluster_interface.h>
+#include <core/data_structure/cluster.h>
 
 /**
  * @brief constructor
@@ -90,7 +89,7 @@ AbstractSegment::finishSegment()
             targetSide = segmentNeighbors->neighbors[i].targetSide;
 
             // copy data to the target buffer and wipe the source buffer
-            targetSegment = parentCluster->getSegment(targetId);
+            targetSegment = parentCluster->allSegments.at(targetId);
             targetNeighbors = targetSegment->segmentNeighbors;
             targetBuffer = targetNeighbors->neighbors[targetSide].inputTransferBuffer;
             memcpy(targetBuffer,
@@ -172,7 +171,7 @@ AbstractSegment::convertPosition(const JsonItem &parsedContent)
  *
  * @param parsedContent parsend content with the required information
  *
- * @return true, if successfull, else false
+ * @return true, if successful, else false
  */
 bool
 AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)

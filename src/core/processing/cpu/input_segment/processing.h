@@ -28,18 +28,16 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/orchestration/segments/input_segment.h>
+#include <core/data_structure/segments/input_segment.h>
 #include <core/objects/synapses.h>
-#include <core/orchestration/network_cluster.h>
 
 #include <core/processing/cpu/dynamic_segment/create_reduce.h>
-
 
 /**
  * @brief process all nodes within a specific brick and also all synapse-sections,
  *        which are connected to an active node
  *
- * @param segment segment to process
+ * @param segment input-segment to process
  */
 void
 prcessInputSegment(const InputSegment* segment)

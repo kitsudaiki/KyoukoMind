@@ -1,5 +1,5 @@
 /**
- * @file        cluster_parsing.h
+ * @file        cluster_init.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,13 +20,34 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CLUSTER_PARSING_H
-#define KYOUKOMIND_CLUSTER_PARSING_H
+#ifndef KYOUKOMIND_CLUSTERINIT_H
+#define KYOUKOMIND_CLUSTERINIT_H
 
 #include <common.h>
+#include <core/objects/cluster_meta.h>
 
-const std::string prepareDirection(const JsonItem &currentSegment,
-                                   const JsonItem &segments,
+class InputSegment;
+class OutputSegment;
+class AbstractSegment;
+
+class Cluster;
+
+bool initNewCluster(Cluster* cluster,
+                    const JsonItem &parsedContent,
+                    const std::string &uuid);
+
+void initHeader(Cluster* cluster,
+                        const ClusterMetaData &metaData,
+                        const ClusterSettings &settings);
+
+AbstractSegment* addInputSegment(Cluster* cluster,
+                                 const JsonItem &parsedContent);
+AbstractSegment* addOutputSegment(Cluster* cluster,
+                                  const JsonItem &parsedContent);
+AbstractSegment* addDynamicSegment(Cluster* cluster,
+                                   const JsonItem &parsedContent);
+
+const std::string prepareDirection(const JsonItem &segments,
                                    const uint32_t foundNext,
                                    const uint8_t side);
 long getNeighborBorderSize(const JsonItem &currentSegment,
@@ -40,4 +61,4 @@ uint32_t checkNextPosition(const JsonItem &segments, const Position nextPos);
 Position convertPosition(const JsonItem &parsedContent);
 
 
-#endif // KYOUKOMIND_CLUSTER_PARSING_H
+#endif // KYOUKOMIND_CLUSTERINIT_H

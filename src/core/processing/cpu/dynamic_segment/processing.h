@@ -28,21 +28,19 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/orchestration/segments/dynamic_segment.h>
+#include <core/data_structure/segments/dynamic_segment.h>
 #include <core/objects/synapses.h>
-#include <core/orchestration/network_cluster.h>
 
 #include <core/processing/cpu/dynamic_segment/create_reduce.h>
 
 /**
- * @brief synapseProcessing
+ * @brief process synapse-section
  *
  * @param section current processed synapse-section
- * @param bricks array of all bricks
- * @param nodes array of all nodes in the current brick
- * @param segmentSettings settings of the section
+ * @param segment refernece to the processed segment
  * @param sourceNode source-node, who triggered the section
  * @param weightIn wight-value, which comes into the section
+ * @param outH multiplicator
  */
 inline void
 synapseProcessing(SynapseSection* section,
@@ -110,6 +108,11 @@ synapseProcessing(SynapseSection* section,
     }
 }
 
+/**
+ * @brief reset single node
+ *
+ * @param node pointer to node to reset
+ */
 inline
 void initNode(Node* node)
 {
@@ -119,6 +122,12 @@ void initNode(Node* node)
                    + static_cast<float>(initNode == false) * node->border;
 }
 
+/**
+ * @brief reset nodes of a input brick
+ *
+ * @param brick pointer to the brick
+ * @param segment segment where the brick belongs to
+ */
 inline void
 prepareNodesOfInputBrick(Brick* brick,
                          DynamicSegment &segment)
@@ -137,6 +146,12 @@ prepareNodesOfInputBrick(Brick* brick,
     }
 }
 
+/**
+ * @brief reset nodes of a output brick
+ *
+ * @param brick pointer to the brick
+ * @param segment segment where the brick belongs to
+ */
 inline void
 prepareNodesOfOutputBrick(Brick* brick,
                           DynamicSegment &segment)
@@ -156,6 +171,12 @@ prepareNodesOfOutputBrick(Brick* brick,
     }
 }
 
+/**
+ * @brief reset nodes of a normal brick
+ *
+ * @param brick pointer to the brick
+ * @param segment segment where the brick belongs to
+ */
 inline void
 prepareNodesOfNormalBrick(Brick* brick,
                           DynamicSegment &segment)
@@ -178,11 +199,7 @@ prepareNodesOfNormalBrick(Brick* brick,
  *        which are connected to an active node
  *
  * @param brick brick, which should be processed
- * @param nodes array of all nodes in the brick
- * @param synapseSections array of all synapse-sections
- * @param bricks array of all bricks
- * @param randomValues array of precreated random values for the learning process
- * @param segmentSettings settings of the section
+ * @param segment segment to process
  */
 inline void
 nodeProcessing(Brick* brick,

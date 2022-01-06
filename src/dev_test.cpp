@@ -23,9 +23,8 @@
 #include "dev_test.h"
 
 #include <kyouko_root.h>
-#include <core/orchestration/network_cluster.h>
-#include <core/orchestration/segments/input_segment.h>
-#include <core/orchestration/segments/output_segment.h>
+#include <core/data_structure/segments/input_segment.h>
+#include <core/data_structure/segments/output_segment.h>
 
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/files/text_file.h>
@@ -36,10 +35,8 @@
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/gpu/gpu_processing_uint.h>
 
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
-
-#include <core/orchestration/task_queue.h>
+#include <core/data_structure/cluster_handler.h>
+#include <core/data_structure/cluster.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 
@@ -47,11 +44,9 @@ using Kitsunemimi::Sakura::SakuraLangInterface;
 
 /**
  * @brief only a test-function for fast tests
- *
- * @param mnistRootPath absolute path to the directory with the MNIST test-files
  */
 void
-learnTestData(const std::string &mnistRootPath)
+learnTestData()
 {
     SakuraLangInterface* iface = SakuraLangInterface::getInstance();
     DataMap result;
@@ -124,18 +119,19 @@ learnTestData(const std::string &mnistRootPath)
 
     //----------------------------------------------------------------------------------------------
 
-    ClusterInterface* clusterInterface = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
+    Cluster* clusterInterface = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
 
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
-    bool success = false;
 
     // /home/neptune/Schreibtisch/mnist
 
-    const std::string trainDataPath = mnistRootPath + "/train-images.idx3-ubyte";
-    const std::string trainLabelPath = mnistRootPath + "/train-labels.idx1-ubyte";
-    const std::string testDataPath = mnistRootPath + "/t10k-images.idx3-ubyte";
-    const std::string testLabelPath = mnistRootPath + "/t10k-labels.idx1-ubyte";
+    bool success = false;
+    const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
+    const std::string trainDataPath = mnistTestPath + "/train-images.idx3-ubyte";
+    const std::string trainLabelPath = mnistTestPath + "/train-labels.idx1-ubyte";
+    const std::string testDataPath = mnistTestPath + "/t10k-images.idx3-ubyte";
+    const std::string testLabelPath = mnistTestPath + "/t10k-labels.idx1-ubyte";
 
     //==============================================================================================
     // learn
@@ -155,18 +151,20 @@ learnTestData(const std::string &mnistRootPath)
     std::cout<<trainLabelBuffer.usedBufferSize<<std::endl;
 
     std::string inputData;
-    Kitsunemimi::Crypto::encodeBase64(inputData, trainDataBuffer.data, trainDataBuffer.usedBufferSize);
+    Kitsunemimi::Crypto::encodeBase64(inputData,
+                                      trainDataBuffer.data,
+                                      trainDataBuffer.usedBufferSize);
     std::string labelData;
-    Kitsunemimi::Crypto::encodeBase64(labelData, trainLabelBuffer.data, trainLabelBuffer.usedBufferSize);
+    Kitsunemimi::Crypto::encodeBase64(labelData,
+                                      trainLabelBuffer.data,
+                                      trainLabelBuffer.usedBufferSize);
 
     //----------------------------------------------------------------------------------------------
 
-    for(uint32_t learnRun = 0; learnRun < 5; learnRun++)
+    for(uint32_t learnRun = 0; learnRun < 3; learnRun++)
     {
         DataMap taskLearnValues;
         taskLearnValues.insert("cluster_uuid", new DataValue(clusterUuid));
-        taskLearnValues.insert("input_data_uuid", new DataValue(""));
-        taskLearnValues.insert("label_data_uuid", new DataValue(""));
         taskLearnValues.insert("type", new DataValue("mnist"));
         taskLearnValues.insert("input_data", new DataValue(inputData));
         taskLearnValues.insert("label_data", new DataValue(labelData));
@@ -216,20 +214,22 @@ learnTestData(const std::string &mnistRootPath)
     Kitsunemimi::DataBuffer testLabelBuffer;
     testLabel.readCompleteFile(testLabelBuffer);
 
-
-    uint8_t* testDataBufferPtr = static_cast<uint8_t*>(testDataBuffer.data);
+    //uint8_t* testDataBufferPtr = static_cast<uint8_t*>(testDataBuffer.data);
     uint8_t* testLabelBufferPtr = static_cast<uint8_t*>(testLabelBuffer.data);
 
     std::string requestInputData;
-    Kitsunemimi::Crypto::encodeBase64(requestInputData, testDataBuffer.data, testDataBuffer.usedBufferSize);
+    Kitsunemimi::Crypto::encodeBase64(requestInputData,
+                                      testDataBuffer.data,
+                                      testDataBuffer.usedBufferSize);
     std::string  requestLabelData;
-    Kitsunemimi::Crypto::encodeBase64(requestLabelData, testLabelBuffer.data, testLabelBuffer.usedBufferSize);
+    Kitsunemimi::Crypto::encodeBase64(requestLabelData,
+                                      testLabelBuffer.data,
+                                      testLabelBuffer.usedBufferSize);
 
     //----------------------------------------------------------------------------------------------
 
     DataMap taskRequestValues;
     taskRequestValues.insert("cluster_uuid", new DataValue(clusterUuid));
-    taskRequestValues.insert("input_data_uuid", new DataValue(""));
     taskRequestValues.insert("type", new DataValue("mnist"));
     taskRequestValues.insert("input_data", new DataValue(requestInputData));
     iface->triggerBlossom(result,

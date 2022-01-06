@@ -34,13 +34,26 @@ using namespace Kitsunemimi::Sakura;
 DeleteTemplate::DeleteTemplate()
     : Blossom("Delete a template from the database.")
 {
+    //----------------------------------------------------------------------------------------------
     // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
                        "Name for the template to delete.");
+    // column in database is limited to 256 characters size
+    assert(addFieldBorder("name", 4, 256));
+    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
+/**
+ * @brief runTask
+ */
 bool
 DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
                         const Kitsunemimi::DataMap &,

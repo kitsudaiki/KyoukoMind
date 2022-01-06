@@ -28,14 +28,13 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/orchestration/segments/output_segment.h>
+#include <core/data_structure/segments/output_segment.h>
 #include <core/objects/synapses.h>
-#include <core/orchestration/network_cluster.h>
 
 /**
- * @brief backpropagateOutput
+ * @brief backpropagate output
  *
- * @param segment pointer to currect segment to process
+ * @param segment pointer to currect output-segment to process
  */
 inline void
 backpropagateOutput(OutputSegment* segment)

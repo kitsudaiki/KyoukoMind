@@ -32,21 +32,37 @@ using namespace Kitsunemimi::Sakura;
 ShowTemplate::ShowTemplate()
     : Blossom("Show a specific template.")
 {
+    //----------------------------------------------------------------------------------------------
     // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID for the template to show.");
+    // column in database is limited to 256 characters size
+    assert(addFieldBorder("name", 4, 256));
+    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
+    //----------------------------------------------------------------------------------------------
     // output
+    //----------------------------------------------------------------------------------------------
+
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the template.");
     registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the template.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
+/**
+ * @brief runTask
+ */
 bool
 ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
                       const Kitsunemimi::DataMap &,

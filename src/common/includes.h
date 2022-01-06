@@ -69,4 +69,6 @@ using Kitsunemimi::DataMap;
 #include <libKitsunemimiJson/json_item.h>
 using Kitsunemimi::Json::JsonItem;
 
+#include <libKitsunemimiHanamiCommon/uuid.h>
+
 #endif // KYOUKOMIND_INCLUDES_H

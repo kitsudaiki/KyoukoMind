@@ -22,8 +22,8 @@
 
 #include "show_task.h"
 
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
+#include <core/data_structure/cluster_handler.h>
+#include <core/data_structure/cluster.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -31,20 +31,33 @@ using namespace Kitsunemimi::Sakura;
 ShowTask::ShowTask()
     : Blossom("Show information of a specific task.")
 {
-    registerInputField("cluster_uuid",
-                       SAKURA_STRING_TYPE,
-                       true,
-                       "UUID of the cluster, which should process the request");
+    //----------------------------------------------------------------------------------------------
+    // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
+    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+
+    registerInputField("cluster_uuid",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "UUID of the cluster, which should process the request");
+    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     registerInputField("with_result",
                        SAKURA_STRING_TYPE,
                        false,
                        "Set to true to also retrun the result of the task.");
+    assert(addFieldRegex("with_result", "(true|false)"));
 
+    //----------------------------------------------------------------------------------------------
+    // output
+    //----------------------------------------------------------------------------------------------
 
     registerOutputField("percentage_finished",
                         SAKURA_FLOAT_TYPE,
@@ -65,6 +78,10 @@ ShowTask::ShowTask()
     registerOutputField("result",
                         SAKURA_ARRAY_TYPE,
                         "Array with results.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
 const std::string
@@ -78,6 +95,9 @@ serializeTimePoint(const std::chrono::high_resolution_clock::time_point &time,
     return ss.str();
 }
 
+/**
+ * @brief runTask
+ */
 bool
 ShowTask::runTask(BlossomLeaf &blossomLeaf,
                   const Kitsunemimi::DataMap &,
@@ -89,7 +109,7 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
     const bool withResult = blossomLeaf.input.get("with_result").getString() == "true";
 
     // get cluster
-    ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
+    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
         error.addMeesage("interface with uuid not found: " + clusterUuid);
@@ -98,9 +118,11 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
 
     const TaskProgress progress = cluster->getProgress(taskUuid);
 
+    // get basic information
     blossomLeaf.output.insert("percentage_finished", progress.percentageFinished);
     blossomLeaf.output.insert("queue_timestamp", serializeTimePoint(progress.queuedTimeStamp));
 
+    // get timestamps
     if(progress.state == QUEUED_TASK_STATE)
     {
         blossomLeaf.output.insert("state", "queued");
@@ -129,6 +151,7 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
         blossomLeaf.output.insert("end_timestamp", serializeTimePoint(progress.endActiveTimeStamp));
     }
 
+    // get task-result
     if(withResult)
     {
         const uint32_t* resultData = cluster->getResultData(taskUuid);

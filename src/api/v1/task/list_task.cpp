@@ -22,8 +22,8 @@
 
 #include "list_task.h"
 
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
+#include <core/data_structure/cluster_handler.h>
+#include <core/data_structure/cluster.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
@@ -31,25 +31,42 @@ using namespace Kitsunemimi::Sakura;
 ListTask::ListTask()
     : Blossom("List all tasks of a cluster.")
 {
+    //----------------------------------------------------------------------------------------------
+    // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
+    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
+
+    //----------------------------------------------------------------------------------------------
     // output
+    //----------------------------------------------------------------------------------------------
+
     registerOutputField("header",
                         SAKURA_ARRAY_TYPE,
                         "Array with the namings all columns of the table.");
     registerOutputField("body",
                         SAKURA_ARRAY_TYPE,
                         "Array with all rows of the table, which array arrays too.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
+/**
+ * @brief runTask
+ */
 bool
-ListTask::runTask(BlossomLeaf &blossomLeaf,
+ListTask::runTask(BlossomLeaf &,
                   const Kitsunemimi::DataMap &,
-                  BlossomStatus &status,
-                  Kitsunemimi::ErrorContainer &error)
+                  BlossomStatus &,
+                  Kitsunemimi::ErrorContainer &)
 {
-
+    return true;
 }

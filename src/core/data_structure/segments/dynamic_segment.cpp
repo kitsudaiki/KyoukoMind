@@ -22,21 +22,29 @@
 
 #include "dynamic_segment.h"
 
-#include <core/initializing/routing_functions.h>
+#include <core/routing_functions.h>
 #include <libKitsunemimiCommon/logger.h>
 
+/**
+ * @brief constructor
+ */
 DynamicSegment::DynamicSegment()
     : AbstractSegment()
 {
     m_type = DYNAMIC_SEGMENT;
 }
 
+/**
+ * @brief destructor
+ */
 DynamicSegment::~DynamicSegment() {}
 
 /**
- * @brief DynamicSegment::initSegment
- * @param parsedContent
- * @return
+ * @brief initalize segment
+ *
+ * @param parsedContent json-object with the segment-description
+ *
+ * @return true, if successful, else false
  */
 bool
 DynamicSegment::initSegment(const JsonItem &parsedContent)
@@ -77,8 +85,9 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
 }
 
 /**
- * @brief DynamicSegment::initializeNodes
- * @return
+ * @brief init all nodes with activation-border
+ *
+ * @return true, if successful, else false
  */
 bool
 DynamicSegment::initializeNodes()
@@ -96,8 +105,9 @@ DynamicSegment::initializeNodes()
 }
 
 /**
- * @brief DynamicSegment::connectBorderBuffer
- * @return
+ * @brief init border-buffer
+ *
+ * @return true, if successful, else false
  */
 bool
 DynamicSegment::connectBorderBuffer()
@@ -108,6 +118,8 @@ DynamicSegment::connectBorderBuffer()
     for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
     {
         brick = &bricks[i];
+
+        // connect input-bricks with border-buffer
         if(brick->isInputBrick)
         {
             for(uint32_t j = 0; j < brick->numberOfNodes; j++)
@@ -117,6 +129,7 @@ DynamicSegment::connectBorderBuffer()
             }
         }
 
+        // connect output-bricks with border-buffer
         if(brick->isOutputBrick)
         {
             const u_int32_t maxOutputs = segmentHeader->outputTransfers.count;
@@ -132,9 +145,11 @@ DynamicSegment::connectBorderBuffer()
 }
 
 /**
- * @brief DynamicSegment::initSettings
- * @param parsedContent
- * @return
+ * @brief init sttings-block for the segment
+ *
+ * @param parsedContent json-object with the segment-description
+ *
+ * @return settings-object
  */
 SegmentSettings
 DynamicSegment::initSettings(const JsonItem &parsedContent)
@@ -159,11 +174,14 @@ DynamicSegment::initSettings(const JsonItem &parsedContent)
 }
 
 /**
- * @brief DynamicSegment::createNewHeader
- * @param numberOfBricks
- * @param numberOfNodes
- * @param numberOfSynapseSections
- * @return
+ * @brief create new segment-header with size and position information
+ *
+ * @param numberOfBricks number of bricks
+ * @param numberOfNodes number of nodes
+ * @param numberOfSynapseSections number of synapse-sections
+ * @param borderbufferSize size of border-buffer
+ *
+ * @return new segment-header
  */
 SegmentHeader
 DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
@@ -201,8 +219,9 @@ DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
 }
 
 /**
- * @brief DynamicSegment::initSegmentPointer
- * @param header
+ * @brief init pointer within the segment-header
+ *
+ * @param header segment-header
  */
 void
 DynamicSegment::initSegmentPointer(const SegmentHeader &header)
@@ -234,9 +253,9 @@ DynamicSegment::initSegmentPointer(const SegmentHeader &header)
 }
 
 /**
- * @brief allocateSegment
- * @param header
- * @return
+ * @brief allocate memory for the segment
+ *
+ * @param header header with the size-information
  */
 void
 DynamicSegment::allocateSegment(SegmentHeader &header)
@@ -246,7 +265,7 @@ DynamicSegment::allocateSegment(SegmentHeader &header)
 }
 
 /**
- * @brief DynamicSegment::initDefaultValues
+ * @brief init buffer to avoid undefined values
  */
 void
 DynamicSegment::initDefaultValues()
@@ -271,10 +290,12 @@ DynamicSegment::initDefaultValues()
 }
 
 /**
- * @brief DynamicSegment::createNewBrick
- * @param brickDef
- * @param id
- * @return
+ * @brief create a new brick-object
+ *
+ * @param brickDef json with all brick-definitions
+ * @param id brick-id
+ *
+ * @return new brick with parsed information
  */
 Brick
 DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
@@ -304,8 +325,9 @@ DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
 }
 
 /**
- * @brief DynamicSegment::addBricksToSegment
- * @param metaBase
+ * @brief init all bricks
+ *
+ * @param metaBase json with all brick-definitions
  */
 void
 DynamicSegment::addBricksToSegment(const JsonItem &metaBase)
@@ -336,16 +358,19 @@ DynamicSegment::addBricksToSegment(const JsonItem &metaBase)
 }
 
 /**
- * @brief DynamicSegment::connectBrick
- * @param sourceBrick
- * @param side
+ * @brief connect a single side of a specific brick
+ *
+ * @param sourceBrick pointer to the brick
+ * @param side side of the brick to connect
  */
 void
 DynamicSegment::connectBrick(Brick* sourceBrick,
                              const uint8_t side)
 {
     const Position next = getNeighborPos(sourceBrick->brickPos, side);
-    std::cout<<next.x<<" : "<<next.y<<" : "<<next.z<<std::endl;
+    // debug-output
+    // std::cout<<next.x<<" : "<<next.y<<" : "<<next.z<<std::endl;
+
     if(next.isValid())
     {
         for(uint32_t t = 0; t < segmentHeader->bricks.count; t++)
@@ -361,7 +386,7 @@ DynamicSegment::connectBrick(Brick* sourceBrick,
 }
 
 /**
- * @brief DynamicSegment::connectAllBricks
+ * @brief connect all breaks of the segment
  */
 void
 DynamicSegment::connectAllBricks()
@@ -376,9 +401,12 @@ DynamicSegment::connectAllBricks()
 }
 
 /**
- * @brief DynamicSegment::goToNextInitBrick
- * @param currentBrick
- * @return
+ * @brief get next possible brick
+ *
+ * @param currentBrick actual brick
+ * @param maxPathLength maximum path length left
+ *
+ * @return last brick-id of the gone path
  */
 uint32_t
 DynamicSegment::goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength)
@@ -412,9 +440,9 @@ DynamicSegment::goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength)
 }
 
 /**
- * @brief FanBrickInitializer::initTargetBrickList
- * @param segment
- * @return
+ * @brief init target-brick-list of all bricks
+ *
+ * @return true, if successful, else false
  */
 bool
 DynamicSegment::initTargetBrickList()

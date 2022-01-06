@@ -22,17 +22,16 @@
 
 #include <kyouko_root.h>
 
-#include <core/initializing/struct_validation.h>
-#include <core/initializing/preprocess_cluster_json.h>
+#include <core/data_structure/init/struct_validation.h>
+#include <core/data_structure/init/cluster_init.h>
 
 #include <core/processing/cpu/cpu_processing_unit.h>
 #include <core/processing/segment_queue.h>
 #include <core/processing/processing_unit_handler.h>
 
 #include <core/objects/node.h>
-#include <core/storage_io.h>
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
+#include <core/data_structure/cluster_handler.h>
+#include <core/data_structure/cluster.h>
 
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/files/text_file.h>
@@ -65,14 +64,15 @@ KyoukoRoot::KyoukoRoot() {}
 KyoukoRoot::~KyoukoRoot() {}
 
 /**
- * @brief KyoukoRoot::init
- * @return
+ * @brief init root-object
+ *
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
-KyoukoRoot::initBase()
+KyoukoRoot::init(Kitsunemimi::ErrorContainer &error)
 {
-    Kitsunemimi::ErrorContainer error;
-
     validateStructSizes();
 
     // init predefinde random-values
@@ -92,6 +92,11 @@ KyoukoRoot::initBase()
     return true;
 }
 
+/**
+ * @brief create processing-threads
+ *
+ * @return true, if successful, else false
+ */
 bool
 KyoukoRoot::initThreads()
 {
@@ -104,9 +109,11 @@ KyoukoRoot::initThreads()
 }
 
 /**
- * @brief KyoukoRoot::initDatabase
- * @param error
- * @return
+ * @brief init database
+ *
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 KyoukoRoot::initDatabase(Kitsunemimi::ErrorContainer &error)
@@ -153,18 +160,23 @@ KyoukoRoot::initDatabase(Kitsunemimi::ErrorContainer &error)
 }
 
 /**
- * @brief KyoukoRoot::initializeSakuraFiles
- * @return
+ * @brief read local sakura-files
+ *
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 KyoukoRoot::initializeSakuraFiles(Kitsunemimi::ErrorContainer &error)
 {
     bool success = false;
+    // get directory from config
     const std::string sakuraDir = GET_STRING_CONFIG("DEFAULT", "sakura-file-locaion", success);
     if(success == false) {
         return false;
     }
 
+    // read files in directory
     success = SakuraLangInterface::getInstance()->readFilesInDir(sakuraDir, error);
     if(success == false)
     {

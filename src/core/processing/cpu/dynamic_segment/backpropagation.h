@@ -28,9 +28,8 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/orchestration/segments/dynamic_segment.h>
+#include <core/data_structure/segments/dynamic_segment.h>
 #include <core/objects/synapses.h>
-#include <core/orchestration/network_cluster.h>
 
 /**
  * @brief correct new created synapses, which are directly connected to the output and fix the
@@ -90,6 +89,12 @@ correctNewOutputSynapses(Brick* brick,
     }
 }
 
+/**
+ * @brief backpropagate values of an output-brick
+ *
+ * @param brick brick to process
+ * @param segment segment where the brick belongs to
+ */
 inline void
 backpropagateOutput(Brick* brick,
                     DynamicSegment* segment)

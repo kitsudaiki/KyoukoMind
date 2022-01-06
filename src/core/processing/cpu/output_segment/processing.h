@@ -28,9 +28,8 @@
 #include <kyouko_root.h>
 #include <core/objects/brick.h>
 #include <core/objects/node.h>
-#include <core/orchestration/segments/output_segment.h>
+#include <core/data_structure/segments/output_segment.h>
 #include <core/objects/synapses.h>
-#include <core/orchestration/network_cluster.h>
 
 /**
  * @brief calculate the total error of all outputs of a specific segment
@@ -77,9 +76,11 @@ prcessOutputSegment(OutputSegment* segment)
 }
 
 /**
- * @brief getHighestOutput
- * @param segment
- * @return
+ * @brief get position of the highest output-position
+ *
+ * @param segment output-segment to check
+ *
+ * @return position of the highest output.
  */
 inline uint32_t
 getHighestOutput(OutputSegment* segment)

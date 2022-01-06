@@ -27,10 +27,12 @@
 #include <common.h>
 
 /**
- * @brief getNeighborPos
- * @param sourcePos
- * @param side
- * @return
+ * @brief get neighbor-position for a specific side in the hexagon-grid
+ *
+ * @param sourcePos base-position
+ * @param side side
+ *
+ * @return position of the object, which is connected to this side
  */
 inline Position
 getNeighborPos(const Position sourcePos, const uint8_t side)
@@ -165,9 +167,11 @@ getNeighborPos(const Position sourcePos, const uint8_t side)
 }
 
 /**
- * @brief getNextSides
- * @param side
- * @return
+ * @brief get possible next sides based on an incoming side
+ *
+ * @param side incoming-side
+ *
+ * @return object with all possible next sides
  */
 inline NextSides
 getNextSides(const uint8_t side)

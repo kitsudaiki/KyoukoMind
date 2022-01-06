@@ -23,8 +23,8 @@
 #include "create_request_task.h"
 #include <kyouko_root.h>
 
-#include <core/orchestration/cluster_handler.h>
-#include <core/orchestration/cluster_interface.h>
+#include <core/data_structure/cluster_handler.h>
+#include <core/data_structure/cluster.h>
 
 #include <libKitsunemimiHanamiCommon/component_support.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
@@ -38,27 +38,56 @@ using Kitsunemimi::Hanami::SupportedComponents;
 CreateRequestTask::CreateRequestTask()
     : Blossom("Add new request-task to the task-queue of a cluster.")
 {
+    bool success = false;
+    m_devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
+
+    //----------------------------------------------------------------------------------------------
+    // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
-    registerInputField("input_data_uuid",
-                       SAKURA_STRING_TYPE,
-                       true,
-                       "UUID to identifiy the train-data with the input in sagiri.");
+    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+
     registerInputField("type",
                        SAKURA_STRING_TYPE,
                        true,
                        "Type of the data (MNIST, CSV).");
+    assert(addFieldRegex("type", "(csv|mnist)"));
 
-    registerInputField("input_data",
-                       SAKURA_STRING_TYPE,
-                       false,
-                       "Type of the data (MNIST, CSV).");
+    // set endpoints for predefined input for dev-mode
+    if(m_devMode)
+    {
+        registerInputField("input_data",
+                           SAKURA_STRING_TYPE,
+                           false,
+                           "Input-data.");
+    }
+    else
+    {
+        registerInputField("input_data_uuid",
+                           SAKURA_STRING_TYPE,
+                           true,
+                           "UUID to identifiy the train-data with the input in sagiri.");
+        assert(addFieldRegex("input_data_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                                "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // output
+    //----------------------------------------------------------------------------------------------
 
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created task.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
 
@@ -76,7 +105,9 @@ getDataFromSagiri(DataBuffer &result,
     request.httpType = Kitsunemimi::Hanami::GET_TYPE;
 
 
-    request.inputValues = "{ \"token\" : \"" + token + "\", \"uuid\" : \"" + uuid + "\",\"with_data\":true}";
+    request.inputValues = "{\"token\":\"" + token + "\""
+                          ",\"uuid\":\"" + uuid + "\""
+                          ",\"with_data\":true}";
     if(msg->triggerSakuraFile("sagiri", response, request, error) == false) {
         return false;
     }
@@ -104,11 +135,7 @@ getDataFromSagiri(DataBuffer &result,
 }
 
 /**
- * @brief CreateRequestTask::runTask
- * @param blossomLeaf
- * @param status
- * @param error
- * @return
+ * @brief runTask
  */
 bool
 CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
@@ -116,31 +143,35 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
                            BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
 {
-    const std::string uuid = blossomLeaf.input.get("cluster_uuid").getString();
+    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string inputUuid = blossomLeaf.input.get("input_data_uuid").getString();
     const std::string type = blossomLeaf.input.get("type").getString();
     const std::string token = context.getStringByKey("token");
 
-    const std::string inputData = blossomLeaf.input.get("input_data").getString();
+    // run dev-mode, if set in config
+    if(m_devMode)
+    {
+        const std::string inputData = blossomLeaf.input.get("input_data").getString();
+
+        const std::string taskUuid = testMode(clusterUuid, inputData, error);
+        blossomLeaf.output.insert("uuid", taskUuid);
+        return true;
+    }
 
     SupportedComponents* scomp = SupportedComponents::getInstance();
-
-    if(inputData == "")
+    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
     {
-        if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
-        {
-            status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
-            status.errorMessage = "Sagiri is not configured for Kyouko.";
-            error.addMeesage(status.errorMessage);
-            return false;
-        }
+        status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
+        status.errorMessage = "Sagiri is not configured for Kyouko.";
+        error.addMeesage(status.errorMessage);
+        return false;
     }
 
     // get cluster
-    ClusterInterface* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
+    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        status.errorMessage = "cluster with uuid '" + uuid + "'not found";
+        status.errorMessage = "cluster with uuid '" + clusterUuid + "'not found";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         error.addMeesage(status.errorMessage);
         return false;
@@ -148,20 +179,13 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
 
     // get input-data
     DataBuffer inputBuffer;
-    if(inputData == "")
+    if(getDataFromSagiri(inputBuffer, token, inputUuid, error) == false)
     {
-        if(getDataFromSagiri(inputBuffer, token, inputUuid, error) == false)
-        {
-            status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-            return false;
-        }
-    }
-    else
-    {
-        Kitsunemimi::Crypto::decodeBase64(inputBuffer, inputData);
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
     }
 
-    // init learn-task
+    // init request-task
     std::string taskUuid = "";
     if(type == "mnist") {
         taskUuid = startMnistTask(cluster, inputBuffer);
@@ -173,13 +197,15 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
 }
 
 /**
- * @brief CreateRequestTask::startMnistTask
- * @param cluster
- * @param inputBuffer
- * @return
+ * @brief start mnist-task
+ *
+ * @param cluster pointer to cluster
+ * @param inputBuffer buffer with input-data
+ *
+ * @return task-uuid
  */
 const std::string
-CreateRequestTask::startMnistTask(ClusterInterface* cluster,
+CreateRequestTask::startMnistTask(Cluster* cluster,
                                   const Kitsunemimi::DataBuffer &inputBuffer)
 {
     uint8_t* dataBufferPtr = static_cast<uint8_t*>(inputBuffer.data);
@@ -190,7 +216,6 @@ CreateRequestTask::startMnistTask(ClusterInterface* cluster,
     numberOfImages |= static_cast<uint32_t>(dataBufferPtr[6]) << 8;
     numberOfImages |= static_cast<uint32_t>(dataBufferPtr[5]) << 16;
     numberOfImages |= static_cast<uint32_t>(dataBufferPtr[4]) << 24;
-    std::cout<<"number of images: "<<numberOfImages<<std::endl;
 
     // get number of rows
     uint32_t numberOfRows = 0;
@@ -198,7 +223,6 @@ CreateRequestTask::startMnistTask(ClusterInterface* cluster,
     numberOfRows |= static_cast<uint32_t>(dataBufferPtr[10]) << 8;
     numberOfRows |= static_cast<uint32_t>(dataBufferPtr[9]) << 16;
     numberOfRows |= static_cast<uint32_t>(dataBufferPtr[8]) << 24;
-    std::cout<<"number of rows: "<<numberOfRows<<std::endl;
 
     // get number of columns
     uint32_t numberOfColumns = 0;
@@ -206,11 +230,9 @@ CreateRequestTask::startMnistTask(ClusterInterface* cluster,
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[14]) << 8;
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[13]) << 16;
     numberOfColumns |= static_cast<uint32_t>(dataBufferPtr[12]) << 24;
-    std::cout<<"number of columns: "<<numberOfColumns<<std::endl;
 
     // get pictures
     const uint32_t pictureSize = numberOfRows * numberOfColumns;
-
 
     uint64_t dataPos = 0;
     uint64_t dataSize = numberOfImages * pictureSize;
@@ -231,8 +253,33 @@ CreateRequestTask::startMnistTask(ClusterInterface* cluster,
     const std::string taskUuid = cluster->addRequestTask(taskData,
                                                          pictureSize,
                                                          numberOfImages);
-    cluster->m_segmentCounter = cluster->getNumberOfSegments();
+    cluster->m_segmentCounter = cluster->allSegments.size();
     cluster->updateClusterState();
 
     return taskUuid;
+}
+
+/**
+ * @brief run test-mode
+ */
+const std::string
+CreateRequestTask::testMode(const std::string &clusterUuid,
+                            const std::string &inputData,
+                            Kitsunemimi::ErrorContainer &error)
+{
+
+    // get cluster
+    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
+    if(cluster == nullptr)
+    {
+        error.addMeesage("cluster with uuid not found: " + clusterUuid);
+        return "";
+    }
+
+    // decode train-data
+    DataBuffer inputBuffer;
+    Kitsunemimi::Crypto::decodeBase64(inputBuffer, inputData);
+
+    // init learn-task
+    return startMnistTask(cluster, inputBuffer);
 }

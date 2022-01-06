@@ -33,7 +33,10 @@ using namespace Kitsunemimi::Sakura;
 ShowCluster::ShowCluster()
     : Blossom("Show information of a specific cluster.")
 {
+    //----------------------------------------------------------------------------------------------
     // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
@@ -42,7 +45,10 @@ ShowCluster::ShowCluster()
     assert(addFieldBorder("name", 4, 256));
     assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
+    //----------------------------------------------------------------------------------------------
     // output
+    //----------------------------------------------------------------------------------------------
+
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the cluster.");
@@ -52,8 +58,15 @@ ShowCluster::ShowCluster()
     registerOutputField("template_uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the template, which should be used as base for the cluster.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
+/**
+ * @brief runTask
+ */
 bool
 ShowCluster::runTask(BlossomLeaf &blossomLeaf,
                      const Kitsunemimi::DataMap &,

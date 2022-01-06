@@ -34,7 +34,10 @@ using namespace Kitsunemimi::Sakura;
 CreateTemplate::CreateTemplate()
     : Blossom("Create new template-file and store it within the database.")
 {
+    //----------------------------------------------------------------------------------------------
     // input
+    //----------------------------------------------------------------------------------------------
+
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
@@ -48,21 +51,32 @@ CreateTemplate::CreateTemplate()
                        true,
                        "Number of input-nodes of the new template.");
     assert(addFieldBorder("number_of_inputs", 1, 100000000));
+
     registerInputField("number_of_outputs",
                        SAKURA_INT_TYPE,
                        true,
                        "Number of output-nodes of the new template.");
     assert(addFieldBorder("number_of_outputs", 1, 100000000));
 
+    //----------------------------------------------------------------------------------------------
     // output
+    //----------------------------------------------------------------------------------------------
+
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created template.");
     registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the new created template.");
+
+    //----------------------------------------------------------------------------------------------
+    //
+    //----------------------------------------------------------------------------------------------
 }
 
+/**
+ * @brief runTask
+ */
 bool
 CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
                         const Kitsunemimi::DataMap &,
@@ -120,10 +134,12 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
 
 /**
  * @brief CreateClusterGenerate::generateNewCluster
- * @param name
- * @param numberOfInputNodes
- * @param numberOfOutputNodes
- * @return
+ *
+ * @param name name of the cluster
+ * @param numberOfInputNodes number of input-nodes of the cluster
+ * @param numberOfOutputNodes number of output-nodes of the cluster
+ *
+ * @return data-map with the new cluster-template
  */
 DataMap*
 CreateTemplate::generateNewCluster(const std::string name,
@@ -141,7 +157,8 @@ CreateTemplate::generateNewCluster(const std::string name,
 
 /**
  * @brief CreateClusterGenerate::createClusterSettings
- * @param result
+ *
+ * @param result pointer to the resulting object
  */
 void
 CreateTemplate::createClusterSettings(DataMap* result)
@@ -156,9 +173,10 @@ CreateTemplate::createClusterSettings(DataMap* result)
 
 /**
  * @brief CreateClusterGenerate::createSegments
- * @param result
- * @param numberOfInputNodes
- * @param numberOfOutputNodes
+ *
+ * @param result pointer to the resulting object
+ * @param numberOfInputNodes number of input-nodes of the cluster
+ * @param numberOfOutputNodes number of output-nodes of the cluster
  */
 void
 CreateTemplate::createSegments(DataMap* result,
@@ -175,9 +193,11 @@ CreateTemplate::createSegments(DataMap* result,
 
 /**
  * @brief CreateClusterGenerate::createInputSegments
- * @param resultconst
- * @param numberOfInputNodes
- * @return
+ *
+ * @param result pointer to the resulting object
+ * @param numberOfInputNodes number of input-nodes of the cluster
+ *
+ * @return number of new input-segments
  */
 uint32_t
 CreateTemplate::createInputSegments(DataArray* result,
@@ -185,13 +205,8 @@ CreateTemplate::createInputSegments(DataArray* result,
 {
     DataMap* newSegment = new DataMap();
 
-    DataArray* position = new DataArray();
-    position->append(new DataValue(1));
-    position->append(new DataValue(1));
-    position->append(new DataValue(1));
-
     newSegment->insert("type", new DataValue("input_segment"));
-    newSegment->insert("position", position);
+    newSegment->insert("position", createPosition(1, 1, 1));
     newSegment->insert("number_of_inputs", new DataValue(numberOfInputNodes));
 
     result->append(newSegment);
@@ -201,9 +216,10 @@ CreateTemplate::createInputSegments(DataArray* result,
 
 /**
  * @brief CreateClusterGenerate::createDynamicSegments
- * @param result
- * @param numberOfInputNodes
- * @param numberOfOutputNodes
+ *
+ * @param result pointer to the resulting object
+ * @param numberOfInputNodes number of input-nodes of the cluster
+ * @param numberOfOutputNodes number of output-nodes of the cluster
  */
 void
 CreateTemplate::createDynamicSegments(DataArray* result,
@@ -212,13 +228,8 @@ CreateTemplate::createDynamicSegments(DataArray* result,
 {
     DataMap* newSegment = new DataMap();
 
-    DataArray* position = new DataArray();
-    position->append(new DataValue(1));
-    position->append(new DataValue(2));
-    position->append(new DataValue(1));
-
     newSegment->insert("type", new DataValue("dynamic_segment"));
-    newSegment->insert("position", position);
+    newSegment->insert("position", createPosition(1, 2, 1));
 
     createSegmentSettings(newSegment);
     createSegmentBricks(newSegment, numberOfInputNodes, numberOfOutputNodes);
@@ -227,8 +238,9 @@ CreateTemplate::createDynamicSegments(DataArray* result,
 }
 
 /**
- * @brief CreateClusterGenerate::createSegmentSettings
- * @param result
+ * @brief create settings block for the segment
+ *
+ * @param result pointer to the resulting object
  */
 void
 CreateTemplate::createSegmentSettings(DataMap* result)
@@ -236,12 +248,12 @@ CreateTemplate::createSegmentSettings(DataMap* result)
     DataMap* settings = new DataMap();
 
     settings->insert("refraction_time", new DataValue(1));
-    settings->insert("synapse_delete_border", new DataValue(0.01));
-    settings->insert("action_potential", new DataValue(0.0));
+    settings->insert("synapse_delete_border", new DataValue(0.005));
+    settings->insert("action_potential", new DataValue(5.0));
     settings->insert("node_cooldown", new DataValue(3000.0));
     settings->insert("memorizing", new DataValue(0.5));
-    settings->insert("glia_value", new DataValue(1.0));
-    settings->insert("max_synapse_weight", new DataValue(0.05));
+    settings->insert("glia_value", new DataValue(1.1));
+    settings->insert("max_synapse_weight", new DataValue(0.025));
     settings->insert("sign_neg", new DataValue(0.5));
     settings->insert("potential_overflow", new DataValue(1.0));
     settings->insert("multiplicator_range", new DataValue(1));
@@ -253,10 +265,11 @@ CreateTemplate::createSegmentSettings(DataMap* result)
 }
 
 /**
- * @brief CreateClusterGenerate::createSegmentBricks
- * @param result
- * @param numberOfInputNodes
- * @param numberOfOutputNodes
+ * @brief create bricks for an internal segment
+ *
+ * @param result pointer to the resulting object
+ * @param numberOfInputNodes number of input-nodes of the cluster
+ * @param numberOfOutputNodes number of output-nodes of the cluster
  */
 void
 CreateTemplate::createSegmentBricks(DataMap* result,
@@ -265,44 +278,37 @@ CreateTemplate::createSegmentBricks(DataMap* result,
 {
     DataArray* bricks = new DataArray();
 
+    // input-part
     DataMap* inputBrick = new DataMap();
-    DataArray* inputBrickPosition = new DataArray();
-    inputBrickPosition->append(new DataValue(1));
-    inputBrickPosition->append(new DataValue(1));
-    inputBrickPosition->append(new DataValue(1));
     inputBrick->insert("type", new DataValue("input"));
     inputBrick->insert("number_of_nodes", new DataValue(numberOfInputNodes));
-    inputBrick->insert("position", inputBrickPosition);
+    inputBrick->insert("position", createPosition(1, 1, 1));
     bricks->append(inputBrick);
 
+    // centre part
     DataMap* internalBrick = new DataMap();
-    DataArray* internalBrickPosition = new DataArray();
-    internalBrickPosition->append(new DataValue(2));
-    internalBrickPosition->append(new DataValue(1));
-    internalBrickPosition->append(new DataValue(1));
     internalBrick->insert("type", new DataValue("normal"));
     internalBrick->insert("number_of_nodes", new DataValue(300));
-    internalBrick->insert("position", internalBrickPosition);
+    internalBrick->insert("position", createPosition(2, 1, 1));
     bricks->append(internalBrick);
 
+    // output-part
     DataMap* outputBrick = new DataMap();
-    DataArray* outputBrickPosition = new DataArray();
-    outputBrickPosition->append(new DataValue(3));
-    outputBrickPosition->append(new DataValue(1));
-    outputBrickPosition->append(new DataValue(1));
     outputBrick->insert("type", new DataValue("output"));
     outputBrick->insert("number_of_nodes", new DataValue(numberOfOutputNodes));
-    outputBrick->insert("position", outputBrickPosition);
+    outputBrick->insert("position", createPosition(3, 1, 1));
     bricks->append(outputBrick);
 
     result->insert("bricks", bricks);
 }
 
 /**
- * @brief CreateClusterGenerate::createOutputSegments
- * @param resultconst
- * @param numberOfOutputNodes
- * @return
+ * @brief create new output-segment
+ *
+ * @param result pointer to the resulting object
+ * @param numberOfOutputNodes number of output-nodes of the cluster
+ *
+ * @return number of new output-segments
  */
 uint32_t
 CreateTemplate::createOutputSegments(DataArray* result,
@@ -310,16 +316,34 @@ CreateTemplate::createOutputSegments(DataArray* result,
 {
     DataMap* newSegment = new DataMap();
 
-    DataArray* position = new DataArray();
-    position->append(new DataValue(1));
-    position->append(new DataValue(3));
-    position->append(new DataValue(1));
-
     newSegment->insert("type", new DataValue("output_segment"));
-    newSegment->insert("position", position);
+    newSegment->insert("position", createPosition(1, 3, 1));
     newSegment->insert("number_of_outputs", new DataValue(numberOfOutputNodes));
 
     result->append(newSegment);
 
     return 1;
+}
+
+/**
+ * @brief convert position-information into data-array
+ *
+ * @param x x-position
+ * @param y y-position
+ * @param z z-position
+ *
+ * @return data-array with position-values
+ */
+DataArray*
+CreateTemplate::createPosition(const long x,
+                               const long y,
+                               const long z)
+{
+    DataArray* position = new DataArray();
+
+    position->append(new DataValue(x));
+    position->append(new DataValue(y));
+    position->append(new DataValue(z));
+
+    return position;
 }
