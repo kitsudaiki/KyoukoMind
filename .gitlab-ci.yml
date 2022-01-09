@@ -1,0 +1,46 @@
+image: registry.gitlab.com/kitsudaiki/kitsunemimi-ci-docker-images/opencl-tests:1.1.0
+
+stages:
+  - build  
+  - create_image
+
+build:
+  stage: build
+  script:
+    - echo Working on branch $CI_COMMIT_REF_NAME
+
+    - mkdir -p ~/.ssh
+    - touch ~/.ssh/known_hosts
+    - ssh-keyscan -H 10.0.3.120 >> ~/.ssh/known_hosts
+    - echo "nameserver 1.1.1.1" > /etc/resolv.conf
+
+    - apt-get update
+    - apt-get install -y openssl libssl-dev opencl-headers ocl-icd-opencl-dev xxd uuid-dev libcrypto++-dev libsqlite3-dev
+
+    - cd /builds/kitsudaiki/KyoukoMind
+    - ./build.sh
+
+    - mkdir upload
+    - cp ../result/KyoukoMind upload/
+
+  artifacts:
+    paths:
+      - upload
+    expire_in: 1 week
+  tags:
+    - docker
+
+
+create_image:
+  image: docker:20.10.11
+  stage: create_image
+  script:
+    - echo "172.17.0.1  registry.kitsunemimi.moe" >> /etc/hosts
+    - docker build -t registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH .
+    - docker push registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
+    - docker rmi registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
+  dependencies:
+    - build
+  tags:
+    - docker
+

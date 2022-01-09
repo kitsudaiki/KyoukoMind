@@ -1,0 +1,48 @@
+/**
+ * @file        config.h
+ *
+ * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
+ *
+ * @copyright   Apache License Version 2.0
+ *
+ *      Copyright 2019 Tobias Anker
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
+#ifndef KYOUKOMIND_CONFIG_H
+#define KYOUKOMIND_CONFIG_H
+
+#include <libKitsunemimiConfig/config_handler.h>
+#include <libKitsunemimiHanamiCommon/config.h>
+
+/**
+ * @brief define all available entries in the config file with default-values
+ */
+void
+registerConfigs(Kitsunemimi::ErrorContainer &error)
+{
+    Kitsunemimi::Hanami::registerBasicConfigs(error);
+
+    REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", error, "/etc/KyoukoMind/sakura-files");
+
+    //                     group      entry                      default
+    REGISTER_BOOL_CONFIG(  "DevMode", "enable",           error, false);
+    REGISTER_STRING_CONFIG("DevMode", "file",             error, "");
+    REGISTER_STRING_CONFIG("DevMode", "config",           error, "");
+    REGISTER_STRING_CONFIG("DevMode", "mnist_path",       error, "");
+    REGISTER_INT_CONFIG(   "DevMode", "learn_images",     error, 100);
+    REGISTER_INT_CONFIG(   "DevMode", "learn_iterations", error, 1);
+}
+
+#endif // KYOUKOMIND_CONFIG_H
