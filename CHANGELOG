@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.0] - 2022-01-09
+
+### Added
+- store clusters in new database
+- generate basic templates and store in new databse
+- usage of train-data coming from sagiri
+
+### Changed
+- reworked api
+
+
 ## [0.5.0] - 2021-09-26
 
 ### Added
