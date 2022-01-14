@@ -36,9 +36,18 @@ create_image:
   stage: create_image
   script:
     - echo "172.17.0.1  registry.kitsunemimi.moe" >> /etc/hosts
-    - docker build -t registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH .
-    - docker push registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
-    - docker rmi registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
+    - >
+      if [ "$CI_COMMIT_BRANCH" != "" ]; then
+        docker build -t registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH .
+        docker push registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
+        docker rmi registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
+      fi
+    - >
+      if [ "$CI_COMMIT_TAG" != "" ]; then
+        docker build -t registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_TAG  .
+        docker push registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_TAG
+        docker rmi registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_TAG
+      fi
   dependencies:
     - build
   tags:
