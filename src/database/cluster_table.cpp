@@ -73,6 +73,9 @@ ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
  *
  * @param result reference for the result-output in case that a cluster with this name was found
  * @param clusterName name of the requested cluster
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
+ * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
@@ -102,6 +105,9 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
  * @brief get all clusters from the database table
  *
  * @param result reference for the result-output
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
+ * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  *
  * @return true, if successful, else false
@@ -120,6 +126,9 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
  * @brief delete a cluster from the table
  *
  * @param clusterName name of the cluster to delete
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
+ * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  *
  * @return true, if successful, else false

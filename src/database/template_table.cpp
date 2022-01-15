@@ -73,6 +73,9 @@ TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
  *
  * @param result reference for the result-output in case that a cluster with this name was found
  * @param templateUuid uuid of the requested template
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
+ * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
@@ -103,6 +106,9 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
  *
  * @param result reference for the result-output in case that a cluster with this name was found
  * @param templateName name of the requested template
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
+ * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
@@ -132,6 +138,9 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
  * @brief get all templates from the database table
  *
  * @param result reference for the result-output
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
+ * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  *
  * @return true, if successful, else false
@@ -150,6 +159,9 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
  * @brief delete a cluster from the table
  *
  * @param templateName name of the template to delete
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
+ * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  *
  * @return true, if successful, else false
