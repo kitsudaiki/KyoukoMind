@@ -39,14 +39,25 @@ public:
     ~ClusterTable();
 
     bool addCluster(Kitsunemimi::Json::JsonItem &clusterData,
+                    const std::string &userUuid,
+                    const std::string &projectUuid,
                     Kitsunemimi::ErrorContainer &error);
     bool getClusterByName(Kitsunemimi::Json::JsonItem &result,
                           const std::string &clusterName,
+                          const std::string &userUuid,
+                          const std::string &projectUuid,
+                          const bool isAdmin,
                           Kitsunemimi::ErrorContainer &error,
                           const bool showHiddenValues = false);
     bool getAllCluster(Kitsunemimi::TableItem &result,
+                       const std::string &userUuid,
+                       const std::string &projectUuid,
+                       const bool isAdmin,
                        Kitsunemimi::ErrorContainer &error);
     bool deleteCluster(const std::string &clusterName,
+                       const std::string &userUuid,
+                       const std::string &projectUuid,
+                       const bool isAdmin,
                        Kitsunemimi::ErrorContainer &error);
 };
 

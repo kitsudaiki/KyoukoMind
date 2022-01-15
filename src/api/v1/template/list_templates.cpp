@@ -55,13 +55,21 @@ ListTemplates::ListTemplates()
  */
 bool
 ListTemplates::runTask(BlossomLeaf &blossomLeaf,
-                       const Kitsunemimi::DataMap &,
+                       const Kitsunemimi::DataMap &context,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
+
     // get data from table
     Kitsunemimi::TableItem table;
-    if(KyoukoRoot::templateTable->getAllTemplate(table, error) == false)
+    if(KyoukoRoot::templateTable->getAllTemplate(table,
+                                                 userUuid,
+                                                 projectUuid,
+                                                 isAdmin,
+                                                 error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;

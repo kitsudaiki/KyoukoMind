@@ -82,16 +82,24 @@ CreateCluster::CreateCluster()
  */
 bool
 CreateCluster::runTask(BlossomLeaf &blossomLeaf,
-                       const Kitsunemimi::DataMap &,
+                       const Kitsunemimi::DataMap &context,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterName = blossomLeaf.input.get("name").getString();
     const std::string templateUuid = blossomLeaf.input.get("template_uuid").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
 
     // check if user already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::clustersTable->getClusterByName(getResult, clusterName, error))
+    if(KyoukoRoot::clustersTable->getClusterByName(getResult,
+                                                   clusterName,
+                                                   userUuid,
+                                                   projectUuid,
+                                                   isAdmin,
+                                                   error))
     {
         status.errorMessage = "Cluster with name '" + clusterName + "' already exist.";
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
@@ -102,6 +110,9 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     JsonItem templateData;
     if(KyoukoRoot::templateTable->getTemplate(templateData,
                                               templateUuid,
+                                              userUuid,
+                                              projectUuid,
+                                              isAdmin,
                                               error,
                                               true) == false)
     {
@@ -138,14 +149,22 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     clusterData.insert("visibility", 0);
 
     // add new user to table
-    if(KyoukoRoot::clustersTable->addCluster(clusterData, error) == false)
+    if(KyoukoRoot::clustersTable->addCluster(clusterData,
+                                             userUuid,
+                                             projectUuid,
+                                             error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 
     // get new created user from database
-    if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output, clusterName, error) == false)
+    if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output,
+                                                   clusterName,
+                                                   userUuid,
+                                                   projectUuid,
+                                                   isAdmin,
+                                                   error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;

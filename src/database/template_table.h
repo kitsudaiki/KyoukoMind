@@ -39,18 +39,32 @@ public:
     ~TemplateTable();
 
     bool addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
+                     const std::string &userUuid,
+                     const std::string &projectUuid,
                     Kitsunemimi::ErrorContainer &error);
     bool getTemplate(Kitsunemimi::Json::JsonItem &result,
                      const std::string &templateUuid,
+                     const std::string &userUuid,
+                     const std::string &projectUuid,
+                     const bool isAdmin,
                      Kitsunemimi::ErrorContainer &error,
                      const bool showHiddenValues = false);
     bool getTemplateByName(Kitsunemimi::Json::JsonItem &result,
                            const std::string &templateName,
+                           const std::string &userUuid,
+                           const std::string &projectUuid,
+                           const bool isAdmin,
                            Kitsunemimi::ErrorContainer &error,
                            const bool showHiddenValues = false);
     bool getAllTemplate(Kitsunemimi::TableItem &result,
+                        const std::string &userUuid,
+                        const std::string &projectUuid,
+                        const bool isAdmin,
                         Kitsunemimi::ErrorContainer &error);
     bool deleteTemplate(const std::string &templateName,
+                        const std::string &userUuid,
+                        const std::string &projectUuid,
+                        const bool isAdmin,
                         Kitsunemimi::ErrorContainer &error);
 };
 

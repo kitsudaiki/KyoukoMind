@@ -46,7 +46,7 @@ libKitsunemimiJwt | v0.4.1 |  -
 libKitsunemimiSqlite | v0.3.0 |  -
 libKitsunemimiSakuraNetwork | v0.8.2 |  https://github.com/kitsudaiki/libKitsunemimiSakuraNetwork.git
 libKitsunemimiSakuraLang | v0.12.0 |  https://github.com/kitsudaiki/libKitsunemimiSakuraLang.git
-libKitsunemimiSakuraDatabase | v0.4.0 |  -
+libKitsunemimiSakuraDatabase | v0.4.1 |  -
 libKitsunemimiHanamiCommon | v0.1.0 |  -
 libKitsunemimiHanamiEndpoints | v0.1.0 |  -
 libKitsunemimiHanamiDatabase | v0.1.0 |  -

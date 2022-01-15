@@ -64,9 +64,13 @@ ListTask::ListTask()
  */
 bool
 ListTask::runTask(BlossomLeaf &,
-                  const Kitsunemimi::DataMap &,
+                  const Kitsunemimi::DataMap &context,
                   BlossomStatus &,
                   Kitsunemimi::ErrorContainer &)
 {
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
+
     return true;
 }

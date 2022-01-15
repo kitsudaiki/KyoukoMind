@@ -69,15 +69,24 @@ ShowCluster::ShowCluster()
  */
 bool
 ShowCluster::runTask(BlossomLeaf &blossomLeaf,
-                     const Kitsunemimi::DataMap &,
+                     const Kitsunemimi::DataMap &context,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
+
     // get information from request
     const std::string clusterName = blossomLeaf.input.get("name").getString();
 
     // get data from table
-    if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output, clusterName, error) == false)
+    if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output,
+                                                   clusterName,
+                                                   userUuid,
+                                                   projectUuid,
+                                                   isAdmin,
+                                                   error) == false)
     {
         status.errorMessage = "Cluster with name '" + clusterName + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;

@@ -52,11 +52,14 @@ DeleteTask::DeleteTask()
  */
 bool
 DeleteTask::runTask(BlossomLeaf &blossomLeaf,
-                    const Kitsunemimi::DataMap &,
+                    const Kitsunemimi::DataMap &context,
                     BlossomStatus &,
                     Kitsunemimi::ErrorContainer &error)
 {
     const std::string uuid = blossomLeaf.input.get("uuid").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get cluster
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);

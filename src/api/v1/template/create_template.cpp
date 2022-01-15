@@ -79,17 +79,25 @@ CreateTemplate::CreateTemplate()
  */
 bool
 CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
-                        const Kitsunemimi::DataMap &,
+                        const Kitsunemimi::DataMap &context,
                         BlossomStatus &status,
                         Kitsunemimi::ErrorContainer &error)
 {
     const std::string name = blossomLeaf.input.get("name").getString();
     const long numberOfInputs = blossomLeaf.input.get("number_of_inputs").getLong();
     const long numberOfOutputs = blossomLeaf.input.get("number_of_outputs").getLong();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
 
     // check if user already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::templateTable->getTemplateByName(getResult, name, error))
+    if(KyoukoRoot::templateTable->getTemplateByName(getResult,
+                                                    name,
+                                                    userUuid,
+                                                    projectUuid,
+                                                    isAdmin,
+                                                    error))
     {
         status.errorMessage = "Template with name '" + name + "' already exist.";
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
@@ -111,14 +119,22 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
     templateData.insert("visibility", 0);
 
     // add new user to table
-    if(KyoukoRoot::templateTable->addTemplate(templateData, error) == false)
+    if(KyoukoRoot::templateTable->addTemplate(templateData,
+                                              userUuid,
+                                              projectUuid,
+                                              error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 
     // get new created user from database
-    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output, name, error) == false)
+    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
+                                                    name,
+                                                    userUuid,
+                                                    projectUuid,
+                                                    isAdmin,
+                                                    error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
