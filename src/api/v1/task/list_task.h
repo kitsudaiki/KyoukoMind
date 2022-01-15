@@ -33,7 +33,7 @@ public:
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &,
-                 const Kitsunemimi::DataMap &,
+                 const Kitsunemimi::DataMap &context,
                  Kitsunemimi::Sakura::BlossomStatus &,
                  Kitsunemimi::ErrorContainer &);
 };

@@ -65,15 +65,23 @@ ShowTemplate::ShowTemplate()
  */
 bool
 ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
-                      const Kitsunemimi::DataMap &,
+                      const Kitsunemimi::DataMap &context,
                       BlossomStatus &status,
                       Kitsunemimi::ErrorContainer &error)
 {
     // get information from request
     const std::string name = blossomLeaf.input.get("name").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
-    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output, name, error) == false)
+    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
+                                                    name,
+                                                    userUuid,
+                                                    projectUuid,
+                                                    isAdmin,
+                                                    error) == false)
     {
         status.errorMessage = "Tempalte with name '" + name + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;

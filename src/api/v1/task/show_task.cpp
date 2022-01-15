@@ -100,13 +100,16 @@ serializeTimePoint(const std::chrono::high_resolution_clock::time_point &time,
  */
 bool
 ShowTask::runTask(BlossomLeaf &blossomLeaf,
-                  const Kitsunemimi::DataMap &,
+                  const Kitsunemimi::DataMap &context,
                   BlossomStatus &,
                   Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string taskUuid = blossomLeaf.input.get("uuid").getString();
     const bool withResult = blossomLeaf.input.get("with_result").getString() == "true";
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get cluster
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);

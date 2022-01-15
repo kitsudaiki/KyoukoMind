@@ -17,7 +17,7 @@ build:
     - apt-get update
     - apt-get install -y openssl libssl-dev opencl-headers ocl-icd-opencl-dev xxd uuid-dev libcrypto++-dev libsqlite3-dev
 
-    - cd /builds/kitsudaiki/KyoukoMind
+    - cd /builds/hanami/KyoukoMind
     - ./build.sh
 
     - mkdir upload
@@ -37,7 +37,7 @@ create_image:
   script:
     - echo "172.17.0.1  registry.kitsunemimi.moe" >> /etc/hosts
     - >
-      if [ "$CI_COMMIT_BRANCH" != "" ]; then
+      if [ "$CI_COMMIT_BRANCH" == "master" ]; then
         docker build -t registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH .
         docker push registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH
         docker rmi registry.kitsunemimi.moe:5000/kyouko_mind:$CI_COMMIT_BRANCH

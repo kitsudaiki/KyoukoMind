@@ -56,16 +56,24 @@ DeleteTemplate::DeleteTemplate()
  */
 bool
 DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
-                        const Kitsunemimi::DataMap &,
+                        const Kitsunemimi::DataMap &context,
                         BlossomStatus &status,
                         Kitsunemimi::ErrorContainer &error)
 {
     // get information from request
     const std::string name = blossomLeaf.input.get("name").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::templateTable->getTemplateByName(getResult, name, error) == false)
+    if(KyoukoRoot::templateTable->getTemplateByName(getResult,
+                                                    name,
+                                                    userUuid,
+                                                    projectUuid,
+                                                    isAdmin,
+                                                    error) == false)
     {
         status.errorMessage = "Template with name '" + name + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
@@ -73,7 +81,11 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // remove data from table
-    if(KyoukoRoot::templateTable->deleteTemplate(name, error) == false)
+    if(KyoukoRoot::templateTable->deleteTemplate(name,
+                                                 userUuid,
+                                                 projectUuid,
+                                                 isAdmin,
+                                                 error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;

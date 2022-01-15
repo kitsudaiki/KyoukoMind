@@ -53,15 +53,19 @@ ClusterTable::~ClusterTable() {}
  * @brief add a new cluster to the database
  *
  * @param userData json-item with all information of the cluster to add to database
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
  * @param error reference for error-output
  *
  * @return true, if successful, else false
  */
 bool
 ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
+                         const std::string &userUuid,
+                         const std::string &projectUuid,
                          Kitsunemimi::ErrorContainer &error)
 {
-    return add(clusterData, error);
+    return add(clusterData, userUuid, projectUuid, error);
 }
 
 /**
@@ -77,6 +81,9 @@ ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
 bool
 ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
                                const std::string &clusterName,
+                               const std::string &userUuid,
+                               const std::string &projectUuid,
+                               const bool isAdmin,
                                Kitsunemimi::ErrorContainer &error,
                                const bool showHiddenValues)
 {
@@ -84,7 +91,7 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("name", clusterName);
 
     // get user from db
-    if(get(result, conditions, error, showHiddenValues) == false) {
+    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false) {
         return false;
     }
 
@@ -101,9 +108,12 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
  */
 bool
 ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
+                            const std::string &userUuid,
+                            const std::string &projectUuid,
+                            const bool isAdmin,
                             Kitsunemimi::ErrorContainer &error)
 {
-    return getAll(result, error);
+    return getAll(result, userUuid, projectUuid, isAdmin, error);
 }
 
 /**
@@ -116,10 +126,13 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
  */
 bool
 ClusterTable::deleteCluster(const std::string &clusterName,
+                            const std::string &userUuid,
+                            const std::string &projectUuid,
+                            const bool isAdmin,
                             Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("name", clusterName);
 
-    return deleteFromDb(conditions, error);
+    return del(conditions, userUuid, projectUuid, isAdmin, error);
 }
