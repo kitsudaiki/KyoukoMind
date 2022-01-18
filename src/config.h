@@ -34,15 +34,10 @@ registerConfigs(Kitsunemimi::ErrorContainer &error)
 {
     Kitsunemimi::Hanami::registerBasicConfigs(error);
 
-    REGISTER_STRING_CONFIG("DEFAULT", "sakura-file-locaion", error, "/etc/KyoukoMind/sakura-files");
-
-    //                     group      entry                      default
-    REGISTER_BOOL_CONFIG(  "DevMode", "enable",           error, false);
-    REGISTER_STRING_CONFIG("DevMode", "file",             error, "");
-    REGISTER_STRING_CONFIG("DevMode", "config",           error, "");
-    REGISTER_STRING_CONFIG("DevMode", "mnist_path",       error, "");
-    REGISTER_INT_CONFIG(   "DevMode", "learn_images",     error, 100);
-    REGISTER_INT_CONFIG(   "DevMode", "learn_iterations", error, 1);
+    REGISTER_STRING_CONFIG("DEFAULT",
+                           "sakura-file-locaion",
+                           error,
+                           "/etc/KyoukoMind/sakura-files");
 }
 
 #endif // KYOUKOMIND_CONFIG_H

@@ -38,9 +38,6 @@ using Kitsunemimi::Hanami::SupportedComponents;
 CreateLearnTask::CreateLearnTask()
     : Blossom("Add new learn-task to the task-queue of a cluster.")
 {
-    bool success = false;
-    m_devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
-
     //----------------------------------------------------------------------------------------------
     // input
     //----------------------------------------------------------------------------------------------
@@ -60,7 +57,7 @@ CreateLearnTask::CreateLearnTask()
 
 
     // set endpoints for predefined input for dev-mode
-    if(m_devMode)
+    if(DEV_MODE)
     {
         registerInputField("input_data",
                            SAKURA_STRING_TYPE,
@@ -163,7 +160,7 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string token = context.getStringByKey("token");
 
     // run dev-mode, if set in config
-    if(m_devMode)
+    if(DEV_MODE)
     {
         const std::string inputData = blossomLeaf.input.get("input_data").getString();
         const std::string labelData = blossomLeaf.input.get("label_data").getString();

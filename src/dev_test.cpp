@@ -124,10 +124,7 @@ learnTestData()
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point end;
 
-    // /home/neptune/Schreibtisch/mnist
-
-    bool success = false;
-    const std::string mnistTestPath = GET_STRING_CONFIG("DevMode", "mnist_path", success);
+    const std::string mnistTestPath = "/tmp/";
     const std::string trainDataPath = mnistTestPath + "/train-images.idx3-ubyte";
     const std::string trainLabelPath = mnistTestPath + "/train-labels.idx1-ubyte";
     const std::string testDataPath = mnistTestPath + "/t10k-images.idx3-ubyte";
@@ -280,6 +277,9 @@ learnTestData()
     std::cout<<"======================================================================="<<std::endl;
     std::cout<<"correct: "<<match<<"/"<<total<<std::endl;
     std::cout<<"======================================================================="<<std::endl;
+
+    // test-case for functional-tests
+    assert(match >= 9500);
 
     //----------------------------------------------------------------------------------------------
 }

@@ -121,11 +121,17 @@ mkdir -p $LIB_KITSUNE_SAKURA_TREE_DIR
 cd $LIB_KITSUNE_SAKURA_TREE_DIR
 
 # build KyoukoMind library with qmake
-/usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full"
-/usr/bin/make -j4
-
-# copy build-result and include-files into the result-directory
-cp "$LIB_KITSUNE_SAKURA_TREE_DIR/KyoukoMind" "$RESULT_DIR/"
+if [ $1 = "test" ]; then
+    /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full run_tests"
+    /usr/bin/make -j8
+    # copy build-result and include-files into the result-directory
+    cp "$LIB_KITSUNE_SAKURA_TREE_DIR/KyoukoMind_Test" "$RESULT_DIR/"
+else
+    /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/KyoukoMind/KyoukoMind.pro" -spec linux-g++ "CONFIG += optimize_full"
+    /usr/bin/make -j8
+    # copy build-result and include-files into the result-directory
+    cp "$LIB_KITSUNE_SAKURA_TREE_DIR/KyoukoMind" "$RESULT_DIR/"
+fi
 
 #-----------------------------------------------------------------------------------------------------------------
 

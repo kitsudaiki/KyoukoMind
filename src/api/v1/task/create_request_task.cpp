@@ -38,9 +38,6 @@ using Kitsunemimi::Hanami::SupportedComponents;
 CreateRequestTask::CreateRequestTask()
     : Blossom("Add new request-task to the task-queue of a cluster.")
 {
-    bool success = false;
-    m_devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
-
     //----------------------------------------------------------------------------------------------
     // input
     //----------------------------------------------------------------------------------------------
@@ -59,7 +56,7 @@ CreateRequestTask::CreateRequestTask()
     assert(addFieldRegex("type", "(csv|mnist)"));
 
     // set endpoints for predefined input for dev-mode
-    if(m_devMode)
+    if(DEV_MODE)
     {
         registerInputField("input_data",
                            SAKURA_STRING_TYPE,
@@ -149,7 +146,7 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string token = context.getStringByKey("token");
 
     // run dev-mode, if set in config
-    if(m_devMode)
+    if(DEV_MODE)
     {
         const std::string inputData = blossomLeaf.input.get("input_data").getString();
 

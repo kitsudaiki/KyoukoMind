@@ -53,9 +53,7 @@ main(int argc, char *argv[])
 
     initBlossoms();
 
-    bool success = false;
-    const bool devMode = GET_BOOL_CONFIG("DevMode", "enable", success);
-    if(devMode)
+    if(DEV_MODE)
     {
         Kitsunemimi::ErrorContainer error;
         if(rootObj.init(error) == false)
