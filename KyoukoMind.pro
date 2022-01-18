@@ -189,19 +189,13 @@ SOURCES += \
     src/database/cluster_table.cpp \
     src/database/template_table.cpp \
     src/dev_test.cpp \
-    src/kyouko_root.cpp
+    src/kyouko_root.cpp \
+    src/main.cpp
 
 
 CONFIG(run_tests) {
 TARGET = KyoukoMind_Test
-
-HEADERS +=
-
-SOURCES += \
-    tests/main_tests.cpp
-} else {
-SOURCES += \
-    src/main.cpp
+DEFINES += USE_DEV_MODE
 }
 
 GPU_KERNEL = src/core/processing/gpu/synapse_node_processing.cl
