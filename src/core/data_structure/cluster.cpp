@@ -112,8 +112,9 @@ Cluster::setName(const std::string newName)
 void
 Cluster::startForwardLearnCycle()
 {
-    const uint64_t offsetInput = actualTask->numberOfInputsPerCycle * actualTask->actualCycle;
-    const uint64_t offsetLabels = actualTask->numberOfOuputsPerCycle * actualTask->actualCycle;
+    const uint64_t entriesPerCycle = actualTask->numberOfInputsPerCycle
+                                     + actualTask->numberOfOuputsPerCycle;
+    const uint64_t offsetInput = entriesPerCycle * actualTask->actualCycle;
 
     // set cluster mode
     if(actualTask->type == LEARN_TASK) {
@@ -128,8 +129,11 @@ Cluster::startForwardLearnCycle()
 
     // set exprected output
     OutputNode* outputNodes = outputSegments[0]->outputs;
-    for(uint64_t i = 0; i < actualTask->numberOfOuputsPerCycle; i++) {
-        outputNodes[i].shouldValue = actualTask->labels[offsetLabels + i];
+    for(uint64_t i = 0; i < actualTask->numberOfOuputsPerCycle; i++)
+    {
+        outputNodes[i].shouldValue = actualTask->inputData[offsetInput
+                                                           + actualTask->numberOfInputsPerCycle
+                                                           + i];
     }
 
     // set ready-states of all neighbors of all segments
@@ -244,7 +248,6 @@ Cluster::getMode() const
  * @brief create a learn-task and add it to the task-queue
  *
  * @param inputData input-data
- * @param labels label-data
  * @param numberOfInputsPerCycle number of inputs, which belongs to one cycle
  * @param numberOfOuputsPerCycle number of outputs, which belongs to one cycle
  * @param numberOfCycle number of cycles
@@ -253,7 +256,6 @@ Cluster::getMode() const
  */
 const std::string
 Cluster::addLearnTask(float* inputData,
-                      float* labels,
                       const uint64_t numberOfInputsPerCycle,
                       const uint64_t numberOfOuputsPerCycle,
                       const uint64_t numberOfCycle)
@@ -264,7 +266,6 @@ Cluster::addLearnTask(float* inputData,
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.inputData = inputData;
-    newTask.labels = labels;
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
@@ -272,9 +273,8 @@ Cluster::addLearnTask(float* inputData,
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
-    const std::string uuid = newTask.uuid.toString();
-
     // add task to queue
+    const std::string uuid = newTask.uuid.toString();
     m_taskMap.insert(std::make_pair(uuid, newTask));
     m_taskQueue.push_back(uuid);
 
@@ -308,9 +308,8 @@ Cluster::addRequestTask(float* inputData,
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
-    const std::string uuid = newTask.uuid.toString();
-
     // add task to queue
+    const std::string uuid = newTask.uuid.toString();
     m_taskMap.insert(std::make_pair(uuid, newTask));
     m_taskQueue.push_back(uuid);
 
@@ -394,7 +393,6 @@ Cluster::finishTask()
     if(it != m_taskMap.end())
     {
         delete it->second.inputData;
-        delete it->second.labels;
         it->second.progress.state = FINISHED_TASK_STATE;
         it->second.progress.endActiveTimeStamp = std::chrono::system_clock::now();
         actualTask = nullptr;
@@ -524,7 +522,6 @@ Cluster::removeTask(const std::string &taskUuid)
         if(state == QUEUED_TASK_STATE)
         {
             delete itMap->second.inputData;
-            delete itMap->second.labels;
             m_taskMap.erase(itMap);
         }
 

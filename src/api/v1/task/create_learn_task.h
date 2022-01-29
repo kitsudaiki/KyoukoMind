@@ -46,9 +46,6 @@ private:
                                const std::string &inputData,
                                const std::string &labelData,
                                Kitsunemimi::ErrorContainer &error);
-    const std::string startMnistTask(Cluster* cluster,
-                                     const DataBuffer &inputBuffer,
-                                     const DataBuffer &labelBuffer);
 };
 
 #endif // KYOUKOMIND_CREATELEARNTASK_H

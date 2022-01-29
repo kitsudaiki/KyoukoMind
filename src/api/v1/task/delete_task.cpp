@@ -65,8 +65,8 @@ DeleteTask::runTask(BlossomLeaf &blossomLeaf,
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
     if(cluster == nullptr)
     {
-        error.addMeesage("interface with uuid not found: " + uuid);
-        return false;
+        //error.addMeesage("interface with uuid not found: " + uuid);
+        return true;
     }
 
     return true;

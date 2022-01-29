@@ -75,9 +75,9 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
                                                     isAdmin,
                                                     error) == false)
     {
-        status.errorMessage = "Template with name '" + name + "' not found.";
-        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
-        return false;
+        //status.errorMessage = "Template with name '" + name + "' not found.";
+        //status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        return true;
     }
 
     // remove data from table
