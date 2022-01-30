@@ -43,8 +43,6 @@ protected:
 private:
     bool m_devMode = false;
 
-    const std::string startMnistTask(Cluster* cluster,
-                                     const DataBuffer &inputBuffer);
     const std::string testMode(const std::string &clusterUuid,
                                const std::string &inputData,
                                Kitsunemimi::ErrorContainer &error);

@@ -2,7 +2,6 @@ image: registry.gitlab.com/kitsudaiki/kitsunemimi-ci-docker-images/opencl-tests:
 
 stages:
   - build  
-  - test
   - create_image
 
 build:
@@ -30,37 +29,6 @@ build:
     expire_in: 1 week
   tags:
     - docker
-
-test:
-  only:
-    - merge_requests
-  stage: test
-  script:
-    - echo Working on branch $CI_COMMIT_REF_NAME
-
-    - mkdir -p ~/.ssh
-    - touch ~/.ssh/known_hosts
-    - ssh-keyscan -H 10.0.3.120 >> ~/.ssh/known_hosts
-    - echo "nameserver 1.1.1.1" > /etc/resolv.conf
-
-    - apt-get update
-    - apt-get install -y openssl libssl-dev opencl-headers ocl-icd-opencl-dev xxd uuid-dev libcrypto++-dev libsqlite3-dev
-
-    - wget -O /tmp/t10k-images.idx3-ubyte http://172.17.0.42/t10k-images.idx3-ubyte
-    - wget -O /tmp/t10k-labels.idx1-ubyte http://172.17.0.42/t10k-labels.idx1-ubyte
-    - wget -O /tmp/train-images.idx3-ubyte http://172.17.0.42/train-images.idx3-ubyte
-    - wget -O /tmp/train-labels.idx1-ubyte http://172.17.0.42/train-labels.idx1-ubyte
-    - ls -l /tmp/
-
-    - mkdir -p /etc/kyouko
-    - wget -O /etc/kyouko/kyouko.conf http://172.17.0.42/kyouko.conf
-
-    - cd /builds/hanami/KyoukoMind
-    - ./build.sh test
-    - ../result/KyoukoMind_Test
-  tags:
-    - docker
-
 
 create_image:
   image: docker:20.10.11

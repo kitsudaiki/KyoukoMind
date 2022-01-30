@@ -55,7 +55,6 @@ public:
     // task-handling
     void updateClusterState();
     const std::string addLearnTask(float* inputData,
-                                   float* labels,
                                    const uint64_t numberOfInputsPerCycle,
                                    const uint64_t numberOfOuputsPerCycle,
                                    const uint64_t numberOfCycle);
