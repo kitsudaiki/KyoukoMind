@@ -94,7 +94,8 @@ main(int argc, char *argv[])
         if(HanamiMessaging::getInstance()->initialize("kyouko",
                                                       groupNames,
                                                       nullptr,
-                                                      streamDataCallback,
+                                                      &streamDataCallback,
+                                                      &genericCallback,
                                                       error,
                                                       true) == false)
         {

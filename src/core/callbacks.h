@@ -44,6 +44,14 @@ clientDataCallback(Kitsunemimi::Sakura::Session*,
     LOG_WARNING("client-text: " + text);
 }
 
+void genericCallback(Kitsunemimi::Sakura::Session*,
+                     const void*,
+                     const uint64_t,
+                     const uint64_t)
+{
+
+}
+
 /**
  * @brief monitoringDataCallback
  */
