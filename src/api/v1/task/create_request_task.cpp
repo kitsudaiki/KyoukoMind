@@ -80,48 +80,43 @@ CreateRequestTask::CreateRequestTask()
     //----------------------------------------------------------------------------------------------
 }
 
-
-bool
-getDataFromSagiri(DataBuffer &result,
-                  const std::string &token,
+DataBuffer*
+getDataFromSagiri(const std::string &token,
                   const std::string &uuid,
                   Kitsunemimi::ErrorContainer &error)
 {
     Kitsunemimi::Hanami::ResponseMessage response;
     Kitsunemimi::Hanami::HanamiMessaging* msg = Kitsunemimi::Hanami::HanamiMessaging::getInstance();
 
+    // build request to get train-data from sagiri
     Kitsunemimi::Hanami::RequestMessage request;
     request.id = "v1/data_set";
     request.httpType = Kitsunemimi::Hanami::GET_TYPE;
-
-
     request.inputValues = "{\"token\":\"" + token + "\""
                           ",\"uuid\":\"" + uuid + "\""
-                          ",\"with_data\":true}";
+                          "}";
+
+    // send request to sagiri
     if(msg->triggerSakuraFile("sagiri", response, request, error) == false) {
-        return false;
+        return nullptr;
     }
 
+    // check response
     if(response.success == false)
     {
         error.addMeesage(response.responseContent);
-        return false;
+        return nullptr;
     }
 
     // parse result
     Kitsunemimi::Json::JsonItem jsonItem;
     if(jsonItem.parse(response.responseContent, error) == false) {
-        return false;
+        return nullptr;
     }
 
-    // get input-data
-    if(Kitsunemimi::Crypto::decodeBase64(result, jsonItem.get("data").getString()) == false)
-    {
-        error.addMeesage("base64-decoding of the input failes");
-        return false;
-    }
+    const std::string location = jsonItem.get("location").getString();
 
-    return true;
+    return  msg->sendGenericMessage("sagiri", location.c_str(), location.size(), error);
 }
 
 /**
@@ -167,21 +162,20 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer dataSetBuffer;
-    if(getDataFromSagiri(dataSetBuffer, token, dataSetUuid, error) == false)
+    DataBuffer* dataSetBuffer = getDataFromSagiri(token, dataSetUuid, error);
+    if(dataSetBuffer == nullptr)
     {
+        error.addMeesage("failed to get data from sagiri");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 
     // init request-task
-    const std::string taskUuid = cluster->addRequestTask(static_cast<float*>(dataSetBuffer.data),
+    const std::string taskUuid = cluster->addRequestTask(static_cast<float*>(dataSetBuffer->data),
                                                          784,
                                                          10000);
     cluster->m_segmentCounter = cluster->allSegments.size();
     cluster->updateClusterState();
-
-    dataSetBuffer.data = nullptr;
 
     blossomLeaf.output.insert("uuid", taskUuid);
 
