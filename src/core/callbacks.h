@@ -45,8 +45,7 @@ clientDataCallback(Kitsunemimi::Sakura::Session*,
 }
 
 void genericCallback(Kitsunemimi::Sakura::Session*,
-                     const void*,
-                     const uint64_t,
+                     const Kitsunemimi::Json::JsonItem&,
                      const uint64_t)
 {
 

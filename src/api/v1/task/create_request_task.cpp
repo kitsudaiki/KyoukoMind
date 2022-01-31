@@ -115,8 +115,9 @@ getDataFromSagiri(const std::string &token,
     }
 
     const std::string location = jsonItem.get("location").getString();
+    const std::string message = "{\"location\":\"" + location + "\"}";
 
-    return  msg->sendGenericMessage("sagiri", location.c_str(), location.size(), error);
+    return  msg->sendGenericMessage("sagiri", message.c_str(), message.size(), error);
 }
 
 /**
