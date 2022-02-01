@@ -46,6 +46,13 @@ private:
     const std::string testMode(const std::string &clusterUuid,
                                const std::string &inputData,
                                Kitsunemimi::ErrorContainer &error);
+    DataBuffer* getDataFromSagiri(const std::string &token,
+                                  const std::string &uuid,
+                                  Kitsunemimi::ErrorContainer &error);
+    bool getDataSetInformation(Kitsunemimi::Json::JsonItem &result,
+                               const std::string &dataSetUuid,
+                               const std::string &token,
+                               Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // KYOUKOMIND_CREATEREQUESTTASK_H

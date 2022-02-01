@@ -81,9 +81,9 @@ CreateRequestTask::CreateRequestTask()
 }
 
 DataBuffer*
-getDataFromSagiri(const std::string &token,
-                  const std::string &uuid,
-                  Kitsunemimi::ErrorContainer &error)
+CreateRequestTask::getDataFromSagiri(const std::string &token,
+                                     const std::string &uuid,
+                                     Kitsunemimi::ErrorContainer &error)
 {
     Kitsunemimi::Hanami::ResponseMessage response;
     Kitsunemimi::Hanami::HanamiMessaging* msg = Kitsunemimi::Hanami::HanamiMessaging::getInstance();
@@ -118,6 +118,52 @@ getDataFromSagiri(const std::string &token,
     const std::string message = "{\"location\":\"" + location + "\"}";
 
     return  msg->sendGenericMessage("sagiri", message.c_str(), message.size(), error);
+}
+
+/**
+ * @brief get information of a specific data-set from sagiri
+ *
+ * @param result reference for result-output
+ * @param dataSetUuid uuid of the requested data-set
+ * @param token for authetification against sagiri
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
+ */
+bool
+CreateRequestTask::getDataSetInformation(Kitsunemimi::Json::JsonItem &result,
+                                         const std::string &dataSetUuid,
+                                         const std::string &token,
+                                         Kitsunemimi::ErrorContainer &error)
+{
+    Kitsunemimi::Hanami::HanamiMessaging* msg = Kitsunemimi::Hanami::HanamiMessaging::getInstance();
+    Kitsunemimi::Hanami::ResponseMessage response;
+
+    // create request for remote-calls
+    Kitsunemimi::Hanami::RequestMessage request;
+    request.id = "v1/data_set";
+    request.httpType = Kitsunemimi::Hanami::GET_TYPE;
+    request.inputValues = "{ \"uuid\" : \"" + dataSetUuid + "\","
+                          "\"token\":\"" + token + "\"}";
+
+    // send request to the target
+    if(msg->triggerSakuraFile("sagiri", response, request, error) == false) {
+        return false;
+    }
+
+    // check response
+    if(response.success == false)
+    {
+        error.addMeesage(response.responseContent);
+        return false;
+    }
+
+    // parse result
+    if(result.parse(response.responseContent, error) == false) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -162,19 +208,33 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
+    // get meta-infos of data-set from sagiri
+    Kitsunemimi::Json::JsonItem dataSetInfo;
+    if(getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
+    {
+        error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
+        // TODO: add status-error from response from sagiri
+        status.statusCode = Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE;
+        return false;
+    }
+
+    // get relevant information from output
+    const uint64_t numberOfInputs = dataSetInfo.get("inputs").getLong();
+    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
+
     // get input-data
     DataBuffer* dataSetBuffer = getDataFromSagiri(token, dataSetUuid, error);
     if(dataSetBuffer == nullptr)
     {
-        error.addMeesage("failed to get data from sagiri");
+        error.addMeesage("failed to get data from sagiri for uuid '" + dataSetUuid + "'");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 
     // init request-task
     const std::string taskUuid = cluster->addRequestTask(static_cast<float*>(dataSetBuffer->data),
-                                                         784,
-                                                         10000);
+                                                         numberOfInputs,
+                                                         numberOfLines);
     cluster->m_segmentCounter = cluster->allSegments.size();
     cluster->updateClusterState();
 
