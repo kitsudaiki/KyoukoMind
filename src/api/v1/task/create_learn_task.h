@@ -46,6 +46,13 @@ private:
                                const std::string &inputData,
                                const std::string &labelData,
                                Kitsunemimi::ErrorContainer &error);
+    DataBuffer* getData(const std::string &token,
+                        const std::string &uuid,
+                        Kitsunemimi::ErrorContainer &error);
+    bool getDataSetInformation(Kitsunemimi::Json::JsonItem &result,
+                               const std::string &dataSetUuid,
+                               const std::string &token,
+                               Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // KYOUKOMIND_CREATELEARNTASK_H
