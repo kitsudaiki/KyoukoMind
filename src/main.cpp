@@ -36,7 +36,9 @@
 
 #include <libKitsunemimiHanamiCommon/generic_main.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
-#include <libKitsunemimiHanamiPredefinitions/init_predefined_blossoms.h>
+
+#include <libAzukiHeart/azuki_input.h>
+#include <libMisakaGuard/misaka_input.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::initMain;
@@ -85,7 +87,9 @@ main(int argc, char *argv[])
             return 1;
         }
 
-        Kitsunemimi::Hanami::initPredefinedBlossoms();
+        // init included components
+        Azuki::initAzukiBlossoms();
+        Misaka::initMisakaBlossoms();
 
         rootObj.initThreads();
 
