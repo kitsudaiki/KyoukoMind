@@ -37,7 +37,7 @@ protected:
                  Kitsunemimi::Sakura::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
 private:
-    Kitsunemimi::DataMap* generateNewCluster(const std::string name,
+    Kitsunemimi::DataMap* generateNewTemplate(const std::string name,
                                              const long numberOfInputNodes,
                                              const long numberOfOutputNodes);
     void createClusterSettings(Kitsunemimi::DataMap* result);
