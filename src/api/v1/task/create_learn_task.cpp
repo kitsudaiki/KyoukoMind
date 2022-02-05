@@ -23,6 +23,8 @@
 #include "create_learn_task.h"
 #include <kyouko_root.h>
 
+#include <libSagiriArchive/sagiri_send.h>
+
 #include <core/data_structure/cluster_handler.h>
 #include <core/data_structure/cluster.h>
 
@@ -81,93 +83,6 @@ CreateLearnTask::CreateLearnTask()
     //----------------------------------------------------------------------------------------------
 }
 
-DataBuffer*
-CreateLearnTask::getData(const std::string &token,
-                         const std::string &uuid,
-                         Kitsunemimi::ErrorContainer &error)
-{
-    Kitsunemimi::Hanami::ResponseMessage response;
-    Kitsunemimi::Hanami::HanamiMessaging* msg = Kitsunemimi::Hanami::HanamiMessaging::getInstance();
-
-    // build request to get train-data from sagiri
-    Kitsunemimi::Hanami::RequestMessage request;
-    request.id = "v1/data_set";
-    request.httpType = Kitsunemimi::Hanami::GET_TYPE;
-    request.inputValues = "{\"token\":\"" + token + "\""
-                          ",\"uuid\":\"" + uuid + "\""
-                          "}";
-
-    // send request to sagiri
-    if(msg->triggerSakuraFile("sagiri", response, request, error) == false) {
-        return nullptr;
-    }
-
-    // check response
-    if(response.success == false)
-    {
-        error.addMeesage(response.responseContent);
-        return nullptr;
-    }
-
-    // parse result
-    Kitsunemimi::Json::JsonItem jsonItem;
-    if(jsonItem.parse(response.responseContent, error) == false) {
-        return nullptr;
-    }
-
-    const std::string location = jsonItem.get("location").getString();
-    const std::string message = "{\"location\":\"" + location + "\"}";
-
-    return  msg->sendGenericMessage("sagiri", message.c_str(), message.size(), error);
-}
-
-
-/**
- * @brief get information of a specific data-set from sagiri
- *
- * @param result reference for result-output
- * @param dataSetUuid uuid of the requested data-set
- * @param token for authetification against sagiri
- * @param error reference for error-output
- *
- * @return true, if successful, else false
- */
-bool
-CreateLearnTask::getDataSetInformation(Kitsunemimi::Json::JsonItem &result,
-                                       const std::string &dataSetUuid,
-                                       const std::string &token,
-                                       Kitsunemimi::ErrorContainer &error)
-{
-    Kitsunemimi::Hanami::HanamiMessaging* msg = Kitsunemimi::Hanami::HanamiMessaging::getInstance();
-    Kitsunemimi::Hanami::ResponseMessage response;
-
-    // create request for remote-calls
-    Kitsunemimi::Hanami::RequestMessage request;
-    request.id = "v1/data_set";
-    request.httpType = Kitsunemimi::Hanami::GET_TYPE;
-    request.inputValues = "{ \"uuid\" : \"" + dataSetUuid + "\","
-                          "\"token\":\"" + token + "\"}";
-
-    // send request to the target
-    if(msg->triggerSakuraFile("sagiri", response, request, error) == false) {
-        return false;
-    }
-
-    // check response
-    if(response.success == false)
-    {
-        error.addMeesage(response.responseContent);
-        return false;
-    }
-
-    // parse result
-    if(result.parse(response.responseContent, error) == false) {
-        return false;
-    }
-
-    return true;
-}
-
 /**
  * @brief runTask
  */
@@ -212,7 +127,7 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
 
     // get meta-infos of data-set from sagiri
     Kitsunemimi::Json::JsonItem dataSetInfo;
-    if(getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
+    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
     {
         error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
         // TODO: add status-error from response from sagiri
@@ -226,7 +141,7 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
 
     // get input-data
-    DataBuffer* dataSetBuffer = getData(token, dataSetUuid, error);
+    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, error);
     if(dataSetBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");
