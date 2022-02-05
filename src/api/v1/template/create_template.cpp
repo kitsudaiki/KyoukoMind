@@ -21,13 +21,14 @@
  */
 
 #include "create_template.h"
+#include <kyouko_root.h>
+
+#include <libSagiriArchive/sagiri_send.h>
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
 
 #include <libKitsunemimiCrypto/common.h>
-
-#include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -46,17 +47,12 @@ CreateTemplate::CreateTemplate()
     assert(addFieldBorder("name", 4, 256));
     assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
-    registerInputField("number_of_inputs",
-                       SAKURA_INT_TYPE,
+    registerInputField("data_set_uuid",
+                       SAKURA_STRING_TYPE,
                        true,
-                       "Number of input-nodes of the new template.");
-    assert(addFieldBorder("number_of_inputs", 1, 100000000));
-
-    registerInputField("number_of_outputs",
-                       SAKURA_INT_TYPE,
-                       true,
-                       "Number of output-nodes of the new template.");
-    assert(addFieldBorder("number_of_outputs", 1, 100000000));
+                       "UUID of the data-set to request number of inputs and outputs.");
+    assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -84,11 +80,12 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
                         Kitsunemimi::ErrorContainer &error)
 {
     const std::string name = blossomLeaf.input.get("name").getString();
-    const long numberOfInputs = blossomLeaf.input.get("number_of_inputs").getLong();
-    const long numberOfOutputs = blossomLeaf.input.get("number_of_outputs").getLong();
+    const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
+
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const std::string token = context.getStringByKey("token");
 
     // check if user already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
@@ -104,9 +101,25 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    DataItem* generatedContent = generateNewCluster(name, numberOfInputs, numberOfOutputs);
+    // get meta-infos of data-set from sagiri
+    Kitsunemimi::Json::JsonItem dataSetInfo;
+    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
+    {
+        error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
+        // TODO: add status-error from response from sagiri
+        status.statusCode = Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE;
+        return false;
+    }
+
+    // get relevant information from output
+    const uint64_t numberOfInputs = dataSetInfo.get("inputs").getLong();
+    const uint64_t numberOfOutputs = dataSetInfo.get("outputs").getLong();
+
+    //  generate new template
+    DataItem* generatedContent = generateNewTemplate(name, numberOfInputs, numberOfOutputs);
     const std::string stringContent = generatedContent->toString();
 
+    // convert template to base64 to be storage into database
     std::string base64Content;
     Kitsunemimi::Crypto::encodeBase64(base64Content, stringContent.c_str(), stringContent.size());
 
@@ -149,7 +162,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
 }
 
 /**
- * @brief CreateClusterGenerate::generateNewCluster
+ * @brief generate a new template
  *
  * @param name name of the cluster
  * @param numberOfInputNodes number of input-nodes of the cluster
@@ -158,9 +171,9 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
  * @return data-map with the new cluster-template
  */
 DataMap*
-CreateTemplate::generateNewCluster(const std::string name,
-                                   const long numberOfInputNodes,
-                                   const long numberOfOutputNodes)
+CreateTemplate::generateNewTemplate(const std::string name,
+                                    const long numberOfInputNodes,
+                                    const long numberOfOutputNodes)
 {
     DataMap* result = new DataMap();
     result->insert("name", new DataValue(name));
@@ -172,7 +185,7 @@ CreateTemplate::generateNewCluster(const std::string name,
 }
 
 /**
- * @brief CreateClusterGenerate::createClusterSettings
+ * @brief create seggings-block
  *
  * @param result pointer to the resulting object
  */
@@ -188,7 +201,7 @@ CreateTemplate::createClusterSettings(DataMap* result)
 }
 
 /**
- * @brief CreateClusterGenerate::createSegments
+ * @brief create segments
  *
  * @param result pointer to the resulting object
  * @param numberOfInputNodes number of input-nodes of the cluster
@@ -208,7 +221,7 @@ CreateTemplate::createSegments(DataMap* result,
 }
 
 /**
- * @brief CreateClusterGenerate::createInputSegments
+ * @brief create input-segments
  *
  * @param result pointer to the resulting object
  * @param numberOfInputNodes number of input-nodes of the cluster
@@ -231,7 +244,7 @@ CreateTemplate::createInputSegments(DataArray* result,
 }
 
 /**
- * @brief CreateClusterGenerate::createDynamicSegments
+ * @brief create internal dynamic segments
  *
  * @param result pointer to the resulting object
  * @param numberOfInputNodes number of input-nodes of the cluster
