@@ -286,6 +286,7 @@ Cluster::addLearnTask(float* inputData,
  *
  * @param inputData input-data
  * @param numberOfInputsPerCycle number of inputs, which belongs to one cycle
+ * @param numberOfOuputsPerCycle number of outputs of the dataset-only to calculate correct offset
  * @param numberOfCycle number of cycles
  *
  * @return task-uuid
@@ -293,6 +294,7 @@ Cluster::addLearnTask(float* inputData,
 const std::string
 Cluster::addRequestTask(float* inputData,
                         const uint64_t numberOfInputsPerCycle,
+                        const uint64_t numberOfOuputsPerCycle,
                         const uint64_t numberOfCycle)
 {
     std::lock_guard<std::mutex> guard(m_task_mutex);
@@ -303,6 +305,7 @@ Cluster::addRequestTask(float* inputData,
     newTask.inputData = inputData;
     newTask.resultData = new uint32_t[numberOfCycle];
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
+    newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
     newTask.type = REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
@@ -329,7 +332,7 @@ Cluster::request(float* inputData,
                  const uint64_t numberOfInputes)
 {
     // create new small request-task
-    const std::string taskUuid = addRequestTask(inputData, numberOfInputes, 1);
+    const std::string taskUuid = addRequestTask(inputData, numberOfInputes, 0, 1);
     m_segmentCounter = allSegments.size();
     updateClusterState();
 
