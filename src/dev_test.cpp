@@ -264,14 +264,11 @@ learnTestData()
 
     uint32_t match = 0;
     uint32_t total = 10000;
-    const uint32_t* resultData = clusterInterface->getResultData(requestTaskUuid);
 
     for(uint32_t pic = 0; pic < total; pic++)
     {
         const uint32_t label = testLabelBufferPtr[pic + 8];
-        if(resultData[pic] == label) {
-            match++;
-        }
+
     }
 
     std::cout<<"======================================================================="<<std::endl;

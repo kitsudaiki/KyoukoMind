@@ -55,7 +55,7 @@ struct Task
 {
     Kitsunemimi::Hanami::kuuid uuid;
     float* inputData = nullptr;
-    uint32_t* resultData = nullptr;
+    DataArray* resultData = nullptr;
     uint64_t numberOfInputsPerCycle = 0;
     uint64_t numberOfOuputsPerCycle = 0;
     uint64_t numberOfCycle = 0;

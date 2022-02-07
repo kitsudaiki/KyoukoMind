@@ -21,18 +21,19 @@
  */
 
 #include "cluster.h"
+#include <kyouko_root.h>
 
 #include <core/data_structure/segments/dynamic_segment.h>
 #include <core/data_structure/segments/input_segment.h>
 #include <core/data_structure/segments/output_segment.h>
+#include <core/data_structure/init/cluster_init.h>
 
 #include <core/processing/segment_queue.h>
 #include <core/processing/cpu/output_segment/processing.h>
 
 #include <libKitsunemimiCommon/logger.h>
-#include <kyouko_root.h>
 
-#include <core/data_structure/init/cluster_init.h>
+#include <libSagiriArchive/sagiri_send.h>
 
 /**
  * @brief constructor
@@ -303,7 +304,7 @@ Cluster::addRequestTask(float* inputData,
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.inputData = inputData;
-    newTask.resultData = new uint32_t[numberOfCycle];
+    newTask.resultData = new DataArray();
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
@@ -342,10 +343,10 @@ Cluster::request(float* inputData,
     }
 
     // get result and clear backend
-    const uint32_t result = getResultData(taskUuid)[0];
+    // TODO: get result
     removeTask(taskUuid);
 
-    return result;
+    return 0;
 }
 
 /**
@@ -388,6 +389,20 @@ Cluster::finishTask()
     // precheck
     if(actualTask == nullptr) {
         return;
+    }
+
+    // send results to sagiri, if some are attached to the task
+    if(actualTask->resultData != nullptr)
+    {
+        Kitsunemimi::ErrorContainer error;
+        if(Sagiri::sendResults(actualTask->uuid.toString(),
+                               *actualTask->resultData,
+                               error) == false)
+        {
+            LOG_ERROR(error);
+        }
+        delete actualTask->resultData;
+        actualTask->resultData = nullptr;
     }
 
     // remove task from map and free its data
@@ -435,48 +450,6 @@ Cluster::getProgress(const std::string &taskUuid)
 
     TaskProgress progress;
     return progress;
-}
-
-/**
- * @brief get result of a task
- *
- * @param taskUuid UUID of the task
- *
- * @return result of the task
- */
-const uint32_t*
-Cluster::getResultData(const std::string &taskUuid)
-{
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
-    std::map<std::string, Task>::const_iterator it;
-    it = m_taskMap.find(taskUuid);
-    if(it != m_taskMap.end()) {
-        return it->second.resultData;
-    }
-
-    return nullptr;
-}
-
-/**
- * @brief get size of task-result
- *
- * @param taskUuid UUID of the task
- *
- * @return size of task-result
- */
-uint32_t
-Cluster::getResultSize(const std::string &taskUuid)
-{
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
-    std::map<std::string, Task>::const_iterator it;
-    it = m_taskMap.find(taskUuid);
-    if(it != m_taskMap.end()) {
-        return it->second.numberOfCycle;
-    }
-
-    return UNINIT_STATE_32;
 }
 
 /**
@@ -572,5 +545,9 @@ Cluster::setResultForActualCycle(const uint32_t result)
 {
     std::lock_guard<std::mutex> guard(m_task_mutex);
 
-    actualTask->resultData[actualTask->actualCycle] = result;
+    if(actualTask->resultData == nullptr) {
+        return;
+    }
+
+    actualTask->resultData->append(new DataValue(static_cast<long>(result)));
 }

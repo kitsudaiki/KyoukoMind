@@ -49,12 +49,6 @@ ShowTask::ShowTask()
     assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
-    registerInputField("with_result",
-                       SAKURA_STRING_TYPE,
-                       false,
-                       "Set to true to also retrun the result of the task.");
-    assert(addFieldRegex("with_result", "(true|false)"));
-
     //----------------------------------------------------------------------------------------------
     // output
     //----------------------------------------------------------------------------------------------
@@ -75,9 +69,6 @@ ShowTask::ShowTask()
     registerOutputField("end_timestamp",
                         SAKURA_STRING_TYPE,
                         "Timestamp in UTC when the task was finished.");
-    registerOutputField("result",
-                        SAKURA_ARRAY_TYPE,
-                        "Array with results.");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -106,10 +97,8 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string taskUuid = blossomLeaf.input.get("uuid").getString();
-    const bool withResult = blossomLeaf.input.get("with_result").getString() == "true";
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
-    const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get cluster
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
@@ -152,21 +141,6 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
         blossomLeaf.output.insert("start_timestamp",
                                   serializeTimePoint(progress.startActiveTimeStamp));
         blossomLeaf.output.insert("end_timestamp", serializeTimePoint(progress.endActiveTimeStamp));
-    }
-
-    // get task-result
-    if(withResult)
-    {
-        const uint32_t* resultData = cluster->getResultData(taskUuid);
-        const uint32_t resultSize = cluster->getResultSize(taskUuid);
-
-        Kitsunemimi::DataArray* results = new Kitsunemimi::DataArray();
-
-        for(uint32_t i = 0; i < resultSize; i++) {
-            results->append(new DataValue(static_cast<int>(resultData[i])));
-        }
-
-        blossomLeaf.output.insert("result", results);
     }
 
     return true;
