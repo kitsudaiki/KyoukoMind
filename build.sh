@@ -81,7 +81,7 @@ function get_required_private_repo_github () {
 
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.25.1" 8
+get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.25.3" 8
 get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.11.3" 1
 get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.9.1" 1
 get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.5.1" 1
@@ -99,7 +99,7 @@ get_required_private_repo_github "libKitsunemimiJwt" "v0.4.1" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "v0.8.2" 8
+get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "v0.8.4" 8
 get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.12.0" 1
 get_required_private_repo_github "libKitsunemimiSakuraDatabase" "v0.4.1" 8
 echo ""
@@ -107,14 +107,14 @@ echo "##########################################################################
 echo ""
 get_required_private_repo_gitlab "libKitsunemimiHanamiCommon" "v0.1.0" "2ue6RNxkCDs2A7qp1xtN" 8
 get_required_private_repo_gitlab "libKitsunemimiHanamiEndpoints" "v0.1.0" "ysR35grcGsLpFQiXXf1A" 1
-get_required_private_repo_gitlab "libKitsunemimiHanamiDatabase" "master" "UjDbSSJzoU3uK4pZynmD" 8
-get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" "vkEae-QF8jvt9W2xz3LR" 8
+get_required_private_repo_gitlab "libKitsunemimiHanamiDatabase" "v0.2.0" "UjDbSSJzoU3uK4pZynmD" 8
+get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "v0.3.0" "vkEae-QF8jvt9W2xz3LR" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_gitlab "libSagiriArchive" "master" "glpat-dCkDLv96JmBscfZey4zJ" 8
-get_required_private_repo_gitlab "libAzukiHeart" "master" "glpat-R3vZd81MXGVUTSxgHz1q" 8
-get_required_private_repo_gitlab "libMisakaGuard" "master" "glpat-sUgJE_tJH_jV19zL8X_x" 8
+get_required_private_repo_gitlab "libSagiriArchive" "v0.1.0" "glpat-dCkDLv96JmBscfZey4zJ" 8
+get_required_private_repo_gitlab "libAzukiHeart" "v0.1.0" "glpat-R3vZd81MXGVUTSxgHz1q" 8
+get_required_private_repo_gitlab "libMisakaGuard" "v0.1.0" "glpat-sUgJE_tJH_jV19zL8X_x" 8
 echo ""
 echo "###########################################################################################################"
 

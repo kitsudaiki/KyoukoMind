@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.0] - 2022-02-14
+
+### Changed
+- results of request-tasks are now stored on sagiri
+- creating templates gets its input-values from a specific data-set from sagiri
+- data-sets from sagiri are now pulled in a generic data-format to avoid converting on kyouko
+- changed file-transfer from sagiri to be more faster
+
+
 ## [0.6.0] - 2022-01-09
 
 ### Added
