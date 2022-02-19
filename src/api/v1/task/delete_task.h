@@ -34,8 +34,8 @@ public:
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &,
-                 Kitsunemimi::ErrorContainer &error);
+                 Kitsunemimi::Sakura::BlossomStatus &status,
+                 Kitsunemimi::ErrorContainer &);
 };
 
 #endif // KYOUKOMIND_DELETETASK_H

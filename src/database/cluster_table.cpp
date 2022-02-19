@@ -72,6 +72,39 @@ ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
  * @brief get a cluster from the database by his name
  *
  * @param result reference for the result-output in case that a cluster with this name was found
+ * @param clusterUuid uuid of the requested cluster
+ * @param userUuid user-uuid to filter
+ * @param projectUuid project-uuid to filter
+ * @param isAdmin true, if use who makes request is admin
+ * @param error reference for error-output
+ * @param showHiddenValues set to true to also show as hidden marked fields
+ *
+ * @return true, if successful, else false
+ */
+bool
+ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
+                         const std::string &clusterUuid,
+                         const std::string &userUuid,
+                         const std::string &projectUuid,
+                         const bool isAdmin,
+                         Kitsunemimi::ErrorContainer &error,
+                         const bool showHiddenValues)
+{
+    std::vector<RequestCondition> conditions;
+    conditions.emplace_back("uuid", clusterUuid);
+
+    // get user from db
+    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief get a cluster from the database by his name
+ *
+ * @param result reference for the result-output in case that a cluster with this name was found
  * @param clusterName name of the requested cluster
  * @param userUuid user-uuid to filter
  * @param projectUuid project-uuid to filter
@@ -125,7 +158,7 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
 /**
  * @brief delete a cluster from the table
  *
- * @param clusterName name of the cluster to delete
+ * @param clusterUuid uuid of the cluster to delete
  * @param userUuid user-uuid to filter
  * @param projectUuid project-uuid to filter
  * @param isAdmin true, if use who makes request is admin
@@ -134,14 +167,14 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
  * @return true, if successful, else false
  */
 bool
-ClusterTable::deleteCluster(const std::string &clusterName,
+ClusterTable::deleteCluster(const std::string &clusterUuid,
                             const std::string &userUuid,
                             const std::string &projectUuid,
                             const bool isAdmin,
                             Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
-    conditions.emplace_back("name", clusterName);
+    conditions.emplace_back("uuid", clusterUuid);
 
     return del(conditions, userUuid, projectUuid, isAdmin, error);
 }

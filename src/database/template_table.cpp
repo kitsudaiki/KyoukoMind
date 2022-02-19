@@ -158,7 +158,7 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
 /**
  * @brief delete a cluster from the table
  *
- * @param templateName name of the template to delete
+ * @param templateUuid uuid of the template to delete
  * @param userUuid user-uuid to filter
  * @param projectUuid project-uuid to filter
  * @param isAdmin true, if use who makes request is admin
@@ -167,14 +167,14 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
  * @return true, if successful, else false
  */
 bool
-TemplateTable::deleteTemplate(const std::string &templateName,
+TemplateTable::deleteTemplate(const std::string &templateUuid,
                               const std::string &userUuid,
                               const std::string &projectUuid,
                               const bool isAdmin,
                               Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
-    conditions.emplace_back("name", templateName);
+    conditions.emplace_back("uuid", templateUuid);
 
     return del(conditions, userUuid, projectUuid, isAdmin, error);
 }

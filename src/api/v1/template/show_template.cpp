@@ -36,13 +36,12 @@ ShowTemplate::ShowTemplate()
     // input
     //----------------------------------------------------------------------------------------------
 
-    registerInputField("name",
+    registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID for the template to show.");
-    // column in database is limited to 256 characters size
-    assert(addFieldBorder("name", 4, 256));
-    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+                       "uuid of the cluster.");
+    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -70,20 +69,22 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
                       Kitsunemimi::ErrorContainer &error)
 {
     // get information from request
-    const std::string name = blossomLeaf.input.get("name").getString();
+    const std::string uuid = blossomLeaf.input.get("uuid").getString();
+
+    // get context-info
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
-    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
-                                                    name,
-                                                    userUuid,
-                                                    projectUuid,
-                                                    isAdmin,
-                                                    error) == false)
+    if(KyoukoRoot::templateTable->getTemplate(blossomLeaf.output,
+                                              uuid,
+                                              userUuid,
+                                              projectUuid,
+                                              isAdmin,
+                                              error) == false)
     {
-        status.errorMessage = "Tempalte with name '" + name + "' not found.";
+        status.errorMessage = "Tempalte with uuid '" + uuid + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         return false;
     }

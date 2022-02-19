@@ -40,13 +40,12 @@ DeleteCluster::DeleteCluster()
     // input
     //----------------------------------------------------------------------------------------------
 
-    registerInputField("name",
+    registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Name of the cluster.");
-    // column in database is limited to 256 characters size
-    assert(addFieldBorder("name", 4, 256));
-    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+                       "uuid of the cluster.");
+    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     //
@@ -62,28 +61,30 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
+    // get context-info
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get information from request
-    const std::string clusterName = blossomLeaf.input.get("name").getString();
+    const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::clustersTable->getClusterByName(getResult,
-                                                   clusterName, userUuid,
-                                                   projectUuid,
-                                                   isAdmin,
-                                                   error) == false)
+    if(KyoukoRoot::clustersTable->getCluster(getResult,
+                                             clusterUuid,
+                                             userUuid,
+                                             projectUuid,
+                                             isAdmin,
+                                             error) == false)
     {
-        //status.errorMessage = "Cluster with name '" + clusterName + "' not found.";
-        //status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
-        return true;
+        status.errorMessage = "Cluster with uuid '" + clusterUuid + "' not found.";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        return false;
     }
 
     // remove data from table
-    if(KyoukoRoot::clustersTable->deleteCluster(clusterName,
+    if(KyoukoRoot::clustersTable->deleteCluster(clusterUuid,
                                                 userUuid,
                                                 projectUuid,
                                                 isAdmin,

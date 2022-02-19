@@ -38,13 +38,12 @@ DeleteTemplate::DeleteTemplate()
     // input
     //----------------------------------------------------------------------------------------------
 
-    registerInputField("name",
+    registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Name for the template to delete.");
-    // column in database is limited to 256 characters size
-    assert(addFieldBorder("name", 4, 256));
-    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+                       "uuid of the cluster.");
+    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     //
@@ -61,27 +60,29 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
                         Kitsunemimi::ErrorContainer &error)
 {
     // get information from request
-    const std::string name = blossomLeaf.input.get("name").getString();
+    const std::string uuid = blossomLeaf.input.get("uuid").getString();
+
+    // get context-info
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::templateTable->getTemplateByName(getResult,
-                                                    name,
-                                                    userUuid,
-                                                    projectUuid,
-                                                    isAdmin,
-                                                    error) == false)
+    if(KyoukoRoot::templateTable->getTemplate(getResult,
+                                              uuid,
+                                              userUuid,
+                                              projectUuid,
+                                              isAdmin,
+                                              error) == false)
     {
-        //status.errorMessage = "Template with name '" + name + "' not found.";
-        //status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
-        return true;
+        status.errorMessage = "Template with uuid '" + uuid + "' not found.";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        return false;
     }
 
     // remove data from table
-    if(KyoukoRoot::templateTable->deleteTemplate(name,
+    if(KyoukoRoot::templateTable->deleteTemplate(uuid,
                                                  userUuid,
                                                  projectUuid,
                                                  isAdmin,
