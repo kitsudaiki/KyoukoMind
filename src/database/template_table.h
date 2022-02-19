@@ -61,7 +61,7 @@ public:
                         const std::string &projectUuid,
                         const bool isAdmin,
                         Kitsunemimi::ErrorContainer &error);
-    bool deleteTemplate(const std::string &templateName,
+    bool deleteTemplate(const std::string &templateUuid,
                         const std::string &userUuid,
                         const std::string &projectUuid,
                         const bool isAdmin,
