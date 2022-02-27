@@ -118,6 +118,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
     //  generate new template
     DataItem* generatedContent = generateNewTemplate(name, numberOfInputs, numberOfOutputs);
     const std::string stringContent = generatedContent->toString();
+    std::cout<<generatedContent->toString(true)<<std::endl;
 
     // convert template to base64 to be storage into database
     std::string base64Content;
@@ -257,6 +258,7 @@ CreateTemplate::createDynamicSegments(DataArray* result,
 {
     DataMap* newSegment = new DataMap();
 
+    //newSegment->insert("type", new DataValue("static_segment"));
     newSegment->insert("type", new DataValue("dynamic_segment"));
     newSegment->insert("position", createPosition(1, 2, 1));
 

@@ -38,11 +38,11 @@ validateStructSizes()
     assert(sizeof(SynapseSection) == 512);
     assert(sizeof(SegmentHeader) == 256);
     assert(sizeof(Brick) == 4096);
-    assert(sizeof(Node) == 32);
+    assert(sizeof(DynamicNode) == 32);
 
     assert(sizeof(ClusterMetaData) == 2048);
     assert(sizeof(ClusterSettings) == 256);
-    assert(sizeof(SegmentSettings) == 256);
+    assert(sizeof(DynamicSegmentSettings) == 256);
     assert(sizeof(Kitsunemimi::Hanami::kuuid) == 40);
 
     return;

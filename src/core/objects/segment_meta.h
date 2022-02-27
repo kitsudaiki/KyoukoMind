@@ -31,9 +31,10 @@ enum SegmentTypes
     INPUT_SEGMENT = 1,
     OUTPUT_SEGMENT = 2,
     DYNAMIC_SEGMENT = 3,
+    STATIC_SEGMENT = 4,
 };
 
-struct SegmentSettings
+struct DynamicSegmentSettings
 {
     float synapseDeleteBorder = 1.0f;
     float actionPotential = 100.0f;
@@ -49,6 +50,13 @@ struct SegmentSettings
     uint8_t doLearn = 0;
 
     uint8_t padding[213];
+
+    // total size: 256 Byte
+};
+
+struct StaticSegmentSettings
+{
+    uint8_t padding[256];
 
     // total size: 256 Byte
 };
@@ -86,8 +94,9 @@ struct SegmentHeader
     SegmentHeaderEntry outputs;
 
     SegmentHeaderEntry synapseSections;
+    SegmentHeaderEntry connections;
 
-    uint8_t padding2[24];
+    uint8_t padding2[8];
 
     // total size: 256 Byte
 };

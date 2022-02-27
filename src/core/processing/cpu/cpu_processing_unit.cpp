@@ -36,6 +36,9 @@
 #include <core/processing/cpu/dynamic_segment/processing.h>
 #include <core/processing/cpu/dynamic_segment/create_reduce.h>
 
+#include <core/processing/cpu/static_segment/backpropagation.h>
+#include <core/processing/cpu/static_segment/processing.h>
+
 #include <core/processing/cpu/output_segment/backpropagation.h>
 #include <core/processing/cpu/output_segment/processing.h>
 
@@ -65,10 +68,16 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
         case DYNAMIC_SEGMENT:
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-            seg->segmentSettings->doLearn = 1;
+            seg->dynamicSegmentSettings->doLearn = 1;
             prcessDynamicSegment(seg);
             hardenSegment(seg);
-            seg->segmentSettings->doLearn = 0;
+            seg->dynamicSegmentSettings->doLearn = 0;
+            break;
+        }
+        case STATIC_SEGMENT:
+        {
+            StaticSegment* seg = static_cast<StaticSegment*>(segment);
+            processStaticSegment(seg);
             break;
         }
         case INPUT_SEGMENT:
@@ -101,7 +110,13 @@ CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
         case DYNAMIC_SEGMENT:
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-            rewightSegment(seg);
+            rewightDynamicSegment(seg);
+            break;
+        }
+        case STATIC_SEGMENT:
+        {
+            StaticSegment* seg = static_cast<StaticSegment*>(segment);
+            rewightStaticSegment(seg);
             break;
         }
         case OUTPUT_SEGMENT:
@@ -129,6 +144,12 @@ CpuProcessingUnit::processSegment(AbstractSegment* segment)
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             prcessDynamicSegment(seg);
+            break;
+        }
+        case STATIC_SEGMENT:
+        {
+            StaticSegment* seg = static_cast<StaticSegment*>(segment);
+            processStaticSegment(seg);
             break;
         }
         case INPUT_SEGMENT:

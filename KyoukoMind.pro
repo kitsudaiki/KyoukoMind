@@ -148,6 +148,7 @@ HEADERS += \
     src/core/data_structure/segments/dynamic_segment.h \
     src/core/data_structure/segments/input_segment.h \
     src/core/data_structure/segments/output_segment.h \
+    src/core/data_structure/segments/static_segment.h \
     src/core/objects/brick.h \
     src/core/objects/cluster_meta.h \
     src/core/objects/node.h \
@@ -161,6 +162,8 @@ HEADERS += \
     src/core/processing/cpu/input_segment/processing.h \
     src/core/processing/cpu/output_segment/backpropagation.h \
     src/core/processing/cpu/output_segment/processing.h \
+    src/core/processing/cpu/static_segment/backpropagation.h \
+    src/core/processing/cpu/static_segment/processing.h \
     src/core/processing/gpu/gpu_processing_uint.h \
     src/core/processing/processing_unit_handler.h \
     src/core/processing/segment_queue.h \
@@ -192,6 +195,7 @@ SOURCES += \
     src/core/data_structure/segments/dynamic_segment.cpp \
     src/core/data_structure/segments/input_segment.cpp \
     src/core/data_structure/segments/output_segment.cpp \
+    src/core/data_structure/segments/static_segment.cpp \
     src/core/processing/cpu/cpu_processing_unit.cpp \
     src/core/processing/gpu/gpu_processing_uint.cpp \
     src/core/processing/processing_unit_handler.cpp \

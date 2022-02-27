@@ -24,6 +24,7 @@
 
 
 #include <core/data_structure/segments/dynamic_segment.h>
+#include <core/data_structure/segments/static_segment.h>
 #include <core/data_structure/segments/input_segment.h>
 #include <core/data_structure/segments/output_segment.h>
 #include <core/data_structure/cluster.h>
@@ -108,6 +109,9 @@ initNewCluster(Cluster* cluster,
         AbstractSegment* newSegment = nullptr;
         if(segmentDef.get("type").getString() == "dynamic_segment") {
             newSegment = addDynamicSegment(cluster, segmentDef);
+        }
+        if(segmentDef.get("type").getString() == "static_segment") {
+            newSegment = addStaticSegment(cluster, segmentDef);
         }
         if(segmentDef.get("type").getString() == "input_segment") {
             newSegment = addInputSegment(cluster, segmentDef);
@@ -213,6 +217,33 @@ addDynamicSegment(Cluster* cluster,
 }
 
 /**
+ * @brief add new static-segment to cluster
+ *
+ * @param cluster pointer to the uninitionalized cluster
+ * @param parsedContent parsed json with the information of the cluster
+ *
+ * @return true, if successful, else false
+ */
+AbstractSegment*
+addStaticSegment(Cluster* cluster,
+                 const JsonItem &parsedContent)
+{
+    StaticSegment* newSegment = new StaticSegment();
+
+    if(newSegment->initSegment(parsedContent))
+    {
+        cluster->allSegments.push_back(newSegment);
+    }
+    else
+    {
+        delete newSegment;
+        newSegment = nullptr;
+    }
+
+    return newSegment;
+}
+
+/**
  * @brief set directon for a segment for each side for later internal information-flow
  *
  * @param segments json with all segments
@@ -273,7 +304,28 @@ getNeighborBorderSize(const JsonItem &currentSegment,
         if(currentSegment.get("type").getString() == "dynamic_segment"
                 && segments.get(foundNext).get("type").getString() == "dynamic_segment")
         {
-            // TOTO: make configurable
+            // TODO: make configurable
+            val = 500;
+        }
+
+        if(currentSegment.get("type").getString() == "static_segment"
+                && segments.get(foundNext).get("type").getString() == "static_segment")
+        {
+            // TODO: make configurable
+            val = 500;
+        }
+
+        if(currentSegment.get("type").getString() == "dynamic_segment"
+                && segments.get(foundNext).get("type").getString() == "static_segment")
+        {
+            // TODO: make configurable
+            val = 500;
+        }
+
+        if(currentSegment.get("type").getString() == "static_segment"
+                && segments.get(foundNext).get("type").getString() == "dynamic_segment")
+        {
+            // TODO: make configurable
             val = 500;
         }
 

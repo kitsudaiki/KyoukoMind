@@ -45,7 +45,7 @@ struct OutputNode
 
 //==================================================================================================
 
-struct Node
+struct DynamicNode
 {
     float input = 0.0f;
     float border = 100.0f;
@@ -62,6 +62,25 @@ struct Node
 
     uint32_t targetBorderId = UNINIT_STATE_32;
     uint32_t targetSectionId = UNINIT_STATE_32;
+
+    // total size: 32 Byte
+};
+
+//==================================================================================================
+
+struct StaticNode
+{
+    float value = 0.0f;
+    float border = 0.0f;
+    float potential = 0.0f;
+
+    float delta = 0.0f;
+
+    uint32_t brickId = 0;
+    uint32_t numberOfConnections = 0;
+    uint32_t targetConnectionPos = UNINIT_STATE_32;
+
+    uint32_t targetBorderId = UNINIT_STATE_32;
 
     // total size: 32 Byte
 };

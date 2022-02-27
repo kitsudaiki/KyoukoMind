@@ -45,7 +45,7 @@
 inline void
 synapseProcessing(SynapseSection* section,
                   DynamicSegment &segment,
-                  Node* sourceNode,
+                  DynamicNode* sourceNode,
                   const float weightIn,
                   const float outH)
 {
@@ -62,7 +62,7 @@ synapseProcessing(SynapseSection* section,
         synapse = &section->synapses[pos];
         createSyn = synapse->targetNodeId == UNINIT_STATE_16
                     && pos >= section->hardening
-                    && segment.segmentSettings->doLearn > 0;
+                    && segment.dynamicSegmentSettings->doLearn > 0;
         // create new synapse if necesarry and learning is active
         if(createSyn)
         {
@@ -70,7 +70,7 @@ synapseProcessing(SynapseSection* section,
                              synapse,
                              segment.bricks,
                              sourceNode,
-                             segment.segmentSettings,
+                             segment.dynamicSegmentSettings,
                              netH);
         }
 
@@ -114,9 +114,9 @@ synapseProcessing(SynapseSection* section,
  * @param node pointer to node to reset
  */
 inline
-void initNode(Node* node)
+void initNode(DynamicNode* node)
 {
-    bool initNode = node->isInit == false && node->input > 0.0f;
+    const bool initNode = node->isInit == false && node->input > 0.0f;
     node->isInit = node->isInit || initNode;
     node->border = static_cast<float>(initNode) * node->input * 0.5f
                    + static_cast<float>(initNode == false) * node->border;
@@ -132,7 +132,7 @@ inline void
 prepareNodesOfInputBrick(Brick* brick,
                          DynamicSegment &segment)
 {
-    Node* node = nullptr;
+    DynamicNode* node = nullptr;
 
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
@@ -140,7 +140,7 @@ prepareNodesOfInputBrick(Brick* brick,
     {
         node = &segment.nodes[nodeId];
         node->input = segment.inputTransfers[node->targetBorderId];
-        node->potential = segment.segmentSettings->potentialOverflow * node->input;
+        node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
         initNode(node);
         node->input = 0.0f;
     }
@@ -156,14 +156,14 @@ inline void
 prepareNodesOfOutputBrick(Brick* brick,
                           DynamicSegment &segment)
 {
-    Node* node = nullptr;
+    DynamicNode* node = nullptr;
 
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
-        node->potential = segment.segmentSettings->potentialOverflow * node->input;
+        node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
         node->potential = 1.0f / (1.0f + exp(-1.0f * node->potential));
         segment.outputTransfers[node->targetBorderId] = node->potential;
         initNode(node);
@@ -181,14 +181,14 @@ inline void
 prepareNodesOfNormalBrick(Brick* brick,
                           DynamicSegment &segment)
 {
-    Node* node = nullptr;
+    DynamicNode* node = nullptr;
 
     for(uint32_t nodeId = brick->nodePos;
         nodeId < brick->numberOfNodes + brick->nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
-        node->potential = segment.segmentSettings->potentialOverflow * node->input;
+        node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
         initNode(node);
         node->input = 0.0f;
     }
@@ -207,7 +207,8 @@ nodeProcessing(Brick* brick,
 {
     bool active = false;
     float outH = 0.0f;
-    Node* node = nullptr;
+    DynamicNode* node = nullptr;
+    uint64_t newPos = 0;
 
     if(brick->isInputBrick)
     {
@@ -234,7 +235,7 @@ nodeProcessing(Brick* brick,
         {
             if(node->targetSectionId == UNINIT_STATE_32)
             {
-                const uint64_t newPos = createNewSection(segment);
+                newPos = createNewSection(segment);
                 if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
                     continue;
                 }

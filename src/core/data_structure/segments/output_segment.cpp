@@ -117,7 +117,7 @@ OutputSegment::initSegmentPointer(const SegmentHeader &header)
     segmentHeader[0] = header;
 
     pos = 256;
-    segmentSettings = reinterpret_cast<SegmentSettings*>(dataPtr + pos);
+    dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
     pos = segmentHeader->neighborList.bytePos;
     segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
     pos = segmentHeader->inputTransfers.bytePos;
