@@ -47,7 +47,9 @@ public:
     Kitsunemimi::DataBuffer staticSegmentData;
 
     SegmentHeader* segmentHeader = nullptr;
-    SegmentSettings* segmentSettings = nullptr;
+    DynamicSegmentSettings* dynamicSegmentSettings = nullptr;
+    StaticSegmentSettings* staticSegmentSettings = nullptr;
+
     SegmentNeighborList* segmentNeighbors = nullptr;
     float* inputTransfers = nullptr;
     float* outputTransfers = nullptr;

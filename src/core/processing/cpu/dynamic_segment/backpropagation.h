@@ -43,7 +43,7 @@ correctNewOutputSynapses(Brick* brick,
                          DynamicSegment* segment)
 {
     uint16_t pos = 0;
-    Node* sourceNode = nullptr;
+    DynamicNode* sourceNode = nullptr;
     SynapseSection* section = nullptr;
     Synapse* synapse = nullptr;
     float netH = 0.0f;
@@ -99,7 +99,7 @@ inline void
 backpropagateOutput(Brick* brick,
                     DynamicSegment* segment)
 {
-    Node* node = nullptr;
+    DynamicNode* node = nullptr;
     float outH = 0.0f;
 
     // iterate over all nodes within the brick
@@ -125,7 +125,7 @@ backpropagateNodes(Brick* brick,
                    DynamicSegment* segment)
 {
     uint16_t pos = 0;
-    Node* sourceNode = nullptr;
+    DynamicNode* sourceNode = nullptr;
     SynapseSection* section = nullptr;
     Synapse* synapse = nullptr;
     float netH = 0.0f;
@@ -182,7 +182,7 @@ backpropagateNodes(Brick* brick,
  * @param segment segment to process
  */
 void
-rewightSegment(DynamicSegment* segment)
+rewightDynamicSegment(DynamicSegment* segment)
 {
     const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
 

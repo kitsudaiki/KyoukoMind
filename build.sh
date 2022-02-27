@@ -108,11 +108,11 @@ echo ""
 get_required_private_repo_gitlab "libKitsunemimiHanamiCommon" "v0.1.0" "2ue6RNxkCDs2A7qp1xtN" 8
 get_required_private_repo_gitlab "libKitsunemimiHanamiEndpoints" "v0.1.0" "ysR35grcGsLpFQiXXf1A" 1
 get_required_private_repo_gitlab "libKitsunemimiHanamiDatabase" "v0.2.0" "UjDbSSJzoU3uK4pZynmD" 8
-get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "v0.3.0" "vkEae-QF8jvt9W2xz3LR" 8
+get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" "vkEae-QF8jvt9W2xz3LR" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_gitlab "libSagiriArchive" "v0.1.0" "glpat-dCkDLv96JmBscfZey4zJ" 8
+get_required_private_repo_gitlab "libSagiriArchive" "master" "glpat-dCkDLv96JmBscfZey4zJ" 8
 get_required_private_repo_gitlab "libAzukiHeart" "v0.1.0" "glpat-R3vZd81MXGVUTSxgHz1q" 8
 get_required_private_repo_gitlab "libMisakaGuard" "v0.1.0" "glpat-sUgJE_tJH_jV19zL8X_x" 8
 echo ""

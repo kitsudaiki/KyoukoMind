@@ -59,7 +59,7 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
     const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
     // create segment metadata
-    const SegmentSettings settings = initSettings(parsedContent);
+    const DynamicSegmentSettings settings = initSettings(parsedContent);
     SegmentHeader header = createNewHeader(numberOfNodeBricks,
                                            totalNumberOfNodes,
                                            settings.maxSynapseSections,
@@ -69,7 +69,7 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
     initSegmentPointer(header);
     initDefaultValues();
     segmentHeader->position = convertPosition(parsedContent);
-    segmentSettings[0] = settings;
+    dynamicSegmentSettings[0] = settings;
 
     // init content
     initializeNodes();
@@ -112,7 +112,7 @@ DynamicSegment::initializeNodes()
 bool
 DynamicSegment::connectBorderBuffer()
 {
-    Node* node = nullptr;
+    DynamicNode* node = nullptr;
     Brick* brick = nullptr;
 
     for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
@@ -151,10 +151,10 @@ DynamicSegment::connectBorderBuffer()
  *
  * @return settings-object
  */
-SegmentSettings
+DynamicSegmentSettings
 DynamicSegment::initSettings(const JsonItem &parsedContent)
 {
-    SegmentSettings settings;
+    DynamicSegmentSettings settings;
 
     // parse settings
     JsonItem paredSettings = parsedContent.get("settings");
@@ -206,7 +206,7 @@ DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
     // init nodes
     segmentHeader.nodes.count = numberOfNodes;
     segmentHeader.nodes.bytePos = segmentDataPos;
-    segmentDataPos += numberOfNodes * sizeof(Node);
+    segmentDataPos += numberOfNodes * sizeof(DynamicNode);
 
     segmentHeader.staticDataSize = segmentDataPos;
 
@@ -233,7 +233,7 @@ DynamicSegment::initSegmentPointer(const SegmentHeader &header)
     segmentHeader[0] = header;
 
     pos = 256;
-    segmentSettings = reinterpret_cast<SegmentSettings*>(dataPtr + pos);
+    dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
     pos = segmentHeader->neighborList.bytePos;
     segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
     pos = segmentHeader->inputTransfers.bytePos;
@@ -245,7 +245,7 @@ DynamicSegment::initSegmentPointer(const SegmentHeader &header)
     pos = segmentHeader->brickOrder.bytePos;
     brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
     pos = segmentHeader->nodes.bytePos;
-    nodes = reinterpret_cast<Node*>(dataPtr + pos);
+    nodes = reinterpret_cast<DynamicNode*>(dataPtr + pos);
 
     dataPtr = static_cast<uint8_t*>(segmentData.itemData);
     pos = segmentHeader->synapseSections.bytePos;
@@ -271,7 +271,7 @@ void
 DynamicSegment::initDefaultValues()
 {
     // init header and metadata
-    segmentSettings[0] = SegmentSettings();
+    dynamicSegmentSettings[0] = DynamicSegmentSettings();
 
     // init bricks;
     for(uint32_t i = 0; i < segmentHeader->bricks.count; i++) {
@@ -285,7 +285,7 @@ DynamicSegment::initDefaultValues()
 
     // init nodes
     for(uint32_t i = 0; i < segmentHeader->nodes.count; i++) {
-        nodes[i] = Node();
+        nodes[i] = DynamicNode();
     }
 }
 

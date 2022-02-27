@@ -63,8 +63,8 @@ inline void
 createNewSynapse(SynapseSection* section,
                  Synapse* synapse,
                  Brick* bricks,
-                 Node* sourceNode,
-                 SegmentSettings* segmentSettings,
+                 DynamicNode* sourceNode,
+                 DynamicSegmentSettings* segmentSettings,
                  const float remainingWeight)
 {
     float randomMulti = 0.0f;
@@ -161,7 +161,7 @@ hardenSynapses(DynamicSegment* segment,
 inline void
 hardenSegment(DynamicSegment* segment)
 {
-    Node* node = nullptr;
+    DynamicNode* node = nullptr;
 
     for(uint32_t nodeId = 0;
         nodeId < segment->segmentHeader->nodes.count;
@@ -258,7 +258,7 @@ inline void
 reduceNodes(DynamicSegment* segment)
 {
     SynapseSection* section = nullptr;
-    Node* sourceNode = nullptr;
+    DynamicNode* sourceNode = nullptr;
     uint32_t sectionId = 0;
     bool shouldDelete = false;
 

@@ -1,5 +1,5 @@
 /**
- * @file        dynamic_segment.h
+ * @file        static_segment.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,32 +20,30 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_DYNAMIC_SEGMENTS_H
-#define KYOUKOMIND_DYNAMIC_SEGMENTS_H
+#ifndef KYOUKOMIND_STATIC_SEGMENTS_H
+#define KYOUKOMIND_STATIC_SEGMENTS_H
 
 #include <common.h>
 
 #include <core/data_structure/segments/abstract_segment.h>
 
-class DynamicSegment : public AbstractSegment
+class StaticSegment : public AbstractSegment
 {
 public:
-    DynamicSegment();
-    ~DynamicSegment();
+    StaticSegment();
+    ~StaticSegment();
 
     bool initSegment(const JsonItem &parsedContent);
 
     Brick* bricks = nullptr;
-    uint32_t* brickOrder = nullptr;
-    DynamicNode* nodes = nullptr;
-
-    SynapseSection* synapseSections = nullptr;
+    StaticNode* nodes = nullptr;
+    float* connections = nullptr;
 
 private:
-    DynamicSegmentSettings initSettings(const JsonItem &parsedContent);
+    StaticSegmentSettings initSettings(const JsonItem &);
     SegmentHeader createNewHeader(const uint32_t numberOfBricks,
+                                  const uint32_t numberOfConnections,
                                   const uint32_t numberOfNodes,
-                                  const uint64_t numberOfSynapseSections,
                                   const uint64_t borderbufferSize);
     void initSegmentPointer(const SegmentHeader &header);
     bool connectBorderBuffer();
@@ -53,13 +51,8 @@ private:
     void initDefaultValues();
 
     void addBricksToSegment(const JsonItem &metaBase);
-    bool initTargetBrickList();
-
     Brick createNewBrick(const JsonItem &brickDef, const uint32_t id);
-    void connectBrick(Brick *sourceBrick, const uint8_t side);
-    void connectAllBricks();
     bool initializeNodes();
-    uint32_t goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength);
 };
 
-#endif // KYOUKOMIND_DYNAMIC_SEGMENTS_H
+#endif // KYOUKOMIND_STATIC_SEGMENTS_H

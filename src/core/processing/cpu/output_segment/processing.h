@@ -58,24 +58,6 @@ calcTotalError(OutputSegment* segment)
 }
 
 /**
- * @brief process all nodes within a specific brick and also all synapse-sections,
- *        which are connected to an active node
- *
- * @param segment segment to process
- */
-inline void
-prcessOutputSegment(OutputSegment* segment)
-{
-    const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
-    float* inputTransfers = segment->inputTransfers;
-    for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
-    {
-        OutputNode* node = &segment->outputs[pos];
-        node->outputWeight = inputTransfers[node->targetBorderId];
-    }
-}
-
-/**
  * @brief get position of the highest output-position
  *
  * @param segment output-segment to check
@@ -102,6 +84,24 @@ getHighestOutput(OutputSegment* segment)
     }
 
     return hightestPos;
+}
+
+/**
+ * @brief process all nodes within a specific brick and also all synapse-sections,
+ *        which are connected to an active node
+ *
+ * @param segment segment to process
+ */
+inline void
+prcessOutputSegment(OutputSegment* segment)
+{
+    const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
+    float* inputTransfers = segment->inputTransfers;
+    for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
+    {
+        OutputNode* node = &segment->outputs[pos];
+        node->outputWeight = inputTransfers[node->targetBorderId];
+    }
 }
 
 #endif // KYOUKOMIND_OUTPUT_PROCESSING_H
