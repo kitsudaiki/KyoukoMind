@@ -23,8 +23,8 @@
 #include "dev_test.h"
 
 #include <kyouko_root.h>
-#include <core/data_structure/segments/input_segment.h>
-#include <core/data_structure/segments/output_segment.h>
+#include <core/segments/input_segment/input_segment.h>
+#include <core/segments/output_segment/output_segment.h>
 
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/files/text_file.h>
@@ -32,11 +32,10 @@
 #include <libKitsunemimiCommon/progress_bar.h>
 #include <libKitsunemimiCrypto/common.h>
 
-#include <core/processing/cpu/cpu_processing_unit.h>
-#include <core/processing/gpu/gpu_processing_uint.h>
+#include <core/processing/cpu_processing_unit.h>
 
-#include <core/data_structure/cluster_handler.h>
-#include <core/data_structure/cluster.h>
+#include <core/cluster/cluster_handler.h>
+#include <core/cluster/cluster.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 

@@ -15,7 +15,7 @@ build:
     - echo "nameserver 1.1.1.1" > /etc/resolv.conf
 
     - apt-get update
-    - apt-get install -y openssl libssl-dev opencl-headers ocl-icd-opencl-dev xxd uuid-dev libcrypto++-dev libsqlite3-dev
+    - apt-get install -y openssl libssl-dev xxd uuid-dev libcrypto++-dev libsqlite3-dev
 
     - cd /builds/hanami/KyoukoMind
     - ./build.sh

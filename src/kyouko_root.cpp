@@ -22,16 +22,15 @@
 
 #include <kyouko_root.h>
 
-#include <core/data_structure/init/struct_validation.h>
-#include <core/data_structure/init/cluster_init.h>
+#include <core/struct_validation.h>
+#include <core/cluster/cluster_init.h>
 
-#include <core/processing/cpu/cpu_processing_unit.h>
+#include <core/processing/cpu_processing_unit.h>
 #include <core/processing/segment_queue.h>
 #include <core/processing/processing_unit_handler.h>
 
-#include <core/objects/node.h>
-#include <core/data_structure/cluster_handler.h>
-#include <core/data_structure/cluster.h>
+#include <core/cluster/cluster_handler.h>
+#include <core/cluster/cluster.h>
 
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/files/text_file.h>

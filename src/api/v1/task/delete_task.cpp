@@ -22,8 +22,8 @@
 
 #include "delete_task.h"
 
-#include <core/data_structure/cluster_handler.h>
-#include <core/data_structure/cluster.h>
+#include <core/cluster/cluster_handler.h>
+#include <core/cluster/cluster.h>
 #include <kyouko_root.h>
 
 using namespace Kitsunemimi::Sakura;

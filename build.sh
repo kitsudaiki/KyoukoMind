@@ -88,7 +88,6 @@ get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.5.1" 1
 get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.8.2" 8
 get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.4.0" 8
 get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.4.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiOpencl" "v0.4.0" 8
 get_required_kitsune_lib_repo "libKitsunemimiObj" "v0.2.0" 8
 echo ""
 echo "###########################################################################################################"

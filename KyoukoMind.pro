@@ -64,11 +64,6 @@ LIBS += -L../libKitsunemimiSakuraLang/src/debug -lKitsunemimiSakuraLang
 LIBS += -L../libKitsunemimiSakuraLang/src/release -lKitsunemimiSakuraLang
 INCLUDEPATH += ../libKitsunemimiSakuraLang/include
 
-LIBS += -L../libKitsunemimiOpencl/src -lKitsunemimiOpencl
-LIBS += -L../libKitsunemimiOpencl/src/debug -lKitsunemimiOpencl
-LIBS += -L../libKitsunemimiOpencl/src/release -lKitsunemimiOpencl
-INCLUDEPATH += ../libKitsunemimiOpencl/include
-
 LIBS += -L../libKitsunemimiNetwork/src -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
@@ -114,6 +109,11 @@ LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -lOpenCL
 INCLUDEPATH += $$PWD \
                src
 
+CONFIG(run_tests) {
+TARGET = KyoukoMind_Test
+DEFINES += USE_DEV_MODE
+}
+
 HEADERS += \
     src/api/blossom_initializing.h \
     src/api/v1/cluster/create_cluster.h \
@@ -140,34 +140,36 @@ HEADERS += \
     src/common/typedefs.h \
     src/config.h \
     src/core/callbacks.h \
-    src/core/data_structure/cluster.h \
-    src/core/data_structure/cluster_handler.h \
-    src/core/data_structure/init/cluster_init.h \
-    src/core/data_structure/init/struct_validation.h \
-    src/core/data_structure/segments/abstract_segment.h \
-    src/core/data_structure/segments/dynamic_segment.h \
-    src/core/data_structure/segments/input_segment.h \
-    src/core/data_structure/segments/output_segment.h \
-    src/core/data_structure/segments/static_segment.h \
-    src/core/objects/brick.h \
-    src/core/objects/cluster_meta.h \
-    src/core/objects/node.h \
-    src/core/objects/segment_meta.h \
-    src/core/objects/synapses.h \
-    src/core/objects/task.h \
-    src/core/processing/cpu/cpu_processing_unit.h \
-    src/core/processing/cpu/dynamic_segment/backpropagation.h \
-    src/core/processing/cpu/dynamic_segment/create_reduce.h \
-    src/core/processing/cpu/dynamic_segment/processing.h \
-    src/core/processing/cpu/input_segment/processing.h \
-    src/core/processing/cpu/output_segment/backpropagation.h \
-    src/core/processing/cpu/output_segment/processing.h \
-    src/core/processing/cpu/static_segment/backpropagation.h \
-    src/core/processing/cpu/static_segment/processing.h \
-    src/core/processing/gpu/gpu_processing_uint.h \
+    src/core/cluster/cluster.h \
+    src/core/cluster/cluster_handler.h \
+    src/core/cluster/cluster_init.h \
+    src/core/cluster/cluster_meta.h \
+    src/core/cluster/task.h \
+    src/core/processing/cpu_processing_unit.h \
     src/core/processing/processing_unit_handler.h \
     src/core/processing/segment_queue.h \
     src/core/routing_functions.h \
+    src/core/segments/abstract_segment.h \
+    src/core/segments/brick.h \
+    src/core/segments/dynamic_segment/backpropagation.h \
+    src/core/segments/dynamic_segment/create_reduce.h \
+    src/core/segments/dynamic_segment/dynamic_segment.h \
+    src/core/segments/dynamic_segment/node.h \
+    src/core/segments/dynamic_segment/processing.h \
+    src/core/segments/dynamic_segment/synapses.h \
+    src/core/segments/input_segment/input_segment.h \
+    src/core/segments/input_segment/node.h \
+    src/core/segments/input_segment/processing.h \
+    src/core/segments/output_segment/backpropagation.h \
+    src/core/segments/output_segment/node.h \
+    src/core/segments/output_segment/output_segment.h \
+    src/core/segments/output_segment/processing.h \
+    src/core/segments/segment_meta.h \
+    src/core/segments/static_segment/backpropagation.h \
+    src/core/segments/static_segment/node.h \
+    src/core/segments/static_segment/processing.h \
+    src/core/segments/static_segment/static_segment.h \
+    src/core/struct_validation.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
     src/dev_test.h \
@@ -187,41 +189,21 @@ SOURCES += \
     src/api/v1/template/delete_template.cpp \
     src/api/v1/template/list_templates.cpp \
     src/api/v1/template/show_template.cpp \
-    src/core/data_structure/cluster.cpp \
-    src/core/data_structure/cluster_handler.cpp \
-    src/core/data_structure/init/cluster_init.cpp \
-    src/core/data_structure/init/struct_validation.cpp \
-    src/core/data_structure/segments/abstract_segment.cpp \
-    src/core/data_structure/segments/dynamic_segment.cpp \
-    src/core/data_structure/segments/input_segment.cpp \
-    src/core/data_structure/segments/output_segment.cpp \
-    src/core/data_structure/segments/static_segment.cpp \
-    src/core/processing/cpu/cpu_processing_unit.cpp \
-    src/core/processing/gpu/gpu_processing_uint.cpp \
+    src/core/cluster/cluster.cpp \
+    src/core/cluster/cluster_handler.cpp \
+    src/core/cluster/cluster_init.cpp \
+    src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/processing/segment_queue.cpp \
+    src/core/segments/abstract_segment.cpp \
+    src/core/segments/dynamic_segment/dynamic_segment.cpp \
+    src/core/segments/input_segment/input_segment.cpp \
+    src/core/segments/output_segment/output_segment.cpp \
+    src/core/segments/static_segment/static_segment.cpp \
+    src/core/struct_validation.cpp \
     src/database/cluster_table.cpp \
     src/database/template_table.cpp \
     src/dev_test.cpp \
     src/kyouko_root.cpp \
     src/main.cpp
-
-
-CONFIG(run_tests) {
-TARGET = KyoukoMind_Test
-DEFINES += USE_DEV_MODE
-}
-
-GPU_KERNEL = src/core/processing/gpu/synapse_node_processing.cl
-
-OTHER_FILES +=  \
-    $$GPU_KERNEL
-
-gpu_processing.input = GPU_KERNEL
-gpu_processing.output = ${QMAKE_FILE_BASE}.h
-gpu_processing.commands = xxd -i ${QMAKE_FILE_IN} | sed 's/______KyoukoMind_src_core_processing_gpu_//g' > ${QMAKE_FILE_BASE}.h
-gpu_processing.variable_out = HEADERS
-gpu_processing.CONFIG += target_predeps no_link
-
-QMAKE_EXTRA_COMPILERS += gpu_processing
 
