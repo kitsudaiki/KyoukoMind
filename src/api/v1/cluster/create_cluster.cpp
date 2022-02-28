@@ -22,8 +22,8 @@
 
 #include "create_cluster.h"
 
-#include <core/data_structure/cluster_handler.h>
-#include <core/data_structure/cluster.h>
+#include <core/cluster/cluster_handler.h>
+#include <core/cluster/cluster.h>
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>

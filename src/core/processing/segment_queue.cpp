@@ -22,7 +22,7 @@
 
 #include "segment_queue.h"
 
-#include <core/data_structure/segments/abstract_segment.h>
+#include <core/segments/abstract_segment.h>
 
 /**
  * @brief constructor
