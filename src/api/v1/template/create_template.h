@@ -38,19 +38,23 @@ protected:
                  Kitsunemimi::ErrorContainer &error);
 private:
     Kitsunemimi::DataMap* generateNewTemplate(const std::string name,
-                                             const long numberOfInputNodes,
-                                             const long numberOfOutputNodes);
+                                              const long numberOfInputNodes,
+                                              const long numberOfOutputNodes,
+                                              const Kitsunemimi::Json::JsonItem &settingsOverride);
     void createClusterSettings(Kitsunemimi::DataMap* result);
     void createSegments(Kitsunemimi::DataMap* result,
                         const long numberOfInputNodes,
-                        const long numberOfOutputNodes);
+                        const long numberOfOutputNodes,
+                        const Kitsunemimi::Json::JsonItem &settingsOverride);
     uint32_t createInputSegments(Kitsunemimi::DataArray* result,
                                  const long numberOfInputNodes);
 
     void createDynamicSegments(Kitsunemimi::DataArray* result,
                                const long numberOfInputNodes,
-                               const long numberOfOutputNodes);
-    void createSegmentSettings(Kitsunemimi::DataMap* result);
+                               const long numberOfOutputNodes,
+                               const Kitsunemimi::Json::JsonItem &settingsOverride);
+    void createSegmentSettings(Kitsunemimi::DataMap* result,
+                               const Kitsunemimi::Json::JsonItem &settingsOverride);
     void createSegmentBricks(Kitsunemimi::DataMap* result,
                              const long numberOfInputNodes,
                              const long numberOfOutputNodes);
