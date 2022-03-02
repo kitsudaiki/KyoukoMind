@@ -38,13 +38,13 @@
  * @param segment input-segment to process
  */
 void
-prcessInputSegment(const InputSegment* segment)
+prcessInputSegment(const InputSegment &segment)
 {
-    const uint32_t numberOfInputs = segment->segmentHeader->inputs.count;
-    float* outputTransfers = segment->outputTransfers;
+    const uint32_t numberOfInputs = segment.segmentHeader->inputs.count;
+    float* outputTransfers = segment.outputTransfers;
     for(uint32_t pos = 0; pos < numberOfInputs; pos++)
     {
-        const InputNode tempNode = segment->inputs[pos];
+        const InputNode tempNode = segment.inputs[pos];
         outputTransfers[tempNode.targetBorderId] = tempNode.weight;
     }
 }

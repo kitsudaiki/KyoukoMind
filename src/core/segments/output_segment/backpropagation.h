@@ -37,17 +37,17 @@
  * @param segment pointer to currect output-segment to process
  */
 inline void
-backpropagateOutput(OutputSegment* segment)
+backpropagateOutput(const OutputSegment &segment)
 {
     OutputNode out;
 
     // iterate over all output-nodes
     for(uint64_t outputNodeId = 0;
-        outputNodeId < segment->segmentHeader->outputs.count;
+        outputNodeId < segment.segmentHeader->outputs.count;
         outputNodeId++)
     {
-        out = segment->outputs[outputNodeId];
-        segment->outputTransfers[out.targetBorderId] = (out.outputWeight - out.shouldValue);
+        out = segment.outputs[outputNodeId];
+        segment.outputTransfers[out.targetBorderId] = (out.outputWeight - out.shouldValue);
     }
 }
 

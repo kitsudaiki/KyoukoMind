@@ -42,9 +42,9 @@
  * @param outH multiplicator
  */
 inline void
-synapseProcessing(SynapseSection* section,
+synapseProcessing(SynapseSection &section,
                   DynamicSegment &segment,
-                  DynamicNode* sourceNode,
+                  const DynamicNode &sourceNode,
                   const float weightIn,
                   const float outH)
 {
@@ -52,15 +52,15 @@ synapseProcessing(SynapseSection* section,
     float netH = weightIn;
     bool createSyn = false;
     Synapse* synapse = nullptr;
-    section->updated = 0;
+    section.updated = 0;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
           && netH > 0.0f)
     {
-        synapse = &section->synapses[pos];
+        synapse = &section.synapses[pos];
         createSyn = synapse->targetNodeId == UNINIT_STATE_16
-                    && pos >= section->hardening
+                    && pos >= section.hardening
                     && segment.dynamicSegmentSettings->doLearn > 0;
         // create new synapse if necesarry and learning is active
         if(createSyn)
@@ -69,7 +69,7 @@ synapseProcessing(SynapseSection* section,
                              synapse,
                              segment.bricks,
                              sourceNode,
-                             segment.dynamicSegmentSettings,
+                             *segment.dynamicSegmentSettings,
                              netH);
         }
 
@@ -89,17 +89,17 @@ synapseProcessing(SynapseSection* section,
 
     if(netH > 0.1f)
     {
-        if(section->next == UNINIT_STATE_32)
+        if(section.next == UNINIT_STATE_32)
         {
             const uint64_t newPos = createNewSection(segment);
             if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
                 return;
             }
 
-            section->next = newPos;
+            section.next = newPos;
         }
 
-        synapseProcessing(&segment.synapseSections[section->next],
+        synapseProcessing(segment.synapseSections[section.next],
                           segment,
                           sourceNode,
                           netH,
@@ -128,13 +128,13 @@ void initNode(DynamicNode* node)
  * @param segment segment where the brick belongs to
  */
 inline void
-prepareNodesOfInputBrick(Brick* brick,
-                         DynamicSegment &segment)
+prepareNodesOfInputBrick(const Brick &brick,
+                         const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
 
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
@@ -152,13 +152,13 @@ prepareNodesOfInputBrick(Brick* brick,
  * @param segment segment where the brick belongs to
  */
 inline void
-prepareNodesOfOutputBrick(Brick* brick,
-                          DynamicSegment &segment)
+prepareNodesOfOutputBrick(const Brick &brick,
+                          const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
 
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
@@ -177,13 +177,13 @@ prepareNodesOfOutputBrick(Brick* brick,
  * @param segment segment where the brick belongs to
  */
 inline void
-prepareNodesOfNormalBrick(Brick* brick,
-                          DynamicSegment &segment)
+prepareNodesOfNormalBrick(const Brick &brick,
+                          const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
 
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
@@ -201,7 +201,7 @@ prepareNodesOfNormalBrick(Brick* brick,
  * @param segment segment to process
  */
 inline void
-nodeProcessing(Brick* brick,
+nodeProcessing(const Brick &brick,
                DynamicSegment &segment)
 {
     bool active = false;
@@ -209,11 +209,11 @@ nodeProcessing(Brick* brick,
     DynamicNode* node = nullptr;
     uint64_t newPos = 0;
 
-    if(brick->isInputBrick)
+    if(brick.isInputBrick)
     {
         prepareNodesOfInputBrick(brick, segment);
     }
-    else if(brick->isOutputBrick)
+    else if(brick.isOutputBrick)
     {
         prepareNodesOfOutputBrick(brick, segment);
         return;
@@ -224,8 +224,8 @@ nodeProcessing(Brick* brick,
     }
 
     // process all synapse-sections, which are connected to an active node within the brick
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
@@ -243,9 +243,9 @@ nodeProcessing(Brick* brick,
             }
 
             outH = 1.0f / (1.0f + exp(-1.0f * node->potential));
-            synapseProcessing(&segment.synapseSections[node->targetSectionId],
+            synapseProcessing(segment.synapseSections[node->targetSectionId],
                               segment,
-                              node,
+                              *node,
                               node->potential,
                               outH);
         }
@@ -261,14 +261,14 @@ nodeProcessing(Brick* brick,
  * @param segment segment to process
  */
 void
-prcessDynamicSegment(DynamicSegment* segment)
+prcessDynamicSegment(DynamicSegment &segment)
 {
-    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
+    const uint32_t numberOfBricks = segment.segmentHeader->bricks.count;
     for(uint32_t pos = 0; pos < numberOfBricks; pos++)
     {
-        const uint32_t brickId = segment->brickOrder[pos];
-        Brick* brick = &segment->bricks[brickId];
-        nodeProcessing(brick, *segment);
+        const uint32_t brickId = segment.brickOrder[pos];
+        Brick* brick = &segment.bricks[brickId];
+        nodeProcessing(*brick, segment);
     }
 }
 

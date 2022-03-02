@@ -39,17 +39,17 @@
  * @return total error value
  */
 inline float
-calcTotalError(OutputSegment* segment)
+calcTotalError(const OutputSegment &segment)
 {
     float totalError = 0.0f;
     OutputNode* out = nullptr;
     float diff = 0.0f;
 
     for(uint64_t outputNodeId = 0;
-        outputNodeId < segment->segmentHeader->outputs.count;
+        outputNodeId < segment.segmentHeader->outputs.count;
         outputNodeId++)
     {
-        out = &segment->outputs[outputNodeId];
+        out = &segment.outputs[outputNodeId];
         diff = (out->shouldValue - out->outputWeight);
         totalError += 0.5f * (diff * diff);
     }
@@ -65,17 +65,17 @@ calcTotalError(OutputSegment* segment)
  * @return position of the highest output.
  */
 inline uint32_t
-getHighestOutput(OutputSegment* segment)
+getHighestOutput(const OutputSegment &segment)
 {
     float hightest = -0.1f;
     uint32_t hightestPos = 0;
     OutputNode* out = nullptr;
 
     for(uint32_t outputNodeId = 0;
-        outputNodeId < segment->segmentHeader->outputs.count;
+        outputNodeId < segment.segmentHeader->outputs.count;
         outputNodeId++)
     {
-        out = &segment->outputs[outputNodeId];
+        out = &segment.outputs[outputNodeId];
         if(out->outputWeight > hightest)
         {
             hightest = out->outputWeight;
@@ -93,13 +93,13 @@ getHighestOutput(OutputSegment* segment)
  * @param segment segment to process
  */
 inline void
-prcessOutputSegment(OutputSegment* segment)
+prcessOutputSegment(const OutputSegment &segment)
 {
-    const uint32_t numberOfOutputs = segment->segmentHeader->outputs.count;
-    float* inputTransfers = segment->inputTransfers;
+    const uint32_t numberOfOutputs = segment.segmentHeader->outputs.count;
+    float* inputTransfers = segment.inputTransfers;
     for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
     {
-        OutputNode* node = &segment->outputs[pos];
+        OutputNode* node = &segment.outputs[pos];
         node->outputWeight = inputTransfers[node->targetBorderId];
     }
 }

@@ -39,8 +39,8 @@
  * @param segment pointer to currect segment to process, which contains the brick
  */
 inline void
-correctNewOutputSynapses(Brick* brick,
-                         DynamicSegment* segment)
+correctNewOutputSynapses(const Brick &brick,
+                         const DynamicSegment &segment)
 {
     uint16_t pos = 0;
     DynamicNode* sourceNode = nullptr;
@@ -51,16 +51,16 @@ correctNewOutputSynapses(Brick* brick,
     float invert = 0.0f;
 
     // iterate over all nodes within the brick
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         // skip section, if not active
-        sourceNode = &segment->nodes[nodeId];
+        sourceNode = &segment.nodes[nodeId];
         if(sourceNode->targetSectionId == UNINIT_STATE_32) {
             continue;
         }
-        section = &segment->synapseSections[sourceNode->targetSectionId];
+        section = &segment.synapseSections[sourceNode->targetSectionId];
 
         // set start-values
         pos = section->hardening;
@@ -77,7 +77,7 @@ correctNewOutputSynapses(Brick* brick,
             }
 
             // correct weight-value, if necessary
-            delta = segment->nodes[synapse->targetNodeId].delta;
+            delta = segment.nodes[synapse->targetNodeId].delta;
             invert = (delta < 0.0f && synapse->weight < 0.0f)
                      || (delta > 0.0f && synapse->weight > 0.0f);
             synapse->weight += -2.0f * invert * synapse->weight;
@@ -96,19 +96,19 @@ correctNewOutputSynapses(Brick* brick,
  * @param segment segment where the brick belongs to
  */
 inline void
-backpropagateOutput(Brick* brick,
-                    DynamicSegment* segment)
+backpropagateOutput(const Brick &brick,
+                    const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
     float outH = 0.0f;
 
     // iterate over all nodes within the brick
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
-        node = &segment->nodes[nodeId];
-        node->delta = segment->inputTransfers[node->targetBorderId];
+        node = &segment.nodes[nodeId];
+        node->delta = segment.inputTransfers[node->targetBorderId];
         outH = node->potential;
         node->delta *= outH * (1.0f - outH);
     }
@@ -121,8 +121,8 @@ backpropagateOutput(Brick* brick,
  * @param segment pointer to currect segment to process, which contains the brick
  */
 inline void
-backpropagateNodes(Brick* brick,
-                   DynamicSegment* segment)
+backpropagateNodes(const Brick &brick,
+                   const DynamicSegment &segment)
 {
     uint16_t pos = 0;
     DynamicNode* sourceNode = nullptr;
@@ -133,16 +133,16 @@ backpropagateNodes(Brick* brick,
     float learnValue = 0.0f;
 
     // iterate over all nodes within the brick
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         // skip section, if not active
-        sourceNode = &segment->nodes[nodeId];
+        sourceNode = &segment.nodes[nodeId];
         if(sourceNode->targetSectionId == UNINIT_STATE_32) {
             continue;
         }
-        section = &segment->synapseSections[sourceNode->targetSectionId];
+        section = &segment.synapseSections[sourceNode->targetSectionId];
 
         // set start-values
         pos = 0;
@@ -162,16 +162,16 @@ backpropagateNodes(Brick* brick,
             // update weight
             learnValue = static_cast<float>(pos <= section->hardening) * 0.1f
                          + static_cast<float>(pos > section->hardening) * 0.2f;
-            sourceNode->delta += segment->nodes[synapse->targetNodeId].delta * synapse->weight;
-            synapse->weight -= learnValue * segment->nodes[synapse->targetNodeId].delta * outH;
+            sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
+            synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 
             // update loop-counter
             netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             pos++;
         }
 
-        if(brick->isInputBrick) {
-            segment->outputTransfers[sourceNode->targetBorderId] = sourceNode->delta;
+        if(brick.isInputBrick) {
+            segment.outputTransfers[sourceNode->targetBorderId] = sourceNode->delta;
         }
     }
 }
@@ -182,19 +182,19 @@ backpropagateNodes(Brick* brick,
  * @param segment segment to process
  */
 void
-rewightDynamicSegment(DynamicSegment* segment)
+rewightDynamicSegment(const DynamicSegment &segment)
 {
-    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
+    const uint32_t numberOfBricks = segment.segmentHeader->bricks.count;
 
     // run back-propagation over all internal nodes and synapses
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
-        const uint32_t brickId = segment->brickOrder[pos];
-        Brick* brick = &segment->bricks[brickId];
+        const uint32_t brickId = segment.brickOrder[pos];
+        Brick* brick = &segment.bricks[brickId];
         if(brick->isOutputBrick) {
-            backpropagateOutput(brick, segment);
+            backpropagateOutput(*brick, segment);
         } else {
-            backpropagateNodes(brick, segment);
+            backpropagateNodes(*brick, segment);
         }
     }
 }

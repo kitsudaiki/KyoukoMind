@@ -32,9 +32,7 @@ struct Brick
     uint32_t brickId = UNINIT_STATE_32;
     bool isOutputBrick = false;
     bool isInputBrick = false;
-    uint8_t padding1[14];
-
-    uint32_t nodeActivity = 0;
+    uint8_t padding1[18];
 
     Position brickPos;
     uint32_t neighbors[12];
