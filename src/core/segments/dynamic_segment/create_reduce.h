@@ -20,16 +20,15 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATE_RESUCE_H
-#define KYOUKOMIND_CREATE_RESUCE_H
+#ifndef KYOUKOMIND_CREATE_REDUCE_H
+#define KYOUKOMIND_CREATE_REDUCE_H
 
 #include <common.h>
 
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
 
-#include "node.h"
-#include "synapses.h"
+#include "objects.h"
 #include "dynamic_segment.h"
 
 /**
@@ -286,4 +285,4 @@ reduceNodes(DynamicSegment* segment)
     }
 }
 
-#endif // KYOUKOMIND_CREATE_RESUCE_H
+#endif // KYOUKOMIND_CREATE_REDUCE_H

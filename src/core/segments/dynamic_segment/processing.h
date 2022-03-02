@@ -28,8 +28,7 @@
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
 
-#include "node.h"
-#include "synapses.h"
+#include "objects.h"
 #include "create_reduce.h"
 #include "dynamic_segment.h"
 
@@ -116,7 +115,7 @@ synapseProcessing(SynapseSection* section,
 inline
 void initNode(DynamicNode* node)
 {
-    const bool initNode = node->isInit == false && node->input > 0.0f;
+    const bool initNode = node->isInit == false && node->input > 0.1f;
     node->isInit = node->isInit || initNode;
     node->border = static_cast<float>(initNode) * node->input * 0.5f
                    + static_cast<float>(initNode == false) * node->border;

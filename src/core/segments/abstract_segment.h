@@ -31,6 +31,9 @@
 #include <core/segments/brick.h>
 #include <core/segments/segment_meta.h>
 
+#include <core/segments/dynamic_segment/objects.h>
+#include <core/segments/static_segment/objects.h>
+
 class Cluster;
 
 class AbstractSegment

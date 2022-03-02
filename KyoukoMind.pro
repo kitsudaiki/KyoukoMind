@@ -154,19 +154,18 @@ HEADERS += \
     src/core/segments/dynamic_segment/backpropagation.h \
     src/core/segments/dynamic_segment/create_reduce.h \
     src/core/segments/dynamic_segment/dynamic_segment.h \
-    src/core/segments/dynamic_segment/node.h \
+    src/core/segments/dynamic_segment/objects.h \
     src/core/segments/dynamic_segment/processing.h \
-    src/core/segments/dynamic_segment/synapses.h \
     src/core/segments/input_segment/input_segment.h \
-    src/core/segments/input_segment/node.h \
+    src/core/segments/input_segment/objects.h \
     src/core/segments/input_segment/processing.h \
     src/core/segments/output_segment/backpropagation.h \
-    src/core/segments/output_segment/node.h \
+    src/core/segments/output_segment/objects.h \
     src/core/segments/output_segment/output_segment.h \
     src/core/segments/output_segment/processing.h \
     src/core/segments/segment_meta.h \
     src/core/segments/static_segment/backpropagation.h \
-    src/core/segments/static_segment/node.h \
+    src/core/segments/static_segment/objects.h \
     src/core/segments/static_segment/processing.h \
     src/core/segments/static_segment/static_segment.h \
     src/core/struct_validation.h \

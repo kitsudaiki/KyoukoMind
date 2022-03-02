@@ -301,8 +301,6 @@ CreateTemplate::createSegmentSettings(DataMap* result,
     settings->insert("sign_neg", new DataValue(0.5));
     settings->insert("potential_overflow", new DataValue(1.0));
     settings->insert("multiplicator_range", new DataValue(1));
-    settings->insert("node_lower_border", new DataValue(2.0));
-    settings->insert("node_upper_border", new DataValue(7.0));
     settings->insert("max_synapse_sections", new DataValue(2500));
 
     const std::vector<std::string> keys = settingsOverride.getKeys();

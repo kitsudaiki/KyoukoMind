@@ -159,7 +159,6 @@ DynamicSegment::initSettings(const JsonItem &parsedContent)
     // parse settings
     JsonItem paredSettings = parsedContent.get("settings");
     settings.synapseDeleteBorder = paredSettings.get("synapse_delete_border").getFloat();
-    settings.actionPotential = paredSettings.get("action_potential").getFloat();
     settings.nodeCooldown = paredSettings.get("node_cooldown").getFloat();
     settings.memorizing = paredSettings.get("memorizing").getFloat();
     settings.gliaValue = paredSettings.get("glia_value").getFloat();

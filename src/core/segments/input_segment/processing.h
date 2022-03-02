@@ -28,7 +28,7 @@
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
 
-#include "node.h"
+#include "objects.h"
 #include "input_segment.h"
 
 /**

@@ -29,8 +29,7 @@
 #include <core/segments/brick.h>
 #include <core/segments/dynamic_segment/dynamic_segment.h>
 
-#include "synapses.h"
-#include "node.h"
+#include "objects.h"
 
 /**
  * @brief correct new created synapses, which are directly connected to the output and fix the

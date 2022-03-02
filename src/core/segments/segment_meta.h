@@ -34,33 +34,6 @@ enum SegmentTypes
     STATIC_SEGMENT = 4,
 };
 
-struct DynamicSegmentSettings
-{
-    float synapseDeleteBorder = 1.0f;
-    float actionPotential = 100.0f;
-    float nodeCooldown = 100.0f;
-    float memorizing = 0.1f;
-    float gliaValue = 1.0f;
-    float signNeg = 0.6f;
-    float potentialOverflow = 20.0f;
-    float maxSynapseWeight = 30.0f;
-    uint64_t maxSynapseSections = 0;
-    uint8_t refractionTime = 1;
-    uint8_t multiplicatorRange = 0;
-    uint8_t doLearn = 0;
-
-    uint8_t padding[213];
-
-    // total size: 256 Byte
-};
-
-struct StaticSegmentSettings
-{
-    uint8_t padding[256];
-
-    // total size: 256 Byte
-};
-
 struct SegmentHeaderEntry
 {
     uint64_t bytePos = 0;

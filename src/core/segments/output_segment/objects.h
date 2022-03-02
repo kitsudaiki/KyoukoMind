@@ -1,5 +1,5 @@
 /**
- * @file        node.h
+ * @file        objects.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,21 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_INPUT_NODES_H
-#define KYOUKOMIND_INPUT_NODES_H
+#ifndef KYOUKOMIND_OUTPUT_SEGMENT_OBJECTS_H
+#define KYOUKOMIND_OUTPUT_SEGMENT_OBJECTS_H
 
 #include <common.h>
 
-struct InputNode
+struct OutputNode
 {
-    float weight = 0.0f;
+    float outputWeight = 0.0f;
+    float shouldValue = 0.0f;
     uint32_t targetBorderId = 0;
+    uint8_t padding[4];
 
-    // total size: 8 Byte
+    // total size: 16 Byte
 };
 
 //==================================================================================================
 
-#endif // KYOUKOMIND_INPUT_NODES_H
+#endif // KYOUKOMIND_OUTPUT_SEGMENT_OBJECTS_H

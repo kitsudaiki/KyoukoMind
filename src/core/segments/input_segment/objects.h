@@ -1,5 +1,5 @@
 /**
- * @file        node.h
+ * @file        objects.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,30 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_STATIC_NODES_H
-#define KYOUKOMIND_STATIC_NODES_H
+#ifndef KYOUKOMIND_INPUT_SEGMENT_OBJECTS_H
+#define KYOUKOMIND_INPUT_SEGMENT_OBJECTS_H
 
 #include <common.h>
 
-//==================================================================================================
-
-struct StaticNode
+struct InputNode
 {
-    float value = 0.0f;
-    float border = 0.0f;
-    float potential = 0.0f;
+    float weight = 0.0f;
+    uint32_t targetBorderId = 0;
 
-    float delta = 0.0f;
-
-    uint32_t brickId = 0;
-    uint32_t numberOfConnections = 0;
-    uint32_t targetConnectionPos = UNINIT_STATE_32;
-
-    uint32_t targetBorderId = UNINIT_STATE_32;
-
-    // total size: 32 Byte
+    // total size: 8 Byte
 };
 
 //==================================================================================================
 
-#endif // KYOUKOMIND_STATIC_NODES_H
+#endif // KYOUKOMIND_INPUT_SEGMENT_OBJECTS_H
