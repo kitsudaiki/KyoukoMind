@@ -69,27 +69,27 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             seg->dynamicSegmentSettings->doLearn = 1;
-            prcessDynamicSegment(seg);
-            hardenSegment(seg);
+            prcessDynamicSegment(*seg);
+            hardenSegment(*seg);
             seg->dynamicSegmentSettings->doLearn = 0;
             break;
         }
         case STATIC_SEGMENT:
         {
             StaticSegment* seg = static_cast<StaticSegment*>(segment);
-            processStaticSegment(seg);
+            processStaticSegment(*seg);
             break;
         }
         case INPUT_SEGMENT:
         {
             InputSegment* seg = static_cast<InputSegment*>(segment);
-            prcessInputSegment(seg);
+            prcessInputSegment(*seg);
             break;
         }
         case OUTPUT_SEGMENT:
         {
             OutputSegment* seg = static_cast<OutputSegment*>(segment);
-            prcessOutputSegment(seg);
+            prcessOutputSegment(*seg);
             break;
         }
         default:
@@ -110,19 +110,19 @@ CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
         case DYNAMIC_SEGMENT:
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-            rewightDynamicSegment(seg);
+            rewightDynamicSegment(*seg);
             break;
         }
         case STATIC_SEGMENT:
         {
             StaticSegment* seg = static_cast<StaticSegment*>(segment);
-            rewightStaticSegment(seg);
+            rewightStaticSegment(*seg);
             break;
         }
         case OUTPUT_SEGMENT:
         {
             OutputSegment* seg = static_cast<OutputSegment*>(segment);
-            backpropagateOutput(seg);
+            backpropagateOutput(*seg);
             break;
         }
         default:
@@ -143,26 +143,26 @@ CpuProcessingUnit::processSegment(AbstractSegment* segment)
         case DYNAMIC_SEGMENT:
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-            prcessDynamicSegment(seg);
+            prcessDynamicSegment(*seg);
             break;
         }
         case STATIC_SEGMENT:
         {
             StaticSegment* seg = static_cast<StaticSegment*>(segment);
-            processStaticSegment(seg);
+            processStaticSegment(*seg);
             break;
         }
         case INPUT_SEGMENT:
         {
             InputSegment* seg = static_cast<InputSegment*>(segment);
-            prcessInputSegment(seg);
+            prcessInputSegment(*seg);
             break;
         }
         case OUTPUT_SEGMENT:
         {
             OutputSegment* seg = static_cast<OutputSegment*>(segment);
-            prcessOutputSegment(seg);
-            const uint32_t hightest = getHighestOutput(seg);
+            prcessOutputSegment(*seg);
+            const uint32_t hightest = getHighestOutput(*seg);
             seg->parentCluster->setResultForActualCycle(hightest);
             break;
         }

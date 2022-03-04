@@ -28,7 +28,7 @@
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
 
-#include "node.h"
+#include "objects.h"
 #include "static_segment.h"
 
 /**
@@ -38,13 +38,13 @@
  * @param segment segment where the brick belongs to
  */
 inline void
-processInputNodes(Brick* brick,
-                  StaticSegment &segment)
+processInputNodes(const Brick &brick,
+                  const StaticSegment &segment)
 {
     StaticNode* node = nullptr;
 
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
@@ -60,13 +60,13 @@ processInputNodes(Brick* brick,
  * @param segment segment where the brick belongs to
  */
 inline void
-processOutputNodes(Brick* brick,
-                   StaticSegment &segment)
+processOutputNodes(const Brick &brick,
+                   const StaticSegment &segment)
 {
     StaticNode* node = nullptr;
 
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
@@ -82,17 +82,17 @@ processOutputNodes(Brick* brick,
  * @param segment segment where the brick belongs to
  */
 inline void
-processNormalNodes(Brick* brick,
-                   Brick* lastBrick,
-                   StaticSegment &segment)
+processNormalNodes(const Brick &brick,
+                   const Brick &lastBrick,
+                   const StaticSegment &segment)
 {
     StaticNode* node = nullptr;
-    StaticNode* lastNodes = &segment.nodes[lastBrick->nodePos];
+    StaticNode* lastNodes = &segment.nodes[lastBrick.nodePos];
     float* connection = nullptr;
     float weight = 0.0f;
 
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
@@ -101,7 +101,7 @@ processNormalNodes(Brick* brick,
         connection = &segment.connections[node->targetConnectionPos];
         weight = 0.0f;
 
-        for(uint32_t i = 0; i < lastBrick->numberOfNodes; i++) {
+        for(uint32_t i = 0; i < lastBrick.numberOfNodes; i++) {
             weight += (lastNodes[i].value * connection[i]) + node->border;
         }
 
@@ -116,21 +116,21 @@ processNormalNodes(Brick* brick,
  * @param segment segment to process
  */
 void
-processStaticSegment(StaticSegment* segment)
+processStaticSegment(const StaticSegment &segment)
 {
-    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
+    const uint32_t numberOfBricks = segment.segmentHeader->bricks.count;
     for(uint32_t pos = 0; pos < numberOfBricks; pos++)
     {
-        Brick* brick = &segment->bricks[pos];
+        Brick* brick = &segment.bricks[pos];
         if(brick->isInputBrick)
         {
-            processInputNodes(brick, *segment);
+            processInputNodes(*brick, segment);
         }
         else
         {
-            processNormalNodes(brick, &segment->bricks[pos-1], *segment);
+            processNormalNodes(*brick, segment.bricks[pos-1], segment);
             if(brick->isOutputBrick) {
-                processOutputNodes(brick, *segment);
+                processOutputNodes(*brick, segment);
             }
         }
     }

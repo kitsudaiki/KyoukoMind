@@ -20,16 +20,15 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATE_RESUCE_H
-#define KYOUKOMIND_CREATE_RESUCE_H
+#ifndef KYOUKOMIND_CREATE_REDUCE_H
+#define KYOUKOMIND_CREATE_REDUCE_H
 
 #include <common.h>
 
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
 
-#include "node.h"
-#include "synapses.h"
+#include "objects.h"
 #include "dynamic_segment.h"
 
 /**
@@ -61,11 +60,11 @@ createNewSection(DynamicSegment &segment)
  * @param remainingWeight weight of which to cut of a part for the new synapse
  */
 inline void
-createNewSynapse(SynapseSection* section,
+createNewSynapse(SynapseSection &section,
                  Synapse* synapse,
                  Brick* bricks,
-                 DynamicNode* sourceNode,
-                 DynamicSegmentSettings* segmentSettings,
+                 const DynamicNode &sourceNode,
+                 const DynamicSegmentSettings &segmentSettings,
                  const float remainingWeight)
 {
     float randomMulti = 0.0f;
@@ -77,11 +76,11 @@ createNewSynapse(SynapseSection* section,
     const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
 
-    const float maxWeight = segmentSettings->maxSynapseWeight;
+    const float maxWeight = segmentSettings.maxSynapseWeight;
 
     // set new weight
-    section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    random = static_cast<float>(randomValues[section->randomPos]) / randMax;
+    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    random = static_cast<float>(randomValues[section.randomPos]) / randMax;
     doLearn = maxWeight * random;
     synapse->weight = static_cast<float>(remainingWeight < doLearn) * remainingWeight
                       + static_cast<float>(remainingWeight >= doLearn) * doLearn;
@@ -90,26 +89,26 @@ createNewSynapse(SynapseSection* section,
     synapse->border = (synapse->weight * 255.0f) + 1;
 
     // update weight with multiplicator
-    section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    randomMulti = static_cast<float>(randomValues[section->randomPos]) / randMax;
-    synapse->weight *= randomMulti * static_cast<float>(segmentSettings->multiplicatorRange) + 1.0f;
+    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    randomMulti = static_cast<float>(randomValues[section.randomPos]) / randMax;
+    synapse->weight *= randomMulti * static_cast<float>(segmentSettings.multiplicatorRange) + 1.0f;
 
     // update weight with multiplicator
-    section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    signRand = randomValues[section->randomPos] % 1000;
-    synapse->weight *= static_cast<float>(1 - (1000.0f * segmentSettings->signNeg > signRand) * 2);
+    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    signRand = randomValues[section.randomPos] % 1000;
+    synapse->weight *= static_cast<float>(1 - (1000.0f * segmentSettings.signNeg > signRand) * 2);
 
     // set target node id
-    section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    nodeBrick = &bricks[sourceNode->brickId];
-    const uint32_t targetBrickId = nodeBrick->possibleTargetNodeBrickIds[section->brickBufferPos];
+    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    nodeBrick = &bricks[sourceNode.brickId];
+    const uint32_t targetBrickId = nodeBrick->possibleTargetNodeBrickIds[section.brickBufferPos];
 
     Brick* targetBrick = &bricks[targetBrickId];
-    targetNodeIdInBrick = randomValues[section->randomPos] % targetBrick->numberOfNodes;
+    targetNodeIdInBrick = randomValues[section.randomPos] % targetBrick->numberOfNodes;
 
     synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + targetBrick->nodePos);
     synapse->activeCounter = 1;
-    section->updated = 1;
+    section.updated = 1;
 }
 
 /**
@@ -120,8 +119,8 @@ createNewSynapse(SynapseSection* section,
  * @param netH node-potential
  */
 inline void
-hardenSynapses(DynamicSegment* segment,
-               SynapseSection* section,
+hardenSynapses(const DynamicSegment &segment,
+               SynapseSection &section,
                float netH)
 {
     uint16_t pos = 0;
@@ -133,7 +132,7 @@ hardenSynapses(DynamicSegment* segment,
           && netH > 0.0f)
     {
         // break look, if no more synapses to process
-        synapse = &section->synapses[pos];
+        synapse = &section.synapses[pos];
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             break;
         }
@@ -144,12 +143,12 @@ hardenSynapses(DynamicSegment* segment,
     }
 
     // harden synapse-section
-    updateHardening = pos > section->hardening;
-    section->hardening = (updateHardening == true) * pos
-                         + (updateHardening == false) * section->hardening;
+    updateHardening = pos > section.hardening;
+    section.hardening = (updateHardening == true) * pos
+                         + (updateHardening == false) * section.hardening;
 
-    if(section->next != UNINIT_STATE_32) {
-        hardenSynapses(segment, &segment->synapseSections[section->next], netH);
+    if(section.next != UNINIT_STATE_32) {
+        hardenSynapses(segment, segment.synapseSections[section.next], netH);
     }
 }
 
@@ -160,15 +159,15 @@ hardenSynapses(DynamicSegment* segment,
  * @param segment current segemnt to process
  */
 inline void
-hardenSegment(DynamicSegment* segment)
+hardenSegment(const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
 
     for(uint32_t nodeId = 0;
-        nodeId < segment->segmentHeader->nodes.count;
+        nodeId < segment.segmentHeader->nodes.count;
         nodeId++)
     {
-        node = &segment->nodes[nodeId];
+        node = &segment.nodes[nodeId];
         /*if(sourceNode->input > 0.0f) {
             sourceNode->isInit = 1;
         }*/
@@ -176,7 +175,7 @@ hardenSegment(DynamicSegment* segment)
         if(node->targetSectionId != UNINIT_STATE_32)
         {
             hardenSynapses(segment,
-                           &segment->synapseSections[node->targetSectionId],
+                           segment.synapseSections[node->targetSectionId],
                            node->potential);
         }
     }
@@ -191,27 +190,27 @@ hardenSegment(DynamicSegment* segment)
  * @return true, if section is empty and can be deleted, else false
  */
 inline bool
-reduceSynapses(DynamicSegment* segment,
-               SynapseSection* section)
+reduceSynapses(DynamicSegment &segment,
+               SynapseSection &section)
 {
     Synapse* synapse = nullptr;
     Synapse currentSyn;
     uint32_t currentPos = 0;
 
     // iterate over all synapses in synapse-section
-    currentPos = section->hardening;
-    for(uint32_t lastPos = section->hardening;
+    currentPos = section.hardening;
+    for(uint32_t lastPos = section.hardening;
         lastPos < SYNAPSES_PER_SYNAPSESECTION;
         lastPos++)
     {
         // skip not connected synapses
-        synapse = &section->synapses[lastPos];
+        synapse = &section.synapses[lastPos];
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             continue;
         }
 
         // update dynamic-weight-value of the synapse
-        if(segment->nodes[synapse->targetNodeId].active == 0) {
+        if(segment.nodes[synapse->targetNodeId].active == 0) {
             synapse->activeCounter = -2;
         } else {
             synapse->activeCounter = -2;
@@ -226,27 +225,27 @@ reduceSynapses(DynamicSegment* segment,
         }
         else
         {
-            currentSyn = section->synapses[currentPos];
-            section->synapses[currentPos] = section->synapses[lastPos];
-            section->synapses[lastPos] = currentSyn;
+            currentSyn = section.synapses[currentPos];
+            section.synapses[currentPos] = section.synapses[lastPos];
+            section.synapses[lastPos] = currentSyn;
             currentPos++;
         }
     }
 
-    if(section->next != UNINIT_STATE_32)
+    if(section.next != UNINIT_STATE_32)
     {
         // delete if sections is empty
-        const bool shouldDelete = reduceSynapses(segment, &segment->synapseSections[section->next]);
+        const bool shouldDelete = reduceSynapses(segment, segment.synapseSections[section.next]);
         if(shouldDelete)
         {
-            segment->segmentData.deleteItem(section->next);
-            section->next = UNINIT_STATE_32;
+            segment.segmentData.deleteItem(section.next);
+            section.next = UNINIT_STATE_32;
         }
     }
 
-    const bool shouldDelete = section->hardening == 0
+    const bool shouldDelete = section.hardening == 0
                               && currentPos == 0
-                              && section->next == UNINIT_STATE_32;
+                              && section.next == UNINIT_STATE_32;
     return shouldDelete;
 }
 
@@ -256,7 +255,7 @@ reduceSynapses(DynamicSegment* segment,
  * @param segment current segemnt to process
  */
 inline void
-reduceNodes(DynamicSegment* segment)
+reduceNodes(DynamicSegment &segment)
 {
     SynapseSection* section = nullptr;
     DynamicNode* sourceNode = nullptr;
@@ -264,26 +263,26 @@ reduceNodes(DynamicSegment* segment)
     bool shouldDelete = false;
 
     for(uint32_t nodeId = 0;
-        nodeId < segment->segmentHeader->nodes.count;
+        nodeId < segment.segmentHeader->nodes.count;
         nodeId++)
     {
-        sourceNode = &segment->nodes[nodeId];
+        sourceNode = &segment.nodes[nodeId];
         if(sourceNode->targetSectionId == UNINIT_STATE_32) {
             continue;
         }
 
         // set start-values
         sectionId = sourceNode->targetSectionId;
-        section = &segment->synapseSections[sectionId];
+        section = &segment.synapseSections[sectionId];
 
         // delete if sections is empty
-        shouldDelete = reduceSynapses(segment, section);
+        shouldDelete = reduceSynapses(segment, *section);
         if(shouldDelete)
         {
-            segment->segmentData.deleteItem(sectionId);
+            segment.segmentData.deleteItem(sectionId);
             sourceNode->targetSectionId = UNINIT_STATE_32;
         }
     }
 }
 
-#endif // KYOUKOMIND_CREATE_RESUCE_H
+#endif // KYOUKOMIND_CREATE_REDUCE_H

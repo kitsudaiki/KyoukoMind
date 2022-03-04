@@ -54,6 +54,11 @@ CreateTemplate::CreateTemplate()
     assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                           "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
+    registerInputField("settings_override",
+                       SAKURA_MAP_TYPE,
+                       false,
+                       "Map with override information for the settings-block of the new template.");
+
     //----------------------------------------------------------------------------------------------
     // output
     //----------------------------------------------------------------------------------------------
@@ -81,6 +86,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string name = blossomLeaf.input.get("name").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
+    const JsonItem settingsOverride = blossomLeaf.input.get("settings_override");
 
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
@@ -116,7 +122,10 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfOutputs = dataSetInfo.get("outputs").getLong();
 
     //  generate new template
-    DataItem* generatedContent = generateNewTemplate(name, numberOfInputs, numberOfOutputs);
+    DataItem* generatedContent = generateNewTemplate(name,
+                                                     numberOfInputs,
+                                                     numberOfOutputs,
+                                                     settingsOverride);
     const std::string stringContent = generatedContent->toString();
     std::cout<<generatedContent->toString(true)<<std::endl;
 
@@ -174,13 +183,14 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
 DataMap*
 CreateTemplate::generateNewTemplate(const std::string name,
                                     const long numberOfInputNodes,
-                                    const long numberOfOutputNodes)
+                                    const long numberOfOutputNodes,
+                                    const JsonItem &settingsOverride)
 {
     DataMap* result = new DataMap();
     result->insert("name", new DataValue(name));
 
     createClusterSettings(result);
-    createSegments(result, numberOfInputNodes, numberOfOutputNodes);
+    createSegments(result, numberOfInputNodes, numberOfOutputNodes, settingsOverride);
 
     return result;
 }
@@ -211,13 +221,14 @@ CreateTemplate::createClusterSettings(DataMap* result)
 void
 CreateTemplate::createSegments(DataMap* result,
                                const long numberOfInputNodes,
-                               const long numberOfOutputNodes)
+                               const long numberOfOutputNodes,
+                               const JsonItem &settingsOverride)
 {
     DataArray* segments = new DataArray();
     result->insert("segments", segments);
 
     createInputSegments(segments, numberOfInputNodes);
-    createDynamicSegments(segments, numberOfInputNodes, numberOfOutputNodes);
+    createDynamicSegments(segments, numberOfInputNodes, numberOfOutputNodes, settingsOverride);
     createOutputSegments(segments, numberOfOutputNodes);
 }
 
@@ -254,7 +265,8 @@ CreateTemplate::createInputSegments(DataArray* result,
 void
 CreateTemplate::createDynamicSegments(DataArray* result,
                                       const long numberOfInputNodes,
-                                      const long numberOfOutputNodes)
+                                      const long numberOfOutputNodes,
+                                      const JsonItem &settingsOverride)
 {
     DataMap* newSegment = new DataMap();
 
@@ -262,7 +274,7 @@ CreateTemplate::createDynamicSegments(DataArray* result,
     newSegment->insert("type", new DataValue("dynamic_segment"));
     newSegment->insert("position", createPosition(1, 2, 1));
 
-    createSegmentSettings(newSegment);
+    createSegmentSettings(newSegment, settingsOverride);
     createSegmentBricks(newSegment, numberOfInputNodes, numberOfOutputNodes);
 
     result->append(newSegment);
@@ -274,7 +286,8 @@ CreateTemplate::createDynamicSegments(DataArray* result,
  * @param result pointer to the resulting object
  */
 void
-CreateTemplate::createSegmentSettings(DataMap* result)
+CreateTemplate::createSegmentSettings(DataMap* result,
+                                      const JsonItem &settingsOverride)
 {
     DataMap* settings = new DataMap();
 
@@ -284,13 +297,16 @@ CreateTemplate::createSegmentSettings(DataMap* result)
     settings->insert("node_cooldown", new DataValue(3000.0));
     settings->insert("memorizing", new DataValue(0.5));
     settings->insert("glia_value", new DataValue(1.1));
-    settings->insert("max_synapse_weight", new DataValue(0.025));
+    settings->insert("max_synapse_weight", new DataValue(0.05));
     settings->insert("sign_neg", new DataValue(0.5));
     settings->insert("potential_overflow", new DataValue(1.0));
     settings->insert("multiplicator_range", new DataValue(1));
-    settings->insert("node_lower_border", new DataValue(2.0));
-    settings->insert("node_upper_border", new DataValue(7.0));
     settings->insert("max_synapse_sections", new DataValue(2500));
+
+    const std::vector<std::string> keys = settingsOverride.getKeys();
+    for(const std::string &key : keys) {
+        settings->insert(key, settingsOverride.get(key).getItemContent()->copy(), true);
+    }
 
     result->insert("settings", settings);
 }

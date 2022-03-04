@@ -27,9 +27,6 @@
 #include <libKitsunemimiCommon/threading/thread.h>
 
 class AbstractSegment;
-class DynamicSegment;
-class InputSegment;
-class OutputSegment;
 
 class CpuProcessingUnit
         : public Kitsunemimi::Thread

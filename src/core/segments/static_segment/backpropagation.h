@@ -28,7 +28,7 @@
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
 
-#include "node.h"
+#include "objects.h"
 #include "static_segment.h"
 
 /**
@@ -38,18 +38,18 @@
  * @param segment segment where the brick belongs to
  */
 inline void
-backpropagateOutput(Brick* brick,
-                    StaticSegment* segment)
+backpropagateOutput(const Brick &brick,
+                    const StaticSegment &segment)
 {
     StaticNode* node = nullptr;
 
     // iterate over all nodes within the brick
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
-        node = &segment->nodes[nodeId];
-        node->delta = segment->inputTransfers[node->targetBorderId];
+        node = &segment.nodes[nodeId];
+        node->delta = segment.inputTransfers[node->targetBorderId];
     }
 }
 
@@ -59,18 +59,18 @@ backpropagateOutput(Brick* brick,
  * @param segment
  */
 inline void
-backpropagateInput(Brick* brick,
-                   StaticSegment* segment)
+backpropagateInput(const Brick &brick,
+                   const StaticSegment &segment)
 {
     StaticNode* node = nullptr;
 
     // iterate over all nodes within the brick
-    for(uint32_t i = brick->nodePos;
-        i < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t i = brick.nodePos;
+        i < brick.numberOfNodes + brick.nodePos;
         i++)
     {
-        node = &segment->nodes[i];
-        segment->outputTransfers[node->targetBorderId] = node->delta;
+        node = &segment.nodes[i];
+        segment.outputTransfers[node->targetBorderId] = node->delta;
     }
 }
 
@@ -81,30 +81,30 @@ backpropagateInput(Brick* brick,
  * @param segment pointer to currect segment to process, which contains the brick
  */
 inline void
-backpropagateNodes(Brick* brick,
-                   Brick* lastBrick,
-                   StaticSegment* segment)
+backpropagateNodes(const Brick &brick,
+                   const Brick &lastBrick,
+                   const StaticSegment &segment)
 {
     StaticNode* node = nullptr;
     float outH = 0.0f;
-    StaticNode* lastNodes = &segment->nodes[lastBrick->nodePos];
+    StaticNode* lastNodes = &segment.nodes[lastBrick.nodePos];
     StaticNode* lastNode = nullptr;
     float* connections = nullptr;
 
     // iterate over all nodes within the brick
-    for(uint32_t nodeId = brick->nodePos;
-        nodeId < brick->numberOfNodes + brick->nodePos;
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
-        node = &segment->nodes[nodeId];
+        node = &segment.nodes[nodeId];
 
         // step 1
         outH = node->value;
         node->delta *= outH * (1.0f - outH);
 
-        connections = &segment->connections[node->targetConnectionPos];
+        connections = &segment.connections[node->targetConnectionPos];
 
-        for(uint32_t j = 0; j < brick->numberOfNodes; j++)
+        for(uint32_t j = 0; j < brick.numberOfNodes; j++)
         {
             lastNode = &lastNodes[j];
 
@@ -118,26 +118,26 @@ backpropagateNodes(Brick* brick,
 }
 
 void
-rewightStaticSegment(StaticSegment* segment)
+rewightStaticSegment(const StaticSegment &segment)
 {
-    const uint32_t numberOfBricks = segment->segmentHeader->bricks.count;
+    const uint32_t numberOfBricks = segment.segmentHeader->bricks.count;
 
     // run back-propagation over all internal nodes and synapses
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
-        Brick* brick = &segment->bricks[pos];
+        Brick* brick = &segment.bricks[pos];
         if(brick->isOutputBrick)
         {
-            backpropagateOutput(brick, segment);
-            backpropagateNodes(brick, &segment->bricks[pos - 1], segment);
+            backpropagateOutput(*brick, segment);
+            backpropagateNodes(*brick, segment.bricks[pos - 1], segment);
         }
         else if(brick->isInputBrick)
         {
-            backpropagateInput(brick, segment);
+            backpropagateInput(*brick, segment);
         }
         else
         {
-            backpropagateNodes(brick, &segment->bricks[pos - 1], segment);
+            backpropagateNodes(*brick, segment.bricks[pos - 1], segment);
         }
     }
 }

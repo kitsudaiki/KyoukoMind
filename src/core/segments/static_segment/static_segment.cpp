@@ -104,6 +104,8 @@ StaticSegment::connectBorderBuffer()
     StaticNode* node = nullptr;
     Brick* brick = nullptr;
 
+    uint64_t transferCounter = 0;
+
     for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
     {
         brick = &bricks[i];
@@ -113,19 +115,26 @@ StaticSegment::connectBorderBuffer()
         {
             for(uint32_t j = 0; j < brick->numberOfNodes; j++)
             {
+                if(transferCounter >= segmentHeader->inputTransfers.count) {
+                    break;
+                }
                 node = &nodes[brick->nodePos + j];
-                node->targetBorderId = j;
+                node->targetBorderId = transferCounter;
+                transferCounter++;
             }
         }
 
         // connect output-bricks with border-buffer
         if(brick->isOutputBrick)
         {
-            const u_int32_t maxOutputs = segmentHeader->outputTransfers.count;
             for(uint32_t j = 0; j < brick->numberOfNodes; j++)
             {
+                if(transferCounter >= segmentHeader->outputTransfers.count) {
+                    break;
+                }
                 node = &nodes[brick->nodePos + j];
-                node->targetBorderId = (maxOutputs - 10) + j;  // TODO: fix hard-coded 10
+                node->targetBorderId = transferCounter;
+                transferCounter++;
             }
         }
     }

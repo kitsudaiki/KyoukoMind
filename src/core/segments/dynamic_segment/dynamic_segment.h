@@ -27,8 +27,7 @@
 
 #include <core/segments/abstract_segment.h>
 
-#include "node.h"
-#include "synapses.h"
+#include "objects.h"
 
 class DynamicSegment
         : public AbstractSegment

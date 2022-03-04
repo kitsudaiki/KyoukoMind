@@ -29,8 +29,8 @@
 #include <core/segments/output_segment/output_segment.h>
 #include <core/cluster/cluster.h>
 
-#include <core/segments/dynamic_segment/node.h>
-#include <core/segments/dynamic_segment/node.h>
+#include <core/segments/dynamic_segment/objects.h>
+#include <core/segments/dynamic_segment/objects.h>
 
 #include <core/routing_functions.h>
 #include <core/cluster/cluster_init.h>

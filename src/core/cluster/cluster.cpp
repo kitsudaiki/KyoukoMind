@@ -194,7 +194,7 @@ Cluster::updateClusterState()
     if(m_mode == LEARN_FORWARD_MODE)
     {
         // calc error of clearning-step and make back-propagation if necessary
-        const float error = calcTotalError(outputSegments[0]);
+        const float error = calcTotalError(*outputSegments[0]);
         if(error > 0.1f) // TODO: make configurable
         {
             startBackwardLearnCycle();

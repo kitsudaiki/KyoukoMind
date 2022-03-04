@@ -27,7 +27,7 @@
 
 #include <core/segments/abstract_segment.h>
 
-#include "node.h"
+#include "objects.h"
 
 class OutputSegment
         : public AbstractSegment

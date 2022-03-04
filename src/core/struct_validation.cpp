@@ -26,8 +26,7 @@
 #include <core/cluster/cluster.h>
 #include <core/segments/brick.h>
 
-#include <core/segments/dynamic_segment/node.h>
-#include <core/segments/dynamic_segment/synapses.h>
+#include <core/segments/dynamic_segment/objects.h>
 
 /**
  * @brief validate to sized of all structs to ensure, that they have all the defined size of 2^x
