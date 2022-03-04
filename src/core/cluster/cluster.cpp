@@ -215,6 +215,7 @@ Cluster::updateClusterState()
     }
     else
     {
+        // update progress-counter
         actualTask->actualCycle++;
         const float actualF = static_cast<float>(actualTask->actualCycle);
         const float shouldF = static_cast<float>(actualTask->numberOfCycle);

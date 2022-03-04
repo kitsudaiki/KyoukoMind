@@ -39,7 +39,6 @@
 #include <core/segments/static_segment/backpropagation.h>
 #include <core/segments/static_segment/processing.h>
 
-#include <core/segments/output_segment/backpropagation.h>
 #include <core/segments/output_segment/processing.h>
 
 #include <core/segments/input_segment/processing.h>
@@ -70,7 +69,7 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             seg->dynamicSegmentSettings->doLearn = 1;
             prcessDynamicSegment(*seg);
-            hardenSegment(*seg);
+            //hardenSegment(*seg);
             seg->dynamicSegmentSettings->doLearn = 0;
             break;
         }

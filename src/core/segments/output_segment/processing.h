@@ -95,12 +95,35 @@ getHighestOutput(const OutputSegment &segment)
 inline void
 prcessOutputSegment(const OutputSegment &segment)
 {
-    const uint32_t numberOfOutputs = segment.segmentHeader->outputs.count;
+    OutputNode* node = nullptr;
+
     float* inputTransfers = segment.inputTransfers;
-    for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment.segmentHeader->outputs.count;
+        outputNodeId++)
     {
-        OutputNode* node = &segment.outputs[pos];
+        node = &segment.outputs[outputNodeId];
         node->outputWeight = inputTransfers[node->targetBorderId];
+    }
+}
+
+/**
+ * @brief backpropagate output
+ *
+ * @param segment pointer to currect output-segment to process
+ */
+inline void
+backpropagateOutput(const OutputSegment &segment)
+{
+    OutputNode out;
+
+    // iterate over all output-nodes
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment.segmentHeader->outputs.count;
+        outputNodeId++)
+    {
+        out = segment.outputs[outputNodeId];
+        segment.outputTransfers[out.targetBorderId] = (out.outputWeight - out.shouldValue);
     }
 }
 

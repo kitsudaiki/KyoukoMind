@@ -29,8 +29,87 @@
 #include <core/segments/brick.h>
 
 #include "objects.h"
-#include "create_reduce.h"
 #include "dynamic_segment.h"
+
+/**
+ * @brief add new basic synapse-section to segment
+ *
+ * @param segment refernce to segment
+ *
+ * @return position in buffer, where the section was added
+ */
+inline uint64_t
+createNewSection(DynamicSegment &segment)
+{
+    SynapseSection newSection;
+    newSection.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+    newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
+    newSection.brickBufferPos = KyoukoRoot::m_randomValues[newSection.randomPos] % 1000;
+
+    return segment.segmentData.addNewItem(newSection);
+}
+
+/**
+ * @brief initialize a new specific synapse
+ *
+ * @param section current processed synapse-section
+ * @param synapse new synapse, which has to be initialized
+ * @param bricks array of all bricks
+ * @param sourceNode source-node, who triggered the section
+ * @param segmentSettings settings of the section
+ * @param remainingWeight weight of which to cut of a part for the new synapse
+ */
+inline void
+createNewSynapse(SynapseSection &section,
+                 Synapse* synapse,
+                 Brick* bricks,
+                 const DynamicNode &sourceNode,
+                 const DynamicSegmentSettings &segmentSettings,
+                 const float remainingWeight)
+{
+    float randomMulti = 0.0f;
+    float random = 0.0f;
+    float doLearn = 0.0f;
+    uint32_t targetNodeIdInBrick = 0;
+    Brick* nodeBrick = nullptr;
+    uint32_t signRand = 0;
+    const uint32_t* randomValues = KyoukoRoot::m_randomValues;
+    const float randMax = static_cast<float>(RAND_MAX);
+
+    const float maxWeight = segmentSettings.maxSynapseWeight;
+
+    // set new weight
+    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    random = static_cast<float>(randomValues[section.randomPos]) / randMax;
+    doLearn = maxWeight * random;
+    synapse->weight = static_cast<float>(remainingWeight < doLearn) * remainingWeight
+                      + static_cast<float>(remainingWeight >= doLearn) * doLearn;
+
+    // set activation-border
+    synapse->border = (synapse->weight * 255.0f) + 1;
+
+    // update weight with multiplicator
+    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    randomMulti = static_cast<float>(randomValues[section.randomPos]) / randMax;
+    synapse->weight *= randomMulti * static_cast<float>(segmentSettings.multiplicatorRange) + 1.0f;
+
+    // update weight with multiplicator
+    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    signRand = randomValues[section.randomPos] % 1000;
+    synapse->weight *= static_cast<float>(1 - (1000.0f * segmentSettings.signNeg > signRand) * 2);
+
+    // set target node id
+    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    nodeBrick = &bricks[sourceNode.brickId];
+    const uint32_t targetBrickId = nodeBrick->possibleTargetNodeBrickIds[section.brickBufferPos];
+
+    Brick* targetBrick = &bricks[targetBrickId];
+    targetNodeIdInBrick = randomValues[section.randomPos] % targetBrick->numberOfNodes;
+
+    synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + targetBrick->nodePos);
+    synapse->activeCounter = 1;
+    section.updated = 1;
+}
 
 /**
  * @brief process synapse-section
@@ -129,9 +208,11 @@ void initNode(DynamicNode* node)
  */
 inline void
 prepareNodesOfInputBrick(const Brick &brick,
-                         const DynamicSegment &segment)
+                         DynamicSegment &segment)
 {
+    float outH = 0.0f;
     DynamicNode* node = nullptr;
+    uint64_t newPos = 0;
 
     for(uint32_t nodeId = brick.nodePos;
         nodeId < brick.numberOfNodes + brick.nodePos;
@@ -142,6 +223,26 @@ prepareNodesOfInputBrick(const Brick &brick,
         node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
         initNode(node);
         node->input = 0.0f;
+
+        if(node->potential > 0.0f)
+        {
+            if(node->targetSectionId == UNINIT_STATE_32)
+            {
+                newPos = createNewSection(segment);
+                if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
+                    continue;
+                }
+
+                node->targetSectionId = newPos;
+            }
+
+            outH = 1.0f / (1.0f + exp(-1.0f * node->potential));
+            synapseProcessing(segment.synapseSections[node->targetSectionId],
+                              segment,
+                              *node,
+                              node->potential,
+                              outH);
+        }
     }
 }
 
@@ -156,6 +257,7 @@ prepareNodesOfOutputBrick(const Brick &brick,
                           const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
+    bool active = false;
 
     for(uint32_t nodeId = brick.nodePos;
         nodeId < brick.numberOfNodes + brick.nodePos;
@@ -164,8 +266,14 @@ prepareNodesOfOutputBrick(const Brick &brick,
         node = &segment.nodes[nodeId];
         node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
         node->potential = 1.0f / (1.0f + exp(-1.0f * node->potential));
-        segment.outputTransfers[node->targetBorderId] = node->potential;
+
         initNode(node);
+
+        active = node->potential > node->border;
+        if(active) {
+            segment.outputTransfers[node->targetBorderId] = node->potential;
+        }
+
         node->input = 0.0f;
     }
 }
@@ -178,9 +286,13 @@ prepareNodesOfOutputBrick(const Brick &brick,
  */
 inline void
 prepareNodesOfNormalBrick(const Brick &brick,
-                          const DynamicSegment &segment)
+                          DynamicSegment &segment)
 {
+    bool active = false;
+    float outH = 0.0f;
     DynamicNode* node = nullptr;
+    uint64_t newPos = 0;
+
 
     for(uint32_t nodeId = brick.nodePos;
         nodeId < brick.numberOfNodes + brick.nodePos;
@@ -190,45 +302,7 @@ prepareNodesOfNormalBrick(const Brick &brick,
         node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
         initNode(node);
         node->input = 0.0f;
-    }
-}
 
-/**
- * @brief process all nodes within a specific brick and also all synapse-sections,
- *        which are connected to an active node
- *
- * @param brick brick, which should be processed
- * @param segment segment to process
- */
-inline void
-nodeProcessing(const Brick &brick,
-               DynamicSegment &segment)
-{
-    bool active = false;
-    float outH = 0.0f;
-    DynamicNode* node = nullptr;
-    uint64_t newPos = 0;
-
-    if(brick.isInputBrick)
-    {
-        prepareNodesOfInputBrick(brick, segment);
-    }
-    else if(brick.isOutputBrick)
-    {
-        prepareNodesOfOutputBrick(brick, segment);
-        return;
-    }
-    else
-    {
-        prepareNodesOfNormalBrick(brick, segment);
-    }
-
-    // process all synapse-sections, which are connected to an active node within the brick
-    for(uint32_t nodeId = brick.nodePos;
-        nodeId < brick.numberOfNodes + brick.nodePos;
-        nodeId++)
-    {
-        node = &segment.nodes[nodeId];
         active = node->potential > node->border;
         if(active)
         {
@@ -268,7 +342,13 @@ prcessDynamicSegment(DynamicSegment &segment)
     {
         const uint32_t brickId = segment.brickOrder[pos];
         Brick* brick = &segment.bricks[brickId];
-        nodeProcessing(*brick, segment);
+        if(brick->isInputBrick) {
+            prepareNodesOfInputBrick(*brick, segment);
+        } else if(brick->isOutputBrick) {
+            prepareNodesOfOutputBrick(*brick, segment);
+        } else {
+            prepareNodesOfNormalBrick(*brick, segment);
+        }
     }
 }
 
