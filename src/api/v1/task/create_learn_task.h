@@ -39,13 +39,6 @@ protected:
                  const Kitsunemimi::DataMap &context,
                  Kitsunemimi::Sakura::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
-
-private:
-    bool m_devMode = false;
-    const std::string testMode(const std::string &clusterUuid,
-                               const std::string &inputData,
-                               const std::string &labelData,
-                               Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // KYOUKOMIND_CREATELEARNTASK_H
