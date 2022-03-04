@@ -39,7 +39,6 @@ protected:
     void run();
 
     void learnSegmentForward(AbstractSegment* segment);
-    void learnSegmentBackward(AbstractSegment* segment);
     void processSegment(AbstractSegment* segment);
 };
 

@@ -27,35 +27,10 @@
 
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
+#include <core/cluster/cluster.h>
 
 #include "objects.h"
 #include "output_segment.h"
-
-/**
- * @brief calculate the total error of all outputs of a specific segment
- *
- * @param segment segment of which one the total error has to be calculated
- *
- * @return total error value
- */
-inline float
-calcTotalError(const OutputSegment &segment)
-{
-    float totalError = 0.0f;
-    OutputNode* out = nullptr;
-    float diff = 0.0f;
-
-    for(uint64_t outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
-    {
-        out = &segment.outputs[outputNodeId];
-        diff = (out->shouldValue - out->outputWeight);
-        totalError += 0.5f * (diff * diff);
-    }
-
-    return totalError;
-}
 
 /**
  * @brief get position of the highest output-position
@@ -96,6 +71,7 @@ inline void
 prcessOutputSegment(const OutputSegment &segment)
 {
     OutputNode* node = nullptr;
+    const float doLearn = static_cast<float>(segment.dynamicSegmentSettings->doLearn);
 
     float* inputTransfers = segment.inputTransfers;
     for(uint64_t outputNodeId = 0;
@@ -104,26 +80,8 @@ prcessOutputSegment(const OutputSegment &segment)
     {
         node = &segment.outputs[outputNodeId];
         node->outputWeight = inputTransfers[node->targetBorderId];
-    }
-}
-
-/**
- * @brief backpropagate output
- *
- * @param segment pointer to currect output-segment to process
- */
-inline void
-backpropagateOutput(const OutputSegment &segment)
-{
-    OutputNode out;
-
-    // iterate over all output-nodes
-    for(uint64_t outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
-    {
-        out = segment.outputs[outputNodeId];
-        segment.outputTransfers[out.targetBorderId] = (out.outputWeight - out.shouldValue);
+        segment.outputTransfers[node->targetBorderId] = (node->outputWeight - node->shouldValue)
+                                                        * doLearn;
     }
 }
 

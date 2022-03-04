@@ -119,7 +119,7 @@ Cluster::startForwardLearnCycle()
 
     // set cluster mode
     if(actualTask->type == LEARN_TASK) {
-        m_mode = LEARN_FORWARD_MODE;
+        m_mode = LEARN_MODE;
     }
 
     // set input
@@ -154,31 +154,6 @@ Cluster::startForwardLearnCycle()
 }
 
 /**
- * @brief start a new backward learn-cycle
- */
-void
-Cluster::startBackwardLearnCycle()
-{
-    // set cluster mode
-    m_mode = LEARN_BACKWARD_MODE;
-
-    // set ready-states of all neighbors of all segments
-    for(AbstractSegment* segment: allSegments)
-    {
-        for(uint8_t side = 0; side < 12; side++)
-        {
-            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
-            neighbor->inputReady = true;
-            if(neighbor->direction == OUTPUT_DIRECTION) {
-                neighbor->inputReady = false;
-            }
-        }
-    }
-
-    KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
-}
-
-/**
  * @brief NetworkCluster::updateClusterState
  */
 void
@@ -191,16 +166,6 @@ Cluster::updateClusterState()
 
     m_segmentCounter = 0;
 
-    if(m_mode == LEARN_FORWARD_MODE)
-    {
-        // calc error of clearning-step and make back-propagation if necessary
-        const float error = calcTotalError(*outputSegments[0]);
-        if(error > 0.1f) // TODO: make configurable
-        {
-            startBackwardLearnCycle();
-            return;
-        }
-    }
 
     std::lock_guard<std::mutex> guard(m_task_mutex);
 

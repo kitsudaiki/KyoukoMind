@@ -68,8 +68,8 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             seg->dynamicSegmentSettings->doLearn = 1;
+            rewightDynamicSegment(*seg);
             prcessDynamicSegment(*seg);
-            //hardenSegment(*seg);
             seg->dynamicSegmentSettings->doLearn = 0;
             break;
         }
@@ -88,40 +88,10 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
         case OUTPUT_SEGMENT:
         {
             OutputSegment* seg = static_cast<OutputSegment*>(segment);
+            seg->dynamicSegmentSettings->doLearn = 1;
             prcessOutputSegment(*seg);
-            break;
-        }
-        default:
-            break;
-    }
-}
+            seg->dynamicSegmentSettings->doLearn = 0;
 
-/**
- * @brief run back-propagation on a segment
- *
- * @param segment segment to process
- */
-void
-CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
-{
-    switch(segment->getType())
-    {
-        case DYNAMIC_SEGMENT:
-        {
-            DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-            rewightDynamicSegment(*seg);
-            break;
-        }
-        case STATIC_SEGMENT:
-        {
-            StaticSegment* seg = static_cast<StaticSegment*>(segment);
-            rewightStaticSegment(*seg);
-            break;
-        }
-        case OUTPUT_SEGMENT:
-        {
-            OutputSegment* seg = static_cast<OutputSegment*>(segment);
-            backpropagateOutput(*seg);
             break;
         }
         default:
@@ -197,10 +167,8 @@ CpuProcessingUnit::run()
 
             // handle type of processing
             Cluster* clusterInterface = currentSegment->parentCluster;
-            if(clusterInterface->getMode() == Cluster::LEARN_FORWARD_MODE) {
+            if(clusterInterface->getMode() == Cluster::LEARN_MODE) {
                 learnSegmentForward(currentSegment);
-            } else if(clusterInterface->getMode() == Cluster::LEARN_BACKWARD_MODE) {
-                learnSegmentBackward(currentSegment);
             } else {
                 processSegment(currentSegment);
             }

@@ -90,17 +90,48 @@ correctNewOutputSynapses(const Brick &brick,
 }
 
 /**
+ * @brief calculate the total error of all outputs of a specific segment
+ *
+ * @param segment segment of which one the total error has to be calculated
+ *
+ * @return total error value
+ */
+inline float
+calcTotalError(const Brick &brick,
+               const DynamicSegment &segment)
+{
+    float totalError = 0.0f;
+    DynamicNode* node = nullptr;
+    float diff = 0.0f;
+
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
+        nodeId++)
+    {
+        node = &segment.nodes[nodeId];
+        diff = segment.inputTransfers[node->targetBorderId];
+        totalError += 0.5f * (diff * diff);
+    }
+
+    return totalError;
+}
+
+/**
  * @brief backpropagate values of an output-brick
  *
  * @param brick brick to process
  * @param segment segment where the brick belongs to
  */
-inline void
+inline bool
 backpropagateOutput(const Brick &brick,
                     const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
     float outH = 0.0f;
+
+    if(calcTotalError(brick, segment) < 0.1f) {
+        return false;
+    }
 
     // iterate over all nodes within the brick
     for(uint32_t nodeId = brick.nodePos;
@@ -112,6 +143,8 @@ backpropagateOutput(const Brick &brick,
         outH = node->potential;
         node->delta *= outH * (1.0f - outH);
     }
+
+    return true;
 }
 
 /**
@@ -184,16 +217,24 @@ backpropagateNodes(const Brick &brick,
 void
 rewightDynamicSegment(const DynamicSegment &segment)
 {
-    const uint32_t numberOfBricks = segment.segmentHeader->bricks.count;
+    if(segment.dynamicSegmentSettings->doLearn == 0) {
+        return;
+    }
 
     // run back-propagation over all internal nodes and synapses
+    const uint32_t numberOfBricks = segment.segmentHeader->bricks.count;
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
         const uint32_t brickId = segment.brickOrder[pos];
         Brick* brick = &segment.bricks[brickId];
-        if(brick->isOutputBrick) {
-            backpropagateOutput(*brick, segment);
-        } else {
+        if(brick->isOutputBrick)
+        {
+            if(backpropagateOutput(*brick, segment) == false) {
+                return;
+            }
+        }
+        else
+        {
             backpropagateNodes(*brick, segment);
         }
     }
