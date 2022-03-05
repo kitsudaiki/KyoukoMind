@@ -32,64 +32,6 @@
 #include "objects.h"
 
 /**
- * @brief correct new created synapses, which are directly connected to the output and fix the
- *        sign of the values based on the should-value, to force the output in the right direction
- *
- * @param brick pointer to output-brick
- * @param segment pointer to currect segment to process, which contains the brick
- */
-inline void
-correctNewOutputSynapses(const Brick &brick,
-                         const DynamicSegment &segment)
-{
-    uint16_t pos = 0;
-    DynamicNode* sourceNode = nullptr;
-    SynapseSection* section = nullptr;
-    Synapse* synapse = nullptr;
-    float netH = 0.0f;
-    float delta = 0.0f;
-    float invert = 0.0f;
-
-    // iterate over all nodes within the brick
-    for(uint32_t nodeId = brick.nodePos;
-        nodeId < brick.numberOfNodes + brick.nodePos;
-        nodeId++)
-    {
-        // skip section, if not active
-        sourceNode = &segment.nodes[nodeId];
-        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
-            continue;
-        }
-        section = &segment.synapseSections[sourceNode->targetSectionId];
-
-        // set start-values
-        pos = section->hardening;
-        netH = sourceNode->potential;
-
-        // iterate over all synapses in the section
-        while(pos < SYNAPSES_PER_SYNAPSESECTION
-              && netH > 0.0f)
-        {
-            // break look, if no more synapses to process
-            synapse = &section->synapses[pos];
-            if(synapse->targetNodeId == UNINIT_STATE_16) {
-                break;
-            }
-
-            // correct weight-value, if necessary
-            delta = segment.nodes[synapse->targetNodeId].delta;
-            invert = (delta < 0.0f && synapse->weight < 0.0f)
-                     || (delta > 0.0f && synapse->weight > 0.0f);
-            synapse->weight += -2.0f * invert * synapse->weight;
-
-            // update loop-counter
-            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-            pos++;
-        }
-    }
-}
-
-/**
  * @brief calculate the total error of all outputs of a specific segment
  *
  * @param segment segment of which one the total error has to be calculated
@@ -163,7 +105,7 @@ backpropagateNodes(const Brick &brick,
     Synapse* synapse = nullptr;
     float netH = 0.0f;
     float outH = 0.0f;
-    float learnValue = 0.0f;
+    float learnValue = 0.2f;
 
     // iterate over all nodes within the brick
     for(uint32_t nodeId = brick.nodePos;
@@ -182,6 +124,7 @@ backpropagateNodes(const Brick &brick,
         netH = sourceNode->potential;
         outH = 1.0f / (1.0f + exp(-1.0f * netH));
         sourceNode->delta = 0.0f;
+
         // iterate over all synapses in the section
         while(pos < SYNAPSES_PER_SYNAPSESECTION
               && netH > 0.0f)
@@ -191,14 +134,16 @@ backpropagateNodes(const Brick &brick,
             if(synapse->targetNodeId == UNINIT_STATE_16) {
                 break;
             }
+            else if(synapse->targetNodeId == 0)
+            {
+                pos++;
+                continue;
+            }
 
             // update weight
-            learnValue = static_cast<float>(pos <= section->hardening) * 0.1f
-                         + static_cast<float>(pos > section->hardening) * 0.2f;
             sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
             synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 
-            // update loop-counter
             netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             pos++;
         }

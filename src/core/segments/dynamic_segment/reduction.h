@@ -43,45 +43,6 @@ inline bool
 reduceSynapses(DynamicSegment &segment,
                SynapseSection &section)
 {
-    Synapse* synapse = nullptr;
-    Synapse currentSyn;
-    uint32_t currentPos = 0;
-
-    // iterate over all synapses in synapse-section
-    currentPos = section.hardening;
-    for(uint32_t lastPos = section.hardening;
-        lastPos < SYNAPSES_PER_SYNAPSESECTION;
-        lastPos++)
-    {
-        // skip not connected synapses
-        synapse = &section.synapses[lastPos];
-        if(synapse->targetNodeId == UNINIT_STATE_16) {
-            continue;
-        }
-
-        // update dynamic-weight-value of the synapse
-        if(segment.nodes[synapse->targetNodeId].active == 0) {
-            synapse->activeCounter = -2;
-        } else {
-            synapse->activeCounter = -2;
-        }
-
-        // check for deletion of the single synapse
-        if(synapse->activeCounter < 0)
-        {
-            synapse->weight = 0.0f;
-            synapse->targetNodeId = UNINIT_STATE_16;
-            synapse->border = 0;
-        }
-        else
-        {
-            currentSyn = section.synapses[currentPos];
-            section.synapses[currentPos] = section.synapses[lastPos];
-            section.synapses[lastPos] = currentSyn;
-            currentPos++;
-        }
-    }
-
     if(section.next != UNINIT_STATE_32)
     {
         // delete if sections is empty
@@ -93,10 +54,35 @@ reduceSynapses(DynamicSegment &segment,
         }
     }
 
-    const bool shouldDelete = section.hardening == 0
-                              && currentPos == 0
-                              && section.next == UNINIT_STATE_32;
-    return shouldDelete;
+    Synapse* synapse = nullptr;
+    bool foundEnd = section.next != UNINIT_STATE_32;
+
+    // iterate over all synapses in synapse-section
+    for(int32_t pos = SYNAPSES_PER_SYNAPSESECTION - 1;
+        pos >= 0;
+        pos--)
+    {
+        // skip not connected synapses
+        synapse = &section.synapses[pos];
+        if(synapse->targetNodeId == UNINIT_STATE_16) {
+            continue;
+        }
+
+        if(synapse->targetNodeId == 0)
+        {
+            if(foundEnd == false) {
+                synapse->targetNodeId = UNINIT_STATE_16;
+            }
+
+            continue;
+        }
+
+        foundEnd = true;
+        synapse->activeCounter -= synapse->activeCounter < 100;
+        synapse->targetNodeId = synapse->targetNodeId * (synapse->activeCounter >= 2);
+    }
+
+    return foundEnd;
 }
 
 /**

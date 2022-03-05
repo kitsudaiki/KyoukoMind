@@ -131,7 +131,9 @@ synapseProcessing(SynapseSection &section,
     float netH = weightIn;
     bool createSyn = false;
     Synapse* synapse = nullptr;
+    DynamicNode* targetNode = nullptr;
     section.updated = 0;
+    uint8_t active = 0;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -139,7 +141,6 @@ synapseProcessing(SynapseSection &section,
     {
         synapse = &section.synapses[pos];
         createSyn = synapse->targetNodeId == UNINIT_STATE_16
-                    && pos >= section.hardening
                     && segment.dynamicSegmentSettings->doLearn > 0;
         // create new synapse if necesarry and learning is active
         if(createSyn)
@@ -156,10 +157,20 @@ synapseProcessing(SynapseSection &section,
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             break;
         }
+        else if(synapse->targetNodeId == 0)
+        {
+            pos++;
+            continue;
+        }
 
-        // update synapse
-        segment.nodes[synapse->targetNodeId].input += outH * synapse->weight;
-        synapse->activeCounter += (synapse->activeCounter < 126);
+        // update target-node
+        targetNode = &segment.nodes[synapse->targetNodeId];
+        targetNode->input += outH * synapse->weight;
+
+        // update active-counter
+        active = (synapse->weight > 0 && targetNode->input > 0.0f);
+        active = active || (synapse->weight < 0 && targetNode->input < 0.0f);
+        synapse->activeCounter += active * static_cast<uint8_t>(synapse->activeCounter < 126);
 
         // update loop-counter
         netH -= static_cast<float>(synapse->border) * BORDER_STEP;
@@ -191,8 +202,8 @@ synapseProcessing(SynapseSection &section,
  *
  * @param node pointer to node to reset
  */
-inline
-void initNode(DynamicNode* node)
+inline void
+initNode(DynamicNode* node)
 {
     const bool initNode = node->isInit == false && node->input > 0.1f;
     node->isInit = node->isInit || initNode;

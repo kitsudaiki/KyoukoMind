@@ -34,7 +34,7 @@
 
 #include <core/segments/dynamic_segment/backpropagation.h>
 #include <core/segments/dynamic_segment/processing.h>
-#include <core/segments/dynamic_segment/create_reduce.h>
+#include <core/segments/dynamic_segment/reduction.h>
 
 #include <core/segments/static_segment/backpropagation.h>
 #include <core/segments/static_segment/processing.h>
@@ -70,6 +70,10 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
             seg->dynamicSegmentSettings->doLearn = 1;
             rewightDynamicSegment(*seg);
             prcessDynamicSegment(*seg);
+            if(reductionCounter == 100) {
+                reduceNodes(*seg);
+            }
+            reductionCounter++;
             seg->dynamicSegmentSettings->doLearn = 0;
             break;
         }

@@ -38,6 +38,8 @@ public:
 protected:
     void run();
 
+    uint64_t reductionCounter = 0;
+
     void learnSegmentForward(AbstractSegment* segment);
     void processSegment(AbstractSegment* segment);
 };
