@@ -141,6 +141,8 @@ backpropagateNodes(const Brick &brick,
             }
 
             // update weight
+            learnValue = static_cast<float>(100 - synapse->activeCounter) * 0.001f;
+            learnValue += 0.1f;
             sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
             synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 

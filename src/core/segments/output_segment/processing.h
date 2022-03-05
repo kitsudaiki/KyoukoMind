@@ -58,6 +58,7 @@ getHighestOutput(const OutputSegment &segment)
         }
     }
 
+    //std::cout<<"hightes: "<<hightestPos<<std::endl;
     return hightestPos;
 }
 
