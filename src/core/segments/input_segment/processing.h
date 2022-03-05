@@ -40,12 +40,16 @@
 void
 prcessInputSegment(const InputSegment &segment)
 {
-    const uint32_t numberOfInputs = segment.segmentHeader->inputs.count;
+    InputNode* node = nullptr;
+    const uint64_t numberOfInputs = segment.segmentHeader->inputs.count;
     float* outputTransfers = segment.outputTransfers;
-    for(uint32_t pos = 0; pos < numberOfInputs; pos++)
+
+    for(uint64_t pos = 0; pos < numberOfInputs; pos++)
     {
-        const InputNode tempNode = segment.inputs[pos];
-        outputTransfers[tempNode.targetBorderId] = tempNode.weight;
+        node = &segment.inputs[pos];
+        node->maxWeight = static_cast<float>(node->maxWeight >= node->weight) * node->maxWeight
+                          + static_cast<float>(node->maxWeight < node->weight) * node->weight;
+        outputTransfers[node->targetBorderId] = node->weight / node->maxWeight;
     }
 }
 

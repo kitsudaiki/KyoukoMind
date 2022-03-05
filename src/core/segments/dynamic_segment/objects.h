@@ -33,7 +33,6 @@ struct DynamicNode
     float input = 0.0f;
     float border = 100.0f;
     float potential = 0.0f;
-
     float delta = 0.0f;
 
     uint8_t refractionTime = 1;
@@ -46,7 +45,7 @@ struct DynamicNode
     uint32_t targetBorderId = UNINIT_STATE_32;
     uint32_t targetSectionId = UNINIT_STATE_32;
 
-    // total size: 32 Byte
+    // total size: 40 Byte
 };
 
 //==================================================================================================

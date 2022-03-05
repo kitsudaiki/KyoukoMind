@@ -73,6 +73,7 @@ prcessOutputSegment(const OutputSegment &segment)
 {
     OutputNode* node = nullptr;
     const float doLearn = static_cast<float>(segment.dynamicSegmentSettings->doLearn);
+    float* outputs = segment.outputTransfers;
 
     float* inputTransfers = segment.inputTransfers;
     for(uint64_t outputNodeId = 0;
@@ -80,9 +81,11 @@ prcessOutputSegment(const OutputSegment &segment)
         outputNodeId++)
     {
         node = &segment.outputs[outputNodeId];
-        node->outputWeight = inputTransfers[node->targetBorderId];
-        segment.outputTransfers[node->targetBorderId] = (node->outputWeight - node->shouldValue)
-                                                        * doLearn;
+        node->maxWeight = (node->maxWeight >= node->shouldValue) * node->maxWeight
+                          + (node->maxWeight < node->shouldValue) * node->shouldValue;
+
+        node->outputWeight = inputTransfers[node->targetBorderId] * node->maxWeight;
+        outputs[node->targetBorderId] = (node->outputWeight - node->shouldValue) * doLearn;
     }
 }
 

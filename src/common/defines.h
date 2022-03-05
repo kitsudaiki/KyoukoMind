@@ -38,5 +38,5 @@
 
 // processing
 #define NUMBER_OF_PROCESSING_UNITS 1
-#define BORDER_STEP (1.0f / 255.0f);
+#define BORDER_STEP (1.0f / 255.0f)
 #define NUMBER_OF_RAND_VALUES 10485760
