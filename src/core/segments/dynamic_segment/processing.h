@@ -160,6 +160,7 @@ synapseProcessing(SynapseSection &section,
         else if(synapse->targetNodeId == 0)
         {
             pos++;
+            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             continue;
         }
 
