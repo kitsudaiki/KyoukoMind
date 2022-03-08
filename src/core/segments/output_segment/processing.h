@@ -72,8 +72,6 @@ inline void
 prcessOutputSegment(const OutputSegment &segment)
 {
     OutputNode* node = nullptr;
-    const float doLearn = static_cast<float>(segment.dynamicSegmentSettings->doLearn);
-    float* outputs = segment.outputTransfers;
 
     float* inputTransfers = segment.inputTransfers;
     for(uint64_t outputNodeId = 0;
@@ -85,7 +83,26 @@ prcessOutputSegment(const OutputSegment &segment)
                           + (node->maxWeight < node->shouldValue) * node->shouldValue;
 
         node->outputWeight = inputTransfers[node->targetBorderId] * node->maxWeight;
-        outputs[node->targetBorderId] = (node->outputWeight - node->shouldValue) * doLearn;
+    }
+}
+
+/**
+ * @brief backpropagate output
+ *
+ * @param segment pointer to currect output-segment to process
+ */
+inline void
+backpropagateOutput(const OutputSegment &segment)
+{
+    OutputNode out;
+
+    // iterate over all output-nodes
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment.segmentHeader->outputs.count;
+        outputNodeId++)
+    {
+        out = segment.outputs[outputNodeId];
+        segment.outputTransfers[out.targetBorderId] = out.outputWeight - out.shouldValue;
     }
 }
 

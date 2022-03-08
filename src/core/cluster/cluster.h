@@ -74,7 +74,8 @@ public:
     enum ClusterMode
     {
         NORMAL_MODE = 0,
-        LEARN_MODE = 1,
+        LEARN_FORWARD_MODE = 1,
+        LEARN_BACKWARD_MODE = 2,
     };
     ClusterMode getMode() const;
     uint32_t m_segmentCounter = 0;
@@ -93,6 +94,7 @@ private:
     ClusterMode m_mode = NORMAL_MODE;
 
     void startForwardLearnCycle();
+    void startBackwardLearnCycle();
 };
 
 #endif // KYOUKOMIND_CLUSTER_INTERFACE_H

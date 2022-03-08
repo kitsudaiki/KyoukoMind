@@ -71,6 +71,7 @@ backpropagateOutput(const Brick &brick,
     DynamicNode* node = nullptr;
     float outH = 0.0f;
 
+    // TODO: make error-border configurable
     if(calcTotalError(brick, segment) < 0.1f) {
         return false;
     }
@@ -178,7 +179,6 @@ backpropagateNodes(const Brick &brick,
         const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
         sourceNode->delta = 0.0f;
 
-
         backpropagateSection(section,
                              sourceNode,
                              netH,
@@ -200,10 +200,6 @@ backpropagateNodes(const Brick &brick,
 void
 rewightDynamicSegment(const DynamicSegment &segment)
 {
-    if(segment.dynamicSegmentSettings->doLearn == 0) {
-        return;
-    }
-
     // run back-propagation over all internal nodes and synapses
     const uint32_t numberOfBricks = segment.segmentHeader->bricks.count;
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
