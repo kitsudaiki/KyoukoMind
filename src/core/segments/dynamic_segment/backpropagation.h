@@ -32,33 +32,6 @@
 #include "objects.h"
 
 /**
- * @brief calculate the total error of all outputs of a specific segment
- *
- * @param segment segment of which one the total error has to be calculated
- *
- * @return total error value
- */
-inline float
-calcTotalError(const Brick &brick,
-               const DynamicSegment &segment)
-{
-    float totalError = 0.0f;
-    DynamicNode* node = nullptr;
-    float diff = 0.0f;
-
-    for(uint32_t nodeId = brick.nodePos;
-        nodeId < brick.numberOfNodes + brick.nodePos;
-        nodeId++)
-    {
-        node = &segment.nodes[nodeId];
-        diff = segment.inputTransfers[node->targetBorderId];
-        totalError += 0.5f * (diff * diff);
-    }
-
-    return totalError;
-}
-
-/**
  * @brief backpropagate values of an output-brick
  *
  * @param brick brick to process
@@ -69,12 +42,7 @@ backpropagateOutput(const Brick &brick,
                     const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
-    float outH = 0.0f;
-
-    // TODO: make error-border configurable
-    if(calcTotalError(brick, segment) < 0.1f) {
-        return false;
-    }
+    float totalDelta = 0.0f;
 
     // iterate over all nodes within the brick
     for(uint32_t nodeId = brick.nodePos;
@@ -83,11 +51,10 @@ backpropagateOutput(const Brick &brick,
     {
         node = &segment.nodes[nodeId];
         node->delta = segment.inputTransfers[node->targetBorderId];
-        outH = node->potential;
-        node->delta *= outH * (1.0f - outH);
+        totalDelta += node->delta;
     }
 
-    return true;
+    return totalDelta > 0.01f || totalDelta < -0.01f;
 }
 
 /**

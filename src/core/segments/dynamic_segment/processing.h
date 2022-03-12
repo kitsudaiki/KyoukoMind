@@ -269,7 +269,6 @@ prepareNodesOfOutputBrick(const Brick &brick,
                           const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
-    bool active = false;
 
     for(uint32_t nodeId = brick.nodePos;
         nodeId < brick.numberOfNodes + brick.nodePos;
@@ -277,15 +276,7 @@ prepareNodesOfOutputBrick(const Brick &brick,
     {
         node = &segment.nodes[nodeId];
         node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
-        node->potential = 1.0f / (1.0f + exp(-1.0f * node->potential));
-
-        initNode(node);
-
-        active = node->potential > node->border;
-        if(active) {
-            segment.outputTransfers[node->targetBorderId] = node->potential;
-        }
-
+        segment.outputTransfers[node->targetBorderId] = node->potential;
         node->input = 0.0f;
     }
 }

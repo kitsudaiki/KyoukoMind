@@ -82,7 +82,9 @@ prcessOutputSegment(const OutputSegment &segment)
         node->maxWeight = (node->maxWeight >= node->shouldValue) * node->maxWeight
                           + (node->maxWeight < node->shouldValue) * node->shouldValue;
 
-        node->outputWeight = inputTransfers[node->targetBorderId] * node->maxWeight;
+        node->outputWeight = inputTransfers[node->targetBorderId];
+        node->outputWeight = 1.0f / (1.0f + exp(-1.0f * node->outputWeight));
+        node->outputWeight *= node->maxWeight;
     }
 }
 
@@ -95,6 +97,7 @@ inline void
 backpropagateOutput(const OutputSegment &segment)
 {
     OutputNode out;
+    float delta = 0.0f;
 
     // iterate over all output-nodes
     for(uint64_t outputNodeId = 0;
@@ -102,7 +105,11 @@ backpropagateOutput(const OutputSegment &segment)
         outputNodeId++)
     {
         out = segment.outputs[outputNodeId];
-        segment.outputTransfers[out.targetBorderId] = out.outputWeight - out.shouldValue;
+
+        delta = (out.outputWeight - out.shouldValue);
+        delta *= out.outputWeight * (1.0f - out.outputWeight);
+
+        segment.outputTransfers[out.targetBorderId] = delta;
     }
 }
 
