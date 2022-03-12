@@ -58,13 +58,14 @@ backpropagateOutput(const Brick &brick,
 }
 
 /**
- * @brief backpropagateSection
- * @param section
- * @param sourceNode
- * @param netH
- * @param outH
- * @param brick
- * @param segment
+ * @brief run backpropagation for a single synapse-section
+ *
+ * @param section pointer to section to process
+ * @param sourceNode pointer to the node, who triggered the section
+ * @param netH node-potential
+ * @param outH output-multiplicator
+ * @param brick brick where the seciton is located
+ * @param segment segment where section belongs to
  */
 inline void
 backpropagateSection(SynapseSection* section,
@@ -87,16 +88,17 @@ backpropagateSection(SynapseSection* section,
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             break;
         }
-        else if(synapse->targetNodeId == 0)
-        {
-            pos++;
-            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-            continue;
-        }
+        // HINT: this condition is not necessary as long as the active-couter below is incomplete
+        // else if(synapseObj.targetNodeId == 0)
+        // {
+        //     pos++;
+        //     netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
+        //     continue;
+        // }
 
         // update weight
-        learnValue = static_cast<float>(100 - synapse->activeCounter) * 0.001f;
-        learnValue += 0.1f;
+        //learnValue = static_cast<float>(100 - synapse->activeCounter) * 0.001f;
+        learnValue = 0.1f;
         sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
         synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 
