@@ -34,12 +34,11 @@
 
 #include <core/segments/dynamic_segment/backpropagation.h>
 #include <core/segments/dynamic_segment/processing.h>
-#include <core/segments/dynamic_segment/create_reduce.h>
+#include <core/segments/dynamic_segment/reduction.h>
 
 #include <core/segments/static_segment/backpropagation.h>
 #include <core/segments/static_segment/processing.h>
 
-#include <core/segments/output_segment/backpropagation.h>
 #include <core/segments/output_segment/processing.h>
 
 #include <core/segments/input_segment/processing.h>
@@ -70,7 +69,6 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             seg->dynamicSegmentSettings->doLearn = 1;
             prcessDynamicSegment(*seg);
-            hardenSegment(*seg);
             seg->dynamicSegmentSettings->doLearn = 0;
             break;
         }
@@ -90,6 +88,7 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
         {
             OutputSegment* seg = static_cast<OutputSegment*>(segment);
             prcessOutputSegment(*seg);
+
             break;
         }
         default:
@@ -111,6 +110,10 @@ CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             rewightDynamicSegment(*seg);
+            if(reductionCounter == 100) {
+                //reduceNodes(*seg);
+            }
+            reductionCounter++;
             break;
         }
         case STATIC_SEGMENT:

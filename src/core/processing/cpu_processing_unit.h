@@ -38,8 +38,12 @@ public:
 protected:
     void run();
 
+
+private:
+    uint64_t reductionCounter = 0;
+
     void learnSegmentForward(AbstractSegment* segment);
-    void learnSegmentBackward(AbstractSegment* segment);
+    void learnSegmentBackward(AbstractSegment *segment);
     void processSegment(AbstractSegment* segment);
 };
 

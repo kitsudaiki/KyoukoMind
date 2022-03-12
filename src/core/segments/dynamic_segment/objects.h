@@ -33,7 +33,6 @@ struct DynamicNode
     float input = 0.0f;
     float border = 100.0f;
     float potential = 0.0f;
-
     float delta = 0.0f;
 
     uint8_t refractionTime = 1;
@@ -46,7 +45,7 @@ struct DynamicNode
     uint32_t targetBorderId = UNINIT_STATE_32;
     uint32_t targetSectionId = UNINIT_STATE_32;
 
-    // total size: 32 Byte
+    // total size: 40 Byte
 };
 
 //==================================================================================================
@@ -66,7 +65,7 @@ struct SynapseSection
 {
     uint8_t active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
     uint8_t updated = 0;
-    uint16_t hardening = 0;
+    uint8_t padding[2];
     uint32_t randomPos = 0;
 
     uint32_t brickBufferPos = UNINIT_STATE_32;

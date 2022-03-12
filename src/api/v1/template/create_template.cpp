@@ -297,11 +297,11 @@ CreateTemplate::createSegmentSettings(DataMap* result,
     settings->insert("node_cooldown", new DataValue(3000.0));
     settings->insert("memorizing", new DataValue(0.5));
     settings->insert("glia_value", new DataValue(1.1));
-    settings->insert("max_synapse_weight", new DataValue(0.05));
+    settings->insert("max_synapse_weight", new DataValue(0.025));
     settings->insert("sign_neg", new DataValue(0.5));
     settings->insert("potential_overflow", new DataValue(1.0));
     settings->insert("multiplicator_range", new DataValue(1));
-    settings->insert("max_synapse_sections", new DataValue(2500));
+    settings->insert("max_synapse_sections", new DataValue(5000));
 
     const std::vector<std::string> keys = settingsOverride.getKeys();
     for(const std::string &key : keys) {

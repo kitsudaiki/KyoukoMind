@@ -153,6 +153,7 @@ Cluster::startForwardLearnCycle()
     KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
 }
 
+
 /**
  * @brief start a new backward learn-cycle
  */
@@ -193,13 +194,8 @@ Cluster::updateClusterState()
 
     if(m_mode == LEARN_FORWARD_MODE)
     {
-        // calc error of clearning-step and make back-propagation if necessary
-        const float error = calcTotalError(*outputSegments[0]);
-        if(error > 0.1f) // TODO: make configurable
-        {
-            startBackwardLearnCycle();
-            return;
-        }
+        startBackwardLearnCycle();
+        return;
     }
 
     std::lock_guard<std::mutex> guard(m_task_mutex);
@@ -215,6 +211,7 @@ Cluster::updateClusterState()
     }
     else
     {
+        // update progress-counter
         actualTask->actualCycle++;
         const float actualF = static_cast<float>(actualTask->actualCycle);
         const float shouldF = static_cast<float>(actualTask->numberOfCycle);

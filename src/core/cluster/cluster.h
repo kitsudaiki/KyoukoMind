@@ -75,7 +75,7 @@ public:
     {
         NORMAL_MODE = 0,
         LEARN_FORWARD_MODE = 1,
-        LEARN_BACKWARD_MODE = 2
+        LEARN_BACKWARD_MODE = 2,
     };
     ClusterMode getMode() const;
     uint32_t m_segmentCounter = 0;

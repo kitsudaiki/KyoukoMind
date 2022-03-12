@@ -27,35 +27,10 @@
 
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
+#include <core/cluster/cluster.h>
 
 #include "objects.h"
 #include "output_segment.h"
-
-/**
- * @brief calculate the total error of all outputs of a specific segment
- *
- * @param segment segment of which one the total error has to be calculated
- *
- * @return total error value
- */
-inline float
-calcTotalError(const OutputSegment &segment)
-{
-    float totalError = 0.0f;
-    OutputNode* out = nullptr;
-    float diff = 0.0f;
-
-    for(uint64_t outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
-    {
-        out = &segment.outputs[outputNodeId];
-        diff = (out->shouldValue - out->outputWeight);
-        totalError += 0.5f * (diff * diff);
-    }
-
-    return totalError;
-}
 
 /**
  * @brief get position of the highest output-position
@@ -83,6 +58,7 @@ getHighestOutput(const OutputSegment &segment)
         }
     }
 
+    //std::cout<<"hightes: "<<hightestPos<<std::endl;
     return hightestPos;
 }
 
@@ -95,12 +71,45 @@ getHighestOutput(const OutputSegment &segment)
 inline void
 prcessOutputSegment(const OutputSegment &segment)
 {
-    const uint32_t numberOfOutputs = segment.segmentHeader->outputs.count;
+    OutputNode* node = nullptr;
+
     float* inputTransfers = segment.inputTransfers;
-    for(uint32_t pos = 0; pos < numberOfOutputs; pos++)
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment.segmentHeader->outputs.count;
+        outputNodeId++)
     {
-        OutputNode* node = &segment.outputs[pos];
+        node = &segment.outputs[outputNodeId];
+        node->maxWeight = (node->maxWeight >= node->shouldValue) * node->maxWeight
+                          + (node->maxWeight < node->shouldValue) * node->shouldValue;
+
         node->outputWeight = inputTransfers[node->targetBorderId];
+        node->outputWeight = 1.0f / (1.0f + exp(-1.0f * node->outputWeight));
+        node->outputWeight *= node->maxWeight;
+    }
+}
+
+/**
+ * @brief backpropagate output
+ *
+ * @param segment pointer to currect output-segment to process
+ */
+inline void
+backpropagateOutput(const OutputSegment &segment)
+{
+    OutputNode out;
+    float delta = 0.0f;
+
+    // iterate over all output-nodes
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment.segmentHeader->outputs.count;
+        outputNodeId++)
+    {
+        out = segment.outputs[outputNodeId];
+
+        delta = (out.outputWeight - out.shouldValue);
+        delta *= out.outputWeight * (1.0f - out.outputWeight);
+
+        segment.outputTransfers[out.targetBorderId] = delta;
     }
 }
 

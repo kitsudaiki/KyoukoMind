@@ -51,24 +51,12 @@ CreateLearnTask::CreateLearnTask()
     assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
-
-    // set endpoints for predefined input for dev-mode
-    if(DEV_MODE)
-    {
-        registerInputField("data_set_uuid",
-                           SAKURA_STRING_TYPE,
-                           false,
-                           "Input-data.");
-    }
-    else
-    {
-        registerInputField("data_set_uuid",
-                           SAKURA_STRING_TYPE,
-                           true,
-                           "UUID to identifiy the train-data with the input in sagiri.");
-        assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                              "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
-    }
+    registerInputField("data_set_uuid",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "UUID to identifiy the train-data with the input in sagiri.");
+    assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -95,17 +83,6 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
     const std::string token = context.getStringByKey("token");
-
-    // run dev-mode, if set in config
-    if(DEV_MODE)
-    {
-        const std::string inputData = blossomLeaf.input.get("input_data").getString();
-        const std::string labelData = blossomLeaf.input.get("label_data").getString();
-
-        const std::string taskUuid = testMode(clusterUuid, inputData, labelData, error);
-        blossomLeaf.output.insert("uuid", taskUuid);
-        return true;
-    }
 
     // check if sagiri is available
     SupportedComponents* scomp = SupportedComponents::getInstance();
@@ -162,31 +139,3 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
     return true;
 }
 
-/**
- * @brief run test-mode
- */
-const std::string
-CreateLearnTask::testMode(const std::string &clusterUuid,
-                          const std::string &inputData,
-                          const std::string &labelData,
-                          Kitsunemimi::ErrorContainer &error)
-{
-
-    // get cluster
-    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
-    if(cluster == nullptr)
-    {
-        error.addMeesage("cluster with uuid not found: " + clusterUuid);
-        return "";
-    }
-
-    // decode train-data
-    DataBuffer inputBuffer;
-    Kitsunemimi::Crypto::decodeBase64(inputBuffer, inputData);
-    DataBuffer labelBuffer;
-    Kitsunemimi::Crypto::decodeBase64(labelBuffer, labelData);
-
-    // init learn-task
-    //return startMnistTask(cluster, inputBuffer);
-    return "";
-}
