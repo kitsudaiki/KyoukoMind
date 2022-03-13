@@ -43,19 +43,21 @@ inline bool
 reduceSynapses(DynamicSegment &segment,
                SynapseSection &section)
 {
+    bool foundEnd = false;
+
     if(section.next != UNINIT_STATE_32)
     {
         // delete if sections is empty
-        const bool shouldDelete = reduceSynapses(segment, segment.synapseSections[section.next]);
-        if(shouldDelete)
+        foundEnd = true;
+        if(reduceSynapses(segment, segment.synapseSections[section.next]) == false)
         {
             segment.segmentData.deleteItem(section.next);
             section.next = UNINIT_STATE_32;
+            foundEnd = false;
         }
     }
 
     Synapse* synapse = nullptr;
-    bool foundEnd = section.next != UNINIT_STATE_32;
 
     // iterate over all synapses in synapse-section
     for(int32_t pos = SYNAPSES_PER_SYNAPSESECTION - 1;
@@ -68,18 +70,18 @@ reduceSynapses(DynamicSegment &segment,
             continue;
         }
 
+        synapse->activeCounter -= synapse->activeCounter < 100;
+        synapse->targetNodeId = synapse->targetNodeId * (synapse->activeCounter >= 2);
         if(synapse->targetNodeId == 0)
         {
             if(foundEnd == false) {
                 synapse->targetNodeId = UNINIT_STATE_16;
             }
-
-            continue;
         }
-
-        foundEnd = true;
-        synapse->activeCounter -= synapse->activeCounter < 100;
-        synapse->targetNodeId = synapse->targetNodeId * (synapse->activeCounter >= 2);
+        else
+        {
+            foundEnd = true;
+        }
     }
 
     return foundEnd;
@@ -95,8 +97,6 @@ reduceNodes(DynamicSegment &segment)
 {
     SynapseSection* section = nullptr;
     DynamicNode* sourceNode = nullptr;
-    uint32_t sectionId = 0;
-    bool shouldDelete = false;
 
     for(uint32_t nodeId = 0;
         nodeId < segment.segmentHeader->nodes.count;
@@ -108,14 +108,12 @@ reduceNodes(DynamicSegment &segment)
         }
 
         // set start-values
-        sectionId = sourceNode->targetSectionId;
-        section = &segment.synapseSections[sectionId];
+        section = &segment.synapseSections[sourceNode->targetSectionId];
 
         // delete if sections is empty
-        shouldDelete = reduceSynapses(segment, *section);
-        if(shouldDelete)
+        if(reduceSynapses(segment, *section) == false)
         {
-            segment.segmentData.deleteItem(sectionId);
+            segment.segmentData.deleteItem(sourceNode->targetSectionId);
             sourceNode->targetSectionId = UNINIT_STATE_32;
         }
     }
