@@ -133,7 +133,7 @@ synapseProcessing(SynapseSection &section,
     Synapse* synapse = nullptr;
     DynamicNode* targetNode = nullptr;
     section.updated = 0;
-    // bool active = false;
+    uint8_t active = 1;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -159,13 +159,12 @@ synapseProcessing(SynapseSection &section,
         if(synapseObj.targetNodeId == UNINIT_STATE_16) {
             break;
         }
-        // HINT: this condition is not necessary as long as the active-couter below is incomplete
-        // else if(synapseObj.targetNodeId == 0)
-        // {
-        //     pos++;
-        //     netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
-        //     continue;
-        // }
+        else if(synapseObj.targetNodeId == 0)
+        {
+            pos++;
+            netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
+            continue;
+        }
 
         // update target-node
         targetNode = &segment.nodes[synapseObj.targetNodeId];
@@ -177,15 +176,14 @@ synapseProcessing(SynapseSection &section,
         //                 If someone knows the answer, please inform me
         // active = (synapse->weight > 0 && targetNode->potential > targetNode->border);
         // active = active || (synapse->weight < 0 && targetNode->potential < targetNode->border);
-        // synapse->activeCounter += active * static_cast<uint8_t>(synapseObj.activeCounter < 126);
-        synapse->activeCounter += 1 * static_cast<uint8_t>(synapseObj.activeCounter < 126);
+        synapse->activeCounter += active * static_cast<uint8_t>(synapseObj.activeCounter < 126);
 
         // update loop-counter
         netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
         pos++;
     }
 
-    if(netH > 0.1f)
+    if(netH > 0.01f)
     {
         // if no next section exist for the node, then create and a attach a new synapse-section
         if(section.next == UNINIT_STATE_32)

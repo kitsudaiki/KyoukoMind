@@ -88,17 +88,16 @@ backpropagateSection(SynapseSection* section,
         if(synapse->targetNodeId == UNINIT_STATE_16) {
             break;
         }
-        // HINT: this condition is not necessary as long as the active-couter below is incomplete
-        // else if(synapseObj.targetNodeId == 0)
-        // {
-        //     pos++;
-        //     netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
-        //     continue;
-        // }
+        else if(synapse->targetNodeId == 0)
+        {
+            pos++;
+            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
+            continue;
+        }
 
         // update weight
-        //learnValue = static_cast<float>(100 - synapse->activeCounter) * 0.001f;
-        learnValue = 0.1f;
+        learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.001f;
+        learnValue += 0.1f;
         sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
         synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 
@@ -107,7 +106,7 @@ backpropagateSection(SynapseSection* section,
     }
 
     if(section->next != UNINIT_STATE_32
-            && netH > 0.1f)
+            && netH > 0.01f)
     {
         backpropagateSection(&segment.synapseSections[section->next],
                              sourceNode,
