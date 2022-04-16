@@ -68,7 +68,9 @@ InputSegment::initSegment(const JsonItem &parsedContent)
 bool
 InputSegment::connectBorderBuffer()
 {
-    for(uint32_t i = 0; i < segmentHeader->inputs.count; i++) {
+    for(uint32_t i = 0; i < segmentHeader->inputs.count; i++)
+    {
+        inputs[i] = InputNode();
         inputs[i].targetBorderId = i;
     }
 
