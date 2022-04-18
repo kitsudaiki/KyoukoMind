@@ -61,17 +61,33 @@ processInputNodes(const Brick &brick,
  */
 inline void
 processOutputNodes(const Brick &brick,
+                   const Brick &lastBrick,
                    const StaticSegment &segment)
 {
     StaticNode* node = nullptr;
+    StaticNode* lastNodes = &segment.nodes[lastBrick.nodePos];
+    float* connection = nullptr;
+    float weight = 0.0f;
 
     for(uint32_t nodeId = brick.nodePos;
         nodeId < brick.numberOfNodes + brick.nodePos;
         nodeId++)
     {
         node = &segment.nodes[nodeId];
+
         node->delta = 0.0f;
-        segment.outputTransfers[node->targetBorderId] = node->value;
+        connection = &segment.connections[node->targetConnectionPos];
+        weight = 0.0f;
+
+        for(uint32_t nodePos = 0;
+            nodePos < lastBrick.numberOfNodes;
+            nodePos++)
+        {
+            weight += (lastNodes[nodePos].value * connection[nodePos]) + node->border;
+        }
+
+        node->value = weight;
+        segment.outputTransfers[node->targetBorderId] = weight;
     }
 }
 
@@ -101,8 +117,11 @@ processNormalNodes(const Brick &brick,
         connection = &segment.connections[node->targetConnectionPos];
         weight = 0.0f;
 
-        for(uint32_t i = 0; i < lastBrick.numberOfNodes; i++) {
-            weight += (lastNodes[i].value * connection[i]) + node->border;
+        for(uint32_t nodePos = 0;
+            nodePos < lastBrick.numberOfNodes;
+            nodePos++)
+        {
+            weight += (lastNodes[nodePos].value * connection[nodePos]) + node->border;
         }
 
         node->value = 1.0f / (1.0f + exp(-1.0f * weight));
@@ -122,16 +141,12 @@ processStaticSegment(const StaticSegment &segment)
     for(uint32_t pos = 0; pos < numberOfBricks; pos++)
     {
         Brick* brick = &segment.bricks[pos];
-        if(brick->isInputBrick)
-        {
+        if(brick->isInputBrick) {
             processInputNodes(*brick, segment);
-        }
-        else
-        {
+        } else if(brick->isOutputBrick) {
+            processOutputNodes(*brick, segment.bricks[pos-1], segment);
+        } else {
             processNormalNodes(*brick, segment.bricks[pos-1], segment);
-            if(brick->isOutputBrick) {
-                processOutputNodes(*brick, segment);
-            }
         }
     }
 }

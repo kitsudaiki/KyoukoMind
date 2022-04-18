@@ -39,9 +39,14 @@
  */
 inline void
 backpropagateOutput(const Brick &brick,
+                    const Brick &lastBrick,
                     const StaticSegment &segment)
 {
     StaticNode* node = nullptr;
+    float outH = 0.0f;
+    StaticNode* lastNodes = &segment.nodes[lastBrick.nodePos];
+    StaticNode* lastNode = nullptr;
+    float* connections = nullptr;
 
     // iterate over all nodes within the brick
     for(uint32_t nodeId = brick.nodePos;
@@ -49,7 +54,23 @@ backpropagateOutput(const Brick &brick,
         nodeId++)
     {
         node = &segment.nodes[nodeId];
+
+        // step 1
         node->delta = segment.inputTransfers[node->targetBorderId];
+        std::cout<<"delta: "<<node->delta<<std::endl;
+
+        connections = &segment.connections[node->targetConnectionPos];
+
+        for(uint32_t j = 0; j < brick.numberOfNodes; j++)
+        {
+            lastNode = &lastNodes[j];
+
+            // step 2
+            lastNode->delta += node->delta * connections[j];
+
+            // step 3
+            connections[j] -= 0.1f * (node->delta * lastNode->value);
+        }
     }
 }
 
@@ -126,17 +147,11 @@ rewightStaticSegment(const StaticSegment &segment)
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
         Brick* brick = &segment.bricks[pos];
-        if(brick->isOutputBrick)
-        {
-            backpropagateOutput(*brick, segment);
-            backpropagateNodes(*brick, segment.bricks[pos - 1], segment);
-        }
-        else if(brick->isInputBrick)
-        {
+        if(brick->isOutputBrick) {
+            backpropagateOutput(*brick, segment.bricks[pos - 1], segment);
+        } else if(brick->isInputBrick) {
             backpropagateInput(*brick, segment);
-        }
-        else
-        {
+        } else {
             backpropagateNodes(*brick, segment.bricks[pos - 1], segment);
         }
     }

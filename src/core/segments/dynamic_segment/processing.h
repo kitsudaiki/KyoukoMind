@@ -291,7 +291,6 @@ processNodesOfInputBrick(const Brick &brick,
         node->potential /= segment.dynamicSegmentSettings->nodeCooldown;
         node->input = segment.inputTransfers[node->targetBorderId];
 
-
         processSingleNode(node, segment);
     }
 }

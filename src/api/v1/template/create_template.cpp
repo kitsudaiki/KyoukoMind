@@ -270,8 +270,8 @@ CreateTemplate::createDynamicSegments(DataArray* result,
 {
     DataMap* newSegment = new DataMap();
 
-    //newSegment->insert("type", new DataValue("static_segment"));
-    newSegment->insert("type", new DataValue("dynamic_segment"));
+    newSegment->insert("type", new DataValue("static_segment"));
+    //newSegment->insert("type", new DataValue("dynamic_segment"));
     newSegment->insert("position", createPosition(1, 2, 1));
 
     createSegmentSettings(newSegment, settingsOverride);
@@ -335,7 +335,7 @@ CreateTemplate::createSegmentBricks(DataMap* result,
     // centre part
     DataMap* internalBrick = new DataMap();
     internalBrick->insert("type", new DataValue("normal"));
-    internalBrick->insert("number_of_nodes", new DataValue(300));
+    internalBrick->insert("number_of_nodes", new DataValue(30));
     internalBrick->insert("position", createPosition(2, 1, 1));
     bricks->append(internalBrick);
 

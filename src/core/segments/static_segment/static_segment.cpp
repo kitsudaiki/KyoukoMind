@@ -221,10 +221,10 @@ StaticSegment::initSegmentPointer(const SegmentHeader &header)
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
     pos = segmentHeader->bricks.bytePos;
     bricks = reinterpret_cast<Brick*>(dataPtr + pos);
-    pos = segmentHeader->nodes.bytePos;
-    nodes = reinterpret_cast<StaticNode*>(dataPtr + pos);
     pos = segmentHeader->connections.bytePos;
     connections = reinterpret_cast<float*>(dataPtr + pos);
+    pos = segmentHeader->nodes.bytePos;
+    nodes = reinterpret_cast<StaticNode*>(dataPtr + pos);
 }
 
 /**
@@ -257,11 +257,15 @@ StaticSegment::initDefaultValues()
     }
 
     // init connections
+    std::cout<<"number of connections: "<<segmentHeader->connections.count<<std::endl;
     for(uint32_t i = 0; i < segmentHeader->connections.count; i++)
     {
         connections[i] = static_cast<float>(rand() % 10000);
         connections[i] /= 10000.0f;
         connections[i] -= 0.5f;
+        if(i < 20 ) {
+            std::cout<<"i: "<<connections[i]<<std::endl;
+        }
     }
 }
 
@@ -355,9 +359,13 @@ StaticSegment::initializeNodes()
         {
             nodes[nodeId].numberOfConnections = numberOfNodesLast;
             nodes[nodeId].targetConnectionPos = connectionPos;
+            std::cout<<"pos: "<<nodes[nodeId].targetConnectionPos<<std::endl;
             //nodes[nodeId].border = fmod(static_cast<float>(rand()), range);
             //nodes[nodeId].border -= 0.5f;
-            nodes[nodeId].border = 0.0f;
+            nodes[nodeId].border = static_cast<float>(rand() % 10000);
+            nodes[nodeId].border /= 10000.0f;
+            nodes[nodeId].border -= 0.5f;
+            //nodes[nodeId].border = 0.0f;
 
             connectionPos += numberOfNodesLast;
         }
