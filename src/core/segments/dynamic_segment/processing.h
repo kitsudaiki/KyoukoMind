@@ -124,11 +124,10 @@ inline void
 synapseProcessing(SynapseSection &section,
                   DynamicSegment &segment,
                   const DynamicNode &sourceNode,
-                  const float weightIn,
+                  float netH,
                   const float outH)
 {
     uint32_t pos = 0;
-    float netH = weightIn;
     bool createSyn = false;
     Synapse* synapse = nullptr;
     DynamicNode* targetNode = nullptr;
@@ -231,6 +230,7 @@ processSingleNode(DynamicNode* node,
                   DynamicSegment &segment)
 {
     float outH = 0.0f;
+    float netH = 0.0f;
     uint64_t newPos = 0;
 
     // handle refraction-time
@@ -242,7 +242,7 @@ processSingleNode(DynamicNode* node,
     }
 
     // update node
-    node->active = node->potential > node->border;
+    node->active = node->potential > node->border && node->potential > 0.0f;
     node->input = 0.0f;
 
     // handle active-state
@@ -261,12 +261,12 @@ processSingleNode(DynamicNode* node,
             node->targetSectionId = newPos;
         }
 
-        // process synapse-section
-        outH = 1.0f / (1.0f + exp(-1.0f * node->potential));
+        // process synapse-section with activation-function
+        outH = log2(node->potential + 1.0f);
         synapseProcessing(segment.synapseSections[node->targetSectionId],
                           segment,
                           *node,
-                          node->potential,
+                          outH,
                           outH);
     }
 }

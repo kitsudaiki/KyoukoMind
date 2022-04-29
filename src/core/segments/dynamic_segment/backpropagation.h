@@ -130,6 +130,8 @@ backpropagateNodes(const Brick &brick,
     DynamicNode* sourceNode = nullptr;
     SynapseSection* section = nullptr;
 
+    float outH = 0.0f;
+
     // iterate over all nodes within the brick
     for(uint32_t nodeId = brick.nodePos;
         nodeId < brick.numberOfNodes + brick.nodePos;
@@ -141,22 +143,29 @@ backpropagateNodes(const Brick &brick,
             continue;
         }
         section = &segment.synapseSections[sourceNode->targetSectionId];
-
-        // set start-values
-        const float netH = sourceNode->potential;
-        const float outH = 1.0f / (1.0f + exp(-1.0f * netH));
         sourceNode->delta = 0.0f;
 
-        backpropagateSection(section,
-                             sourceNode,
-                             netH,
-                             outH,
-                             brick,
-                             segment);
+        // set start-values
+        if(sourceNode->potential > 0.0f)
+        {
+            //outH = 1.0f / (1.0f + exp(-1.0f * netH));
+            outH = log2(sourceNode->potential + 1.0f);
+
+            backpropagateSection(section,
+                                 sourceNode,
+                                 outH,
+                                 outH,
+                                 brick,
+                                 segment);
+
+            //sourceNode->delta *= outH * (1.0f - outH);
+            sourceNode->delta *= 1.4427f * pow(0.1f, outH);
+        }
 
         if(brick.isInputBrick) {
             segment.outputTransfers[sourceNode->targetBorderId] = sourceNode->delta;
         }
+
     }
 }
 
