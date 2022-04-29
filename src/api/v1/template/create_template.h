@@ -58,6 +58,9 @@ private:
     void createSegmentBricks(Kitsunemimi::DataMap* result,
                              const long numberOfInputNodes,
                              const long numberOfOutputNodes);
+    void createSegmentBricksOld(Kitsunemimi::DataMap* result,
+                             const long numberOfInputNodes,
+                             const long numberOfOutputNodes);
 
     uint32_t createOutputSegments(Kitsunemimi::DataArray* result,
                                   const long numberOfOutputNodes);

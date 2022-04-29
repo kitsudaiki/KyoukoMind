@@ -20,19 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATEREQUESTTASK_H
-#define KYOUKOMIND_CREATEREQUESTTASK_H
+#ifndef KYOUKOMIND_CREATE_IMAGE_REQUESTTASK_H
+#define KYOUKOMIND_CREATE_IMAGE_REQUESTTASK_H
 
 #include <common.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
 
 class Cluster;
 
-class CreateRequestTask
+class CreateImageRequestTask
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateRequestTask();
+    CreateImageRequestTask();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
@@ -41,4 +41,4 @@ protected:
                  Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_CREATEREQUESTTASK_H
+#endif // KYOUKOMIND_CREATE_IMAGE_REQUESTTASK_H

@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "create_request_task.h"
+#include "create_image_request_task.h"
 #include <kyouko_root.h>
 
 #include <libSagiriArchive/sagiri_send.h>
@@ -37,7 +37,7 @@
 using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
-CreateRequestTask::CreateRequestTask()
+CreateImageRequestTask::CreateImageRequestTask()
     : Blossom("Add new request-task to the task-queue of a cluster.")
 {
     //----------------------------------------------------------------------------------------------
@@ -75,10 +75,10 @@ CreateRequestTask::CreateRequestTask()
  * @brief runTask
  */
 bool
-CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
-                           const Kitsunemimi::DataMap &context,
-                           BlossomStatus &status,
-                           Kitsunemimi::ErrorContainer &error)
+CreateImageRequestTask::runTask(BlossomLeaf &blossomLeaf,
+                                const Kitsunemimi::DataMap &context,
+                                BlossomStatus &status,
+                                Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
@@ -119,7 +119,7 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
 
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, error);
+    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, "", error);
     if(dataSetBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri for uuid '" + dataSetUuid + "'");
@@ -128,7 +128,7 @@ CreateRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // init request-task
-    const std::string taskUuid = cluster->addRequestTask(static_cast<float*>(dataSetBuffer->data),
+    const std::string taskUuid = cluster->addImageRequestTask(static_cast<float*>(dataSetBuffer->data),
                                                          numberOfInputs,
                                                          numberOfOutputs,
                                                          numberOfLines);

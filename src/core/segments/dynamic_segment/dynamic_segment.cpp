@@ -98,7 +98,7 @@ DynamicSegment::initializeNodes()
     for(uint32_t i = 0; i < numberOfNodes; i++)
     {
         nodes[i].border = ((static_cast<float>(rand() % 10000)) / 10000.0f) * range;
-        nodes[i].border += 0.2f;
+        nodes[i].border -= 0.25f;
     }
 
     return true;

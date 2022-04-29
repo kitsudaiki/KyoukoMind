@@ -123,8 +123,10 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     //  generate new template
     DataItem* generatedContent = generateNewTemplate(name,
-                                                     numberOfInputs,
-                                                     numberOfOutputs,
+                                                     //numberOfInputs,
+                                                     //numberOfOutputs,
+                                                     10000,
+                                                     2,
                                                      settingsOverride);
     const std::string stringContent = generatedContent->toString();
     std::cout<<generatedContent->toString(true)<<std::endl;
@@ -276,6 +278,7 @@ CreateTemplate::createDynamicSegments(DataArray* result,
 
     createSegmentSettings(newSegment, settingsOverride);
     createSegmentBricks(newSegment, numberOfInputNodes, numberOfOutputNodes);
+    //createSegmentBricksOld(newSegment, numberOfInputNodes, numberOfOutputNodes);
 
     result->append(newSegment);
 }
@@ -301,7 +304,7 @@ CreateTemplate::createSegmentSettings(DataMap* result,
     settings->insert("sign_neg", new DataValue(0.5));
     settings->insert("potential_overflow", new DataValue(1.0));
     settings->insert("multiplicator_range", new DataValue(1));
-    settings->insert("max_synapse_sections", new DataValue(5000));
+    settings->insert("max_synapse_sections", new DataValue(100000));
 
     const std::vector<std::string> keys = settingsOverride.getKeys();
     for(const std::string &key : keys) {
@@ -319,7 +322,52 @@ CreateTemplate::createSegmentSettings(DataMap* result,
  * @param numberOfOutputNodes number of output-nodes of the cluster
  */
 void
-CreateTemplate::createSegmentBricks(DataMap* result,
+CreateTemplate::createSegmentBricks(Kitsunemimi::DataMap* result,
+                                    const long numberOfInputNodes,
+                                    const long numberOfOutputNodes)
+{
+    DataArray* bricks = new DataArray();
+
+    // input-part
+    DataMap* inputBrick = new DataMap();
+    inputBrick->insert("type", new DataValue("input"));
+    inputBrick->insert("number_of_nodes", new DataValue(numberOfInputNodes));
+    inputBrick->insert("position", createPosition(1, 1, 1));
+    bricks->append(inputBrick);
+
+    // centre part
+    DataMap* internalBrick1 = new DataMap();
+    internalBrick1->insert("type", new DataValue("normal"));
+    internalBrick1->insert("number_of_nodes", new DataValue(5000));
+    internalBrick1->insert("position", createPosition(2, 1, 1));
+    bricks->append(internalBrick1);
+
+    // centre part
+    DataMap* internalBrick2 = new DataMap();
+    internalBrick2->insert("type", new DataValue("normal"));
+    internalBrick2->insert("number_of_nodes", new DataValue(1000));
+    internalBrick2->insert("position", createPosition(3, 1, 1));
+    bricks->append(internalBrick2);
+
+    // output-part
+    DataMap* outputBrick = new DataMap();
+    outputBrick->insert("type", new DataValue("output"));
+    outputBrick->insert("number_of_nodes", new DataValue(numberOfOutputNodes));
+    outputBrick->insert("position", createPosition(4, 1, 1));
+    bricks->append(outputBrick);
+
+    result->insert("bricks", bricks);
+}
+
+/**
+ * @brief create bricks for an internal segment
+ *
+ * @param result pointer to the resulting object
+ * @param numberOfInputNodes number of input-nodes of the cluster
+ * @param numberOfOutputNodes number of output-nodes of the cluster
+ */
+void
+CreateTemplate::createSegmentBricksOld(DataMap* result,
                                     const long numberOfInputNodes,
                                     const long numberOfOutputNodes)
 {

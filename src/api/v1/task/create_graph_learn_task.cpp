@@ -1,5 +1,5 @@
 /**
- * @file        create_learn_task.cpp
+ * @file        create_graph_learn_task.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "create_learn_task.h"
+#include "create_graph_learn_task.h"
 #include <kyouko_root.h>
 
 #include <libSagiriArchive/sagiri_send.h>
@@ -37,7 +37,7 @@
 using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
-CreateLearnTask::CreateLearnTask()
+CreateGraphLearnTask::CreateGraphLearnTask()
     : Blossom("Add new learn-task to the task-queue of a cluster.")
 {
     //----------------------------------------------------------------------------------------------
@@ -58,6 +58,11 @@ CreateLearnTask::CreateLearnTask()
     assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                           "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
+    registerInputField("column_name",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Name of the column of the table, which should work as input");
+
     //----------------------------------------------------------------------------------------------
     // output
     //----------------------------------------------------------------------------------------------
@@ -75,13 +80,15 @@ CreateLearnTask::CreateLearnTask()
  * @brief runTask
  */
 bool
-CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
-                         const Kitsunemimi::DataMap &context,
-                         BlossomStatus &status,
-                         Kitsunemimi::ErrorContainer &error)
+CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
+                              const Kitsunemimi::DataMap &context,
+                              BlossomStatus &status,
+                              Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
+    const std::string columnName = blossomLeaf.input.get("column_name").getString();
+
     const std::string token = context.getStringByKey("token");
 
     // check if sagiri is available
@@ -112,13 +119,8 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    // get relevant information from output
-    const uint64_t numberOfInputs = dataSetInfo.get("inputs").getLong();
-    const uint64_t numberOfOutputs = dataSetInfo.get("outputs").getLong();
-    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, error);
+    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, columnName, error);
     if(dataSetBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");
@@ -127,10 +129,9 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // create task
-    const std::string taskUuid = cluster->addLearnTask(static_cast<float*>(dataSetBuffer->data),
-                                                       numberOfInputs,
-                                                       numberOfOutputs,
-                                                       numberOfLines);
+    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
+    const std::string taskUuid = cluster->addGraphLearnTask(static_cast<float*>(dataSetBuffer->data),
+                                                            numberOfLines - 5001);
     cluster->m_segmentCounter = cluster->allSegments.size();
     cluster->updateClusterState();
 

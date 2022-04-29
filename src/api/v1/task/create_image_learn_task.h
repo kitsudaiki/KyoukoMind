@@ -1,5 +1,5 @@
 /**
- * @file        create_learn_task.h
+ * @file        create_image_learn_task.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,19 +20,19 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATELEARNTASK_H
-#define KYOUKOMIND_CREATELEARNTASK_H
+#ifndef KYOUKOMIND_CREATE_IMAGE_LEARNTASK_H
+#define KYOUKOMIND_CREATE_IMAGE_LEARNTASK_H
 
 #include <common.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
 
 class Cluster;
 
-class CreateLearnTask
+class CreateImageLearnTask
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateLearnTask();
+    CreateImageLearnTask();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
@@ -41,4 +41,4 @@ protected:
                  Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_CREATELEARNTASK_H
+#endif // KYOUKOMIND_CREATE_IMAGE_LEARNTASK_H

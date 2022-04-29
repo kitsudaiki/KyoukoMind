@@ -54,14 +54,18 @@ public:
 
     // task-handling
     void updateClusterState();
-    const std::string addLearnTask(float* inputData,
-                                   const uint64_t numberOfInputsPerCycle,
-                                   const uint64_t numberOfOuputsPerCycle,
-                                   const uint64_t numberOfCycle);
-    const std::string addRequestTask(float* inputData,
-                                     const uint64_t numberOfInputsPerCycle,
-                                     const uint64_t numberOfOuputsPerCycle,
-                                     const uint64_t numberOfCycle);
+    const std::string addImageLearnTask(float* inputData,
+                                        const uint64_t numberOfInputsPerCycle,
+                                        const uint64_t numberOfOuputsPerCycle,
+                                        const uint64_t numberOfCycle);
+    const std::string addImageRequestTask(float* inputData,
+                                          const uint64_t numberOfInputsPerCycle,
+                                          const uint64_t numberOfOuputsPerCycle,
+                                          const uint64_t numberOfCycle);
+    const std::string addGraphLearnTask(float* inputData,
+                                        const uint64_t numberOfCycle);
+    const std::string addGraphRequestTask(float* inputData,
+                                          const uint64_t numberOfCycle);
     uint32_t request(float* inputData, const uint64_t numberOfInputes);
 
     // tasks
@@ -95,6 +99,10 @@ private:
 
     void startForwardLearnCycle();
     void startBackwardLearnCycle();
+
+    void fillImageBuffer();
+    void fillGraphLernBuffer();
+    void fillGraphRequestBuffer();
 };
 
 #endif // KYOUKOMIND_CLUSTER_INTERFACE_H

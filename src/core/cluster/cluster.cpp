@@ -108,19 +108,14 @@ Cluster::setName(const std::string newName)
 }
 
 /**
- * @brief start a new forward learn-cycle
+ * @brief Cluster::fillImageBuffer
  */
 void
-Cluster::startForwardLearnCycle()
+Cluster::fillImageBuffer()
 {
     const uint64_t entriesPerCycle = actualTask->numberOfInputsPerCycle
                                      + actualTask->numberOfOuputsPerCycle;
     const uint64_t offsetInput = entriesPerCycle * actualTask->actualCycle;
-
-    // set cluster mode
-    if(actualTask->type == LEARN_TASK) {
-        m_mode = LEARN_FORWARD_MODE;
-    }
 
     // set input
     InputNode* inputNodes = inputSegments[0]->inputs;
@@ -135,6 +130,139 @@ Cluster::startForwardLearnCycle()
         outputNodes[i].shouldValue = actualTask->inputData[offsetInput
                                                            + actualTask->numberOfInputsPerCycle
                                                            + i];
+    }
+}
+
+/**
+ * @brief Cluster::fillGraphLernBuffer
+ */
+void
+Cluster::fillGraphLernBuffer()
+{
+    std::cout<<"fillGraphLernBuffer"<<std::endl;
+    float lastVal = actualTask->inputData[actualTask->actualCycle];
+    float actualVal = 0.0f;
+    uint64_t pos = actualTask->actualCycle;
+
+    // set input
+    InputNode* inputNodes = inputSegments[0]->inputs;
+    for(uint64_t i = actualTask->actualCycle + 1;
+        i < actualTask->actualCycle + 1 + 5000;
+        i++)
+    {
+        actualVal = actualTask->inputData[i];
+
+        if(actualVal < lastVal)
+        {
+            inputNodes[pos * 2].weight = actualVal;
+            inputNodes[pos * 2 + 1].weight = 0.0f;
+        }
+        else
+        {
+            inputNodes[pos * 2].weight = 0.0f;
+            inputNodes[pos * 2 + 1].weight = actualVal;
+        }
+
+        if(pos == actualTask->actualCycle) {
+            std::cout<<"pos: "<<actualTask->actualCycle<<"    val: "<<inputNodes[pos * 2].weight<<" : "<<inputNodes[pos * 2 + 1].weight<<std::endl;
+        }
+
+        lastVal = actualVal;
+        pos++;
+    }
+
+    // set exprected output
+    OutputNode* outputNodes = outputSegments[0]->outputs;
+    actualVal = actualTask->inputData[actualTask->actualCycle + 1 + 5000];
+
+    if(actualVal < lastVal)
+    {
+        outputNodes[0].shouldValue = actualVal;
+        outputNodes[1].shouldValue = 0.0f;
+    }
+    else
+    {
+        outputNodes[0].shouldValue = 0.0f;
+        outputNodes[1].shouldValue = actualVal;
+    }
+}
+
+/**
+ * @brief Cluster::fillGraphRequestBuffer
+ */
+void
+Cluster::fillGraphRequestBuffer()
+{
+    if(actualTask->isInit)
+    {
+        // set input
+        InputNode* inputNodes = inputSegments[0]->inputs;
+        for(uint64_t i = 2; i < 10000; i++) {
+            inputNodes[i - 2].weight = inputNodes[i].weight;
+        }
+
+        OutputNode* outputNodes = outputSegments[0]->outputs;
+        inputNodes[10000 - 2].weight = outputNodes[0].outputWeight;
+        inputNodes[10000 - 1].weight = outputNodes[1].outputWeight;
+    }
+    else
+    {
+        float lastVal = actualTask->inputData[actualTask->actualCycle];
+        float actualVal = 0.0f;
+        uint64_t pos = actualTask->actualCycle;
+
+        // set input
+        InputNode* inputNodes = inputSegments[0]->inputs;
+        for(uint64_t i = actualTask->actualCycle + 1;
+            i < actualTask->actualCycle + 1 + 5000;
+            i++)
+        {
+            actualVal = actualTask->inputData[i];
+
+            if(actualVal < lastVal)
+            {
+                inputNodes[pos * 2].weight = actualVal / lastVal;
+                inputNodes[pos * 2 + 1].weight = 0.0f;
+            }
+            else
+            {
+                inputNodes[pos * 2].weight = 0.0f;
+                inputNodes[pos * 2 + 1].weight = lastVal / actualVal;
+            }
+
+            lastVal = actualVal;
+            pos++;
+        }
+    }
+
+    actualTask->isInit = true;
+}
+
+/**
+ * @brief start a new forward learn-cycle
+ */
+void
+Cluster::startForwardLearnCycle()
+{
+    // set cluster mode
+    if(actualTask->type == IMAGE_LEARN_TASK
+            || actualTask->type == GRAPH_LEARN_TASK)
+    {
+        m_mode = LEARN_FORWARD_MODE;
+    }
+
+    if(actualTask->type == IMAGE_LEARN_TASK
+            || actualTask->type == IMAGE_REQUEST_TASK)
+    {
+        fillImageBuffer();
+    }
+    else if(actualTask->type == GRAPH_LEARN_TASK)
+    {
+        fillGraphLernBuffer();
+    }
+    else
+    {
+        fillGraphRequestBuffer();
     }
 
     // set ready-states of all neighbors of all segments
@@ -246,17 +374,17 @@ Cluster::getMode() const
  * @brief create a learn-task and add it to the task-queue
  *
  * @param inputData input-data
- * @param numberOfInputsPerCycle number of inputs, which belongs to one cycle
+ * @param numberOfInputsPerCycle number of inputs, which numberOfInputsPerCyclebelongs to one cycle
  * @param numberOfOuputsPerCycle number of outputs, which belongs to one cycle
  * @param numberOfCycle number of cycles
  *
  * @return task-uuid
  */
 const std::string
-Cluster::addLearnTask(float* inputData,
-                      const uint64_t numberOfInputsPerCycle,
-                      const uint64_t numberOfOuputsPerCycle,
-                      const uint64_t numberOfCycle)
+Cluster::addImageLearnTask(float* inputData,
+                           const uint64_t numberOfInputsPerCycle,
+                           const uint64_t numberOfOuputsPerCycle,
+                           const uint64_t numberOfCycle)
 {
     std::lock_guard<std::mutex> guard(m_task_mutex);
 
@@ -267,7 +395,7 @@ Cluster::addLearnTask(float* inputData,
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
-    newTask.type = LEARN_TASK;
+    newTask.type = IMAGE_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
@@ -290,10 +418,10 @@ Cluster::addLearnTask(float* inputData,
  * @return task-uuid
  */
 const std::string
-Cluster::addRequestTask(float* inputData,
-                        const uint64_t numberOfInputsPerCycle,
-                        const uint64_t numberOfOuputsPerCycle,
-                        const uint64_t numberOfCycle)
+Cluster::addImageRequestTask(float* inputData,
+                             const uint64_t numberOfInputsPerCycle,
+                             const uint64_t numberOfOuputsPerCycle,
+                             const uint64_t numberOfCycle)
 {
     std::lock_guard<std::mutex> guard(m_task_mutex);
 
@@ -305,7 +433,70 @@ Cluster::addRequestTask(float* inputData,
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
-    newTask.type = REQUEST_TASK;
+    newTask.type = IMAGE_REQUEST_TASK;
+    newTask.progress.state = QUEUED_TASK_STATE;
+    newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // add task to queue
+    const std::string uuid = newTask.uuid.toString();
+    m_taskMap.insert(std::make_pair(uuid, newTask));
+    m_taskQueue.push_back(uuid);
+
+    return uuid;
+}
+
+/**
+ * @brief Cluster::addGraphLearnTask
+ * @param inputData
+ * @param numberOfValues
+ * @param numberOfInputs
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+Cluster::addGraphLearnTask(float* inputData,
+                           const uint64_t numberOfCycle)
+{
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+
+    // create new learn-task
+    Task newTask;
+    newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.inputData = inputData;
+    newTask.numberOfCycle = numberOfCycle;
+    newTask.type = GRAPH_LEARN_TASK;
+    newTask.progress.state = QUEUED_TASK_STATE;
+    newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // add task to queue
+    const std::string uuid = newTask.uuid.toString();
+    m_taskMap.insert(std::make_pair(uuid, newTask));
+    m_taskQueue.push_back(uuid);
+
+    return uuid;
+}
+
+/**
+ * @brief Cluster::addGraphRequestTask
+ * @param inputData
+ * @param numberOfValues
+ * @param numberOfInputs
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+Cluster::addGraphRequestTask(float* inputData,
+                             const uint64_t numberOfCycle)
+{
+    std::lock_guard<std::mutex> guard(m_task_mutex);
+
+    // create new request-task
+    Task newTask;
+    newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.inputData = inputData;
+    newTask.resultData = new DataArray();
+    newTask.numberOfCycle = numberOfCycle;
+    newTask.type = GRAPH_REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
@@ -330,7 +521,7 @@ Cluster::request(float* inputData,
                  const uint64_t numberOfInputes)
 {
     // create new small request-task
-    const std::string taskUuid = addRequestTask(inputData, numberOfInputes, 0, 1);
+    const std::string taskUuid = addImageRequestTask(inputData, numberOfInputes, 0, 1);
     m_segmentCounter = allSegments.size();
     updateClusterState();
 
