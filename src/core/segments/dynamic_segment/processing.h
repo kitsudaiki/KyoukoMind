@@ -206,20 +206,6 @@ synapseProcessing(SynapseSection &section,
 }
 
 /**
- * @brief reset single node
- *
- * @param node pointer to node to reset
- */
-inline void
-initNode(DynamicNode* node)
-{
-    const bool initNode = node->isInit == false && node->input > 0.1f;
-    node->isInit = node->isInit || initNode;
-    node->border = static_cast<float>(initNode) * node->input * 0.5f
-                   + static_cast<float>(initNode == false) * node->border;
-}
-
-/**
  * @brief process only a single node
  *
  * @param node pointer to node to process
@@ -229,10 +215,6 @@ inline void
 processSingleNode(DynamicNode* node,
                   DynamicSegment &segment)
 {
-    float outH = 0.0f;
-    float netH = 0.0f;
-    uint64_t newPos = 0;
-
     // handle refraction-time
     node->refractionTime = node->refractionTime >> 1;
     if(node->refractionTime == 0)
@@ -242,7 +224,8 @@ processSingleNode(DynamicNode* node,
     }
 
     // update node
-    node->active = node->potential > node->border && node->potential > 0.0f;
+    node->potential -= node->border;
+    node->active = node->potential > 0.0f;
     node->input = 0.0f;
 
     // handle active-state
@@ -251,7 +234,7 @@ processSingleNode(DynamicNode* node,
         // if no target exist for the node, then create and a attach a new synapse-section
         if(node->targetSectionId == UNINIT_STATE_32)
         {
-            newPos = createNewSection(segment);
+            const uint64_t newPos = createNewSection(segment);
             // handle problem while allocating a new item for the section, for example if the
             // maximum number of items in the buffer is already in use
             if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
@@ -262,12 +245,12 @@ processSingleNode(DynamicNode* node,
         }
 
         // process synapse-section with activation-function
-        outH = log2(node->potential + 1.0f);
+        node->potential = log2(node->potential + 1.0f);
         synapseProcessing(segment.synapseSections[node->targetSectionId],
                           segment,
                           *node,
-                          outH,
-                          outH);
+                          node->potential,
+                          node->potential);
     }
 }
 
@@ -291,7 +274,6 @@ processNodesOfInputBrick(const Brick &brick,
         node->potential /= segment.dynamicSegmentSettings->nodeCooldown;
         node->input = segment.inputTransfers[node->targetBorderId];
 
-
         processSingleNode(node, segment);
     }
 }
@@ -306,6 +288,8 @@ inline void
 processNodesOfOutputBrick(const Brick &brick,
                           const DynamicSegment &segment)
 {
+
+
     DynamicNode* node = nullptr;
 
     for(uint32_t nodeId = brick.nodePos;
@@ -314,6 +298,7 @@ processNodesOfOutputBrick(const Brick &brick,
     {
         node = &segment.nodes[nodeId];
         node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
+        //const float outH = log2(node->potential + 1.0f);
         segment.outputTransfers[node->targetBorderId] = node->potential;
         node->input = 0.0f;
     }
@@ -339,7 +324,11 @@ processNodesOfNormalBrick(const Brick &brick,
         node = &segment.nodes[nodeId];
         node->potential /= segment.dynamicSegmentSettings->nodeCooldown;
 
-        initNode(node);
+        // init border, if not set
+        if(node->border == 0.00f) {
+            node->border = node->input * 0.5f;
+        }
+
         processSingleNode(node, segment);
     }
 }
