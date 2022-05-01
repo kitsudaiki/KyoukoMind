@@ -201,9 +201,9 @@ CpuProcessingUnit::run()
 
             // handle type of processing
             Cluster* clusterInterface = currentSegment->parentCluster;
-            if(clusterInterface->getMode() == Cluster::LEARN_FORWARD_MODE) {
+            if(clusterInterface->mode == Cluster::LEARN_FORWARD_MODE) {
                 learnSegmentForward(currentSegment);
-            } else if(clusterInterface->getMode() == Cluster::LEARN_BACKWARD_MODE) {
+            } else if(clusterInterface->mode == Cluster::LEARN_BACKWARD_MODE) {
                 learnSegmentBackward(currentSegment);
             } else {
                 processSegment(currentSegment);

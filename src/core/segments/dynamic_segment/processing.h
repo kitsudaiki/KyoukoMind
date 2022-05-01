@@ -185,7 +185,8 @@ synapseProcessing(SynapseSection &section,
     if(netH > 0.01f)
     {
         // if no next section exist for the node, then create and a attach a new synapse-section
-        if(section.next == UNINIT_STATE_32)
+        if(section.next == UNINIT_STATE_32
+                && segment.dynamicSegmentSettings->doLearn > 0)
         {
             const uint64_t newPos = createNewSection(segment);
             // handle problem while allocating a new item for the section, for example if the
@@ -197,11 +198,14 @@ synapseProcessing(SynapseSection &section,
             section.next = newPos;
         }
 
-        synapseProcessing(segment.synapseSections[section.next],
-                          segment,
-                          sourceNode,
-                          netH,
-                          outH);
+        if(section.next != UNINIT_STATE_32)
+        {
+            synapseProcessing(segment.synapseSections[section.next],
+                              segment,
+                              sourceNode,
+                              netH,
+                              outH);
+        }
     }
 }
 

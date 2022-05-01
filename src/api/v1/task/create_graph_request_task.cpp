@@ -124,7 +124,7 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
 
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, "", error);
+    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, error);
     if(dataSetBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri for uuid '" + dataSetUuid + "'");
@@ -137,8 +137,6 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
                                                          numberOfInputs,
                                                          numberOfOutputs,
                                                          numberOfLines);
-    cluster->m_segmentCounter = cluster->allSegments.size();
-    cluster->updateClusterState();
 
     blossomLeaf.output.insert("uuid", taskUuid);
 
