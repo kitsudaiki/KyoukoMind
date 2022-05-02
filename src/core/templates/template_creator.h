@@ -25,35 +25,75 @@
 
 #include <common.h>
 
-Kitsunemimi::DataMap* generateNewTemplate(const std::string name,
-                                          const long numberOfInputNodes,
-                                          const long numberOfOutputNodes,
-                                          const Kitsunemimi::Json::JsonItem &settingsOverride);
-void createClusterSettings(Kitsunemimi::DataMap* result);
-void createSegments(Kitsunemimi::DataMap* result,
+#include <core/templates/dynamic_segments.h>
+#include <core/templates/input_segments.h>
+#include <core/templates/output_segments.h>
+
+/**
+ * @brief create seggings-block
+ *
+ * @param result pointer to the resulting object
+ */
+DataMap*
+createClusterSettings()
+{
+    DataMap* settings = new DataMap();
+
+    settings->insert("cycle_time", new DataValue(1000000));
+    settings->insert("max_brick_distance", new DataValue(10));
+
+    return settings;
+}
+
+/**
+ * @brief create segments
+ *
+ * @param result pointer to the resulting object
+ * @param numberOfInputNodes number of input-nodes of the cluster
+ * @param numberOfOutputNodes number of output-nodes of the cluster
+ */
+DataArray*
+createSegments(const long numberOfInputNodes,
+               const long numberOfOutputNodes,
+               const JsonItem &settingsOverride)
+{
+    DataArray* segments = new DataArray();
+
+    segments->append(createInputSegments(numberOfInputNodes));
+    segments->append(createDynamicSegments(numberOfInputNodes,
+                                           numberOfOutputNodes,
+                                           settingsOverride));
+    segments->append(createOutputSegments(numberOfOutputNodes));
+
+    return segments;
+}
+
+/**
+ * @brief generate a new template
+ *
+ * @param name name of the cluster
+ * @param numberOfInputNodes number of input-nodes of the cluster
+ * @param numberOfOutputNodes number of output-nodes of the cluster
+ *
+ * @return data-map with the new cluster-template
+ */
+DataMap*
+generateNewTemplate(const std::string name,
                     const long numberOfInputNodes,
                     const long numberOfOutputNodes,
-                    const Kitsunemimi::Json::JsonItem &settingsOverride);
-uint32_t createInputSegments(Kitsunemimi::DataArray* result,
-                             const long numberOfInputNodes);
+                    const JsonItem &settingsOverride)
+{
+    DataMap* result = new DataMap();
+    result->insert("name", new DataValue(name));
 
-void createDynamicSegments(Kitsunemimi::DataArray* result,
-                           const long numberOfInputNodes,
-                           const long numberOfOutputNodes,
-                           const Kitsunemimi::Json::JsonItem &settingsOverride);
-void createSegmentSettings(Kitsunemimi::DataMap* result,
-                           const Kitsunemimi::Json::JsonItem &settingsOverride);
-void createSegmentBricks(Kitsunemimi::DataMap* result,
-                         const long numberOfInputNodes,
-                         const long numberOfOutputNodes);
-void createSegmentBricksOld(Kitsunemimi::DataMap* result,
-                         const long numberOfInputNodes,
-                         const long numberOfOutputNodes);
+    result->insert("settings", createClusterSettings());
 
-uint32_t createOutputSegments(Kitsunemimi::DataArray* result,
-                              const long numberOfOutputNodes);
+    result->insert("segments", createSegments(numberOfInputNodes,
+                                              numberOfOutputNodes,
+                                              settingsOverride));
 
-Kitsunemimi::DataArray* createPosition(const long x,
-                                       const long y,
-                                       const long z);
+    return result;
+}
+
+
 #endif // TEMPLATECREATOR_H
