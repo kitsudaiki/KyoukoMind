@@ -117,7 +117,7 @@ createNewSynapse(SynapseSection &section,
  * @param section current processed synapse-section
  * @param segment refernece to the processed segment
  * @param sourceNode source-node, who triggered the section
- * @param weightIn wight-value, which comes into the section
+ * @param netH wight-value, which comes into the section
  * @param outH multiplicator
  */
 inline void
@@ -128,7 +128,69 @@ synapseProcessing(SynapseSection &section,
                   const float outH)
 {
     uint32_t pos = 0;
-    bool createSyn = false;
+    Synapse* synapse = nullptr;
+    DynamicNode* targetNode = nullptr;
+    section.updated = 0;
+
+    // iterate over all synapses in the section
+    while(pos < SYNAPSES_PER_SYNAPSESECTION
+          && netH > 0.0f)
+    {
+        synapse = &section.synapses[pos];
+        const Synapse synapseObj = *synapse;
+
+        // break loop, if learning is disabled to the loop has reached an inactive synapse
+        if(synapseObj.targetNodeId == UNINIT_STATE_16) {
+            break;
+        }
+        else if(synapseObj.targetNodeId == 0)
+        {
+            pos++;
+            netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
+            continue;
+        }
+
+        // update target-node
+        targetNode = &segment.nodes[synapseObj.targetNodeId];
+        targetNode->input += outH * synapseObj.weight;
+
+        // update loop-counter
+        netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
+        pos++;
+    }
+
+    if(netH > 0.01f)
+    {
+        // if no next section exist for the node, then create and a attach a new synapse-section
+        if(section.next == UNINIT_STATE_32) {
+            return;
+        }
+
+        synapseProcessing(segment.synapseSections[section.next],
+                          segment,
+                          sourceNode,
+                          netH,
+                          outH);
+    }
+}
+
+/**
+ * @brief process synapse-section
+ *
+ * @param section current processed synapse-section
+ * @param segment refernece to the processed segment
+ * @param sourceNode source-node, who triggered the section
+ * @param netH wight-value, which comes into the section
+ * @param outH multiplicator
+ */
+inline void
+synapseProcessing_withLearn(SynapseSection &section,
+                            DynamicSegment &segment,
+                            const DynamicNode &sourceNode,
+                            float netH,
+                            const float outH)
+{
+    uint32_t pos = 0;
     Synapse* synapse = nullptr;
     DynamicNode* targetNode = nullptr;
     section.updated = 0;
@@ -139,10 +201,9 @@ synapseProcessing(SynapseSection &section,
           && netH > 0.0f)
     {
         synapse = &section.synapses[pos];
-        createSyn = synapse->targetNodeId == UNINIT_STATE_16
-                    && segment.dynamicSegmentSettings->doLearn > 0;
+
         // create new synapse if necesarry and learning is active
-        if(createSyn)
+        if(synapse->targetNodeId == UNINIT_STATE_16)
         {
             createNewSynapse(section,
                              synapse,
@@ -185,8 +246,7 @@ synapseProcessing(SynapseSection &section,
     if(netH > 0.01f)
     {
         // if no next section exist for the node, then create and a attach a new synapse-section
-        if(section.next == UNINIT_STATE_32
-                && segment.dynamicSegmentSettings->doLearn > 0)
+        if(section.next == UNINIT_STATE_32)
         {
             const uint64_t newPos = createNewSection(segment);
             // handle problem while allocating a new item for the section, for example if the
@@ -198,14 +258,11 @@ synapseProcessing(SynapseSection &section,
             section.next = newPos;
         }
 
-        if(section.next != UNINIT_STATE_32)
-        {
-            synapseProcessing(segment.synapseSections[section.next],
-                              segment,
-                              sourceNode,
-                              netH,
-                              outH);
-        }
+        synapseProcessing_withLearn(segment.synapseSections[section.next],
+                                    segment,
+                                    sourceNode,
+                                    netH,
+                                    outH);
     }
 }
 
@@ -235,26 +292,43 @@ processSingleNode(DynamicNode* node,
     // handle active-state
     if(node->active)
     {
-        // if no target exist for the node, then create and a attach a new synapse-section
-        if(node->targetSectionId == UNINIT_STATE_32)
+        if(segment.dynamicSegmentSettings->doLearn > 0)
         {
-            const uint64_t newPos = createNewSection(segment);
-            // handle problem while allocating a new item for the section, for example if the
-            // maximum number of items in the buffer is already in use
-            if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
+            // if no target exist for the node, then create and a attach a new synapse-section
+            if(node->targetSectionId == UNINIT_STATE_32)
+            {
+                const uint64_t newPos = createNewSection(segment);
+                // handle problem while allocating a new item for the section, for example if the
+                // maximum number of items in the buffer is already in use
+                if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
+                    return;
+                }
+
+                node->targetSectionId = newPos;
+            }
+
+            // process synapse-section with activation-function
+            node->potential = log2(node->potential + 1.0f);
+            synapseProcessing_withLearn(segment.synapseSections[node->targetSectionId],
+                                        segment,
+                                        *node,
+                                        node->potential,
+                                        node->potential);
+        }
+        else
+        {
+            if(node->targetSectionId == UNINIT_STATE_32) {
                 return;
             }
 
-            node->targetSectionId = newPos;
+            // process synapse-section with activation-function
+            node->potential = log2(node->potential + 1.0f);
+            synapseProcessing(segment.synapseSections[node->targetSectionId],
+                              segment,
+                              *node,
+                              node->potential,
+                              node->potential);
         }
-
-        // process synapse-section with activation-function
-        node->potential = log2(node->potential + 1.0f);
-        synapseProcessing(segment.synapseSections[node->targetSectionId],
-                          segment,
-                          *node,
-                          node->potential,
-                          node->potential);
     }
 }
 
@@ -292,8 +366,6 @@ inline void
 processNodesOfOutputBrick(const Brick &brick,
                           const DynamicSegment &segment)
 {
-
-
     DynamicNode* node = nullptr;
 
     for(uint32_t nodeId = brick.nodePos;
