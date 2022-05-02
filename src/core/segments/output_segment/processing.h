@@ -113,7 +113,7 @@ backpropagateOutput(const OutputSegment &segment)
         delta = (out.outputWeight - out.shouldValue);
         delta *= out.outputWeight * (1.0f - out.outputWeight);
         //if(out.outputWeight <= 0.0f) {
-        //    delta *= 1.4427f * pow(0.1f, out.outputWeight);
+        //    delta *= 1.4427f * pow(0.5f, out.outputWeight);
         //}
 
         segment.outputTransfers[out.targetBorderId] = delta;

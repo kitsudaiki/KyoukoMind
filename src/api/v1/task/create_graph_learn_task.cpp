@@ -120,7 +120,7 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, columnName, error);
+    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, error);
     if(dataSetBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");
@@ -132,8 +132,6 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
     const std::string taskUuid = cluster->addGraphLearnTask(static_cast<float*>(dataSetBuffer->data),
                                                             numberOfLines - 5001);
-    cluster->m_segmentCounter = cluster->allSegments.size();
-    cluster->updateClusterState();
 
     blossomLeaf.output.insert("uuid", taskUuid);
 
