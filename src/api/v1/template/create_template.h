@@ -35,39 +35,7 @@ protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  const Kitsunemimi::DataMap &context,
                  Kitsunemimi::Sakura::BlossomStatus &status,
-                 Kitsunemimi::ErrorContainer &error);
-private:
-    Kitsunemimi::DataMap* generateNewTemplate(const std::string name,
-                                              const long numberOfInputNodes,
-                                              const long numberOfOutputNodes,
-                                              const Kitsunemimi::Json::JsonItem &settingsOverride);
-    void createClusterSettings(Kitsunemimi::DataMap* result);
-    void createSegments(Kitsunemimi::DataMap* result,
-                        const long numberOfInputNodes,
-                        const long numberOfOutputNodes,
-                        const Kitsunemimi::Json::JsonItem &settingsOverride);
-    uint32_t createInputSegments(Kitsunemimi::DataArray* result,
-                                 const long numberOfInputNodes);
-
-    void createDynamicSegments(Kitsunemimi::DataArray* result,
-                               const long numberOfInputNodes,
-                               const long numberOfOutputNodes,
-                               const Kitsunemimi::Json::JsonItem &settingsOverride);
-    void createSegmentSettings(Kitsunemimi::DataMap* result,
-                               const Kitsunemimi::Json::JsonItem &settingsOverride);
-    void createSegmentBricks(Kitsunemimi::DataMap* result,
-                             const long numberOfInputNodes,
-                             const long numberOfOutputNodes);
-    void createSegmentBricksOld(Kitsunemimi::DataMap* result,
-                             const long numberOfInputNodes,
-                             const long numberOfOutputNodes);
-
-    uint32_t createOutputSegments(Kitsunemimi::DataArray* result,
-                                  const long numberOfOutputNodes);
-
-    Kitsunemimi::DataArray* createPosition(const long x,
-                                           const long y,
-                                           const long z);
+                 Kitsunemimi::ErrorContainer &error);  
 };
 
 #endif // CREATETEMPLATE_H

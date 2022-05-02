@@ -178,6 +178,7 @@ HEADERS += \
     src/core/segments/static_segment/processing.h \
     src/core/segments/static_segment/static_segment.h \
     src/core/struct_validation.h \
+    src/core/templates/template_creator.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
     src/dev_test.h \
@@ -219,6 +220,7 @@ SOURCES += \
     src/core/segments/output_segment/output_segment.cpp \
     src/core/segments/static_segment/static_segment.cpp \
     src/core/struct_validation.cpp \
+    src/core/templates/template_creator.cpp \
     src/database/cluster_table.cpp \
     src/database/template_table.cpp \
     src/dev_test.cpp \
