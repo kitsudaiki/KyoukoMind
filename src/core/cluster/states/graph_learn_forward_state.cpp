@@ -51,12 +51,12 @@ GraphLearnForward_State::~GraphLearnForward_State() {}
 bool
 GraphLearnForward_State::processEvent()
 {
-    std::cout<<"fillGraphLernBuffer"<<std::endl;
+    //std::cout<<"fillGraphLernBuffer"<<std::endl;
     Task* actualTask = m_cluster->getActualTask();
 
     float lastVal = actualTask->inputData[actualTask->actualCycle];
     float actualVal = 0.0f;
-    uint64_t pos = actualTask->actualCycle;
+    uint64_t pos = 0;
 
     // set input
     InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
@@ -68,22 +68,20 @@ GraphLearnForward_State::processEvent()
 
         if(actualVal < lastVal)
         {
-            inputNodes[pos * 2].weight = actualVal;
+            inputNodes[pos * 2].weight = actualVal / lastVal;
             inputNodes[pos * 2 + 1].weight = 0.0f;
         }
         else
         {
             inputNodes[pos * 2].weight = 0.0f;
-            inputNodes[pos * 2 + 1].weight = actualVal;
-        }
-
-        if(pos == actualTask->actualCycle) {
-            std::cout<<"pos: "<<actualTask->actualCycle<<"    val: "<<inputNodes[pos * 2].weight<<" : "<<inputNodes[pos * 2 + 1].weight<<std::endl;
+            inputNodes[pos * 2 + 1].weight = lastVal / actualVal;
         }
 
         lastVal = actualVal;
         pos++;
     }
+
+    //std::cout<<"poi"<<std::endl;
 
     // set exprected output
     OutputNode* outputNodes = m_cluster->outputSegments[0]->outputs;
@@ -91,14 +89,19 @@ GraphLearnForward_State::processEvent()
 
     if(actualVal < lastVal)
     {
-        outputNodes[0].shouldValue = actualVal;
+        outputNodes[0].shouldValue = actualVal / lastVal;
         outputNodes[1].shouldValue = 0.0f;
     }
     else
     {
         outputNodes[0].shouldValue = 0.0f;
-        outputNodes[1].shouldValue = actualVal;
+        outputNodes[1].shouldValue = lastVal / actualVal;
     }
+
+    //std::cout<<"finish fillGraphLernBuffer"<<std::endl;
+
+    m_cluster->mode = Cluster::LEARN_FORWARD_MODE;
+    m_cluster->startForwardCycle();
 
     return true;
 }

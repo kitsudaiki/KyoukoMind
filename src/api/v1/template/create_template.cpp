@@ -55,6 +55,11 @@ CreateTemplate::CreateTemplate()
     assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                           "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
+    registerInputField("type",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Type of the template to create.");
+
     registerInputField("settings_override",
                        SAKURA_MAP_TYPE,
                        false,
@@ -86,6 +91,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
                         Kitsunemimi::ErrorContainer &error)
 {
     const std::string name = blossomLeaf.input.get("name").getString();
+    const std::string type = blossomLeaf.input.get("type").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
     const JsonItem settingsOverride = blossomLeaf.input.get("settings_override");
 
@@ -124,10 +130,9 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     //  generate new template
     DataItem* generatedContent = generateNewTemplate(name,
+                                                     type,
                                                      numberOfInputs,
                                                      numberOfOutputs,
-                                                     //10000,
-                                                     //2,
                                                      settingsOverride);
     const std::string stringContent = generatedContent->toString();
     std::cout<<generatedContent->toString(true)<<std::endl;

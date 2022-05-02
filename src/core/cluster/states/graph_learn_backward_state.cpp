@@ -47,5 +47,8 @@ GraphLearnBackward_State::~GraphLearnBackward_State() {}
 bool
 GraphLearnBackward_State::processEvent()
 {
+    m_cluster->mode = Cluster::LEARN_BACKWARD_MODE;
+    m_cluster->startBackwardCycle();
+
     return true;
 }

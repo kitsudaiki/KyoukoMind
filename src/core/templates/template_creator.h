@@ -55,6 +55,7 @@ createClusterSettings()
 DataArray*
 createSegments(const long numberOfInputNodes,
                const long numberOfOutputNodes,
+               const std::string &type,
                const JsonItem &settingsOverride)
 {
     DataArray* segments = new DataArray();
@@ -62,6 +63,7 @@ createSegments(const long numberOfInputNodes,
     segments->append(createInputSegments(numberOfInputNodes));
     segments->append(createDynamicSegments(numberOfInputNodes,
                                            numberOfOutputNodes,
+                                           type,
                                            settingsOverride));
     segments->append(createOutputSegments(numberOfOutputNodes));
 
@@ -78,18 +80,25 @@ createSegments(const long numberOfInputNodes,
  * @return data-map with the new cluster-template
  */
 DataMap*
-generateNewTemplate(const std::string name,
-                    const long numberOfInputNodes,
-                    const long numberOfOutputNodes,
+generateNewTemplate(const std::string &name,
+                    const std::string &type,
+                    long numberOfInputNodes,
+                    long numberOfOutputNodes,
                     const JsonItem &settingsOverride)
 {
     DataMap* result = new DataMap();
+
+    if(type == "graph")
+    {
+        numberOfInputNodes = 10000;
+        numberOfOutputNodes = 2;
+    }
+
     result->insert("name", new DataValue(name));
-
     result->insert("settings", createClusterSettings());
-
     result->insert("segments", createSegments(numberOfInputNodes,
                                               numberOfOutputNodes,
+                                              type,
                                               settingsOverride));
 
     return result;

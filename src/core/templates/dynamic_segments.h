@@ -114,7 +114,7 @@ createSegmentBricksGraph(const long numberOfInputNodes,
     DataMap* outputBrick = new DataMap();
     outputBrick->insert("type", new DataValue("output"));
     outputBrick->insert("number_of_nodes", new DataValue(numberOfOutputNodes));
-    outputBrick->insert("position", createPosition(3, 1, 1));
+    outputBrick->insert("position", createPosition(4, 1, 1));
     bricks->append(outputBrick);
 
     return bricks;
@@ -167,6 +167,7 @@ createSegmentBricksImage(const long numberOfInputNodes,
 DataMap*
 createDynamicSegments(const long numberOfInputNodes,
                       const long numberOfOutputNodes,
+                      const std::string &type,
                       const JsonItem &settingsOverride)
 {
     DataMap* newSegment = new DataMap();
@@ -176,8 +177,16 @@ createDynamicSegments(const long numberOfInputNodes,
     newSegment->insert("position", createPosition(1, 2, 1));
 
     newSegment->insert("settings", createSegmentSettings(settingsOverride));
-    newSegment->insert("bricks", createSegmentBricksImage(numberOfInputNodes, numberOfOutputNodes));
-    //createSegmentBricksOld(newSegment, numberOfInputNodes, numberOfOutputNodes);
+    if(type == "image")
+    {
+        newSegment->insert("bricks", createSegmentBricksImage(numberOfInputNodes,
+                                                              numberOfOutputNodes));
+    }
+    else if(type == "graph")
+    {
+        newSegment->insert("bricks", createSegmentBricksGraph(numberOfInputNodes,
+                                                              numberOfOutputNodes));
+    }
 
     return newSegment;
 }

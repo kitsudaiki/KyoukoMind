@@ -120,7 +120,7 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, error);
+    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, columnName, error);
     if(dataSetBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");

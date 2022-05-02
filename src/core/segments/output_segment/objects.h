@@ -30,7 +30,7 @@ struct OutputNode
     float outputWeight = 0.0f;
     float shouldValue = 0.0f;
     uint32_t targetBorderId = 0;    
-    float maxWeight = 1.0f;
+    float maxWeight = 0.000001f;
 
     // total size: 16 Byte
 };
