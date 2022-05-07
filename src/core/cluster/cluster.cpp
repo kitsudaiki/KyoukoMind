@@ -27,24 +27,45 @@
 #include <core/segments/input_segment/input_segment.h>
 #include <core/segments/output_segment/output_segment.h>
 #include <core/cluster/cluster_init.h>
+#include <core/cluster/states/task_handle_state.h>
+#include <core/cluster/states/cycle_finish_state.h>
+#include <core/cluster/states/graph_interpolation_state.h>
+#include <core/cluster/states/graph_learn_backward_state.h>
+#include <core/cluster/states/graph_learn_forward_state.h>
+#include <core/cluster/states/image_identify_state.h>
+#include <core/cluster/states/image_learn_backward_state.h>
+#include <core/cluster/states/image_learn_forward_state.h>
 
 #include <core/processing/segment_queue.h>
 #include <core/segments/output_segment/processing.h>
 
 #include <libKitsunemimiCommon/logger.h>
-
-#include <libSagiriArchive/sagiri_send.h>
+#include <libKitsunemimiCommon/statemachine.h>
+#include <libKitsunemimiCommon/threading/thread.h>
 
 /**
  * @brief constructor
  */
-Cluster::Cluster() {}
+Cluster::Cluster()
+{
+    m_stateMachine = new Kitsunemimi::Statemachine();
+
+    m_taskHandleState = new TaskHandle_State(this);
+
+
+    initStatemachine();
+}
 
 /**
  * @brief destructor
  */
 Cluster::~Cluster()
 {
+    delete m_stateMachine;
+
+    // already deleted in the destructor of the statemachine
+    // delete m_taskHandleState;
+
     for(AbstractSegment* segment : allSegments) {
         delete segment;
     }
@@ -111,32 +132,8 @@ Cluster::setName(const std::string newName)
  * @brief start a new forward learn-cycle
  */
 void
-Cluster::startForwardLearnCycle()
+Cluster::startForwardCycle()
 {
-    const uint64_t entriesPerCycle = actualTask->numberOfInputsPerCycle
-                                     + actualTask->numberOfOuputsPerCycle;
-    const uint64_t offsetInput = entriesPerCycle * actualTask->actualCycle;
-
-    // set cluster mode
-    if(actualTask->type == LEARN_TASK) {
-        m_mode = LEARN_FORWARD_MODE;
-    }
-
-    // set input
-    InputNode* inputNodes = inputSegments[0]->inputs;
-    for(uint64_t i = 0; i < actualTask->numberOfInputsPerCycle; i++) {
-        inputNodes[i].weight = actualTask->inputData[offsetInput + i];
-    }
-
-    // set exprected output
-    OutputNode* outputNodes = outputSegments[0]->outputs;
-    for(uint64_t i = 0; i < actualTask->numberOfOuputsPerCycle; i++)
-    {
-        outputNodes[i].shouldValue = actualTask->inputData[offsetInput
-                                                           + actualTask->numberOfInputsPerCycle
-                                                           + i];
-    }
-
     // set ready-states of all neighbors of all segments
     for(AbstractSegment* segment: allSegments)
     {
@@ -150,6 +147,7 @@ Cluster::startForwardLearnCycle()
         }
     }
 
+    segmentCounter = 0;
     KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
 }
 
@@ -158,11 +156,8 @@ Cluster::startForwardLearnCycle()
  * @brief start a new backward learn-cycle
  */
 void
-Cluster::startBackwardLearnCycle()
+Cluster::startBackwardCycle()
 {
-    // set cluster mode
-    m_mode = LEARN_BACKWARD_MODE;
-
     // set ready-states of all neighbors of all segments
     for(AbstractSegment* segment: allSegments)
     {
@@ -176,6 +171,7 @@ Cluster::startBackwardLearnCycle()
         }
     }
 
+    segmentCounter = 0;
     KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
 }
 
@@ -185,81 +181,158 @@ Cluster::startBackwardLearnCycle()
 void
 Cluster::updateClusterState()
 {
-    m_segmentCounter++;
-    if(m_segmentCounter < allSegments.size()) {
+    std::lock_guard<std::mutex> guard(m_segmentCounterLock);
+
+    segmentCounter++;
+    if(segmentCounter < allSegments.size()) {
         return;
     }
 
-    m_segmentCounter = 0;
-
-    if(m_mode == LEARN_FORWARD_MODE)
-    {
-        startBackwardLearnCycle();
-        return;
-    }
-
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
-    m_mode = NORMAL_MODE;
-
-    if(actualTask == nullptr)
-    {
-        // get next task
-        if(getNextTask()) {
-            startForwardLearnCycle();
-        }
-    }
-    else
-    {
-        // update progress-counter
-        actualTask->actualCycle++;
-        const float actualF = static_cast<float>(actualTask->actualCycle);
-        const float shouldF = static_cast<float>(actualTask->numberOfCycle);
-        actualTask->progress.percentageFinished = actualF / shouldF;
-
-        if(actualTask->actualCycle == actualTask->numberOfCycle)
-        {
-            finishTask();
-            if(getNextTask()) {
-                startForwardLearnCycle();
-            }
-        }
-        else
-        {
-            startForwardLearnCycle();
-        }
-    }
+    goToNextState(NEXT);
 }
 
 /**
- * @brief get actual cluster-mode
- *
- * @return actual cluster-mode
+ * @brief Cluster::initStatemachine
  */
-Cluster::ClusterMode
-Cluster::getMode() const
+void
+Cluster::initStatemachine()
 {
-    return m_mode;
+    m_stateMachine->createNewState(TASK_STATE,
+                                   "Task-handling state");
+    m_stateMachine->createNewState(LEARN_STATE,
+                                   "Learn-State");
+    m_stateMachine->createNewState(IMAGE_LEARN_STATE,
+                                   "Image-learn state");
+    m_stateMachine->createNewState(IMAGE_LEARN_FORWARD_STATE,
+                                   "Image-learn state: forward-propagation");
+    m_stateMachine->createNewState(IMAGE_LEARN_BACKWARD_STATE,
+                                   "Image-learn state: backward-propagation");
+    m_stateMachine->createNewState(IMAGE_LEARN_CYCLE_FINISH_STATE,
+                                   "Image-learn state: finish-cycle");
+    m_stateMachine->createNewState(GRAPH_LEARN_STATE,
+                                   "Graph-learn state");
+    m_stateMachine->createNewState(GRAPH_LEARN_FORWARD_STATE,
+                                   "Graph-learn state: forward-propagation");
+    m_stateMachine->createNewState(GRAPH_LEARN_BACKWARD_STATE,
+                                   "Graph-learn state: backward-propagation");
+    m_stateMachine->createNewState(GRAPH_LEARN_CYCLE_FINISH_STATE,
+                                   "Graph-learn state: finish-cycle");
+    m_stateMachine->createNewState(REQUEST_STATE,
+                                   "Request-State");
+    m_stateMachine->createNewState(IMAGE_REQUEST_STATE,
+                                   "Image-request state");
+    m_stateMachine->createNewState(IMAGE_REQUEST_FORWARD_STATE,
+                                   "Image-request state: forward-propagation");
+    m_stateMachine->createNewState(IMAGE_REQUEST_CYCLE_FINISH_STATE,
+                                   "Image-request state: finish-cycle");
+    m_stateMachine->createNewState(GRAPH_REQUEST_STATE,
+                                   "Graph-request state");
+    m_stateMachine->createNewState(GRAPH_REQUEST_FORWARD_STATE,
+                                   "Graph-request state: forward-propagation");
+    m_stateMachine->createNewState(GRAPH_REQUEST_CYCLE_FINISH_STATE,
+                                   "Graph-request state: finish-cycle");
+
+    // add events to states
+    m_stateMachine->addEventToState(TASK_STATE,
+                                    m_taskHandleState);
+    m_stateMachine->addEventToState(IMAGE_LEARN_FORWARD_STATE,
+                                    new ImageLearnForward_State(this));
+    m_stateMachine->addEventToState(IMAGE_LEARN_BACKWARD_STATE,
+                                    new ImageLearnBackward_State(this));
+    m_stateMachine->addEventToState(GRAPH_LEARN_FORWARD_STATE,
+                                    new GraphLearnForward_State(this));
+    m_stateMachine->addEventToState(GRAPH_LEARN_BACKWARD_STATE,
+                                    new GraphLearnBackward_State(this));
+    m_stateMachine->addEventToState(IMAGE_REQUEST_FORWARD_STATE,
+                                    new ImageIdentify_State(this));
+    m_stateMachine->addEventToState(GRAPH_REQUEST_FORWARD_STATE,
+                                    new GraphInterpolation_State(this));
+    m_stateMachine->addEventToState(IMAGE_LEARN_CYCLE_FINISH_STATE,
+                                    new CycleFinish_State(this));
+    m_stateMachine->addEventToState(GRAPH_LEARN_CYCLE_FINISH_STATE,
+                                    new CycleFinish_State(this));
+    m_stateMachine->addEventToState(IMAGE_REQUEST_CYCLE_FINISH_STATE,
+                                    new CycleFinish_State(this));
+    m_stateMachine->addEventToState(GRAPH_REQUEST_CYCLE_FINISH_STATE,
+                                    new CycleFinish_State(this));
+
+    // child states image learn
+    m_stateMachine->addChildState(LEARN_STATE,       IMAGE_LEARN_STATE);
+    m_stateMachine->addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_FORWARD_STATE);
+    m_stateMachine->addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_BACKWARD_STATE);
+    m_stateMachine->addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_CYCLE_FINISH_STATE);
+
+    // child states graph learn
+    m_stateMachine->addChildState(LEARN_STATE,       GRAPH_LEARN_STATE);
+    m_stateMachine->addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_FORWARD_STATE);
+    m_stateMachine->addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_BACKWARD_STATE);
+    m_stateMachine->addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_CYCLE_FINISH_STATE);
+
+    // child states image request
+    m_stateMachine->addChildState(REQUEST_STATE,       IMAGE_REQUEST_STATE);
+    m_stateMachine->addChildState(IMAGE_REQUEST_STATE, IMAGE_REQUEST_FORWARD_STATE);
+    m_stateMachine->addChildState(IMAGE_REQUEST_STATE, IMAGE_REQUEST_CYCLE_FINISH_STATE);
+
+    // child states graph request
+    m_stateMachine->addChildState(REQUEST_STATE,       GRAPH_REQUEST_STATE);
+    m_stateMachine->addChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_FORWARD_STATE);
+    m_stateMachine->addChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_CYCLE_FINISH_STATE);
+
+    // set initial childs
+    m_stateMachine->setInitialChildState(IMAGE_LEARN_STATE,   IMAGE_LEARN_FORWARD_STATE);
+    m_stateMachine->setInitialChildState(GRAPH_LEARN_STATE,   GRAPH_LEARN_FORWARD_STATE);
+    m_stateMachine->setInitialChildState(IMAGE_REQUEST_STATE, IMAGE_REQUEST_FORWARD_STATE);
+    m_stateMachine->setInitialChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_FORWARD_STATE);
+
+    // transtions learn init
+    m_stateMachine->addTransition(TASK_STATE,  LEARN, LEARN_STATE);
+    m_stateMachine->addTransition(LEARN_STATE, IMAGE, IMAGE_LEARN_STATE);
+    m_stateMachine->addTransition(LEARN_STATE, GRAPH, GRAPH_LEARN_STATE);
+
+    // transitions request init
+    m_stateMachine->addTransition(TASK_STATE,    REQUEST, REQUEST_STATE);
+    m_stateMachine->addTransition(REQUEST_STATE, IMAGE,   IMAGE_REQUEST_STATE);
+    m_stateMachine->addTransition(REQUEST_STATE, GRAPH,   GRAPH_REQUEST_STATE);
+
+    // trainsition learn-internal
+    m_stateMachine->addTransition(IMAGE_LEARN_FORWARD_STATE,      NEXT, IMAGE_LEARN_BACKWARD_STATE     );
+    m_stateMachine->addTransition(IMAGE_LEARN_BACKWARD_STATE,     NEXT, IMAGE_LEARN_CYCLE_FINISH_STATE );
+    m_stateMachine->addTransition(IMAGE_LEARN_CYCLE_FINISH_STATE, NEXT, IMAGE_LEARN_FORWARD_STATE      );
+    m_stateMachine->addTransition(GRAPH_LEARN_FORWARD_STATE,      NEXT, GRAPH_LEARN_BACKWARD_STATE     );
+    m_stateMachine->addTransition(GRAPH_LEARN_BACKWARD_STATE,     NEXT, GRAPH_LEARN_CYCLE_FINISH_STATE );
+    m_stateMachine->addTransition(GRAPH_LEARN_CYCLE_FINISH_STATE, NEXT, GRAPH_LEARN_FORWARD_STATE      );
+
+    // trainsition request-internal
+    m_stateMachine->addTransition(IMAGE_REQUEST_FORWARD_STATE,      NEXT, IMAGE_REQUEST_CYCLE_FINISH_STATE );
+    m_stateMachine->addTransition(IMAGE_REQUEST_CYCLE_FINISH_STATE, NEXT, IMAGE_REQUEST_FORWARD_STATE      );
+    m_stateMachine->addTransition(GRAPH_REQUEST_FORWARD_STATE,      NEXT, GRAPH_REQUEST_CYCLE_FINISH_STATE );
+    m_stateMachine->addTransition(GRAPH_REQUEST_CYCLE_FINISH_STATE, NEXT, GRAPH_LEARN_FORWARD_STATE        );
+
+    // transition finish back to task-state
+    m_stateMachine->addTransition(LEARN_STATE,   FINISH_TASK, TASK_STATE);
+    m_stateMachine->addTransition(REQUEST_STATE, FINISH_TASK, TASK_STATE);
+    m_stateMachine->addTransition(TASK_STATE,    PROCESS_TASK, TASK_STATE);
+
+    // set initial state for the state-machine
+    m_stateMachine->setCurrentState(TASK_STATE);
 }
 
 /**
  * @brief create a learn-task and add it to the task-queue
  *
  * @param inputData input-data
- * @param numberOfInputsPerCycle number of inputs, which belongs to one cycle
+ * @param numberOfInputsPerCycle number of inputs, which numberOfInputsPerCyclebelongs to one cycle
  * @param numberOfOuputsPerCycle number of outputs, which belongs to one cycle
  * @param numberOfCycle number of cycles
  *
  * @return task-uuid
  */
 const std::string
-Cluster::addLearnTask(float* inputData,
-                      const uint64_t numberOfInputsPerCycle,
-                      const uint64_t numberOfOuputsPerCycle,
-                      const uint64_t numberOfCycle)
+Cluster::addImageLearnTask(float* inputData,
+                           const uint64_t numberOfInputsPerCycle,
+                           const uint64_t numberOfOuputsPerCycle,
+                           const uint64_t numberOfCycle)
 {
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
     // create new learn-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
@@ -267,14 +340,15 @@ Cluster::addLearnTask(float* inputData,
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
-    newTask.type = LEARN_TASK;
+    newTask.type = IMAGE_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
     // add task to queue
     const std::string uuid = newTask.uuid.toString();
-    m_taskMap.insert(std::make_pair(uuid, newTask));
-    m_taskQueue.push_back(uuid);
+    m_taskHandleState->addTask(uuid, newTask);
+
+    m_stateMachine->goToNextState(PROCESS_TASK);
 
     return uuid;
 }
@@ -290,13 +364,11 @@ Cluster::addLearnTask(float* inputData,
  * @return task-uuid
  */
 const std::string
-Cluster::addRequestTask(float* inputData,
-                        const uint64_t numberOfInputsPerCycle,
-                        const uint64_t numberOfOuputsPerCycle,
-                        const uint64_t numberOfCycle)
+Cluster::addImageRequestTask(float* inputData,
+                             const uint64_t numberOfInputsPerCycle,
+                             const uint64_t numberOfOuputsPerCycle,
+                             const uint64_t numberOfCycle)
 {
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
     // create new request-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
@@ -305,14 +377,76 @@ Cluster::addRequestTask(float* inputData,
     newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
     newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
     newTask.numberOfCycle = numberOfCycle;
-    newTask.type = REQUEST_TASK;
+    newTask.type = IMAGE_REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
     // add task to queue
     const std::string uuid = newTask.uuid.toString();
-    m_taskMap.insert(std::make_pair(uuid, newTask));
-    m_taskQueue.push_back(uuid);
+    m_taskHandleState->addTask(uuid, newTask);
+
+    m_stateMachine->goToNextState(PROCESS_TASK);
+
+    return uuid;
+}
+
+/**
+ * @brief Cluster::addGraphLearnTask
+ * @param inputData
+ * @param numberOfValues
+ * @param numberOfInputs
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+Cluster::addGraphLearnTask(float* inputData,
+                           const uint64_t numberOfCycle)
+{
+    // create new learn-task
+    Task newTask;
+    newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.inputData = inputData;
+    newTask.numberOfCycle = numberOfCycle;
+    newTask.type = GRAPH_LEARN_TASK;
+    newTask.progress.state = QUEUED_TASK_STATE;
+    newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // add task to queue
+    const std::string uuid = newTask.uuid.toString();
+    m_taskHandleState->addTask(uuid, newTask);
+
+    m_stateMachine->goToNextState(PROCESS_TASK);
+
+    return uuid;
+}
+
+/**
+ * @brief Cluster::addGraphRequestTask
+ * @param inputData
+ * @param numberOfValues
+ * @param numberOfInputs
+ * @param numberOfCycle
+ * @return
+ */
+const std::string
+Cluster::addGraphRequestTask(float* inputData,
+                             const uint64_t numberOfCycle)
+{
+    // create new request-task
+    Task newTask;
+    newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.inputData = inputData;
+    newTask.resultData = new DataArray();
+    newTask.numberOfCycle = numberOfCycle;
+    newTask.type = GRAPH_REQUEST_TASK;
+    newTask.progress.state = QUEUED_TASK_STATE;
+    newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // add tasgetNextTaskk to queue
+    const std::string uuid = newTask.uuid.toString();
+    m_taskHandleState->addTask(uuid, newTask);
+
+    m_stateMachine->goToNextState(PROCESS_TASK);
 
     return uuid;
 }
@@ -330,8 +464,8 @@ Cluster::request(float* inputData,
                  const uint64_t numberOfInputes)
 {
     // create new small request-task
-    const std::string taskUuid = addRequestTask(inputData, numberOfInputes, 0, 1);
-    m_segmentCounter = allSegments.size();
+    const std::string taskUuid = addImageRequestTask(inputData, numberOfInputes, 0, 1);
+    segmentCounter = allSegments.size();
     updateClusterState();
 
     // wait until task is finished
@@ -347,71 +481,13 @@ Cluster::request(float* inputData,
 }
 
 /**
- * @brief run next task from the queue
- *
- * @return false, if task-queue if empty, else true
+ * @brief Cluster::getActualTask
+ * @return
  */
-bool
-Cluster::getNextTask()
+Task*
+Cluster::getActualTask() const
 {
-    // HINT: mutex already locked in function 'updateClusterState'
-
-    // check number of tasks in queue
-    if(m_taskQueue.size() == 0) {
-        return false;
-    }
-
-    // remove task from queue
-    const std::string nextUuid = m_taskQueue.front();
-    m_taskQueue.pop_front();
-
-    // init the new task
-    std::map<std::string, Task>::iterator it;
-    it = m_taskMap.find(nextUuid);
-    it->second.progress.state = ACTIVE_TASK_STATE;
-    it->second.progress.startActiveTimeStamp = std::chrono::system_clock::now();
-    actualTask = &it->second;
-
-    return true;
-}
-
-/**
- * @brief finish actual task
- */
-void
-Cluster::finishTask()
-{
-    // HINT: mutex already locked in function 'updateClusterState'
-
-    // precheck
-    if(actualTask == nullptr) {
-        return;
-    }
-
-    // send results to sagiri, if some are attached to the task
-    if(actualTask->resultData != nullptr)
-    {
-        Kitsunemimi::ErrorContainer error;
-        if(Sagiri::sendResults(actualTask->uuid.toString(),
-                               *actualTask->resultData,
-                               error) == false)
-        {
-            LOG_ERROR(error);
-        }
-        delete actualTask->resultData;
-        actualTask->resultData = nullptr;
-    }
-
-    // remove task from map and free its data
-    std::map<std::string, Task>::iterator it;
-    it = m_taskMap.find(actualTask->uuid.toString());
-    if(it != m_taskMap.end())
-    {
-        delete it->second.inputData;
-        it->second.progress.state = FINISHED_TASK_STATE;
-        it->second.progress.endActiveTimeStamp = std::chrono::system_clock::now();
-        actualTask = nullptr;
-    }
+    return m_taskHandleState->getActualTask();
 }
 
 /**
@@ -420,11 +496,9 @@ Cluster::finishTask()
  * @return cycle of the actual task
  */
 uint64_t
-Cluster::getActualTaskCycle()
+Cluster::getActualTaskCycle() const
 {
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
-    return actualTask->actualCycle;
+    return m_taskHandleState->getActualTask()->actualCycle;
 }
 
 /**
@@ -437,37 +511,7 @@ Cluster::getActualTaskCycle()
 const TaskProgress
 Cluster::getProgress(const std::string &taskUuid)
 {
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
-    std::map<std::string, Task>::const_iterator it;
-    it = m_taskMap.find(taskUuid);
-    if(it != m_taskMap.end()) {
-        return it->second.progress;
-    }
-
-    TaskProgress progress;
-    return progress;
-}
-
-/**
- * @brief get state of a task
- *
- * @param taskUuid UUID of the task
- *
- * @return state of the requested task
- */
-TaskState
-Cluster::getTaskState(const std::string &taskUuid)
-{
-    TaskState state = UNDEFINED_TASK_STATE;
-
-    std::map<std::string, Task>::const_iterator it;
-    it = m_taskMap.find(taskUuid);
-    if(it != m_taskMap.end()) {
-        state = it->second.progress.state;
-    }
-
-    return state;
+    return m_taskHandleState->getProgress(taskUuid);
 }
 
 /**
@@ -480,41 +524,7 @@ Cluster::getTaskState(const std::string &taskUuid)
 bool
 Cluster::removeTask(const std::string &taskUuid)
 {
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
-    TaskState state = UNDEFINED_TASK_STATE;
-
-    // check and update map
-    std::map<std::string, Task>::iterator itMap;
-    itMap = m_taskMap.find(taskUuid);
-    if(itMap != m_taskMap.end())
-    {
-        state = itMap->second.progress.state;
-
-        // if only queue but not activly processed at the moment, it can easily deleted
-        if(state == QUEUED_TASK_STATE)
-        {
-            delete itMap->second.inputData;
-            m_taskMap.erase(itMap);
-        }
-
-        // if task is active at the moment, then only mark it as aborted
-        if(state == ACTIVE_TASK_STATE) {
-            itMap->second.progress.state = ABORTED_TASK_STATE;
-        }
-    }
-
-    // check and update queue
-    if(state == QUEUED_TASK_STATE)
-    {
-        std::deque<std::string>::const_iterator itQueue;
-        itQueue = std::find(m_taskQueue.begin(), m_taskQueue.end(), taskUuid);
-        if(itQueue != m_taskQueue.end()) {
-            m_taskQueue.erase(itQueue);
-        }
-    }
-
-    return true;
+    return m_taskHandleState->removeTask(taskUuid);
 }
 
 /**
@@ -527,9 +537,7 @@ Cluster::removeTask(const std::string &taskUuid)
 bool
 Cluster::isFinish(const std::string &taskUuid)
 {
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
-    return getTaskState(taskUuid) == FINISHED_TASK_STATE;
+    return m_taskHandleState->isFinish(taskUuid);
 }
 
 /**
@@ -540,11 +548,16 @@ Cluster::isFinish(const std::string &taskUuid)
 void
 Cluster::setResultForActualCycle(const uint32_t result)
 {
-    std::lock_guard<std::mutex> guard(m_task_mutex);
+    return m_taskHandleState->setResultForActualCycle(result);
+}
 
-    if(actualTask->resultData == nullptr) {
-        return;
-    }
-
-    actualTask->resultData->append(new DataValue(static_cast<long>(result)));
+/**
+ * @brief Cluster::goToNextState
+ * @param nextStateId
+ * @return
+ */
+bool
+Cluster::goToNextState(const uint32_t nextStateId)
+{
+    return m_stateMachine->goToNextState(nextStateId);
 }

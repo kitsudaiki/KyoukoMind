@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_template.h
+ * @file        graph_learn_forward_state.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,22 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATETEMPLATE_H
-#define KYOUKOMIND_CREATETEMPLATE_H
+#ifndef GRAPHLEARNFORWARD_STATE_H
+#define GRAPHLEARNFORWARD_STATE_H
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiCommon/threading/event.h>
 
-class CreateTemplate
-        : public Kitsunemimi::Sakura::Blossom
+class Cluster;
+
+class GraphLearnForward_State
+        : public Kitsunemimi::Event
 {
 public:
-    CreateTemplate();
+    GraphLearnForward_State(Cluster* cluster);
+    ~GraphLearnForward_State();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
-                 Kitsunemimi::ErrorContainer &error);  
+    bool processEvent();
+
+private:
+    Cluster* m_cluster = nullptr;
 };
 
-#endif // CREATETEMPLATE_H
+#endif // GRAPHLEARNFORWARD_STATE_H

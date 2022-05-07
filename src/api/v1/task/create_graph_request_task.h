@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_template.h
+ * @file        create_graph_request_task.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,22 +20,25 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATETEMPLATE_H
-#define KYOUKOMIND_CREATETEMPLATE_H
+#ifndef KYOUKOMIND_CREATE_GRAPH_REQUESTTASK_H
+#define KYOUKOMIND_CREATE_GRAPH_REQUESTTASK_H
 
+#include <common.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class CreateTemplate
+class Cluster;
+
+class CreateGraphRequestTask
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateTemplate();
+    CreateGraphRequestTask();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  const Kitsunemimi::DataMap &context,
                  Kitsunemimi::Sakura::BlossomStatus &status,
-                 Kitsunemimi::ErrorContainer &error);  
+                 Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // CREATETEMPLATE_H
+#endif // KYOUKOMIND_CREATE_GRAPH_REQUESTTASK_H

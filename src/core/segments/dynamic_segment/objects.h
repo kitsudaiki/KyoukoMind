@@ -37,8 +37,7 @@ struct DynamicNode
 
     uint8_t refractionTime = 1;
     uint8_t active = 0;
-    uint8_t upToDate = 0;
-    bool isInit = false;
+    uint8_t padding[2];
 
     uint32_t brickId = 0;
 

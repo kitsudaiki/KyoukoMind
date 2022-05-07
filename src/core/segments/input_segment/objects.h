@@ -30,7 +30,7 @@ struct InputNode
     float weight = 0.0f;
     uint32_t targetBorderId = 0;
 
-    float maxWeight = 1.0f;
+    float maxWeight = 0.000001f;
     uint8_t padding[4];
 
     // total size: 16 Byte

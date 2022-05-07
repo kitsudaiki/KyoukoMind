@@ -43,8 +43,10 @@
 #include <api/v1/template/list_templates.h>
 #include <api/v1/template/show_template.h>
 
-#include <api/v1/task/create_learn_task.h>
-#include <api/v1/task/create_request_task.h>
+#include <api/v1/task/create_image_learn_task.h>
+#include <api/v1/task/create_image_request_task.h>
+#include <api/v1/task/create_graph_learn_task.h>
+#include <api/v1/task/create_graph_request_task.h>
 #include <api/v1/task/show_task.h>
 #include <api/v1/task/list_task.h>
 #include <api/v1/task/delete_task.h>
@@ -130,19 +132,33 @@ initTaskBlossoms()
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     const std::string group = "task";
 
-    assert(interface->addBlossom(group, "create_learn", new CreateLearnTask()));
-    endpoints->addEndpoint("v1/task/learn",
+    assert(interface->addBlossom(group, "create_image_learn", new CreateImageLearnTask()));
+    endpoints->addEndpoint("v1/task/image/learn",
                            Kitsunemimi::Hanami::POST_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
-                           "create_learn");
+                           "create_image_learn");
 
-    assert(interface->addBlossom(group, "create_request", new CreateRequestTask()));
-    endpoints->addEndpoint("v1/task/request",
+    assert(interface->addBlossom(group, "create_image_request", new CreateImageRequestTask()));
+    endpoints->addEndpoint("v1/task/image/request",
                            Kitsunemimi::Hanami::POST_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
-                           "create_request");
+                           "create_image_request");
+
+    assert(interface->addBlossom(group, "create_graph_learn", new CreateGraphLearnTask()));
+    endpoints->addEndpoint("v1/task/graph/learn",
+                           Kitsunemimi::Hanami::POST_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "create_graph_learn");
+
+    assert(interface->addBlossom(group, "create_graph_request", new CreateGraphRequestTask()));
+    endpoints->addEndpoint("v1/task/graph/request",
+                           Kitsunemimi::Hanami::POST_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "create_graph_request");
 
     assert(interface->addBlossom(group, "show", new ShowTask()));
     endpoints->addEndpoint("v1/task",

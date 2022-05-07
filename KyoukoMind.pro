@@ -120,8 +120,10 @@ HEADERS += \
     src/api/v1/cluster/delete_cluster.h \
     src/api/v1/cluster/list_cluster.h \
     src/api/v1/cluster/show_cluster.h \
-    src/api/v1/task/create_learn_task.h \
-    src/api/v1/task/create_request_task.h \
+    src/api/v1/task/create_graph_learn_task.h \
+    src/api/v1/task/create_graph_request_task.h \
+    src/api/v1/task/create_image_learn_task.h \
+    src/api/v1/task/create_image_request_task.h \
     src/api/v1/task/delete_task.h \
     src/api/v1/task/list_task.h \
     src/api/v1/task/show_task.h \
@@ -144,6 +146,14 @@ HEADERS += \
     src/core/cluster/cluster_handler.h \
     src/core/cluster/cluster_init.h \
     src/core/cluster/cluster_meta.h \
+    src/core/cluster/states/cycle_finish_state.h \
+    src/core/cluster/states/graph_interpolation_state.h \
+    src/core/cluster/states/graph_learn_backward_state.h \
+    src/core/cluster/states/graph_learn_forward_state.h \
+    src/core/cluster/states/image_identify_state.h \
+    src/core/cluster/states/image_learn_backward_state.h \
+    src/core/cluster/states/image_learn_forward_state.h \
+    src/core/cluster/states/task_handle_state.h \
     src/core/cluster/task.h \
     src/core/processing/cpu_processing_unit.h \
     src/core/processing/processing_unit_handler.h \
@@ -168,6 +178,10 @@ HEADERS += \
     src/core/segments/static_segment/processing.h \
     src/core/segments/static_segment/static_segment.h \
     src/core/struct_validation.h \
+    src/core/templates/dynamic_segments.h \
+    src/core/templates/input_segments.h \
+    src/core/templates/output_segments.h \
+    src/core/templates/template_creator.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
     src/dev_test.h \
@@ -178,8 +192,10 @@ SOURCES += \
     src/api/v1/cluster/delete_cluster.cpp \
     src/api/v1/cluster/list_cluster.cpp \
     src/api/v1/cluster/show_cluster.cpp \
-    src/api/v1/task/create_learn_task.cpp \
-    src/api/v1/task/create_request_task.cpp \
+    src/api/v1/task/create_graph_learn_task.cpp \
+    src/api/v1/task/create_graph_request_task.cpp \
+    src/api/v1/task/create_image_learn_task.cpp \
+    src/api/v1/task/create_image_request_task.cpp \
     src/api/v1/task/delete_task.cpp \
     src/api/v1/task/list_task.cpp \
     src/api/v1/task/show_task.cpp \
@@ -190,6 +206,14 @@ SOURCES += \
     src/core/cluster/cluster.cpp \
     src/core/cluster/cluster_handler.cpp \
     src/core/cluster/cluster_init.cpp \
+    src/core/cluster/states/cycle_finish_state.cpp \
+    src/core/cluster/states/graph_interpolation_state.cpp \
+    src/core/cluster/states/graph_learn_backward_state.cpp \
+    src/core/cluster/states/graph_learn_forward_state.cpp \
+    src/core/cluster/states/image_identify_state.cpp \
+    src/core/cluster/states/image_learn_backward_state.cpp \
+    src/core/cluster/states/image_learn_forward_state.cpp \
+    src/core/cluster/states/task_handle_state.cpp \
     src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \
     src/core/processing/segment_queue.cpp \

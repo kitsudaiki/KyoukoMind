@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_template.h
+ * @file        graph_interpolation_state.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,22 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATETEMPLATE_H
-#define KYOUKOMIND_CREATETEMPLATE_H
+#ifndef GRAPHINTERPOLATION_STATE_H
+#define GRAPHINTERPOLATION_STATE_H
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiCommon/threading/event.h>
 
-class CreateTemplate
-        : public Kitsunemimi::Sakura::Blossom
+class Cluster;
+
+class GraphInterpolation_State
+        : public Kitsunemimi::Event
 {
 public:
-    CreateTemplate();
+    GraphInterpolation_State(Cluster* cluster);
+    ~GraphInterpolation_State();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
-                 Kitsunemimi::ErrorContainer &error);  
+    bool processEvent();
+
+private:
+    Cluster* m_cluster = nullptr;
 };
 
-#endif // CREATETEMPLATE_H
+#endif // GRAPHINTERPOLATION_STATE_H

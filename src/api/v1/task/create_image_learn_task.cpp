@@ -1,5 +1,5 @@
 /**
- * @file        create_learn_task.cpp
+ * @file        create_image_learn_task.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "create_learn_task.h"
+#include "create_image_learn_task.h"
 #include <kyouko_root.h>
 
 #include <libSagiriArchive/sagiri_send.h>
@@ -37,7 +37,7 @@
 using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
-CreateLearnTask::CreateLearnTask()
+CreateImageLearnTask::CreateImageLearnTask()
     : Blossom("Add new learn-task to the task-queue of a cluster.")
 {
     //----------------------------------------------------------------------------------------------
@@ -75,10 +75,10 @@ CreateLearnTask::CreateLearnTask()
  * @brief runTask
  */
 bool
-CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
-                         const Kitsunemimi::DataMap &context,
-                         BlossomStatus &status,
-                         Kitsunemimi::ErrorContainer &error)
+CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
+                              const Kitsunemimi::DataMap &context,
+                              BlossomStatus &status,
+                              Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
@@ -118,7 +118,7 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
 
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, error);
+    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, "", error);
     if(dataSetBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");
@@ -127,12 +127,10 @@ CreateLearnTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // create task
-    const std::string taskUuid = cluster->addLearnTask(static_cast<float*>(dataSetBuffer->data),
-                                                       numberOfInputs,
-                                                       numberOfOutputs,
-                                                       numberOfLines);
-    cluster->m_segmentCounter = cluster->allSegments.size();
-    cluster->updateClusterState();
+    const std::string taskUuid = cluster->addImageLearnTask(static_cast<float*>(dataSetBuffer->data),
+                                                            numberOfInputs,
+                                                            numberOfOutputs,
+                                                            numberOfLines);
 
     blossomLeaf.output.insert("uuid", taskUuid);
 

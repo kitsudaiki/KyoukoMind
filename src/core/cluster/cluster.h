@@ -32,11 +32,64 @@ class InputSegment;
 class OutputSegment;
 class AbstractSegment;
 
+class TaskHandle_State;
+class CycleFinish_State;
+class GraphInterpolation_State;
+class GraphLearnBackward_State;
+class GraphLearnForward_State;
+class ImageIdentify_State;
+class ImageLearnBackward_State;
+class ImageLearnForward_State;
+
+namespace Kitsunemimi {
+class EventQueue;
+class Statemachine;
+}
+
 class Cluster
 {
 public:
     Cluster();
     ~Cluster();
+
+    enum ClusterStates
+    {
+        TASK_STATE = 0,
+        LEARN_STATE = 1,
+            IMAGE_LEARN_STATE = 2,
+                IMAGE_LEARN_FORWARD_STATE = 3,
+                IMAGE_LEARN_BACKWARD_STATE = 4,
+                IMAGE_LEARN_CYCLE_FINISH_STATE = 5,
+            GRAPH_LEARN_STATE = 6,
+                GRAPH_LEARN_FORWARD_STATE = 7,
+                GRAPH_LEARN_BACKWARD_STATE = 8,
+                GRAPH_LEARN_CYCLE_FINISH_STATE = 9,
+        REQUEST_STATE = 10,
+            IMAGE_REQUEST_STATE = 11,
+                IMAGE_REQUEST_FORWARD_STATE = 12,
+                IMAGE_REQUEST_CYCLE_FINISH_STATE = 13,
+            GRAPH_REQUEST_STATE = 14,
+                GRAPH_REQUEST_FORWARD_STATE = 15,
+                GRAPH_REQUEST_CYCLE_FINISH_STATE = 16,
+    };
+
+    enum ClusterTransitions
+    {
+        LEARN = 100,
+        REQUEST = 101,
+        IMAGE = 102,
+        GRAPH = 103,
+        NEXT = 104,
+        FINISH_TASK = 105,
+        PROCESS_TASK = 106,
+    };
+
+    enum ClusterMode
+    {
+        NORMAL_MODE = 0,
+        LEARN_FORWARD_MODE = 1,
+        LEARN_BACKWARD_MODE = 2,
+    };
 
     // cluster-data
     Kitsunemimi::DataBuffer clusterData;
@@ -54,47 +107,41 @@ public:
 
     // task-handling
     void updateClusterState();
-    const std::string addLearnTask(float* inputData,
-                                   const uint64_t numberOfInputsPerCycle,
-                                   const uint64_t numberOfOuputsPerCycle,
-                                   const uint64_t numberOfCycle);
-    const std::string addRequestTask(float* inputData,
-                                     const uint64_t numberOfInputsPerCycle,
-                                     const uint64_t numberOfOuputsPerCycle,
-                                     const uint64_t numberOfCycle);
+    const std::string addImageLearnTask(float* inputData,
+                                        const uint64_t numberOfInputsPerCycle,
+                                        const uint64_t numberOfOuputsPerCycle,
+                                        const uint64_t numberOfCycle);
+    const std::string addImageRequestTask(float* inputData,
+                                          const uint64_t numberOfInputsPerCycle,
+                                          const uint64_t numberOfOuputsPerCycle,
+                                          const uint64_t numberOfCycle);
+    const std::string addGraphLearnTask(float* inputData,
+                                        const uint64_t numberOfCycle);
+    const std::string addGraphRequestTask(float* inputData,
+                                          const uint64_t numberOfCycle);
     uint32_t request(float* inputData, const uint64_t numberOfInputes);
 
     // tasks
-    uint64_t getActualTaskCycle();
+    Task* getActualTask() const;
+    uint64_t getActualTaskCycle() const;
     const TaskProgress getProgress(const std::string &taskUuid);
     bool removeTask(const std::string &taskUuid);
     bool isFinish(const std::string &taskUuid);
     void setResultForActualCycle(const uint32_t result);
 
-    enum ClusterMode
-    {
-        NORMAL_MODE = 0,
-        LEARN_FORWARD_MODE = 1,
-        LEARN_BACKWARD_MODE = 2,
-    };
-    ClusterMode getMode() const;
-    uint32_t m_segmentCounter = 0;
+    bool goToNextState(const uint32_t nextStateId);
+    void startForwardCycle();
+    void startBackwardCycle();
+
+    uint32_t segmentCounter = 0;
+    ClusterMode mode = NORMAL_MODE;
 
 private:
-    // task
-    Task* actualTask = nullptr;
-    std::deque<std::string> m_taskQueue;
-    std::map<std::string, Task> m_taskMap;
-    std::mutex m_task_mutex;
+    Kitsunemimi::Statemachine* m_stateMachine = nullptr;
+    TaskHandle_State* m_taskHandleState = nullptr;
+    std::mutex m_segmentCounterLock;
 
-    TaskState getTaskState(const std::string &taskUuid);
-    bool getNextTask();
-    void finishTask();
-
-    ClusterMode m_mode = NORMAL_MODE;
-
-    void startForwardLearnCycle();
-    void startBackwardLearnCycle();
+    void initStatemachine();
 };
 
 #endif // KYOUKOMIND_CLUSTER_INTERFACE_H

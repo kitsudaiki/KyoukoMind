@@ -1,5 +1,5 @@
 /**
- * @file        create_learn_task.h
+ * @file        graph_learn_backward_state.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,25 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATELEARNTASK_H
-#define KYOUKOMIND_CREATELEARNTASK_H
+#ifndef GRAPHLEARNBACKWARD_STATE_H
+#define GRAPHLEARNBACKWARD_STATE_H
 
-#include <common.h>
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiCommon/threading/event.h>
 
 class Cluster;
 
-class CreateLearnTask
-        : public Kitsunemimi::Sakura::Blossom
+class GraphLearnBackward_State
+        : public Kitsunemimi::Event
 {
 public:
-    CreateLearnTask();
+    GraphLearnBackward_State(Cluster* cluster);
+    ~GraphLearnBackward_State();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
-                 Kitsunemimi::ErrorContainer &error);
+    bool processEvent();
+
+private:
+    Cluster* m_cluster = nullptr;
 };
 
-#endif // KYOUKOMIND_CREATELEARNTASK_H
+#endif // GRAPHLEARNBACKWARD_STATE_H

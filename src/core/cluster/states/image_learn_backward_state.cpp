@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_template.h
+ * @file        image_learn_backward_state.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,22 +20,35 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATETEMPLATE_H
-#define KYOUKOMIND_CREATETEMPLATE_H
+#include "image_learn_backward_state.h"
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <core/cluster/cluster.h>
 
-class CreateTemplate
-        : public Kitsunemimi::Sakura::Blossom
+/**
+ * @brief constructor
+ *
+ * @param cluster pointer to the cluster, where the event and the statemachine belongs to
+ */
+ImageLearnBackward_State::ImageLearnBackward_State(Cluster* cluster)
 {
-public:
-    CreateTemplate();
+    m_cluster = cluster;
+}
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
-                 Kitsunemimi::ErrorContainer &error);  
-};
+/**
+ * @brief destructor
+ */
+ImageLearnBackward_State::~ImageLearnBackward_State() {}
 
-#endif // CREATETEMPLATE_H
+/**
+ * @brief prcess event
+ *
+ * @return alway true
+ */
+bool
+ImageLearnBackward_State::processEvent()
+{
+    m_cluster->mode = Cluster::LEARN_BACKWARD_MODE;
+    m_cluster->startBackwardCycle();
+
+    return true;
+}

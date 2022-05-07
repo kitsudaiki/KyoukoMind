@@ -1,5 +1,5 @@
 /**
- * @file        create_request_task.h
+ * @file        image_identify_state.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,25 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATEREQUESTTASK_H
-#define KYOUKOMIND_CREATEREQUESTTASK_H
+#ifndef IMAGEIDENTIFY_STATE_H
+#define IMAGEIDENTIFY_STATE_H
 
-#include <common.h>
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiCommon/threading/event.h>
 
 class Cluster;
 
-class CreateRequestTask
-        : public Kitsunemimi::Sakura::Blossom
+class ImageIdentify_State
+        : public Kitsunemimi::Event
 {
 public:
-    CreateRequestTask();
+    ImageIdentify_State(Cluster* cluster);
+    ~ImageIdentify_State();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
-                 Kitsunemimi::ErrorContainer &error);
+    bool processEvent();
+
+private:
+    Cluster* m_cluster = nullptr;
 };
 
-#endif // KYOUKOMIND_CREATEREQUESTTASK_H
+#endif // IMAGEIDENTIFY_STATE_H

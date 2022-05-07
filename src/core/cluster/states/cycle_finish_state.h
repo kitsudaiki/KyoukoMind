@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_template.h
+ * @file        cycle_finish_state.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,22 +20,24 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATETEMPLATE_H
-#define KYOUKOMIND_CREATETEMPLATE_H
+#ifndef CYCLEFINISH_STATE_H
+#define CYCLEFINISH_STATE_H
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiCommon/threading/event.h>
 
-class CreateTemplate
-        : public Kitsunemimi::Sakura::Blossom
+class Cluster;
+
+class CycleFinish_State
+        : public Kitsunemimi::Event
 {
 public:
-    CreateTemplate();
+    CycleFinish_State(Cluster* cluster);
+    ~CycleFinish_State();
 
-protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                 const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
-                 Kitsunemimi::ErrorContainer &error);  
+    bool processEvent();
+
+private:
+    Cluster* m_cluster = nullptr;
 };
 
-#endif // CREATETEMPLATE_H
+#endif // CYCLEFINISH_STATE_H
