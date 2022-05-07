@@ -129,9 +129,9 @@ CreateImageRequestTask::runTask(BlossomLeaf &blossomLeaf,
 
     // init request-task
     const std::string taskUuid = cluster->addImageRequestTask(static_cast<float*>(dataSetBuffer->data),
-                                                         numberOfInputs,
-                                                         numberOfOutputs,
-                                                         numberOfLines);
+                                                              numberOfInputs,
+                                                              numberOfOutputs,
+                                                              numberOfLines);
 
     blossomLeaf.output.insert("uuid", taskUuid);
 

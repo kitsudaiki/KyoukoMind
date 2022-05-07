@@ -306,7 +306,7 @@ Cluster::initStatemachine()
     m_stateMachine->addTransition(IMAGE_REQUEST_FORWARD_STATE,      NEXT, IMAGE_REQUEST_CYCLE_FINISH_STATE );
     m_stateMachine->addTransition(IMAGE_REQUEST_CYCLE_FINISH_STATE, NEXT, IMAGE_REQUEST_FORWARD_STATE      );
     m_stateMachine->addTransition(GRAPH_REQUEST_FORWARD_STATE,      NEXT, GRAPH_REQUEST_CYCLE_FINISH_STATE );
-    m_stateMachine->addTransition(GRAPH_REQUEST_CYCLE_FINISH_STATE, NEXT, GRAPH_LEARN_FORWARD_STATE        );
+    m_stateMachine->addTransition(GRAPH_REQUEST_CYCLE_FINISH_STATE, NEXT, GRAPH_REQUEST_FORWARD_STATE      );
 
     // transition finish back to task-state
     m_stateMachine->addTransition(LEARN_STATE,   FINISH_TASK, TASK_STATE);

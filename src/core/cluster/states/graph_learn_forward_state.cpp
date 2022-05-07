@@ -66,15 +66,17 @@ GraphLearnForward_State::processEvent()
     {
         actualVal = actualTask->inputData[i];
 
-        if(actualVal < lastVal)
+        const float newVal = (100.0f / actualVal) * lastVal;
+
+        if(newVal > 100.0f)
         {
-            inputNodes[pos * 2].weight = actualVal / lastVal;
+            inputNodes[pos * 2].weight = newVal - 100.0f;
             inputNodes[pos * 2 + 1].weight = 0.0f;
         }
         else
         {
             inputNodes[pos * 2].weight = 0.0f;
-            inputNodes[pos * 2 + 1].weight = lastVal / actualVal;
+            inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
         }
 
         lastVal = actualVal;
@@ -86,16 +88,18 @@ GraphLearnForward_State::processEvent()
     // set exprected output
     OutputNode* outputNodes = m_cluster->outputSegments[0]->outputs;
     actualVal = actualTask->inputData[actualTask->actualCycle + 1 + 5000];
+    const float newVal = (100.0f / actualVal) * lastVal;
+    //std::cout<<"            newVal: "<<newVal<<std::endl;
 
-    if(actualVal < lastVal)
+    if(newVal > 100.0f)
     {
-        outputNodes[0].shouldValue = actualVal / lastVal;
+        outputNodes[0].shouldValue = newVal - 100.0f;
         outputNodes[1].shouldValue = 0.0f;
     }
     else
     {
         outputNodes[0].shouldValue = 0.0f;
-        outputNodes[1].shouldValue = lastVal / actualVal;
+        outputNodes[1].shouldValue = 100.0f - newVal;
     }
 
     //std::cout<<"finish fillGraphLernBuffer"<<std::endl;

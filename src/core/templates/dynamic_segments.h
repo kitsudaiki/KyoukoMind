@@ -99,14 +99,14 @@ createSegmentBricksGraph(const long numberOfInputNodes,
     // centre part
     DataMap* internalBrick1 = new DataMap();
     internalBrick1->insert("type", new DataValue("normal"));
-    internalBrick1->insert("number_of_nodes", new DataValue(5000));
+    internalBrick1->insert("number_of_nodes", new DataValue(2000));
     internalBrick1->insert("position", createPosition(2, 1, 1));
     bricks->append(internalBrick1);
 
     // centre part
     DataMap* internalBrick2 = new DataMap();
     internalBrick2->insert("type", new DataValue("normal"));
-    internalBrick2->insert("number_of_nodes", new DataValue(1000));
+    internalBrick2->insert("number_of_nodes", new DataValue(500));
     internalBrick2->insert("position", createPosition(3, 1, 1));
     bricks->append(internalBrick2);
 

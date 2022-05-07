@@ -86,10 +86,20 @@ prcessOutputSegment(const OutputSegment &segment)
         //if(node->outputWeight <= -1.0f) {
         //    node->outputWeight = -1.00001f;
         //}
-        //node->outputWeight = log2(node->outputWeight + 1.0f);
+        //if(node->outputWeight > 0.0f) {
+        //    node->outputWeight = log2(node->outputWeight + 1.0f);
+        //}
         node->outputWeight = 1.0f / (1.0f + exp(-1.0f * node->outputWeight));
-        node->outputWeight *= node->maxWeight;
+        //node->shouldValue /= node->maxWeight;
+        //std::cout<<"outw: "<<node->outputWeight<<"     outM: "<<node->maxWeight<<"      should: "<<node->shouldValue<<std::endl;
+
     }
+
+
+    //std::cout<<"-------------------------------------------------------------"<<std::endl;
+    //std::cout<<"s: "<<segment.outputs[0].shouldValue<<"   :   "<<segment.outputs[1].shouldValue<<std::endl;
+    //std::cout<<"o: "<<segment.outputs[0].outputWeight<<"   :   "<<segment.outputs[1].outputWeight<<std::endl;
+
 }
 
 /**
@@ -109,15 +119,20 @@ backpropagateOutput(const OutputSegment &segment)
         outputNodeId++)
     {
         out = segment.outputs[outputNodeId];
-
+        out.shouldValue *= 5.0f;
+        if(out.shouldValue > 1.0f) {
+            out.shouldValue = 1.0f;
+        }
         delta = (out.outputWeight - out.shouldValue);
         delta *= out.outputWeight * (1.0f - out.outputWeight);
-        //if(out.outputWeight <= 0.0f) {
+        //if(out.outputWeight > 0.0f) {
         //    delta *= 1.4427f * pow(0.5f, out.outputWeight);
         //}
-
         segment.outputTransfers[out.targetBorderId] = delta;
     }
+
+    //std::cout<<"d: "<<segment.outputTransfers[0]<<"   :   "<<segment.outputTransfers[1]<<std::endl;
+
 }
 
 #endif // KYOUKOMIND_OUTPUT_PROCESSING_H

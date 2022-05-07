@@ -47,10 +47,24 @@ prcessInputSegment(const InputSegment &segment)
     for(uint64_t pos = 0; pos < numberOfInputs; pos++)
     {
         node = &segment.inputs[pos];
+
         node->maxWeight = static_cast<float>(node->maxWeight >= node->weight) * node->maxWeight
                           + static_cast<float>(node->maxWeight < node->weight) * node->weight;
-        outputTransfers[node->targetBorderId] = node->weight / node->maxWeight;
+        //outputTransfers[node->targetBorderId] = node->weight / node->maxWeight;
+
+        node->weight *= 5.0f;
+        if(node->weight > 1.0f) {
+            node->weight = 1.0f;
+        }
+
+        outputTransfers[node->targetBorderId] = node->weight;
     }
+    //std::cout<<"###########################################################"<<std::endl;
+    //std::cout<<segment.inputs[0].weight<<"   :   "<<segment.inputs[1].weight<<std::endl;
+    //std::cout<<segment.inputs[2].weight<<"   :   "<<segment.inputs[3].weight<<std::endl;
+    //std::cout<<segment.inputs[4].weight<<"   :   "<<segment.inputs[5].weight<<std::endl;
+    //std::cout<<segment.inputs[6].weight<<"   :   "<<segment.inputs[7].weight<<std::endl;
+
 }
 
 #endif // KYOUKOMIND_INPUT_PROCESSING_H

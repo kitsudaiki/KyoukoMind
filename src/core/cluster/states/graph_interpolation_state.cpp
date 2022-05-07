@@ -64,12 +64,21 @@ GraphInterpolation_State::processEvent()
         OutputNode* outputNodes = m_cluster->outputSegments[0]->outputs;
         inputNodes[10000 - 2].weight = outputNodes[0].outputWeight;
         inputNodes[10000 - 1].weight = outputNodes[1].outputWeight;
+
+        //std::cout<<"x: "<<(outputNodes[0].outputWeight / 5.0f)<<"   y: "<<(outputNodes[1].outputWeight / 5.0f)<<std::endl;
+        const float val1 = outputNodes[0].outputWeight / 5.0f;
+        const float val2 = outputNodes[1].outputWeight / 5.0f;
+        if(val1 > val2) {
+            std::cout<<"x: "<<(val1 - val2)<<"   y: "<<0.0f<<std::endl;
+        } else {
+            std::cout<<"x: "<<0.0f<<"   y: "<<(val2 - val1)<<std::endl;
+        }
     }
     else
     {
         float lastVal = actualTask->inputData[actualTask->actualCycle];
         float actualVal = 0.0f;
-        uint64_t pos = actualTask->actualCycle;
+        uint64_t pos = 0;
 
         // set input
         InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
@@ -78,16 +87,17 @@ GraphInterpolation_State::processEvent()
             i++)
         {
             actualVal = actualTask->inputData[i];
+            const float newVal = (100.0f / actualVal) * lastVal;
 
-            if(actualVal < lastVal)
+            if(newVal > 100.0f)
             {
-                inputNodes[pos * 2].weight = actualVal / lastVal;
+                inputNodes[pos * 2].weight = newVal - 100.0f;
                 inputNodes[pos * 2 + 1].weight = 0.0f;
             }
             else
             {
                 inputNodes[pos * 2].weight = 0.0f;
-                inputNodes[pos * 2 + 1].weight = lastVal / actualVal;
+                inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
             }
 
             lastVal = actualVal;
@@ -96,6 +106,9 @@ GraphInterpolation_State::processEvent()
     }
 
     actualTask->isInit = true;
+
+    m_cluster->mode = Cluster::NORMAL_MODE;
+    m_cluster->startForwardCycle();
 
     return true;
 }

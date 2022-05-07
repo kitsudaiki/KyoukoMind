@@ -53,8 +53,6 @@ ImageIdentify_State::processEvent()
 {
     Task* actualTask = m_cluster->getActualTask();
 
-    std::cout<<"cycle: "<<actualTask->actualCycle<<std::endl;
-
     const uint64_t entriesPerCycle = actualTask->numberOfInputsPerCycle
                                      + actualTask->numberOfOuputsPerCycle;
     const uint64_t offsetInput = entriesPerCycle * actualTask->actualCycle;

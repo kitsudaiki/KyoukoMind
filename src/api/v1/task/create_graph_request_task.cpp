@@ -119,8 +119,6 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get relevant information from output
-    const uint64_t numberOfInputs = dataSetInfo.get("inputs").getLong();
-    const uint64_t numberOfOutputs = dataSetInfo.get("outputs").getLong();
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
 
     // get input-data
@@ -133,10 +131,8 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // init request-task
-    const std::string taskUuid = cluster->addImageRequestTask(static_cast<float*>(dataSetBuffer->data),
-                                                         numberOfInputs,
-                                                         numberOfOutputs,
-                                                         numberOfLines);
+    float* fdata = static_cast<float*>(dataSetBuffer->data);
+    const std::string taskUuid = cluster->addGraphRequestTask(fdata, 1000);
 
     blossomLeaf.output.insert("uuid", taskUuid);
 
