@@ -97,6 +97,16 @@ TaskHandle_State::processEvent()
                 }
                 break;
             }
+            case CLUSTER_BACKUP_TASK:
+            {
+                if(m_cluster->goToNextState(Cluster::BACKUP)) {
+                    m_cluster->goToNextState(Cluster::CLUSTER);
+                } else {
+                    // TODO: error-message
+                    return false;
+                }
+                break;
+            }
             default: {
                 // TODO: error-message
                 return false;

@@ -70,11 +70,12 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
                                            totalNumberOfNodes,
                                            settings.maxSynapseSections,
                                            totalBorderSize);
+    header.position = convertPosition(parsedContent);
+
     // initialize segment itself
     allocateSegment(header);
     initSegmentPointer(header);
     initDefaultValues();
-    segmentHeader->position = convertPosition(parsedContent);
     dynamicSegmentSettings[0] = settings;
 
     // init content

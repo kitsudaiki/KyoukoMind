@@ -55,11 +55,11 @@ InputSegment::initSegment(const JsonItem &parsedContent)
     const uint32_t numberOfInputs = parsedContent.get("number_of_inputs").getInt();
     const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
-    SegmentHeader header = createNewHeader(numberOfInputs,
-                                           totalBorderSize);
+    SegmentHeader header = createNewHeader(numberOfInputs, totalBorderSize);
+    header.position = convertPosition(parsedContent);
+
     allocateSegment(header);
     initSegmentPointer(header);
-    segmentHeader->position = convertPosition(parsedContent);
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
 

@@ -32,6 +32,7 @@ enum TaskType
     IMAGE_REQUEST_TASK = 2,
     GRAPH_LEARN_TASK = 3,
     GRAPH_REQUEST_TASK = 4,
+    CLUSTER_BACKUP_TASK = 5,
 };
 
 enum TaskState
@@ -56,6 +57,7 @@ struct TaskProgress
 struct Task
 {
     Kitsunemimi::Hanami::kuuid uuid;
+    std::string name = "";
     bool isInit = false;
     float* inputData = nullptr;
     DataArray* resultData = nullptr;

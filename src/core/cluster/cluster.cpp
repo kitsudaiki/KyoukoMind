@@ -294,6 +294,10 @@ Cluster::initStatemachine()
     m_stateMachine->addTransition(REQUEST_STATE, IMAGE,   IMAGE_REQUEST_STATE);
     m_stateMachine->addTransition(REQUEST_STATE, GRAPH,   GRAPH_REQUEST_STATE);
 
+    // transitions backup init
+    m_stateMachine->addTransition(TASK_STATE,   BACKUP,  BACKUP_STATE);
+    m_stateMachine->addTransition(BACKUP_STATE, CLUSTER, CLUSTER_BACKUP_STATE);
+
     // trainsition learn-internal
     m_stateMachine->addTransition(IMAGE_LEARN_FORWARD_STATE,      NEXT, IMAGE_LEARN_BACKWARD_STATE     );
     m_stateMachine->addTransition(IMAGE_LEARN_BACKWARD_STATE,     NEXT, IMAGE_LEARN_CYCLE_FINISH_STATE );
@@ -309,8 +313,9 @@ Cluster::initStatemachine()
     m_stateMachine->addTransition(GRAPH_REQUEST_CYCLE_FINISH_STATE, NEXT, GRAPH_REQUEST_FORWARD_STATE      );
 
     // transition finish back to task-state
-    m_stateMachine->addTransition(LEARN_STATE,   FINISH_TASK, TASK_STATE);
-    m_stateMachine->addTransition(REQUEST_STATE, FINISH_TASK, TASK_STATE);
+    m_stateMachine->addTransition(LEARN_STATE,   FINISH_TASK,  TASK_STATE);
+    m_stateMachine->addTransition(REQUEST_STATE, FINISH_TASK,  TASK_STATE);
+    m_stateMachine->addTransition(BACKUP_STATE,  FINISH_TASK,  TASK_STATE);
     m_stateMachine->addTransition(TASK_STATE,    PROCESS_TASK, TASK_STATE);
 
     // set initial state for the state-machine
@@ -443,6 +448,27 @@ Cluster::addGraphRequestTask(float* inputData,
     newTask.numberOfCycle = numberOfCycle;
     newTask.numberOfInputsPerCycle = numberOfInputs;
     newTask.type = GRAPH_REQUEST_TASK;
+    newTask.progress.state = QUEUED_TASK_STATE;
+    newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // add tasgetNextTaskk to queue
+    const std::string uuid = newTask.uuid.toString();
+    m_taskHandleState->addTask(uuid, newTask);
+
+    m_stateMachine->goToNextState(PROCESS_TASK);
+
+    return uuid;
+}
+
+const std::string
+Cluster::addClusterBackupTask(const std::string &backupName)
+{
+    // create new request-task
+    Task newTask;
+    newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.name = backupName;
+    newTask.numberOfCycle = 1;
+    newTask.type = CLUSTER_BACKUP_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 

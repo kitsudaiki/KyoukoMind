@@ -71,17 +71,21 @@ public:
             GRAPH_REQUEST_STATE = 14,
                 GRAPH_REQUEST_FORWARD_STATE = 15,
                 GRAPH_REQUEST_CYCLE_FINISH_STATE = 16,
+        BACKUP_STATE = 17,
+            CLUSTER_BACKUP_STATE = 18,
     };
 
     enum ClusterTransitions
     {
         LEARN = 100,
         REQUEST = 101,
-        IMAGE = 102,
-        GRAPH = 103,
-        NEXT = 104,
-        FINISH_TASK = 105,
-        PROCESS_TASK = 106,
+        BACKUP = 102,
+        IMAGE = 103,
+        GRAPH = 104,
+        CLUSTER = 105,
+        NEXT = 106,
+        FINISH_TASK = 107,
+        PROCESS_TASK = 108,
     };
 
     enum ClusterMode
@@ -121,6 +125,8 @@ public:
     const std::string addGraphRequestTask(float* inputData,
                                           const uint64_t numberOfInputs,
                                           const uint64_t numberOfCycle);
+    const std::string addClusterBackupTask(const std::string &backupName);
+
     uint32_t request(float* inputData, const uint64_t numberOfInputes);
 
     // tasks
