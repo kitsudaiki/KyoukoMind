@@ -37,11 +37,12 @@
  * @param brick brick to process
  * @param segment segment where the brick belongs to
  */
-inline void
+inline bool
 backpropagateOutput(const Brick &brick,
                     const DynamicSegment &segment)
 {
     DynamicNode* node = nullptr;
+    float totalDelta = 0.0f;
 
     // iterate over all nodes within the brick
     for(uint32_t nodeId = brick.nodePos;
@@ -52,7 +53,10 @@ backpropagateOutput(const Brick &brick,
         node->delta = segment.inputTransfers[node->targetBorderId];
         //const float outH = log2(node->potential + 1.0f);
         //node->delta *= 1.4427f * pow(0.5f, outH);
+        totalDelta += abs(node->delta);
     }
+
+    return totalDelta > 0.0001f;
 }
 
 /**
@@ -174,9 +178,14 @@ rewightDynamicSegment(const DynamicSegment &segment)
     {
         const uint32_t brickId = segment.brickOrder[pos];
         Brick* brick = &segment.bricks[brickId];
-        if(brick->isOutputBrick) {
-            backpropagateOutput(*brick, segment);
-        } else {
+        if(brick->isOutputBrick)
+        {
+            if(backpropagateOutput(*brick, segment) == false) {
+                return;
+            }
+        }
+        else
+        {
             backpropagateNodes(*brick, segment);
         }
     }
