@@ -54,53 +54,82 @@ GraphLearnForward_State::processEvent()
     //std::cout<<"fillGraphLernBuffer"<<std::endl;
     Task* actualTask = m_cluster->getActualTask();
 
-    float lastVal = actualTask->inputData[actualTask->actualCycle];
+    float lastVal = actualTask->inputData[actualTask->actualCycle + 1];
+
     float actualVal = 0.0f;
+    float newVal = 0.0f;
     uint64_t pos = 0;
 
     // set input
     InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
-    for(uint64_t i = actualTask->actualCycle + 1;
-        i < actualTask->actualCycle + 1 + 5000;
-        i++)
+    OutputNode* outputNodes = m_cluster->outputSegments[0]->outputs;
+    uint64_t i = actualTask->actualCycle + 1;
+
+    while(i < actualTask->actualCycle + 1 + 365)
     {
-        actualVal = actualTask->inputData[i];
-
-        const float newVal = (100.0f / actualVal) * lastVal;
-
-        if(newVal > 100.0f)
+        // open-part
+        actualVal = actualTask->inputData[i * 2];
+        if(actualVal > lastVal)
         {
-            inputNodes[pos * 2].weight = newVal - 100.0f;
+            inputNodes[pos * 2].weight = 1.0f * (pos / 366.0f);
             inputNodes[pos * 2 + 1].weight = 0.0f;
         }
         else
         {
             inputNodes[pos * 2].weight = 0.0f;
-            inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
+            inputNodes[pos * 2 + 1].weight = 1.0f * (pos / 366.0f);
         }
-
         lastVal = actualVal;
         pos++;
+
+        // close-part
+        actualVal = actualTask->inputData[i * 2 + 1];
+
+        if(actualVal > lastVal)
+        {
+            inputNodes[pos * 2].weight = 1.0f * (pos / 366.0f);
+            inputNodes[pos * 2 + 1].weight = 0.0f;
+        }
+        else
+        {
+            inputNodes[pos * 2].weight = 0.0f;
+            inputNodes[pos * 2 + 1].weight = 1.0f * (pos / 366.0f);
+        }
+        lastVal = actualVal;
+        pos++;
+
+        i++;
     }
 
     //std::cout<<"poi"<<std::endl;
 
     // set exprected output
-    OutputNode* outputNodes = m_cluster->outputSegments[0]->outputs;
-    actualVal = actualTask->inputData[actualTask->actualCycle + 1 + 5000];
-    const float newVal = (100.0f / actualVal) * lastVal;
-    //std::cout<<"            newVal: "<<newVal<<std::endl;
 
-    if(newVal > 100.0f)
+    actualVal = actualTask->inputData[i * 2];
+    if(actualVal > lastVal)
     {
-        outputNodes[0].shouldValue = newVal - 100.0f;
+        outputNodes[0].shouldValue = 1.0f;
         outputNodes[1].shouldValue = 0.0f;
     }
     else
     {
         outputNodes[0].shouldValue = 0.0f;
-        outputNodes[1].shouldValue = 100.0f - newVal;
+        outputNodes[1].shouldValue = 1.0f;
     }
+    lastVal = actualVal;
+
+    actualVal = actualTask->inputData[i * 2 + 1];
+    if(actualVal > lastVal)
+    {
+        outputNodes[2].shouldValue = 1.0f;
+        outputNodes[3].shouldValue = 0.0f;
+    }
+    else
+    {
+        outputNodes[2].shouldValue = 0.0f;
+        outputNodes[3].shouldValue = 1.0f;
+    }
+
 
     //std::cout<<"finish fillGraphLernBuffer"<<std::endl;
 

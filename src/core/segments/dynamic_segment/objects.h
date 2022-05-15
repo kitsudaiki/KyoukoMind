@@ -93,11 +93,12 @@ struct DynamicSegmentSettings
     float signNeg = 0.6f;
     float potentialOverflow = 20.0f;
     float maxSynapseWeight = 30.0f;
+    float backpropagationBorder = 0.0001f;
     uint8_t refractionTime = 1;
     uint8_t multiplicatorRange = 0;
     uint8_t doLearn = 0;
 
-    uint8_t padding[217];
+    uint8_t padding[213];
 
     // total size: 256 Byte
 };

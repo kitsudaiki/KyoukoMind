@@ -120,18 +120,36 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, columnName, error);
-    if(dataSetBuffer == nullptr)
+    DataBuffer* openBuffer = Sagiri::getData(token, dataSetUuid, "Open", error);
+    if(openBuffer == nullptr)
+    {
+        error.addMeesage("failed to get data from sagiri");
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+    DataBuffer* closeBuffer = Sagiri::getData(token, dataSetUuid, "Close", error);
+    if(closeBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 
-    // create task
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-    const std::string taskUuid = cluster->addGraphLearnTask(static_cast<float*>(dataSetBuffer->data),
-                                                            numberOfLines - 5001);
+    float* completeBuffer = new float[numberOfLines * 2];
+    for(uint64_t i = 0; i < numberOfLines; i++)
+    {
+        completeBuffer[i * 2] = static_cast<float*>(openBuffer->data)[i];
+        completeBuffer[i * 2 + 1] = static_cast<float*>(closeBuffer->data)[i];
+    }
+
+    delete openBuffer;
+    delete closeBuffer;
+
+    // create task
+    const std::string taskUuid = cluster->addGraphLearnTask(completeBuffer,
+                                                            numberOfLines,
+                                                            numberOfLines - 366);
 
     blossomLeaf.output.insert("uuid", taskUuid);
 

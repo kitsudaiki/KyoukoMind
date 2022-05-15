@@ -56,7 +56,8 @@ backpropagateOutput(const Brick &brick,
         totalDelta += abs(node->delta);
     }
 
-    return totalDelta > 0.0001f;
+    //return totalDelta > segment.dynamicSegmentSettings->backpropagationBorder;
+    return true;
 }
 
 /**

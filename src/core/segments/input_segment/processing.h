@@ -47,17 +47,13 @@ prcessInputSegment(const InputSegment &segment)
     for(uint64_t pos = 0; pos < numberOfInputs; pos++)
     {
         node = &segment.inputs[pos];
-
-        node->maxWeight = static_cast<float>(node->maxWeight >= node->weight) * node->maxWeight
-                          + static_cast<float>(node->maxWeight < node->weight) * node->weight;
-        //outputTransfers[node->targetBorderId] = node->weight / node->maxWeight;
-
-        node->weight *= 5.0f;
-        if(node->weight > 1.0f) {
-            node->weight = 1.0f;
+        if(node->maxWeight < node->weight) {
+            node->maxWeight = node->weight;
+            //std::cout<<"new input-max: "<<node->maxWeight<<std::endl;
         }
-
-        outputTransfers[node->targetBorderId] = node->weight;
+        outputTransfers[node->targetBorderId] = node->weight / node->maxWeight;
+        //outputTransfers[node->targetBorderId] = node->weight;
+        //std::cout<<"hmmmm: "<<outputTransfers[node->targetBorderId]<<std::endl;
     }
     //std::cout<<"###########################################################"<<std::endl;
     //std::cout<<segment.inputs[0].weight<<"   :   "<<segment.inputs[1].weight<<std::endl;

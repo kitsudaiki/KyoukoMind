@@ -79,8 +79,13 @@ prcessOutputSegment(const OutputSegment &segment)
         outputNodeId++)
     {
         node = &segment.outputs[outputNodeId];
-        node->maxWeight = (node->maxWeight >= node->shouldValue) * node->maxWeight
-                          + (node->maxWeight < node->shouldValue) * node->shouldValue;
+        if(node->shouldValue > node->maxWeight) {
+            node->maxWeight = node->shouldValue;
+        }
+        /*if(node->maxWeight < node->shouldValue) {
+            node->maxWeight = node->shouldValue;
+            std::cout<<"new output-max: "<<node->maxWeight<<std::endl;
+        }*/
 
         node->outputWeight = inputTransfers[node->targetBorderId];
         //if(node->outputWeight <= -1.0f) {
@@ -90,7 +95,7 @@ prcessOutputSegment(const OutputSegment &segment)
         //    node->outputWeight = log2(node->outputWeight + 1.0f);
         //}
         node->outputWeight = 1.0f / (1.0f + exp(-1.0f * node->outputWeight));
-        //node->shouldValue /= node->maxWeight;
+        node->shouldValue /= node->maxWeight;
         //std::cout<<"outw: "<<node->outputWeight<<"     outM: "<<node->maxWeight<<"      should: "<<node->shouldValue<<std::endl;
 
     }
@@ -119,10 +124,6 @@ backpropagateOutput(const OutputSegment &segment)
         outputNodeId++)
     {
         out = segment.outputs[outputNodeId];
-        out.shouldValue *= 5.0f;
-        if(out.shouldValue > 1.0f) {
-            out.shouldValue = 1.0f;
-        }
         delta = (out.outputWeight - out.shouldValue);
         delta *= out.outputWeight * (1.0f - out.outputWeight);
         //if(out.outputWeight > 0.0f) {

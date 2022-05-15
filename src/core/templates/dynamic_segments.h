@@ -57,12 +57,12 @@ createSegmentSettings(const JsonItem &settingsOverride)
     DataMap* settings = new DataMap();
 
     settings->insert("refraction_time", new DataValue(1));
-    settings->insert("synapse_delete_border", new DataValue(0.005));
+    settings->insert("synapse_delete_border", new DataValue(0.0005));
     settings->insert("action_potential", new DataValue(5.0));
     settings->insert("node_cooldown", new DataValue(3000.0));
     settings->insert("memorizing", new DataValue(0.5));
     settings->insert("glia_value", new DataValue(1.1));
-    settings->insert("max_synapse_weight", new DataValue(0.025));
+    settings->insert("max_synapse_weight", new DataValue(0.015));
     settings->insert("sign_neg", new DataValue(0.5));
     settings->insert("potential_overflow", new DataValue(1.0));
     settings->insert("multiplicator_range", new DataValue(1));
@@ -99,22 +99,22 @@ createSegmentBricksGraph(const long numberOfInputNodes,
     // centre part
     DataMap* internalBrick1 = new DataMap();
     internalBrick1->insert("type", new DataValue("normal"));
-    internalBrick1->insert("number_of_nodes", new DataValue(2000));
+    internalBrick1->insert("number_of_nodes", new DataValue(200));
     internalBrick1->insert("position", createPosition(2, 1, 1));
     bricks->append(internalBrick1);
 
     // centre part
-    DataMap* internalBrick2 = new DataMap();
-    internalBrick2->insert("type", new DataValue("normal"));
-    internalBrick2->insert("number_of_nodes", new DataValue(500));
-    internalBrick2->insert("position", createPosition(3, 1, 1));
-    bricks->append(internalBrick2);
+    //DataMap* internalBrick2 = new DataMap();
+    //internalBrick2->insert("type", new DataValue("normal"));
+    //internalBrick2->insert("number_of_nodes", new DataValue(50));
+    //internalBrick2->insert("position", createPosition(3, 1, 1));
+    //bricks->append(internalBrick2);
 
     // output-part
     DataMap* outputBrick = new DataMap();
     outputBrick->insert("type", new DataValue("output"));
     outputBrick->insert("number_of_nodes", new DataValue(numberOfOutputNodes));
-    outputBrick->insert("position", createPosition(4, 1, 1));
+    outputBrick->insert("position", createPosition(3, 1, 1));
     bricks->append(outputBrick);
 
     return bricks;
