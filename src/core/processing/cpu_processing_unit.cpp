@@ -39,6 +39,7 @@
 #include <core/segments/static_segment/backpropagation.h>
 #include <core/segments/static_segment/processing.h>
 
+#include <core/segments/output_segment/backpropagation.h>
 #include <core/segments/output_segment/processing.h>
 
 #include <core/segments/input_segment/processing.h>

@@ -51,13 +51,16 @@ backpropagateOutput(const Brick &brick,
     {
         node = &segment.nodes[nodeId];
         node->delta = segment.inputTransfers[node->targetBorderId];
+
         //const float outH = log2(node->potential + 1.0f);
         //node->delta *= 1.4427f * pow(0.5f, outH);
         totalDelta += abs(node->delta);
+        //node->delta *= 1.4427f * pow(0.5f, node->potential);
+
     }
 
-    //return totalDelta > segment.dynamicSegmentSettings->backpropagationBorder;
-    return true;
+    return totalDelta > segment.dynamicSegmentSettings->backpropagationBorder;
+    //return true;
 }
 
 /**
@@ -99,8 +102,8 @@ backpropagateSection(SynapseSection* section,
         }
 
         // update weight
-        learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.001f;
-        learnValue += 0.1f;
+        learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0005f;
+        learnValue += 0.05f;
         sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
         synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 

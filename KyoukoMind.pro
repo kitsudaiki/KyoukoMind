@@ -169,6 +169,7 @@ HEADERS += \
     src/core/segments/input_segment/input_segment.h \
     src/core/segments/input_segment/objects.h \
     src/core/segments/input_segment/processing.h \
+    src/core/segments/output_segment/backpropagation.h \
     src/core/segments/output_segment/objects.h \
     src/core/segments/output_segment/output_segment.h \
     src/core/segments/output_segment/processing.h \

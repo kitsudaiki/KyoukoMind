@@ -58,7 +58,6 @@ getHighestOutput(const OutputSegment &segment)
         }
     }
 
-    //std::cout<<"hightes: "<<hightestPos<<std::endl;
     return hightestPos;
 }
 
@@ -82,58 +81,11 @@ prcessOutputSegment(const OutputSegment &segment)
         if(node->shouldValue > node->maxWeight) {
             node->maxWeight = node->shouldValue;
         }
-        /*if(node->maxWeight < node->shouldValue) {
-            node->maxWeight = node->shouldValue;
-            std::cout<<"new output-max: "<<node->maxWeight<<std::endl;
-        }*/
 
         node->outputWeight = inputTransfers[node->targetBorderId];
-        //if(node->outputWeight <= -1.0f) {
-        //    node->outputWeight = -1.00001f;
-        //}
-        //if(node->outputWeight > 0.0f) {
-        //    node->outputWeight = log2(node->outputWeight + 1.0f);
-        //}
         node->outputWeight = 1.0f / (1.0f + exp(-1.0f * node->outputWeight));
         node->shouldValue /= node->maxWeight;
-        //std::cout<<"outw: "<<node->outputWeight<<"     outM: "<<node->maxWeight<<"      should: "<<node->shouldValue<<std::endl;
-
     }
-
-
-    //std::cout<<"-------------------------------------------------------------"<<std::endl;
-    //std::cout<<"s: "<<segment.outputs[0].shouldValue<<"   :   "<<segment.outputs[1].shouldValue<<std::endl;
-    //std::cout<<"o: "<<segment.outputs[0].outputWeight<<"   :   "<<segment.outputs[1].outputWeight<<std::endl;
-
-}
-
-/**
- * @brief backpropagate output
- *
- * @param segment pointer to currect output-segment to process
- */
-inline void
-backpropagateOutput(const OutputSegment &segment)
-{
-    OutputNode out;
-    float delta = 0.0f;
-
-    // iterate over all output-nodes
-    for(uint64_t outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
-    {
-        out = segment.outputs[outputNodeId];
-        delta = (out.outputWeight - out.shouldValue);
-        delta *= out.outputWeight * (1.0f - out.outputWeight);
-        //if(out.outputWeight > 0.0f) {
-        //    delta *= 1.4427f * pow(0.5f, out.outputWeight);
-        //}
-        segment.outputTransfers[out.targetBorderId] = delta;
-    }
-
-    //std::cout<<"d: "<<segment.outputTransfers[0]<<"   :   "<<segment.outputTransfers[1]<<std::endl;
-
 }
 
 #endif // KYOUKOMIND_OUTPUT_PROCESSING_H

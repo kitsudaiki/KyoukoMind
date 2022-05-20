@@ -130,6 +130,7 @@ synapseProcessing(SynapseSection &section,
     uint32_t pos = 0;
     Synapse* synapse = nullptr;
     DynamicNode* targetNode = nullptr;
+    Synapse synapseObj;
     section.updated = 0;
 
     // iterate over all synapses in the section
@@ -137,7 +138,7 @@ synapseProcessing(SynapseSection &section,
           && netH > 0.0f)
     {
         synapse = &section.synapses[pos];
-        const Synapse synapseObj = *synapse;
+        synapseObj = *synapse;
 
         // break loop, if learning is disabled to the loop has reached an inactive synapse
         if(synapseObj.targetNodeId == UNINIT_STATE_16) {
@@ -159,13 +160,9 @@ synapseProcessing(SynapseSection &section,
         pos++;
     }
 
-    if(netH > 0.01f)
+    if(netH > 0.01f
+            && section.next != UNINIT_STATE_32)
     {
-        // if no next section exist for the node, then create and a attach a new synapse-section
-        if(section.next == UNINIT_STATE_32) {
-            return;
-        }
-
         synapseProcessing(segment.synapseSections[section.next],
                           segment,
                           sourceNode,
@@ -193,6 +190,7 @@ synapseProcessing_withLearn(SynapseSection &section,
     uint32_t pos = 0;
     Synapse* synapse = nullptr;
     DynamicNode* targetNode = nullptr;
+    Synapse synapseObj;
     section.updated = 0;
     uint8_t active = 1;
 
@@ -213,7 +211,7 @@ synapseProcessing_withLearn(SynapseSection &section,
                              netH);
         }
 
-        const Synapse synapseObj = *synapse;
+        synapseObj = *synapse;
 
         // break loop, if learning is disabled to the loop has reached an inactive synapse
         if(synapseObj.targetNodeId == UNINIT_STATE_16) {
@@ -231,11 +229,6 @@ synapseProcessing_withLearn(SynapseSection &section,
         targetNode->input += outH * synapseObj.weight;
 
         // update active-counter
-        // IMPORTANT HINT: This code was disabled, because these 2 lines resulting in more then
-        //                 100% additional time-consumption of the programm and I don't know why :(
-        //                 If someone knows the answer, please inform me
-        // active = (synapse->weight > 0 && targetNode->potential > targetNode->border);
-        // active = active || (synapse->weight < 0 && targetNode->potential < targetNode->border);
         synapse->activeCounter += active * static_cast<uint8_t>(synapseObj.activeCounter < 126);
 
         // update loop-counter
@@ -276,6 +269,65 @@ inline void
 processSingleNode(DynamicNode* node,
                   DynamicSegment &segment)
 {
+    // handle active-state
+    if(node->active == 0) {
+        return;
+    }
+
+    if(segment.dynamicSegmentSettings->doLearn > 0)
+    {
+        // if no target exist for the node, then create and a attach a new synapse-section
+        if(node->targetSectionId == UNINIT_STATE_32)
+        {
+            const uint64_t newPos = createNewSection(segment);
+            // handle problem while allocating a new item for the section, for example if the
+            // maximum number of items in the buffer is already in use
+            if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
+                return;
+            }
+
+            node->targetSectionId = newPos;
+        }
+    }
+
+    if(node->targetSectionId == UNINIT_STATE_32) {
+        return;
+    }
+
+    if(segment.dynamicSegmentSettings->doLearn > 0)
+    {
+        synapseProcessing_withLearn(segment.synapseSections[node->targetSectionId],
+                                    segment,
+                                    *node,
+                                    node->potential,
+                                    node->potential);
+    }
+    else
+    {
+        synapseProcessing(segment.synapseSections[node->targetSectionId],
+                          segment,
+                          *node,
+                          node->potential,
+                          node->potential);
+    }
+}
+
+/**
+ * @brief processNode
+ * @param node
+ * @param segment
+ */
+inline void
+processNode(DynamicNode* node,
+            const DynamicSegment &segment)
+{
+    node->potential /= segment.dynamicSegmentSettings->nodeCooldown;
+
+    // init border, if not set
+    if(node->border == 0.00f) {
+        node->border = node->input * 0.5f;
+    }
+
     // handle refraction-time
     node->refractionTime = node->refractionTime >> 1;
     if(node->refractionTime == 0)
@@ -288,72 +340,7 @@ processSingleNode(DynamicNode* node,
     node->potential -= node->border;
     node->active = node->potential > 0.0f;
     node->input = 0.0f;
-
-    // handle active-state
-    if(node->active)
-    {
-        if(segment.dynamicSegmentSettings->doLearn > 0)
-        {
-            // if no target exist for the node, then create and a attach a new synapse-section
-            if(node->targetSectionId == UNINIT_STATE_32)
-            {
-                const uint64_t newPos = createNewSection(segment);
-                // handle problem while allocating a new item for the section, for example if the
-                // maximum number of items in the buffer is already in use
-                if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
-                    return;
-                }
-
-                node->targetSectionId = newPos;
-            }
-
-            // process synapse-section with activation-function
-            node->potential = log2(node->potential + 1.0f);
-            synapseProcessing_withLearn(segment.synapseSections[node->targetSectionId],
-                                        segment,
-                                        *node,
-                                        node->potential,
-                                        node->potential);
-        }
-        else
-        {
-            if(node->targetSectionId == UNINIT_STATE_32) {
-                return;
-            }
-
-            // process synapse-section with activation-function
-            node->potential = log2(node->potential + 1.0f);
-            synapseProcessing(segment.synapseSections[node->targetSectionId],
-                              segment,
-                              *node,
-                              node->potential,
-                              node->potential);
-        }
-    }
-}
-
-/**
- * @brief reset nodes of a input brick
- *
- * @param brick pointer to the brick
- * @param segment segment where the brick belongs to
- */
-inline void
-processNodesOfInputBrick(const Brick &brick,
-                         DynamicSegment &segment)
-{
-    DynamicNode* node = nullptr;
-
-    for(uint32_t nodeId = brick.nodePos;
-        nodeId < brick.numberOfNodes + brick.nodePos;
-        nodeId++)
-    {
-        node = &segment.nodes[nodeId];
-        node->potential /= segment.dynamicSegmentSettings->nodeCooldown;
-        node->input = segment.inputTransfers[node->targetBorderId];
-
-        processSingleNode(node, segment);
-    }
+    node->potential = log2(node->potential + 1.0f);
 }
 
 /**
@@ -374,12 +361,35 @@ processNodesOfOutputBrick(const Brick &brick,
     {
         node = &segment.nodes[nodeId];
         node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
-        //const float outH = log2(node->potential + 1.0f);
+        //processNode(node, segment);
         segment.outputTransfers[node->targetBorderId] = node->potential;
         node->input = 0.0f;
     }
 }
 
+/**
+ * @brief reset nodes of a input brick
+ *
+ * @param brick pointer to the brick
+ * @param segment segment where the brick belongs to
+ */
+inline void
+processNodesOfInputBrick(const Brick &brick,
+                         DynamicSegment &segment)
+{
+    DynamicNode* node = nullptr;
+
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
+        nodeId++)
+    {
+        node = &segment.nodes[nodeId];
+        node->potential = segment.inputTransfers[node->targetBorderId];
+        node->active = node->potential > 0.0f;
+
+        processSingleNode(node, segment);
+    }
+}
 
 /**
  * @brief reset nodes of a normal brick
@@ -398,13 +408,7 @@ processNodesOfNormalBrick(const Brick &brick,
         nodeId++)
     {
         node = &segment.nodes[nodeId];
-        node->potential /= segment.dynamicSegmentSettings->nodeCooldown;
-
-        // init border, if not set
-        if(node->border == 0.00f) {
-            node->border = node->input * 0.5f;
-        }
-
+        processNode(node, segment);
         processSingleNode(node, segment);
     }
 }
