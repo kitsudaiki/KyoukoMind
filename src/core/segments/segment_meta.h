@@ -31,7 +31,6 @@ enum SegmentTypes
     INPUT_SEGMENT = 1,
     OUTPUT_SEGMENT = 2,
     DYNAMIC_SEGMENT = 3,
-    STATIC_SEGMENT = 4,
 };
 
 struct SegmentHeaderEntry

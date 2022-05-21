@@ -32,7 +32,6 @@
 #include <core/segments/segment_meta.h>
 
 #include <core/segments/dynamic_segment/objects.h>
-#include <core/segments/static_segment/objects.h>
 
 class Cluster;
 
@@ -49,7 +48,6 @@ public:
 
     SegmentHeader* segmentHeader = nullptr;
     DynamicSegmentSettings* dynamicSegmentSettings = nullptr;
-    StaticSegmentSettings* staticSegmentSettings = nullptr;
 
     SegmentNeighborList* segmentNeighbors = nullptr;
     float* inputTransfers = nullptr;
