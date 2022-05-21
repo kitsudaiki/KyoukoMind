@@ -31,8 +31,9 @@ struct Brick
     // common
     uint32_t brickId = UNINIT_STATE_32;
     bool isOutputBrick = false;
+    bool isTransactionBrick = false;
     bool isInputBrick = false;
-    uint8_t padding1[18];
+    uint8_t padding1[17];
 
     Position brickPos;
     uint32_t neighbors[12];

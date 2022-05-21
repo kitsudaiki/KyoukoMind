@@ -137,7 +137,8 @@ DynamicSegment::connectBorderBuffer()
         }
 
         // connect output-bricks with border-buffer
-        if(brick->isOutputBrick)
+        if(brick->isOutputBrick
+                || brick->isTransactionBrick)
         {
             for(uint32_t j = 0; j < brick->numberOfNodes; j++)
             {
@@ -313,14 +314,14 @@ DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
 
     // copy metadata
     newBrick.brickId = id;
-    if(brickDef.contains("type"))
-    {
-        if(brickDef.get("type").getString() == "output") {
-            newBrick.isOutputBrick = true;
-        }
-        if(brickDef.get("type").getString() == "input") {
-            newBrick.isInputBrick = true;
-        }
+    if(brickDef.get("type").getString() == "output") {
+        newBrick.isOutputBrick = true;
+    }
+    if(brickDef.get("type").getString() == "transaction") {
+        newBrick.isTransactionBrick = true;
+    }
+    if(brickDef.get("type").getString() == "input") {
+        newBrick.isInputBrick = true;
     }
 
     // convert other values
@@ -460,9 +461,11 @@ DynamicSegment::initTargetBrickList()
     {
         Brick* baseBrick = &bricks[i];
 
-        // ignore output-bricks, because they only forward to the border-buffer
+        // ignore output- and transaction-bricks, because they only forward to the border-buffer
         // and not to other bricks
-        if(baseBrick->isOutputBrick != 0) {
+        if(baseBrick->isOutputBrick
+                || baseBrick->isTransactionBrick)
+        {
             continue;
         }
 

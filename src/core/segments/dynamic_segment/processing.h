@@ -361,7 +361,30 @@ processNodesOfOutputBrick(const Brick &brick,
     {
         node = &segment.nodes[nodeId];
         node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
-        //processNode(node, segment);
+        segment.outputTransfers[node->targetBorderId] = node->potential;
+        node->input = 0.0f;
+    }
+}
+
+/**
+ * @brief reset nodes of a transaction brick
+ *
+ * @param brick pointer to the brick
+ * @param segment segment where the brick belongs to
+ */
+inline void
+processNodesOfTransactionBrick(const Brick &brick,
+                               const DynamicSegment &segment)
+{
+    DynamicNode* node = nullptr;
+
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
+        nodeId++)
+    {
+        node = &segment.nodes[nodeId];
+        node->potential = segment.dynamicSegmentSettings->potentialOverflow * node->input;
+        processNode(node, segment);
         segment.outputTransfers[node->targetBorderId] = node->potential;
         node->input = 0.0f;
     }
@@ -431,6 +454,8 @@ prcessDynamicSegment(DynamicSegment &segment)
             processNodesOfInputBrick(*brick, segment);
         } else if(brick->isOutputBrick) {
             processNodesOfOutputBrick(*brick, segment);
+        } else if(brick->isTransactionBrick) {
+            processNodesOfTransactionBrick(*brick, segment);
         } else {
             processNodesOfNormalBrick(*brick, segment);
         }
