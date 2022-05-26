@@ -39,12 +39,12 @@ class AbstractSegment
 {
 public:
     AbstractSegment();
+    AbstractSegment(const void* data, const uint64_t dataSize);
     virtual ~AbstractSegment();
 
     SegmentTypes getType() const;
 
     Kitsunemimi::ItemBuffer segmentData;
-    Kitsunemimi::DataBuffer staticSegmentData;
 
     SegmentHeader* segmentHeader = nullptr;
     DynamicSegmentSettings* dynamicSegmentSettings = nullptr;
@@ -55,6 +55,7 @@ public:
     Cluster* parentCluster = nullptr;
 
     virtual bool initSegment(const JsonItem &parsedContent) = 0;
+    virtual bool reinitPointer() = 0;
 
     bool isReady();
     bool finishSegment();
@@ -66,6 +67,7 @@ protected:
                                     const uint64_t borderbufferSize);
     Position convertPosition(const JsonItem &parsedContent);
     bool initBorderBuffer(const JsonItem &parsedContent);
+    bool reinitGenericPointer();
 
 private:
     virtual void initSegmentPointer(const SegmentHeader &header) = 0;

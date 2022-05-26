@@ -34,6 +34,7 @@ class OutputSegment
 {
 public:
     OutputSegment();
+    OutputSegment(const void* data, const uint64_t dataSize);
     ~OutputSegment();
 
     float lastTotalError = 0.0f;
@@ -42,6 +43,7 @@ public:
     OutputNode* outputs = nullptr;
 
     bool initSegment(const JsonItem &parsedContent);
+    bool reinitPointer();
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfOutputs,

@@ -31,6 +31,12 @@ OutputSegment::OutputSegment()
     m_type = OUTPUT_SEGMENT;
 }
 
+OutputSegment::OutputSegment(const void* data, const uint64_t dataSize)
+    : AbstractSegment(data, dataSize)
+{
+    m_type = OUTPUT_SEGMENT;
+}
+
 /**
  * @brief destructor
  */
@@ -56,6 +62,36 @@ OutputSegment::initSegment(const JsonItem &parsedContent)
     segmentHeader->position = convertPosition(parsedContent);
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
+
+    return true;
+}
+
+/**
+ * @brief OutputSegment::reinitPointer
+ * @return
+ */
+bool
+OutputSegment::reinitPointer()
+{
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.buffer.data);
+
+    uint64_t pos = 0;
+    segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
+
+    pos = 256;
+    dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+
+    pos = segmentHeader->neighborList.bytePos;
+    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+
+    pos = segmentHeader->inputTransfers.bytePos;
+    inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
+    pos = segmentHeader->outputTransfers.bytePos;
+    outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
+    pos = segmentHeader->outputs.bytePos;
+    outputs = reinterpret_cast<OutputNode*>(dataPtr + pos);
 
     return true;
 }
@@ -112,7 +148,7 @@ OutputSegment::createNewHeader(const uint32_t numberOfOutputs,
 void
 OutputSegment::initSegmentPointer(const SegmentHeader &header)
 {
-    uint8_t* dataPtr = static_cast<uint8_t*>(staticSegmentData.data);
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.buffer.data);
     uint64_t pos = 0;
 
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
@@ -140,5 +176,5 @@ OutputSegment::allocateSegment(SegmentHeader &header)
 {
     const uint32_t numberOfBlocks = (header.staticDataSize / 4096) + 1;
     header.staticDataSize = numberOfBlocks * 4096;
-    Kitsunemimi::allocateBlocks_DataBuffer(staticSegmentData, numberOfBlocks);
+    segmentData.initBuffer(header.staticDataSize);
 }

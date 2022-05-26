@@ -31,6 +31,12 @@ InputSegment::InputSegment()
     m_type = INPUT_SEGMENT;
 }
 
+InputSegment::InputSegment(const void* data, const uint64_t dataSize)
+    : AbstractSegment(data, dataSize)
+{
+    m_type = INPUT_SEGMENT;
+}
+
 /**
  * @brief destructor
  */
@@ -56,6 +62,36 @@ InputSegment::initSegment(const JsonItem &parsedContent)
     segmentHeader->position = convertPosition(parsedContent);
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
+
+    return true;
+}
+
+/**
+ * @brief InputSegment::reinitPointer
+ * @return
+ */
+bool
+InputSegment::reinitPointer()
+{
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.buffer.data);
+
+    uint64_t pos = 0;
+    segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
+
+    pos = 256;
+    dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+
+    pos = segmentHeader->neighborList.bytePos;
+    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+
+    pos = segmentHeader->inputTransfers.bytePos;
+    inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
+    pos = segmentHeader->outputTransfers.bytePos;
+    outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
+    pos = segmentHeader->inputs.bytePos;
+    inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
 
     return true;
 }
@@ -111,7 +147,7 @@ InputSegment::createNewHeader(const uint32_t numberOfInputs,
 void
 InputSegment::initSegmentPointer(const SegmentHeader &header)
 {
-    uint8_t* dataPtr = static_cast<uint8_t*>(staticSegmentData.data);
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.buffer.data);
     uint64_t pos = 0;
 
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
@@ -138,6 +174,6 @@ void
 InputSegment::allocateSegment(SegmentHeader &header)
 {
     const uint32_t numberOfBlocks = (header.staticDataSize / 4096) + 1;
-    header.staticDataSize = numberOfBlocks * 4096;
-    Kitsunemimi::allocateBlocks_DataBuffer(staticSegmentData, numberOfBlocks);
+    header.staticDataSize = numberOfBlocks * 4096;   
+    segmentData.initBuffer(header.staticDataSize);
 }

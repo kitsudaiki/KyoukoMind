@@ -34,14 +34,15 @@ class DynamicSegment
 {
 public:
     DynamicSegment();
+    DynamicSegment(const void* data, const uint64_t dataSize);
     ~DynamicSegment();
 
     bool initSegment(const JsonItem &parsedContent);
+    bool reinitPointer();
 
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
     DynamicNode* nodes = nullptr;
-
     SynapseSection* synapseSections = nullptr;
 
 private:
