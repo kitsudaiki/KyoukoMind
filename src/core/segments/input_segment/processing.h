@@ -47,7 +47,10 @@ prcessInputSegment(const InputSegment &segment)
     for(uint64_t pos = 0; pos < numberOfInputs; pos++)
     {
         node = &segment.inputs[pos];
-        outputTransfers[node->targetBorderId] = log2(node->weight + 1.0f);
+        if(node->weight > node->maxWeight) {
+            node->maxWeight = node->weight;
+        }
+        outputTransfers[node->targetBorderId] = log2((node->weight / node->maxWeight) + 1.0f);
     }
 }
 

@@ -177,7 +177,6 @@ DynamicSegment::initSettings(const JsonItem &parsedContent)
     settings.refractionTime = paredSettings.get("refraction_time").getInt();
     settings.signNeg = paredSettings.get("sign_neg").getFloat();
     settings.potentialOverflow = paredSettings.get("potential_overflow").getFloat();
-    settings.multiplicatorRange = paredSettings.get("multiplicator_range").getInt();
     settings.maxSynapseSections = paredSettings.get("max_synapse_sections").getInt();
 
     return settings;

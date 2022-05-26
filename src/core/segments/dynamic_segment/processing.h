@@ -90,11 +90,6 @@ createNewSynapse(SynapseSection &section,
 
     // update weight with multiplicator
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    randomMulti = static_cast<float>(randomValues[section.randomPos]) / randMax;
-    synapse->weight *= randomMulti * static_cast<float>(segmentSettings.multiplicatorRange) + 1.0f;
-
-    // update weight with multiplicator
-    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
     signRand = randomValues[section.randomPos] % 1000;
     synapse->weight *= static_cast<float>(1 - (1000.0f * segmentSettings.signNeg > signRand) * 2);
 
@@ -192,7 +187,7 @@ synapseProcessing_withLearn(SynapseSection &section,
     DynamicNode* targetNode = nullptr;
     Synapse synapseObj;
     section.updated = 0;
-    uint8_t active = 1;
+    uint8_t active = 0;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -229,6 +224,7 @@ synapseProcessing_withLearn(SynapseSection &section,
         targetNode->input += outH * synapseObj.weight;
 
         // update active-counter
+        active = synapse->weight > 0 == targetNode->potential > targetNode->border;
         synapse->activeCounter += active * static_cast<uint8_t>(synapseObj.activeCounter < 126);
 
         // update loop-counter

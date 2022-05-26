@@ -95,7 +95,6 @@ struct DynamicSegmentSettings
     float maxSynapseWeight = 30.0f;
     float backpropagationBorder = 0.00001f;
     uint8_t refractionTime = 1;
-    uint8_t multiplicatorRange = 0;
     uint8_t doLearn = 0;
 
     uint8_t padding[213];
