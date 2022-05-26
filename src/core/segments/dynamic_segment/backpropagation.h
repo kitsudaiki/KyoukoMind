@@ -51,12 +51,36 @@ backpropagateOutput(const Brick &brick,
     {
         node = &segment.nodes[nodeId];
         node->delta = segment.inputTransfers[node->targetBorderId];
-        //const float outH = log2(node->potential + 1.0f);
-        //node->delta *= 1.4427f * pow(0.5f, outH);
         totalDelta += abs(node->delta);
     }
 
-    return totalDelta > 0.0001f;
+    return totalDelta > segment.dynamicSegmentSettings->backpropagationBorder;
+    //return true;
+}
+
+/**
+ * @brief backpropagate values of an transaction-brick
+ *
+ * @param brick brick to process
+ * @param segment segment where the brick belongs to
+ */
+inline bool
+backpropagateTransaction(const Brick &brick,
+                         const DynamicSegment &segment)
+{
+    DynamicNode* node = nullptr;
+
+    // iterate over all nodes within the brick
+    for(uint32_t nodeId = brick.nodePos;
+        nodeId < brick.numberOfNodes + brick.nodePos;
+        nodeId++)
+    {
+        node = &segment.nodes[nodeId];
+        node->delta = segment.inputTransfers[node->targetBorderId];
+        node->delta *= 1.4427f * pow(0.5f, node->potential);
+    }
+
+    return true;
 }
 
 /**
@@ -98,8 +122,8 @@ backpropagateSection(SynapseSection* section,
         }
 
         // update weight
-        learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.001f;
-        learnValue += 0.1f;
+        learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0005f;
+        learnValue += 0.05f;
         sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
         synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 
@@ -183,6 +207,10 @@ rewightDynamicSegment(const DynamicSegment &segment)
             if(backpropagateOutput(*brick, segment) == false) {
                 return;
             }
+        }
+        if(brick->isTransactionBrick)
+        {
+            backpropagateTransaction(*brick, segment);
         }
         else
         {

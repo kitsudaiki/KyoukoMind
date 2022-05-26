@@ -46,8 +46,6 @@ AbstractSegment* addOutputSegment(Cluster* cluster,
                                   const JsonItem &parsedContent);
 AbstractSegment* addDynamicSegment(Cluster* cluster,
                                    const JsonItem &parsedContent);
-AbstractSegment* addStaticSegment(Cluster* cluster,
-                                  const JsonItem &parsedContent);
 
 const std::string prepareDirection(const JsonItem &segments,
                                    const uint32_t foundNext,

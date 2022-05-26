@@ -1,5 +1,5 @@
-﻿/**
- * @file        processing.h
+/**
+ * @file        backpropagation.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,38 +20,39 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_INPUT_PROCESSING_H
-#define KYOUKOMIND_INPUT_PROCESSING_H
+#ifndef KYOUKOMIND_OUTPUT_BACKPROPAGATION_H
+#define KYOUKOMIND_OUTPUT_BACKPROPAGATION_H
 
 #include <common.h>
 
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
+#include <core/cluster/cluster.h>
 
 #include "objects.h"
-#include "input_segment.h"
+#include "output_segment.h"
 
 /**
- * @brief process all nodes within a specific brick and also all synapse-sections,
- *        which are connected to an active node
+ * @brief backpropagate output
  *
- * @param segment input-segment to process
+ * @param segment pointer to currect output-segment to process
  */
-void
-prcessInputSegment(const InputSegment &segment)
+inline void
+backpropagateOutput(const OutputSegment &segment)
 {
-    InputNode* node = nullptr;
-    const uint64_t numberOfInputs = segment.segmentHeader->inputs.count;
-    float* outputTransfers = segment.outputTransfers;
+    OutputNode out;
+    float delta = 0.0f;
 
-    for(uint64_t pos = 0; pos < numberOfInputs; pos++)
+    // iterate over all output-nodes
+    for(uint64_t outputNodeId = 0;
+        outputNodeId < segment.segmentHeader->outputs.count;
+        outputNodeId++)
     {
-        node = &segment.inputs[pos];
-        if(node->weight > node->maxWeight) {
-            node->maxWeight = node->weight;
-        }
-        outputTransfers[node->targetBorderId] = log2((node->weight / node->maxWeight) + 1.0f);
+        out = segment.outputs[outputNodeId];
+        delta = (out.outputWeight - out.shouldValue);
+        delta *= out.outputWeight * (1.0f - out.outputWeight);
+        segment.outputTransfers[out.targetBorderId] = delta;
     }
 }
 
-#endif // KYOUKOMIND_INPUT_PROCESSING_H
+#endif // KYOUKOMIND_OUTPUT_BACKPROPAGATION_H

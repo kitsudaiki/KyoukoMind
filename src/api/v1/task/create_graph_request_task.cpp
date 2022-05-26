@@ -87,6 +87,7 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
+    const std::string columnName = blossomLeaf.input.get("column_name").getString();
     const std::string token = context.getStringByKey("token");
 
     SupportedComponents* scomp = SupportedComponents::getInstance();
@@ -118,21 +119,38 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    // get relevant information from output
-    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, "", error);
-    if(dataSetBuffer == nullptr)
+    DataBuffer* openBuffer = Sagiri::getData(token, dataSetUuid, "Open", error);
+    if(openBuffer == nullptr)
     {
-        error.addMeesage("failed to get data from sagiri for uuid '" + dataSetUuid + "'");
+        error.addMeesage("failed to get data from sagiri");
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+    DataBuffer* closeBuffer = Sagiri::getData(token, dataSetUuid, "Close", error);
+    if(closeBuffer == nullptr)
+    {
+        error.addMeesage("failed to get data from sagiri");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 
+    // convert data
+    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
+    float* completeBuffer = new float[numberOfLines * 2];
+    for(uint64_t i = 0; i < numberOfLines; i++)
+    {
+        completeBuffer[i * 2] = static_cast<float*>(openBuffer->data)[i];
+        completeBuffer[i * 2 + 1] = static_cast<float*>(closeBuffer->data)[i];
+    }
+
+    delete openBuffer;
+    delete closeBuffer;
+
     // init request-task
-    float* fdata = static_cast<float*>(dataSetBuffer->data);
-    const std::string taskUuid = cluster->addGraphRequestTask(fdata, 1000);
+    const std::string taskUuid = cluster->addGraphRequestTask(completeBuffer,
+                                                              numberOfLines,
+                                                              2);
 
     blossomLeaf.output.insert("uuid", taskUuid);
 

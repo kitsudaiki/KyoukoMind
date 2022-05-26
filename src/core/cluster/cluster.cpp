@@ -400,6 +400,7 @@ Cluster::addImageRequestTask(float* inputData,
  */
 const std::string
 Cluster::addGraphLearnTask(float* inputData,
+                           const uint64_t numberOfInputs,
                            const uint64_t numberOfCycle)
 {
     // create new learn-task
@@ -407,6 +408,7 @@ Cluster::addGraphLearnTask(float* inputData,
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.inputData = inputData;
     newTask.numberOfCycle = numberOfCycle;
+    newTask.numberOfInputsPerCycle = numberOfInputs;
     newTask.type = GRAPH_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
@@ -430,6 +432,7 @@ Cluster::addGraphLearnTask(float* inputData,
  */
 const std::string
 Cluster::addGraphRequestTask(float* inputData,
+                             const uint64_t numberOfInputs,
                              const uint64_t numberOfCycle)
 {
     // create new request-task
@@ -438,6 +441,7 @@ Cluster::addGraphRequestTask(float* inputData,
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
     newTask.numberOfCycle = numberOfCycle;
+    newTask.numberOfInputsPerCycle = numberOfInputs;
     newTask.type = GRAPH_REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();

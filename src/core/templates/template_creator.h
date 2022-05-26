@@ -90,8 +90,8 @@ generateNewTemplate(const std::string &name,
 
     if(type == "graph")
     {
-        numberOfInputNodes = 10000;
-        numberOfOutputNodes = 2;
+        numberOfInputNodes = 4*365;
+        numberOfOutputNodes = 4;
     }
 
     result->insert("name", new DataValue(name));

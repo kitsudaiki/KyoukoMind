@@ -51,55 +51,98 @@ GraphInterpolation_State::~GraphInterpolation_State() {}
 bool
 GraphInterpolation_State::processEvent()
 {
-    Task* actualTask = m_cluster->getActualTask();
 
+    std::cout<<"############################poi#####################"<<std::endl;
+    Task* actualTask = m_cluster->getActualTask();
     if(actualTask->isInit)
     {
         // set input
         InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
-        for(uint64_t i = 2; i < 10000; i++) {
-            inputNodes[i - 2].weight = inputNodes[i].weight;
+        for(uint64_t i = 4; i < 4*365; i++) {
+            inputNodes[i - 4].weight = inputNodes[i].weight;
         }
 
         OutputNode* outputNodes = m_cluster->outputSegments[0]->outputs;
-        inputNodes[10000 - 2].weight = outputNodes[0].outputWeight;
-        inputNodes[10000 - 1].weight = outputNodes[1].outputWeight;
+        inputNodes[4*365 - 4].weight = outputNodes[0].outputWeight * outputNodes[0].maxWeight;
+        inputNodes[4*365 - 3].weight = outputNodes[1].outputWeight * outputNodes[1].maxWeight;
+        inputNodes[4*365 - 2].weight = outputNodes[2].outputWeight * outputNodes[2].maxWeight;
+        inputNodes[4*365 - 1].weight = outputNodes[3].outputWeight * outputNodes[3].maxWeight;
 
         //std::cout<<"x: "<<(outputNodes[0].outputWeight / 5.0f)<<"   y: "<<(outputNodes[1].outputWeight / 5.0f)<<std::endl;
-        const float val1 = outputNodes[0].outputWeight / 5.0f;
-        const float val2 = outputNodes[1].outputWeight / 5.0f;
+        const float val1 = outputNodes[0].outputWeight * outputNodes[0].maxWeight;
+        const float val2 = outputNodes[1].outputWeight * outputNodes[1].maxWeight;
+        const float val3 = outputNodes[2].outputWeight * outputNodes[2].maxWeight;
+        const float val4 = outputNodes[3].outputWeight * outputNodes[3].maxWeight;
+
+        std::cout<<"o_up: "<<val1<<"\t   o_down: "<<val2<<"   c_up: "<<val3<<"\t   c_down: "<<val4<<std::endl;
+
         if(val1 > val2) {
-            std::cout<<"x: "<<(val1 - val2)<<"   y: "<<0.0f<<std::endl;
+            std::cout<<"x: "<<(val1 - val2)<<"\t   y: "<<0.0f<<std::endl;
         } else {
-            std::cout<<"x: "<<0.0f<<"   y: "<<(val2 - val1)<<std::endl;
+            std::cout<<"x: "<<0.0f<<"\t   y: "<<(val2 - val1)<<std::endl;
         }
+
+        std::cout<<std::endl;
     }
     else
     {
-        float lastVal = actualTask->inputData[actualTask->actualCycle];
+        const float* data = &actualTask->inputData[2* actualTask->numberOfInputsPerCycle - 2*366];
+
+        //std::cout<<"------------------------actualTask->numberOfInputsPerCycle "<<actualTask->numberOfInputsPerCycle<<std::endl;
+
+
+        float lastVal = data[actualTask->actualCycle + 1];
         float actualVal = 0.0f;
+        float newVal = 0.0f;
         uint64_t pos = 0;
 
         // set input
         InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
         for(uint64_t i = actualTask->actualCycle + 1;
-            i < actualTask->actualCycle + 1 + 5000;
+            i < actualTask->actualCycle + 1 + 365;
             i++)
         {
-            actualVal = actualTask->inputData[i];
-            const float newVal = (100.0f / actualVal) * lastVal;
-
+            // open-part
+            actualVal = data[i * 2];
+            newVal = (100.0f / actualVal) * lastVal;
             if(newVal > 100.0f)
             {
                 inputNodes[pos * 2].weight = newVal - 100.0f;
+                if(inputNodes[pos * 2].weight > 2.0f) {
+                    inputNodes[pos * 2].weight = 2.0f;
+                }
                 inputNodes[pos * 2 + 1].weight = 0.0f;
             }
             else
             {
                 inputNodes[pos * 2].weight = 0.0f;
                 inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
+                if(inputNodes[pos * 2+1].weight > 2.0f) {
+                    inputNodes[pos * 2+1].weight = 2.0f;
+                }
             }
+            lastVal = actualVal;
+            pos++;
 
+            // close-part
+            actualVal = data[i * 2 + 1];
+            newVal = (100.0f / actualVal) * lastVal;
+            if(newVal > 100.0f)
+            {
+                inputNodes[pos * 2].weight = newVal - 100.0f;
+                if(inputNodes[pos * 2].weight > 2.0f) {
+                    inputNodes[pos * 2].weight = 2.0f;
+                }
+                inputNodes[pos * 2 + 1].weight = 0.0f;
+            }
+            else
+            {
+                inputNodes[pos * 2].weight = 0.0f;
+                inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
+                if(inputNodes[pos * 2+1].weight > 2.0f) {
+                    inputNodes[pos * 2+1].weight = 2.0f;
+                }
+            }
             lastVal = actualVal;
             pos++;
         }
