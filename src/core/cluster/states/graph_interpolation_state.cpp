@@ -104,31 +104,44 @@ GraphInterpolation_State::processEvent()
         {
             // open-part
             actualVal = data[i * 2];
-            if(actualVal > lastVal)
+            newVal = (100.0f / actualVal) * lastVal;
+            if(newVal > 100.0f)
             {
-                inputNodes[pos * 2].weight = 1.0f * (pos / 366.0f);
+                inputNodes[pos * 2].weight = newVal - 100.0f;
+                if(inputNodes[pos * 2].weight > 2.0f) {
+                    inputNodes[pos * 2].weight = 2.0f;
+                }
                 inputNodes[pos * 2 + 1].weight = 0.0f;
             }
             else
             {
                 inputNodes[pos * 2].weight = 0.0f;
-                inputNodes[pos * 2 + 1].weight = 1.0f * (pos / 366.0f);
+                inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
+                if(inputNodes[pos * 2+1].weight > 2.0f) {
+                    inputNodes[pos * 2+1].weight = 2.0f;
+                }
             }
             lastVal = actualVal;
             pos++;
 
             // close-part
             actualVal = data[i * 2 + 1];
-
-            if(actualVal > lastVal)
+            newVal = (100.0f / actualVal) * lastVal;
+            if(newVal > 100.0f)
             {
-                inputNodes[pos * 2].weight = 1.0f * (pos / 366.0f);
+                inputNodes[pos * 2].weight = newVal - 100.0f;
+                if(inputNodes[pos * 2].weight > 2.0f) {
+                    inputNodes[pos * 2].weight = 2.0f;
+                }
                 inputNodes[pos * 2 + 1].weight = 0.0f;
             }
             else
             {
                 inputNodes[pos * 2].weight = 0.0f;
-                inputNodes[pos * 2 + 1].weight = 1.0f * (pos / 366.0f);
+                inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
+                if(inputNodes[pos * 2+1].weight > 2.0f) {
+                    inputNodes[pos * 2+1].weight = 2.0f;
+                }
             }
             lastVal = actualVal;
             pos++;

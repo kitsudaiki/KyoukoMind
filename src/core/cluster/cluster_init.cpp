@@ -24,7 +24,6 @@
 
 
 #include <core/segments/dynamic_segment/dynamic_segment.h>
-#include <core/segments/static_segment/static_segment.h>
 #include <core/segments/input_segment/input_segment.h>
 #include <core/segments/output_segment/output_segment.h>
 #include <core/cluster/cluster.h>
@@ -109,9 +108,6 @@ initNewCluster(Cluster* cluster,
         AbstractSegment* newSegment = nullptr;
         if(segmentDef.get("type").getString() == "dynamic_segment") {
             newSegment = addDynamicSegment(cluster, segmentDef);
-        }
-        if(segmentDef.get("type").getString() == "static_segment") {
-            newSegment = addStaticSegment(cluster, segmentDef);
         }
         if(segmentDef.get("type").getString() == "input_segment") {
             newSegment = addInputSegment(cluster, segmentDef);
@@ -202,33 +198,6 @@ addDynamicSegment(Cluster* cluster,
                   const JsonItem &parsedContent)
 {
     DynamicSegment* newSegment = new DynamicSegment();
-
-    if(newSegment->initSegment(parsedContent))
-    {
-        cluster->allSegments.push_back(newSegment);
-    }
-    else
-    {
-        delete newSegment;
-        newSegment = nullptr;
-    }
-
-    return newSegment;
-}
-
-/**
- * @brief add new static-segment to cluster
- *
- * @param cluster pointer to the uninitionalized cluster
- * @param parsedContent parsed json with the information of the cluster
- *
- * @return true, if successful, else false
- */
-AbstractSegment*
-addStaticSegment(Cluster* cluster,
-                 const JsonItem &parsedContent)
-{
-    StaticSegment* newSegment = new StaticSegment();
 
     if(newSegment->initSegment(parsedContent))
     {

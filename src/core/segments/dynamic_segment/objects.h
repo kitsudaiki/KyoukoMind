@@ -53,8 +53,8 @@ struct Synapse
 {
     float weight = 0.0f;
     uint16_t targetNodeId = UNINIT_STATE_16;
+    uint8_t border = 0;
     int8_t activeCounter = 0;
-    uint8_t border = 0.0f;
     // total size: 8 Byte
 };
 
@@ -93,9 +93,8 @@ struct DynamicSegmentSettings
     float signNeg = 0.6f;
     float potentialOverflow = 20.0f;
     float maxSynapseWeight = 30.0f;
-    float backpropagationBorder = 0.0001f;
+    float backpropagationBorder = 0.00001f;
     uint8_t refractionTime = 1;
-    uint8_t multiplicatorRange = 0;
     uint8_t doLearn = 0;
 
     uint8_t padding[213];
