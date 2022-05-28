@@ -32,7 +32,7 @@ enum TaskType
     IMAGE_REQUEST_TASK = 2,
     GRAPH_LEARN_TASK = 3,
     GRAPH_REQUEST_TASK = 4,
-    CLUSTER_BACKUP_TASK = 5,
+    CLUSTER_SNAPSHOT_TASK = 5,
 };
 
 enum TaskState
@@ -57,16 +57,18 @@ struct TaskProgress
 struct Task
 {
     Kitsunemimi::Hanami::kuuid uuid;
-    std::string name = "";
     bool isInit = false;
     float* inputData = nullptr;
     DataArray* resultData = nullptr;
-    uint64_t numberOfInputsPerCycle = 0;
-    uint64_t numberOfOuputsPerCycle = 0;
-    uint64_t numberOfCycle = 0;
+    DataMap metaData;
     uint64_t actualCycle = 0;
     TaskType type = UNDEFINED_TASK;
     TaskProgress progress;
+
+    uint64_t getIntVal(const std::string &name)
+    {
+        return static_cast<uint64_t>(metaData.get(name)->toValue()->getLong());
+    }
 };
 
 #endif // KYOUKOMIND_TASK_H

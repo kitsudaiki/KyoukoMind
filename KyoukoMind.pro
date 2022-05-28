@@ -120,8 +120,8 @@ HEADERS += \
     src/api/v1/cluster/delete_cluster.h \
     src/api/v1/cluster/list_cluster.h \
     src/api/v1/cluster/load_cluster.h \
+    src/api/v1/cluster/save_cluster.h \
     src/api/v1/cluster/show_cluster.h \
-    src/api/v1/task/create_cluster_backup_task.h \
     src/api/v1/task/create_graph_learn_task.h \
     src/api/v1/task/create_graph_request_task.h \
     src/api/v1/task/create_image_learn_task.h \
@@ -192,8 +192,8 @@ SOURCES += \
     src/api/v1/cluster/delete_cluster.cpp \
     src/api/v1/cluster/list_cluster.cpp \
     src/api/v1/cluster/load_cluster.cpp \
+    src/api/v1/cluster/save_cluster.cpp \
     src/api/v1/cluster/show_cluster.cpp \
-    src/api/v1/task/create_cluster_backup_task.cpp \
     src/api/v1/task/create_graph_learn_task.cpp \
     src/api/v1/task/create_graph_request_task.cpp \
     src/api/v1/task/create_image_learn_task.cpp \

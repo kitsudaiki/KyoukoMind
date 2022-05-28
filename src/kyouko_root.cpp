@@ -37,10 +37,16 @@
 #include <libKitsunemimiConfig/config_handler.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
+#include <libKitsunemimiHanamiCommon/component_support.h>
 
 #include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 #include <libKitsunemimiSakuraDatabase/sql_database.h>
 
+using Kitsunemimi::Sakura::SakuraLangInterface;
+using Kitsunemimi::Hanami::SupportedComponents;
+using Kitsunemimi::Hanami::HanamiMessaging;
+using Kitsunemimi::Hanami::HanamiMessagingClient;
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
@@ -51,6 +57,7 @@ ProcessingUnitHandler* KyoukoRoot::m_processingUnitHandler = nullptr;
 Kitsunemimi::Sakura::SqlDatabase* KyoukoRoot::database = nullptr;
 ClusterTable* KyoukoRoot::clustersTable = nullptr;
 TemplateTable* KyoukoRoot::templateTable = nullptr;
+std::string* KyoukoRoot::componentToken = nullptr;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
@@ -105,6 +112,68 @@ KyoukoRoot::initThreads()
     }
 
     return true;
+}
+
+/**
+ * @brief KyoukoRoot::initToken
+ * @param error
+ * @return
+ */
+bool
+KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
+{
+    SupportedComponents* scomp = SupportedComponents::getInstance();
+    if(scomp->support[Kitsunemimi::Hanami::MISAKA])
+    {
+        HanamiMessagingClient* misakaClient = HanamiMessaging::getInstance()->misakaClient;
+        Kitsunemimi::Hanami::ResponseMessage response;
+
+        // create request
+        Kitsunemimi::Hanami::RequestMessage request;
+        request.id = "v1/token/internal";
+        request.httpType = Kitsunemimi::Hanami::GET_TYPE;
+        request.inputValues = "{\"service_name\":\"kyouko\"}";
+
+        // request internal jwt-token from misaka
+        if(misakaClient->triggerSakuraFile(response, request, error) == false)
+        {
+            std::cout<<"poi1"<<std::endl;
+            LOG_ERROR(error);
+            return false;
+        }
+
+        // check response
+        if(response.success == false) {
+            std::cout<<"poi2"<<std::endl;
+
+            return false;
+        }
+
+        // parse response
+        Kitsunemimi::Json::JsonItem jsonItem;
+        if(jsonItem.parse(response.responseContent, error) == false)
+        {
+            LOG_ERROR(error);            std::cout<<"poi3"<<std::endl;
+
+
+            return false;
+        }
+
+        // get token from response
+        componentToken = new std::string();
+        *componentToken = jsonItem.getItemContent()->toMap()->getStringByKey("token");
+        if(*componentToken == "") {
+            std::cout<<"poi4"<<std::endl;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    std::cout<<"poi5"<<std::endl;
+
+    return false;
 }
 
 /**

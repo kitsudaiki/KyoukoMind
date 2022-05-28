@@ -22,11 +22,10 @@
 
 #include "create_graph_request_task.h"
 #include <kyouko_root.h>
-
-#include <libSagiriArchive/sagiri_send.h>
-
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
+
+#include <libSagiriArchive/sagiri_send.h>
 
 #include <libKitsunemimiHanamiCommon/component_support.h>
 #include <libKitsunemimiHanamiCommon/enums.h>

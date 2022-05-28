@@ -24,8 +24,15 @@
 #define SAVECLUSTERSTATE_H
 
 #include <libKitsunemimiCommon/threading/event.h>
+#include <libKitsunemimiJson/json_item.h>
 
 class Cluster;
+
+namespace Kitsunemimi {
+namespace Hanami {
+class HanamiMessagingClient;
+}
+}
 
 class SaveCluster_State
         : public Kitsunemimi::Event
@@ -38,6 +45,17 @@ public:
 
 private:
     Cluster* m_cluster = nullptr;
+    Kitsunemimi::Hanami::HanamiMessagingClient* m_client = nullptr;
+    Kitsunemimi::Json::JsonItem m_parsedResponse;
+    uint64_t m_totalSize = 0;
+
+    bool handleInitProcess();
+    bool sendData();
+    bool sendData(const Kitsunemimi::DataBuffer* data,
+                  uint64_t &targetPos,
+                  const std::string &uuid,
+                  const std::string &fileUuid);
+    bool handleFinalizeProcess();
 };
 
 #endif // SAVECLUSTERSTATE_H

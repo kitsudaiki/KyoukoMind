@@ -86,7 +86,8 @@ GraphInterpolation_State::processEvent()
     }
     else
     {
-        const float* data = &actualTask->inputData[2* actualTask->numberOfInputsPerCycle - 2*366];
+        const uint64_t numberInputCycles = actualTask->getIntVal("number_of_inputs_per_cycle");
+        const float* data = &actualTask->inputData[2 * numberInputCycles - 2*366];
 
         //std::cout<<"------------------------actualTask->numberOfInputsPerCycle "<<actualTask->numberOfInputsPerCycle<<std::endl;
 

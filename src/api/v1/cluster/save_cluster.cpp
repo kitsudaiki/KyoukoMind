@@ -1,5 +1,5 @@
 /**
- * @file        load_cluster.cpp
+ * @file        save_cluster.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,12 +20,20 @@
  *      limitations under the License.
  */
 
-#include "load_cluster.h"
+#include "save_cluster.h"
+#include <kyouko_root.h>
+#include <core/cluster/cluster_handler.h>
+#include <core/cluster/cluster.h>
+
+#include <libKitsunemimiHanamiCommon/component_support.h>
+#include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
 using namespace Kitsunemimi::Sakura;
+using Kitsunemimi::Hanami::SupportedComponents;
 
-LoadCluster::LoadCluster()
-    : Blossom("Load and import cluster.")
+SaveCluster::SaveCluster()
+    : Blossom("Save a cluster.")
 {
     //----------------------------------------------------------------------------------------------
     // input
@@ -34,17 +42,17 @@ LoadCluster::LoadCluster()
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Name for the new cluster.");
+                       "Name for the new snapshot.");
     // column in database is limited to 256 characters size
     assert(addFieldBorder("name", 4, 256));
     assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
-    registerInputField("backup_uuid",
+    registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the backup, which should be loaded from sagiri into a new cluster.");
-    assert(addFieldRegex("backup_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                        "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "UUID of the cluster, which should be save to sagiri.");
+    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -66,10 +74,40 @@ LoadCluster::LoadCluster()
  * @brief runTask
  */
 bool
-LoadCluster::runTask(BlossomLeaf &blossomLeaf,
+SaveCluster::runTask(BlossomLeaf &blossomLeaf,
                      const Kitsunemimi::DataMap &context,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
+    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
+    const std::string backupName = blossomLeaf.input.get("name").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
 
+    // check if sagiri is available
+    SupportedComponents* scomp = SupportedComponents::getInstance();
+    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
+        status.errorMessage = "Sagiri is not configured for Kyouko.";
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
+
+    // get cluster
+    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
+    if(cluster == nullptr)
+    {
+        status.errorMessage = "cluster with uuid '" + clusterUuid + "'not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
+
+    std::cout<<"poi"<<std::endl;
+    // init request-task
+    const std::string taskUuid = cluster->addClusterSnapshotTask(backupName, userUuid, projectUuid);
+    blossomLeaf.output.insert("uuid", taskUuid);
+
+    return true;
 }

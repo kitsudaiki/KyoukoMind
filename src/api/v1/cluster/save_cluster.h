@@ -1,5 +1,5 @@
 /**
- * @file        save_cluster.h
+ * @file        load_cluster.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,16 +20,16 @@
  *      limitations under the License.
  */
 
-#ifndef CREATECLUSTERBACKUPTASK_H
-#define CREATECLUSTERBACKUPTASK_H
+#ifndef SAVECLUSTER_H
+#define SAVECLUSTER_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class CreateClusterBackupTask
+class SaveCluster
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateClusterBackupTask();
+    SaveCluster();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
@@ -38,4 +38,4 @@ protected:
                  Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // CREATECLUSTERBACKUPTASK_H
+#endif // SAVECLUSTER_H

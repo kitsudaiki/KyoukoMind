@@ -35,6 +35,7 @@
 #include <core/cluster/states/image_identify_state.h>
 #include <core/cluster/states/image_learn_backward_state.h>
 #include <core/cluster/states/image_learn_forward_state.h>
+#include <core/cluster/states/save_cluster_state.h>
 
 #include <core/processing/segment_queue.h>
 #include <core/segments/output_segment/processing.h>
@@ -231,6 +232,10 @@ Cluster::initStatemachine()
                                    "Graph-request state: forward-propagation");
     m_stateMachine->createNewState(GRAPH_REQUEST_CYCLE_FINISH_STATE,
                                    "Graph-request state: finish-cycle");
+    m_stateMachine->createNewState(SNAPSHOT_STATE,
+                                   "Snapshot state");
+    m_stateMachine->createNewState(CLUSTER_SNAPSHOT_STATE,
+                                   "Cluster-snapshot state");
 
     // add events to states
     m_stateMachine->addEventToState(TASK_STATE,
@@ -255,6 +260,8 @@ Cluster::initStatemachine()
                                     new CycleFinish_State(this));
     m_stateMachine->addEventToState(GRAPH_REQUEST_CYCLE_FINISH_STATE,
                                     new CycleFinish_State(this));
+    m_stateMachine->addEventToState(CLUSTER_SNAPSHOT_STATE,
+                                    new SaveCluster_State(this));
 
     // child states image learn
     m_stateMachine->addChildState(LEARN_STATE,       IMAGE_LEARN_STATE);
@@ -278,6 +285,9 @@ Cluster::initStatemachine()
     m_stateMachine->addChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_FORWARD_STATE);
     m_stateMachine->addChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_CYCLE_FINISH_STATE);
 
+    // child states snapshot
+    m_stateMachine->addChildState(SNAPSHOT_STATE,      CLUSTER_SNAPSHOT_STATE);
+
     // set initial childs
     m_stateMachine->setInitialChildState(IMAGE_LEARN_STATE,   IMAGE_LEARN_FORWARD_STATE);
     m_stateMachine->setInitialChildState(GRAPH_LEARN_STATE,   GRAPH_LEARN_FORWARD_STATE);
@@ -294,9 +304,9 @@ Cluster::initStatemachine()
     m_stateMachine->addTransition(REQUEST_STATE, IMAGE,   IMAGE_REQUEST_STATE);
     m_stateMachine->addTransition(REQUEST_STATE, GRAPH,   GRAPH_REQUEST_STATE);
 
-    // transitions backup init
-    m_stateMachine->addTransition(TASK_STATE,   BACKUP,  BACKUP_STATE);
-    m_stateMachine->addTransition(BACKUP_STATE, CLUSTER, CLUSTER_BACKUP_STATE);
+    // transitions snapshot init
+    m_stateMachine->addTransition(TASK_STATE,     SNAPSHOT, SNAPSHOT_STATE);
+    m_stateMachine->addTransition(SNAPSHOT_STATE, CLUSTER,  CLUSTER_SNAPSHOT_STATE);
 
     // trainsition learn-internal
     m_stateMachine->addTransition(IMAGE_LEARN_FORWARD_STATE,      NEXT, IMAGE_LEARN_BACKWARD_STATE     );
@@ -313,10 +323,13 @@ Cluster::initStatemachine()
     m_stateMachine->addTransition(GRAPH_REQUEST_CYCLE_FINISH_STATE, NEXT, GRAPH_REQUEST_FORWARD_STATE      );
 
     // transition finish back to task-state
-    m_stateMachine->addTransition(LEARN_STATE,   FINISH_TASK,  TASK_STATE);
-    m_stateMachine->addTransition(REQUEST_STATE, FINISH_TASK,  TASK_STATE);
-    m_stateMachine->addTransition(BACKUP_STATE,  FINISH_TASK,  TASK_STATE);
-    m_stateMachine->addTransition(TASK_STATE,    PROCESS_TASK, TASK_STATE);
+    m_stateMachine->addTransition(LEARN_STATE,            FINISH_TASK,  TASK_STATE);
+    m_stateMachine->addTransition(REQUEST_STATE,          FINISH_TASK,  TASK_STATE);
+    m_stateMachine->addTransition(SNAPSHOT_STATE,         FINISH_TASK,  TASK_STATE);
+    m_stateMachine->addTransition(CLUSTER_SNAPSHOT_STATE, FINISH_TASK,  TASK_STATE      );
+
+    // special transition to tigger the task-state again
+    m_stateMachine->addTransition(TASK_STATE, PROCESS_TASK, TASK_STATE);
 
     // set initial state for the state-machine
     m_stateMachine->setCurrentState(TASK_STATE);
@@ -342,12 +355,17 @@ Cluster::addImageLearnTask(float* inputData,
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.inputData = inputData;
-    newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
-    newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
-    newTask.numberOfCycle = numberOfCycle;
     newTask.type = IMAGE_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // fill metadata
+    newTask.metaData.insert("number_of_cycles",
+                            new DataValue(static_cast<long>(numberOfCycle)));
+    newTask.metaData.insert("number_of_inputs_per_cycle",
+                            new DataValue(static_cast<long>(numberOfInputsPerCycle)));
+    newTask.metaData.insert("number_of_outputs_per_cycle",
+                            new DataValue(static_cast<long>(numberOfOuputsPerCycle)));
 
     // add task to queue
     const std::string uuid = newTask.uuid.toString();
@@ -379,12 +397,17 @@ Cluster::addImageRequestTask(float* inputData,
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
-    newTask.numberOfInputsPerCycle = numberOfInputsPerCycle;
-    newTask.numberOfOuputsPerCycle = numberOfOuputsPerCycle;
-    newTask.numberOfCycle = numberOfCycle;
     newTask.type = IMAGE_REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // fill metadata
+    newTask.metaData.insert("number_of_cycles",
+                            new DataValue(static_cast<long>(numberOfCycle)));
+    newTask.metaData.insert("number_of_inputs_per_cycle",
+                            new DataValue(static_cast<long>(numberOfInputsPerCycle)));
+    newTask.metaData.insert("number_of_outputs_per_cycle",
+                            new DataValue(static_cast<long>(numberOfOuputsPerCycle)));
 
     // add task to queue
     const std::string uuid = newTask.uuid.toString();
@@ -412,11 +435,15 @@ Cluster::addGraphLearnTask(float* inputData,
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.inputData = inputData;
-    newTask.numberOfCycle = numberOfCycle;
-    newTask.numberOfInputsPerCycle = numberOfInputs;
     newTask.type = GRAPH_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // fill metadata
+    newTask.metaData.insert("number_of_cycles",
+                            new DataValue(static_cast<long>(numberOfCycle)));
+    newTask.metaData.insert("number_of_inputs_per_cycle",
+                            new DataValue(static_cast<long>(numberOfInputs)));
 
     // add task to queue
     const std::string uuid = newTask.uuid.toString();
@@ -445,11 +472,15 @@ Cluster::addGraphRequestTask(float* inputData,
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
-    newTask.numberOfCycle = numberOfCycle;
-    newTask.numberOfInputsPerCycle = numberOfInputs;
     newTask.type = GRAPH_REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // fill metadata
+    newTask.metaData.insert("number_of_cycles",
+                            new DataValue(static_cast<long>(numberOfCycle)));
+    newTask.metaData.insert("number_of_inputs_per_cycle",
+                            new DataValue(static_cast<long>(numberOfInputs)));
 
     // add tasgetNextTaskk to queue
     const std::string uuid = newTask.uuid.toString();
@@ -461,16 +492,21 @@ Cluster::addGraphRequestTask(float* inputData,
 }
 
 const std::string
-Cluster::addClusterBackupTask(const std::string &backupName)
+Cluster::addClusterSnapshotTask(const std::string &snapshotName,
+                                const std::string &userUuid,
+                                const std::string &projectUuid)
 {
     // create new request-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
-    newTask.name = backupName;
-    newTask.numberOfCycle = 1;
-    newTask.type = CLUSTER_BACKUP_TASK;
+    newTask.type = CLUSTER_SNAPSHOT_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
+
+    // fill metadata
+    newTask.metaData.insert("snapshot_name", new DataValue(snapshotName));
+    newTask.metaData.insert("user_uuid", new DataValue(userUuid));
+    newTask.metaData.insert("project_uuid", new DataValue(projectUuid));
 
     // add tasgetNextTaskk to queue
     const std::string uuid = newTask.uuid.toString();

@@ -37,6 +37,8 @@
 #include <api/v1/cluster/show_cluster.h>
 #include <api/v1/cluster/list_cluster.h>
 #include <api/v1/cluster/delete_cluster.h>
+#include <api/v1/cluster/save_cluster.h>
+#include <api/v1/cluster/load_cluster.h>
 
 #include <api/v1/template/create_template.h>
 #include <api/v1/template/delete_template.h>
@@ -53,6 +55,9 @@
 
 using Kitsunemimi::Sakura::SakuraLangInterface;
 
+/**
+ * @brief initClusterBlossoms
+ */
 void
 initClusterBlossoms()
 {
@@ -87,8 +92,25 @@ initClusterBlossoms()
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
                            "delete");
+
+    assert(interface->addBlossom(group, "save", new SaveCluster()));
+    endpoints->addEndpoint("v1/cluster/save",
+                           Kitsunemimi::Hanami::POST_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "save");
+
+    assert(interface->addBlossom(group, "load", new LoadCluster()));
+    endpoints->addEndpoint("v1/cluster/load",
+                           Kitsunemimi::Hanami::POST_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "load");
 }
 
+/**
+ * @brief initTemplateBlossoms
+ */
 void
 initTemplateBlossoms()
 {
@@ -125,6 +147,9 @@ initTemplateBlossoms()
                            "delete");
 }
 
+/**
+ * @brief initTaskBlossoms
+ */
 void
 initTaskBlossoms()
 {
@@ -182,6 +207,9 @@ initTaskBlossoms()
                            "delete");
 }
 
+/**
+ * @brief initBlossoms
+ */
 void
 initBlossoms()
 {

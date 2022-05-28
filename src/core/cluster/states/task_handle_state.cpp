@@ -97,9 +97,9 @@ TaskHandle_State::processEvent()
                 }
                 break;
             }
-            case CLUSTER_BACKUP_TASK:
+            case CLUSTER_SNAPSHOT_TASK:
             {
-                if(m_cluster->goToNextState(Cluster::BACKUP)) {
+                if(m_cluster->goToNextState(Cluster::SNAPSHOT)) {
                     m_cluster->goToNextState(Cluster::CLUSTER);
                 } else {
                     // TODO: error-message

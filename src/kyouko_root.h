@@ -40,6 +40,7 @@ public:
 
     bool init(Kitsunemimi::ErrorContainer &error);
     bool initThreads();
+    bool initToken(Kitsunemimi::ErrorContainer &error);
 
     static ClusterHandler* m_clusterHandler;
     static uint32_t* m_randomValues;
@@ -48,6 +49,7 @@ public:
     static Kitsunemimi::Sakura::SqlDatabase* database;
     static ClusterTable* clustersTable;
     static TemplateTable* templateTable;
+    static std::string* componentToken;
 
     bool initializeSakuraFiles(Kitsunemimi::ErrorContainer &error);
 
