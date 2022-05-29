@@ -25,6 +25,8 @@
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
+class Cluster;
+
 class CreateCluster
         : public Kitsunemimi::Sakura::Blossom
 {
@@ -36,6 +38,14 @@ protected:
                  const Kitsunemimi::DataMap &context,
                  Kitsunemimi::Sakura::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
+
+private:
+    bool initCluster(Cluster* cluster,
+                     const std::string &clusterUuid,
+                     Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
+                     const Kitsunemimi::DataMap &context,
+                     Kitsunemimi::Sakura::BlossomStatus &status,
+                     Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // KYOUKOMIND_CREATECLUSTER_H

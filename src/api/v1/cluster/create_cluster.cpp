@@ -53,7 +53,7 @@ CreateCluster::CreateCluster()
 
     registerInputField("template_uuid",
                        SAKURA_STRING_TYPE,
-                       true,
+                       false,
                        "UUID of the template, which should be used as base for the cluster.");
     assert(addFieldRegex("template_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                           "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
@@ -106,39 +106,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    // get new created user from database
-    JsonItem templateData;
-    if(KyoukoRoot::templateTable->getTemplate(templateData,
-                                              templateUuid,
-                                              userUuid,
-                                              projectUuid,
-                                              isAdmin,
-                                              error,
-                                              true) == false)
-    {
-        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
-        status.errorMessage = "Template with UUID '" + templateUuid + "' doesn't exist";
-        return false;
-    }
 
-    // decode template
-    std::string contentDecoded;
-    if(Kitsunemimi::Crypto::decodeBase64(contentDecoded,
-                                         templateData.get("data").getString()) == false)
-    {
-        error.addMeesage("base64-decoding of the input failes");
-        status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
-        status.errorMessage = "Given template is not a valid base64 string";
-        return false;
-    }
-
-    // parse template
-    Kitsunemimi::Json::JsonItem parsedContent;
-    if(parsedContent.parse(contentDecoded, error) == false)
-    {
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
 
     // convert values
     Kitsunemimi::Json::JsonItem clusterData;
@@ -172,11 +140,13 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 
     const std::string uuid = blossomLeaf.output.get("uuid").getString();
     Cluster* newCluster = new Cluster();
-    if(newCluster->init(parsedContent, uuid) == false)
+    if(templateUuid != "")
     {
-        delete newCluster;
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
+        if(initCluster(newCluster, uuid, blossomLeaf, context, status, error) == false)
+        {
+            delete newCluster;
+            return false;
+        }
     }
 
     KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster);
@@ -185,6 +155,69 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     blossomLeaf.output.remove("owner_uuid");
     blossomLeaf.output.remove("project_uuid");
     blossomLeaf.output.remove("visibility");
+
+    return true;
+}
+
+/**
+ * @brief CreateCluster::initCluster
+ * @param cluster
+ * @param templateUuid
+ * @return
+ */
+bool
+CreateCluster::initCluster(Cluster* cluster,
+                           const std::string &clusterUuid,
+                           BlossomLeaf &blossomLeaf,
+                           const Kitsunemimi::DataMap &context,
+                           Kitsunemimi::Sakura::BlossomStatus &status,
+                           Kitsunemimi::ErrorContainer &error)
+{
+    const std::string clusterName = blossomLeaf.input.get("name").getString();
+    const std::string templateUuid = blossomLeaf.input.get("template_uuid").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const bool isAdmin = context.getBoolByKey("is_admin");
+
+    // get new created user from database
+    JsonItem templateData;
+    if(KyoukoRoot::templateTable->getTemplate(templateData,
+                                              templateUuid,
+                                              userUuid,
+                                              projectUuid,
+                                              isAdmin,
+                                              error,
+                                              true) == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        status.errorMessage = "Template with UUID '" + templateUuid + "' doesn't exist";
+        return false;
+    }
+
+    // decode template
+    std::string decodedTemplate;
+    if(Kitsunemimi::Crypto::decodeBase64(decodedTemplate,
+                                         templateData.get("data").getString()) == false)
+    {
+        error.addMeesage("base64-decoding of the input failes");
+        status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
+        status.errorMessage = "Given template is not a valid base64 string";
+        return false;
+    }
+
+    // parse template
+    Kitsunemimi::Json::JsonItem parsedTemplate;
+    if(parsedTemplate.parse(decodedTemplate, error) == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+
+    if(cluster->init(parsedTemplate, clusterUuid) == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
 
     return true;
 }
