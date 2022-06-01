@@ -52,7 +52,6 @@ bool
 GraphInterpolation_State::processEvent()
 {
 
-    std::cout<<"############################poi#####################"<<std::endl;
     Task* actualTask = m_cluster->getActualTask();
     if(actualTask->isInit)
     {

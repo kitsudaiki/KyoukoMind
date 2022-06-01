@@ -104,9 +104,10 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    std::cout<<"poi"<<std::endl;
     // init request-task
-    const std::string taskUuid = cluster->addClusterSnapshotTask(backupName, userUuid, projectUuid);
+    const std::string taskUuid = cluster->addClusterSnapshotSaveTask(backupName,
+                                                                     userUuid,
+                                                                     projectUuid);
     blossomLeaf.output.insert("uuid", taskUuid);
 
     return true;

@@ -155,6 +155,7 @@ HEADERS += \
     src/core/cluster/states/image_identify_state.h \
     src/core/cluster/states/image_learn_backward_state.h \
     src/core/cluster/states/image_learn_forward_state.h \
+    src/core/cluster/states/restore_cluster_state.h \
     src/core/cluster/states/save_cluster_state.h \
     src/core/cluster/states/task_handle_state.h \
     src/core/cluster/task.h \
@@ -215,6 +216,7 @@ SOURCES += \
     src/core/cluster/states/image_identify_state.cpp \
     src/core/cluster/states/image_learn_backward_state.cpp \
     src/core/cluster/states/image_learn_forward_state.cpp \
+    src/core/cluster/states/restore_cluster_state.cpp \
     src/core/cluster/states/save_cluster_state.cpp \
     src/core/cluster/states/task_handle_state.cpp \
     src/core/processing/cpu_processing_unit.cpp \

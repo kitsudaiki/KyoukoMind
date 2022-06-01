@@ -29,6 +29,8 @@
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
+#include <libKitsunemimiCrypto/hashes.h>
+
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::HanamiMessagingClient;
 
@@ -55,25 +57,37 @@ SaveCluster_State::~SaveCluster_State() {}
 bool
 SaveCluster_State::processEvent()
 {
-    HanamiMessaging* messaging = HanamiMessaging::getInstance();
-    m_client = messaging->sagiriClient;
-    if(m_client == nullptr)
+    bool result = false;
+
+    do
     {
-        // TODO: error-message
-        return false;
-    }
+        HanamiMessaging* messaging = HanamiMessaging::getInstance();
+        m_client = messaging->sagiriClient;
+        if(m_client == nullptr)
+        {
+            // TODO: error-message
+            result = false;
+            break;
+        }
 
-    if(handleInitProcess() == false) {
-        return false;
-    }
-    if(sendData() == false) {
-        return false;
-    }
-    if(handleFinalizeProcess() == false) {
-        return false;
-    }
+        if(handleInitProcess() == false) {
+            break;
+        }
+        if(sendData() == false) {
+            break;
+        }
+        if(handleFinalizeProcess() == false) {
+            break;
+        }
 
-    return true;
+        result = true;
+        break;
+    }
+    while(true);
+
+    m_cluster->goToNextState(Cluster::FINISH_TASK);
+
+    return result;
 }
 
 /**
@@ -87,9 +101,22 @@ SaveCluster_State::handleInitProcess()
 
     // get total size of memory of the cluster
     m_totalSize = m_cluster->clusterData.usedBufferSize;
-    for(uint64_t i = 0; i < m_cluster->allSegments.size(); i++) {
-        m_totalSize += m_cluster->allSegments.at(i)->segmentData.buffer.usedBufferSize;
+    m_headerMessage = "{\"header\":" + std::to_string(m_totalSize) + ",\"segments\":[";
+
+    for(uint64_t i = 0; i < m_cluster->allSegments.size(); i++)
+    {
+        if(i != 0) {
+            m_headerMessage += ",";
+        }
+        const uint64_t segSize = m_cluster->allSegments.at(i)->segmentData.buffer.usedBufferSize;
+        m_headerMessage += "{\"size\":"
+                           + std::to_string(segSize)
+                           + ",\"type\":"
+                           + std::to_string(m_cluster->allSegments.at(i)->getType())
+                           + "}";
+        m_totalSize += segSize;
     }
+    m_headerMessage += "]}";
 
     // create request
     Kitsunemimi::Hanami::RequestMessage requestMsg;
@@ -100,7 +127,11 @@ SaveCluster_State::handleInitProcess()
     requestMsg.inputValues.append(actualTask->metaData.getStringByKey("user_uuid"));
     requestMsg.inputValues.append("\",\"token\":\"");
     requestMsg.inputValues.append(*KyoukoRoot::componentToken);
-    requestMsg.inputValues.append("\",\"project_uuid\":\"");
+    requestMsg.inputValues.append("\",\"uuid\":\"");
+    requestMsg.inputValues.append(actualTask->uuid.toString());
+    requestMsg.inputValues.append("\",\"header\":");
+    requestMsg.inputValues.append(m_headerMessage);
+    requestMsg.inputValues.append(",\"project_uuid\":\"");
     requestMsg.inputValues.append(actualTask->metaData.getStringByKey("project_uuid"));
     requestMsg.inputValues.append("\",\"name\":\"");
     requestMsg.inputValues.append(actualTask->metaData.getStringByKey("snapshot_name"));
@@ -144,10 +175,17 @@ SaveCluster_State::sendData()
     const std::string fileUuid = m_parsedResponse.get("uuid_input_file").getString();
     uint64_t posCounter = 0;
 
-    // send cluster-header
-    if(sendData(&m_cluster->clusterData, posCounter, uuid, fileUuid) == false) {
+    uint8_t* testBuffer = new uint8_t[100*1024*1025];
+    uint8_t* testBuffer2 = new uint8_t[100*1024*1025];
+
+    // send cluster-metadata
+    if(sendData(&m_cluster->clusterData, posCounter, uuid, fileUuid, testBuffer2) == false) {
         return false;
     }
+
+    memcpy(&testBuffer[posCounter],
+           m_cluster->clusterData.data,
+           m_cluster->clusterData.usedBufferSize);
 
     // send segments of cluster
     for(uint64_t i = 0; i < m_cluster->allSegments.size(); i++)
@@ -155,10 +193,15 @@ SaveCluster_State::sendData()
         if(sendData(&m_cluster->allSegments.at(i)->segmentData.buffer,
                     posCounter,
                     uuid,
-                    fileUuid) == false)
+                    fileUuid, testBuffer2) == false)
         {
             return false;
         }
+
+        memcpy(&testBuffer[posCounter],
+               m_cluster->allSegments.at(i)->segmentData.buffer.data,
+               m_cluster->allSegments.at(i)->segmentData.buffer.usedBufferSize);
+
     }
 
     return true;
@@ -174,7 +217,8 @@ bool
 SaveCluster_State::sendData(const Kitsunemimi::DataBuffer* data,
                             uint64_t &targetPos,
                             const std::string &uuid,
-                            const std::string &fileUuid)
+                            const std::string &fileUuid,
+                            uint8_t* testBuffer)
 {
     const uint64_t dataSize = data->usedBufferSize;
     const uint8_t* u8Data = static_cast<const uint8_t*>(data->data);
@@ -201,7 +245,8 @@ SaveCluster_State::sendData(const Kitsunemimi::DataBuffer* data,
         }
 
         // read segment of the local file
-        memcpy(&sendBuffer[80], u8Data, segmentSize);
+        memcpy(&sendBuffer[80], &u8Data[i], segmentSize);
+        memcpy(&testBuffer[targetPos + i], &u8Data[i], segmentSize);
 
         // send segment
         if(m_client->sendStreamMessage(sendBuffer, segmentSize + 80, false, error) == false) {

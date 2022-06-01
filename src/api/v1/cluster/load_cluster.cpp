@@ -21,8 +21,18 @@
  */
 
 #include "load_cluster.h"
+#include <kyouko_root.h>
+#include <core/cluster/cluster_handler.h>
+#include <core/cluster/cluster.h>
+
+#include <libSagiriArchive/sagiri_send.h>
+
+#include <libKitsunemimiHanamiCommon/component_support.h>
+#include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
 using namespace Kitsunemimi::Sakura;
+using Kitsunemimi::Hanami::SupportedComponents;
 
 LoadCluster::LoadCluster()
     : Blossom("Load and import cluster.")
@@ -31,20 +41,19 @@ LoadCluster::LoadCluster()
     // input
     //----------------------------------------------------------------------------------------------
 
-    registerInputField("name",
+    registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Name for the new cluster.");
-    // column in database is limited to 256 characters size
-    assert(addFieldBorder("name", 4, 256));
-    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+                       "UUID of the cluster.");
+    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
-    registerInputField("backup_uuid",
+    registerInputField("snapshot_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the backup, which should be loaded from sagiri into a new cluster.");
-    assert(addFieldRegex("backup_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                        "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "UUID of the snapshot, which should be loaded from sagiri into a new cluster.");
+    assert(addFieldRegex("snapshot_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -71,5 +80,47 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
+    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
+    const std::string snapshotUuid = blossomLeaf.input.get("snapshot_uuid").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string token = context.getStringByKey("token");
 
+    // check if sagiri is available
+    SupportedComponents* scomp = SupportedComponents::getInstance();
+    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+    {
+        status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
+        status.errorMessage = "Sagiri is not configured for Kyouko.";
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
+
+    // get cluster
+    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
+    if(cluster == nullptr)
+    {
+        status.errorMessage = "cluster with uuid '" + clusterUuid + "' not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
+
+    // get meta-infos of data-set from sagiri
+    Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
+    if(Sagiri::getSnapshotInformation(parsedSnapshotInfo, snapshotUuid, token, error) == false)
+    {
+        error.addMeesage("failed to get information from sagiri for uuid '" + snapshotUuid + "'");
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        return false;
+    }
+
+    // init request-task
+    const std::string infoStr = parsedSnapshotInfo.toString();
+    const std::string taskUuid = cluster->addClusterSnapshotRestoreTask(infoStr,
+                                                                        userUuid,
+                                                                        projectUuid);
+    blossomLeaf.output.insert("uuid", taskUuid);
+
+    return true;
 }

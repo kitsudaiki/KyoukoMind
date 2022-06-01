@@ -55,7 +55,7 @@ public:
     Cluster* parentCluster = nullptr;
 
     virtual bool initSegment(const JsonItem &parsedContent) = 0;
-    virtual bool reinitPointer() = 0;
+    virtual bool reinitPointer(const uint64_t numberOfBytes) = 0;
 
     bool isReady();
     bool finishSegment();

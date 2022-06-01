@@ -137,15 +137,12 @@ KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
         // request internal jwt-token from misaka
         if(misakaClient->triggerSakuraFile(response, request, error) == false)
         {
-            std::cout<<"poi1"<<std::endl;
             LOG_ERROR(error);
             return false;
         }
 
         // check response
         if(response.success == false) {
-            std::cout<<"poi2"<<std::endl;
-
             return false;
         }
 
@@ -153,9 +150,7 @@ KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
         Kitsunemimi::Json::JsonItem jsonItem;
         if(jsonItem.parse(response.responseContent, error) == false)
         {
-            LOG_ERROR(error);            std::cout<<"poi3"<<std::endl;
-
-
+            LOG_ERROR(error);
             return false;
         }
 
@@ -163,15 +158,11 @@ KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
         componentToken = new std::string();
         *componentToken = jsonItem.getItemContent()->toMap()->getStringByKey("token");
         if(*componentToken == "") {
-            std::cout<<"poi4"<<std::endl;
-
             return false;
         }
 
         return true;
     }
-
-    std::cout<<"poi5"<<std::endl;
 
     return false;
 }

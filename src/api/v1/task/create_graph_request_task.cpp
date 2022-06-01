@@ -119,14 +119,14 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* openBuffer = Sagiri::getData(token, dataSetUuid, "Open", error);
+    DataBuffer* openBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Open", error);
     if(openBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
-    DataBuffer* closeBuffer = Sagiri::getData(token, dataSetUuid, "Close", error);
+    DataBuffer* closeBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Close", error);
     if(closeBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");

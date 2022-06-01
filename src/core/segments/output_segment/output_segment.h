@@ -43,7 +43,7 @@ public:
     OutputNode* outputs = nullptr;
 
     bool initSegment(const JsonItem &parsedContent);
-    bool reinitPointer();
+    bool reinitPointer(const uint64_t numberOfBytes);
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfOutputs,

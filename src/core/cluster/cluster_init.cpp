@@ -38,6 +38,34 @@
 #include <libKitsunemimiCommon/logger.h>
 
 /**
+ * @brief reinitPointer
+ * @param cluster
+ * @return
+ */
+bool
+reinitPointer(Cluster* cluster,
+              const std::string &uuid)
+{
+    uint8_t* dataPtr = static_cast<uint8_t*>(cluster->clusterData.data);
+    uint64_t pos = 0;
+
+    // write metadata to buffer
+    cluster->networkMetaData = reinterpret_cast<ClusterMetaData*>(dataPtr + pos);
+    pos += sizeof(ClusterMetaData);
+
+    // write settings to buffer
+    cluster->networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
+    pos += sizeof(ClusterSettings);
+
+    //strncpy(cluster->networkMetaData->uuid.uuid, uuid.c_str(), 36);
+    //cluster->networkMetaData->uuid.uuid[36] = '\0';
+
+    cluster->clusterData.usedBufferSize = pos;
+
+    return true;
+}
+
+/**
  * @brief init header for a new cluster
  *
  * @param cluster pointer to the cluster where the header belongs to
@@ -64,6 +92,9 @@ initHeader(Cluster* cluster,
     // write settings to buffer
     cluster->networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
     cluster->networkSettings[0] = settings;
+    pos += sizeof(ClusterSettings);
+
+    cluster->clusterData.usedBufferSize = pos;
 }
 
 /**

@@ -224,7 +224,7 @@ synapseProcessing_withLearn(SynapseSection &section,
         targetNode->input += outH * synapseObj.weight;
 
         // update active-counter
-        active = synapse->weight > 0 == targetNode->potential > targetNode->border;
+        active = (synapse->weight > 0) == (targetNode->potential > targetNode->border);
         synapse->activeCounter += active * static_cast<uint8_t>(synapseObj.activeCounter < 126);
 
         // update loop-counter

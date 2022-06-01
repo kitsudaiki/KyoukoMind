@@ -96,38 +96,53 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
  * @return
  */
 bool
-DynamicSegment::reinitPointer()
+DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
 {
     // TODO: checks
     uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.staticData);
 
     uint64_t pos = 0;
+    uint64_t byteCounter = 0;
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
+    byteCounter += sizeof(SegmentHeader);
 
     pos = 256;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+    byteCounter += sizeof(DynamicSegmentSettings);
 
     pos = segmentHeader->neighborList.bytePos;
     segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+    byteCounter += segmentHeader->neighborList.count * sizeof(SegmentNeighborList);
 
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    byteCounter += segmentHeader->inputTransfers.count * sizeof(float);
 
     pos = segmentHeader->outputTransfers.bytePos;
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    byteCounter += segmentHeader->outputTransfers.count * sizeof(float);
 
     pos = segmentHeader->bricks.bytePos;
     bricks = reinterpret_cast<Brick*>(dataPtr + pos);
+    byteCounter += segmentHeader->bricks.count * sizeof(Brick);
 
     pos = segmentHeader->brickOrder.bytePos;
     brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
+    byteCounter += segmentHeader->brickOrder.count * sizeof(uint32_t);
 
     pos = segmentHeader->nodes.bytePos;
     nodes = reinterpret_cast<DynamicNode*>(dataPtr + pos);
+    byteCounter += segmentHeader->nodes.count * sizeof(DynamicNode);
 
     dataPtr = static_cast<uint8_t*>(segmentData.itemData);
     pos = segmentHeader->synapseSections.bytePos;
-    synapseSections = reinterpret_cast<SynapseSection*>(dataPtr + pos);
+    synapseSections = reinterpret_cast<SynapseSection*>(dataPtr);
+    byteCounter += segmentHeader->synapseSections.count * sizeof(SynapseSection);
+
+    // check result
+    if(byteCounter != numberOfBytes) {
+        return false;
+    }
 
     return true;
 }

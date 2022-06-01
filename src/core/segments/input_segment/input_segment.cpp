@@ -71,27 +71,39 @@ InputSegment::initSegment(const JsonItem &parsedContent)
  * @return
  */
 bool
-InputSegment::reinitPointer()
+InputSegment::reinitPointer(const uint64_t numberOfBytes)
 {
-    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.buffer.data);
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.staticData);
 
     uint64_t pos = 0;
+    uint64_t byteCounter = 0;
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
+    byteCounter += sizeof(SegmentHeader);
 
-    pos = 256;
+    pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+    byteCounter += sizeof(DynamicSegmentSettings);
 
     pos = segmentHeader->neighborList.bytePos;
     segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+    byteCounter += segmentHeader->neighborList.count * sizeof(SegmentNeighborList);
 
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    byteCounter += segmentHeader->inputTransfers.count * sizeof(float);
 
     pos = segmentHeader->outputTransfers.bytePos;
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    byteCounter += segmentHeader->outputTransfers.count * sizeof(float);
 
     pos = segmentHeader->inputs.bytePos;
     inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
+    byteCounter += segmentHeader->inputs.count * sizeof(InputNode);
+
+    // check result
+    if(byteCounter != numberOfBytes) {
+        return false;
+    }
 
     return true;
 }
@@ -147,7 +159,7 @@ InputSegment::createNewHeader(const uint32_t numberOfInputs,
 void
 InputSegment::initSegmentPointer(const SegmentHeader &header)
 {
-    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.buffer.data);
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.staticData);
     uint64_t pos = 0;
 
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);

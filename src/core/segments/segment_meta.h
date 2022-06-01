@@ -93,8 +93,8 @@ struct SegmentNeighbor
     uint32_t size = 0;
     uint8_t padding[4];
 
-    float* inputTransferBuffer = nullptr;
-    float* outputTransferBuffer = nullptr;
+    uint64_t inputTransferBufferPos = UNINIT_STATE_64;
+    uint64_t outputTransferBufferPos = UNINIT_STATE_64;
 
     // total size: 32 Byte
 };

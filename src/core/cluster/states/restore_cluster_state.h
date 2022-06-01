@@ -1,5 +1,5 @@
 /**
- * @file        save_cluster_state.h
+ * @file        restore_cluster_state.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef SAVECLUSTERSTATE_H
-#define SAVECLUSTERSTATE_H
+#ifndef RESTORECLUSTERSTATE_H
+#define RESTORECLUSTERSTATE_H
 
 #include <libKitsunemimiCommon/threading/event.h>
 #include <libKitsunemimiJson/json_item.h>
@@ -34,29 +34,18 @@ class HanamiMessagingClient;
 }
 }
 
-class SaveCluster_State
+class RestoreCluster_State
         : public Kitsunemimi::Event
 {
 public:
-    SaveCluster_State(Cluster* cluster);
-    ~SaveCluster_State();
+    RestoreCluster_State(Cluster* cluster);
+    ~RestoreCluster_State();
 
     bool processEvent();
 
 private:
     Cluster* m_cluster = nullptr;
     Kitsunemimi::Hanami::HanamiMessagingClient* m_client = nullptr;
-    Kitsunemimi::Json::JsonItem m_parsedResponse;
-    uint64_t m_totalSize = 0;
-    std::string m_headerMessage = "";
-
-    bool handleInitProcess();
-    bool sendData();
-    bool sendData(const Kitsunemimi::DataBuffer* data,
-                  uint64_t &targetPos,
-                  const std::string &uuid,
-                  const std::string &fileUuid, uint8_t *testBuffer);
-    bool handleFinalizeProcess();
 };
 
-#endif // SAVECLUSTERSTATE_H
+#endif // RESTORECLUSTERSTATE_H

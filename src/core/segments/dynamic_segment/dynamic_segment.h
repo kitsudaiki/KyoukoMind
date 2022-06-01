@@ -38,7 +38,7 @@ public:
     ~DynamicSegment();
 
     bool initSegment(const JsonItem &parsedContent);
-    bool reinitPointer();
+    bool reinitPointer(const uint64_t numberOfBytes);
 
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
