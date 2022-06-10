@@ -30,14 +30,14 @@
 
 #include <core/cluster/states/task_handle_state.h>
 #include <core/cluster/states/cycle_finish_state.h>
-#include <core/cluster/states/graph_interpolation_state.h>
-#include <core/cluster/states/graph_learn_backward_state.h>
-#include <core/cluster/states/graph_learn_forward_state.h>
-#include <core/cluster/states/image_identify_state.h>
-#include <core/cluster/states/image_learn_backward_state.h>
-#include <core/cluster/states/image_learn_forward_state.h>
-#include <core/cluster/states/save_cluster_state.h>
-#include <core/cluster/states/restore_cluster_state.h>
+#include <core/cluster/states/graphs/graph_interpolation_state.h>
+#include <core/cluster/states/graphs/graph_learn_backward_state.h>
+#include <core/cluster/states/graphs/graph_learn_forward_state.h>
+#include <core/cluster/states/images/image_identify_state.h>
+#include <core/cluster/states/images/image_learn_backward_state.h>
+#include <core/cluster/states/images/image_learn_forward_state.h>
+#include <core/cluster/states/snapshots/save_cluster_state.h>
+#include <core/cluster/states/snapshots/restore_cluster_state.h>
 
 #include <core/processing/segment_queue.h>
 #include <core/segments/output_segment/processing.h>
