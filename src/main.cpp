@@ -106,6 +106,12 @@ main(int argc, char *argv[])
             LOG_ERROR(error);
             return 1;
         }
+
+        if(rootObj.initToken(error) == false)
+        {
+            LOG_ERROR(error);
+            return 1;
+        }
     }
 
     // sleep forever

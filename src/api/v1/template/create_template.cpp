@@ -135,7 +135,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
                                                      numberOfOutputs,
                                                      settingsOverride);
     const std::string stringContent = generatedContent->toString();
-    std::cout<<generatedContent->toString(true)<<std::endl;
+    // std::cout<<generatedContent->toString(true)<<std::endl;
 
     // convert template to base64 to be storage into database
     std::string base64Content;

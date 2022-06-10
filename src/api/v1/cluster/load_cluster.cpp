@@ -1,5 +1,5 @@
 /**
- * @file        create_graph_learn_task.cpp
+ * @file        load_cluster.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "create_graph_learn_task.h"
+#include "load_cluster.h"
 #include <kyouko_root.h>
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
@@ -31,13 +31,11 @@
 #include <libKitsunemimiHanamiCommon/enums.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
-#include <libKitsunemimiCrypto/common.h>
-
 using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
-CreateGraphLearnTask::CreateGraphLearnTask()
-    : Blossom("Add new learn-task to the task-queue of a cluster.")
+LoadCluster::LoadCluster()
+    : Blossom("Load and import cluster.")
 {
     //----------------------------------------------------------------------------------------------
     // input
@@ -46,21 +44,16 @@ CreateGraphLearnTask::CreateGraphLearnTask()
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster, which should process the request");
+                       "UUID of the cluster.");
     assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
-    registerInputField("data_set_uuid",
+    registerInputField("snapshot_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID to identifiy the train-data with the input in sagiri.");
-    assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                       "UUID of the snapshot, which should be loaded from sagiri into a new cluster.");
+    assert(addFieldRegex("snapshot_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                           "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
-
-    registerInputField("column_name",
-                       SAKURA_STRING_TYPE,
-                       true,
-                       "Name of the column of the table, which should work as input");
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -68,7 +61,10 @@ CreateGraphLearnTask::CreateGraphLearnTask()
 
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
-                        "UUID of the new created task.");
+                        "UUID of the new created cluster.");
+    registerOutputField("name",
+                        SAKURA_STRING_TYPE,
+                        "Name of the new created cluster.");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -79,15 +75,15 @@ CreateGraphLearnTask::CreateGraphLearnTask()
  * @brief runTask
  */
 bool
-CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
-                              const Kitsunemimi::DataMap &context,
-                              BlossomStatus &status,
-                              Kitsunemimi::ErrorContainer &error)
+LoadCluster::runTask(BlossomLeaf &blossomLeaf,
+                     const Kitsunemimi::DataMap &context,
+                     BlossomStatus &status,
+                     Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
-    const std::string columnName = blossomLeaf.input.get("column_name").getString();
-
+    const std::string snapshotUuid = blossomLeaf.input.get("snapshot_uuid").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
     const std::string token = context.getStringByKey("token");
 
     // check if sagiri is available
@@ -104,54 +100,27 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        error.addMeesage("interface with uuid not found: " + clusterUuid);
+        status.errorMessage = "cluster with uuid '" + clusterUuid + "' not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
     // get meta-infos of data-set from sagiri
-    Kitsunemimi::Json::JsonItem dataSetInfo;
-    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
+    Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
+    if(Sagiri::getSnapshotInformation(parsedSnapshotInfo, snapshotUuid, token, error) == false)
     {
-        error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
-        // TODO: add status-error from response from sagiri
-        status.statusCode = Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE;
+        error.addMeesage("failed to get information from sagiri for uuid '" + snapshotUuid + "'");
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         return false;
     }
 
-    // get input-data
-    DataBuffer* openBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Open", error);
-    if(openBuffer == nullptr)
-    {
-        error.addMeesage("failed to get data from sagiri");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-    DataBuffer* closeBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Close", error);
-    if(closeBuffer == nullptr)
-    {
-        error.addMeesage("failed to get data from sagiri");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
-    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-    float* completeBuffer = new float[numberOfLines * 2];
-    for(uint64_t i = 0; i < numberOfLines; i++)
-    {
-        completeBuffer[i * 2] = static_cast<float*>(openBuffer->data)[i];
-        completeBuffer[i * 2 + 1] = static_cast<float*>(closeBuffer->data)[i];
-    }
-
-    delete openBuffer;
-    delete closeBuffer;
-
-    // create task
-    const std::string taskUuid = cluster->addGraphLearnTask(completeBuffer,
-                                                            numberOfLines,
-                                                            numberOfLines - 366);
-
+    // init request-task
+    const std::string infoStr = parsedSnapshotInfo.toString();
+    const std::string taskUuid = cluster->addClusterSnapshotRestoreTask(infoStr,
+                                                                        userUuid,
+                                                                        projectUuid);
     blossomLeaf.output.insert("uuid", taskUuid);
 
     return true;
 }
-

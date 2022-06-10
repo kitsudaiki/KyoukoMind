@@ -22,11 +22,10 @@
 
 #include "create_graph_request_task.h"
 #include <kyouko_root.h>
-
-#include <libSagiriArchive/sagiri_send.h>
-
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
+
+#include <libSagiriArchive/sagiri_send.h>
 
 #include <libKitsunemimiHanamiCommon/component_support.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
@@ -120,14 +119,14 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* openBuffer = Sagiri::getData(token, dataSetUuid, "Open", error);
+    DataBuffer* openBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Open", error);
     if(openBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
-    DataBuffer* closeBuffer = Sagiri::getData(token, dataSetUuid, "Close", error);
+    DataBuffer* closeBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Close", error);
     if(closeBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");

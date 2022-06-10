@@ -97,6 +97,36 @@ TaskHandle_State::processEvent()
                 }
                 break;
             }
+            case CLUSTER_SNAPSHOT_SAVE_TASK:
+            {
+                if(m_cluster->goToNextState(Cluster::SNAPSHOT)) {
+                    if(m_cluster->goToNextState(Cluster::CLUSTER)) {
+                        m_cluster->goToNextState(Cluster::SAVE);
+                    } else {
+                        // TODO: error-message
+                        return false;
+                    }
+                } else {
+                    // TODO: error-message
+                    return false;
+                }
+                break;
+            }
+            case CLUSTER_SNAPSHOT_RESTORE_TASK:
+            {
+                if(m_cluster->goToNextState(Cluster::SNAPSHOT)) {
+                    if(m_cluster->goToNextState(Cluster::CLUSTER)) {
+                        m_cluster->goToNextState(Cluster::RESTORE);
+                    } else {
+                        // TODO: error-message
+                        return false;
+                    }
+                } else {
+                    // TODO: error-message
+                    return false;
+                }
+                break;
+            }
             default: {
                 // TODO: error-message
                 return false;

@@ -119,6 +119,8 @@ HEADERS += \
     src/api/v1/cluster/create_cluster.h \
     src/api/v1/cluster/delete_cluster.h \
     src/api/v1/cluster/list_cluster.h \
+    src/api/v1/cluster/load_cluster.h \
+    src/api/v1/cluster/save_cluster.h \
     src/api/v1/cluster/show_cluster.h \
     src/api/v1/task/create_graph_learn_task.h \
     src/api/v1/task/create_graph_request_task.h \
@@ -153,6 +155,8 @@ HEADERS += \
     src/core/cluster/states/image_identify_state.h \
     src/core/cluster/states/image_learn_backward_state.h \
     src/core/cluster/states/image_learn_forward_state.h \
+    src/core/cluster/states/restore_cluster_state.h \
+    src/core/cluster/states/save_cluster_state.h \
     src/core/cluster/states/task_handle_state.h \
     src/core/cluster/task.h \
     src/core/processing/cpu_processing_unit.h \
@@ -188,6 +192,8 @@ SOURCES += \
     src/api/v1/cluster/create_cluster.cpp \
     src/api/v1/cluster/delete_cluster.cpp \
     src/api/v1/cluster/list_cluster.cpp \
+    src/api/v1/cluster/load_cluster.cpp \
+    src/api/v1/cluster/save_cluster.cpp \
     src/api/v1/cluster/show_cluster.cpp \
     src/api/v1/task/create_graph_learn_task.cpp \
     src/api/v1/task/create_graph_request_task.cpp \
@@ -210,6 +216,8 @@ SOURCES += \
     src/core/cluster/states/image_identify_state.cpp \
     src/core/cluster/states/image_learn_backward_state.cpp \
     src/core/cluster/states/image_learn_forward_state.cpp \
+    src/core/cluster/states/restore_cluster_state.cpp \
+    src/core/cluster/states/save_cluster_state.cpp \
     src/core/cluster/states/task_handle_state.cpp \
     src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \

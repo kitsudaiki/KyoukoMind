@@ -31,6 +31,12 @@ InputSegment::InputSegment()
     m_type = INPUT_SEGMENT;
 }
 
+InputSegment::InputSegment(const void* data, const uint64_t dataSize)
+    : AbstractSegment(data, dataSize)
+{
+    m_type = INPUT_SEGMENT;
+}
+
 /**
  * @brief destructor
  */
@@ -49,13 +55,55 @@ InputSegment::initSegment(const JsonItem &parsedContent)
     const uint32_t numberOfInputs = parsedContent.get("number_of_inputs").getInt();
     const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
-    SegmentHeader header = createNewHeader(numberOfInputs,
-                                           totalBorderSize);
+    SegmentHeader header = createNewHeader(numberOfInputs, totalBorderSize);
+    header.position = convertPosition(parsedContent);
+
     allocateSegment(header);
     initSegmentPointer(header);
-    segmentHeader->position = convertPosition(parsedContent);
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
+
+    return true;
+}
+
+/**
+ * @brief InputSegment::reinitPointer
+ * @return
+ */
+bool
+InputSegment::reinitPointer(const uint64_t numberOfBytes)
+{
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.staticData);
+
+    uint64_t pos = 0;
+    uint64_t byteCounter = 0;
+    segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
+    byteCounter += sizeof(SegmentHeader);
+
+    pos = segmentHeader->settings.bytePos;
+    dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+    byteCounter += sizeof(DynamicSegmentSettings);
+
+    pos = segmentHeader->neighborList.bytePos;
+    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+    byteCounter += segmentHeader->neighborList.count * sizeof(SegmentNeighborList);
+
+    pos = segmentHeader->inputTransfers.bytePos;
+    inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    byteCounter += segmentHeader->inputTransfers.count * sizeof(float);
+
+    pos = segmentHeader->outputTransfers.bytePos;
+    outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    byteCounter += segmentHeader->outputTransfers.count * sizeof(float);
+
+    pos = segmentHeader->inputs.bytePos;
+    inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
+    byteCounter += segmentHeader->inputs.count * sizeof(InputNode);
+
+    // check result
+    if(byteCounter != numberOfBytes) {
+        return false;
+    }
 
     return true;
 }
@@ -111,7 +159,7 @@ InputSegment::createNewHeader(const uint32_t numberOfInputs,
 void
 InputSegment::initSegmentPointer(const SegmentHeader &header)
 {
-    uint8_t* dataPtr = static_cast<uint8_t*>(staticSegmentData.data);
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.staticData);
     uint64_t pos = 0;
 
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
@@ -138,6 +186,6 @@ void
 InputSegment::allocateSegment(SegmentHeader &header)
 {
     const uint32_t numberOfBlocks = (header.staticDataSize / 4096) + 1;
-    header.staticDataSize = numberOfBlocks * 4096;
-    Kitsunemimi::allocateBlocks_DataBuffer(staticSegmentData, numberOfBlocks);
+    header.staticDataSize = numberOfBlocks * 4096;   
+    segmentData.initBuffer(header.staticDataSize);
 }

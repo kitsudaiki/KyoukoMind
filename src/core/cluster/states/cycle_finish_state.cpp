@@ -48,15 +48,19 @@ CycleFinish_State::~CycleFinish_State() {}
 bool
 CycleFinish_State::processEvent()
 {
-    // update progress-counter
     Task* actualTask = m_cluster->getActualTask();
+    DataValue* numberOfCyclesVal = actualTask->metaData.get("number_of_cycles")->toValue();
+    const uint64_t numberOfCycles = numberOfCyclesVal->getLong();
+
+    // update progress-counter
     actualTask->actualCycle++;
     const float actualF = static_cast<float>(actualTask->actualCycle);
-    const float shouldF = static_cast<float>(actualTask->numberOfCycle);
+    const float shouldF = static_cast<float>(numberOfCycles);
     actualTask->progress.percentageFinished = actualF / shouldF;
 
     // to go next state of finish the task to goal is reached
-    if(actualTask->actualCycle == actualTask->numberOfCycle) {
+
+    if(actualTask->actualCycle == numberOfCycles) {
         m_cluster->goToNextState(Cluster::FINISH_TASK);
     } else {
         m_cluster->goToNextState(Cluster::NEXT);

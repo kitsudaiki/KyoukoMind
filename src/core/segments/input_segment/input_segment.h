@@ -34,11 +34,13 @@ class InputSegment
 {
 public:
     InputSegment();
+    InputSegment(const void* data, const uint64_t dataSize);
     ~InputSegment();
 
     InputNode* inputs = nullptr;
 
     bool initSegment(const JsonItem &parsedContent);
+    bool reinitPointer(const uint64_t numberOfBytes);
 
 private:
     SegmentHeader createNewHeader(const uint32_t numberOfInputs,

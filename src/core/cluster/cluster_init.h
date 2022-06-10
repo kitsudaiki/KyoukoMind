@@ -32,6 +32,8 @@ class AbstractSegment;
 
 class Cluster;
 
+bool reinitPointer(Cluster* cluster, const std::string &uuid);
+
 bool initNewCluster(Cluster* cluster,
                     const JsonItem &parsedContent,
                     const std::string &uuid);

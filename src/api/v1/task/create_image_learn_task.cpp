@@ -118,7 +118,7 @@ CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
 
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getData(token, dataSetUuid, "", error);
+    DataBuffer* dataSetBuffer = Sagiri::getDatasetData(token, dataSetUuid, "", error);
     if(dataSetBuffer == nullptr)
     {
         error.addMeesage("failed to get data from sagiri");

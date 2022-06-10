@@ -1,5 +1,5 @@
 /**
- * @file        create_request_task.cpp
+ * @file        save_cluster.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,11 +20,8 @@
  *      limitations under the License.
  */
 
-#include "create_image_request_task.h"
+#include "save_cluster.h"
 #include <kyouko_root.h>
-
-#include <libSagiriArchive/sagiri_send.h>
-
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
 
@@ -32,31 +29,30 @@
 #include <libKitsunemimiHanamiCommon/enums.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
-#include <libKitsunemimiCrypto/common.h>
-
 using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
-CreateImageRequestTask::CreateImageRequestTask()
-    : Blossom("Add new request-task to the task-queue of a cluster.")
+SaveCluster::SaveCluster()
+    : Blossom("Save a cluster.")
 {
     //----------------------------------------------------------------------------------------------
     // input
     //----------------------------------------------------------------------------------------------
 
+    registerInputField("name",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Name for the new snapshot.");
+    // column in database is limited to 256 characters size
+    assert(addFieldBorder("name", 4, 256));
+    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster, which should process the request");
+                       "UUID of the cluster, which should be save to sagiri.");
     assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
-
-    registerInputField("data_set_uuid",
-                       SAKURA_STRING_TYPE,
-                       true,
-                       "UUID to identifiy the train-data with the input in sagiri.");
-    assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -64,7 +60,10 @@ CreateImageRequestTask::CreateImageRequestTask()
 
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
-                        "UUID of the new created task.");
+                        "UUID of the new created cluster.");
+    registerOutputField("name",
+                        SAKURA_STRING_TYPE,
+                        "Name of the new created cluster.");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -75,15 +74,17 @@ CreateImageRequestTask::CreateImageRequestTask()
  * @brief runTask
  */
 bool
-CreateImageRequestTask::runTask(BlossomLeaf &blossomLeaf,
-                                const Kitsunemimi::DataMap &context,
-                                BlossomStatus &status,
-                                Kitsunemimi::ErrorContainer &error)
+SaveCluster::runTask(BlossomLeaf &blossomLeaf,
+                     const Kitsunemimi::DataMap &context,
+                     BlossomStatus &status,
+                     Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
-    const std::string token = context.getStringByKey("token");
+    const std::string backupName = blossomLeaf.input.get("name").getString();
+    const std::string userUuid = context.getStringByKey("uuid");
+    const std::string projectUuid = context.getStringByKey("projects");
 
+    // check if sagiri is available
     SupportedComponents* scomp = SupportedComponents::getInstance();
     if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
     {
@@ -103,36 +104,10 @@ CreateImageRequestTask::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    // get meta-infos of data-set from sagiri
-    Kitsunemimi::Json::JsonItem dataSetInfo;
-    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
-    {
-        error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
-        // TODO: add status-error from response from sagiri
-        status.statusCode = Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE;
-        return false;
-    }
-
-    // get relevant information from output
-    const uint64_t numberOfInputs = dataSetInfo.get("inputs").getLong();
-    const uint64_t numberOfOutputs = dataSetInfo.get("outputs").getLong();
-    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-
-    // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getDatasetData(token, dataSetUuid, "", error);
-    if(dataSetBuffer == nullptr)
-    {
-        error.addMeesage("failed to get data from sagiri for uuid '" + dataSetUuid + "'");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
     // init request-task
-    const std::string taskUuid = cluster->addImageRequestTask(static_cast<float*>(dataSetBuffer->data),
-                                                              numberOfInputs,
-                                                              numberOfOutputs,
-                                                              numberOfLines);
-
+    const std::string taskUuid = cluster->addClusterSnapshotSaveTask(backupName,
+                                                                     userUuid,
+                                                                     projectUuid);
     blossomLeaf.output.insert("uuid", taskUuid);
 
     return true;

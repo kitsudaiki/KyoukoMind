@@ -29,6 +29,11 @@
  */
 AbstractSegment::AbstractSegment() {}
 
+AbstractSegment::AbstractSegment(const void* data, const uint64_t dataSize)
+{
+    segmentData.initBuffer(data, dataSize);
+}
+
 /**
  * @brief destructor
  */
@@ -76,6 +81,7 @@ AbstractSegment::finishSegment()
     float* targetBuffer  = nullptr;
     uint32_t targetId = 0;
     uint8_t targetSide = 0;
+    uint64_t targetBufferPos = 0;
     AbstractSegment* targetSegment = nullptr;
     SegmentNeighborList* targetNeighbors = nullptr;
 
@@ -84,14 +90,17 @@ AbstractSegment::finishSegment()
         if(segmentNeighbors->neighbors[i].inUse == 1)
         {
             // get information of the neighbor
-            sourceBuffer = segmentNeighbors->neighbors[i].outputTransferBuffer;
+            //sourceBuffer = segmentNeighbors->neighbors[i].outputTransferBuffer;
+            sourceBuffer = &outputTransfers[segmentNeighbors->neighbors[i].outputTransferBufferPos];
             targetId = segmentNeighbors->neighbors[i].targetSegmentId;
             targetSide = segmentNeighbors->neighbors[i].targetSide;
 
             // copy data to the target buffer and wipe the source buffer
             targetSegment = parentCluster->allSegments.at(targetId);
             targetNeighbors = targetSegment->segmentNeighbors;
-            targetBuffer = targetNeighbors->neighbors[targetSide].inputTransferBuffer;
+            //targetBuffer = targetNeighbors->neighbors[targetSide].inputTransferBuffer;
+            targetBufferPos = targetNeighbors->neighbors[targetSide].inputTransferBufferPos;
+            targetBuffer = &targetSegment->inputTransfers[targetBufferPos];
             memcpy(targetBuffer,
                    sourceBuffer,
                    segmentNeighbors->neighbors[i].size * sizeof(float));
@@ -197,8 +206,8 @@ AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)
         currentNeighbor->size = size;
         currentNeighbor->targetSegmentId = next;
         currentNeighbor->targetSide = 11 - i;
-        currentNeighbor->inputTransferBuffer = &inputTransfers[posCounter];
-        currentNeighbor->outputTransferBuffer = &outputTransfers[posCounter];
+        currentNeighbor->inputTransferBufferPos = posCounter;
+        currentNeighbor->outputTransferBufferPos = posCounter;
 
         // set direction of the neighbor-buffer
         const std::string direction = currentDef.get("direction").getString();
@@ -213,6 +222,8 @@ AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)
         // beside each other
         posCounter += size;
     }
+
+    assert(posCounter == segmentHeader->inputTransfers.count);
 
     return true;
 }

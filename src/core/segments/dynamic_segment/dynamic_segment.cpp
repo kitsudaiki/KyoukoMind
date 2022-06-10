@@ -34,6 +34,12 @@ DynamicSegment::DynamicSegment()
     m_type = DYNAMIC_SEGMENT;
 }
 
+DynamicSegment::DynamicSegment(const void* data, const uint64_t dataSize)
+    : AbstractSegment(data, dataSize)
+{
+    m_type = DYNAMIC_SEGMENT;
+}
+
 /**
  * @brief destructor
  */
@@ -64,11 +70,12 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
                                            totalNumberOfNodes,
                                            settings.maxSynapseSections,
                                            totalBorderSize);
+    header.position = convertPosition(parsedContent);
+
     // initialize segment itself
     allocateSegment(header);
     initSegmentPointer(header);
     initDefaultValues();
-    segmentHeader->position = convertPosition(parsedContent);
     dynamicSegmentSettings[0] = settings;
 
     // init content
@@ -85,6 +92,62 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
 }
 
 /**
+ * @brief DynamicSegment::reinitPointer
+ * @return
+ */
+bool
+DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
+{
+    // TODO: checks
+    uint8_t* dataPtr = static_cast<uint8_t*>(segmentData.staticData);
+
+    uint64_t pos = 0;
+    uint64_t byteCounter = 0;
+    segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
+    byteCounter += sizeof(SegmentHeader);
+
+    pos = 256;
+    dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+    byteCounter += sizeof(DynamicSegmentSettings);
+
+    pos = segmentHeader->neighborList.bytePos;
+    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+    byteCounter += segmentHeader->neighborList.count * sizeof(SegmentNeighborList);
+
+    pos = segmentHeader->inputTransfers.bytePos;
+    inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    byteCounter += segmentHeader->inputTransfers.count * sizeof(float);
+
+    pos = segmentHeader->outputTransfers.bytePos;
+    outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+    byteCounter += segmentHeader->outputTransfers.count * sizeof(float);
+
+    pos = segmentHeader->bricks.bytePos;
+    bricks = reinterpret_cast<Brick*>(dataPtr + pos);
+    byteCounter += segmentHeader->bricks.count * sizeof(Brick);
+
+    pos = segmentHeader->brickOrder.bytePos;
+    brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
+    byteCounter += segmentHeader->brickOrder.count * sizeof(uint32_t);
+
+    pos = segmentHeader->nodes.bytePos;
+    nodes = reinterpret_cast<DynamicNode*>(dataPtr + pos);
+    byteCounter += segmentHeader->nodes.count * sizeof(DynamicNode);
+
+    dataPtr = static_cast<uint8_t*>(segmentData.itemData);
+    pos = segmentHeader->synapseSections.bytePos;
+    synapseSections = reinterpret_cast<SynapseSection*>(dataPtr);
+    byteCounter += segmentHeader->synapseSections.count * sizeof(SynapseSection);
+
+    // check result
+    if(byteCounter != numberOfBytes) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * @brief init all nodes with activation-border
  *
  * @return true, if successful, else false
@@ -93,7 +156,6 @@ bool
 DynamicSegment::initializeNodes()
 {
     const uint32_t numberOfNodes = segmentHeader->nodes.count;
-    const float range = 0.5f;
 
     for(uint32_t i = 0; i < numberOfNodes; i++)
     {
@@ -243,16 +305,22 @@ DynamicSegment::initSegmentPointer(const SegmentHeader &header)
 
     pos = 256;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+
     pos = segmentHeader->neighborList.bytePos;
     segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
     pos = segmentHeader->outputTransfers.bytePos;
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
     pos = segmentHeader->bricks.bytePos;
     bricks = reinterpret_cast<Brick*>(dataPtr + pos);
+
     pos = segmentHeader->brickOrder.bytePos;
     brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
+
     pos = segmentHeader->nodes.bytePos;
     nodes = reinterpret_cast<DynamicNode*>(dataPtr + pos);
 

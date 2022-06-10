@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_template.h
+ * @file        load_cluster.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,32 +20,22 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATECLUSTER_H
-#define KYOUKOMIND_CREATECLUSTER_H
+#ifndef SAVECLUSTER_H
+#define SAVECLUSTER_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class Cluster;
-
-class CreateCluster
+class SaveCluster
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateCluster();
+    SaveCluster();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  const Kitsunemimi::DataMap &context,
                  Kitsunemimi::Sakura::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
-
-private:
-    bool initCluster(Cluster* cluster,
-                     const std::string &clusterUuid,
-                     Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
-                     const Kitsunemimi::DataMap &context,
-                     Kitsunemimi::Sakura::BlossomStatus &status,
-                     Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_CREATECLUSTER_H
+#endif // SAVECLUSTER_H
