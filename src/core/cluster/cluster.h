@@ -31,19 +31,14 @@ class AbstractSegment;
 class InputSegment;
 class OutputSegment;
 class AbstractSegment;
-
 class TaskHandle_State;
-class CycleFinish_State;
-class GraphInterpolation_State;
-class GraphLearnBackward_State;
-class GraphLearnForward_State;
-class ImageIdentify_State;
-class ImageLearnBackward_State;
-class ImageLearnForward_State;
 
 namespace Kitsunemimi {
 class EventQueue;
 class Statemachine;
+namespace Hanami {
+class HanamiMessagingClient;
+}
 }
 
 class Cluster
@@ -52,47 +47,7 @@ public:
     Cluster();
     ~Cluster();
 
-    enum ClusterStates
-    {
-        TASK_STATE = 0,
-        LEARN_STATE = 1,
-            IMAGE_LEARN_STATE = 2,
-                IMAGE_LEARN_FORWARD_STATE = 3,
-                IMAGE_LEARN_BACKWARD_STATE = 4,
-                IMAGE_LEARN_CYCLE_FINISH_STATE = 5,
-            GRAPH_LEARN_STATE = 6,
-                GRAPH_LEARN_FORWARD_STATE = 7,
-                GRAPH_LEARN_BACKWARD_STATE = 8,
-                GRAPH_LEARN_CYCLE_FINISH_STATE = 9,
-        REQUEST_STATE = 10,
-            IMAGE_REQUEST_STATE = 11,
-                IMAGE_REQUEST_FORWARD_STATE = 12,
-                IMAGE_REQUEST_CYCLE_FINISH_STATE = 13,
-            GRAPH_REQUEST_STATE = 14,
-                GRAPH_REQUEST_FORWARD_STATE = 15,
-                GRAPH_REQUEST_CYCLE_FINISH_STATE = 16,
-        SNAPSHOT_STATE = 17,
-            CLUSTER_SNAPSHOT_STATE = 18,
-                CLUSTER_SNAPSHOT_SAVE_STATE = 19,
-                CLUSTER_SNAPSHOT_RESTORE_STATE = 20,
-    };
-
-    enum ClusterTransitions
-    {
-        LEARN = 100,
-        REQUEST = 101,
-        SNAPSHOT = 102,
-        IMAGE = 103,
-        GRAPH = 104,
-        CLUSTER = 105,
-        SAVE = 106,
-        RESTORE = 107,
-        NEXT = 108,
-        FINISH_TASK = 109,
-        PROCESS_TASK = 110,
-    };
-
-    enum ClusterMode
+    enum ClusterProcessingMode
     {
         NORMAL_MODE = 0,
         LEARN_FORWARD_MODE = 1,
@@ -149,16 +104,16 @@ public:
     bool goToNextState(const uint32_t nextStateId);
     void startForwardCycle();
     void startBackwardCycle();
+    bool setClusterState(const std::string &newState);
 
     uint32_t segmentCounter = 0;
-    ClusterMode mode = NORMAL_MODE;
+    ClusterProcessingMode mode = NORMAL_MODE;
+    Kitsunemimi::Hanami::HanamiMessagingClient* msgClient = nullptr;
 
 private:
     Kitsunemimi::Statemachine* m_stateMachine = nullptr;
     TaskHandle_State* m_taskHandleState = nullptr;
     std::mutex m_segmentCounterLock;
-
-    void initStatemachine();
 };
 
 #endif // KYOUKOMIND_CLUSTER_INTERFACE_H

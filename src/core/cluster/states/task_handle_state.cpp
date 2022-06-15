@@ -23,6 +23,7 @@
 #include "task_handle_state.h"
 
 #include <core/cluster/cluster.h>
+#include <core/cluster/statemachine_init.h>
 #include <libSagiriArchive/sagiri_send.h>
 
 /**
@@ -59,8 +60,8 @@ TaskHandle_State::processEvent()
         {
             case IMAGE_LEARN_TASK:
             {
-                if(m_cluster->goToNextState(Cluster::LEARN)) {
-                    m_cluster->goToNextState(Cluster::IMAGE);
+                if(m_cluster->goToNextState(LEARN)) {
+                    m_cluster->goToNextState(IMAGE);
                 } else {
                     // TODO: error-message
                     return false;
@@ -69,8 +70,8 @@ TaskHandle_State::processEvent()
             }
             case IMAGE_REQUEST_TASK:
             {
-                if(m_cluster->goToNextState(Cluster::REQUEST)) {
-                    m_cluster->goToNextState(Cluster::IMAGE);
+                if(m_cluster->goToNextState(REQUEST)) {
+                    m_cluster->goToNextState(IMAGE);
                 } else {
                     // TODO: error-message
                     return false;
@@ -79,8 +80,8 @@ TaskHandle_State::processEvent()
             }
             case GRAPH_LEARN_TASK:
             {
-                if(m_cluster->goToNextState(Cluster::LEARN)) {
-                    m_cluster->goToNextState(Cluster::GRAPH);
+                if(m_cluster->goToNextState(LEARN)) {
+                    m_cluster->goToNextState(GRAPH);
                 } else {
                     // TODO: error-message
                     return false;
@@ -89,8 +90,8 @@ TaskHandle_State::processEvent()
             }
             case GRAPH_REQUEST_TASK:
             {
-                if(m_cluster->goToNextState(Cluster::REQUEST)) {
-                    m_cluster->goToNextState(Cluster::GRAPH);
+                if(m_cluster->goToNextState(REQUEST)) {
+                    m_cluster->goToNextState(GRAPH);
                 } else {
                     // TODO: error-message
                     return false;
@@ -99,9 +100,9 @@ TaskHandle_State::processEvent()
             }
             case CLUSTER_SNAPSHOT_SAVE_TASK:
             {
-                if(m_cluster->goToNextState(Cluster::SNAPSHOT)) {
-                    if(m_cluster->goToNextState(Cluster::CLUSTER)) {
-                        m_cluster->goToNextState(Cluster::SAVE);
+                if(m_cluster->goToNextState(SNAPSHOT)) {
+                    if(m_cluster->goToNextState(CLUSTER)) {
+                        m_cluster->goToNextState(SAVE);
                     } else {
                         // TODO: error-message
                         return false;
@@ -114,9 +115,9 @@ TaskHandle_State::processEvent()
             }
             case CLUSTER_SNAPSHOT_RESTORE_TASK:
             {
-                if(m_cluster->goToNextState(Cluster::SNAPSHOT)) {
-                    if(m_cluster->goToNextState(Cluster::CLUSTER)) {
-                        m_cluster->goToNextState(Cluster::RESTORE);
+                if(m_cluster->goToNextState(SNAPSHOT)) {
+                    if(m_cluster->goToNextState(CLUSTER)) {
+                        m_cluster->goToNextState(RESTORE);
                     } else {
                         // TODO: error-message
                         return false;

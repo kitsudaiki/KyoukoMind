@@ -1,5 +1,5 @@
 /**
- * @file        callbacks.h
+ * @file        set_cluster_mode.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,20 +20,22 @@
  *      limitations under the License.
  */
 
-#ifndef CALLBACKS_H
-#define CALLBACKS_H
+#ifndef KYOUKOMIND_SET_CLUSTER_MODE_H
+#define KYOUKOMIND_SET_CLUSTER_MODE_H
 
-#include <common.h>
+#include <libKitsunemimiSakuraLang/blossom.h>
 
-namespace Kitsunemimi {
-namespace Sakura {
-class Session;
-}
-}
+class SetClusterMode
+        : public Kitsunemimi::Sakura::Blossom
+{
+public:
+    SetClusterMode();
 
-void streamDataCallback(void* target,
-                        Kitsunemimi::Sakura::Session*,
-                        const void* data,
-                        const uint64_t dataSize);
+protected:
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
+                 const Kitsunemimi::DataMap &context,
+                 Kitsunemimi::Sakura::BlossomStatus &status,
+                 Kitsunemimi::ErrorContainer &error);
+};
 
-#endif // CALLBACKS_H
+#endif // KYOUKOMIND_SET_CLUSTER_MODE_H

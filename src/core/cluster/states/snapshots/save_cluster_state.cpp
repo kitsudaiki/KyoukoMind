@@ -24,6 +24,7 @@
 
 #include <core/cluster/task.h>
 #include <core/cluster/cluster.h>
+#include <core/cluster/statemachine_init.h>
 #include <core/segments/abstract_segment.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
@@ -85,7 +86,7 @@ SaveCluster_State::processEvent()
     }
     while(true);
 
-    m_cluster->goToNextState(Cluster::FINISH_TASK);
+    m_cluster->goToNextState(FINISH_TASK);
 
     return result;
 }

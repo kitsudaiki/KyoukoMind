@@ -25,6 +25,7 @@
 #include <core/cluster/task.h>
 #include <core/cluster/cluster.h>
 #include <core/cluster/cluster_init.h>
+#include <core/cluster/statemachine_init.h>
 #include <core/segments/abstract_segment.h>
 #include <core/segments/input_segment/input_segment.h>
 #include <core/segments/output_segment/output_segment.h>
@@ -70,7 +71,7 @@ RestoreCluster_State::processEvent()
     if(m_client == nullptr)
     {
         // TODO: error-message
-        m_cluster->goToNextState(Cluster::FINISH_TASK);
+        m_cluster->goToNextState(FINISH_TASK);
         return false;
     }
 
@@ -88,7 +89,7 @@ RestoreCluster_State::processEvent()
     Kitsunemimi::Json::JsonItem parsedHeader;
     if(parsedHeader.parse(header, error) == false)
     {
-        m_cluster->goToNextState(Cluster::FINISH_TASK);
+        m_cluster->goToNextState(FINISH_TASK);
         return false;
     }
 
@@ -97,7 +98,7 @@ RestoreCluster_State::processEvent()
     if(snapshotBuffer == nullptr)
     {
         error.addMeesage("failed to get snapshot-data from sagiri");
-        m_cluster->goToNextState(Cluster::FINISH_TASK);
+        m_cluster->goToNextState(FINISH_TASK);
 
         return false;
     }
@@ -171,7 +172,7 @@ RestoreCluster_State::processEvent()
 
     delete snapshotBuffer;
 
-    m_cluster->goToNextState(Cluster::FINISH_TASK);
+    m_cluster->goToNextState(FINISH_TASK);
 
     return true;
 }
