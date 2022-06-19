@@ -90,7 +90,8 @@ prcessOutputSegment(const OutputSegment &segment)
         node->shouldValue /= node->maxWeight;
     }
 
-    if(segment.parentCluster->msgClient != nullptr)
+    if(segment.parentCluster->msgClient != nullptr
+            && segment.parentCluster->mode == Cluster::NORMAL_MODE)
     {
         float* outputData = new float[segment.segmentHeader->outputs.count];
         for(uint64_t outputNodeId = 0;

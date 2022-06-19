@@ -24,14 +24,24 @@ function build_kitsune_lib_repo () {
     cd $REPO_DIR
 
     # build repo library with qmake
-    /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/$REPO_NAME/$REPO_NAME.pro" -spec linux-g++ "CONFIG += optimize_full staticlib"
+    if [[ $REPO_NAME == "libKitsunemimiHanamiSdk" ]]
+    then
+        /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/$REPO_NAME/cpp/$REPO_NAME.pro" -spec linux-g++ "CONFIG += optimize_full staticlib"
+    else
+        /usr/lib/x86_64-linux-gnu/qt5/bin/qmake "$PARENT_DIR/$REPO_NAME/$REPO_NAME.pro" -spec linux-g++ "CONFIG += optimize_full staticlib"
+    fi
     /usr/bin/make -j$NUMBER_OF_THREADS
 
     # copy build-result and include-files into the result-directory
     echo "----------------------------------------------------------------------"
     echo $RESULT_DIR
     cp $REPO_DIR/src/$REPO_NAME.a $RESULT_DIR/
-    cp -r $PARENT_DIR/$REPO_NAME/include $RESULT_DIR/
+    if [[ $REPO_NAME == "libKitsunemimiHanamiSdk" ]]
+    then
+        cp -r $PARENT_DIR/$REPO_NAME/cpp/include $RESULT_DIR/
+    else
+        cp -r $PARENT_DIR/$REPO_NAME/include $RESULT_DIR/
+    fi
     ls -l $RESULT_DIR/include/
     ls -l $RESULT_DIR
 }
@@ -104,7 +114,7 @@ get_required_private_repo_github "libKitsunemimiSakuraDatabase" "v0.4.1" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_gitlab "libKitsunemimiHanamiCommon" "v0.1.0" "2ue6RNxkCDs2A7qp1xtN" 8
+get_required_private_repo_gitlab "libKitsunemimiHanamiCommon" "master" "2ue6RNxkCDs2A7qp1xtN" 8
 get_required_private_repo_gitlab "libKitsunemimiHanamiEndpoints" "v0.1.0" "ysR35grcGsLpFQiXXf1A" 1
 get_required_private_repo_gitlab "libKitsunemimiHanamiDatabase" "v0.2.0" "UjDbSSJzoU3uK4pZynmD" 8
 get_required_private_repo_gitlab "libKitsunemimiHanamiMessaging" "master" "vkEae-QF8jvt9W2xz3LR" 8
@@ -114,6 +124,7 @@ echo ""
 get_required_private_repo_gitlab "libSagiriArchive" "master" "glpat-dCkDLv96JmBscfZey4zJ" 8
 get_required_private_repo_gitlab "libAzukiHeart" "v0.1.0" "glpat-R3vZd81MXGVUTSxgHz1q" 8
 get_required_private_repo_gitlab "libMisakaGuard" "v0.1.0" "glpat-sUgJE_tJH_jV19zL8X_x" 8
+get_required_private_repo_gitlab "libKitsunemimiHanamiSdk" "master" "bfzFyQfmS2mpkWxCeuHA" 8
 echo ""
 echo "###########################################################################################################"
 

@@ -133,6 +133,7 @@ Cluster::startForwardCycle()
         for(uint8_t side = 0; side < 12; side++)
         {
             SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            // TODO: check possible crash here
             neighbor->inputReady = neighbor->direction != INPUT_DIRECTION;
         }
     }
@@ -200,9 +201,32 @@ Cluster::updateClusterState()
         return;
     }
 
+    if(mode == Cluster::LEARN_BACKWARD_MODE
+            && msgClient != nullptr)
+    {
+        Kitsunemimi::Hanami::LearnEnd_Message msg;
+        DataBuffer msgBuffer;
+        msg.createBlob(msgBuffer);
+
+        Kitsunemimi::ErrorContainer error;
+
+        msgClient->sendStreamMessage(msgBuffer.data, msgBuffer.usedBufferSize, false, error);
+    }
+
+    if(mode == Cluster::NORMAL_MODE
+            && msgClient != nullptr)
+    {
+        Kitsunemimi::Hanami::RequestEnd_Message msg;
+        DataBuffer msgBuffer;
+        msg.createBlob(msgBuffer);
+
+        Kitsunemimi::ErrorContainer error;
+
+        msgClient->sendStreamMessage(msgBuffer.data, msgBuffer.usedBufferSize, false, error);
+    }
+
     goToNextState(NEXT);
 }
-
 
 /**
  * @brief create a learn-task and add it to the task-queue

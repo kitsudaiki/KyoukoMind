@@ -34,27 +34,43 @@ void streamDataCallback(void* target,
                         const void* data,
                         const uint64_t dataSize)
 {
-    void* normalData = const_cast<void*>(data);
-    Kitsunemimi::Hanami::ClusterIO_Message msg;
-    msg.read(normalData, dataSize);
+    const uint8_t* u8Data = static_cast<const uint8_t*>(data);
 
-    Cluster* cluster = static_cast<Cluster*>(target);
-    if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::INPUT_SEGMENT)
+    if(u8Data[0] == 1)
     {
-        InputNode* inputNodes = cluster->inputSegments[msg.segmentId]->inputs;
-        for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-            inputNodes[i].weight = msg.values[i];
-        }
+        void* normalData = const_cast<void*>(data);
+        Kitsunemimi::Hanami::ClusterIO_Message msg;
+        msg.read(normalData, dataSize);
 
+        Cluster* cluster = static_cast<Cluster*>(target);
+        if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::INPUT_SEGMENT)
+        {
+            InputNode* inputNodes = cluster->inputSegments[msg.segmentId]->inputs;
+            for(uint64_t i = 0; i < msg.numberOfValues; i++) {
+                inputNodes[i].weight = msg.values[i];
+            }
+        }
+        else if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::OUTPUT_SEGMENT)
+        {
+            OutputNode* outputNodes = cluster->outputSegments[msg.segmentId]->outputs;
+            for(uint64_t i = 0; i < msg.numberOfValues; i++) {
+                outputNodes[i].shouldValue = msg.values[i];
+            }
+        }
+    }
+
+    if(u8Data[0] == 2)
+    {
+        Cluster* cluster = static_cast<Cluster*>(target);
         cluster->mode = Cluster::NORMAL_MODE;
         cluster->startForwardCycle();
     }
-    else if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::OUTPUT_SEGMENT)
+
+    if(u8Data[0] == 3)
     {
-        OutputNode* outputNodes = cluster->outputSegments[msg.segmentId]->outputs;
-        for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-            outputNodes[i].shouldValue = msg.values[i];
-        }
+        Cluster* cluster = static_cast<Cluster*>(target);
+        cluster->mode = Cluster::LEARN_FORWARD_MODE;
+        cluster->startForwardCycle();
     }
 
     /**std::cout<<"#################################################"<<std::endl;

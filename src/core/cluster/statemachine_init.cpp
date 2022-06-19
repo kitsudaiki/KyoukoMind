@@ -141,7 +141,6 @@ initInitialChildStates(Kitsunemimi::Statemachine &sm)
 void
 initTransitions(Kitsunemimi::Statemachine &sm)
 {
-
     // transtions learn init
     sm.addTransition(TASK_STATE,  LEARN, LEARN_STATE);
     sm.addTransition(LEARN_STATE, IMAGE, IMAGE_LEARN_STATE);
