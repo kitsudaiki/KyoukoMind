@@ -128,22 +128,18 @@ void
 Cluster::startForwardCycle()
 {
     // set ready-states of all neighbors of all segments
-    for(AbstractSegment* segment: allSegments)
+    for(AbstractSegment* segment : allSegments)
     {
         for(uint8_t side = 0; side < 12; side++)
         {
             SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
-            neighbor->inputReady = true;
-            if(neighbor->direction == INPUT_DIRECTION) {
-                neighbor->inputReady = false;
-            }
+            neighbor->inputReady = neighbor->direction != INPUT_DIRECTION;
         }
     }
 
     segmentCounter = 0;
     KyoukoRoot::m_segmentQueue->addSegmentListToQueue(allSegments);
 }
-
 
 /**
  * @brief start a new backward learn-cycle
@@ -152,15 +148,12 @@ void
 Cluster::startBackwardCycle()
 {
     // set ready-states of all neighbors of all segments
-    for(AbstractSegment* segment: allSegments)
+    for(AbstractSegment* segment : allSegments)
     {
         for(uint8_t side = 0; side < 12; side++)
         {
             SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
-            neighbor->inputReady = true;
-            if(neighbor->direction == OUTPUT_DIRECTION) {
-                neighbor->inputReady = false;
-            }
+            neighbor->inputReady = neighbor->direction != OUTPUT_DIRECTION;
         }
     }
 
@@ -197,6 +190,13 @@ Cluster::updateClusterState()
 
     segmentCounter++;
     if(segmentCounter < allSegments.size()) {
+        return;
+    }
+
+    if(mode == Cluster::LEARN_FORWARD_MODE)
+    {
+        mode = Cluster::LEARN_BACKWARD_MODE;
+        startBackwardCycle();
         return;
     }
 

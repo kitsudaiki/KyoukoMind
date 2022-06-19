@@ -157,10 +157,8 @@ HEADERS += \
     src/core/cluster/statemachine_init.h \
     src/core/cluster/states/cycle_finish_state.h \
     src/core/cluster/states/graphs/graph_interpolation_state.h \
-    src/core/cluster/states/graphs/graph_learn_backward_state.h \
     src/core/cluster/states/graphs/graph_learn_forward_state.h \
     src/core/cluster/states/images/image_identify_state.h \
-    src/core/cluster/states/images/image_learn_backward_state.h \
     src/core/cluster/states/images/image_learn_forward_state.h \
     src/core/cluster/states/snapshots/restore_cluster_state.h \
     src/core/cluster/states/snapshots/save_cluster_state.h \
@@ -221,10 +219,8 @@ SOURCES += \
     src/core/cluster/statemachine_init.cpp \
     src/core/cluster/states/cycle_finish_state.cpp \
     src/core/cluster/states/graphs/graph_interpolation_state.cpp \
-    src/core/cluster/states/graphs/graph_learn_backward_state.cpp \
     src/core/cluster/states/graphs/graph_learn_forward_state.cpp \
     src/core/cluster/states/images/image_identify_state.cpp \
-    src/core/cluster/states/images/image_learn_backward_state.cpp \
     src/core/cluster/states/images/image_learn_forward_state.cpp \
     src/core/cluster/states/snapshots/restore_cluster_state.cpp \
     src/core/cluster/states/snapshots/save_cluster_state.cpp \

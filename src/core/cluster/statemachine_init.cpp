@@ -25,10 +25,8 @@
 #include <core/cluster/states/task_handle_state.h>
 #include <core/cluster/states/cycle_finish_state.h>
 #include <core/cluster/states/graphs/graph_interpolation_state.h>
-#include <core/cluster/states/graphs/graph_learn_backward_state.h>
 #include <core/cluster/states/graphs/graph_learn_forward_state.h>
 #include <core/cluster/states/images/image_identify_state.h>
-#include <core/cluster/states/images/image_learn_backward_state.h>
 #include <core/cluster/states/images/image_learn_forward_state.h>
 #include <core/cluster/states/snapshots/save_cluster_state.h>
 #include <core/cluster/states/snapshots/restore_cluster_state.h>
@@ -47,12 +45,10 @@ initStates(Kitsunemimi::Statemachine &sm)
     sm.createNewState(TASK_STATE,                       "Task-handling mode");
     sm.createNewState(LEARN_STATE,                      "Learn-State");
     sm.createNewState(IMAGE_LEARN_STATE,                "Image-learn state");
-    sm.createNewState(IMAGE_LEARN_FORWARD_STATE,        "Image-learn state: forward-propagation");
-    sm.createNewState(IMAGE_LEARN_BACKWARD_STATE,       "Image-learn state: backward-propagation");
+    sm.createNewState(IMAGE_LEARN_FORWARD_STATE,        "Image-learn state: run");
     sm.createNewState(IMAGE_LEARN_CYCLE_FINISH_STATE,   "Image-learn state: finish-cycle");
     sm.createNewState(GRAPH_LEARN_STATE,                "Graph-learn state");
-    sm.createNewState(GRAPH_LEARN_FORWARD_STATE,        "Graph-learn state: forward-propagation");
-    sm.createNewState(GRAPH_LEARN_BACKWARD_STATE,       "Graph-learn state: backward-propagation");
+    sm.createNewState(GRAPH_LEARN_FORWARD_STATE,        "Graph-learn state: run");
     sm.createNewState(GRAPH_LEARN_CYCLE_FINISH_STATE,   "Graph-learn state: finish-cycle");
     sm.createNewState(REQUEST_STATE,                    "Request-State");
     sm.createNewState(IMAGE_REQUEST_STATE,              "Image-request state");
@@ -81,9 +77,7 @@ initEvents(Kitsunemimi::Statemachine &sm,
 {
     sm.addEventToState(TASK_STATE,                       taskState);
     sm.addEventToState(IMAGE_LEARN_FORWARD_STATE,        new ImageLearnForward_State(cluster));
-    sm.addEventToState(IMAGE_LEARN_BACKWARD_STATE,       new ImageLearnBackward_State(cluster));
     sm.addEventToState(GRAPH_LEARN_FORWARD_STATE,        new GraphLearnForward_State(cluster));
-    sm.addEventToState(GRAPH_LEARN_BACKWARD_STATE,       new GraphLearnBackward_State(cluster));
     sm.addEventToState(IMAGE_REQUEST_FORWARD_STATE,      new ImageIdentify_State(cluster));
     sm.addEventToState(GRAPH_REQUEST_FORWARD_STATE,      new GraphInterpolation_State(cluster));
     sm.addEventToState(IMAGE_LEARN_CYCLE_FINISH_STATE,   new CycleFinish_State(cluster));
@@ -104,13 +98,11 @@ initChildStates(Kitsunemimi::Statemachine &sm)
     // child states image learn
     sm.addChildState(LEARN_STATE,       IMAGE_LEARN_STATE);
     sm.addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_FORWARD_STATE);
-    sm.addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_BACKWARD_STATE);
     sm.addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_CYCLE_FINISH_STATE);
 
     // child states graph learn
     sm.addChildState(LEARN_STATE,       GRAPH_LEARN_STATE);
     sm.addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_FORWARD_STATE);
-    sm.addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_BACKWARD_STATE);
     sm.addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_CYCLE_FINISH_STATE);
 
     // child states image request
@@ -167,11 +159,9 @@ initTransitions(Kitsunemimi::Statemachine &sm)
     sm.addTransition(CLUSTER_SNAPSHOT_STATE, RESTORE,  CLUSTER_SNAPSHOT_RESTORE_STATE);
 
     // trainsition learn-internal
-    sm.addTransition(IMAGE_LEARN_FORWARD_STATE,      NEXT, IMAGE_LEARN_BACKWARD_STATE     );
-    sm.addTransition(IMAGE_LEARN_BACKWARD_STATE,     NEXT, IMAGE_LEARN_CYCLE_FINISH_STATE );
+    sm.addTransition(IMAGE_LEARN_FORWARD_STATE,      NEXT, IMAGE_LEARN_CYCLE_FINISH_STATE );
     sm.addTransition(IMAGE_LEARN_CYCLE_FINISH_STATE, NEXT, IMAGE_LEARN_FORWARD_STATE      );
-    sm.addTransition(GRAPH_LEARN_FORWARD_STATE,      NEXT, GRAPH_LEARN_BACKWARD_STATE     );
-    sm.addTransition(GRAPH_LEARN_BACKWARD_STATE,     NEXT, GRAPH_LEARN_CYCLE_FINISH_STATE );
+    sm.addTransition(GRAPH_LEARN_FORWARD_STATE,      NEXT, GRAPH_LEARN_CYCLE_FINISH_STATE );
     sm.addTransition(GRAPH_LEARN_CYCLE_FINISH_STATE, NEXT, GRAPH_LEARN_FORWARD_STATE      );
 
     // trainsition request-internal
