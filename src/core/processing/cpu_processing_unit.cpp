@@ -145,8 +145,12 @@ CpuProcessingUnit::processSegment(AbstractSegment* segment)
         {
             OutputSegment* seg = static_cast<OutputSegment*>(segment);
             prcessOutputSegment(*seg);
-            const uint32_t hightest = getHighestOutput(*seg);
-            seg->parentCluster->setResultForActualCycle(hightest);
+            if(seg->parentCluster->msgClient == nullptr)
+            {
+                // TODO: check for cluster-state instead of client
+                const uint32_t hightest = getHighestOutput(*seg);
+                seg->parentCluster->setResultForActualCycle(hightest);
+            }
             break;
         }
         default:

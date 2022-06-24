@@ -19,6 +19,11 @@ LIBS += -L../libMisakaGuard/src/debug -lMisakaGuard
 LIBS += -L../libMisakaGuard/src/release -lMisakaGuard
 INCLUDEPATH += ../libMisakaGuard/include
 
+LIBS += -L../libKitsunemimiHanamiSdk/src -lKitsunemimiHanamiSdk
+LIBS += -L../libKitsunemimiHanamiSdk/src/debug -lKitsunemimiHanamiSdk
+LIBS += -L../libKitsunemimiHanamiSdk/src/release -lKitsunemimiHanamiSdk
+INCLUDEPATH += ../libKitsunemimiHanamiSdk/cpp/include
+
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
@@ -121,6 +126,7 @@ HEADERS += \
     src/api/v1/cluster/list_cluster.h \
     src/api/v1/cluster/load_cluster.h \
     src/api/v1/cluster/save_cluster.h \
+    src/api/v1/cluster/set_cluster_mode.h \
     src/api/v1/cluster/show_cluster.h \
     src/api/v1/task/create_graph_learn_task.h \
     src/api/v1/task/create_graph_request_task.h \
@@ -148,15 +154,14 @@ HEADERS += \
     src/core/cluster/cluster_handler.h \
     src/core/cluster/cluster_init.h \
     src/core/cluster/cluster_meta.h \
+    src/core/cluster/statemachine_init.h \
     src/core/cluster/states/cycle_finish_state.h \
-    src/core/cluster/states/graph_interpolation_state.h \
-    src/core/cluster/states/graph_learn_backward_state.h \
-    src/core/cluster/states/graph_learn_forward_state.h \
-    src/core/cluster/states/image_identify_state.h \
-    src/core/cluster/states/image_learn_backward_state.h \
-    src/core/cluster/states/image_learn_forward_state.h \
-    src/core/cluster/states/restore_cluster_state.h \
-    src/core/cluster/states/save_cluster_state.h \
+    src/core/cluster/states/graphs/graph_interpolation_state.h \
+    src/core/cluster/states/graphs/graph_learn_forward_state.h \
+    src/core/cluster/states/images/image_identify_state.h \
+    src/core/cluster/states/images/image_learn_forward_state.h \
+    src/core/cluster/states/snapshots/restore_cluster_state.h \
+    src/core/cluster/states/snapshots/save_cluster_state.h \
     src/core/cluster/states/task_handle_state.h \
     src/core/cluster/task.h \
     src/core/processing/cpu_processing_unit.h \
@@ -194,6 +199,7 @@ SOURCES += \
     src/api/v1/cluster/list_cluster.cpp \
     src/api/v1/cluster/load_cluster.cpp \
     src/api/v1/cluster/save_cluster.cpp \
+    src/api/v1/cluster/set_cluster_mode.cpp \
     src/api/v1/cluster/show_cluster.cpp \
     src/api/v1/task/create_graph_learn_task.cpp \
     src/api/v1/task/create_graph_request_task.cpp \
@@ -206,18 +212,18 @@ SOURCES += \
     src/api/v1/template/delete_template.cpp \
     src/api/v1/template/list_templates.cpp \
     src/api/v1/template/show_template.cpp \
+    src/callbacks.cpp \
     src/core/cluster/cluster.cpp \
     src/core/cluster/cluster_handler.cpp \
     src/core/cluster/cluster_init.cpp \
+    src/core/cluster/statemachine_init.cpp \
     src/core/cluster/states/cycle_finish_state.cpp \
-    src/core/cluster/states/graph_interpolation_state.cpp \
-    src/core/cluster/states/graph_learn_backward_state.cpp \
-    src/core/cluster/states/graph_learn_forward_state.cpp \
-    src/core/cluster/states/image_identify_state.cpp \
-    src/core/cluster/states/image_learn_backward_state.cpp \
-    src/core/cluster/states/image_learn_forward_state.cpp \
-    src/core/cluster/states/restore_cluster_state.cpp \
-    src/core/cluster/states/save_cluster_state.cpp \
+    src/core/cluster/states/graphs/graph_interpolation_state.cpp \
+    src/core/cluster/states/graphs/graph_learn_forward_state.cpp \
+    src/core/cluster/states/images/image_identify_state.cpp \
+    src/core/cluster/states/images/image_learn_forward_state.cpp \
+    src/core/cluster/states/snapshots/restore_cluster_state.cpp \
+    src/core/cluster/states/snapshots/save_cluster_state.cpp \
     src/core/cluster/states/task_handle_state.cpp \
     src/core/processing/cpu_processing_unit.cpp \
     src/core/processing/processing_unit_handler.cpp \

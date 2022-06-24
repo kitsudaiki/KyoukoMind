@@ -23,15 +23,17 @@
 #ifndef CALLBACKS_H
 #define CALLBACKS_H
 
-#include <libKitsunemimiSakuraNetwork/session.h>
+#include <common.h>
 
-void streamDataCallback(void*,
-                        Kitsunemimi::Sakura::Session*,
-                        const void*,
-                        const uint64_t)
-{
-
+namespace Kitsunemimi {
+namespace Sakura {
+class Session;
+}
 }
 
+void streamDataCallback(void* target,
+                        Kitsunemimi::Sakura::Session*,
+                        const void* data,
+                        const uint64_t dataSize);
 
 #endif // CALLBACKS_H

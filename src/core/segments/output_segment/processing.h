@@ -32,6 +32,9 @@
 #include "objects.h"
 #include "output_segment.h"
 
+#include <libKitsunemimiHanamiSdk/messages/hanami_messages.h>
+#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
+
 /**
  * @brief get position of the highest output-position
  *
@@ -85,6 +88,33 @@ prcessOutputSegment(const OutputSegment &segment)
         node->outputWeight = inputTransfers[node->targetBorderId];
         node->outputWeight = 1.0f / (1.0f + exp(-1.0f * node->outputWeight));
         node->shouldValue /= node->maxWeight;
+    }
+
+    if(segment.parentCluster->msgClient != nullptr
+            && segment.parentCluster->mode == Cluster::NORMAL_MODE)
+    {
+        float* outputData = new float[segment.segmentHeader->outputs.count];
+        for(uint64_t outputNodeId = 0;
+            outputNodeId < segment.segmentHeader->outputs.count;
+            outputNodeId++)
+        {
+            node = &segment.outputs[outputNodeId];
+            outputData[outputNodeId] = node->outputWeight;
+        }
+
+        Kitsunemimi::Hanami::ClusterIO_Message msg;
+        msg.numberOfValues = segment.segmentHeader->outputs.count;
+        msg.segmentType = Kitsunemimi::Hanami::ClusterIO_Message::OUTPUT_SEGMENT;
+        msg.values = outputData;
+        DataBuffer msgBuffer;
+        msg.createBlob(msgBuffer);
+
+        Kitsunemimi::Hanami::HanamiMessagingClient* client = segment.parentCluster->msgClient;
+        Kitsunemimi::ErrorContainer error;
+
+        client->sendStreamMessage(msgBuffer.data, msgBuffer.usedBufferSize, false, error);
+
+        delete[] outputData;
     }
 }
 

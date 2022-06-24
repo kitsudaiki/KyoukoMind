@@ -39,6 +39,7 @@
 #include <api/v1/cluster/delete_cluster.h>
 #include <api/v1/cluster/save_cluster.h>
 #include <api/v1/cluster/load_cluster.h>
+#include <api/v1/cluster/set_cluster_mode.h>
 
 #include <api/v1/template/create_template.h>
 #include <api/v1/template/delete_template.h>
@@ -106,6 +107,13 @@ initClusterBlossoms()
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
                            "load");
+
+    assert(interface->addBlossom(group, "set_mode", new SetClusterMode()));
+    endpoints->addEndpoint("v1/cluster/set_mode",
+                           Kitsunemimi::Hanami::PUT_TYPE,
+                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
+                           group,
+                           "set_mode");
 }
 
 /**
