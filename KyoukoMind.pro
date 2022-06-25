@@ -135,10 +135,11 @@ HEADERS += \
     src/api/v1/task/delete_task.h \
     src/api/v1/task/list_task.h \
     src/api/v1/task/show_task.h \
-    src/api/v1/template/create_template.h \
     src/api/v1/template/delete_template.h \
+    src/api/v1/template/generate_template.h \
     src/api/v1/template/list_templates.h \
     src/api/v1/template/show_template.h \
+    src/api/v1/template/upload_template.h \
     src/args.h \
     src/callbacks.h \
     src/common.h \
@@ -208,10 +209,11 @@ SOURCES += \
     src/api/v1/task/delete_task.cpp \
     src/api/v1/task/list_task.cpp \
     src/api/v1/task/show_task.cpp \
-    src/api/v1/template/create_template.cpp \
     src/api/v1/template/delete_template.cpp \
+    src/api/v1/template/generate_template.cpp \
     src/api/v1/template/list_templates.cpp \
     src/api/v1/template/show_template.cpp \
+    src/api/v1/template/upload_template.cpp \
     src/callbacks.cpp \
     src/core/cluster/cluster.cpp \
     src/core/cluster/cluster_handler.cpp \
