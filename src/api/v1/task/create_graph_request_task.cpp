@@ -119,37 +119,23 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* openBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Open", error);
-    if(openBuffer == nullptr)
+    DataBuffer* colBuffer = Sagiri::getDatasetData(token, dataSetUuid, columnName, error);
+    if(colBuffer == nullptr)
     {
-        error.addMeesage("failed to get data from sagiri");
+        error.addMeesage("Failed to get data form dataset with UUID '"
+                         + dataSetUuid
+                         + "' and colume-name '"
+                         + columnName
+                         + "' from sagiri");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
-    DataBuffer* closeBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Close", error);
-    if(closeBuffer == nullptr)
-    {
-        error.addMeesage("failed to get data from sagiri");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
-    // convert data
-    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-    float* completeBuffer = new float[numberOfLines * 2];
-    for(uint64_t i = 0; i < numberOfLines; i++)
-    {
-        completeBuffer[i * 2] = static_cast<float*>(openBuffer->data)[i];
-        completeBuffer[i * 2 + 1] = static_cast<float*>(closeBuffer->data)[i];
-    }
-
-    delete openBuffer;
-    delete closeBuffer;
 
     // init request-task
-    const std::string taskUuid = cluster->addGraphRequestTask(completeBuffer,
+    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
+    const std::string taskUuid = cluster->addGraphRequestTask(static_cast<float*>(colBuffer->data),
                                                               numberOfLines,
-                                                              2);
+                                                              1);
 
     blossomLeaf.output.insert("uuid", taskUuid);
 

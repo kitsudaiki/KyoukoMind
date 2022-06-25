@@ -87,7 +87,6 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
     const std::string columnName = blossomLeaf.input.get("column_name").getString();
-
     const std::string token = context.getStringByKey("token");
 
     // check if sagiri is available
@@ -119,36 +118,21 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* openBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Open", error);
-    if(openBuffer == nullptr)
+    DataBuffer* colBuffer = Sagiri::getDatasetData(token, dataSetUuid, columnName, error);
+    if(colBuffer == nullptr)
     {
-        error.addMeesage("failed to get data from sagiri");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
-    DataBuffer* closeBuffer = Sagiri::getDatasetData(token, dataSetUuid, "Close", error);
-    if(closeBuffer == nullptr)
-    {
-        error.addMeesage("failed to get data from sagiri");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
-    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-    float* completeBuffer = new float[numberOfLines * 2];
-    for(uint64_t i = 0; i < numberOfLines; i++)
-    {
-        completeBuffer[i * 2] = static_cast<float*>(openBuffer->data)[i];
-        completeBuffer[i * 2 + 1] = static_cast<float*>(closeBuffer->data)[i];
-    }
-
-    delete openBuffer;
-    delete closeBuffer;
 
     // create task
-    const std::string taskUuid = cluster->addGraphLearnTask(completeBuffer,
+    const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
+    const std::string taskUuid = cluster->addGraphLearnTask(static_cast<float*>(colBuffer->data),
                                                             numberOfLines,
-                                                            numberOfLines - 366);
+                                                            numberOfLines - 100);
+
+    colBuffer->data = nullptr;
+    delete colBuffer;
 
     blossomLeaf.output.insert("uuid", taskUuid);
 

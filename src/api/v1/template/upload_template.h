@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_template.h
+ * @file        upload_template.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,16 +20,16 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATETEMPLATE_H
-#define KYOUKOMIND_CREATETEMPLATE_H
+#ifndef KYOUKOMIND_UPLOADTEMPLATE_H
+#define KYOUKOMIND_UPLOADTEMPLATE_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 
-class CreateTemplate
+class UploadTemplate
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateTemplate();
+    UploadTemplate();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
@@ -38,4 +38,4 @@ protected:
                  Kitsunemimi::ErrorContainer &error);  
 };
 
-#endif // CREATETEMPLATE_H
+#endif // KYOUKOMIND_UPLOADTEMPLATE_H

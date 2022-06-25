@@ -104,6 +104,7 @@ backpropagateSection(SynapseSection* section,
     Synapse* synapse = nullptr;
     float learnValue = 0.2f;
     uint16_t pos = 0;
+    // uint8_t invert = 0;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -120,6 +121,20 @@ backpropagateSection(SynapseSection* section,
             netH -= static_cast<float>(synapse->border) * BORDER_STEP;
             continue;
         }
+
+        /**if(synapse->activeCounter <= 2)
+        {
+            invert = (segment.nodes[synapse->targetNodeId].delta < 0.0f && synapse->weight < 0.0f)
+                    || (segment.nodes[synapse->targetNodeId].delta > 0.0f && synapse->weight > 0.0f);
+
+            if(invert) {
+                synapse->weight *= -1.0f;
+            }
+
+            pos++;
+            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
+            continue;
+        }*/
 
         // update weight
         learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0005f;

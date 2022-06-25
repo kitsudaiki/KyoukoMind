@@ -1,5 +1,5 @@
 /**
- * @file        create_cluster_template.h
+ * @file        generate_template.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "create_template.h"
+#include "generate_template.h"
 #include <kyouko_root.h>
 #include <core/templates/template_creator.h>
 
@@ -33,8 +33,9 @@
 
 using namespace Kitsunemimi::Sakura;
 
-CreateTemplate::CreateTemplate()
-    : Blossom("Create new template-file and store it within the database.")
+GenerateTemplate::GenerateTemplate()
+    : Blossom("Generate a new template-file for a specific dataset "
+              "and store it within the database.")
 {
     //----------------------------------------------------------------------------------------------
     // input
@@ -51,7 +52,8 @@ CreateTemplate::CreateTemplate()
     registerInputField("data_set_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the data-set to request number of inputs and outputs.");
+                       "UUID of the data-set, which should deliver "
+                       "information for the new template.");
     assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                           "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
@@ -59,6 +61,7 @@ CreateTemplate::CreateTemplate()
                        SAKURA_STRING_TYPE,
                        true,
                        "Type of the template to create.");
+    //TODO: regex for type
 
     registerInputField("settings_override",
                        SAKURA_MAP_TYPE,
@@ -85,10 +88,10 @@ CreateTemplate::CreateTemplate()
  * @brief runTask
  */
 bool
-CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
-                        const Kitsunemimi::DataMap &context,
-                        BlossomStatus &status,
-                        Kitsunemimi::ErrorContainer &error)
+GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
+                          const Kitsunemimi::DataMap &context,
+                          BlossomStatus &status,
+                          Kitsunemimi::ErrorContainer &error)
 {
     const std::string name = blossomLeaf.input.get("name").getString();
     const std::string type = blossomLeaf.input.get("type").getString();
@@ -100,7 +103,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
     const bool isAdmin = context.getBoolByKey("is_admin");
     const std::string token = context.getStringByKey("token");
 
-    // check if user already exist within the table
+    // check if template with the name already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
     if(KyoukoRoot::templateTable->getTemplateByName(getResult,
                                                     name,
@@ -145,6 +148,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem templateData;
     templateData.insert("name", name);
     templateData.insert("data", base64Content);
+    // TODO: fill project- and owner-id
     templateData.insert("project_uuid", "-");
     templateData.insert("owner_uuid", "-");
     templateData.insert("visibility", 0);
@@ -155,6 +159,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
                                               projectUuid,
                                               error) == false)
     {
+        error.addMeesage("Failed to add new template to database");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
@@ -167,6 +172,7 @@ CreateTemplate::runTask(BlossomLeaf &blossomLeaf,
                                                     isAdmin,
                                                     error) == false)
     {
+        error.addMeesage("Failed to get new template from database");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
