@@ -23,13 +23,6 @@
 #include <common/includes.h>
 #include <libKitsunemimiHanamiCommon/defines.h>
 
-#ifndef USE_DEV_MODE
-#define DEV_MODE false
-#else
-#define DEV_MODE true
-#endif
-
-
 #define UNINTI_POINT_32 0x0FFFFFFF
 
 // network-predefines

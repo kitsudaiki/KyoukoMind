@@ -114,11 +114,6 @@ LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -lOpenCL
 INCLUDEPATH += $$PWD \
                src
 
-CONFIG(run_tests) {
-TARGET = KyoukoMind_Test
-DEFINES += USE_DEV_MODE
-}
-
 HEADERS += \
     src/api/blossom_initializing.h \
     src/api/v1/cluster/create_cluster.h \
@@ -191,7 +186,6 @@ HEADERS += \
     src/core/templates/template_creator.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
-    src/dev_test.h \
     src/kyouko_root.h
 
 SOURCES += \
@@ -237,7 +231,6 @@ SOURCES += \
     src/core/struct_validation.cpp \
     src/database/cluster_table.cpp \
     src/database/template_table.cpp \
-    src/dev_test.cpp \
     src/kyouko_root.cpp \
     src/main.cpp
 

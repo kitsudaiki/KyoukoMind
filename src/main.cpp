@@ -26,7 +26,6 @@
 #include <args.h>
 #include <config.h>
 #include <core/callbacks.h>
-#include <dev_test.h>
 #include <callbacks.h>
 
 #include <api/blossom_initializing.h>
@@ -55,63 +54,43 @@ main(int argc, char *argv[])
 
     initBlossoms();
 
-    if(DEV_MODE)
+    // init blossoms
+    if(rootObj.init(error) == false)
     {
-        Kitsunemimi::ErrorContainer error;
-        if(rootObj.init(error) == false)
-        {
-            LOG_ERROR(error);
-            return 1;
-        }
-        rootObj.initThreads();
-
-        for(int i = 0; i < 1; i++) {
-            learnTestData();
-        }
-
-        exit(0);
+        LOG_ERROR(error);
+        return 1;
     }
-    else
+
+    if(rootObj.initializeSakuraFiles(error) == false)
     {
-        // init blossoms
-        Kitsunemimi::ErrorContainer error;
-        if(rootObj.init(error) == false)
-        {
-            LOG_ERROR(error);
-            return 1;
-        }
+        LOG_ERROR(error);
+        return 1;
+    }
 
-        if(rootObj.initializeSakuraFiles(error) == false)
-        {
-            LOG_ERROR(error);
-            return 1;
-        }
+    // init included components
+    Azuki::initAzukiBlossoms();
+    Misaka::initMisakaBlossoms();
 
-        // init included components
-        Azuki::initAzukiBlossoms();
-        Misaka::initMisakaBlossoms();
+    rootObj.initThreads();
 
-        rootObj.initThreads();
+    // initialize server and connections based on the config-file
+    const std::vector<std::string> groupNames = {"misaka", "sagiri"};
+    if(HanamiMessaging::getInstance()->initialize("kyouko",
+                                                  groupNames,
+                                                  nullptr,
+                                                  &streamDataCallback,
+                                                  &genericCallback,
+                                                  error,
+                                                  true) == false)
+    {
+        LOG_ERROR(error);
+        return 1;
+    }
 
-        // initialize server and connections based on the config-file
-        const std::vector<std::string> groupNames = {"misaka", "sagiri"};
-        if(HanamiMessaging::getInstance()->initialize("kyouko",
-                                                      groupNames,
-                                                      nullptr,
-                                                      &streamDataCallback,
-                                                      &genericCallback,
-                                                      error,
-                                                      true) == false)
-        {
-            LOG_ERROR(error);
-            return 1;
-        }
-
-        if(rootObj.initToken(error) == false)
-        {
-            LOG_ERROR(error);
-            return 1;
-        }
+    if(rootObj.initToken(error) == false)
+    {
+        LOG_ERROR(error);
+        return 1;
     }
 
     // sleep forever
