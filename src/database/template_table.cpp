@@ -47,6 +47,9 @@ TemplateTable::TemplateTable(Kitsunemimi::Sakura::SqlDatabase* db)
     m_tableHeader.push_back(templateString);
 }
 
+/**
+ * @brief destructor
+ */
 TemplateTable::~TemplateTable() {}
 
 /**
@@ -65,7 +68,13 @@ TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
                            const std::string &projectUuid,
                            Kitsunemimi::ErrorContainer &error)
 {
-    return add(clusterData, userUuid, projectUuid, error);
+    if(add(clusterData, userUuid, projectUuid, error) == false)
+    {
+        error.addMeesage("Failed to add template to database");
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -94,7 +103,9 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("uuid", templateUuid);
 
     // get user from db
-    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false) {
+    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
+    {
+        error.addMeesage("Failed to get template from database");
         return false;
     }
 
@@ -127,7 +138,9 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("name", templateName);
 
     // get user from db
-    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false) {
+    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
+    {
+        error.addMeesage("Failed to get template from database by name");
         return false;
     }
 
@@ -152,7 +165,13 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
                               const bool isAdmin,
                               Kitsunemimi::ErrorContainer &error)
 {
-    return getAll(result, userUuid, projectUuid, isAdmin, error);
+    if(getAll(result, userUuid, projectUuid, isAdmin, error) == false)
+    {
+        error.addMeesage("Failed to get all templates from database");
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -176,5 +195,11 @@ TemplateTable::deleteTemplate(const std::string &templateUuid,
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("uuid", templateUuid);
 
-    return del(conditions, userUuid, projectUuid, isAdmin, error);
+    if(del(conditions, userUuid, projectUuid, isAdmin, error) == false)
+    {
+        error.addMeesage("Failed to delete template from database");
+        return false;
+    }
+
+    return true;
 }

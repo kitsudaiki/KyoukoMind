@@ -29,20 +29,30 @@
 #include <libKitsunemimiSakuraNetwork/session.h>
 #include <libKitsunemimiHanamiSdk/messages/hanami_messages.h>
 
-void streamDataCallback(void* target,
-                        Kitsunemimi::Sakura::Session*,
-                        const void* data,
-                        const uint64_t dataSize)
+/**
+ * @brief process stream-message
+ *
+ * @param target target-cluster of the session-endpoint
+ * @param data incoming data
+ * @param dataSize number of incoming data
+ */
+void
+streamDataCallback(void* target,
+                   Kitsunemimi::Sakura::Session*,
+                   const void* data,
+                   const uint64_t dataSize)
 {
     const uint8_t* u8Data = static_cast<const uint8_t*>(data);
+    Cluster* cluster = static_cast<Cluster*>(target);
 
+    // insert data to the cluster
     if(u8Data[0] == 1)
     {
         void* normalData = const_cast<void*>(data);
         Kitsunemimi::Hanami::ClusterIO_Message msg;
         msg.read(normalData, dataSize);
 
-        Cluster* cluster = static_cast<Cluster*>(target);
+        // fill given data into the target-segment
         if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::INPUT_SEGMENT)
         {
             InputNode* inputNodes = cluster->inputSegments[msg.segmentId]->inputs;
@@ -59,16 +69,16 @@ void streamDataCallback(void* target,
         }
     }
 
+    // start request
     if(u8Data[0] == 2)
     {
-        Cluster* cluster = static_cast<Cluster*>(target);
         cluster->mode = Cluster::NORMAL_MODE;
         cluster->startForwardCycle();
     }
 
+    // start learn
     if(u8Data[0] == 3)
     {
-        Cluster* cluster = static_cast<Cluster*>(target);
         cluster->mode = Cluster::LEARN_FORWARD_MODE;
         cluster->startForwardCycle();
     }

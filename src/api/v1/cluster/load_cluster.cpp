@@ -100,7 +100,7 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        status.errorMessage = "cluster with uuid '" + clusterUuid + "' not found";
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "' not found";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         error.addMeesage(status.errorMessage);
         return false;
@@ -110,7 +110,7 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
     if(Sagiri::getSnapshotInformation(parsedSnapshotInfo, snapshotUuid, token, error) == false)
     {
-        error.addMeesage("failed to get information from sagiri for uuid '" + snapshotUuid + "'");
+        error.addMeesage("Failed to get information from sagiri for UUID '" + snapshotUuid + "'");
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         return false;
     }

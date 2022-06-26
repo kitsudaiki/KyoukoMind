@@ -90,8 +90,9 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
                                               error,
                                               true) == false)
     {
-        status.errorMessage = "Tempalte with uuid '" + uuid + "' not found.";
+        status.errorMessage = "Tempalte with UUID '" + uuid + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
@@ -110,6 +111,7 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
     if(parsedTemplate.parse(decodedTemplate, error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        error.addMeesage("Failed to parse decoded template");
         return false;
     }
     blossomLeaf.output.insert("template", parsedTemplate.getItemContent()->copy());

@@ -66,11 +66,14 @@ RestoreCluster_State::processEvent()
 {
     Task* actualTask = m_cluster->getActualTask();
     Kitsunemimi::ErrorContainer error;
+    const std::string originalUuid = m_cluster->getUuid();
+
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
     m_client = messaging->sagiriClient;
     if(m_client == nullptr)
     {
-        // TODO: error-message
+        error.addMeesage("Failed to get client to sagiri");
+        error.addSolution("Check if sagiri is correctly configured");
         m_cluster->goToNextState(FINISH_TASK);
         return false;
     }
@@ -99,20 +102,18 @@ RestoreCluster_State::processEvent()
     {
         error.addMeesage("failed to get snapshot-data from sagiri");
         m_cluster->goToNextState(FINISH_TASK);
-
         return false;
     }
 
+    // clrear all old segments of the cluster, if there are some exist
     for(uint64_t i = 0; i < m_cluster->allSegments.size(); i++)
     {
         AbstractSegment* segment = m_cluster->allSegments.at(i);
         delete segment;
-        m_cluster->allSegments.clear();
-        m_cluster->inputSegments.clear();
-        m_cluster->outputSegments.clear();
     }
-
-    const uint8_t* u8Data = static_cast<const uint8_t*>(snapshotBuffer->data);
+    m_cluster->allSegments.clear();
+    m_cluster->inputSegments.clear();
+    m_cluster->outputSegments.clear();
 
     // copy meta-data of cluster
     const uint64_t headerSize = parsedHeader.get("header").getLong();
@@ -120,10 +121,12 @@ RestoreCluster_State::processEvent()
                                      Kitsunemimi::calcBytesToBlocks(headerSize)) == false)
     {
         // TODO: handle error
+        m_cluster->goToNextState(FINISH_TASK);
         return false;
     }
+    const uint8_t* u8Data = static_cast<const uint8_t*>(snapshotBuffer->data);
     memcpy(m_cluster->clusterData.data, &u8Data[0], headerSize);
-    reinitPointer(m_cluster, snapshotUuid);
+    reinitPointer(m_cluster, originalUuid);
 
     // copy single segments
     uint64_t posCounter = headerSize;

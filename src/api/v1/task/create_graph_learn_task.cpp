@@ -103,7 +103,9 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        error.addMeesage("interface with uuid not found: " + clusterUuid);
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "'not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
@@ -111,7 +113,9 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem dataSetInfo;
     if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
     {
-        error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
+        error.addMeesage("Failed to get information from sagiri for dataset with UUID '"
+                         + dataSetUuid
+                         + "'");
         // TODO: add status-error from response from sagiri
         status.statusCode = Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE;
         return false;
@@ -122,6 +126,7 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
     if(colBuffer == nullptr)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        error.addMeesage("Got NO data from sagiri for dataset with UUID '" + dataSetUuid + "'");
         return false;
     }
 

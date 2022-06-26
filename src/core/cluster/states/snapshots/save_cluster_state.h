@@ -50,13 +50,14 @@ private:
     uint64_t m_totalSize = 0;
     std::string m_headerMessage = "";
 
-    bool handleInitProcess();
-    bool sendData();
+    bool runInitProcess(Kitsunemimi::ErrorContainer &error);
+    bool sendData(Kitsunemimi::ErrorContainer &error);
     bool sendData(const Kitsunemimi::DataBuffer* data,
                   uint64_t &targetPos,
                   const std::string &uuid,
-                  const std::string &fileUuid, uint8_t *testBuffer);
-    bool handleFinalizeProcess();
+                  const std::string &fileUuid,
+                  Kitsunemimi::ErrorContainer &error);
+    bool runFinalizeProcess(Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // SAVECLUSTERSTATE_H

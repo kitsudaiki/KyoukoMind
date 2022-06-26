@@ -38,9 +38,13 @@
 #include <libKitsunemimiCommon/logger.h>
 
 /**
- * @brief reinitPointer
- * @param cluster
- * @return
+ * @brief re-initialize the pointer in the header of the cluster after restoring the cluster
+ *        from a snapshot
+ *
+ * @param cluster pointer to the cluster
+ * @param uuid new uuid of the cluster to override the old one coming from the snapshot
+ *
+ * @return true, if successful, else false
  */
 bool
 reinitPointer(Cluster* cluster,
@@ -57,8 +61,8 @@ reinitPointer(Cluster* cluster,
     cluster->networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
     pos += sizeof(ClusterSettings);
 
-    //strncpy(cluster->networkMetaData->uuid.uuid, uuid.c_str(), 36);
-    //cluster->networkMetaData->uuid.uuid[36] = '\0';
+    strncpy(cluster->networkMetaData->uuid.uuid, uuid.c_str(), 36);
+    cluster->networkMetaData->uuid.uuid[36] = '\0';
 
     cluster->clusterData.usedBufferSize = pos;
 

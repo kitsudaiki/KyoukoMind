@@ -88,6 +88,7 @@ KyoukoRoot::init(Kitsunemimi::ErrorContainer &error)
         m_randomValues[i] = static_cast<uint32_t>(rand());
     }
 
+    // init db
     if(initDatabase(error) == false) {
         return false;
     }
@@ -115,9 +116,11 @@ KyoukoRoot::initThreads()
 }
 
 /**
- * @brief KyoukoRoot::initToken
- * @param error
- * @return
+ * @brief initialize jwt-token for internal access to other components
+ *
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
@@ -137,12 +140,16 @@ KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
         // request internal jwt-token from misaka
         if(misakaClient->triggerSakuraFile(response, request, error) == false)
         {
+            error.addMeesage("Failed to trigger misaka to get a internal jwt-token");
             LOG_ERROR(error);
             return false;
         }
 
         // check response
-        if(response.success == false) {
+        if(response.success == false)
+        {
+            error.addMeesage("Failed to trigger misaka to get a internal jwt-token (no success)");
+            LOG_ERROR(error);
             return false;
         }
 
@@ -150,6 +157,7 @@ KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
         Kitsunemimi::Json::JsonItem jsonItem;
         if(jsonItem.parse(response.responseContent, error) == false)
         {
+            error.addMeesage("Failed to parse internal jwt-token from response of misaka");
             LOG_ERROR(error);
             return false;
         }
@@ -157,7 +165,10 @@ KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
         // get token from response
         componentToken = new std::string();
         *componentToken = jsonItem.getItemContent()->toMap()->getStringByKey("token");
-        if(*componentToken == "") {
+        if(*componentToken == "")
+        {
+            error.addMeesage("Internal jwt-token from misaka is empty");
+            LOG_ERROR(error);
             return false;
         }
 
@@ -231,7 +242,10 @@ KyoukoRoot::initializeSakuraFiles(Kitsunemimi::ErrorContainer &error)
     bool success = false;
     // get directory from config
     const std::string sakuraDir = GET_STRING_CONFIG("DEFAULT", "sakura-file-locaion", success);
-    if(success == false) {
+    if(success == false)
+    {
+        error.addMeesage("Failed to get 'sakura-file-locaion' from config");
+        LOG_ERROR(error);
         return false;
     }
 
@@ -239,6 +253,9 @@ KyoukoRoot::initializeSakuraFiles(Kitsunemimi::ErrorContainer &error)
     success = SakuraLangInterface::getInstance()->readFilesInDir(sakuraDir, error);
     if(success == false)
     {
+        error.addMeesage("Failed to read files in 'sakura-file-locaion', which is '"
+                         + sakuraDir
+                         + "'");
         LOG_ERROR(error);
         return false;
     }

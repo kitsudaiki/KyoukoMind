@@ -58,7 +58,7 @@ public:
     virtual bool reinitPointer(const uint64_t numberOfBytes) = 0;
 
     bool isReady();
-    bool finishSegment();
+    void finishSegment();
 
 protected:
     SegmentTypes m_type = UNDEFINED_SEGMENT;

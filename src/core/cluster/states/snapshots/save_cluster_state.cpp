@@ -53,31 +53,41 @@ SaveCluster_State::~SaveCluster_State() {}
 /**
  * @brief prcess event
  *
- * @return alway true
+ * @return true, if successful, else false
  */
 bool
 SaveCluster_State::processEvent()
 {
     bool result = false;
 
+    Kitsunemimi::ErrorContainer error;
+
     do
     {
+        // get internal client for interaction with sagiri
         HanamiMessaging* messaging = HanamiMessaging::getInstance();
         m_client = messaging->sagiriClient;
         if(m_client == nullptr)
         {
-            // TODO: error-message
-            result = false;
+            error.addMeesage("Failed to get client to sagiri");
+            error.addSolution("Check if sagiri is correctly configured");
             break;
         }
 
-        if(handleInitProcess() == false) {
+        // send snapshot to sagiri
+        if(runInitProcess(error) == false)
+        {
+            error.addMeesage("Failed to run initializing a snapshot-transfer to sagiri");
             break;
         }
-        if(sendData() == false) {
+        if(sendData(error) == false)
+        {
+            error.addMeesage("Failed to send data of snapshot to sagiri");
             break;
         }
-        if(handleFinalizeProcess() == false) {
+        if(runFinalizeProcess(error) == false)
+        {
+            error.addMeesage("Failed to run finalizing a snapshot-transfer to sagiri");
             break;
         }
 
@@ -88,22 +98,32 @@ SaveCluster_State::processEvent()
 
     m_cluster->goToNextState(FINISH_TASK);
 
+    if(result == false)
+    {
+        error.addMeesage("Failed to create snapshot of cluster with UUID '"
+                         + m_cluster->getUuid()
+                         + "'");
+        // TODO: give the user a feedback by setting the task to failed-state
+    }
+
     return result;
 }
 
 /**
- * @brief SaveCluster_State::handleInitProcess
- * @return
+ * @brief initialize the transfer of the cluster-snapshot to sagiri
+ *
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
-SaveCluster_State::handleInitProcess()
+SaveCluster_State::runInitProcess(Kitsunemimi::ErrorContainer &error)
 {
     Task* actualTask = m_cluster->getActualTask();
 
-    // get total size of memory of the cluster
+    // create message to sagiri and calculate total size of storage of the cluster
     m_totalSize = m_cluster->clusterData.usedBufferSize;
     m_headerMessage = "{\"header\":" + std::to_string(m_totalSize) + ",\"segments\":[";
-
     for(uint64_t i = 0; i < m_cluster->allSegments.size(); i++)
     {
         if(i != 0) {
@@ -140,25 +160,30 @@ SaveCluster_State::handleInitProcess()
     requestMsg.inputValues.append(std::to_string(m_totalSize));
     requestMsg.inputValues.append("}");
 
-    // make token-request
+    // trigger initializing of snapshot
     Kitsunemimi::Hanami::ResponseMessage response;
-    Kitsunemimi::ErrorContainer error;
     if(m_client->triggerSakuraFile(response, requestMsg, error) == false)
     {
-        // TODO: error-message
+        error.addMeesage("Failed to trigger blossom in sagiri to initialize "
+                         "the transfer of a cluster");
         return false;
     }
 
+    // check response
     if(response.success == false)
     {
-        // TODO: error-message
+        error.addMeesage(response.responseContent);
+        error.addMeesage("Failed to trigger blossom in sagiri to initialize "
+                         "the transfer of a cluster");
         return false;
     }
 
+    // process response
     LOG_DEBUG("Response from initializing cluster-snapshot: " + response.responseContent);
     if(m_parsedResponse.parse(response.responseContent, error) == false)
     {
-        // TODO: error-message
+        error.addMeesage("Failed to parse reponse from sagiri for the initializing "
+                         "of the snapshot-transfer");
         return false;
     }
 
@@ -166,27 +191,27 @@ SaveCluster_State::handleInitProcess()
 }
 
 /**
- * @brief SaveCluster_State::sendData
- * @return
+ * @brief send all data of the snapshot to sagiri
+ *
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
-SaveCluster_State::sendData()
+SaveCluster_State::sendData(Kitsunemimi::ErrorContainer &error)
 {
     const std::string uuid = m_parsedResponse.get("uuid").getString();
     const std::string fileUuid = m_parsedResponse.get("uuid_input_file").getString();
+
+    // global byte-counter to identifiy the position within the complete snapshot
     uint64_t posCounter = 0;
 
-    uint8_t* testBuffer = new uint8_t[100*1024*1025];
-    uint8_t* testBuffer2 = new uint8_t[100*1024*1025];
-
     // send cluster-metadata
-    if(sendData(&m_cluster->clusterData, posCounter, uuid, fileUuid, testBuffer2) == false) {
+    if(sendData(&m_cluster->clusterData, posCounter, uuid, fileUuid, error) == false)
+    {
+        error.addMeesage("Failed to send metadata of cluster for snapshot to sagiri");
         return false;
     }
-
-    memcpy(&testBuffer[posCounter],
-           m_cluster->clusterData.data,
-           m_cluster->clusterData.usedBufferSize);
 
     // send segments of cluster
     for(uint64_t i = 0; i < m_cluster->allSegments.size(); i++)
@@ -194,38 +219,41 @@ SaveCluster_State::sendData()
         if(sendData(&m_cluster->allSegments.at(i)->segmentData.buffer,
                     posCounter,
                     uuid,
-                    fileUuid, testBuffer2) == false)
+                    fileUuid,
+                    error) == false)
         {
+            error.addMeesage("Failed to send snapshot of segment '"
+                             + std::to_string(i)
+                             + "' to sagiri");
             return false;
         }
-
-        memcpy(&testBuffer[posCounter],
-               m_cluster->allSegments.at(i)->segmentData.buffer.data,
-               m_cluster->allSegments.at(i)->segmentData.buffer.usedBufferSize);
-
     }
 
     return true;
 }
 
 /**
- * @brief SaveCluster_State::sendData
- * @param data
- * @param targetPos
- * @return
+ * @brief send data of the snapshot to sagiri
+ *
+ * @param data buffer with data to send
+ * @param targetPos byte-position within the snapshot where the data belongs to
+ * @param uuid uuid of the snapshot
+ * @param fileUuid uuid of the temporary file in sagiri for identification
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 SaveCluster_State::sendData(const Kitsunemimi::DataBuffer* data,
                             uint64_t &targetPos,
                             const std::string &uuid,
                             const std::string &fileUuid,
-                            uint8_t* testBuffer)
+                            Kitsunemimi::ErrorContainer &error)
 {
     const uint64_t dataSize = data->usedBufferSize;
     const uint8_t* u8Data = static_cast<const uint8_t*>(data->data);
 
     uint8_t sendBuffer[128*1024];
-    Kitsunemimi::ErrorContainer error;
     uint64_t i = 0;
     uint64_t pos = 0;
 
@@ -247,10 +275,13 @@ SaveCluster_State::sendData(const Kitsunemimi::DataBuffer* data,
 
         // read segment of the local file
         memcpy(&sendBuffer[80], &u8Data[i], segmentSize);
-        memcpy(&testBuffer[targetPos + i], &u8Data[i], segmentSize);
 
         // send segment
-        if(m_client->sendStreamMessage(sendBuffer, segmentSize + 80, false, error) == false) {
+        if(m_client->sendStreamMessage(sendBuffer, segmentSize + 80, false, error) == false)
+        {
+            error.addMeesage("Failed to send part with position '"
+                             + std::to_string(i)
+                             + "' to sagiri");
             return false;
         }
 
@@ -264,11 +295,14 @@ SaveCluster_State::sendData(const Kitsunemimi::DataBuffer* data,
 }
 
 /**
- * @brief SaveCluster_State::handleFinalizeProcess
- * @return
+ * @brief finalize the transfer of the snapshot to sagiri
+ *
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
-SaveCluster_State::handleFinalizeProcess()
+SaveCluster_State::runFinalizeProcess(Kitsunemimi::ErrorContainer &error)
 {
     Task* actualTask = m_cluster->getActualTask();
     const std::string uuid = m_parsedResponse.get("uuid").getString();
@@ -291,25 +325,30 @@ SaveCluster_State::handleFinalizeProcess()
     requestMsg.inputValues.append(fileUuid);
     requestMsg.inputValues.append("\"}");
 
-    // make token-request
+    // trigger finalizing of snapshot
     Kitsunemimi::Hanami::ResponseMessage response;
-    Kitsunemimi::ErrorContainer error;
     if(m_client->triggerSakuraFile(response, requestMsg, error) == false)
     {
-        // TODO: error-message
+        error.addMeesage("Failed to trigger blossom in sagiri to finalize "
+                         "the transfer of a cluster");
         return false;
     }
 
+    // check response
     if(response.success == false)
     {
-        // TODO: error-message
+        error.addMeesage(response.responseContent);
+        error.addMeesage("Failed to trigger blossom in sagiri to finalize "
+                         "the transfer of a cluster");
         return false;
     }
 
+    // process response
     LOG_DEBUG("Response from finalizing cluster-snapshot: " + response.responseContent);
     if(m_parsedResponse.parse(response.responseContent, error) == false)
     {
-        // TODO: error-message
+        error.addMeesage("Failed to parse reponse from sagiri for the finalizeing "
+                         "of the snapshot-transfer");
         return false;
     }
 

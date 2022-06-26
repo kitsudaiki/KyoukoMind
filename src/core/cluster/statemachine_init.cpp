@@ -36,8 +36,9 @@
 #include <libKitsunemimiCommon/statemachine.h>
 
 /**
- * @brief initStates
- * @param sm
+ * @brief initialize all possible states of the statemachine
+ *
+ * @param sm reference to the statemachine, which should be initialized
  */
 void
 initStates(Kitsunemimi::Statemachine &sm)
@@ -65,10 +66,11 @@ initStates(Kitsunemimi::Statemachine &sm)
 }
 
 /**
- * @brief initEvents
- * @param sm
- * @param cluster
- * @param taskState
+ * @brief initialize events, which should be triggered for specific states
+ *
+ * @param sm reference to the statemachine, which should be initialized
+ * @param cluster pointer to the cluster, where the statemachine belongs to
+ * @param taskState pointer the the cluster-specific task-handling-state
  */
 void
 initEvents(Kitsunemimi::Statemachine &sm,
@@ -89,8 +91,9 @@ initEvents(Kitsunemimi::Statemachine &sm,
 }
 
 /**
- * @brief initChildStates
- * @param sm
+ * @brief initialize child-states
+ *
+ * @param sm reference to the statemachine, which should be initialized
  */
 void
 initChildStates(Kitsunemimi::Statemachine &sm)
@@ -122,8 +125,9 @@ initChildStates(Kitsunemimi::Statemachine &sm)
 }
 
 /**
- * @brief initInitialChildStates
- * @param sm
+ * @brief set initial
+ *
+ * @param sm reference to the statemachine, which should be initialized
  */
 void
 initInitialChildStates(Kitsunemimi::Statemachine &sm)
@@ -135,8 +139,9 @@ initInitialChildStates(Kitsunemimi::Statemachine &sm)
 }
 
 /**
- * @brief initTransitions
- * @param sm
+ * @brief initialize transitions between states
+ *
+ * @param sm reference to the statemachine, which should be initialized
  */
 void
 initTransitions(Kitsunemimi::Statemachine &sm)
@@ -185,10 +190,11 @@ initTransitions(Kitsunemimi::Statemachine &sm)
 }
 
 /**
- * @brief initStatemachine
- * @param sm
- * @param cluster
- * @param taskState
+ * @brief initialize statemachine of the cluster
+ *
+ * @param sm reference to the statemachine, which should be initialized
+ * @param cluster pointer to the cluster, where the statemachine belongs to
+ * @param taskState pointer the the cluster-specific task-handling-state
  */
 void
 initStatemachine(Kitsunemimi::Statemachine &sm,

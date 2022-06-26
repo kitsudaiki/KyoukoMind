@@ -90,6 +90,7 @@ ShowCluster::runTask(BlossomLeaf &blossomLeaf,
     {
         status.errorMessage = "Cluster with name '" + clusterUuid + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 

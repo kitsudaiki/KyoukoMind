@@ -118,7 +118,6 @@ GraphLearnForward_State::processEvent()
     }
 
     // set exprected output
-
     actualVal = actualTask->inputData[i * 2];
     if(actualVal > lastVal)
     {

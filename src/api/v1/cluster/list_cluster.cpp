@@ -72,6 +72,7 @@ ListCluster::runTask(BlossomLeaf &blossomLeaf,
                                                 error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        error.addMeesage("Failed to get all clusters form database");
         return false;
     }
 

@@ -96,6 +96,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     {
         status.errorMessage = "Template with name '" + name + "' already exist.";
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 

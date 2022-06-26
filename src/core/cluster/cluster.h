@@ -62,7 +62,7 @@ public:
     std::vector<OutputSegment*> outputSegments;
     std::vector<AbstractSegment*> allSegments;
 
-    // init
+    const std::string getUuid();
     const std::string getName();
     bool setName(const std::string newName);
     bool init(const JsonItem &parsedContent,

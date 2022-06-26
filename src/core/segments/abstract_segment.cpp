@@ -42,7 +42,7 @@ AbstractSegment::~AbstractSegment() {}
 /**
  * @brief get type of the segment
  *
- * @return type
+ * @return type of the segment
  */
 SegmentTypes
 AbstractSegment::getType() const
@@ -71,10 +71,10 @@ AbstractSegment::isReady()
 }
 
 /**
- * @brief AbstractSegment::finishSegment
- * @return
+ * @brief run finishing step of the segment-processing to share the border-buffer with the
+ *        neighbor segments
  */
-bool
+void
 AbstractSegment::finishSegment()
 {
     float* sourceBuffer = nullptr;
@@ -90,7 +90,6 @@ AbstractSegment::finishSegment()
         if(segmentNeighbors->neighbors[i].inUse == 1)
         {
             // get information of the neighbor
-            //sourceBuffer = segmentNeighbors->neighbors[i].outputTransferBuffer;
             sourceBuffer = &outputTransfers[segmentNeighbors->neighbors[i].outputTransferBufferPos];
             targetId = segmentNeighbors->neighbors[i].targetSegmentId;
             targetSide = segmentNeighbors->neighbors[i].targetSide;
@@ -98,7 +97,6 @@ AbstractSegment::finishSegment()
             // copy data to the target buffer and wipe the source buffer
             targetSegment = parentCluster->allSegments.at(targetId);
             targetNeighbors = targetSegment->segmentNeighbors;
-            //targetBuffer = targetNeighbors->neighbors[targetSide].inputTransferBuffer;
             targetBufferPos = targetNeighbors->neighbors[targetSide].inputTransferBufferPos;
             targetBuffer = &targetSegment->inputTransfers[targetBufferPos];
             memcpy(targetBuffer,
@@ -114,17 +112,15 @@ AbstractSegment::finishSegment()
     }
 
     parentCluster->updateClusterState();
-
-    return true;
 }
 
 /**
- * @brief AbstractSegment::createGenericNewHeader
+ * @brief generate header with generic segment-information
  *
- * @param header
- * @param borderbufferSize
+ * @param header reference to the header-object to fill
+ * @param borderbufferSize size of the border-buffer in bytes
  *
- * @return
+ * @return number of required bytes to the generic information
  */
 uint32_t
 AbstractSegment::createGenericNewHeader(SegmentHeader &header,

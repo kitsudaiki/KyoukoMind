@@ -103,8 +103,9 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
                                              isAdmin,
                                              error) == false)
     {
-        status.errorMessage = "Cluster with uuid '" + clusterUuid + "' not found.";
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
@@ -112,8 +113,9 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        status.errorMessage = "Cluster with uuid '" + clusterUuid + "'not found";
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "'not found";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
@@ -127,6 +129,7 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
                               + "'";
         // TODO: get exact reason, why it was not successful
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
@@ -138,8 +141,9 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
         HanamiMessagingClient* client =  messageing->getIncomingClient(connectionUuid);
         if(client == nullptr)
         {
-            status.errorMessage = "Connection with uuid '" + connectionUuid + "'not found";
+            status.errorMessage = "Connection with UUID '" + connectionUuid + "'not found";
             status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+            error.addMeesage(status.errorMessage);
             return false;
         }
         client->setStreamCallback(cluster, streamDataCallback);

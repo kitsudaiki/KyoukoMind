@@ -26,6 +26,8 @@
 #include <core/cluster/cluster.h>
 #include <kyouko_root.h>
 
+#include <libKitsunemimiHanamiCommon/enums.h>
+
 using namespace Kitsunemimi::Sakura;
 
 ShowTask::ShowTask()
@@ -92,7 +94,7 @@ serializeTimePoint(const std::chrono::high_resolution_clock::time_point &time,
 bool
 ShowTask::runTask(BlossomLeaf &blossomLeaf,
                   const Kitsunemimi::DataMap &context,
-                  BlossomStatus &,
+                  BlossomStatus &status,
                   Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
@@ -104,7 +106,9 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        error.addMeesage("interface with uuid not found: " + clusterUuid);
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "'not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 

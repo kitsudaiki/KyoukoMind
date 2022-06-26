@@ -80,6 +80,7 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
     {
         status.errorMessage = "Cluster with uuid '" + clusterUuid + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
@@ -91,6 +92,7 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
                                                 error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        error.addMeesage("Failed to delete cluster with UUID '" + clusterUuid + "' from database");
         return false;
     }
 
@@ -99,6 +101,10 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
     if(KyoukoRoot::m_clusterHandler->removeCluster(uuid) == false)
     {
         // should never be false, because the uuid is already defined as unique by the database
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        error.addMeesage("Failed to delete cluster with UUID '"
+                         + clusterUuid
+                         + "' from cluster-handler");
         return false;
     }
 

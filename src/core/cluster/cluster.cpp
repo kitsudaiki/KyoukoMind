@@ -65,6 +65,17 @@ Cluster::~Cluster()
 }
 
 /**
+ * @brief get uuid of the cluster
+ *
+ * @return uuid of the cluster
+ */
+const
+std::string Cluster::getUuid()
+{
+    return networkMetaData->uuid.toString();
+}
+
+/**
  * @brief init the cluster
  *
  * @param parsedContent parsed json-content with structural information of the new cluster
@@ -163,9 +174,11 @@ Cluster::startBackwardCycle()
 }
 
 /**
- * @brief Cluster::setClusterState
- * @param newState
- * @return
+ * @brief switch state of the cluster between task and direct mode
+ *
+ * @param newState new desired state
+ *
+ * @return true, if switch in statemachine was successful, else false
  */
 bool
 Cluster::setClusterState(const std::string &newState)
@@ -182,7 +195,7 @@ Cluster::setClusterState(const std::string &newState)
 }
 
 /**
- * @brief NetworkCluster::updateClusterState
+ * @brief update state of the cluster, which is caled for each finalized segment
  */
 void
 Cluster::updateClusterState()
@@ -194,6 +207,7 @@ Cluster::updateClusterState()
         return;
     }
 
+    // trigger next lerning phase, if already in phase 1
     if(mode == Cluster::LEARN_FORWARD_MODE)
     {
         mode = Cluster::LEARN_BACKWARD_MODE;
@@ -201,6 +215,7 @@ Cluster::updateClusterState()
         return;
     }
 
+    // if a client is configured for the cluster, send a reponse that the learning was finished
     if(mode == Cluster::LEARN_BACKWARD_MODE
             && msgClient != nullptr)
     {
@@ -209,10 +224,10 @@ Cluster::updateClusterState()
         msg.createBlob(msgBuffer);
 
         Kitsunemimi::ErrorContainer error;
-
         msgClient->sendStreamMessage(msgBuffer.data, msgBuffer.usedBufferSize, false, error);
     }
 
+    // if a client is configured for the cluster, send a reponse that the request was finished
     if(mode == Cluster::NORMAL_MODE
             && msgClient != nullptr)
     {
@@ -221,7 +236,6 @@ Cluster::updateClusterState()
         msg.createBlob(msgBuffer);
 
         Kitsunemimi::ErrorContainer error;
-
         msgClient->sendStreamMessage(msgBuffer.data, msgBuffer.usedBufferSize, false, error);
     }
 
@@ -232,8 +246,8 @@ Cluster::updateClusterState()
  * @brief create a learn-task and add it to the task-queue
  *
  * @param inputData input-data
- * @param numberOfInputsPerCycle number of inputs, which numberOfInputsPerCyclebelongs to one cycle
- * @param numberOfOuputsPerCycle number of outputs, which belongs to one cycle
+ * @param numberOfInputsPerCycle number of inputs per cycle
+ * @param numberOfOuputsPerCycle number of outputs per cycle
  * @param numberOfCycle number of cycles
  *
  * @return task-uuid
@@ -273,8 +287,8 @@ Cluster::addImageLearnTask(float* inputData,
  * @brief create a request-task and add it to the task-queue
  *
  * @param inputData input-data
- * @param numberOfInputsPerCycle number of inputs, which belongs to one cycle
- * @param numberOfOuputsPerCycle number of outputs of the dataset-only to calculate correct offset
+ * @param numberOfInputsPerCycle number of inputs per cycle
+ * @param numberOfOuputsPerCycle number of outputs per cycle
  * @param numberOfCycle number of cycles
  *
  * @return task-uuid
@@ -312,12 +326,13 @@ Cluster::addImageRequestTask(float* inputData,
 }
 
 /**
- * @brief Cluster::addGraphLearnTask
- * @param inputData
- * @param numberOfValues
- * @param numberOfInputs
- * @param numberOfCycle
- * @return
+ * @brief create task to learn graph-data and add it to the task-queue
+ *
+ * @param inputData input-data
+ * @param numberOfInputs number of inputs per cycle
+ * @param numberOfCycle number of cycles
+ *
+ * @return task-uuid
  */
 const std::string
 Cluster::addGraphLearnTask(float* inputData,
@@ -348,12 +363,13 @@ Cluster::addGraphLearnTask(float* inputData,
 }
 
 /**
- * @brief Cluster::addGraphRequestTask
- * @param inputData
- * @param numberOfValues
- * @param numberOfInputs
- * @param numberOfCycle
- * @return
+ * @brief create task to request graph-data and add it to the task-queue
+ *
+ * @param inputData input-data
+ * @param numberOfInputs number of inputs per cycle
+ * @param numberOfCycle number of cycles
+ *
+ * @return task-uuid
  */
 const std::string
 Cluster::addGraphRequestTask(float* inputData,
@@ -385,11 +401,13 @@ Cluster::addGraphRequestTask(float* inputData,
 }
 
 /**
- * @brief Cluster::addClusterSnapshotSaveTask
- * @param snapshotName
- * @param userUuid
- * @param projectUuid
- * @return
+ * @brief create task to create a snapshot from a cluster and add it to the task-queue
+ *
+ * @param snapshotName name for the snapshot
+ * @param userUuid uuid of the user, where the snapshot belongs to
+ * @param projectUuid uuid of the project, where the snapshot belongs to
+ *
+ * @return task-uuid
  */
 const std::string
 Cluster::addClusterSnapshotSaveTask(const std::string &snapshotName,
@@ -418,11 +436,13 @@ Cluster::addClusterSnapshotSaveTask(const std::string &snapshotName,
 }
 
 /**
- * @brief Cluster::addClusterSnapshotRestoreTask
- * @param snapshotUuid
- * @param userUuid
- * @param projectUuid
- * @return
+ * @brief create task to restore a cluster from a snapshot and add it to the task-queue
+ *
+ * @param snapshotUuid uuid of the snapshot
+ * @param userUuid uuid of the user, where the snapshot belongs to
+ * @param projectUuid uuid of the project, where the snapshot belongs to
+ *
+ * @return task-uuid
  */
 const std::string
 Cluster::addClusterSnapshotRestoreTask(const std::string &snapshotInfo,
@@ -480,8 +500,9 @@ Cluster::request(float* inputData,
 }
 
 /**
- * @brief Cluster::getActualTask
- * @return
+ * @brief get actual task
+ *
+ * @return pointer to the actual task
  */
 Task*
 Cluster::getActualTask() const
@@ -551,9 +572,11 @@ Cluster::setResultForActualCycle(const uint32_t result)
 }
 
 /**
- * @brief Cluster::goToNextState
- * @param nextStateId
- * @return
+ * @brief switch statemachine of cluster to next state
+ *
+ * @param nextStateId id of the next state
+ *
+ * @return true, if statemachine switch was successful, else false
  */
 bool
 Cluster::goToNextState(const uint32_t nextStateId)

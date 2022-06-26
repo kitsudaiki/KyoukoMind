@@ -47,6 +47,9 @@ ClusterTable::ClusterTable(Kitsunemimi::Sakura::SqlDatabase* db)
     m_tableHeader.push_back(templateUuid);
 }
 
+/**
+ * @brief destructor
+ */
 ClusterTable::~ClusterTable() {}
 
 /**
@@ -65,7 +68,13 @@ ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
                          const std::string &projectUuid,
                          Kitsunemimi::ErrorContainer &error)
 {
-    return add(clusterData, userUuid, projectUuid, error);
+    if(add(clusterData, userUuid, projectUuid, error) == false)
+    {
+        error.addMeesage("Failed to add cluster-meta to database");
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -94,7 +103,9 @@ ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("uuid", clusterUuid);
 
     // get user from db
-    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false) {
+    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
+    {
+        error.addMeesage("Failed to get cluster-meta from database");
         return false;
     }
 
@@ -127,7 +138,9 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("name", clusterName);
 
     // get user from db
-    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false) {
+    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
+    {
+        error.addMeesage("Failed to get cluster-meta from database by name");
         return false;
     }
 
@@ -152,7 +165,13 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
                             const bool isAdmin,
                             Kitsunemimi::ErrorContainer &error)
 {
-    return getAll(result, userUuid, projectUuid, isAdmin, error);
+    if(getAll(result, userUuid, projectUuid, isAdmin, error) == false)
+    {
+        error.addMeesage("Failed to get all cluster-meta from database");
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -176,5 +195,11 @@ ClusterTable::deleteCluster(const std::string &clusterUuid,
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("uuid", clusterUuid);
 
-    return del(conditions, userUuid, projectUuid, isAdmin, error);
+    if(del(conditions, userUuid, projectUuid, isAdmin, error) == false)
+    {
+        error.addMeesage("Failed to delete cluster-meta from database");
+        return false;
+    }
+
+    return true;
 }

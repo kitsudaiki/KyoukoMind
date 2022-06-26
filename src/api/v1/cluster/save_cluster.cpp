@@ -98,7 +98,7 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        status.errorMessage = "cluster with uuid '" + clusterUuid + "'not found";
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "'not found";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         error.addMeesage(status.errorMessage);
         return false;

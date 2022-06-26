@@ -102,11 +102,10 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
                                                    error))
     {
         status.errorMessage = "Cluster with name '" + clusterName + "' already exist.";
+        error.addMeesage(status.errorMessage);
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
         return false;
     }
-
-
 
     // convert values
     Kitsunemimi::Json::JsonItem clusterData;
@@ -123,6 +122,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
                                              error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        error.addMeesage("Failed to add cluster to database");
         return false;
     }
 
@@ -134,6 +134,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
                                                    isAdmin,
                                                    error) == false)
     {
+        error.addMeesage("Failed to get cluster from database by name '" + clusterName + "'");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
@@ -142,9 +143,10 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     Cluster* newCluster = new Cluster();
     if(templateUuid != "")
     {
-        if(initCluster(newCluster, uuid, blossomLeaf, context, status, error) == false)
+        if(initCluster(newCluster, uuid, templateUuid, context, status, error) == false)
         {
             delete newCluster;
+            error.addMeesage("Failed to initialize cluster");
             return false;
         }
     }
@@ -161,20 +163,24 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 
 /**
  * @brief CreateCluster::initCluster
- * @param cluster
- * @param templateUuid
- * @return
+ *
+ * @param cluster pointer to the cluster, which should be initialized
+ * @param clusterUuid uuid of the cluster
+ * @param templateUuid uuid of the template, which should be used as base for the new cluster
+ * @param context context-object with date for the access to the database-tables
+ * @param status reference for status-output
+ * @param error reference for error-output
+ *
+ * @return true, if successful, else false
  */
 bool
 CreateCluster::initCluster(Cluster* cluster,
                            const std::string &clusterUuid,
-                           BlossomLeaf &blossomLeaf,
+                           const std::string &templateUuid,
                            const Kitsunemimi::DataMap &context,
                            Kitsunemimi::Sakura::BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
 {
-    const std::string clusterName = blossomLeaf.input.get("name").getString();
-    const std::string templateUuid = blossomLeaf.input.get("template_uuid").getString();
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
@@ -209,12 +215,14 @@ CreateCluster::initCluster(Cluster* cluster,
     Kitsunemimi::Json::JsonItem parsedTemplate;
     if(parsedTemplate.parse(decodedTemplate, error) == false)
     {
+        error.addMeesage("Failed to parse decoded template");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 
     if(cluster->init(parsedTemplate, clusterUuid) == false)
     {
+        error.addMeesage("Failed to initialize cluster based on a template");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }

@@ -98,7 +98,9 @@ CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        error.addMeesage("interface with uuid not found: " + clusterUuid);
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "'not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
         return false;
     }
 
@@ -106,7 +108,7 @@ CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem dataSetInfo;
     if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
     {
-        error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
+        error.addMeesage("Failed to get information from sagiri for UUID '" + dataSetUuid + "'");
         // TODO: add status-error from response from sagiri
         status.statusCode = Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE;
         return false;
@@ -121,7 +123,9 @@ CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
     DataBuffer* dataSetBuffer = Sagiri::getDatasetData(token, dataSetUuid, "", error);
     if(dataSetBuffer == nullptr)
     {
-        error.addMeesage("failed to get data from sagiri");
+        error.addMeesage("Failed to get data from sagiri for dataset with UUID '"
+                         + dataSetUuid
+                         + "'");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
