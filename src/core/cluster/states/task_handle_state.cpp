@@ -24,7 +24,8 @@
 
 #include <core/cluster/cluster.h>
 #include <core/cluster/statemachine_init.h>
-#include <libSagiriArchive/sagiri_send.h>
+
+#include <libSagiriArchive/other.h>
 
 /**
  * @brief constructor

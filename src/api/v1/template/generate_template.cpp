@@ -24,7 +24,7 @@
 #include <kyouko_root.h>
 #include <core/templates/template_creator.h>
 
-#include <libSagiriArchive/sagiri_send.h>
+#include <libSagiriArchive/datasets.h>
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>

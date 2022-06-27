@@ -31,7 +31,7 @@
 #include <core/segments/output_segment/output_segment.h>
 #include <core/segments/dynamic_segment/dynamic_segment.h>
 
-#include <libSagiriArchive/sagiri_send.h>
+#include <libSagiriArchive/snapshots.h>
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
