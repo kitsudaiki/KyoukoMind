@@ -87,11 +87,18 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    if(rootObj.initToken(error) == false)
+    // init internal token for access to other components
+    std::string token = "";
+    if(HanamiMessaging::getInstance()->getInternalToken(token,
+                                                        "kyouko",
+                                                        error) == false)
     {
+        error.addMeesage("Failed to get internal token");
         LOG_ERROR(error);
         return 1;
     }
+    KyoukoRoot::componentToken = new std::string();
+    *KyoukoRoot::componentToken = token;
 
     // sleep forever
     std::this_thread::sleep_until(std::chrono::time_point<std::chrono::system_clock>::max());

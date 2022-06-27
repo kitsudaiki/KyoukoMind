@@ -116,69 +116,6 @@ KyoukoRoot::initThreads()
 }
 
 /**
- * @brief initialize jwt-token for internal access to other components
- *
- * @param error reference for error-output
- *
- * @return true, if successful, else false
- */
-bool
-KyoukoRoot::initToken(Kitsunemimi::ErrorContainer &error)
-{
-    SupportedComponents* scomp = SupportedComponents::getInstance();
-    if(scomp->support[Kitsunemimi::Hanami::MISAKA])
-    {
-        HanamiMessagingClient* misakaClient = HanamiMessaging::getInstance()->misakaClient;
-        Kitsunemimi::Hanami::ResponseMessage response;
-
-        // create request
-        Kitsunemimi::Hanami::RequestMessage request;
-        request.id = "v1/token/internal";
-        request.httpType = Kitsunemimi::Hanami::GET_TYPE;
-        request.inputValues = "{\"service_name\":\"kyouko\"}";
-
-        // request internal jwt-token from misaka
-        if(misakaClient->triggerSakuraFile(response, request, error) == false)
-        {
-            error.addMeesage("Failed to trigger misaka to get a internal jwt-token");
-            LOG_ERROR(error);
-            return false;
-        }
-
-        // check response
-        if(response.success == false)
-        {
-            error.addMeesage("Failed to trigger misaka to get a internal jwt-token (no success)");
-            LOG_ERROR(error);
-            return false;
-        }
-
-        // parse response
-        Kitsunemimi::Json::JsonItem jsonItem;
-        if(jsonItem.parse(response.responseContent, error) == false)
-        {
-            error.addMeesage("Failed to parse internal jwt-token from response of misaka");
-            LOG_ERROR(error);
-            return false;
-        }
-
-        // get token from response
-        componentToken = new std::string();
-        *componentToken = jsonItem.getItemContent()->toMap()->getStringByKey("token");
-        if(*componentToken == "")
-        {
-            error.addMeesage("Internal jwt-token from misaka is empty");
-            LOG_ERROR(error);
-            return false;
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
-/**
  * @brief init database
  *
  * @param error reference for error-output

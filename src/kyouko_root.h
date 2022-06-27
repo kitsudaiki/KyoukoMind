@@ -40,7 +40,6 @@ public:
 
     bool init(Kitsunemimi::ErrorContainer &error);
     bool initThreads();
-    bool initToken(Kitsunemimi::ErrorContainer &error);
 
     static ClusterHandler* m_clusterHandler;
     static uint32_t* m_randomValues;
