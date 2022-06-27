@@ -45,19 +45,10 @@ public:
 
 private:
     Cluster* m_cluster = nullptr;
-    Kitsunemimi::Hanami::HanamiMessagingClient* m_client = nullptr;
-    Kitsunemimi::Json::JsonItem m_parsedResponse;
-    uint64_t m_totalSize = 0;
-    std::string m_headerMessage = "";
 
-    bool runInitProcess(Kitsunemimi::ErrorContainer &error);
-    bool sendData(Kitsunemimi::ErrorContainer &error);
-    bool sendData(const Kitsunemimi::DataBuffer* data,
-                  uint64_t &targetPos,
-                  const std::string &uuid,
+    bool sendData(const std::string &snapshotUuid,
                   const std::string &fileUuid,
                   Kitsunemimi::ErrorContainer &error);
-    bool runFinalizeProcess(Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // SAVECLUSTERSTATE_H
