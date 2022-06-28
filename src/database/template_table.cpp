@@ -105,7 +105,9 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
     // get user from db
     if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
     {
-        error.addMeesage("Failed to get template from database");
+        error.addMeesage("Failed to get template with UUID '"
+                         + templateUuid
+                         + "' from database");
         return false;
     }
 
@@ -140,7 +142,7 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
     // get user from db
     if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
     {
-        error.addMeesage("Failed to get template from database by name");
+        error.addMeesage("Failed to get template from database by name '" + templateName + "'");
         return false;
     }
 
@@ -197,7 +199,9 @@ TemplateTable::deleteTemplate(const std::string &templateUuid,
 
     if(del(conditions, userUuid, projectUuid, isAdmin, error) == false)
     {
-        error.addMeesage("Failed to delete template from database");
+        error.addMeesage("Failed to delete template with UUID '"
+                         + templateUuid
+                         + "' from database");
         return false;
     }
 

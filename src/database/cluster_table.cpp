@@ -105,7 +105,9 @@ ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
     // get user from db
     if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
     {
-        error.addMeesage("Failed to get cluster-meta from database");
+        error.addMeesage("Failed to get cluster-meta with UUID '"
+                         + clusterUuid
+                         + "' from database");
         return false;
     }
 
@@ -140,7 +142,7 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
     // get user from db
     if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
     {
-        error.addMeesage("Failed to get cluster-meta from database by name");
+        error.addMeesage("Failed to get cluster-meta from database by name '" + clusterName + "'");
         return false;
     }
 
@@ -197,7 +199,9 @@ ClusterTable::deleteCluster(const std::string &clusterUuid,
 
     if(del(conditions, userUuid, projectUuid, isAdmin, error) == false)
     {
-        error.addMeesage("Failed to delete cluster-meta from database");
+        error.addMeesage("Failed to delete cluster-meta with UUID '"
+                         + clusterUuid
+                         + "' from database");
         return false;
     }
 
