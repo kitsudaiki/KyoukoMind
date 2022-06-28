@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.8.0] - 2022-06-28
+
+### Added
+- direct-io to learn and requests single values directly without tasks
+- backup and restore clusters, which are saved and in sagiri
+- new statemachine for cluster-tasks for a cleaner better handable structure
+- prototypical not fully functioning graph-learning
+
+### Changed
+- consistant usage of uuid's instead of names
+- restructured directories
+- number of outputs is not longer restricted to MNIST-tests anymore
+- input-weight is not limited to 1 anymore, but it is still not the desired final state
+- general optimization of the core-code
+- changed activation-function in dynamic segments to log2
+
+### Fixed
+- handling of empty synapses was fixed
+
+### Removed
+- gpu-code was removed for now, because it is not usable at the moment
+- outdated dev-class was removed
+
+
 ## [0.7.0] - 2022-02-14
 
 ### Changed
