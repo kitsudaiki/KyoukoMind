@@ -46,8 +46,7 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
     // init cpu
     for(uint16_t i = 0; i < numberOfThreads; i++)
     {
-        const std::string name = "CpuProcessingUnit_" + std::to_string(i);
-        CpuProcessingUnit* newUnit = new CpuProcessingUnit(name);
+        CpuProcessingUnit* newUnit = new CpuProcessingUnit();
         m_processingUnits.push_back(newUnit);
         newUnit->startThread();
         sleep(1);

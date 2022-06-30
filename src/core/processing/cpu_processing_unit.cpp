@@ -44,8 +44,8 @@
 /**
  * @brief constructor
  */
-CpuProcessingUnit::CpuProcessingUnit(const std::string &threadName)
-    : Kitsunemimi::Thread(threadName) {}
+CpuProcessingUnit::CpuProcessingUnit()
+    : Kitsunemimi::Thread("CpuProcessingUnit") {}
 
 /**
  * @brief destructor
