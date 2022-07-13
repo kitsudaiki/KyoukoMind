@@ -90,10 +90,12 @@ prcessOutputSegment(const OutputSegment &segment)
         node->shouldValue /= node->maxWeight;
     }
 
+    // send output back if a client-connection is set
     if(segment.parentCluster->msgClient != nullptr
             && segment.parentCluster->mode == Cluster::NORMAL_MODE)
     {
-        float* outputData = new float[segment.segmentHeader->outputs.count];
+        // filter values for only necessary values
+        float outputData[segment.segmentHeader->outputs.count];
         for(uint64_t outputNodeId = 0;
             outputNodeId < segment.segmentHeader->outputs.count;
             outputNodeId++)
@@ -102,19 +104,21 @@ prcessOutputSegment(const OutputSegment &segment)
             outputData[outputNodeId] = node->outputWeight;
         }
 
+        // create message to send
         Kitsunemimi::Hanami::ClusterIO_Message msg;
         msg.numberOfValues = segment.segmentHeader->outputs.count;
         msg.segmentType = Kitsunemimi::Hanami::ClusterIO_Message::OUTPUT_SEGMENT;
         msg.values = outputData;
-        DataBuffer msgBuffer;
-        msg.createBlob(msgBuffer);
+        uint8_t buffer[96*1024];
+        const uint64_t size = msg.createBlob(buffer, 96*1024);
+        if(size == 0) {
+            return;
+        }
 
+        // send message
         Kitsunemimi::Hanami::HanamiMessagingClient* client = segment.parentCluster->msgClient;
         Kitsunemimi::ErrorContainer error;
-
-        client->sendStreamMessage(msgBuffer.data, msgBuffer.usedBufferSize, false, error);
-
-        delete[] outputData;
+        client->sendStreamMessage(buffer, size, false, error);
     }
 }
 
