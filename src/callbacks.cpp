@@ -46,7 +46,7 @@ streamDataCallback(void* target,
     Cluster* cluster = static_cast<Cluster*>(target);
 
     // insert data to the cluster
-    if(u8Data[0] == 1)
+    if(u8Data[6] == 1)
     {
         void* normalData = const_cast<void*>(data);
         Kitsunemimi::Hanami::ClusterIO_Message msg;
@@ -70,14 +70,14 @@ streamDataCallback(void* target,
     }
 
     // start request
-    if(u8Data[0] == 2)
+    if(u8Data[6] == 2)
     {
         cluster->mode = Cluster::NORMAL_MODE;
         cluster->startForwardCycle();
     }
 
     // start learn
-    if(u8Data[0] == 3)
+    if(u8Data[6] == 3)
     {
         cluster->mode = Cluster::LEARN_FORWARD_MODE;
         cluster->startForwardCycle();

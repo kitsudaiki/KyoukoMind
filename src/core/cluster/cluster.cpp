@@ -220,11 +220,14 @@ Cluster::updateClusterState()
             && msgClient != nullptr)
     {
         Kitsunemimi::Hanami::LearnEnd_Message msg;
-        DataBuffer msgBuffer;
-        msg.createBlob(msgBuffer);
+        uint8_t buffer[96*1024];
+        const uint64_t size = msg.createBlob(buffer, 96*1024);
+        if(size == 0) {
+            return;
+        }
 
         Kitsunemimi::ErrorContainer error;
-        msgClient->sendStreamMessage(msgBuffer.data, msgBuffer.usedBufferSize, false, error);
+        msgClient->sendStreamMessage(buffer, size, false, error);
     }
 
     // if a client is configured for the cluster, send a reponse that the request was finished
@@ -232,11 +235,14 @@ Cluster::updateClusterState()
             && msgClient != nullptr)
     {
         Kitsunemimi::Hanami::RequestEnd_Message msg;
-        DataBuffer msgBuffer;
-        msg.createBlob(msgBuffer);
+        uint8_t buffer[96*1024];
+        const uint64_t size = msg.createBlob(buffer, 96*1024);
+        if(size == 0) {
+            return;
+        }
 
         Kitsunemimi::ErrorContainer error;
-        msgClient->sendStreamMessage(msgBuffer.data, msgBuffer.usedBufferSize, false, error);
+        msgClient->sendStreamMessage(buffer, size, false, error);
     }
 
     goToNextState(NEXT);
