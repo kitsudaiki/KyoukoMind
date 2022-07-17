@@ -149,7 +149,6 @@ HEADERS += \
     src/core/cluster/cluster.h \
     src/core/cluster/cluster_handler.h \
     src/core/cluster/cluster_init.h \
-    src/core/cluster/cluster_meta.h \
     src/core/cluster/statemachine_init.h \
     src/core/cluster/states/cycle_finish_state.h \
     src/core/cluster/states/graphs/graph_interpolation_state.h \
