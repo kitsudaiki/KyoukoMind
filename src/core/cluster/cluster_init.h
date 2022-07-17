@@ -24,7 +24,6 @@
 #define KYOUKOMIND_CLUSTERINIT_H
 
 #include <common.h>
-#include <core/cluster/cluster_meta.h>
 
 class InputSegment;
 class OutputSegment;
@@ -38,10 +37,6 @@ bool initNewCluster(Cluster* cluster,
                     const JsonItem &parsedContent,
                     const std::string &uuid);
 
-void initHeader(Cluster* cluster,
-                        const ClusterMetaData &metaData,
-                        const ClusterSettings &settings);
-
 AbstractSegment* addInputSegment(Cluster* cluster,
                                  const JsonItem &parsedContent);
 AbstractSegment* addOutputSegment(Cluster* cluster,
@@ -49,6 +44,7 @@ AbstractSegment* addOutputSegment(Cluster* cluster,
 AbstractSegment* addDynamicSegment(Cluster* cluster,
                                    const JsonItem &parsedContent);
 
+// functions to prepare additional information for a field-typed cluster
 const std::string prepareDirection(const JsonItem &segments,
                                    const uint32_t foundNext,
                                    const uint8_t side);
@@ -61,6 +57,5 @@ bool prepareSingleSegment(std::deque<uint32_t> &segmentQueue,
 bool prepareSegments(const JsonItem &parsedContent);
 uint32_t checkNextPosition(const JsonItem &segments, const Position nextPos);
 Position convertPosition(const JsonItem &parsedContent);
-
 
 #endif // KYOUKOMIND_CLUSTERINIT_H

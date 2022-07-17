@@ -54,12 +54,12 @@ reinitPointer(Cluster* cluster,
     uint64_t pos = 0;
 
     // write metadata to buffer
-    cluster->networkMetaData = reinterpret_cast<ClusterMetaData*>(dataPtr + pos);
-    pos += sizeof(ClusterMetaData);
+    cluster->networkMetaData = reinterpret_cast<Cluster::MetaData*>(dataPtr + pos);
+    pos += sizeof(Cluster::MetaData);
 
     // write settings to buffer
-    cluster->networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
-    pos += sizeof(ClusterSettings);
+    cluster->networkSettings = reinterpret_cast<Cluster::Settings*>(dataPtr + pos);
+    pos += sizeof(Cluster::Settings);
 
     strncpy(cluster->networkMetaData->uuid.uuid, uuid.c_str(), 36);
     cluster->networkMetaData->uuid.uuid[36] = '\0';
@@ -78,8 +78,8 @@ reinitPointer(Cluster* cluster,
  */
 void
 initHeader(Cluster* cluster,
-           const ClusterMetaData &metaData,
-           const ClusterSettings &settings)
+           const Cluster::MetaData &metaData,
+           const Cluster::Settings &settings)
 {
     // allocate memory
     const uint32_t numberOfBlocks = 1;
@@ -89,14 +89,14 @@ initHeader(Cluster* cluster,
     uint64_t pos = 0;
 
     // write metadata to buffer
-    cluster->networkMetaData = reinterpret_cast<ClusterMetaData*>(dataPtr + pos);
+    cluster->networkMetaData = reinterpret_cast<Cluster::MetaData*>(dataPtr + pos);
     cluster->networkMetaData[0] = metaData;
-    pos += sizeof(ClusterMetaData);
+    pos += sizeof(Cluster::MetaData);
 
     // write settings to buffer
-    cluster->networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
+    cluster->networkSettings = reinterpret_cast<Cluster::Settings*>(dataPtr + pos);
     cluster->networkSettings[0] = settings;
-    pos += sizeof(ClusterSettings);
+    pos += sizeof(Cluster::Settings);
 
     cluster->clusterData.usedBufferSize = pos;
 }
@@ -120,12 +120,12 @@ initNewCluster(Cluster* cluster,
     const JsonItem paredSettings = parsedContent.get("settings");
 
     // meta-data
-    ClusterMetaData newMetaData;
+    Cluster::MetaData newMetaData;
     strncpy(newMetaData.uuid.uuid, uuid.c_str(), 36);
     newMetaData.uuid.uuid[36] = '\0';
 
     // settings
-    ClusterSettings newSettings;
+    Cluster::Settings newSettings;
     newSettings.cycleTime = paredSettings.get("cycle_time").getLong();
 
     initHeader(cluster, newMetaData, newSettings);

@@ -41,8 +41,8 @@ validateStructSizes()
     assert(sizeof(Brick) == 4096);
     assert(sizeof(DynamicNode) == 32);
 
-    assert(sizeof(ClusterMetaData) == 2048);
-    assert(sizeof(ClusterSettings) == 256);
+    assert(sizeof(Cluster::MetaData) == 2048);
+    assert(sizeof(Cluster::Settings) == 256);
     assert(sizeof(DynamicSegmentSettings) == 256);
     assert(sizeof(Kitsunemimi::Hanami::kuuid) == 40);
 
