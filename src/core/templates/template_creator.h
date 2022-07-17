@@ -39,9 +39,6 @@ createClusterSettings()
 {
     DataMap* settings = new DataMap();
 
-    settings->insert("cycle_time", new DataValue(1000000));
-    settings->insert("max_brick_distance", new DataValue(10));
-
     return settings;
 }
 

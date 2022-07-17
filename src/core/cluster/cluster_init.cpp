@@ -126,7 +126,6 @@ initNewCluster(Cluster* cluster,
 
     // settings
     Cluster::Settings newSettings;
-    newSettings.cycleTime = paredSettings.get("cycle_time").getLong();
 
     initHeader(cluster, newMetaData, newSettings);
 
