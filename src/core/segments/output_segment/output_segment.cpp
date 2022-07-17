@@ -52,6 +52,7 @@ OutputSegment::~OutputSegment() {}
 bool
 OutputSegment::initSegment(const JsonItem &parsedContent)
 {
+    const std::string name = parsedContent.get("name").getString();
     const uint32_t numberOfOutputs = parsedContent.get("number_of_outputs").getInt();
     const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
@@ -62,6 +63,9 @@ OutputSegment::initSegment(const JsonItem &parsedContent)
     initSegmentPointer(header);
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
+
+    // TODO: check result
+    setName(name);
 
     return true;
 }
@@ -80,7 +84,11 @@ OutputSegment::reinitPointer(const uint64_t numberOfBytes)
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
     byteCounter += sizeof(SegmentHeader);
 
-    pos = 256;
+    pos = segmentHeader->name.bytePos;
+    segmentName = reinterpret_cast<SegmentName*>(dataPtr + pos);
+    byteCounter += sizeof(SegmentName);
+
+    pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
     byteCounter += sizeof(DynamicSegmentSettings);
 
@@ -166,14 +174,21 @@ OutputSegment::initSegmentPointer(const SegmentHeader &header)
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
     segmentHeader[0] = header;
 
-    pos = 256;
+    pos = segmentHeader->name.bytePos;
+    segmentName = reinterpret_cast<SegmentName*>(dataPtr + pos);
+
+    pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+
     pos = segmentHeader->neighborList.bytePos;
     segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
     pos = segmentHeader->outputTransfers.bytePos;
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
     pos = segmentHeader->outputs.bytePos;
     outputs = reinterpret_cast<OutputNode*>(dataPtr + pos);
 }

@@ -55,7 +55,7 @@ DynamicSegment::~DynamicSegment() {}
 bool
 DynamicSegment::initSegment(const JsonItem &parsedContent)
 {
-    // parse bricks
+    const std::string name = parsedContent.get("name").getString();
     const JsonItem paredBricks = parsedContent.get("bricks");
     const uint32_t numberOfNodeBricks = paredBricks.size();
     uint32_t totalNumberOfNodes = 0;
@@ -88,6 +88,9 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
 
+    // TODO: check result
+    setName(name);
+
     return true;
 }
 
@@ -106,7 +109,11 @@ DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
     byteCounter += sizeof(SegmentHeader);
 
-    pos = 256;
+    pos = segmentHeader->name.bytePos;
+    segmentName = reinterpret_cast<SegmentName*>(dataPtr + pos);
+    byteCounter += sizeof(SegmentName);
+
+    pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
     byteCounter += sizeof(DynamicSegmentSettings);
 
@@ -135,7 +142,7 @@ DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
     byteCounter += segmentHeader->nodes.count * sizeof(DynamicNode);
 
     dataPtr = static_cast<uint8_t*>(segmentData.itemData);
-    pos = segmentHeader->synapseSections.bytePos;
+    //pos = segmentHeader->synapseSections.bytePos;
     synapseSections = reinterpret_cast<SynapseSection*>(dataPtr);
     byteCounter += segmentHeader->synapseSections.count * sizeof(SynapseSection);
 
@@ -303,7 +310,10 @@ DynamicSegment::initSegmentPointer(const SegmentHeader &header)
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
     segmentHeader[0] = header;
 
-    pos = 256;
+    pos = segmentHeader->name.bytePos;
+    segmentName = reinterpret_cast<SegmentName*>(dataPtr + pos);
+
+    pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
 
     pos = segmentHeader->neighborList.bytePos;
@@ -541,7 +551,8 @@ DynamicSegment::initTargetBrickList()
         {
             uint32_t maxPathLength = 2; // TODO: make configurable
             const uint32_t brickId = goToNextInitBrick(baseBrick, &maxPathLength);
-            if(brickId == baseBrick->brickId) {
+            if(brickId == baseBrick->brickId)
+            {
                 LOG_WARNING("brick has no next brick and is a dead-end. Brick-ID: "
                             + std::to_string(brickId));
             }

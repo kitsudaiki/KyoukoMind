@@ -51,6 +51,30 @@ AbstractSegment::getType() const
 }
 
 /**
+ * @brief get name of the segment
+ *
+ * @return name of the segment
+ */
+const std::string
+AbstractSegment::getName() const
+{
+    return segmentName->getName();
+}
+
+/**
+ * @brief set new name for the segment
+ *
+ * @param name new name
+ *
+ * @return false, if name is too long or empty, else true
+ */
+bool
+AbstractSegment::setName(const std::string &name)
+{
+    return segmentName->setName(name);
+}
+
+/**
  * @brief check if all border-buffer, which are in use, are ready for processing
  *
  * @return true, if all border-buffer are ready, else false
@@ -130,6 +154,11 @@ AbstractSegment::createGenericNewHeader(SegmentHeader &header,
 
     // init header
     segmentDataPos += 1 * sizeof(SegmentHeader);
+
+    // init name
+    header.settings.count = 1;
+    header.settings.bytePos = segmentDataPos;
+    segmentDataPos += 1 * sizeof(SegmentName);
 
     // init settings
     header.settings.count = 1;

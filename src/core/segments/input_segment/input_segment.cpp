@@ -52,6 +52,7 @@ InputSegment::~InputSegment() {}
 bool
 InputSegment::initSegment(const JsonItem &parsedContent)
 {
+    const std::string name = parsedContent.get("name").getString();
     const uint32_t numberOfInputs = parsedContent.get("number_of_inputs").getInt();
     const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
@@ -62,6 +63,9 @@ InputSegment::initSegment(const JsonItem &parsedContent)
     initSegmentPointer(header);
     initBorderBuffer(parsedContent);
     connectBorderBuffer();
+
+    // TODO: check result
+    setName(name);
 
     return true;
 }
@@ -79,6 +83,10 @@ InputSegment::reinitPointer(const uint64_t numberOfBytes)
     uint64_t byteCounter = 0;
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
     byteCounter += sizeof(SegmentHeader);
+
+    pos = segmentHeader->name.bytePos;
+    segmentName = reinterpret_cast<SegmentName*>(dataPtr + pos);
+    byteCounter += sizeof(SegmentName);
 
     pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
@@ -165,14 +173,21 @@ InputSegment::initSegmentPointer(const SegmentHeader &header)
     segmentHeader = reinterpret_cast<SegmentHeader*>(dataPtr + pos);
     segmentHeader[0] = header;
 
-    pos = 256;
+    pos = segmentHeader->name.bytePos;
+    segmentName = reinterpret_cast<SegmentName*>(dataPtr + pos);
+
+    pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
+
     pos = segmentHeader->neighborList.bytePos;
     segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
     pos = segmentHeader->outputTransfers.bytePos;
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
+
     pos = segmentHeader->inputs.bytePos;
     inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
 }

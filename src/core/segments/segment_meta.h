@@ -54,6 +54,7 @@ struct SegmentHeader
     Kitsunemimi::Hanami::kuuid parentClusterId;
 
     // synapse-segment
+    SegmentHeaderEntry name;
     SegmentHeaderEntry settings;
     SegmentHeaderEntry neighborList;
     SegmentHeaderEntry inputTransfers;
@@ -68,9 +69,9 @@ struct SegmentHeader
     SegmentHeaderEntry synapseSections;
     SegmentHeaderEntry connections;
 
-    uint8_t padding2[8];
+    uint8_t padding2[248];
 
-    // total size: 256 Byte
+    // total size: 512 Byte
 };
 
 enum NeighborDirection
@@ -97,6 +98,50 @@ struct SegmentNeighbor
     uint64_t outputTransferBufferPos = UNINIT_STATE_64;
 
     // total size: 32 Byte
+};
+
+struct SegmentName
+{
+    char name[248];
+    uint64_t length = 0;
+
+    /**
+     * @brief get name of the segment
+     *
+     * @return name of the segment
+     */
+    const std::string
+    getName() const
+    {
+        return std::string(name, length);
+    }
+
+    /**
+     * @brief set new name for the segment
+     *
+     * @param newName new name
+     *
+     * @return false, if name is too long or empty, else true
+     */
+    bool
+    setName(const std::string &newName)
+    {
+        if(newName.size() == 0
+                || newName.size() >= 248)
+        {
+            return false;
+        }
+
+        memcpy(name, newName.c_str(), newName.size());
+        name[newName.size()] = '\0';
+        // I know, that the \0 should be enough, but I like string limitations more explicit to
+        // avoid the risk of buffer overflows
+        length = newName.size();
+
+        return true;
+    }
+
+    // total size: 256 Byte
 };
 
 struct SegmentNeighborList

@@ -55,16 +55,26 @@ streamDataCallback(void* target,
         // fill given data into the target-segment
         if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::INPUT_SEGMENT)
         {
-            InputNode* inputNodes = cluster->inputSegments[msg.segmentId]->inputs;
-            for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-                inputNodes[i].weight = msg.values[i];
+            std::map<std::string, InputSegment*>::iterator it;
+            it = cluster->inputSegments.find(msg.segmentName);
+            if(it != cluster->inputSegments.end())
+            {
+                InputNode* inputNodes = it->second->inputs;
+                for(uint64_t i = 0; i < msg.numberOfValues; i++) {
+                    inputNodes[i].weight = msg.values[i];
+                }
             }
         }
         else if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::OUTPUT_SEGMENT)
         {
-            OutputNode* outputNodes = cluster->outputSegments[msg.segmentId]->outputs;
-            for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-                outputNodes[i].shouldValue = msg.values[i];
+            std::map<std::string, OutputSegment*>::iterator it;
+            it = cluster->outputSegments.find(msg.segmentName);
+            if(it != cluster->outputSegments.end())
+            {
+                OutputNode* outputNodes = it->second->outputs;
+                for(uint64_t i = 0; i < msg.numberOfValues; i++) {
+                    outputNodes[i].shouldValue = msg.values[i];
+                }
             }
         }
     }

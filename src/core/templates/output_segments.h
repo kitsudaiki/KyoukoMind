@@ -59,6 +59,7 @@ createOutputSegments(const long numberOfOutputNodes)
 {
     DataMap* newSegment = new DataMap();
 
+    newSegment->insert("name", new DataValue("output"));
     newSegment->insert("type", new DataValue("output_segment"));
     newSegment->insert("position", createOutputPosition(1, 3, 1));
     newSegment->insert("number_of_outputs", new DataValue(numberOfOutputNodes));

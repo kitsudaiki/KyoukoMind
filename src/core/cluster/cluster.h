@@ -58,8 +58,8 @@ public:
     Kitsunemimi::DataBuffer clusterData;
     ClusterMetaData* networkMetaData = nullptr;
     ClusterSettings* networkSettings = nullptr;
-    std::vector<InputSegment*> inputSegments;
-    std::vector<OutputSegment*> outputSegments;
+    std::map<std::string, InputSegment*> inputSegments;
+    std::map<std::string, OutputSegment*> outputSegments;
     std::vector<AbstractSegment*> allSegments;
 
     const std::string getUuid();

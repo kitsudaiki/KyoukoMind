@@ -59,6 +59,7 @@ createInputSegments(const long numberOfInputNodes)
 {
     DataMap* newSegment = new DataMap();
 
+    newSegment->insert("name", new DataValue("input"));
     newSegment->insert("type", new DataValue("input_segment"));
     newSegment->insert("position", createInputPosition(1, 1, 1));
     newSegment->insert("number_of_inputs", new DataValue(numberOfInputNodes));
