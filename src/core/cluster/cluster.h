@@ -75,9 +75,8 @@ public:
     struct Settings
     {
         float lerningValue = 0.0f;
-        uint32_t cycleTime = 1000000;
 
-        uint8_t padding[248];
+        uint8_t padding[252];
 
         // total size: 256 Byte
     };
