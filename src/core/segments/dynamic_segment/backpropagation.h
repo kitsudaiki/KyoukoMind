@@ -118,7 +118,7 @@ backpropagateSection(SynapseSection* section,
         else if(synapse->targetNodeId == 0)
         {
             pos++;
-            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
+            netH -= synapse->border;
             continue;
         }
 
@@ -142,7 +142,7 @@ backpropagateSection(SynapseSection* section,
         sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
         synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 
-        netH -= static_cast<float>(synapse->border) * BORDER_STEP;
+        netH -= synapse->border;
         pos++;
     }
 

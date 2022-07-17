@@ -34,7 +34,7 @@
 void
 validateStructSizes()
 {
-    assert(sizeof(Synapse) == 8);
+    assert(sizeof(Synapse) == 12);
     assert(sizeof(SynapseSection) == 512);
     assert(sizeof(SegmentHeader) == 512);
     assert(sizeof(SegmentName) == 256);

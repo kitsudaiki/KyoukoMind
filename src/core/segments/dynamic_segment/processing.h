@@ -86,7 +86,7 @@ createNewSynapse(SynapseSection &section,
                       + static_cast<float>(remainingWeight >= doLearn) * doLearn;
 
     // set activation-border
-    synapse->border = (synapse->weight * 255.0f) + 1;
+    synapse->border = synapse->weight;
 
     // update weight with multiplicator
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -142,7 +142,7 @@ synapseProcessing(SynapseSection &section,
         else if(synapseObj.targetNodeId == 0)
         {
             pos++;
-            netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
+            netH -= synapseObj.border;
             continue;
         }
 
@@ -151,7 +151,7 @@ synapseProcessing(SynapseSection &section,
         targetNode->input += outH * synapseObj.weight;
 
         // update loop-counter
-        netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
+        netH -= synapseObj.border;
         pos++;
     }
 
@@ -215,7 +215,7 @@ synapseProcessing_withLearn(SynapseSection &section,
         else if(synapseObj.targetNodeId == 0)
         {
             pos++;
-            netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
+            netH -= synapseObj.border;
             continue;
         }
 
@@ -228,7 +228,7 @@ synapseProcessing_withLearn(SynapseSection &section,
         synapse->activeCounter += active * static_cast<uint8_t>(synapseObj.activeCounter < 126);
 
         // update loop-counter
-        netH -= static_cast<float>(synapseObj.border) * BORDER_STEP;
+        netH -= synapseObj.border;
         pos++;
     }
 
