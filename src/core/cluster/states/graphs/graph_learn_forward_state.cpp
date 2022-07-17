@@ -60,8 +60,8 @@ GraphLearnForward_State::processEvent()
     uint64_t pos = 0;
 
     // set input
-    InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
-    OutputNode* outputNodes = m_cluster->outputSegments[0]->outputs;
+    InputNode* inputNodes = m_cluster->inputSegments.begin()->second->inputs;
+    OutputNode* outputNodes = m_cluster->outputSegments.begin()->second->outputs;
     uint64_t i = actualTask->actualCycle + 1;
 
     while(i < actualTask->actualCycle + 1 + 365)

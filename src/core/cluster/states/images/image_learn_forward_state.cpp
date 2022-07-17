@@ -58,13 +58,13 @@ ImageLearnForward_State::processEvent()
     const uint64_t offsetInput = entriesPerCycle * actualTask->actualCycle;
 
     // set input
-    InputNode* inputNodes = m_cluster->inputSegments[0]->inputs;
+    InputNode* inputNodes = m_cluster->inputSegments.begin()->second->inputs;
     for(uint64_t i = 0; i < numberOfInputsPerCycle; i++) {
         inputNodes[i].weight = actualTask->inputData[offsetInput + i];
     }
 
     // set exprected output
-    OutputNode* outputNodes = m_cluster->outputSegments[0]->outputs;
+    OutputNode* outputNodes = m_cluster->outputSegments.begin()->second->outputs;
     for(uint64_t i = 0; i < numberOfOuputsPerCycle; i++)
     {
         const uint64_t numberOfCycles = numberOfInputsPerCycle;

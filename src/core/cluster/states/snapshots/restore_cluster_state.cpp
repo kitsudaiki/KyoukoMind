@@ -68,6 +68,7 @@ RestoreCluster_State::processEvent()
     Kitsunemimi::ErrorContainer error;
     const std::string originalUuid = m_cluster->getUuid();
 
+    // get client to sagiri
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
     m_client = messaging->sagiriClient;
     if(m_client == nullptr)
@@ -78,17 +79,19 @@ RestoreCluster_State::processEvent()
         return false;
     }
 
+    // get meta-infos of data-set from sagiri
     const std::string snapshotInfo = actualTask->metaData.get("snapshot_info")->getString();
+    Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
+    parsedSnapshotInfo.parse(snapshotInfo, error);
+
+    // get other information
+    const std::string snapshotUuid = parsedSnapshotInfo.get("uuid").getString();
+    const std::string location = parsedSnapshotInfo.get("location").toString();
     const std::string userUuid = actualTask->metaData.get("user_uuid")->getString();
     const std::string projectUuid = actualTask->metaData.get("project_uuid")->getString();
 
-    // get meta-infos of data-set from sagiri
-    Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
-    parsedSnapshotInfo.parse(snapshotInfo, error);
-    const std::string snapshotUuid = parsedSnapshotInfo.get("uuid").getString();
+    // get header
     const std::string header = parsedSnapshotInfo.get("header").toString();
-    const std::string location = parsedSnapshotInfo.get("location").toString();
-
     Kitsunemimi::Json::JsonItem parsedHeader;
     if(parsedHeader.parse(header, error) == false)
     {
@@ -143,7 +146,7 @@ RestoreCluster_State::processEvent()
                 InputSegment* newSegment = new InputSegment(&u8Data[posCounter], size);
                 newSegment->reinitPointer(size);
                 newSegment->parentCluster = m_cluster;
-                m_cluster->inputSegments.push_back(newSegment);
+                m_cluster->inputSegments.insert(std::make_pair(newSegment->getName(), newSegment));
                 m_cluster->allSegments.push_back(newSegment);
                 break;
             }
@@ -152,7 +155,7 @@ RestoreCluster_State::processEvent()
                 OutputSegment* newSegment = new OutputSegment(&u8Data[posCounter], size);
                 newSegment->reinitPointer(size);
                 newSegment->parentCluster = m_cluster;
-                m_cluster->outputSegments.push_back(newSegment);
+                m_cluster->outputSegments.insert(std::make_pair(newSegment->getName(), newSegment));
                 m_cluster->allSegments.push_back(newSegment);
                 break;
             }

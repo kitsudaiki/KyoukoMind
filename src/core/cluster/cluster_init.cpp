@@ -180,7 +180,7 @@ addInputSegment(Cluster* cluster,
 
     if(newSegment->initSegment(parsedContent))
     {
-        cluster->inputSegments.push_back(newSegment);
+        cluster->inputSegments.insert(std::make_pair(newSegment->getName(), newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else
@@ -208,7 +208,7 @@ addOutputSegment(Cluster* cluster,
 
     if(newSegment->initSegment(parsedContent))
     {
-        cluster->outputSegments.push_back(newSegment);
+        cluster->outputSegments.insert(std::make_pair(newSegment->getName(), newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else

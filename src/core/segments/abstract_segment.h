@@ -43,12 +43,15 @@ public:
     virtual ~AbstractSegment();
 
     SegmentTypes getType() const;
+    const std::string getName() const;
+    bool setName(const std::string &name);
 
     Kitsunemimi::ItemBuffer segmentData;
 
     SegmentHeader* segmentHeader = nullptr;
     DynamicSegmentSettings* dynamicSegmentSettings = nullptr;
 
+    SegmentName* segmentName = nullptr;
     SegmentNeighborList* segmentNeighbors = nullptr;
     float* inputTransfers = nullptr;
     float* outputTransfers = nullptr;
