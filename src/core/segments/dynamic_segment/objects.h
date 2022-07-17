@@ -52,11 +52,12 @@ struct DynamicNode
 struct Synapse
 {
     float weight = 0.0f;
+    float border = 0.0f;
     uint16_t targetNodeId = UNINIT_STATE_16;
-    uint8_t border = 0;
     int8_t activeCounter = 0;
-    // total size: 8 Byte
-};
+    uint8_t padding[1];
+    // total size: 12 Byte
+} __attribute__ ((__packed__));
 
 //==================================================================================================
 
@@ -71,6 +72,7 @@ struct SynapseSection
     uint32_t next = UNINIT_STATE_32;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
+    uint8_t padding2[4];
 
     SynapseSection()
     {
