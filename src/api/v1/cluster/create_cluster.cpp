@@ -113,7 +113,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     clusterData.insert("template_uuid", templateUuid);
     clusterData.insert("project_uuid", "-");
     clusterData.insert("owner_uuid", "-");
-    clusterData.insert("visibility", 0);
+    clusterData.insert("visibility", "private");
 
     // add new user to table
     if(KyoukoRoot::clustersTable->addCluster(clusterData,

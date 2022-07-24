@@ -114,7 +114,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     // TODO: fill project- and owner-id
     templateData.insert("project_uuid", "-");
     templateData.insert("owner_uuid", "-");
-    templateData.insert("visibility", 0);
+    templateData.insert("visibility", "private");
 
     // add new user to table
     if(KyoukoRoot::templateTable->addTemplate(templateData,
