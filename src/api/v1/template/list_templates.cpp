@@ -65,7 +65,7 @@ ListTemplates::runTask(BlossomLeaf &blossomLeaf,
 
     // get data from table
     Kitsunemimi::TableItem table;
-    if(KyoukoRoot::templateTable->getAllTemplate(table,
+    if(KyoukoRoot::clusterTemplateTable->getAllTemplate(table,
                                                  userUuid,
                                                  projectUuid,
                                                  isAdmin,

@@ -179,10 +179,6 @@ HEADERS += \
     src/core/segments/output_segment/processing.h \
     src/core/segments/segment_meta.h \
     src/core/struct_validation.h \
-    src/core/templates/dynamic_segments.h \
-    src/core/templates/input_segments.h \
-    src/core/templates/output_segments.h \
-    src/core/templates/template_creator.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
     src/kyouko_root.h \

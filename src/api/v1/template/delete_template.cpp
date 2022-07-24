@@ -69,7 +69,7 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::templateTable->getTemplate(getResult,
+    if(KyoukoRoot::clusterTemplateTable->getTemplate(getResult,
                                               templateUuid,
                                               userUuid,
                                               projectUuid,
@@ -83,7 +83,7 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // remove data from table
-    if(KyoukoRoot::templateTable->deleteTemplate(templateUuid,
+    if(KyoukoRoot::clusterTemplateTable->deleteTemplate(templateUuid,
                                                  userUuid,
                                                  projectUuid,
                                                  isAdmin,

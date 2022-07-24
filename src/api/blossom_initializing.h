@@ -127,12 +127,12 @@ initTemplateBlossoms()
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     const std::string group = "template";
 
-    assert(interface->addBlossom(group, "generate", new GenerateTemplate()));
+    /*assert(interface->addBlossom(group, "generate", new GenerateTemplate()));
     endpoints->addEndpoint("v1/template/generate",
                            Kitsunemimi::Hanami::POST_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
-                           "generate");
+                           "generate");*/
 
     assert(interface->addBlossom(group, "upload", new UploadTemplate()));
     endpoints->addEndpoint("v1/template/upload",

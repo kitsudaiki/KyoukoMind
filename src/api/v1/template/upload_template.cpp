@@ -87,7 +87,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     // check if template with the name already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::templateTable->getTemplateByName(getResult,
+    if(KyoukoRoot::clusterTemplateTable->getTemplateByName(getResult,
                                                     name,
                                                     userUuid,
                                                     projectUuid,
@@ -117,7 +117,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     templateData.insert("visibility", "private");
 
     // add new user to table
-    if(KyoukoRoot::templateTable->addTemplate(templateData,
+    if(KyoukoRoot::clusterTemplateTable->addTemplate(templateData,
                                               userUuid,
                                               projectUuid,
                                               error) == false)
@@ -128,7 +128,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get new created user from database
-    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
+    if(KyoukoRoot::clusterTemplateTable->getTemplateByName(blossomLeaf.output,
                                                     name,
                                                     userUuid,
                                                     projectUuid,
