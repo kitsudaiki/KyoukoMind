@@ -124,7 +124,7 @@ echo "##########################################################################
 echo ""
 get_required_private_repo_gitlab "libSagiriArchive" "master" "glpat-dCkDLv96JmBscfZey4zJ" 8
 get_required_private_repo_gitlab "libAzukiHeart" "master" "glpat-R3vZd81MXGVUTSxgHz1q" 8
-get_required_private_repo_gitlab "libMisakaGuard" "v0.1.0" "glpat-sUgJE_tJH_jV19zL8X_x" 8
+get_required_private_repo_gitlab "libMisakiGuard" "master" "glpat-sUgJE_tJH_jV19zL8X_x" 8
 echo ""
 echo "###########################################################################################################"
 

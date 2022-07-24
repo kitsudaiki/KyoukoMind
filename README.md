@@ -53,7 +53,7 @@ libKitsunemimiHanamiDatabase | v0.3.0 |  -
 libKitsunemimiHanamiMessaging | v0.4.1 |  -
 libKitsunemimiHanamiSdk | v0.3.1 | -
 libAzukiHeart | v0.2.0 | -
-libMisakaGuard | v0.1.0 | -
+libMisakiGuard | v0.1.0 | -
 ibSagiriArchive | v0.2.0 | -
 
 HINT: These Kitsunemimi-Libraries will be downloaded and build automatically with the build-script below.
