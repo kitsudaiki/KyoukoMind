@@ -33,6 +33,16 @@ ListTemplates::ListTemplates()
     : Blossom("List all templates of a user.")
 {
     //----------------------------------------------------------------------------------------------
+    // input
+    //----------------------------------------------------------------------------------------------
+
+    registerInputField("type",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Type of the new template.");
+    // TODO: add regex for type
+
+    //----------------------------------------------------------------------------------------------
     // output
     //----------------------------------------------------------------------------------------------
 
@@ -59,13 +69,17 @@ ListTemplates::runTask(BlossomLeaf &blossomLeaf,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
+    const std::string type = blossomLeaf.input.get("template").get("type").getString();
+    // TODO: check type-field
+
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
     Kitsunemimi::TableItem table;
-    if(KyoukoRoot::clusterTemplateTable->getAllTemplate(table,
+    if(KyoukoRoot::templateTable->getAllTemplate(table,
+                                                 type,
                                                  userUuid,
                                                  projectUuid,
                                                  isAdmin,

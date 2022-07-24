@@ -103,8 +103,8 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
     const std::string token = context.getStringByKey("token");
 
     // check if template with the name already exist within the table
-    Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::clusterTemplateTable->getTemplateByName(getResult,
+    /*Kitsunemimi::Json::JsonItem getResult;
+    if(KyoukoRoot::templateTable->getTemplateByName(getResult,
                                                     name,
                                                     userUuid,
                                                     projectUuid,
@@ -115,7 +115,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
         error.addMeesage(status.errorMessage);
         return false;
-    }
+    }*/
 
     // get meta-infos of data-set from sagiri
     Kitsunemimi::Json::JsonItem dataSetInfo;
@@ -157,7 +157,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
     templateData.insert("visibility", "private");
 
     // add new user to table
-    if(KyoukoRoot::clusterTemplateTable->addTemplate(templateData,
+    if(KyoukoRoot::templateTable->addTemplate(templateData,
                                                      userUuid,
                                                      projectUuid,
                                                      error) == false)
@@ -168,7 +168,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get new created user from database
-    if(KyoukoRoot::clusterTemplateTable->getTemplateByName(blossomLeaf.output,
+    /*if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
                                                            name,
                                                            userUuid,
                                                            projectUuid,
@@ -178,7 +178,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
         error.addMeesage("Failed to get new template from database");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
-    }
+    }*/
 
     // remove irrelevant fields
     blossomLeaf.output.remove("owner_uuid");

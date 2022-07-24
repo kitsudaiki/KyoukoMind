@@ -31,16 +31,20 @@
 /**
  * @brief constructor
  */
-TemplateTable::TemplateTable(const std::string &type,
-                             Kitsunemimi::Sakura::SqlDatabase* db)
+TemplateTable::TemplateTable(Kitsunemimi::Sakura::SqlDatabase* db)
     : HanamiSqlTable(db)
 {
-    m_tableName = type + "_templates";
+    m_tableName = "templates";
 
-    DbHeaderEntry clusterName;
-    clusterName.name = "name";
-    clusterName.maxLength = 256;
-    m_tableHeader.push_back(clusterName);
+    DbHeaderEntry templateName;
+    templateName.name = "name";
+    templateName.maxLength = 256;
+    m_tableHeader.push_back(templateName);
+
+    DbHeaderEntry templateType;
+    templateType.name = "type";
+    templateType.maxLength = 10;
+    m_tableHeader.push_back(templateType);
 
     DbHeaderEntry templateString;
     templateString.name = "data";
@@ -94,6 +98,7 @@ TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
 bool
 TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
                            const std::string &templateUuid,
+                           const std::string &type,
                            const std::string &userUuid,
                            const std::string &projectUuid,
                            const bool isAdmin,
@@ -102,6 +107,7 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
 {
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("uuid", templateUuid);
+    conditions.emplace_back("type", type);
 
     // get user from db
     if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
@@ -131,6 +137,7 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
 bool
 TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
                                  const std::string &templateName,
+                                 const std::string &type,
                                  const std::string &userUuid,
                                  const std::string &projectUuid,
                                  const bool isAdmin,
@@ -139,6 +146,7 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
 {
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("name", templateName);
+    conditions.emplace_back("type", type);
 
     // get user from db
     if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
@@ -163,14 +171,18 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
  */
 bool
 TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
+                              const std::string &type,
                               const std::string &userUuid,
                               const std::string &projectUuid,
                               const bool isAdmin,
                               Kitsunemimi::ErrorContainer &error)
 {
-    if(getAll(result, userUuid, projectUuid, isAdmin, error) == false)
+    std::vector<RequestCondition> conditions;
+    conditions.emplace_back("type", type);
+
+    if(getAll(result, userUuid, projectUuid, isAdmin, conditions, error) == false)
     {
-        error.addMeesage("Failed to get all " + m_type + "_templates from database");
+        error.addMeesage("Failed to get all templates from database");
         return false;
     }
 
@@ -190,6 +202,7 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
  */
 bool
 TemplateTable::deleteTemplate(const std::string &templateUuid,
+                              const std::string &type,
                               const std::string &userUuid,
                               const std::string &projectUuid,
                               const bool isAdmin,
@@ -197,6 +210,7 @@ TemplateTable::deleteTemplate(const std::string &templateUuid,
 {
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("uuid", templateUuid);
+    conditions.emplace_back("type", type);
 
     if(del(conditions, userUuid, projectUuid, isAdmin, error) == false)
     {

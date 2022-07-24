@@ -187,8 +187,9 @@ CreateCluster::initCluster(Cluster* cluster,
 
     // get new created user from database
     JsonItem templateData;
-    if(KyoukoRoot::clusterTemplateTable->getTemplate(templateData,
+    if(KyoukoRoot::templateTable->getTemplate(templateData,
                                               templateUuid,
+                                              "cluster",
                                               userUuid,
                                               projectUuid,
                                               isAdmin,
