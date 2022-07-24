@@ -56,8 +56,7 @@ SegmentQueue* KyoukoRoot::m_segmentQueue = nullptr;
 ProcessingUnitHandler* KyoukoRoot::m_processingUnitHandler = nullptr;
 Kitsunemimi::Sakura::SqlDatabase* KyoukoRoot::database = nullptr;
 ClusterTable* KyoukoRoot::clustersTable = nullptr;
-TemplateTable* KyoukoRoot::clusterTemplateTable = nullptr;
-TemplateTable* KyoukoRoot::segmentTemplateTable = nullptr;
+TemplateTable* KyoukoRoot::templateTable = nullptr;
 std::string* KyoukoRoot::componentToken = nullptr;
 
 /**
@@ -155,20 +154,11 @@ KyoukoRoot::initDatabase(Kitsunemimi::ErrorContainer &error)
         return false;
     }
 
-    // initialize segment-template-table
-    segmentTemplateTable = new TemplateTable("segment", database);
-    if(segmentTemplateTable->initTable(error) == false)
+    // initialize template-table
+    templateTable = new TemplateTable(database);
+    if(templateTable->initTable(error) == false)
     {
-        error.addMeesage("Failed to initialize segment-template-table in database.");
-        LOG_ERROR(error);
-        return false;
-    }
-
-    // initialize cluster-template-table
-    clusterTemplateTable = new TemplateTable("cluster", database);
-    if(clusterTemplateTable->initTable(error) == false)
-    {
-        error.addMeesage("Failed to initialize cluster-template-table in database.");
+        error.addMeesage("Failed to initialize template-table in database.");
         LOG_ERROR(error);
         return false;
     }

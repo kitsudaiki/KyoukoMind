@@ -47,8 +47,7 @@ public:
     static ProcessingUnitHandler* m_processingUnitHandler;
     static Kitsunemimi::Sakura::SqlDatabase* database;
     static ClusterTable* clustersTable;
-    static TemplateTable* clusterTemplateTable;
-    static TemplateTable* segmentTemplateTable;
+    static TemplateTable* templateTable;
     static std::string* componentToken;
 
     bool initializeSakuraFiles(Kitsunemimi::ErrorContainer &error);

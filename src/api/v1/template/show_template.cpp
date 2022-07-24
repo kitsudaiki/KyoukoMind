@@ -45,6 +45,12 @@ ShowTemplate::ShowTemplate()
     assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                  "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
+    registerInputField("type",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Type of the new template.");
+    // TODO: add regex for type
+
     //----------------------------------------------------------------------------------------------
     // output
     //----------------------------------------------------------------------------------------------
@@ -75,6 +81,8 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     // get information from request
     const std::string uuid = blossomLeaf.input.get("uuid").getString();
+    const std::string type = blossomLeaf.input.get("template").get("type").getString();
+    // TODO: check type-field
 
     // get context-info
     const std::string userUuid = context.getStringByKey("uuid");
@@ -82,8 +90,9 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
-    if(KyoukoRoot::clusterTemplateTable->getTemplate(blossomLeaf.output,
+    if(KyoukoRoot::templateTable->getTemplate(blossomLeaf.output,
                                               uuid,
+                                              type,
                                               userUuid,
                                               projectUuid,
                                               isAdmin,

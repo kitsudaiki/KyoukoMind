@@ -35,15 +35,16 @@ class TemplateTable
         : public Kitsunemimi::Hanami::HanamiSqlTable
 {
 public:
-    TemplateTable(const std::string &type, Kitsunemimi::Sakura::SqlDatabase* db);
+    TemplateTable(Kitsunemimi::Sakura::SqlDatabase* db);
     ~TemplateTable();
 
     bool addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
                      const std::string &userUuid,
                      const std::string &projectUuid,
-                    Kitsunemimi::ErrorContainer &error);
+                     Kitsunemimi::ErrorContainer &error);
     bool getTemplate(Kitsunemimi::Json::JsonItem &result,
                      const std::string &templateUuid,
+                     const std::string &type,
                      const std::string &userUuid,
                      const std::string &projectUuid,
                      const bool isAdmin,
@@ -51,23 +52,24 @@ public:
                      const bool showHiddenValues = false);
     bool getTemplateByName(Kitsunemimi::Json::JsonItem &result,
                            const std::string &templateName,
+                           const std::string &type,
                            const std::string &userUuid,
                            const std::string &projectUuid,
                            const bool isAdmin,
                            Kitsunemimi::ErrorContainer &error,
                            const bool showHiddenValues = false);
     bool getAllTemplate(Kitsunemimi::TableItem &result,
+                        const std::string &type,
                         const std::string &userUuid,
                         const std::string &projectUuid,
                         const bool isAdmin,
                         Kitsunemimi::ErrorContainer &error);
     bool deleteTemplate(const std::string &templateUuid,
+                        const std::string &type,
                         const std::string &userUuid,
                         const std::string &projectUuid,
                         const bool isAdmin,
                         Kitsunemimi::ErrorContainer &error);
-private:
-    std::string m_type = "";
 };
 
 #endif // TEMPLATETABLE_H

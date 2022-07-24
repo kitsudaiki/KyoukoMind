@@ -47,6 +47,12 @@ UploadTemplate::UploadTemplate()
     assert(addFieldBorder("name", 4, 256));
     assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
+    registerInputField("type",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Type of the new template.");
+    // TODO: add regex for type
+
     registerInputField("template",
                        SAKURA_MAP_TYPE,
                        true,
@@ -78,7 +84,9 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
                         Kitsunemimi::ErrorContainer &error)
 {
     const std::string name = blossomLeaf.input.get("name").getString();
-    const JsonItem settingsOverride = blossomLeaf.input.get("template");
+    const std::string stringContent = blossomLeaf.input.get("template").toString();
+    const std::string type = blossomLeaf.input.get("template").get("type").getString();
+    // TODO: check type-field
 
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
@@ -87,8 +95,9 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     // check if template with the name already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::clusterTemplateTable->getTemplateByName(getResult,
+    if(KyoukoRoot::templateTable->getTemplateByName(getResult,
                                                     name,
+                                                    type,
                                                     userUuid,
                                                     projectUuid,
                                                     isAdmin,
@@ -100,9 +109,6 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    const std::string stringContent = settingsOverride.toString();
-    // std::cout<<generatedContent->toString(true)<<std::endl;
-
     // convert template to base64 to be storage into database
     std::string base64Content;
     Kitsunemimi::Crypto::encodeBase64(base64Content, stringContent.c_str(), stringContent.size());
@@ -110,14 +116,14 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     // convert values
     Kitsunemimi::Json::JsonItem templateData;
     templateData.insert("name", name);
+    templateData.insert("type", type);
     templateData.insert("data", base64Content);
-    // TODO: fill project- and owner-id
-    templateData.insert("project_uuid", "-");
-    templateData.insert("owner_uuid", "-");
+    templateData.insert("project_uuid", projectUuid);
+    templateData.insert("owner_uuid", userUuid);
     templateData.insert("visibility", "private");
 
     // add new user to table
-    if(KyoukoRoot::clusterTemplateTable->addTemplate(templateData,
+    if(KyoukoRoot::templateTable->addTemplate(templateData,
                                               userUuid,
                                               projectUuid,
                                               error) == false)
@@ -128,8 +134,9 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get new created user from database
-    if(KyoukoRoot::clusterTemplateTable->getTemplateByName(blossomLeaf.output,
+    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
                                                     name,
+                                                    type,
                                                     userUuid,
                                                     projectUuid,
                                                     isAdmin,
