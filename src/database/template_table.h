@@ -35,7 +35,7 @@ class TemplateTable
         : public Kitsunemimi::Hanami::HanamiSqlTable
 {
 public:
-    TemplateTable(Kitsunemimi::Sakura::SqlDatabase* db);
+    TemplateTable(const std::string &type, Kitsunemimi::Sakura::SqlDatabase* db);
     ~TemplateTable();
 
     bool addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
@@ -66,6 +66,8 @@ public:
                         const std::string &projectUuid,
                         const bool isAdmin,
                         Kitsunemimi::ErrorContainer &error);
+private:
+    std::string m_type = "";
 };
 
 #endif // TEMPLATETABLE_H

@@ -82,7 +82,7 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
-    if(KyoukoRoot::templateTable->getTemplate(blossomLeaf.output,
+    if(KyoukoRoot::clusterTemplateTable->getTemplate(blossomLeaf.output,
                                               uuid,
                                               userUuid,
                                               projectUuid,

@@ -31,10 +31,11 @@
 /**
  * @brief constructor
  */
-TemplateTable::TemplateTable(Kitsunemimi::Sakura::SqlDatabase* db)
+TemplateTable::TemplateTable(const std::string &type,
+                             Kitsunemimi::Sakura::SqlDatabase* db)
     : HanamiSqlTable(db)
 {
-    m_tableName = "templates";
+    m_tableName = type + "_templates";
 
     DbHeaderEntry clusterName;
     clusterName.name = "name";
@@ -169,7 +170,7 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
 {
     if(getAll(result, userUuid, projectUuid, isAdmin, error) == false)
     {
-        error.addMeesage("Failed to get all templates from database");
+        error.addMeesage("Failed to get all " + m_type + "_templates from database");
         return false;
     }
 
