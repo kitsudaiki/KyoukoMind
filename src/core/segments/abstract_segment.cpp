@@ -153,22 +153,22 @@ AbstractSegment::createGenericNewHeader(SegmentHeader &header,
     uint32_t segmentDataPos = 0;
 
     // init header
-    segmentDataPos += 1 * sizeof(SegmentHeader);
+    segmentDataPos += sizeof(SegmentHeader);
 
     // init name
     header.settings.count = 1;
     header.settings.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentName);
+    segmentDataPos += sizeof(SegmentName);
 
     // init settings
     header.settings.count = 1;
     header.settings.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(DynamicSegmentSettings);
+    segmentDataPos += sizeof(DynamicSegmentSettings);
 
     // init neighborList
     header.neighborList.count = 1;
     header.neighborList.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentNeighborList);
+    segmentDataPos += sizeof(SegmentNeighborList);
 
     // init inputTransfers
     header.inputTransfers.count = borderbufferSize;

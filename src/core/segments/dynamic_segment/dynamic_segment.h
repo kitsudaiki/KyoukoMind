@@ -37,7 +37,8 @@ public:
     DynamicSegment(const void* data, const uint64_t dataSize);
     ~DynamicSegment();
 
-    bool initSegment(const JsonItem &parsedContent);
+    bool initSegment(const JsonItem &clusterTemplatePart,
+                     const JsonItem &segmentTemplate);
     bool reinitPointer(const uint64_t numberOfBytes);
 
     Brick* bricks = nullptr;

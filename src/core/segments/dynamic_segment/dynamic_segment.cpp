@@ -53,24 +53,37 @@ DynamicSegment::~DynamicSegment() {}
  * @return true, if successful, else false
  */
 bool
-DynamicSegment::initSegment(const JsonItem &parsedContent)
+DynamicSegment::initSegment(const JsonItem &clusterTemplatePart,
+                            const JsonItem &segmentTemplate)
 {
-    const std::string name = parsedContent.get("name").getString();
-    const JsonItem paredBricks = parsedContent.get("bricks");
-    const uint32_t numberOfNodeBricks = paredBricks.size();
+    const std::string name = clusterTemplatePart.get("name").getString();
+    const JsonItem paredBricks = clusterTemplatePart.get("bricks");
+
     uint32_t totalNumberOfNodes = 0;
-    for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
-        totalNumberOfNodes += paredBricks.get(i).get("number_of_nodes").getInt();
+    uint32_t totalBorderSize = 0;
+
+    const uint32_t numberOfNodeBricks = paredBricks.size();
+    for(uint32_t i = 0; i < numberOfNodeBricks; i++)
+    {
+        const int numberOfNodes = paredBricks.get(i).get("number_of_nodes").getInt();
+        const std::string type = paredBricks.get(i).get("type").getString();
+
+        totalNumberOfNodes += numberOfNodes;
+
+        if(type == "input"
+                || type == "output")
+        {
+            totalBorderSize += numberOfNodes;
+        }
     }
-    const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
     // create segment metadata
-    const DynamicSegmentSettings settings = initSettings(parsedContent);
+    const DynamicSegmentSettings settings = initSettings(clusterTemplatePart);
     SegmentHeader header = createNewHeader(numberOfNodeBricks,
                                            totalNumberOfNodes,
                                            settings.maxSynapseSections,
                                            totalBorderSize);
-    header.position = convertPosition(parsedContent);
+    header.position = convertPosition(clusterTemplatePart);
 
     // initialize segment itself
     allocateSegment(header);
@@ -80,12 +93,12 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
 
     // init content
     initializeNodes();
-    addBricksToSegment(parsedContent);
+    addBricksToSegment(clusterTemplatePart);
     connectAllBricks();
     initTargetBrickList();
 
     // init border
-    initBorderBuffer(parsedContent);
+    initBorderBuffer(clusterTemplatePart);
     connectBorderBuffer();
 
     // TODO: check result

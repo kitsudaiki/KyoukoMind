@@ -34,17 +34,21 @@
 void
 validateStructSizes()
 {
-    assert(sizeof(Synapse) == 12);
     assert(sizeof(SynapseSection) == 512);
     assert(sizeof(SegmentHeader) == 512);
     assert(sizeof(SegmentName) == 256);
     assert(sizeof(Brick) == 4096);
     assert(sizeof(DynamicNode) == 32);
+    assert(sizeof(SegmentNeighbor) == 64);
+    assert(sizeof(SegmentNeighborList) == 1024);
 
     assert(sizeof(Cluster::MetaData) == 2048);
     assert(sizeof(Cluster::Settings) == 256);
     assert(sizeof(DynamicSegmentSettings) == 256);
     assert(sizeof(Kitsunemimi::Hanami::kuuid) == 40);
+
+    // only exception for the 2^x rule, because absulute critical in space consumption
+    assert(sizeof(Synapse) == 12);
 
     return;
 }

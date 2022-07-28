@@ -93,6 +93,7 @@ public:
     const std::string getName();
     bool setName(const std::string newName);
     bool init(const JsonItem &parsedContent,
+              const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
               const std::string &uuid);
 
     // task-handling

@@ -35,27 +35,17 @@ bool reinitPointer(Cluster* cluster, const std::string &uuid);
 
 bool initNewCluster(Cluster* cluster,
                     const JsonItem &parsedContent,
+                    const std::map<std::string, JsonItem> &segmentTemplates,
                     const std::string &uuid);
 
 AbstractSegment* addInputSegment(Cluster* cluster,
-                                 const JsonItem &parsedContent);
+                                 const JsonItem &clusterTemplatePart);
 AbstractSegment* addOutputSegment(Cluster* cluster,
-                                  const JsonItem &parsedContent);
+                                  const JsonItem &clusterTemplatePart);
 AbstractSegment* addDynamicSegment(Cluster* cluster,
-                                   const JsonItem &parsedContent);
+                                   const JsonItem &clusterTemplatePart,
+                                   const JsonItem &segmentTemplate);
 
-// functions to prepare additional information for a field-typed cluster
-const std::string prepareDirection(const JsonItem &segments,
-                                   const uint32_t foundNext,
-                                   const uint8_t side);
-long getNeighborBorderSize(const JsonItem &currentSegment,
-                           const JsonItem &segments,
-                           const uint32_t foundNext);
-bool prepareSingleSegment(std::deque<uint32_t> &segmentQueue,
-                          const JsonItem &segments,
-                          JsonItem &parsedSegments);
-bool prepareSegments(const JsonItem &parsedContent);
-uint32_t checkNextPosition(const JsonItem &segments, const Position nextPos);
 Position convertPosition(const JsonItem &parsedContent);
 
 #endif // KYOUKOMIND_CLUSTERINIT_H

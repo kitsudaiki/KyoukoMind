@@ -50,18 +50,19 @@ InputSegment::~InputSegment() {}
  * @return true, if successful, else false
  */
 bool
-InputSegment::initSegment(const JsonItem &parsedContent)
+InputSegment::initSegment(const JsonItem &clusterTemplatePart,
+                          const JsonItem &)
 {
-    const std::string name = parsedContent.get("name").getString();
-    const uint32_t numberOfInputs = parsedContent.get("number_of_inputs").getInt();
-    const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
+    const std::string name = clusterTemplatePart.get("name").getString();
+    const uint32_t numberOfInputs = clusterTemplatePart.get("number_of_nodes").getInt();
+    const uint32_t totalBorderSize = numberOfInputs;
 
     SegmentHeader header = createNewHeader(numberOfInputs, totalBorderSize);
-    header.position = convertPosition(parsedContent);
+    header.position = convertPosition(clusterTemplatePart);
 
     allocateSegment(header);
     initSegmentPointer(header);
-    initBorderBuffer(parsedContent);
+    initBorderBuffer(clusterTemplatePart);
     connectBorderBuffer();
 
     // TODO: check result
