@@ -78,16 +78,18 @@ std::string Cluster::getUuid()
 /**
  * @brief init the cluster
  *
- * @param parsedContent parsed json-content with structural information of the new cluster
+ * @param parsedContent TODO
+ * @param segmentTemplates TODO
  * @param uuid UUID of the new cluster
  *
  * @return true, if successful, else false
  */
 bool
 Cluster::init(const JsonItem &parsedContent,
+              const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
               const std::string &uuid)
 {
-    return initNewCluster(this, parsedContent, uuid);
+    return initNewCluster(this, parsedContent, segmentTemplates, uuid);
 }
 
 /**

@@ -143,7 +143,12 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     Cluster* newCluster = new Cluster();
     if(templateUuid != "")
     {
-        if(initCluster(newCluster, uuid, templateUuid, context, status, error) == false)
+        if(initCluster(newCluster,
+                       uuid,
+                       templateUuid,
+                       context,
+                       status,
+                       error) == false)
         {
             delete newCluster;
             error.addMeesage("Failed to initialize cluster");
@@ -206,7 +211,8 @@ CreateCluster::initCluster(Cluster* cluster,
     if(Kitsunemimi::Crypto::decodeBase64(decodedTemplate,
                                          templateData.get("data").getString()) == false)
     {
-        error.addMeesage("base64-decoding of the input failes");
+        // TODO: better error-messages with uuid
+        error.addMeesage("base64-decoding of the template failes");
         status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
         status.errorMessage = "Given template is not a valid base64 string";
         return false;
@@ -221,10 +227,87 @@ CreateCluster::initCluster(Cluster* cluster,
         return false;
     }
 
-    if(cluster->init(parsedTemplate, clusterUuid) == false)
+    Kitsunemimi::Json::JsonItem segments = parsedTemplate.get("segments");
+    std::map<std::string, Kitsunemimi::Json::JsonItem> segmentTemplates;
+    for(uint64_t i = 0; i < segments.size(); i++)
+    {
+        const std::string type = segments.get(i).get("type").getString();
+        if(type != "input"
+                && type != "output")
+        {
+
+        Kitsunemimi::Json::JsonItem parsedTemplate;
+        if(getSegmentTemplate(parsedTemplate,
+                              type,
+                              userUuid,
+                              projectUuid,
+                              isAdmin,
+                              error) == false)
+            {
+                // TODO: set status-message and maybe change to not-found-error
+                status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+                return false;
+            }
+
+            const std::string name = segments.get(i).get("name").getString();
+            segmentTemplates.emplace(name, parsedTemplate);
+        }
+    }
+
+    if(cluster->init(parsedTemplate, segmentTemplates, clusterUuid) == false)
     {
         error.addMeesage("Failed to initialize cluster based on a template");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief CreateCluster::getSegmentTemplate
+ * @param templateString
+ * @param name
+ * @param userUuid
+ * @param projectUuid
+ * @param isAdmin
+ * @param error
+ * @return
+ */
+bool
+CreateCluster::getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
+                                  const std::string &name,
+                                  const std::string &userUuid,
+                                  const std::string &projectUuid,
+                                  const bool isAdmin,
+                                  Kitsunemimi::ErrorContainer &error)
+{
+    JsonItem templateData;
+    if(KyoukoRoot::templateTable->getTemplateByName(templateData,
+                                                    name,
+                                                    "segment",
+                                                    userUuid,
+                                                    projectUuid,
+                                                    isAdmin,
+                                                    error,
+                                                    true) == false)
+    {
+        return false;
+    }
+
+    // decode template
+    std::string decodedTemplate = "";
+    if(Kitsunemimi::Crypto::decodeBase64(decodedTemplate,
+                                         templateData.get("data").getString()) == false)
+    {
+        // TODO: better error-messages with uuid
+        error.addMeesage("base64-decoding of the template failes");
+        return false;
+    }
+
+    if(parsedTemplate.parse(decodedTemplate, error) == false)
+    {
+        error.addMeesage("Failed to parse decoded template");
         return false;
     }
 

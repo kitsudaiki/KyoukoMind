@@ -42,7 +42,7 @@ public:
 
     OutputNode* outputs = nullptr;
 
-    bool initSegment(const JsonItem &parsedContent);
+    bool initSegment(const JsonItem &clusterTemplatePart, const JsonItem &);
     bool reinitPointer(const uint64_t numberOfBytes);
 
 private:

@@ -92,12 +92,19 @@ struct SegmentNeighbor
     bool inputReady = false;
 
     uint32_t size = 0;
-    uint8_t padding[4];
+    char name[64];
+    uint32_t length = 0;
 
     uint64_t inputTransferBufferPos = UNINIT_STATE_64;
     uint64_t outputTransferBufferPos = UNINIT_STATE_64;
 
-    // total size: 32 Byte
+    // total size: 64 Byte
+};
+
+struct SegmentNeighborList
+{
+    SegmentNeighbor neighbors[16];
+    // total size: 1024 Byte
 };
 
 struct SegmentName
@@ -142,15 +149,6 @@ struct SegmentName
     }
 
     // total size: 256 Byte
-};
-
-struct SegmentNeighborList
-{
-    SegmentNeighbor neighbors[12];
-
-    uint8_t padding[128];
-
-    // total size: 512 Byte
 };
 
 #endif // SEGMENT_META_H
