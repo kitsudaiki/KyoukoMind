@@ -27,7 +27,7 @@
 #include <core/segments/output_segment/output_segment.h>
 
 #include <libKitsunemimiSakuraNetwork/session.h>
-#include <libKitsunemimiHanamiSdk/messages/hanami_messages.h>
+#include <libKitsumiAiSdk/messages/hanami_messages.h>
 
 /**
  * @brief process stream-message

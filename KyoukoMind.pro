@@ -19,10 +19,10 @@ LIBS += -L../libMisakaGuard/src/debug -lMisakaGuard
 LIBS += -L../libMisakaGuard/src/release -lMisakaGuard
 INCLUDEPATH += ../libMisakaGuard/include
 
-LIBS += -L../libKitsunemimiHanamiSdk/src -lKitsunemimiHanamiSdk
-LIBS += -L../libKitsunemimiHanamiSdk/src/debug -lKitsunemimiHanamiSdk
-LIBS += -L../libKitsunemimiHanamiSdk/src/release -lKitsunemimiHanamiSdk
-INCLUDEPATH += ../libKitsunemimiHanamiSdk/cpp/include
+LIBS += -L../libKitsumiAiSdk/src -lKitsumiAiSdk
+LIBS += -L../libKitsumiAiSdk/src/debug -lKitsumiAiSdk
+LIBS += -L../libKitsumiAiSdk/src/release -lKitsumiAiSdk
+INCLUDEPATH += ../libKitsumiAiSdk/cpp/include
 
 LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
@@ -109,7 +109,7 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -lOpenCL
+LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto
 
 INCLUDEPATH += $$PWD \
                src
