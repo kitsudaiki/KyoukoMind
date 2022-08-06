@@ -32,7 +32,7 @@
 #include "objects.h"
 #include "output_segment.h"
 
-#include <libKitsunemimiHanamiSdk/messages/hanami_messages.h>
+#include <libKitsumiAiSdk/messages/hanami_messages.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
 
 /**

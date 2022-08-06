@@ -51,7 +51,7 @@ libKitsunemimiHanamiCommon | v0.2.0 |  -
 libKitsunemimiHanamiEndpoints | v0.1.0 |  -
 libKitsunemimiHanamiDatabase | v0.3.0 |  -
 libKitsunemimiHanamiMessaging | v0.4.1 |  -
-libKitsunemimiHanamiSdk | v0.3.1 | -
+libKitsumiAiSdk | v0.3.1 | -
 libAzukiHeart | v0.2.0 | -
 libMisakiGuard | v0.1.0 | -
 ibSagiriArchive | v0.2.0 | -
