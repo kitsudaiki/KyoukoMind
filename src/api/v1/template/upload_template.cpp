@@ -85,7 +85,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string name = blossomLeaf.input.get("name").getString();
     const std::string stringContent = blossomLeaf.input.get("template").toString();
-    const std::string type = blossomLeaf.input.get("template").get("type").getString();
+    const std::string type = blossomLeaf.input.get("type").getString();
     // TODO: check type-field
 
     const std::string userUuid = context.getStringByKey("uuid");

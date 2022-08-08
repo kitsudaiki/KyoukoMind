@@ -61,6 +61,7 @@ reinitPointer(Cluster* cluster,
     cluster->networkSettings = reinterpret_cast<Cluster::Settings*>(dataPtr + pos);
     pos += sizeof(Cluster::Settings);
 
+    // override old uuid with the new one
     strncpy(cluster->networkMetaData->uuid.uuid, uuid.c_str(), 36);
     cluster->networkMetaData->uuid.uuid[36] = '\0';
 
@@ -482,7 +483,7 @@ checkNextPosition(const JsonItem &segments,
 Position
 convertPosition(const JsonItem &parsedContent)
 {
-    JsonItem parsedPosition = parsedContent.get("position");
+    const JsonItem parsedPosition = parsedContent.get("position");
 
     Position currentPosition;
     currentPosition.x = parsedPosition.get(0).getInt();

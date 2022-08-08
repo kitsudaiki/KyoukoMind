@@ -92,12 +92,55 @@ struct SegmentNeighbor
     bool inputReady = false;
 
     uint32_t size = 0;
-    uint8_t padding[4];
+    uint32_t length = 0;
+    char name[32];
 
     uint64_t inputTransferBufferPos = UNINIT_STATE_64;
     uint64_t outputTransferBufferPos = UNINIT_STATE_64;
 
-    // total size: 32 Byte
+    /**
+     * @brief get name of the segment
+     *
+     * @return name of the segment
+     */
+    const std::string
+    getName() const
+    {
+        return std::string(name, length);
+    }
+
+    /**
+     * @brief set new name for the segment
+     *
+     * @param newName new name
+     *
+     * @return false, if name is too long or empty, else true
+     */
+    bool
+    setName(const std::string &newName)
+    {
+        if(newName.size() == 0
+                || newName.size() >= 32)
+        {
+            return false;
+        }
+
+        memcpy(name, newName.c_str(), newName.size());
+        name[newName.size()] = '\0';
+        // I know, that the \0 should be enough, but I like string limitations more explicit to
+        // avoid the risk of buffer overflows
+        length = newName.size();
+
+        return true;
+    }
+
+    // total size: 64 Byte
+};
+
+struct SegmentNeighborList
+{
+    SegmentNeighbor neighbors[16];
+    // total size: 1024 Byte
 };
 
 struct SegmentName
@@ -142,15 +185,6 @@ struct SegmentName
     }
 
     // total size: 256 Byte
-};
-
-struct SegmentNeighborList
-{
-    SegmentNeighbor neighbors[12];
-
-    uint8_t padding[128];
-
-    // total size: 512 Byte
 };
 
 #endif // SEGMENT_META_H
