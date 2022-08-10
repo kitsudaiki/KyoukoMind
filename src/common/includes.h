@@ -60,7 +60,7 @@ using Kitsunemimi::DataBuffer;
 #include <libKitsunemimiCommon/buffer/stack_buffer.h>
 using Kitsunemimi::StackBuffer;
 
-#include <libKitsunemimiCommon/common_items/data_items.h>
+#include <libKitsunemimiCommon/items/data_items.h>
 using Kitsunemimi::DataItem;
 using Kitsunemimi::DataArray;
 using Kitsunemimi::DataValue;

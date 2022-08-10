@@ -72,31 +72,43 @@ function get_required_private_repo_github () {
     build_kitsune_lib_repo $REPO_NAME $NUMBER_OF_THREADS
 }
 
+function download_private_repo_github () {
+    REPO_NAME=$1
+    TAG_OR_BRANCH=$2
+
+    # clone repo
+    git clone https://kitsudaiki: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@github.com/kitsudaiki/$REPO_NAME.git "$BUILD_DIR/$REPO_NAME"
+    git clone https://kitsudaiki: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@github.com/kitsudaiki/$REPO_NAME.git "$PARENT_DIR/$REPO_NAME"
+    cd "$BUILD_DIR/$REPO_NAME"
+    git checkout $TAG_OR_BRANCH
+    cd "$PARENT_DIR/$REPO_NAME"
+    git checkout $TAG_OR_BRANCH
+}
 
 #-----------------------------------------------------------------------------------------------------------------
 
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.26.1" 8
-get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.11.3" 1
-get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.9.1" 1
-get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.5.1" 1
+get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.27.0" 8
+get_required_kitsune_lib_repo "libKitsunemimiJson" "develop" 1
+get_required_kitsune_lib_repo "libKitsunemimiJinja2" "develop" 1
+get_required_kitsune_lib_repo "libKitsunemimiIni" "develop" 1
 get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.8.2" 8
-get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.4.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.4.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiObj" "v0.2.0" 8
+get_required_kitsune_lib_repo "libKitsunemimiArgs" "develop" 8
+get_required_kitsune_lib_repo "libKitsunemimiConfig" "develop" 8
+get_required_kitsune_lib_repo "libKitsunemimiObj" "develop" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_private_repo_github "libKitsunemimiSqlite" "v0.3.0" 8
+get_required_private_repo_github "libKitsunemimiSqlite" "develop" 8
 get_required_private_repo_github "libKitsunemimiCrypto" "develop" 8
 get_required_private_repo_github "libKitsunemimiJwt" "develop" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "v0.8.4" 8
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.12.0" 1
-get_required_private_repo_github "libKitsunemimiSakuraDatabase" "v0.5.0" 8
+get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "develop" 8
+get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "develop" 1
+get_required_private_repo_github "libKitsunemimiSakuraDatabase" "develop" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
@@ -104,7 +116,8 @@ get_required_private_repo_github "libKitsunemimiHanamiCommon" "develop" 8
 get_required_private_repo_github "libKitsunemimiHanamiEndpoints" "develop" 1
 get_required_private_repo_github "libKitsunemimiHanamiDatabase" "develop" 8
 get_required_private_repo_github "libKitsunemimiHanamiMessaging" "develop" 8
-get_required_private_repo_github "libKitsumiAiSdk" "develop" 8
+download_private_repo_github "libKitsunemimiHanamiProtobuffers" "develop"
+get_required_private_repo_github "libKitsumiAiSdk" "feature/use-protobuf" 8
 echo ""
 echo "###########################################################################################################"
 echo ""

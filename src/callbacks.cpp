@@ -27,7 +27,7 @@
 #include <core/segments/output_segment/output_segment.h>
 
 #include <libKitsunemimiSakuraNetwork/session.h>
-#include <libKitsumiAiSdk/messages/hanami_messages.h>
+#include <../libKitsunemimiHanamiProtobuffers/kyouko_messages.proto3.pb.h>
 
 /**
  * @brief process stream-message
@@ -42,55 +42,57 @@ streamDataCallback(void* target,
                    const void* data,
                    const uint64_t dataSize)
 {
-    const uint8_t* u8Data = static_cast<const uint8_t*>(data);
     Cluster* cluster = static_cast<Cluster*>(target);
 
-    // insert data to the cluster
-    if(u8Data[6] == 1)
+    ClusterIO_Message msg;
+    if(msg.ParseFromArray(data, dataSize) == false)
     {
-        void* normalData = const_cast<void*>(data);
-        Kitsunemimi::Hanami::ClusterIO_Message msg;
-        msg.read(normalData, dataSize);
+        Kitsunemimi::ErrorContainer error;
+        error.addMeesage("Got invalid ClusterIO-Message");
+        LOG_ERROR(error);
+    }
 
-        // fill given data into the target-segment
-        if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::INPUT_SEGMENT)
+    // fill given data into the target-segment
+    if(msg.datatype() == ClusterDataType::INPUT_TYPE)
+    {
+        std::map<std::string, InputSegment*>::iterator it;
+        it = cluster->inputSegments.find(msg.segmentname());
+        if(it != cluster->inputSegments.end())
         {
-            std::map<std::string, InputSegment*>::iterator it;
-            it = cluster->inputSegments.find(msg.segmentName);
-            if(it != cluster->inputSegments.end())
-            {
-                InputNode* inputNodes = it->second->inputs;
-                for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-                    inputNodes[i].weight = msg.values[i];
-                }
+            InputNode* inputNodes = it->second->inputs;
+            for(uint64_t i = 0; i < msg.numberofvalues(); i++) {
+                inputNodes[i].weight = msg.values(i);
             }
         }
-        else if(msg.segmentType == Kitsunemimi::Hanami::ClusterIO_Message::OUTPUT_SEGMENT)
+    }
+    if(msg.datatype() == ClusterDataType::SHOULD_TYPE)
+    {
+        std::map<std::string, OutputSegment*>::iterator it;
+        it = cluster->outputSegments.find(msg.segmentname());
+        if(it != cluster->outputSegments.end())
         {
-            std::map<std::string, OutputSegment*>::iterator it;
-            it = cluster->outputSegments.find(msg.segmentName);
-            if(it != cluster->outputSegments.end())
-            {
-                OutputNode* outputNodes = it->second->outputs;
-                for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-                    outputNodes[i].shouldValue = msg.values[i];
-                }
+            OutputNode* outputNodes = it->second->outputs;
+            for(uint64_t i = 0; i < msg.numberofvalues(); i++) {
+                outputNodes[i].shouldValue = msg.values(i);
             }
         }
     }
 
-    // start request
-    if(u8Data[6] == 2)
+    if(msg.islast())
     {
-        cluster->mode = Cluster::NORMAL_MODE;
-        cluster->startForwardCycle();
-    }
+        // start request
+        if(msg.processtype() == ClusterProcessType::REQUEST_TYPE)
+        {
+            cluster->mode = Cluster::NORMAL_MODE;
+            cluster->startForwardCycle();
+        }
 
-    // start learn
-    if(u8Data[6] == 3)
-    {
-        cluster->mode = Cluster::LEARN_FORWARD_MODE;
-        cluster->startForwardCycle();
+        // start learn
+        if(msg.processtype() == ClusterProcessType::LEARN_TYPE)
+        {
+            cluster->mode = Cluster::LEARN_FORWARD_MODE;
+            cluster->startForwardCycle();
+        }
     }
 
     /**std::cout<<"#################################################"<<std::endl;

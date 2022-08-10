@@ -38,6 +38,8 @@
 #include <libKitsunemimiCommon/statemachine.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
+#include <../libKitsunemimiHanamiProtobuffers/kyouko_messages.proto3.pb.h>
+
 /**
  * @brief constructor
  */
@@ -219,10 +221,16 @@ Cluster::updateClusterState()
     if(mode == Cluster::LEARN_BACKWARD_MODE
             && msgClient != nullptr)
     {
-        Kitsunemimi::Hanami::LearnEnd_Message msg;
+        ClusterIO_Message msg;
+        msg.set_islast(true);
+        msg.set_processtype(LEARN_TYPE);
+
+        const uint64_t size = msg.ByteSizeLong();
         uint8_t buffer[96*1024];
-        const uint64_t size = msg.createBlob(buffer, 96*1024);
-        if(size == 0) {
+        if(msg.SerializeToArray(buffer, size) == false)
+        {
+            Kitsunemimi::ErrorContainer error;
+            error.addMeesage("Failed to serialize request-message");
             return;
         }
 
@@ -234,10 +242,16 @@ Cluster::updateClusterState()
     if(mode == Cluster::NORMAL_MODE
             && msgClient != nullptr)
     {
-        Kitsunemimi::Hanami::RequestEnd_Message msg;
+        ClusterIO_Message msg;
+        msg.set_islast(true);
+        msg.set_processtype(REQUEST_TYPE);
+
+        const uint64_t size = msg.ByteSizeLong();
         uint8_t buffer[96*1024];
-        const uint64_t size = msg.createBlob(buffer, 96*1024);
-        if(size == 0) {
+        if(msg.SerializeToArray(buffer, size) == false)
+        {
+            Kitsunemimi::ErrorContainer error;
+            error.addMeesage("Failed to serialize request-message");
             return;
         }
 

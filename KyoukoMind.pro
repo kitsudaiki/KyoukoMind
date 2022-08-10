@@ -109,7 +109,7 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto
+LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -pthread -lprotobuf -lpthread
 
 INCLUDEPATH += $$PWD \
                src
@@ -234,3 +234,22 @@ SOURCES += \
     src/kyouko_root.cpp \
     src/main.cpp
 
+KYOUKO_PROTO_BUFFER = ../libKitsunemimiHanamiProtobuffers/kyouko_messages.proto3
+
+OTHER_FILES += $$KYOUKO_PROTO_BUFFER
+
+protobuf_decl.name = protobuf headers
+protobuf_decl.name = protobuf headers
+protobuf_decl.input = KYOUKO_PROTO_BUFFER
+protobuf_decl.output = ${QMAKE_FILE_IN_PATH}/${QMAKE_FILE_BASE}.proto3.pb.h
+protobuf_decl.commands = protoc --cpp_out=${QMAKE_FILE_IN_PATH} --proto_path=${QMAKE_FILE_IN_PATH} ${QMAKE_FILE_NAME}
+protobuf_decl.variable_out = HEADERS
+QMAKE_EXTRA_COMPILERS += protobuf_decl
+
+protobuf_impl.name = protobuf sources
+protobuf_impl.input = KYOUKO_PROTO_BUFFER
+protobuf_impl.output = ${QMAKE_FILE_IN_PATH}/${QMAKE_FILE_BASE}.proto3.pb.cc
+protobuf_impl.depends = ${QMAKE_FILE_IN_PATH}/${QMAKE_FILE_BASE}.proto3.pb.h
+protobuf_impl.commands = $$escape_expand(\n)
+protobuf_impl.variable_out = SOURCES
+QMAKE_EXTRA_COMPILERS += protobuf_impl
