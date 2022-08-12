@@ -22,8 +22,8 @@
 
 #include "cluster_table.h"
 
-#include <libKitsunemimiCommon/common_items/table_item.h>
-#include <libKitsunemimiCommon/common_methods/string_methods.h>
+#include <libKitsunemimiCommon/items/table_item.h>
+#include <libKitsunemimiCommon/methods/string_methods.h>
 #include <libKitsunemimiJson/json_item.h>
 
 #include <libKitsunemimiSakuraDatabase/sql_database.h>
@@ -167,7 +167,8 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
                             const bool isAdmin,
                             Kitsunemimi::ErrorContainer &error)
 {
-    if(getAll(result, userUuid, projectUuid, isAdmin, error) == false)
+    std::vector<RequestCondition> conditions;
+    if(getAll(result, userUuid, projectUuid, isAdmin, conditions, error) == false)
     {
         error.addMeesage("Failed to get all cluster-meta from database");
         return false;

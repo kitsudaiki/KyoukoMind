@@ -37,7 +37,7 @@
 #include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
 
 #include <libAzukiHeart/azuki_input.h>
-#include <libMisakaGuard/misaka_input.h>
+#include <libMisakiGuard/misaki_input.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::initMain;
@@ -69,12 +69,12 @@ main(int argc, char *argv[])
 
     // init included components
     Azuki::initAzukiBlossoms();
-    Misaka::initMisakaBlossoms();
+    Misaki::initMisakiBlossoms();
 
     rootObj.initThreads();
 
     // initialize server and connections based on the config-file
-    const std::vector<std::string> groupNames = {"misaka", "sagiri"};
+    const std::vector<std::string> groupNames = {"misaki", "sagiri"};
     if(HanamiMessaging::getInstance()->initialize("kyouko",
                                                   groupNames,
                                                   nullptr,

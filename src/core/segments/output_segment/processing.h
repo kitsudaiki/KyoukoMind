@@ -32,8 +32,8 @@
 #include "objects.h"
 #include "output_segment.h"
 
-#include <libKitsunemimiHanamiSdk/messages/hanami_messages.h>
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
+#include <../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h>
 
 /**
  * @brief get position of the highest output-position
@@ -104,14 +104,20 @@ prcessOutputSegment(const OutputSegment &segment)
             outputData[outputNodeId] = node->outputWeight;
         }
 
-        // create message to send
         Kitsunemimi::Hanami::ClusterIO_Message msg;
+        msg.segmentName = segment.getName();
+        msg.isLast = true;
+        msg.processType = Kitsunemimi::Hanami::ClusterIO_Message::ProcessType::REQUEST_TYPE;
+        msg.dataType = Kitsunemimi::Hanami::ClusterIO_Message::DataType::OUTPUT_TYPE;
         msg.numberOfValues = segment.segmentHeader->outputs.count;
-        msg.segmentType = Kitsunemimi::Hanami::ClusterIO_Message::OUTPUT_SEGMENT;
         msg.values = outputData;
+
         uint8_t buffer[96*1024];
         const uint64_t size = msg.createBlob(buffer, 96*1024);
-        if(size == 0) {
+        if(size == 0)
+        {
+            Kitsunemimi::ErrorContainer error;
+            error.addMeesage("Failed to serialize request-message");
             return;
         }
 
