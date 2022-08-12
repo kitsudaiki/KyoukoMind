@@ -33,7 +33,7 @@
 #include "output_segment.h"
 
 #include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
-#include <../libKitsunemimiHanamiProtobuffers/kyouko_messages.proto3.pb.h>
+#include <../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h>
 
 /**
  * @brief get position of the highest output-position
@@ -104,19 +104,17 @@ prcessOutputSegment(const OutputSegment &segment)
             outputData[outputNodeId] = node->outputWeight;
         }
 
-        ClusterIO_Message msg;
-        msg.set_segmentname(segment.getName());
-        msg.set_islast(true);
-        msg.set_processtype(ClusterProcessType::REQUEST_TYPE);
-        msg.set_datatype(ClusterDataType::OUTPUT_TYPE);
-        msg.set_numberofvalues(segment.segmentHeader->outputs.count);
-        for(uint64_t i = 0; i < segment.segmentHeader->outputs.count; i++) {
-            msg.add_values(outputData[i]);
-        }
+        Kitsunemimi::Hanami::ClusterIO_Message msg;
+        msg.segmentName = segment.getName();
+        msg.isLast = true;
+        msg.processType = Kitsunemimi::Hanami::ClusterIO_Message::ProcessType::REQUEST_TYPE;
+        msg.dataType = Kitsunemimi::Hanami::ClusterIO_Message::DataType::OUTPUT_TYPE;
+        msg.numberOfValues = segment.segmentHeader->outputs.count;
+        msg.values = outputData;
 
-        const uint64_t size = msg.ByteSizeLong();
         uint8_t buffer[96*1024];
-        if(msg.SerializeToArray(buffer, size) == false)
+        const uint64_t size = msg.createBlob(buffer, 96*1024);
+        if(size == 0)
         {
             Kitsunemimi::ErrorContainer error;
             error.addMeesage("Failed to serialize request-message");

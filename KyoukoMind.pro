@@ -186,7 +186,8 @@ HEADERS += \
     src/core/templates/template_creator.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
-    src/kyouko_root.h
+    src/kyouko_root.h \
+    ../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h
 
 SOURCES += \
     src/api/v1/cluster/create_cluster.cpp \
@@ -234,7 +235,7 @@ SOURCES += \
     src/kyouko_root.cpp \
     src/main.cpp
 
-KYOUKO_PROTO_BUFFER = ../libKitsunemimiHanamiProtobuffers/kyouko_messages.proto3
+KYOUKO_PROTO_BUFFER = ../libKitsunemimiHanamiMessages/protobuffers/kyouko_messages.proto3
 
 OTHER_FILES += $$KYOUKO_PROTO_BUFFER
 

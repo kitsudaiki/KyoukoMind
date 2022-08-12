@@ -116,8 +116,8 @@ get_required_private_repo_github "libKitsunemimiHanamiCommon" "develop" 8
 get_required_private_repo_github "libKitsunemimiHanamiEndpoints" "develop" 1
 get_required_private_repo_github "libKitsunemimiHanamiDatabase" "develop" 8
 get_required_private_repo_github "libKitsunemimiHanamiMessaging" "develop" 8
-download_private_repo_github "libKitsunemimiHanamiProtobuffers" "develop"
-get_required_private_repo_github "libKitsumiAiSdk" "feature/use-protobuf" 8
+download_private_repo_github "libKitsunemimiHanamiMessages" "develop"
+get_required_private_repo_github "libKitsumiAiSdk" "develop" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
