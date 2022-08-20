@@ -33,16 +33,6 @@ ListTemplates::ListTemplates()
     : Blossom("List all templates of a user.")
 {
     //----------------------------------------------------------------------------------------------
-    // input
-    //----------------------------------------------------------------------------------------------
-
-    registerInputField("type",
-                       SAKURA_STRING_TYPE,
-                       true,
-                       "Type of the new template.");
-    // TODO: add regex for type
-
-    //----------------------------------------------------------------------------------------------
     // output
     //----------------------------------------------------------------------------------------------
 
@@ -79,7 +69,6 @@ ListTemplates::runTask(BlossomLeaf &blossomLeaf,
     // get data from table
     Kitsunemimi::TableItem table;
     if(KyoukoRoot::templateTable->getAllTemplate(table,
-                                                 type,
                                                  userUuid,
                                                  projectUuid,
                                                  isAdmin,

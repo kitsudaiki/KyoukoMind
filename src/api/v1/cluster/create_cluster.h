@@ -42,7 +42,7 @@ protected:
 private:
     bool initCluster(Cluster* cluster,
                      const std::string &clusterUuid,
-                     const std::string &templateUuid,
+                     const std::string &clusterDefinition,
                      const Kitsunemimi::DataMap &context,
                      Kitsunemimi::Sakura::BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error);

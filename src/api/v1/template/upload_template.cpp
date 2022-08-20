@@ -47,12 +47,6 @@ UploadTemplate::UploadTemplate()
     assert(addFieldBorder("name", 4, 256));
     assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
-    registerInputField("type",
-                       SAKURA_STRING_TYPE,
-                       true,
-                       "Type of the new template.");
-    // TODO: add regex for type
-
     registerInputField("template",
                        SAKURA_MAP_TYPE,
                        true,
@@ -85,9 +79,6 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string name = blossomLeaf.input.get("name").getString();
     const std::string stringContent = blossomLeaf.input.get("template").toString();
-    const std::string type = blossomLeaf.input.get("type").getString();
-    // TODO: check type-field
-
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
@@ -97,7 +88,6 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem getResult;
     if(KyoukoRoot::templateTable->getTemplateByName(getResult,
                                                     name,
-                                                    type,
                                                     userUuid,
                                                     projectUuid,
                                                     isAdmin,
@@ -116,7 +106,6 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     // convert values
     Kitsunemimi::Json::JsonItem templateData;
     templateData.insert("name", name);
-    templateData.insert("type", type);
     templateData.insert("data", base64Content);
     templateData.insert("project_uuid", projectUuid);
     templateData.insert("owner_uuid", userUuid);
@@ -136,7 +125,6 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     // get new created user from database
     if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
                                                     name,
-                                                    type,
                                                     userUuid,
                                                     projectUuid,
                                                     isAdmin,
