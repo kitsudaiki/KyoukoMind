@@ -39,8 +39,8 @@ validateStructSizes()
     assert(sizeof(SegmentName) == 256);
     assert(sizeof(Brick) == 4096);
     assert(sizeof(DynamicNode) == 32);
-    assert(sizeof(SegmentNeighbor) == 64);
-    assert(sizeof(SegmentNeighborList) == 1024);
+    assert(sizeof(SegmentSlot) == 64);
+    assert(sizeof(SegmentSlotList) == 1024);
 
     assert(sizeof(Cluster::MetaData) == 2048);
     assert(sizeof(Cluster::Settings) == 256);

@@ -52,13 +52,12 @@ public:
     DynamicSegmentSettings* dynamicSegmentSettings = nullptr;
 
     SegmentName* segmentName = nullptr;
-    SegmentNeighborList* segmentNeighbors = nullptr;
+    SegmentSlotList* segmentSlots = nullptr;
     float* inputTransfers = nullptr;
     float* outputTransfers = nullptr;
     Cluster* parentCluster = nullptr;
 
-    virtual bool initSegment(const JsonItem &clusterTemplatePart,
-                             const JsonItem &segmentTemplate) = 0;
+    virtual bool initSegment(const JsonItem &segmentTemplate, const std::string &name) = 0;
     virtual bool reinitPointer(const uint64_t numberOfBytes) = 0;
 
     bool isReady();
@@ -70,7 +69,6 @@ protected:
     uint32_t createGenericNewHeader(SegmentHeader &header,
                                     const uint64_t borderbufferSize);
     Position convertPosition(const JsonItem &parsedContent);
-    bool initBorderBuffer(const JsonItem &parsedContent);
     bool reinitGenericPointer();
 
 private:

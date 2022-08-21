@@ -39,10 +39,13 @@ bool initNewCluster(Cluster* cluster,
                     const std::string &uuid);
 
 AbstractSegment* addInputSegment(Cluster* cluster,
+                                 const std::string &name,
                                  const JsonItem &clusterTemplatePart);
 AbstractSegment* addOutputSegment(Cluster* cluster,
+                                  const std::string &name,
                                   const JsonItem &clusterTemplatePart);
 AbstractSegment* addDynamicSegment(Cluster* cluster,
+                                   const std::string &name,
                                    const JsonItem &clusterTemplatePart,
                                    const JsonItem &segmentTemplate);
 

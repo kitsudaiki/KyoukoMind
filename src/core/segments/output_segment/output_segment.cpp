@@ -50,19 +50,16 @@ OutputSegment::~OutputSegment() {}
  * @return true, if successful, else false
  */
 bool
-OutputSegment::initSegment(const JsonItem &clusterTemplatePart,
-                           const JsonItem &)
+OutputSegment::initSegment(const JsonItem &segmentTemplate, const std::string &name)
 {
-    const std::string name = clusterTemplatePart.get("name").getString();
-    const uint32_t numberOfOutputs = clusterTemplatePart.get("number_of_nodes").getInt();
+    const uint32_t numberOfOutputs = segmentTemplate.get("number_of_nodes").getInt();
     const uint32_t totalBorderSize = numberOfOutputs;
 
     SegmentHeader header = createNewHeader(numberOfOutputs, totalBorderSize);
-    header.position = convertPosition(clusterTemplatePart);
 
     allocateSegment(header);
     initSegmentPointer(header);
-    initBorderBuffer(clusterTemplatePart);
+    initSlots(numberOfOutputs);
     connectBorderBuffer();
 
     // TODO: check result
@@ -93,9 +90,9 @@ OutputSegment::reinitPointer(const uint64_t numberOfBytes)
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
     byteCounter += sizeof(DynamicSegmentSettings);
 
-    pos = segmentHeader->neighborList.bytePos;
-    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
-    byteCounter += segmentHeader->neighborList.count * sizeof(SegmentNeighborList);
+    pos = segmentHeader->slotList.bytePos;
+    segmentSlots = reinterpret_cast<SegmentSlotList*>(dataPtr + pos);
+    byteCounter += segmentHeader->slotList.count * sizeof(SegmentSlotList);
 
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
@@ -181,8 +178,8 @@ OutputSegment::initSegmentPointer(const SegmentHeader &header)
     pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
 
-    pos = segmentHeader->neighborList.bytePos;
-    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+    pos = segmentHeader->slotList.bytePos;
+    segmentSlots = reinterpret_cast<SegmentSlotList*>(dataPtr + pos);
 
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
@@ -205,4 +202,30 @@ OutputSegment::allocateSegment(SegmentHeader &header)
     const uint32_t numberOfBlocks = (header.staticDataSize / 4096) + 1;
     header.staticDataSize = numberOfBlocks * 4096;
     segmentData.initBuffer(header.staticDataSize);
+}
+
+/**
+ * @brief initialize the slots
+ *
+ * @param numberOfInputs number of inputs
+ *
+ * @return true, if successful, else false
+ */
+bool
+OutputSegment::initSlots(const uint32_t numberOfInputs)
+{
+    for(uint32_t i = 0; i < 1; i++)
+    {
+        const uint32_t size  = numberOfInputs;
+
+        // init new segment-neighbor
+        SegmentSlot* slot = &segmentSlots->slots[i];
+        slot->inUse = false;
+        slot->numberOfNodes = size;
+        slot->inputTransferBufferPos = 0;
+        slot->outputTransferBufferPos = 0;
+        slot->direction = INPUT_DIRECTION;
+    }
+
+    return true;
 }

@@ -56,7 +56,7 @@ struct SegmentHeader
     // synapse-segment
     SegmentHeaderEntry name;
     SegmentHeaderEntry settings;
-    SegmentHeaderEntry neighborList;
+    SegmentHeaderEntry slotList;
     SegmentHeaderEntry inputTransfers;
     SegmentHeaderEntry outputTransfers;
 
@@ -74,24 +74,24 @@ struct SegmentHeader
     // total size: 512 Byte
 };
 
-enum NeighborDirection
+enum SlotDirection
 {
     UNDEFINED_DIRECTION = 0,
     INPUT_DIRECTION = 1,
     OUTPUT_DIRECTION = 2,
 };
 
-struct SegmentNeighbor
+struct SegmentSlot
 {
     uint32_t targetSegmentId = UNINIT_STATE_32;
 
-    uint8_t targetSide = 0;
+    uint8_t targetSlot = 0;
     uint8_t direction = UNDEFINED_DIRECTION;
 
     bool inUse = false;
     bool inputReady = false;
 
-    uint32_t size = 0;
+    uint32_t numberOfNodes = 0;
     uint32_t length = 0;
     char name[32];
 
@@ -137,9 +137,9 @@ struct SegmentNeighbor
     // total size: 64 Byte
 };
 
-struct SegmentNeighborList
+struct SegmentSlotList
 {
-    SegmentNeighbor neighbors[16];
+    SegmentSlot slots[16];
     // total size: 1024 Byte
 };
 

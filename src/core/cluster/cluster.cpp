@@ -147,7 +147,7 @@ Cluster::startForwardCycle()
     {
         for(uint8_t side = 0; side < 12; side++)
         {
-            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            SegmentSlot* neighbor = &segment->segmentSlots->slots[side];
             // TODO: check possible crash here
             neighbor->inputReady = neighbor->direction != INPUT_DIRECTION;
         }
@@ -168,7 +168,7 @@ Cluster::startBackwardCycle()
     {
         for(uint8_t side = 0; side < 12; side++)
         {
-            SegmentNeighbor* neighbor = &segment->segmentNeighbors->neighbors[side];
+            SegmentSlot* neighbor = &segment->segmentSlots->slots[side];
             neighbor->inputReady = neighbor->direction != OUTPUT_DIRECTION;
         }
     }

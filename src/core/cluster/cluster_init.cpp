@@ -130,7 +130,7 @@ initNewCluster(Cluster* cluster,
 
     initHeader(cluster, newMetaData, newSettings);
 
-    const std::string name = parsedContent.get("name").getString();
+    const std::string clusterName = parsedContent.get("name").getString();
     //const bool ret = cluster->setName(name);  // TODO: handle return
 
     LOG_INFO("create new cluster with uuid: " + cluster->networkMetaData->uuid.toString());
@@ -140,22 +140,23 @@ initNewCluster(Cluster* cluster,
     {
         const JsonItem segmentDef = parsedContent.get(i);
         const std::string type = segmentDef.get("type").getString();
+        const std::string name = segmentDef.get("name").getString();
 
         AbstractSegment* newSegment = nullptr;
         if(type == "input")
         {
-            newSegment = addInputSegment(cluster, segmentDef);
+            newSegment = addInputSegment(cluster, name, segmentDef);
         }
         else if(type == "output")
         {
-            newSegment = addOutputSegment(cluster, segmentDef);
+            newSegment = addOutputSegment(cluster, name, segmentDef);
         }
         else
         {
             std::map<std::string, Kitsunemimi::Json::JsonItem>::const_iterator it;
-            it = segmentTemplates.find(type);
+            it = segmentTemplates.find(name);
             if(it != segmentTemplates.end()) {
-                newSegment = addDynamicSegment(cluster, segmentDef, it->second);
+                newSegment = addDynamicSegment(cluster, name, segmentDef, it->second);
             }
         }
 
@@ -184,14 +185,15 @@ initNewCluster(Cluster* cluster,
  */
 AbstractSegment*
 addInputSegment(Cluster* cluster,
+                const std::string &name,
                 const JsonItem &clusterTemplatePart)
 {
     InputSegment* newSegment = new InputSegment();
-    JsonItem placeHolder;
 
-    if(newSegment->initSegment(clusterTemplatePart, placeHolder))
+    if(newSegment->initSegment(clusterTemplatePart,
+                               clusterTemplatePart.get("name").getString()))
     {
-        cluster->inputSegments.insert(std::make_pair(newSegment->getName(), newSegment));
+        cluster->inputSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else
@@ -213,14 +215,16 @@ addInputSegment(Cluster* cluster,
  */
 AbstractSegment*
 addOutputSegment(Cluster* cluster,
+                 const std::string &name,
                  const JsonItem &clusterTemplatePart)
 {
     OutputSegment* newSegment = new OutputSegment();
     JsonItem placeHolder;
 
-    if(newSegment->initSegment(clusterTemplatePart, placeHolder))
+    if(newSegment->initSegment(clusterTemplatePart,
+                               clusterTemplatePart.get("name").getString()))
     {
-        cluster->outputSegments.insert(std::make_pair(newSegment->getName(), newSegment));
+        cluster->outputSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else
@@ -242,13 +246,15 @@ addOutputSegment(Cluster* cluster,
  */
 AbstractSegment*
 addDynamicSegment(Cluster* cluster,
+                  const std::string &name,
                   const JsonItem &clusterTemplatePart,
                   const JsonItem &segmentTemplate)
 {
     DynamicSegment* newSegment = new DynamicSegment();
-
-    if(newSegment->initSegment(clusterTemplatePart, segmentTemplate))
+    if(newSegment->initSegment(segmentTemplate,
+                               clusterTemplatePart.get("name").getString()))
     {
+        cluster->internalSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else

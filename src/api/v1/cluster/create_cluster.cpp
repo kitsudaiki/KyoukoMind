@@ -82,7 +82,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
                        Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterName = blossomLeaf.input.get("name").getString();
-    const std::string clusterDefinition = blossomLeaf.input.get("cluster_definition").getString();
+    Kitsunemimi::Json::JsonItem clusterDefinition = blossomLeaf.input.get("cluster_definition");
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
@@ -135,7 +135,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 
     const std::string uuid = blossomLeaf.output.get("uuid").getString();
     Cluster* newCluster = new Cluster();
-    if(clusterDefinition != "")
+    if(clusterDefinition.size() != 0)
     {
         if(initCluster(newCluster,
                        uuid,
@@ -175,7 +175,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 bool
 CreateCluster::initCluster(Cluster* cluster,
                            const std::string &clusterUuid,
-                           const std::string &clusterDefinition,
+                           Kitsunemimi::Json::JsonItem &clusterDefinition,
                            const Kitsunemimi::DataMap &context,
                            Kitsunemimi::Sakura::BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
@@ -184,17 +184,8 @@ CreateCluster::initCluster(Cluster* cluster,
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
-    // parse template
-    Kitsunemimi::Json::JsonItem parsedTemplate;
-    if(parsedTemplate.parse(clusterDefinition, error) == false)
-    {
-        error.addMeesage("Failed to parse decoded template");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
     // collect all segment-templates, which are required by the cluster-template
-    Kitsunemimi::Json::JsonItem segments = parsedTemplate.get("segments");
+    Kitsunemimi::Json::JsonItem segments = clusterDefinition.get("segments");
     std::map<std::string, Kitsunemimi::Json::JsonItem> segmentTemplates;
     for(uint64_t i = 0; i < segments.size(); i++)
     {
@@ -228,7 +219,7 @@ CreateCluster::initCluster(Cluster* cluster,
     }
 
     // generate and initialize the cluster based on the cluster- and segment-templates
-    if(cluster->init(parsedTemplate, segmentTemplates, clusterUuid) == false)
+    if(cluster->init(clusterDefinition, segmentTemplates, clusterUuid) == false)
     {
         error.addMeesage("Failed to initialize cluster based on a template");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
