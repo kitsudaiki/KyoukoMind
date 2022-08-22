@@ -85,7 +85,7 @@ struct SegmentSlot
 {
     uint32_t targetSegmentId = UNINIT_STATE_32;
 
-    uint8_t targetSlot = 0;
+    uint8_t targetSlotId = 0;
     uint8_t direction = UNDEFINED_DIRECTION;
 
     bool inUse = false;

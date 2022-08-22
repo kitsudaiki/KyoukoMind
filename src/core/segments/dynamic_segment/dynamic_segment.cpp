@@ -597,16 +597,16 @@ DynamicSegment::initSlots(const JsonItem &segmentTemplate)
         }
 
         const uint32_t numberOfNodes = brick.get("number_of_nodes").getInt();
-        SegmentSlot* currentNeighbor = &segmentSlots->slots[slotCounter];
-        currentNeighbor->setName(brick.get("name").getString());
-        currentNeighbor->numberOfNodes = numberOfNodes;
-        currentNeighbor->inputTransferBufferPos = posCounter;
-        currentNeighbor->outputTransferBufferPos = posCounter;
+        SegmentSlot* currentSlot = &segmentSlots->slots[slotCounter];
+        currentSlot->setName(brick.get("name").getString());
+        currentSlot->numberOfNodes = numberOfNodes;
+        currentSlot->inputTransferBufferPos = posCounter;
+        currentSlot->outputTransferBufferPos = posCounter;
 
         if(brick.get("type").getString() == "input") {
-            currentNeighbor->direction = INPUT_DIRECTION;
+            currentSlot->direction = INPUT_DIRECTION;
         } else {
-            currentNeighbor->direction = OUTPUT_DIRECTION;
+            currentSlot->direction = OUTPUT_DIRECTION;
         }
 
         // update total position pointer, because all border-buffers are in the same blog

@@ -75,6 +75,24 @@ AbstractSegment::setName(const std::string &name)
 }
 
 /**
+ * @brief AbstractSegment::getSlotId
+ * @param name
+ * @return
+ */
+uint8_t
+AbstractSegment::getSlotId(const std::string &name)
+{
+    for(uint64_t i = 0; i < 16; i++)
+    {
+        if(segmentSlots->slots[i].getName() == name) {
+            return i;
+        }
+    }
+
+    return UNINIT_STATE_8;
+}
+
+/**
  * @brief check if all border-buffer, which are in use, are ready for processing
  *
  * @return true, if all border-buffer are ready, else false
@@ -82,7 +100,7 @@ AbstractSegment::setName(const std::string &name)
 bool
 AbstractSegment::isReady()
 {
-    for(uint8_t i = 0; i < 12; i++)
+    for(uint8_t i = 0; i < 16; i++)
     {
         if(segmentSlots->slots[i].inUse == true
                 && segmentSlots->slots[i].inputReady == false)
@@ -109,14 +127,14 @@ AbstractSegment::finishSegment()
     AbstractSegment* targetSegment = nullptr;
     SegmentSlotList* targetNeighbors = nullptr;
 
-    for(uint8_t i = 0; i < 12; i++)
+    for(uint8_t i = 0; i < 16; i++)
     {
         if(segmentSlots->slots[i].inUse == 1)
         {
             // get information of the neighbor
             sourceBuffer = &outputTransfers[segmentSlots->slots[i].outputTransferBufferPos];
             targetId = segmentSlots->slots[i].targetSegmentId;
-            targetSide = segmentSlots->slots[i].targetSlot;
+            targetSide = segmentSlots->slots[i].targetSlotId;
 
             // copy data to the target buffer and wipe the source buffer
             targetSegment = parentCluster->allSegments.at(targetId);

@@ -114,12 +114,10 @@ initHeader(Cluster* cluster,
  */
 bool
 initNewCluster(Cluster* cluster,
-               const JsonItem &parsedContent,
+               const JsonItem &clusterTemplate,
                const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
                const std::string &uuid)
 {
-    const JsonItem paredSettings = parsedContent.get("settings");
-
     // meta-data
     Cluster::MetaData newMetaData;
     strncpy(newMetaData.uuid.uuid, uuid.c_str(), 36);
@@ -130,15 +128,17 @@ initNewCluster(Cluster* cluster,
 
     initHeader(cluster, newMetaData, newSettings);
 
-    const std::string clusterName = parsedContent.get("name").getString();
+    //const std::string clusterName = clusterTemplate.get("name").getString();
     //const bool ret = cluster->setName(name);  // TODO: handle return
 
     LOG_INFO("create new cluster with uuid: " + cluster->networkMetaData->uuid.toString());
 
+    const JsonItem segmentsDef = clusterTemplate.get("segments");
+
     // parse and create segments
-    for(uint32_t i = 0; i < parsedContent.size(); i++)
+    for(uint32_t i = 0; i < segmentsDef.size(); i++)
     {
-        const JsonItem segmentDef = parsedContent.get(i);
+        const JsonItem segmentDef = segmentsDef.get(i);
         const std::string type = segmentDef.get("type").getString();
         const std::string name = segmentDef.get("name").getString();
 
@@ -171,6 +171,38 @@ initNewCluster(Cluster* cluster,
         newSegment->segmentHeader->parentClusterId = cluster->networkMetaData->uuid;
         newSegment->parentCluster = cluster;
     }
+
+    // connect all segments
+    for(uint32_t i = 0; i < segmentsDef.size(); i++)
+    {
+        const JsonItem segmentDef = segmentsDef.get(i);
+        const std::string sourceSegment = segmentDef.get("name").getString();
+        const JsonItem outputs = segmentDef.get("out");
+
+        for(uint32_t o = 0; o < outputs.size(); o++)
+        {
+            const std::string targetSegment = outputs.get(o).get("target_segment").getString();
+            std::string targetSlot = outputs.get(o).get("target_brick").getString();
+            if(targetSlot == "") {
+                targetSlot = "input";
+            }
+            std::string sourceSlot = outputs.get(o).get("source_brick").getString();
+            if(sourceSlot == "") {
+                sourceSlot = "output";
+            }
+
+            if(cluster->connectSlot(sourceSegment, sourceSlot, targetSegment, targetSlot) == false)
+            {
+                std::cout<<"Faild to connect segment '"
+                         << sourceSegment
+                         << "' with \n\n"
+                         << outputs.toString(true)
+                         << "\n\n"<<std::endl;
+            }
+        }
+    }
+
+    std::cout<<"############################# success"<<std::endl;
 
     return true;
 }

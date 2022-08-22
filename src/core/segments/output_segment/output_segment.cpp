@@ -59,8 +59,9 @@ OutputSegment::initSegment(const JsonItem &segmentTemplate, const std::string &n
 
     allocateSegment(header);
     initSegmentPointer(header);
-    initSlots(numberOfOutputs);
     connectBorderBuffer();
+
+    initSlots(numberOfOutputs);
 
     // TODO: check result
     setName(name);
@@ -219,12 +220,13 @@ OutputSegment::initSlots(const uint32_t numberOfInputs)
         const uint32_t size  = numberOfInputs;
 
         // init new segment-neighbor
-        SegmentSlot* slot = &segmentSlots->slots[i];
-        slot->inUse = false;
-        slot->numberOfNodes = size;
-        slot->inputTransferBufferPos = 0;
-        slot->outputTransferBufferPos = 0;
-        slot->direction = INPUT_DIRECTION;
+        SegmentSlot* currentSlot = &segmentSlots->slots[i];
+        currentSlot->setName("input");
+        currentSlot->inUse = false;
+        currentSlot->numberOfNodes = size;
+        currentSlot->inputTransferBufferPos = 0;
+        currentSlot->outputTransferBufferPos = 0;
+        currentSlot->direction = INPUT_DIRECTION;
     }
 
     return true;

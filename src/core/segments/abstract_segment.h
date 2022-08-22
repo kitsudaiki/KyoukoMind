@@ -59,6 +59,7 @@ public:
 
     virtual bool initSegment(const JsonItem &segmentTemplate, const std::string &name) = 0;
     virtual bool reinitPointer(const uint64_t numberOfBytes) = 0;
+    uint8_t getSlotId(const std::string &name);
 
     bool isReady();
     void finishSegment();

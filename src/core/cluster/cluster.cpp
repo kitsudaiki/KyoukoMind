@@ -87,11 +87,82 @@ std::string Cluster::getUuid()
  * @return true, if successful, else false
  */
 bool
-Cluster::init(const JsonItem &parsedContent,
+Cluster::init(const JsonItem &clusterTemplate,
               const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
               const std::string &uuid)
 {
-    return initNewCluster(this, parsedContent, segmentTemplates, uuid);
+    return initNewCluster(this, clusterTemplate, segmentTemplates, uuid);
+}
+
+/**
+ * @brief Cluster::connectSlot
+ *
+ * @param sourceSegment
+ * @param sourceSlotName
+ * @param targetSegment
+ * @param targetSlotName
+ *
+ * @return
+ */
+bool
+Cluster::connectSlot(const std::string &sourceSegmentName,
+                     const std::string &sourceSlotName,
+                     const std::string &targetSegmentName,
+                     const std::string &targetSlotName)
+{
+    const uint64_t sourceSegmentId = getSegmentId(sourceSegmentName);
+    if(sourceSegmentId == UNINIT_STATE_64) {
+        return false;
+    }
+
+    const uint64_t targetSegmentId = getSegmentId(targetSegmentName);
+    if(targetSegmentId == UNINIT_STATE_64) {
+        return false;
+    }
+
+    AbstractSegment* sourceSegment = allSegments.at(sourceSegmentId);
+    AbstractSegment* targetSegment = allSegments.at(targetSegmentId);
+
+    const uint8_t sourceSlotId = sourceSegment->getSlotId(sourceSlotName);
+    if(sourceSlotId == UNINIT_STATE_8) {
+        return false;
+    }
+
+    const uint8_t targetSlotId = targetSegment->getSlotId(targetSlotName);
+    if(targetSlotId == UNINIT_STATE_8) {
+        return false;
+    }
+
+    SegmentSlot* sourceSlot = &sourceSegment->segmentSlots->slots[sourceSlotId];
+    SegmentSlot* targetSlot = &targetSegment->segmentSlots->slots[targetSlotId];
+
+    sourceSlot->inUse = true;
+    sourceSlot->targetSegmentId = targetSegmentId;
+    sourceSlot->targetSlotId = targetSlotId;
+
+    targetSlot->inUse = true;
+    targetSlot->targetSegmentId = sourceSegmentId;
+    targetSlot->targetSlotId = sourceSlotId;
+
+    return true;
+}
+
+/**
+ * @brief Cluster::getSegment
+ * @param name
+ * @return
+ */
+uint64_t
+Cluster::getSegmentId(const std::string &name)
+{
+    for(uint64_t i = 0; i < allSegments.size(); i++)
+    {
+        if(allSegments.at(i)->getName() == name) {
+            return i;
+        }
+    }
+
+    return UNINIT_STATE_64;
 }
 
 /**
@@ -145,7 +216,7 @@ Cluster::startForwardCycle()
     // set ready-states of all neighbors of all segments
     for(AbstractSegment* segment : allSegments)
     {
-        for(uint8_t side = 0; side < 12; side++)
+        for(uint8_t side = 0; side < 16; side++)
         {
             SegmentSlot* neighbor = &segment->segmentSlots->slots[side];
             // TODO: check possible crash here
@@ -166,7 +237,7 @@ Cluster::startBackwardCycle()
     // set ready-states of all neighbors of all segments
     for(AbstractSegment* segment : allSegments)
     {
-        for(uint8_t side = 0; side < 12; side++)
+        for(uint8_t side = 0; side < 16; side++)
         {
             SegmentSlot* neighbor = &segment->segmentSlots->slots[side];
             neighbor->inputReady = neighbor->direction != OUTPUT_DIRECTION;

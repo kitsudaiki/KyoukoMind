@@ -77,7 +77,6 @@ public:
         float lerningValue = 0.0f;
 
         uint8_t padding[252];
-
         // total size: 256 Byte
     };
 
@@ -93,9 +92,14 @@ public:
     const std::string getUuid();
     const std::string getName();
     bool setName(const std::string newName);
-    bool init(const JsonItem &parsedContent,
+    bool init(const JsonItem &clusterTemplate,
               const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
               const std::string &uuid);
+    bool connectSlot(const std::string &sourceSegmentName,
+                     const std::string &sourceSlotName,
+                     const std::string &targetSegmentName,
+                     const std::string &targetSlotName);
+    uint64_t getSegmentId(const std::string &name);
 
     // task-handling
     void updateClusterState();
