@@ -51,12 +51,10 @@ CreateCluster::CreateCluster()
     assert(addFieldBorder("name", 4, 256));
     assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
-    registerInputField("template_uuid",
-                       SAKURA_STRING_TYPE,
+    registerInputField("cluster_definition",
+                       SAKURA_MAP_TYPE,
                        false,
-                       "UUID of the template, which should be used as base for the cluster.");
-    assert(addFieldRegex("template_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "Definition, which describe the new cluster.");
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -68,9 +66,6 @@ CreateCluster::CreateCluster()
     registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the new created cluster.");
-    registerOutputField("template_uuid",
-                        SAKURA_STRING_TYPE,
-                        "UUID of the template, which should be used as base for the cluster.");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -87,7 +82,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
                        Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterName = blossomLeaf.input.get("name").getString();
-    const std::string templateUuid = blossomLeaf.input.get("template_uuid").getString();
+    Kitsunemimi::Json::JsonItem clusterDefinition = blossomLeaf.input.get("cluster_definition");
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
@@ -110,7 +105,6 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     // convert values
     Kitsunemimi::Json::JsonItem clusterData;
     clusterData.insert("name", clusterName);
-    clusterData.insert("template_uuid", templateUuid);
     clusterData.insert("project_uuid", "-");
     clusterData.insert("owner_uuid", "-");
     clusterData.insert("visibility", "private");
@@ -141,9 +135,14 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 
     const std::string uuid = blossomLeaf.output.get("uuid").getString();
     Cluster* newCluster = new Cluster();
-    if(templateUuid != "")
+    if(clusterDefinition.size() != 0)
     {
-        if(initCluster(newCluster, uuid, templateUuid, context, status, error) == false)
+        if(initCluster(newCluster,
+                       uuid,
+                       clusterDefinition,
+                       context,
+                       status,
+                       error) == false)
         {
             delete newCluster;
             error.addMeesage("Failed to initialize cluster");
@@ -166,7 +165,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
  *
  * @param cluster pointer to the cluster, which should be initialized
  * @param clusterUuid uuid of the cluster
- * @param templateUuid uuid of the template, which should be used as base for the new cluster
+ * @param clusterDefinition definition, which describe the new cluster
  * @param context context-object with date for the access to the database-tables
  * @param status reference for status-output
  * @param error reference for error-output
@@ -176,7 +175,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 bool
 CreateCluster::initCluster(Cluster* cluster,
                            const std::string &clusterUuid,
-                           const std::string &templateUuid,
+                           Kitsunemimi::Json::JsonItem &clusterDefinition,
                            const Kitsunemimi::DataMap &context,
                            Kitsunemimi::Sakura::BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
@@ -185,45 +184,96 @@ CreateCluster::initCluster(Cluster* cluster,
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
-    // get new created user from database
-    JsonItem templateData;
-    if(KyoukoRoot::templateTable->getTemplate(templateData,
-                                              templateUuid,
-                                              userUuid,
-                                              projectUuid,
-                                              isAdmin,
-                                              error,
-                                              true) == false)
+    // collect all segment-templates, which are required by the cluster-template
+    Kitsunemimi::Json::JsonItem segments = clusterDefinition.get("segments");
+    std::map<std::string, Kitsunemimi::Json::JsonItem> segmentTemplates;
+    for(uint64_t i = 0; i < segments.size(); i++)
     {
-        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
-        status.errorMessage = "Template with UUID '" + templateUuid + "' doesn't exist";
+        const std::string type = segments.get(i).get("type").getString();
+
+        // skip input- and output-segments, because they are generated anyway
+        if(type == "input"
+                || type == "output")
+        {
+            continue;
+        }
+
+        // get the content of the segment-template
+        Kitsunemimi::Json::JsonItem parsedTemplate;
+        if(getSegmentTemplate(parsedTemplate,
+                              type,
+                              userUuid,
+                              projectUuid,
+                              isAdmin,
+                              error) == false)
+        {
+            // TODO: set status-message and maybe change to not-found-error
+            status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+            return false;
+        }
+
+        // add segment-template to a map, which is generated later when creating the segments
+        // based on these templates
+        const std::string name = segments.get(i).get("name").getString();
+        segmentTemplates.emplace(name, parsedTemplate);
+    }
+
+    // generate and initialize the cluster based on the cluster- and segment-templates
+    if(cluster->init(clusterDefinition, segmentTemplates, clusterUuid) == false)
+    {
+        error.addMeesage("Failed to initialize cluster based on a template");
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief CreateCluster::getSegmentTemplate
+ * @param parsedTemplate
+ * @param name
+ * @param userUuid
+ * @param projectUuid
+ * @param isAdmin
+ * @param error
+ * @return
+ */
+bool
+CreateCluster::getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
+                                  const std::string &name,
+                                  const std::string &userUuid,
+                                  const std::string &projectUuid,
+                                  const bool isAdmin,
+                                  Kitsunemimi::ErrorContainer &error)
+{
+    // get segment-template from database
+    JsonItem templateData;
+    if(KyoukoRoot::templateTable->getTemplateByName(templateData,
+                                                    name,
+                                                    userUuid,
+                                                    projectUuid,
+                                                    isAdmin,
+                                                    error,
+                                                    true) == false)
+    {
         return false;
     }
 
     // decode template
-    std::string decodedTemplate;
+    std::string decodedTemplate = "";
     if(Kitsunemimi::Crypto::decodeBase64(decodedTemplate,
                                          templateData.get("data").getString()) == false)
     {
-        error.addMeesage("base64-decoding of the input failes");
-        status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
-        status.errorMessage = "Given template is not a valid base64 string";
+        // TODO: better error-messages with uuid
+        error.addMeesage("base64-decoding of the template failes");
         return false;
     }
 
-    // parse template
-    Kitsunemimi::Json::JsonItem parsedTemplate;
+    // parse json-formated-template
     if(parsedTemplate.parse(decodedTemplate, error) == false)
     {
         error.addMeesage("Failed to parse decoded template");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
-    if(cluster->init(parsedTemplate, clusterUuid) == false)
-    {
-        error.addMeesage("Failed to initialize cluster based on a template");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
 

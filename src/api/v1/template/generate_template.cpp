@@ -22,7 +22,6 @@
 
 #include "generate_template.h"
 #include <kyouko_root.h>
-#include <core/templates/template_creator.h>
 
 #include <libSagiriArchive/datasets.h>
 
@@ -104,7 +103,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
     const std::string token = context.getStringByKey("token");
 
     // check if template with the name already exist within the table
-    Kitsunemimi::Json::JsonItem getResult;
+    /*Kitsunemimi::Json::JsonItem getResult;
     if(KyoukoRoot::templateTable->getTemplateByName(getResult,
                                                     name,
                                                     userUuid,
@@ -116,7 +115,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
         error.addMeesage(status.errorMessage);
         return false;
-    }
+    }*/
 
     // get meta-infos of data-set from sagiri
     Kitsunemimi::Json::JsonItem dataSetInfo;
@@ -133,17 +132,20 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfOutputs = dataSetInfo.get("outputs").getLong();
 
     //  generate new template
-    DataItem* generatedContent = generateNewTemplate(name,
+    /*DataItem* generatedContent = generateNewTemplate(name,
                                                      type,
                                                      numberOfInputs,
                                                      numberOfOutputs,
                                                      settingsOverride);
-    const std::string stringContent = generatedContent->toString();
+    const std::string stringContent = generatedContent->toString();*/
+    const std::string stringContent = "";
     // std::cout<<generatedContent->toString(true)<<std::endl;
 
     // convert template to base64 to be storage into database
     std::string base64Content;
-    Kitsunemimi::Crypto::encodeBase64(base64Content, stringContent.c_str(), stringContent.size());
+    Kitsunemimi::Crypto::encodeBase64(base64Content,
+                                      stringContent.c_str(),
+                                      stringContent.size());
 
     // convert values
     Kitsunemimi::Json::JsonItem templateData;
@@ -156,9 +158,9 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     // add new user to table
     if(KyoukoRoot::templateTable->addTemplate(templateData,
-                                              userUuid,
-                                              projectUuid,
-                                              error) == false)
+                                                     userUuid,
+                                                     projectUuid,
+                                                     error) == false)
     {
         error.addMeesage("Failed to add new template to database");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
@@ -166,17 +168,17 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get new created user from database
-    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
-                                                    name,
-                                                    userUuid,
-                                                    projectUuid,
-                                                    isAdmin,
-                                                    error) == false)
+    /*if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
+                                                           name,
+                                                           userUuid,
+                                                           projectUuid,
+                                                           isAdmin,
+                                                           error) == false)
     {
         error.addMeesage("Failed to get new template from database");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
-    }
+    }*/
 
     // remove irrelevant fields
     blossomLeaf.output.remove("owner_uuid");

@@ -149,7 +149,6 @@ HEADERS += \
     src/core/cluster/cluster.h \
     src/core/cluster/cluster_handler.h \
     src/core/cluster/cluster_init.h \
-    src/core/cluster/cluster_meta.h \
     src/core/cluster/statemachine_init.h \
     src/core/cluster/states/cycle_finish_state.h \
     src/core/cluster/states/graphs/graph_interpolation_state.h \
@@ -180,10 +179,6 @@ HEADERS += \
     src/core/segments/output_segment/processing.h \
     src/core/segments/segment_meta.h \
     src/core/struct_validation.h \
-    src/core/templates/dynamic_segments.h \
-    src/core/templates/input_segments.h \
-    src/core/templates/output_segments.h \
-    src/core/templates/template_creator.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
     src/kyouko_root.h \

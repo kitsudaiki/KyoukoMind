@@ -78,8 +78,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
                         Kitsunemimi::ErrorContainer &error)
 {
     const std::string name = blossomLeaf.input.get("name").getString();
-    const JsonItem settingsOverride = blossomLeaf.input.get("template");
-
+    const std::string stringContent = blossomLeaf.input.get("template").toString();
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");
@@ -100,9 +99,6 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    const std::string stringContent = settingsOverride.toString();
-    // std::cout<<generatedContent->toString(true)<<std::endl;
-
     // convert template to base64 to be storage into database
     std::string base64Content;
     Kitsunemimi::Crypto::encodeBase64(base64Content, stringContent.c_str(), stringContent.size());
@@ -111,9 +107,8 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem templateData;
     templateData.insert("name", name);
     templateData.insert("data", base64Content);
-    // TODO: fill project- and owner-id
-    templateData.insert("project_uuid", "-");
-    templateData.insert("owner_uuid", "-");
+    templateData.insert("project_uuid", projectUuid);
+    templateData.insert("owner_uuid", userUuid);
     templateData.insert("visibility", "private");
 
     // add new user to table

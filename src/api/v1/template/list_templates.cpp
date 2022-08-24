@@ -59,6 +59,9 @@ ListTemplates::runTask(BlossomLeaf &blossomLeaf,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
+    const std::string type = blossomLeaf.input.get("template").get("type").getString();
+    // TODO: check type-field
+
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");

@@ -37,7 +37,7 @@ public:
     DynamicSegment(const void* data, const uint64_t dataSize);
     ~DynamicSegment();
 
-    bool initSegment(const JsonItem &parsedContent);
+    bool initSegment(const JsonItem &segmentTemplate, const std::string &name);
     bool reinitPointer(const uint64_t numberOfBytes);
 
     Brick* bricks = nullptr;
@@ -64,6 +64,7 @@ private:
     void connectAllBricks();
     bool initializeNodes();
     uint32_t goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength);
+    bool initSlots(const JsonItem &segmentTemplate);
 };
 
 #endif // KYOUKOMIND_DYNAMIC_SEGMENTS_H

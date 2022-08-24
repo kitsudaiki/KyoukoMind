@@ -24,7 +24,6 @@
 #define KYOUKOMIND_CLUSTERINIT_H
 
 #include <common.h>
-#include <core/cluster/cluster_meta.h>
 
 class InputSegment;
 class OutputSegment;
@@ -35,32 +34,21 @@ class Cluster;
 bool reinitPointer(Cluster* cluster, const std::string &uuid);
 
 bool initNewCluster(Cluster* cluster,
-                    const JsonItem &parsedContent,
+                    const JsonItem &clusterTemplate,
+                    const std::map<std::string, JsonItem> &segmentTemplates,
                     const std::string &uuid);
 
-void initHeader(Cluster* cluster,
-                        const ClusterMetaData &metaData,
-                        const ClusterSettings &settings);
-
 AbstractSegment* addInputSegment(Cluster* cluster,
-                                 const JsonItem &parsedContent);
+                                 const std::string &name,
+                                 const JsonItem &clusterTemplatePart);
 AbstractSegment* addOutputSegment(Cluster* cluster,
-                                  const JsonItem &parsedContent);
+                                  const std::string &name,
+                                  const JsonItem &clusterTemplatePart);
 AbstractSegment* addDynamicSegment(Cluster* cluster,
-                                   const JsonItem &parsedContent);
+                                   const std::string &name,
+                                   const JsonItem &clusterTemplatePart,
+                                   const JsonItem &segmentTemplate);
 
-const std::string prepareDirection(const JsonItem &segments,
-                                   const uint32_t foundNext,
-                                   const uint8_t side);
-long getNeighborBorderSize(const JsonItem &currentSegment,
-                           const JsonItem &segments,
-                           const uint32_t foundNext);
-bool prepareSingleSegment(std::deque<uint32_t> &segmentQueue,
-                          const JsonItem &segments,
-                          JsonItem &parsedSegments);
-bool prepareSegments(const JsonItem &parsedContent);
-uint32_t checkNextPosition(const JsonItem &segments, const Position nextPos);
 Position convertPosition(const JsonItem &parsedContent);
-
 
 #endif // KYOUKOMIND_CLUSTERINIT_H

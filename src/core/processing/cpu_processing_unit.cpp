@@ -179,8 +179,8 @@ CpuProcessingUnit::run()
             }
 
             // reset input ready status
-            for(uint8_t side = 0; side < 12; side++) {
-                currentSegment->segmentNeighbors->neighbors[side].inputReady = false;
+            for(uint8_t side = 0; side < 16; side++) {
+                currentSegment->segmentSlots->slots[side].inputReady = false;
             }
 
             // handle type of processing

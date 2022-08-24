@@ -42,10 +42,17 @@ protected:
 private:
     bool initCluster(Cluster* cluster,
                      const std::string &clusterUuid,
-                     const std::string &templateUuid,
+                     Kitsunemimi::Json::JsonItem &clusterDefinition,
                      const Kitsunemimi::DataMap &context,
                      Kitsunemimi::Sakura::BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error);
+
+    bool getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
+                            const std::string &name,
+                            const std::string &userUuid,
+                            const std::string &projectUuid,
+                            const bool isAdmin,
+                            Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // KYOUKOMIND_CREATECLUSTER_H

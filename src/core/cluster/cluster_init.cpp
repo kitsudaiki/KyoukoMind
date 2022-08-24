@@ -54,13 +54,14 @@ reinitPointer(Cluster* cluster,
     uint64_t pos = 0;
 
     // write metadata to buffer
-    cluster->networkMetaData = reinterpret_cast<ClusterMetaData*>(dataPtr + pos);
-    pos += sizeof(ClusterMetaData);
+    cluster->networkMetaData = reinterpret_cast<Cluster::MetaData*>(dataPtr + pos);
+    pos += sizeof(Cluster::MetaData);
 
     // write settings to buffer
-    cluster->networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
-    pos += sizeof(ClusterSettings);
+    cluster->networkSettings = reinterpret_cast<Cluster::Settings*>(dataPtr + pos);
+    pos += sizeof(Cluster::Settings);
 
+    // override old uuid with the new one
     strncpy(cluster->networkMetaData->uuid.uuid, uuid.c_str(), 36);
     cluster->networkMetaData->uuid.uuid[36] = '\0';
 
@@ -78,8 +79,8 @@ reinitPointer(Cluster* cluster,
  */
 void
 initHeader(Cluster* cluster,
-           const ClusterMetaData &metaData,
-           const ClusterSettings &settings)
+           const Cluster::MetaData &metaData,
+           const Cluster::Settings &settings)
 {
     // allocate memory
     const uint32_t numberOfBlocks = 1;
@@ -89,14 +90,14 @@ initHeader(Cluster* cluster,
     uint64_t pos = 0;
 
     // write metadata to buffer
-    cluster->networkMetaData = reinterpret_cast<ClusterMetaData*>(dataPtr + pos);
+    cluster->networkMetaData = reinterpret_cast<Cluster::MetaData*>(dataPtr + pos);
     cluster->networkMetaData[0] = metaData;
-    pos += sizeof(ClusterMetaData);
+    pos += sizeof(Cluster::MetaData);
 
     // write settings to buffer
-    cluster->networkSettings = reinterpret_cast<ClusterSettings*>(dataPtr + pos);
+    cluster->networkSettings = reinterpret_cast<Cluster::Settings*>(dataPtr + pos);
     cluster->networkSettings[0] = settings;
-    pos += sizeof(ClusterSettings);
+    pos += sizeof(Cluster::Settings);
 
     cluster->clusterData.usedBufferSize = pos;
 }
@@ -106,53 +107,63 @@ initHeader(Cluster* cluster,
  *
  * @param cluster pointer to the uninitionalized cluster
  * @param parsedContent parsed json with the information of the cluster
+ * @param segmentTemplates TODO
  * @param uuid uuid for the new cluster
  *
  * @return true, if successful, else false
  */
 bool
 initNewCluster(Cluster* cluster,
-               const JsonItem &parsedContent,
+               const JsonItem &clusterTemplate,
+               const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
                const std::string &uuid)
 {
-    prepareSegments(parsedContent);
-
-    const JsonItem paredSettings = parsedContent.get("settings");
-
     // meta-data
-    ClusterMetaData newMetaData;
+    Cluster::MetaData newMetaData;
     strncpy(newMetaData.uuid.uuid, uuid.c_str(), 36);
     newMetaData.uuid.uuid[36] = '\0';
 
     // settings
-    ClusterSettings newSettings;
-    newSettings.cycleTime = paredSettings.get("cycle_time").getLong();
+    Cluster::Settings newSettings;
 
     initHeader(cluster, newMetaData, newSettings);
 
-    const std::string name = parsedContent.get("name").getString();
+    //const std::string clusterName = clusterTemplate.get("name").getString();
     //const bool ret = cluster->setName(name);  // TODO: handle return
 
     LOG_INFO("create new cluster with uuid: " + cluster->networkMetaData->uuid.toString());
 
+    const JsonItem segmentsDef = clusterTemplate.get("segments");
+
     // parse and create segments
-    JsonItem segments = parsedContent.get("segments");
-    for(uint32_t i = 0; i < segments.size(); i++)
+    for(uint32_t i = 0; i < segmentsDef.size(); i++)
     {
-        const JsonItem segmentDef = segments.get(i);
+        const JsonItem segmentDef = segmentsDef.get(i);
+        const std::string type = segmentDef.get("type").getString();
+        const std::string name = segmentDef.get("name").getString();
+
         AbstractSegment* newSegment = nullptr;
-        if(segmentDef.get("type").getString() == "dynamic_segment") {
-            newSegment = addDynamicSegment(cluster, segmentDef);
+        if(type == "input")
+        {
+            newSegment = addInputSegment(cluster, name, segmentDef);
         }
-        if(segmentDef.get("type").getString() == "input_segment") {
-            newSegment = addInputSegment(cluster, segmentDef);
+        else if(type == "output")
+        {
+            newSegment = addOutputSegment(cluster, name, segmentDef);
         }
-        if(segmentDef.get("type").getString() == "output_segment") {
-            newSegment = addOutputSegment(cluster, segmentDef);
+        else
+        {
+            std::map<std::string, Kitsunemimi::Json::JsonItem>::const_iterator it;
+            it = segmentTemplates.find(name);
+            if(it != segmentTemplates.end()) {
+                newSegment = addDynamicSegment(cluster, name, segmentDef, it->second);
+            }
         }
 
-        if(newSegment == nullptr) {
+        if(newSegment == nullptr)
+        {
             // TODO: error-handling
+            std::cout<<"failed to init segment"<<std::endl;
             return false;
         }
 
@@ -161,6 +172,38 @@ initNewCluster(Cluster* cluster,
         newSegment->parentCluster = cluster;
     }
 
+    // connect all segments
+    for(uint32_t i = 0; i < segmentsDef.size(); i++)
+    {
+        const JsonItem segmentDef = segmentsDef.get(i);
+        const std::string sourceSegment = segmentDef.get("name").getString();
+        const JsonItem outputs = segmentDef.get("out");
+
+        for(uint32_t o = 0; o < outputs.size(); o++)
+        {
+            const std::string targetSegment = outputs.get(o).get("target_segment").getString();
+            std::string targetSlot = outputs.get(o).get("target_brick").getString();
+            if(targetSlot == "") {
+                targetSlot = "input";
+            }
+            std::string sourceSlot = outputs.get(o).get("source_brick").getString();
+            if(sourceSlot == "") {
+                sourceSlot = "output";
+            }
+
+            if(cluster->connectSlot(sourceSegment, sourceSlot, targetSegment, targetSlot) == false)
+            {
+                std::cout<<"Faild to connect segment '"
+                         << sourceSegment
+                         << "' with \n\n"
+                         << outputs.toString(true)
+                         << "\n\n"<<std::endl;
+            }
+        }
+    }
+
+    std::cout<<"############################# success"<<std::endl;
+
     return true;
 }
 
@@ -168,19 +211,21 @@ initNewCluster(Cluster* cluster,
  * @brief add new input-segment to cluster
  *
  * @param cluster pointer to the uninitionalized cluster
- * @param parsedContent parsed json with the information of the cluster
+ * @param clusterTemplatePart parsed json with the information of the cluster
  *
  * @return true, if successful, else false
  */
 AbstractSegment*
 addInputSegment(Cluster* cluster,
-                const JsonItem &parsedContent)
+                const std::string &name,
+                const JsonItem &clusterTemplatePart)
 {
     InputSegment* newSegment = new InputSegment();
 
-    if(newSegment->initSegment(parsedContent))
+    if(newSegment->initSegment(clusterTemplatePart,
+                               clusterTemplatePart.get("name").getString()))
     {
-        cluster->inputSegments.insert(std::make_pair(newSegment->getName(), newSegment));
+        cluster->inputSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else
@@ -196,19 +241,22 @@ addInputSegment(Cluster* cluster,
  * @brief add new output-segment to cluster
  *
  * @param cluster pointer to the uninitionalized cluster
- * @param parsedContent parsed json with the information of the cluster
+ * @param clusterTemplatePart parsed json with the information of the cluster
  *
  * @return true, if successful, else false
  */
 AbstractSegment*
 addOutputSegment(Cluster* cluster,
-                 const JsonItem &parsedContent)
+                 const std::string &name,
+                 const JsonItem &clusterTemplatePart)
 {
     OutputSegment* newSegment = new OutputSegment();
+    JsonItem placeHolder;
 
-    if(newSegment->initSegment(parsedContent))
+    if(newSegment->initSegment(clusterTemplatePart,
+                               clusterTemplatePart.get("name").getString()))
     {
-        cluster->outputSegments.insert(std::make_pair(newSegment->getName(), newSegment));
+        cluster->outputSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else
@@ -224,18 +272,21 @@ addOutputSegment(Cluster* cluster,
  * @brief add new dynamic-segment to cluster
  *
  * @param cluster pointer to the uninitionalized cluster
- * @param parsedContent parsed json with the information of the cluster
+ * @param clusterTemplatePart parsed json with the information of the cluster
  *
  * @return true, if successful, else false
  */
 AbstractSegment*
 addDynamicSegment(Cluster* cluster,
-                  const JsonItem &parsedContent)
+                  const std::string &name,
+                  const JsonItem &clusterTemplatePart,
+                  const JsonItem &segmentTemplate)
 {
     DynamicSegment* newSegment = new DynamicSegment();
-
-    if(newSegment->initSegment(parsedContent))
+    if(newSegment->initSegment(segmentTemplate,
+                               clusterTemplatePart.get("name").getString()))
     {
+        cluster->internalSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else
@@ -248,232 +299,6 @@ addDynamicSegment(Cluster* cluster,
 }
 
 /**
- * @brief set directon for a segment for each side for later internal information-flow
- *
- * @param segments json with all segments
- * @param foundNext id of the neigbor-segment
- * @param side side where the neigbor is connected
- *
- * @return direction (input / output)
- */
-const std::string
-prepareDirection(const JsonItem &segments,
-                 const uint32_t foundNext,
-                 const uint8_t side)
-{
-    std::string direction = "";
-
-    if(foundNext != UNINIT_STATE_32)
-    {
-        JsonItem nextSegment = segments.get(foundNext);
-        if(nextSegment.contains("neighbors") == false)
-        {
-            direction = "output";
-        }
-        else
-        {
-            const JsonItem neighbor = nextSegment.get("neighbors").get(11 - side);
-            const std::string otherDirection = neighbor.get("direction").getString();
-            if(otherDirection == "input") {
-                direction = "output";
-            } else if(otherDirection == "output") {
-                direction = "input";
-            } else {
-                assert(false);
-            }
-        }
-    }
-
-    return direction;
-}
-
-/**
- * @brief get border-size between two connected segments
- *
- * @param currentSegment  json with current segment
- * @param segments json with all segments
- * @param foundNext id of the next segment
- *
- * @return size of the border
- */
-long
-getNeighborBorderSize(const JsonItem &currentSegment,
-                      const JsonItem &segments,
-                      const uint32_t foundNext)
-{
-    long val = 0;
-
-    if(foundNext != UNINIT_STATE_32)
-    {
-        if(currentSegment.get("type").getString() == "dynamic_segment"
-                && segments.get(foundNext).get("type").getString() == "dynamic_segment")
-        {
-            // TODO: make configurable
-            val = 500;
-        }
-
-        if(currentSegment.get("type").getString() == "static_segment"
-                && segments.get(foundNext).get("type").getString() == "static_segment")
-        {
-            // TODO: make configurable
-            val = 500;
-        }
-
-        if(currentSegment.get("type").getString() == "dynamic_segment"
-                && segments.get(foundNext).get("type").getString() == "static_segment")
-        {
-            // TODO: make configurable
-            val = 500;
-        }
-
-        if(currentSegment.get("type").getString() == "static_segment"
-                && segments.get(foundNext).get("type").getString() == "dynamic_segment")
-        {
-            // TODO: make configurable
-            val = 500;
-        }
-
-        if(currentSegment.get("type").getString() == "input_segment") {
-            val = currentSegment.get("number_of_inputs").getInt();
-        }
-
-        if(currentSegment.get("type").getString() == "output_segment") {
-            val = currentSegment.get("number_of_outputs").getInt();
-        }
-
-        if(segments.get(foundNext).get("type").getString() == "output_segment") {
-            val = segments.get(foundNext).get("number_of_outputs").getInt();
-        }
-
-        if(segments.get(foundNext).get("type").getString() == "input_segment") {
-            val = segments.get(foundNext).get("number_of_inputs").getInt();
-        }
-    }
-
-    return val;
-}
-
-/**
- * @brief prepare single segment
- *
- * @param segmentQueue reference to the segment-queue, which handles the segments for initializing
- * @param segments json with all segments
- * @param currentSegment current segment as json
- *
- * @return true, if successful, else false
- */
-bool
-prepareSingleSegment(std::deque<uint32_t> &segmentQueue,
-                     const JsonItem &segments,
-                     JsonItem &currentSegment)
-{
-    const Position currentPosition = convertPosition(currentSegment);
-    DataArray* nextList = new DataArray();
-    long borderBufferSize = 0;
-
-    for(uint32_t side = 0; side < 12; side++)
-    {
-        const Position nextPos = getNeighborPos(currentPosition, side);
-        const uint32_t foundNext = checkNextPosition(segments, nextPos);
-        DataMap* neighborSettings = new DataMap();
-
-        // add next segment to initializing-queue, if not already processed
-        if(foundNext != UNINIT_STATE_32
-                && segments.get(foundNext).contains("neighbors") == false)
-        {
-            segmentQueue.push_back(foundNext);
-        }
-
-        // get id of the next
-        neighborSettings->insert("id", new DataValue(static_cast<long>(foundNext)));
-
-        // get size of the border for the side
-        const long val = getNeighborBorderSize(currentSegment, segments, foundNext);
-        borderBufferSize += val;
-        neighborSettings->insert("size", new DataValue(val));
-
-        // get direction of the side
-        std::string direction = "";
-        if(foundNext != UNINIT_STATE_32
-                && currentSegment.get("type").getString() == "input_segment")
-        {
-            direction = "output";
-        } else {
-            direction = prepareDirection(segments, foundNext, side);
-        }
-        neighborSettings->insert("direction", new DataValue(direction));
-
-        nextList->append(neighborSettings);
-    }
-
-    // update segment with the new collected data
-    currentSegment.insert("neighbors", nextList);
-    currentSegment.insert("total_border_size", new DataValue(borderBufferSize));
-
-    return true;
-}
-
-/**
- * @brief prepare all segments
- *
- * @param parsedContent json with all segments
- *
- * @return true, if successful, else false
- */
-bool
-prepareSegments(const JsonItem &parsedContent)
-{
-    std::deque<uint32_t> segmentQueue;
-    JsonItem segments = parsedContent.get("segments");
-
-    // search input-segments
-    for(uint32_t i = 0; i < segments.size(); i++)
-    {
-        JsonItem currentSegment = segments.get(i);
-        if(currentSegment.get("type").getString() == "input_segment") {
-            segmentQueue.push_back(i);
-        }
-    }
-
-    // iterate over all input segments
-    while(segmentQueue.size() > 0)
-    {
-        const uint32_t id = segmentQueue.front();
-        segmentQueue.pop_front();
-        JsonItem currentSegment = segments.get(id);
-
-        prepareSingleSegment(segmentQueue, segments, currentSegment);
-    }
-
-    // debug-output
-    // std::cout<<parsedContent.toString(true)<<std::endl;
-
-    return true;
-}
-
-/**
- * @brief get id of the segment with match with the requested position
- *
- * @param segments json with all segments
- * @param nextPos requested position
- *
- * @return id of the segment, if found, else UNINIT_STATE_32
- */
-uint32_t
-checkNextPosition(const JsonItem &segments,
-                  const Position nextPos)
-{
-    for(uint32_t i = 0; i < segments.size(); i++)
-    {
-        if(convertPosition(segments.get(i)) == nextPos) {
-            return i;
-        }
-    }
-
-    return UNINIT_STATE_32;
-}
-
-/**
  * @brief convert position information from json to position-item
  *
  * @param parsedContent json of the segment
@@ -483,7 +308,7 @@ checkNextPosition(const JsonItem &segments,
 Position
 convertPosition(const JsonItem &parsedContent)
 {
-    JsonItem parsedPosition = parsedContent.get("position");
+    const JsonItem parsedPosition = parsedContent.get("position");
 
     Position currentPosition;
     currentPosition.x = parsedPosition.get(0).getInt();

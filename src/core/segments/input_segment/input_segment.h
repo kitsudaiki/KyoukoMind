@@ -39,7 +39,7 @@ public:
 
     InputNode* inputs = nullptr;
 
-    bool initSegment(const JsonItem &parsedContent);
+    bool initSegment(const JsonItem &segmentTemplate, const std::string &name);
     bool reinitPointer(const uint64_t numberOfBytes);
 
 private:
@@ -48,6 +48,7 @@ private:
     void initSegmentPointer(const SegmentHeader &header);
     bool connectBorderBuffer();
     void allocateSegment(SegmentHeader &header);
+    bool initSlots(const uint32_t numberOfInputs);
 };
 
 #endif // KYOUKOMIND_INPUT_SEGMENTS_H

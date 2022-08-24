@@ -58,6 +58,15 @@ ShowTemplate::ShowTemplate()
     registerOutputField("template",
                         SAKURA_MAP_TYPE,
                         "The template itself.");
+    registerOutputField("owner_uuid",
+                        SAKURA_STRING_TYPE,
+                        "Owner of the template.");
+    registerOutputField("project_uuid",
+                        SAKURA_STRING_TYPE,
+                        "Project of the template.");
+    registerOutputField("visibility",
+                        SAKURA_STRING_TYPE,
+                        "Visibility of the template.");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -75,6 +84,7 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     // get information from request
     const std::string uuid = blossomLeaf.input.get("uuid").getString();
+    // TODO: check type-field
 
     // get context-info
     const std::string userUuid = context.getStringByKey("uuid");
@@ -118,9 +128,6 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     // remove irrelevant fields
     blossomLeaf.output.remove("data");
-    blossomLeaf.output.remove("owner_uuid");
-    blossomLeaf.output.remove("project_uuid");
-    blossomLeaf.output.remove("visibility");
 
     return true;
 }

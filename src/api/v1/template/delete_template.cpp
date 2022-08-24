@@ -61,8 +61,6 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     // get information from request
     const std::string templateUuid = blossomLeaf.input.get("uuid").getString();
-
-    // get context-info
     const std::string userUuid = context.getStringByKey("uuid");
     const std::string projectUuid = context.getStringByKey("projects");
     const bool isAdmin = context.getBoolByKey("is_admin");

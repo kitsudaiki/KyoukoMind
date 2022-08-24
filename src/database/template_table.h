@@ -41,7 +41,7 @@ public:
     bool addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
                      const std::string &userUuid,
                      const std::string &projectUuid,
-                    Kitsunemimi::ErrorContainer &error);
+                     Kitsunemimi::ErrorContainer &error);
     bool getTemplate(Kitsunemimi::Json::JsonItem &result,
                      const std::string &templateUuid,
                      const std::string &userUuid,

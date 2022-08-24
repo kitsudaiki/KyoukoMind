@@ -25,7 +25,6 @@
 
 #include <common.h>
 #include <core/cluster/task.h>
-#include <core/cluster/cluster_meta.h>
 
 class AbstractSegment;
 class InputSegment;
@@ -54,19 +53,53 @@ public:
         LEARN_BACKWARD_MODE = 2,
     };
 
+    struct MetaData
+    {
+        uint8_t objectType = CLUSTER_OBJECT;
+        uint8_t version = 1;
+        uint8_t padding1[6];
+        uint64_t clusterSize = 0;
+
+        Kitsunemimi::Hanami::kuuid uuid;
+        char name[1024];
+
+        uint32_t numberOfInputSegments = 0;
+        uint32_t numberOfOutputSegments = 0;
+        uint32_t numberOfSegments = 0;
+
+        uint8_t padding2[956];
+
+        // total size: 2048 Byte
+    };
+
+    struct Settings
+    {
+        float lerningValue = 0.0f;
+
+        uint8_t padding[252];
+        // total size: 256 Byte
+    };
+
     // cluster-data
     Kitsunemimi::DataBuffer clusterData;
-    ClusterMetaData* networkMetaData = nullptr;
-    ClusterSettings* networkSettings = nullptr;
+    Cluster::MetaData* networkMetaData = nullptr;
+    Cluster::Settings* networkSettings = nullptr;
     std::map<std::string, InputSegment*> inputSegments;
     std::map<std::string, OutputSegment*> outputSegments;
+    std::map<std::string, AbstractSegment*> internalSegments;
     std::vector<AbstractSegment*> allSegments;
 
     const std::string getUuid();
     const std::string getName();
     bool setName(const std::string newName);
-    bool init(const JsonItem &parsedContent,
+    bool init(const JsonItem &clusterTemplate,
+              const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
               const std::string &uuid);
+    bool connectSlot(const std::string &sourceSegmentName,
+                     const std::string &sourceSlotName,
+                     const std::string &targetSegmentName,
+                     const std::string &targetSlotName);
+    uint64_t getSegmentId(const std::string &name);
 
     // task-handling
     void updateClusterState();

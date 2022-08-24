@@ -75,6 +75,24 @@ AbstractSegment::setName(const std::string &name)
 }
 
 /**
+ * @brief AbstractSegment::getSlotId
+ * @param name
+ * @return
+ */
+uint8_t
+AbstractSegment::getSlotId(const std::string &name)
+{
+    for(uint64_t i = 0; i < 16; i++)
+    {
+        if(segmentSlots->slots[i].getName() == name) {
+            return i;
+        }
+    }
+
+    return UNINIT_STATE_8;
+}
+
+/**
  * @brief check if all border-buffer, which are in use, are ready for processing
  *
  * @return true, if all border-buffer are ready, else false
@@ -82,10 +100,10 @@ AbstractSegment::setName(const std::string &name)
 bool
 AbstractSegment::isReady()
 {
-    for(uint8_t i = 0; i < 12; i++)
+    for(uint8_t i = 0; i < 16; i++)
     {
-        if(segmentNeighbors->neighbors[i].inUse == true
-                && segmentNeighbors->neighbors[i].inputReady == false)
+        if(segmentSlots->slots[i].inUse == true
+                && segmentSlots->slots[i].inputReady == false)
         {
             return false;
         }
@@ -107,31 +125,31 @@ AbstractSegment::finishSegment()
     uint8_t targetSide = 0;
     uint64_t targetBufferPos = 0;
     AbstractSegment* targetSegment = nullptr;
-    SegmentNeighborList* targetNeighbors = nullptr;
+    SegmentSlotList* targetNeighbors = nullptr;
 
-    for(uint8_t i = 0; i < 12; i++)
+    for(uint8_t i = 0; i < 16; i++)
     {
-        if(segmentNeighbors->neighbors[i].inUse == 1)
+        if(segmentSlots->slots[i].inUse == 1)
         {
             // get information of the neighbor
-            sourceBuffer = &outputTransfers[segmentNeighbors->neighbors[i].outputTransferBufferPos];
-            targetId = segmentNeighbors->neighbors[i].targetSegmentId;
-            targetSide = segmentNeighbors->neighbors[i].targetSide;
+            sourceBuffer = &outputTransfers[segmentSlots->slots[i].outputTransferBufferPos];
+            targetId = segmentSlots->slots[i].targetSegmentId;
+            targetSide = segmentSlots->slots[i].targetSlotId;
 
             // copy data to the target buffer and wipe the source buffer
             targetSegment = parentCluster->allSegments.at(targetId);
-            targetNeighbors = targetSegment->segmentNeighbors;
-            targetBufferPos = targetNeighbors->neighbors[targetSide].inputTransferBufferPos;
+            targetNeighbors = targetSegment->segmentSlots;
+            targetBufferPos = targetNeighbors->slots[targetSide].inputTransferBufferPos;
             targetBuffer = &targetSegment->inputTransfers[targetBufferPos];
             memcpy(targetBuffer,
                    sourceBuffer,
-                   segmentNeighbors->neighbors[i].size * sizeof(float));
+                   segmentSlots->slots[i].numberOfNodes * sizeof(float));
             memset(sourceBuffer,
                    0,
-                   segmentNeighbors->neighbors[i].size * sizeof(float));
+                   segmentSlots->slots[i].numberOfNodes * sizeof(float));
 
             // mark the target as ready for processing
-            targetSegment->segmentNeighbors->neighbors[targetSide].inputReady = true;
+            targetSegment->segmentSlots->slots[targetSide].inputReady = true;
         }
     }
 
@@ -153,22 +171,22 @@ AbstractSegment::createGenericNewHeader(SegmentHeader &header,
     uint32_t segmentDataPos = 0;
 
     // init header
-    segmentDataPos += 1 * sizeof(SegmentHeader);
+    segmentDataPos += sizeof(SegmentHeader);
 
     // init name
     header.settings.count = 1;
     header.settings.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentName);
+    segmentDataPos += sizeof(SegmentName);
 
     // init settings
     header.settings.count = 1;
     header.settings.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(DynamicSegmentSettings);
+    segmentDataPos += sizeof(DynamicSegmentSettings);
 
     // init neighborList
-    header.neighborList.count = 1;
-    header.neighborList.bytePos = segmentDataPos;
-    segmentDataPos += 1 * sizeof(SegmentNeighborList);
+    header.slotList.count = 1;
+    header.slotList.bytePos = segmentDataPos;
+    segmentDataPos += sizeof(SegmentSlotList);
 
     // init inputTransfers
     header.inputTransfers.count = borderbufferSize;
@@ -198,57 +216,4 @@ AbstractSegment::convertPosition(const JsonItem &parsedContent)
     currentPosition.z = parsedPosition.get(2).getInt();
 
     return currentPosition;
-}
-
-/**
- * @brief initialize the border-buffer and neighbor-list of the segment for each side
- *
- * @param parsedContent parsend content with the required information
- *
- * @return true, if successful, else false
- */
-bool
-AbstractSegment::initBorderBuffer(const JsonItem &parsedContent)
-{
-    uint64_t posCounter = 0;
-    const JsonItem neighbors = parsedContent.get("neighbors");
-
-    for(uint32_t i = 0; i < 12; i++)
-    {
-        // get data about the neighbor for the side
-        const JsonItem currentDef = neighbors.get(i);
-        const uint32_t next = currentDef.get("id").getLong();
-        const uint32_t size  = currentDef.get("size").getLong();
-
-        // go to next side, if no neighbor was found here
-        if(next == UNINIT_STATE_32) {
-            continue;
-        }
-
-        // init new segment-neighbor
-        SegmentNeighbor* currentNeighbor = &segmentNeighbors->neighbors[i];
-        currentNeighbor->inUse = true;
-        currentNeighbor->size = size;
-        currentNeighbor->targetSegmentId = next;
-        currentNeighbor->targetSide = 11 - i;
-        currentNeighbor->inputTransferBufferPos = posCounter;
-        currentNeighbor->outputTransferBufferPos = posCounter;
-
-        // set direction of the neighbor-buffer
-        const std::string direction = currentDef.get("direction").getString();
-        if(direction == "input") {
-            currentNeighbor->direction = INPUT_DIRECTION;
-        }
-        if(direction == "output") {
-            currentNeighbor->direction = OUTPUT_DIRECTION;
-        }
-
-        // update total position pointer, because all border-buffers are in the same blog
-        // beside each other
-        posCounter += size;
-    }
-
-    assert(posCounter == segmentHeader->inputTransfers.count);
-
-    return true;
 }

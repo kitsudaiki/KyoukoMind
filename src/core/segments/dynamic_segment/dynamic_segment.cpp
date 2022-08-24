@@ -53,24 +53,34 @@ DynamicSegment::~DynamicSegment() {}
  * @return true, if successful, else false
  */
 bool
-DynamicSegment::initSegment(const JsonItem &parsedContent)
+DynamicSegment::initSegment(const JsonItem &segmentTemplate, const std::string &name)
 {
-    const std::string name = parsedContent.get("name").getString();
-    const JsonItem paredBricks = parsedContent.get("bricks");
-    const uint32_t numberOfNodeBricks = paredBricks.size();
+    const JsonItem paredBricks = segmentTemplate.get("bricks");
+
     uint32_t totalNumberOfNodes = 0;
-    for(uint32_t i = 0; i < numberOfNodeBricks; i++) {
-        totalNumberOfNodes += paredBricks.get(i).get("number_of_nodes").getInt();
+    uint32_t totalBorderSize = 0;
+
+    const uint32_t numberOfNodeBricks = paredBricks.size();
+    for(uint32_t i = 0; i < numberOfNodeBricks; i++)
+    {
+        const int numberOfNodes = paredBricks.get(i).get("number_of_nodes").getInt();
+        const std::string type = paredBricks.get(i).get("type").getString();
+
+        totalNumberOfNodes += numberOfNodes;
+
+        if(type == "input"
+                || type == "output")
+        {
+            totalBorderSize += numberOfNodes;
+        }
     }
-    const uint32_t totalBorderSize = parsedContent.get("total_border_size").getInt();
 
     // create segment metadata
-    const DynamicSegmentSettings settings = initSettings(parsedContent);
+    const DynamicSegmentSettings settings = initSettings(segmentTemplate);
     SegmentHeader header = createNewHeader(numberOfNodeBricks,
                                            totalNumberOfNodes,
                                            settings.maxSynapseSections,
                                            totalBorderSize);
-    header.position = convertPosition(parsedContent);
 
     // initialize segment itself
     allocateSegment(header);
@@ -80,12 +90,12 @@ DynamicSegment::initSegment(const JsonItem &parsedContent)
 
     // init content
     initializeNodes();
-    addBricksToSegment(parsedContent);
+    addBricksToSegment(segmentTemplate);
     connectAllBricks();
     initTargetBrickList();
 
     // init border
-    initBorderBuffer(parsedContent);
+    initSlots(segmentTemplate);
     connectBorderBuffer();
 
     // TODO: check result
@@ -117,9 +127,9 @@ DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
     byteCounter += sizeof(DynamicSegmentSettings);
 
-    pos = segmentHeader->neighborList.bytePos;
-    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
-    byteCounter += segmentHeader->neighborList.count * sizeof(SegmentNeighborList);
+    pos = segmentHeader->slotList.bytePos;
+    segmentSlots = reinterpret_cast<SegmentSlotList*>(dataPtr + pos);
+    byteCounter += segmentHeader->slotList.count * sizeof(SegmentSlotList);
 
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
@@ -316,8 +326,8 @@ DynamicSegment::initSegmentPointer(const SegmentHeader &header)
     pos = segmentHeader->settings.bytePos;
     dynamicSegmentSettings = reinterpret_cast<DynamicSegmentSettings*>(dataPtr + pos);
 
-    pos = segmentHeader->neighborList.bytePos;
-    segmentNeighbors = reinterpret_cast<SegmentNeighborList*>(dataPtr + pos);
+    pos = segmentHeader->slotList.bytePos;
+    segmentSlots = reinterpret_cast<SegmentSlotList*>(dataPtr + pos);
 
     pos = segmentHeader->inputTransfers.bytePos;
     inputTransfers = reinterpret_cast<float*>(dataPtr + pos);
@@ -559,6 +569,53 @@ DynamicSegment::initTargetBrickList()
             baseBrick->possibleTargetNodeBrickIds[counter] = brickId;
         }
     }
+
+    return true;
+}
+
+/**
+ * @brief initialize the border-buffer and neighbor-list of the segment for each side
+ *
+ * @param segmentTemplate parsend content with the required information
+ *
+ * @return true, if successful, else false
+ */
+bool
+DynamicSegment::initSlots(const JsonItem &segmentTemplate)
+{
+    uint64_t posCounter = 0;
+    const JsonItem bricks = segmentTemplate.get("bricks");
+    uint32_t slotCounter = 0;
+
+    for(uint32_t i = 0; i < bricks.size(); i++)
+    {
+        JsonItem brick = bricks.get(i);
+        if(brick.get("type").getString() != "input"
+                && brick.get("type").getString() != "output")
+        {
+            continue;
+        }
+
+        const uint32_t numberOfNodes = brick.get("number_of_nodes").getInt();
+        SegmentSlot* currentSlot = &segmentSlots->slots[slotCounter];
+        currentSlot->setName(brick.get("name").getString());
+        currentSlot->numberOfNodes = numberOfNodes;
+        currentSlot->inputTransferBufferPos = posCounter;
+        currentSlot->outputTransferBufferPos = posCounter;
+
+        if(brick.get("type").getString() == "input") {
+            currentSlot->direction = INPUT_DIRECTION;
+        } else {
+            currentSlot->direction = OUTPUT_DIRECTION;
+        }
+
+        // update total position pointer, because all border-buffers are in the same blog
+        // beside each other
+        posCounter += numberOfNodes;
+        slotCounter++;
+    }
+
+    assert(posCounter == segmentHeader->inputTransfers.count);
 
     return true;
 }
