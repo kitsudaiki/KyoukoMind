@@ -91,15 +91,15 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
     const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
     const std::string connectionUuid = blossomLeaf.input.get("connection_uuid").getString();
     const std::string newState = blossomLeaf.input.get("new_state").getString();
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
     if(KyoukoRoot::clustersTable->getCluster(blossomLeaf.output,
                                              clusterUuid,
-                                             userUuid,
-                                             projectUuid,
+                                             userId,
+                                             projectId,
                                              isAdmin,
                                              error) == false)
     {
@@ -157,9 +157,9 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
     blossomLeaf.output.insert("new_state", newState);
 
     // remove irrelevant fields
-    blossomLeaf.output.remove("owner_uuid");
+    blossomLeaf.output.remove("owner_id");
     blossomLeaf.output.remove("template_uuid");
-    blossomLeaf.output.remove("project_uuid");
+    blossomLeaf.output.remove("project_id");
     blossomLeaf.output.remove("visibility");
 
     return true;

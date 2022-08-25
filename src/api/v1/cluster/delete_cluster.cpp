@@ -62,8 +62,8 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
                        Kitsunemimi::ErrorContainer &error)
 {
     // get context-info
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get information from request
@@ -73,8 +73,8 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem getResult;
     if(KyoukoRoot::clustersTable->getCluster(getResult,
                                              clusterUuid,
-                                             userUuid,
-                                             projectUuid,
+                                             userId,
+                                             projectId,
                                              isAdmin,
                                              error) == false)
     {
@@ -86,8 +86,8 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
 
     // remove data from table
     if(KyoukoRoot::clustersTable->deleteCluster(clusterUuid,
-                                                userUuid,
-                                                projectUuid,
+                                                userId,
+                                                projectId,
                                                 isAdmin,
                                                 error) == false)
     {

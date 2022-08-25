@@ -87,8 +87,8 @@ RestoreCluster_State::processEvent()
     // get other information
     const std::string snapshotUuid = parsedSnapshotInfo.get("uuid").getString();
     const std::string location = parsedSnapshotInfo.get("location").toString();
-    const std::string userUuid = actualTask->metaData.get("user_uuid")->getString();
-    const std::string projectUuid = actualTask->metaData.get("project_uuid")->getString();
+    const std::string userId = actualTask->metaData.get("user_id")->getString();
+    const std::string projectId = actualTask->metaData.get("project_id")->getString();
 
     // get header
     const std::string header = parsedSnapshotInfo.get("header").toString();

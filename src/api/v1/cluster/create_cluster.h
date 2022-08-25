@@ -49,8 +49,8 @@ private:
 
     bool getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
                             const std::string &name,
-                            const std::string &userUuid,
-                            const std::string &projectUuid,
+                            const std::string &userId,
+                            const std::string &projectId,
                             const bool isAdmin,
                             Kitsunemimi::ErrorContainer &error);
 };

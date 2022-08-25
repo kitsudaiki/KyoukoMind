@@ -92,8 +92,8 @@ SaveCluster_State::processEvent()
         if(Sagiri::runInitProcess(fileUuid,
                                   actualTask->uuid.toString(),
                                   actualTask->metaData.getStringByKey("snapshot_name"),
-                                  actualTask->metaData.getStringByKey("user_uuid"),
-                                  actualTask->metaData.getStringByKey("project_uuid"),
+                                  actualTask->metaData.getStringByKey("user_id"),
+                                  actualTask->metaData.getStringByKey("project_id"),
                                   totalSize,
                                   headerMessage,
                                   *KyoukoRoot::componentToken,
@@ -114,8 +114,8 @@ SaveCluster_State::processEvent()
         if(Sagiri::runFinalizeProcess(actualTask->uuid.toString(),
                                       fileUuid,
                                       *KyoukoRoot::componentToken,
-                                      actualTask->metaData.getStringByKey("user_uuid"),
-                                      actualTask->metaData.getStringByKey("project_uuid"),
+                                      actualTask->metaData.getStringByKey("user_id"),
+                                      actualTask->metaData.getStringByKey("project_id"),
                                       error) == false)
         {
             error.addMeesage("Failed to run finalizing a snapshot-transfer to sagiri");

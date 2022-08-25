@@ -58,10 +58,10 @@ ShowTemplate::ShowTemplate()
     registerOutputField("template",
                         SAKURA_MAP_TYPE,
                         "The template itself.");
-    registerOutputField("owner_uuid",
+    registerOutputField("owner_id",
                         SAKURA_STRING_TYPE,
                         "Owner of the template.");
-    registerOutputField("project_uuid",
+    registerOutputField("project_id",
                         SAKURA_STRING_TYPE,
                         "Project of the template.");
     registerOutputField("visibility",
@@ -87,15 +87,15 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
     // TODO: check type-field
 
     // get context-info
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
     if(KyoukoRoot::templateTable->getTemplate(blossomLeaf.output,
                                               uuid,
-                                              userUuid,
-                                              projectUuid,
+                                              userId,
+                                              projectId,
                                               isAdmin,
                                               error,
                                               true) == false)

@@ -73,8 +73,8 @@ ShowCluster::runTask(BlossomLeaf &blossomLeaf,
                      Kitsunemimi::ErrorContainer &error)
 {
     // get context-info
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get information from request
@@ -83,8 +83,8 @@ ShowCluster::runTask(BlossomLeaf &blossomLeaf,
     // get data from table
     if(KyoukoRoot::clustersTable->getCluster(blossomLeaf.output,
                                              clusterUuid,
-                                             userUuid,
-                                             projectUuid,
+                                             userId,
+                                             projectId,
                                              isAdmin,
                                              error) == false)
     {
@@ -95,8 +95,8 @@ ShowCluster::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // remove irrelevant fields
-    blossomLeaf.output.remove("owner_uuid");
-    blossomLeaf.output.remove("project_uuid");
+    blossomLeaf.output.remove("owner_id");
+    blossomLeaf.output.remove("project_id");
     blossomLeaf.output.remove("visibility");
 
     return true;

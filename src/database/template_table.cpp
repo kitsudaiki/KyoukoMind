@@ -56,19 +56,19 @@ TemplateTable::~TemplateTable() {}
  * @brief add a new template to the database
  *
  * @param userData json-item with all information of the cluster to add to database
- * @param userUuid user-uuid to filter
- * @param projectUuid project-uuid to filter
+ * @param userId user-id to filter
+ * @param projectId project-id to filter
  * @param error reference for error-output
  *
  * @return true, if successful, else false
  */
 bool
 TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
-                           const std::string &userUuid,
-                           const std::string &projectUuid,
+                           const std::string &userId,
+                           const std::string &projectId,
                            Kitsunemimi::ErrorContainer &error)
 {
-    if(add(clusterData, userUuid, projectUuid, error) == false)
+    if(add(clusterData, userId, projectId, error) == false)
     {
         error.addMeesage("Failed to add template to database");
         return false;
@@ -82,8 +82,8 @@ TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
  *
  * @param result reference for the result-output in case that a cluster with this name was found
  * @param templateUuid uuid of the requested template
- * @param userUuid user-uuid to filter
- * @param projectUuid project-uuid to filter
+ * @param userId user-id to filter
+ * @param projectId project-id to filter
  * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
@@ -93,8 +93,8 @@ TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
 bool
 TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
                            const std::string &templateUuid,
-                           const std::string &userUuid,
-                           const std::string &projectUuid,
+                           const std::string &userId,
+                           const std::string &projectId,
                            const bool isAdmin,
                            Kitsunemimi::ErrorContainer &error,
                            const bool showHiddenValues)
@@ -103,7 +103,7 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("uuid", templateUuid);
 
     // get user from db
-    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
+    if(get(result, userId, projectId, isAdmin, conditions, error, showHiddenValues) == false)
     {
         error.addMeesage("Failed to get template with UUID '"
                          + templateUuid
@@ -119,8 +119,8 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
  *
  * @param result reference for the result-output in case that a cluster with this name was found
  * @param templateName name of the requested template
- * @param userUuid user-uuid to filter
- * @param projectUuid project-uuid to filter
+ * @param userId user-id to filter
+ * @param projectId project-id to filter
  * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
@@ -130,8 +130,8 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
 bool
 TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
                                  const std::string &templateName,
-                                 const std::string &userUuid,
-                                 const std::string &projectUuid,
+                                 const std::string &userId,
+                                 const std::string &projectId,
                                  const bool isAdmin,
                                  Kitsunemimi::ErrorContainer &error,
                                  const bool showHiddenValues)
@@ -140,7 +140,7 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("name", templateName);
 
     // get user from db
-    if(get(result, userUuid, projectUuid, isAdmin, conditions, error, showHiddenValues) == false)
+    if(get(result, userId, projectId, isAdmin, conditions, error, showHiddenValues) == false)
     {
         error.addMeesage("Failed to get template from database by name '" + templateName + "'");
         return false;
@@ -153,8 +153,8 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
  * @brief get all templates from the database table
  *
  * @param result reference for the result-output
- * @param userUuid user-uuid to filter
- * @param projectUuid project-uuid to filter
+ * @param userId user-id to filter
+ * @param projectId project-id to filter
  * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  *
@@ -162,13 +162,13 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
  */
 bool
 TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
-                              const std::string &userUuid,
-                              const std::string &projectUuid,
+                              const std::string &userId,
+                              const std::string &projectId,
                               const bool isAdmin,
                               Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
-    if(getAll(result, userUuid, projectUuid, isAdmin, conditions, error) == false)
+    if(getAll(result, userId, projectId, isAdmin, conditions, error) == false)
     {
         error.addMeesage("Failed to get all templates from database");
         return false;
@@ -181,8 +181,8 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
  * @brief delete a cluster from the table
  *
  * @param templateUuid uuid of the template to delete
- * @param userUuid user-uuid to filter
- * @param projectUuid project-uuid to filter
+ * @param userId user-id to filter
+ * @param projectId project-id to filter
  * @param isAdmin true, if use who makes request is admin
  * @param error reference for error-output
  *
@@ -190,15 +190,15 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
  */
 bool
 TemplateTable::deleteTemplate(const std::string &templateUuid,
-                              const std::string &userUuid,
-                              const std::string &projectUuid,
+                              const std::string &userId,
+                              const std::string &projectId,
                               const bool isAdmin,
                               Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("uuid", templateUuid);
 
-    if(del(conditions, userUuid, projectUuid, isAdmin, error) == false)
+    if(del(conditions, userId, projectId, isAdmin, error) == false)
     {
         error.addMeesage("Failed to delete template with UUID '"
                          + templateUuid

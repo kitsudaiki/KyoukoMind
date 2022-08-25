@@ -58,15 +58,15 @@ ListCluster::runTask(BlossomLeaf &blossomLeaf,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
     Kitsunemimi::TableItem table;
     if(KyoukoRoot::clustersTable->getAllCluster(table,
-                                                userUuid,
-                                                projectUuid,
+                                                userId,
+                                                projectId,
                                                 isAdmin,
                                                 error) == false)
     {
@@ -76,8 +76,8 @@ ListCluster::runTask(BlossomLeaf &blossomLeaf,
     }
 
     table.deleteColumn("visibility");
-    table.deleteColumn("owner_uuid");
-    table.deleteColumn("project_uuid");
+    table.deleteColumn("owner_id");
+    table.deleteColumn("project_id");
 
     blossomLeaf.output.insert("header", table.getInnerHeader());
     blossomLeaf.output.insert("body", table.getBody());

@@ -62,15 +62,15 @@ ListTemplates::runTask(BlossomLeaf &blossomLeaf,
     const std::string type = blossomLeaf.input.get("template").get("type").getString();
     // TODO: check type-field
 
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // get data from table
     Kitsunemimi::TableItem table;
     if(KyoukoRoot::templateTable->getAllTemplate(table,
-                                                 userUuid,
-                                                 projectUuid,
+                                                 userId,
+                                                 projectId,
                                                  isAdmin,
                                                  error) == false)
     {
@@ -80,8 +80,8 @@ ListTemplates::runTask(BlossomLeaf &blossomLeaf,
     }
 
     table.deleteColumn("visibility");
-    table.deleteColumn("owner_uuid");
-    table.deleteColumn("project_uuid");
+    table.deleteColumn("owner_id");
+    table.deleteColumn("project_id");
 
     blossomLeaf.output.insert("header", table.getInnerHeader());
     blossomLeaf.output.insert("body", table.getBody());
