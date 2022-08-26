@@ -118,11 +118,11 @@ public:
                                           const uint64_t numberOfInputs,
                                           const uint64_t numberOfCycle);
     const std::string addClusterSnapshotSaveTask(const std::string &snapshotName,
-                                                 const std::string &userUuid,
-                                                 const std::string &projectUuid);
+                                                 const std::string &userId,
+                                                 const std::string &projectId);
     const std::string addClusterSnapshotRestoreTask(const std::string &snapshotInfo,
-                                                    const std::string &userUuid,
-                                                    const std::string &projectUuid);
+                                                    const std::string &userId,
+                                                    const std::string &projectId);
 
     uint32_t request(float* inputData, const uint64_t numberOfInputes);
 

@@ -61,16 +61,16 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     // get information from request
     const std::string templateUuid = blossomLeaf.input.get("uuid").getString();
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;
     if(KyoukoRoot::templateTable->getTemplate(getResult,
                                               templateUuid,
-                                              userUuid,
-                                              projectUuid,
+                                              userId,
+                                              projectId,
                                               isAdmin,
                                               error) == false)
     {
@@ -82,8 +82,8 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     // remove data from table
     if(KyoukoRoot::templateTable->deleteTemplate(templateUuid,
-                                                 userUuid,
-                                                 projectUuid,
+                                                 userId,
+                                                 projectId,
                                                  isAdmin,
                                                  error) == false)
     {

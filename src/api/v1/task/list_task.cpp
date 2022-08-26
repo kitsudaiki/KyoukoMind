@@ -68,8 +68,8 @@ ListTask::runTask(BlossomLeaf &,
                   BlossomStatus &,
                   Kitsunemimi::ErrorContainer &)
 {
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
 
     return true;

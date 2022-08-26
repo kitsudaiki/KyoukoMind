@@ -499,15 +499,15 @@ Cluster::addGraphRequestTask(float* inputData,
  * @brief create task to create a snapshot from a cluster and add it to the task-queue
  *
  * @param snapshotName name for the snapshot
- * @param userUuid uuid of the user, where the snapshot belongs to
- * @param projectUuid uuid of the project, where the snapshot belongs to
+ * @param userId uuid of the user, where the snapshot belongs to
+ * @param projectId uuid of the project, where the snapshot belongs to
  *
  * @return task-uuid
  */
 const std::string
 Cluster::addClusterSnapshotSaveTask(const std::string &snapshotName,
-                                    const std::string &userUuid,
-                                    const std::string &projectUuid)
+                                    const std::string &userId,
+                                    const std::string &projectId)
 {
     // create new request-task
     Task newTask;
@@ -518,8 +518,8 @@ Cluster::addClusterSnapshotSaveTask(const std::string &snapshotName,
 
     // fill metadata
     newTask.metaData.insert("snapshot_name", new DataValue(snapshotName));
-    newTask.metaData.insert("user_uuid", new DataValue(userUuid));
-    newTask.metaData.insert("project_uuid", new DataValue(projectUuid));
+    newTask.metaData.insert("user_id", new DataValue(userId));
+    newTask.metaData.insert("project_id", new DataValue(projectId));
 
     // add tasgetNextTaskk to queue
     const std::string uuid = newTask.uuid.toString();
@@ -534,15 +534,15 @@ Cluster::addClusterSnapshotSaveTask(const std::string &snapshotName,
  * @brief create task to restore a cluster from a snapshot and add it to the task-queue
  *
  * @param snapshotUuid uuid of the snapshot
- * @param userUuid uuid of the user, where the snapshot belongs to
- * @param projectUuid uuid of the project, where the snapshot belongs to
+ * @param userId uuid of the user, where the snapshot belongs to
+ * @param projectId uuid of the project, where the snapshot belongs to
  *
  * @return task-uuid
  */
 const std::string
 Cluster::addClusterSnapshotRestoreTask(const std::string &snapshotInfo,
-                                       const std::string &userUuid,
-                                       const std::string &projectUuid)
+                                       const std::string &userId,
+                                       const std::string &projectId)
 {
     // create new request-task
     Task newTask;
@@ -553,8 +553,8 @@ Cluster::addClusterSnapshotRestoreTask(const std::string &snapshotInfo,
 
     // fill metadata
     newTask.metaData.insert("snapshot_info", new DataValue(snapshotInfo));
-    newTask.metaData.insert("user_uuid", new DataValue(userUuid));
-    newTask.metaData.insert("project_uuid", new DataValue(projectUuid));
+    newTask.metaData.insert("user_id", new DataValue(userId));
+    newTask.metaData.insert("project_id", new DataValue(projectId));
 
     // add tasgetNextTaskk to queue
     const std::string uuid = newTask.uuid.toString();

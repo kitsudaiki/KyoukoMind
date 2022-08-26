@@ -81,8 +81,8 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string backupName = blossomLeaf.input.get("name").getString();
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
 
     // check if sagiri is available
     SupportedComponents* scomp = SupportedComponents::getInstance();
@@ -106,8 +106,8 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
 
     // init request-task
     const std::string taskUuid = cluster->addClusterSnapshotSaveTask(backupName,
-                                                                     userUuid,
-                                                                     projectUuid);
+                                                                     userId,
+                                                                     projectId);
     blossomLeaf.output.insert("uuid", taskUuid);
 
     return true;

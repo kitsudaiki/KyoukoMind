@@ -79,8 +79,8 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string name = blossomLeaf.input.get("name").getString();
     const std::string stringContent = blossomLeaf.input.get("template").toString();
-    const std::string userUuid = context.getStringByKey("uuid");
-    const std::string projectUuid = context.getStringByKey("projects");
+    const std::string userId = context.getStringByKey("id");
+    const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
     const std::string token = context.getStringByKey("token");
 
@@ -88,8 +88,8 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem getResult;
     if(KyoukoRoot::templateTable->getTemplateByName(getResult,
                                                     name,
-                                                    userUuid,
-                                                    projectUuid,
+                                                    userId,
+                                                    projectId,
                                                     isAdmin,
                                                     error))
     {
@@ -107,14 +107,14 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem templateData;
     templateData.insert("name", name);
     templateData.insert("data", base64Content);
-    templateData.insert("project_uuid", projectUuid);
-    templateData.insert("owner_uuid", userUuid);
+    templateData.insert("project_id", projectId);
+    templateData.insert("owner_id", userId);
     templateData.insert("visibility", "private");
 
     // add new user to table
     if(KyoukoRoot::templateTable->addTemplate(templateData,
-                                              userUuid,
-                                              projectUuid,
+                                              userId,
+                                              projectId,
                                               error) == false)
     {
         error.addMeesage("Failed to add new template to database");
@@ -125,8 +125,8 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     // get new created user from database
     if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
                                                     name,
-                                                    userUuid,
-                                                    projectUuid,
+                                                    userId,
+                                                    projectId,
                                                     isAdmin,
                                                     error) == false)
     {
@@ -136,8 +136,8 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // remove irrelevant fields
-    blossomLeaf.output.remove("owner_uuid");
-    blossomLeaf.output.remove("project_uuid");
+    blossomLeaf.output.remove("owner_id");
+    blossomLeaf.output.remove("project_id");
     blossomLeaf.output.remove("visibility");
 
     return true;
