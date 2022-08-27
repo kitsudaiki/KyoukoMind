@@ -82,9 +82,9 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string snapshotUuid = blossomLeaf.input.get("snapshot_uuid").getString();
+    const std::string token = context.getStringByKey("token");
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
-    const std::string token = context.getStringByKey("token");
 
     // check if sagiri is available
     SupportedComponents* scomp = SupportedComponents::getInstance();

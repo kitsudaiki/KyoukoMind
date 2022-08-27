@@ -64,14 +64,16 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;
     if(KyoukoRoot::templateTable->getTemplate(getResult,
                                               templateUuid,
                                               userId,
-                                              projectId,
                                               isAdmin,
+                                              projectId,
+                                              isProjectAdmin,
                                               error) == false)
     {
         status.errorMessage = "Template with UUID '" + templateUuid + "' not found.";
@@ -83,8 +85,9 @@ DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
     // remove data from table
     if(KyoukoRoot::templateTable->deleteTemplate(templateUuid,
                                                  userId,
-                                                 projectId,
                                                  isAdmin,
+                                                 projectId,
+                                                 isProjectAdmin,
                                                  error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;

@@ -71,6 +71,7 @@ ListTask::runTask(BlossomLeaf &,
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
 
     return true;
 }

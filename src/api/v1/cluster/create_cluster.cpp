@@ -86,14 +86,16 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
 
     // check if user already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
     if(KyoukoRoot::clustersTable->getClusterByName(getResult,
                                                    clusterName,
                                                    userId,
-                                                   projectId,
                                                    isAdmin,
+                                                   projectId,
+                                                   isProjectAdmin,
                                                    error))
     {
         status.errorMessage = "Cluster with name '" + clusterName + "' already exist.";
@@ -124,8 +126,9 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output,
                                                    clusterName,
                                                    userId,
-                                                   projectId,
                                                    isAdmin,
+                                                   projectId,
+                                                   isProjectAdmin,
                                                    error) == false)
     {
         error.addMeesage("Failed to get cluster from database by name '" + clusterName + "'");
@@ -183,6 +186,7 @@ CreateCluster::initCluster(Cluster* cluster,
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
 
     // collect all segment-templates, which are required by the cluster-template
     Kitsunemimi::Json::JsonItem segments = clusterDefinition.get("segments");
@@ -203,8 +207,9 @@ CreateCluster::initCluster(Cluster* cluster,
         if(getSegmentTemplate(parsedTemplate,
                               type,
                               userId,
-                              projectId,
                               isAdmin,
+                              projectId,
+                              isProjectAdmin,
                               error) == false)
         {
             // TODO: set status-message and maybe change to not-found-error
@@ -243,8 +248,9 @@ bool
 CreateCluster::getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
                                   const std::string &name,
                                   const std::string &userId,
-                                  const std::string &projectId,
                                   const bool isAdmin,
+                                  const std::string &projectId,
+                                  const bool isProjectAdmin,
                                   Kitsunemimi::ErrorContainer &error)
 {
     // get segment-template from database
@@ -252,8 +258,9 @@ CreateCluster::getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
     if(KyoukoRoot::templateTable->getTemplateByName(templateData,
                                                     name,
                                                     userId,
-                                                    projectId,
                                                     isAdmin,
+                                                    projectId,
+                                                    isProjectAdmin,
                                                     error,
                                                     true) == false)
     {

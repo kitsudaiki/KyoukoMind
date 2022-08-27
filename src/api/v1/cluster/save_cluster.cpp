@@ -83,6 +83,8 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
     const std::string backupName = blossomLeaf.input.get("name").getString();
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
+    const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
 
     // check if sagiri is available
     SupportedComponents* scomp = SupportedComponents::getInstance();

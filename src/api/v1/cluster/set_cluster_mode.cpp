@@ -94,13 +94,15 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
 
     // get data from table
     if(KyoukoRoot::clustersTable->getCluster(blossomLeaf.output,
                                              clusterUuid,
                                              userId,
-                                             projectId,
                                              isAdmin,
+                                             projectId,
+                                             isProjectAdmin,
                                              error) == false)
     {
         status.errorMessage = "Cluster with UUID '" + clusterUuid + "' not found.";

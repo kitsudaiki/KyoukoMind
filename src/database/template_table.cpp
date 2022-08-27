@@ -94,8 +94,9 @@ bool
 TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
                            const std::string &templateUuid,
                            const std::string &userId,
-                           const std::string &projectId,
                            const bool isAdmin,
+                           const std::string &projectId,
+                           const bool isProjectAdmin,
                            Kitsunemimi::ErrorContainer &error,
                            const bool showHiddenValues)
 {
@@ -103,7 +104,14 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("uuid", templateUuid);
 
     // get user from db
-    if(get(result, userId, projectId, isAdmin, conditions, error, showHiddenValues) == false)
+    if(get(result,
+           userId,
+           isAdmin,
+           projectId,
+           isProjectAdmin,
+           conditions,
+           error,
+           showHiddenValues) == false)
     {
         error.addMeesage("Failed to get template with UUID '"
                          + templateUuid
@@ -131,8 +139,9 @@ bool
 TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
                                  const std::string &templateName,
                                  const std::string &userId,
-                                 const std::string &projectId,
                                  const bool isAdmin,
+                                 const std::string &projectId,
+                                 const bool isProjectAdmin,
                                  Kitsunemimi::ErrorContainer &error,
                                  const bool showHiddenValues)
 {
@@ -140,7 +149,14 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("name", templateName);
 
     // get user from db
-    if(get(result, userId, projectId, isAdmin, conditions, error, showHiddenValues) == false)
+    if(get(result,
+           userId,
+           isAdmin,
+           projectId,
+           isProjectAdmin,
+           conditions,
+           error,
+           showHiddenValues) == false)
     {
         error.addMeesage("Failed to get template from database by name '" + templateName + "'");
         return false;
@@ -163,12 +179,13 @@ TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
 bool
 TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
                               const std::string &userId,
-                              const std::string &projectId,
                               const bool isAdmin,
+                              const std::string &projectId,
+                              const bool isProjectAdmin,
                               Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
-    if(getAll(result, userId, projectId, isAdmin, conditions, error) == false)
+    if(getAll(result, userId, isAdmin, projectId, isProjectAdmin, conditions, error) == false)
     {
         error.addMeesage("Failed to get all templates from database");
         return false;
@@ -191,14 +208,15 @@ TemplateTable::getAllTemplate(Kitsunemimi::TableItem &result,
 bool
 TemplateTable::deleteTemplate(const std::string &templateUuid,
                               const std::string &userId,
-                              const std::string &projectId,
                               const bool isAdmin,
+                              const std::string &projectId,
+                              const bool isProjectAdmin,
                               Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("uuid", templateUuid);
 
-    if(del(conditions, userId, projectId, isAdmin, error) == false)
+    if(del(conditions, userId, isAdmin, projectId, isProjectAdmin, error) == false)
     {
         error.addMeesage("Failed to delete template with UUID '"
                          + templateUuid

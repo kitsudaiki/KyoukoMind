@@ -89,8 +89,9 @@ bool
 ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
                          const std::string &clusterUuid,
                          const std::string &userId,
-                         const std::string &projectId,
                          const bool isAdmin,
+                         const std::string &projectId,
+                         const bool isProjectAdmin,
                          Kitsunemimi::ErrorContainer &error,
                          const bool showHiddenValues)
 {
@@ -98,7 +99,14 @@ ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("uuid", clusterUuid);
 
     // get user from db
-    if(get(result, userId, projectId, isAdmin, conditions, error, showHiddenValues) == false)
+    if(get(result,
+           userId,
+           isAdmin,
+           projectId,
+           isProjectAdmin,
+           conditions,
+           error,
+           showHiddenValues) == false)
     {
         error.addMeesage("Failed to get cluster-meta with UUID '"
                          + clusterUuid
@@ -126,8 +134,9 @@ bool
 ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
                                const std::string &clusterName,
                                const std::string &userId,
-                               const std::string &projectId,
                                const bool isAdmin,
+                               const std::string &projectId,
+                               const bool isProjectAdmin,
                                Kitsunemimi::ErrorContainer &error,
                                const bool showHiddenValues)
 {
@@ -135,7 +144,14 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("name", clusterName);
 
     // get user from db
-    if(get(result, userId, projectId, isAdmin, conditions, error, showHiddenValues) == false)
+    if(get(result,
+           userId,
+           isAdmin,
+           projectId,
+           isProjectAdmin,
+           conditions,
+           error,
+           showHiddenValues) == false)
     {
         error.addMeesage("Failed to get cluster-meta from database by name '" + clusterName + "'");
         return false;
@@ -158,12 +174,13 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
 bool
 ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
                             const std::string &userId,
-                            const std::string &projectId,
                             const bool isAdmin,
+                            const std::string &projectId,
+                            const bool isProjectAdmin,
                             Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
-    if(getAll(result, userId, projectId, isAdmin, conditions, error) == false)
+    if(getAll(result, userId, isAdmin, projectId, isProjectAdmin, conditions, error) == false)
     {
         error.addMeesage("Failed to get all cluster-meta from database");
         return false;
@@ -186,14 +203,15 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
 bool
 ClusterTable::deleteCluster(const std::string &clusterUuid,
                             const std::string &userId,
-                            const std::string &projectId,
                             const bool isAdmin,
+                            const std::string &projectId,
+                            const bool isProjectAdmin,
                             Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("uuid", clusterUuid);
 
-    if(del(conditions, userId, projectId, isAdmin, error) == false)
+    if(del(conditions, userId, isAdmin, projectId, isProjectAdmin, error) == false)
     {
         error.addMeesage("Failed to delete cluster-meta with UUID '"
                          + clusterUuid

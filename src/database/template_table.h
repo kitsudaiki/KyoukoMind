@@ -45,26 +45,30 @@ public:
     bool getTemplate(Kitsunemimi::Json::JsonItem &result,
                      const std::string &templateUuid,
                      const std::string &userId,
-                     const std::string &projectId,
                      const bool isAdmin,
+                     const std::string &projectId,
+                     const bool isProjectAdmin,
                      Kitsunemimi::ErrorContainer &error,
                      const bool showHiddenValues = false);
     bool getTemplateByName(Kitsunemimi::Json::JsonItem &result,
                            const std::string &templateName,
                            const std::string &userId,
-                           const std::string &projectId,
                            const bool isAdmin,
+                           const std::string &projectId,
+                           const bool isProjectAdmin,
                            Kitsunemimi::ErrorContainer &error,
                            const bool showHiddenValues = false);
     bool getAllTemplate(Kitsunemimi::TableItem &result,
                         const std::string &userId,
-                        const std::string &projectId,
                         const bool isAdmin,
+                        const std::string &projectId,
+                        const bool isProjectAdmin,
                         Kitsunemimi::ErrorContainer &error);
     bool deleteTemplate(const std::string &templateUuid,
                         const std::string &userId,
-                        const std::string &projectId,
                         const bool isAdmin,
+                        const std::string &projectId,
+                        const bool isProjectAdmin,
                         Kitsunemimi::ErrorContainer &error);
 };
 

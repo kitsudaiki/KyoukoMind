@@ -65,6 +65,7 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
 
     // get information from request
     const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
@@ -74,8 +75,9 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
     if(KyoukoRoot::clustersTable->getCluster(getResult,
                                              clusterUuid,
                                              userId,
-                                             projectId,
                                              isAdmin,
+                                             projectId,
+                                             isProjectAdmin,
                                              error) == false)
     {
         status.errorMessage = "Cluster with uuid '" + clusterUuid + "' not found.";
@@ -87,8 +89,9 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
     // remove data from table
     if(KyoukoRoot::clustersTable->deleteCluster(clusterUuid,
                                                 userId,
-                                                projectId,
                                                 isAdmin,
+                                                projectId,
+                                                isProjectAdmin,
                                                 error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;

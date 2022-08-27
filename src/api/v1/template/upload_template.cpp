@@ -82,6 +82,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
     const std::string token = context.getStringByKey("token");
 
     // check if template with the name already exist within the table
@@ -89,8 +90,9 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     if(KyoukoRoot::templateTable->getTemplateByName(getResult,
                                                     name,
                                                     userId,
-                                                    projectId,
                                                     isAdmin,
+                                                    projectId,
+                                                    isProjectAdmin,
                                                     error))
     {
         status.errorMessage = "Template with name '" + name + "' already exist.";
@@ -126,8 +128,9 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
                                                     name,
                                                     userId,
-                                                    projectId,
                                                     isAdmin,
+                                                    projectId,
+                                                    isProjectAdmin,
                                                     error) == false)
     {
         error.addMeesage("Failed to get new template from database");

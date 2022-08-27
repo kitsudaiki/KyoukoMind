@@ -65,13 +65,15 @@ ListTemplates::runTask(BlossomLeaf &blossomLeaf,
     const std::string userId = context.getStringByKey("id");
     const std::string projectId = context.getStringByKey("project_id");
     const bool isAdmin = context.getBoolByKey("is_admin");
+    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
 
     // get data from table
     Kitsunemimi::TableItem table;
     if(KyoukoRoot::templateTable->getAllTemplate(table,
                                                  userId,
-                                                 projectId,
                                                  isAdmin,
+                                                 projectId,
+                                                 isProjectAdmin,
                                                  error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
