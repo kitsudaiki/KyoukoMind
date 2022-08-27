@@ -57,9 +57,7 @@ DeleteTask::runTask(BlossomLeaf &blossomLeaf,
                     Kitsunemimi::ErrorContainer &)
 {
     const std::string uuid = blossomLeaf.input.get("uuid").getString();
-
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // get cluster
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);

@@ -99,8 +99,7 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string taskUuid = blossomLeaf.input.get("uuid").getString();
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // get cluster
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);

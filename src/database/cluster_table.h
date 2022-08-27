@@ -39,32 +39,23 @@ public:
     ~ClusterTable();
 
     bool addCluster(Kitsunemimi::Json::JsonItem &clusterData,
-                    const std::string &userId,
-                    const std::string &projectId,
+                    const Kitsunemimi::Hanami::UserContext &userContext,
                     Kitsunemimi::ErrorContainer &error);
     bool getCluster(Kitsunemimi::Json::JsonItem &result,
                     const std::string &clusterUuid,
-                    const std::string &userId,
-                    const std::string &projectId,
-                    const bool isAdmin,
+                    const Kitsunemimi::Hanami::UserContext &userContext,
                     Kitsunemimi::ErrorContainer &error,
                     const bool showHiddenValues = false);
     bool getClusterByName(Kitsunemimi::Json::JsonItem &result,
                           const std::string &clusterName,
-                          const std::string &userId,
-                          const std::string &projectId,
-                          const bool isAdmin,
+                          const Kitsunemimi::Hanami::UserContext &userContext,
                           Kitsunemimi::ErrorContainer &error,
                           const bool showHiddenValues = false);
     bool getAllCluster(Kitsunemimi::TableItem &result,
-                       const std::string &userId,
-                       const std::string &projectId,
-                       const bool isAdmin,
+                       const Kitsunemimi::Hanami::UserContext &userContext,
                        Kitsunemimi::ErrorContainer &error);
     bool deleteCluster(const std::string &clusterUuid,
-                       const std::string &userId,
-                       const std::string &projectId,
-                       const bool isAdmin,
+                       const Kitsunemimi::Hanami::UserContext &userContext,
                        Kitsunemimi::ErrorContainer &error);
 };
 

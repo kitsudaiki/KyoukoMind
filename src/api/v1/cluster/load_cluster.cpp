@@ -82,9 +82,7 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string snapshotUuid = blossomLeaf.input.get("snapshot_uuid").getString();
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
-    const std::string token = context.getStringByKey("token");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if sagiri is available
     SupportedComponents* scomp = SupportedComponents::getInstance();
@@ -108,7 +106,10 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
 
     // get meta-infos of data-set from sagiri
     Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
-    if(Sagiri::getSnapshotInformation(parsedSnapshotInfo, snapshotUuid, token, error) == false)
+    if(Sagiri::getSnapshotInformation(parsedSnapshotInfo,
+                                      snapshotUuid,
+                                      userContext.token,
+                                      error) == false)
     {
         error.addMeesage("Failed to get information from sagiri for UUID '" + snapshotUuid + "'");
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
@@ -118,8 +119,8 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
     // init request-task
     const std::string infoStr = parsedSnapshotInfo.toString();
     const std::string taskUuid = cluster->addClusterSnapshotRestoreTask(infoStr,
-                                                                        userId,
-                                                                        projectId);
+                                                                        userContext.userId,
+                                                                        userContext.projectId);
     blossomLeaf.output.insert("uuid", taskUuid);
 
     return true;

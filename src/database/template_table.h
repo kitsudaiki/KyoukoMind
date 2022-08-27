@@ -39,32 +39,23 @@ public:
     ~TemplateTable();
 
     bool addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
-                     const std::string &userId,
-                     const std::string &projectId,
+                     const Kitsunemimi::Hanami::UserContext &userContext,
                      Kitsunemimi::ErrorContainer &error);
     bool getTemplate(Kitsunemimi::Json::JsonItem &result,
                      const std::string &templateUuid,
-                     const std::string &userId,
-                     const std::string &projectId,
-                     const bool isAdmin,
+                     const Kitsunemimi::Hanami::UserContext &userContext,
                      Kitsunemimi::ErrorContainer &error,
                      const bool showHiddenValues = false);
     bool getTemplateByName(Kitsunemimi::Json::JsonItem &result,
                            const std::string &templateName,
-                           const std::string &userId,
-                           const std::string &projectId,
-                           const bool isAdmin,
+                           const Kitsunemimi::Hanami::UserContext &userContext,
                            Kitsunemimi::ErrorContainer &error,
                            const bool showHiddenValues = false);
     bool getAllTemplate(Kitsunemimi::TableItem &result,
-                        const std::string &userId,
-                        const std::string &projectId,
-                        const bool isAdmin,
+                        const Kitsunemimi::Hanami::UserContext &userContext,
                         Kitsunemimi::ErrorContainer &error);
     bool deleteTemplate(const std::string &templateUuid,
-                        const std::string &userId,
-                        const std::string &projectId,
-                        const bool isAdmin,
+                        const Kitsunemimi::Hanami::UserContext &userContext,
                         Kitsunemimi::ErrorContainer &error);
 };
 

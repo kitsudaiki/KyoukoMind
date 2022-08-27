@@ -62,21 +62,14 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
                        Kitsunemimi::ErrorContainer &error)
 {
     // get context-info
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
-    const bool isAdmin = context.getBoolByKey("is_admin");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // get information from request
     const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::clustersTable->getCluster(getResult,
-                                             clusterUuid,
-                                             userId,
-                                             projectId,
-                                             isAdmin,
-                                             error) == false)
+    if(KyoukoRoot::clustersTable->getCluster(getResult, clusterUuid, userContext, error) == false)
     {
         status.errorMessage = "Cluster with uuid '" + clusterUuid + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
@@ -85,11 +78,7 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // remove data from table
-    if(KyoukoRoot::clustersTable->deleteCluster(clusterUuid,
-                                                userId,
-                                                projectId,
-                                                isAdmin,
-                                                error) == false)
+    if(KyoukoRoot::clustersTable->deleteCluster(clusterUuid, userContext, error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         error.addMeesage("Failed to delete cluster with UUID '" + clusterUuid + "' from database");

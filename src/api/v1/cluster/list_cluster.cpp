@@ -58,17 +58,11 @@ ListCluster::runTask(BlossomLeaf &blossomLeaf,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
-    const bool isAdmin = context.getBoolByKey("is_admin");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // get data from table
     Kitsunemimi::TableItem table;
-    if(KyoukoRoot::clustersTable->getAllCluster(table,
-                                                userId,
-                                                projectId,
-                                                isAdmin,
-                                                error) == false)
+    if(KyoukoRoot::clustersTable->getAllCluster(table, userContext, error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         error.addMeesage("Failed to get all clusters form database");

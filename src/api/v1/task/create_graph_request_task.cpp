@@ -87,7 +87,7 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
     const std::string columnName = blossomLeaf.input.get("column_name").getString();
-    const std::string token = context.getStringByKey("token");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     SupportedComponents* scomp = SupportedComponents::getInstance();
     if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
@@ -110,7 +110,7 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
 
     // get meta-infos of data-set from sagiri
     Kitsunemimi::Json::JsonItem dataSetInfo;
-    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
+    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, userContext.token, error) == false)
     {
         error.addMeesage("Failed to get information from sagiri for UUID '" + dataSetUuid + "'");
         // TODO: add status-error from response from sagiri
@@ -119,7 +119,7 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* colBuffer = Sagiri::getDatasetData(token, dataSetUuid, columnName, error);
+    DataBuffer* colBuffer = Sagiri::getDatasetData(userContext.token, dataSetUuid, columnName, error);
     if(colBuffer == nullptr)
     {
         error.addMeesage("Failed to get data for dataset with UUID '"
