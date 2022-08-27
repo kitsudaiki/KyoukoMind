@@ -27,6 +27,7 @@
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiCommon/structs.h>
 
 #include <libKitsunemimiCrypto/common.h>
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
@@ -83,20 +84,11 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string clusterName = blossomLeaf.input.get("name").getString();
     Kitsunemimi::Json::JsonItem clusterDefinition = blossomLeaf.input.get("cluster_definition");
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
-    const bool isAdmin = context.getBoolByKey("is_admin");
-    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if user already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::clustersTable->getClusterByName(getResult,
-                                                   clusterName,
-                                                   userId,
-                                                   isAdmin,
-                                                   projectId,
-                                                   isProjectAdmin,
-                                                   error))
+    if(KyoukoRoot::clustersTable->getClusterByName(getResult, clusterName, userContext, error))
     {
         status.errorMessage = "Cluster with name '" + clusterName + "' already exist.";
         error.addMeesage(status.errorMessage);
@@ -112,10 +104,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     clusterData.insert("visibility", "private");
 
     // add new user to table
-    if(KyoukoRoot::clustersTable->addCluster(clusterData,
-                                             userId,
-                                             projectId,
-                                             error) == false)
+    if(KyoukoRoot::clustersTable->addCluster(clusterData, userContext, error) == false)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         error.addMeesage("Failed to add cluster to database");
@@ -125,10 +114,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     // get new created user from database
     if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output,
                                                    clusterName,
-                                                   userId,
-                                                   isAdmin,
-                                                   projectId,
-                                                   isProjectAdmin,
+                                                   userContext,
                                                    error) == false)
     {
         error.addMeesage("Failed to get cluster from database by name '" + clusterName + "'");
@@ -140,12 +126,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     Cluster* newCluster = new Cluster();
     if(clusterDefinition.size() != 0)
     {
-        if(initCluster(newCluster,
-                       uuid,
-                       clusterDefinition,
-                       context,
-                       status,
-                       error) == false)
+        if(initCluster(newCluster, uuid, clusterDefinition, userContext, status, error) == false)
         {
             delete newCluster;
             error.addMeesage("Failed to initialize cluster");
@@ -169,7 +150,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
  * @param cluster pointer to the cluster, which should be initialized
  * @param clusterUuid uuid of the cluster
  * @param clusterDefinition definition, which describe the new cluster
- * @param context context-object with date for the access to the database-tables
+ * @param userContext context-object with date for the access to the database-tables
  * @param status reference for status-output
  * @param error reference for error-output
  *
@@ -179,15 +160,10 @@ bool
 CreateCluster::initCluster(Cluster* cluster,
                            const std::string &clusterUuid,
                            Kitsunemimi::Json::JsonItem &clusterDefinition,
-                           const Kitsunemimi::DataMap &context,
+                           const Kitsunemimi::Hanami::UserContext &userContext,
                            Kitsunemimi::Sakura::BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
 {
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project");
-    const bool isAdmin = context.getBoolByKey("is_admin");
-    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
-
     // collect all segment-templates, which are required by the cluster-template
     Kitsunemimi::Json::JsonItem segments = clusterDefinition.get("segments");
     std::map<std::string, Kitsunemimi::Json::JsonItem> segmentTemplates;
@@ -204,13 +180,7 @@ CreateCluster::initCluster(Cluster* cluster,
 
         // get the content of the segment-template
         Kitsunemimi::Json::JsonItem parsedTemplate;
-        if(getSegmentTemplate(parsedTemplate,
-                              type,
-                              userId,
-                              isAdmin,
-                              projectId,
-                              isProjectAdmin,
-                              error) == false)
+        if(getSegmentTemplate(parsedTemplate, type, userContext, error) == false)
         {
             // TODO: set status-message and maybe change to not-found-error
             status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
@@ -247,20 +217,14 @@ CreateCluster::initCluster(Cluster* cluster,
 bool
 CreateCluster::getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
                                   const std::string &name,
-                                  const std::string &userId,
-                                  const bool isAdmin,
-                                  const std::string &projectId,
-                                  const bool isProjectAdmin,
+                                  const Kitsunemimi::Hanami::UserContext &userContext,
                                   Kitsunemimi::ErrorContainer &error)
 {
     // get segment-template from database
     JsonItem templateData;
     if(KyoukoRoot::templateTable->getTemplateByName(templateData,
                                                     name,
-                                                    userId,
-                                                    isAdmin,
-                                                    projectId,
-                                                    isProjectAdmin,
+                                                    userContext,
                                                     error,
                                                     true) == false)
     {

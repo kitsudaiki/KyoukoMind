@@ -96,12 +96,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
     const std::string type = blossomLeaf.input.get("type").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
     const JsonItem settingsOverride = blossomLeaf.input.get("settings_override");
-
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
-    const bool isAdmin = context.getBoolByKey("is_admin");
-    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
-    const std::string token = context.getStringByKey("token");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if template with the name already exist within the table
     /*Kitsunemimi::Json::JsonItem getResult;
@@ -120,7 +115,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
 
     // get meta-infos of data-set from sagiri
     Kitsunemimi::Json::JsonItem dataSetInfo;
-    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, token, error) == false)
+    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, userContext.token, error) == false)
     {
         error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
         // TODO: add status-error from response from sagiri
@@ -158,10 +153,7 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
     templateData.insert("visibility", "private");
 
     // add new user to table
-    if(KyoukoRoot::templateTable->addTemplate(templateData,
-                                                     userId,
-                                                     projectId,
-                                                     error) == false)
+    if(KyoukoRoot::templateTable->addTemplate(templateData, userContext, error) == false)
     {
         error.addMeesage("Failed to add new template to database");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;

@@ -79,21 +79,11 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
 {
     const std::string name = blossomLeaf.input.get("name").getString();
     const std::string stringContent = blossomLeaf.input.get("template").toString();
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
-    const bool isAdmin = context.getBoolByKey("is_admin");
-    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
-    const std::string token = context.getStringByKey("token");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if template with the name already exist within the table
     Kitsunemimi::Json::JsonItem getResult;
-    if(KyoukoRoot::templateTable->getTemplateByName(getResult,
-                                                    name,
-                                                    userId,
-                                                    isAdmin,
-                                                    projectId,
-                                                    isProjectAdmin,
-                                                    error))
+    if(KyoukoRoot::templateTable->getTemplateByName(getResult, name, userContext, error))
     {
         status.errorMessage = "Template with name '" + name + "' already exist.";
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
@@ -109,15 +99,10 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     Kitsunemimi::Json::JsonItem templateData;
     templateData.insert("name", name);
     templateData.insert("data", base64Content);
-    templateData.insert("project_id", projectId);
-    templateData.insert("owner_id", userId);
     templateData.insert("visibility", "private");
 
     // add new user to table
-    if(KyoukoRoot::templateTable->addTemplate(templateData,
-                                              userId,
-                                              projectId,
-                                              error) == false)
+    if(KyoukoRoot::templateTable->addTemplate(templateData, userContext, error) == false)
     {
         error.addMeesage("Failed to add new template to database");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
@@ -127,10 +112,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     // get new created user from database
     if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
                                                     name,
-                                                    userId,
-                                                    isAdmin,
-                                                    projectId,
-                                                    isProjectAdmin,
+                                                    userContext,
                                                     error) == false)
     {
         error.addMeesage("Failed to get new template from database");

@@ -51,19 +51,17 @@ ClusterTable::~ClusterTable() {}
  * @brief add a new cluster to the database
  *
  * @param userData json-item with all information of the cluster to add to database
- * @param userId user-id to filter
- * @param projectId project-id to filter
+ * @param userContext context-object with all user specific information
  * @param error reference for error-output
  *
  * @return true, if successful, else false
  */
 bool
 ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
-                         const std::string &userId,
-                         const std::string &projectId,
+                         const Kitsunemimi::Hanami::UserContext &userContext,
                          Kitsunemimi::ErrorContainer &error)
 {
-    if(add(clusterData, userId, projectId, error) == false)
+    if(add(clusterData, userContext, error) == false)
     {
         error.addMeesage("Failed to add cluster-meta to database");
         return false;
@@ -77,9 +75,7 @@ ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
  *
  * @param result reference for the result-output in case that a cluster with this name was found
  * @param clusterUuid uuid of the requested cluster
- * @param userId user-id to filter
- * @param projectId project-id to filter
- * @param isAdmin true, if use who makes request is admin
+ * @param userContext context-object with all user specific information
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
@@ -88,10 +84,7 @@ ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
 bool
 ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
                          const std::string &clusterUuid,
-                         const std::string &userId,
-                         const bool isAdmin,
-                         const std::string &projectId,
-                         const bool isProjectAdmin,
+                         const Kitsunemimi::Hanami::UserContext &userContext,
                          Kitsunemimi::ErrorContainer &error,
                          const bool showHiddenValues)
 {
@@ -99,14 +92,7 @@ ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("uuid", clusterUuid);
 
     // get user from db
-    if(get(result,
-           userId,
-           isAdmin,
-           projectId,
-           isProjectAdmin,
-           conditions,
-           error,
-           showHiddenValues) == false)
+    if(get(result, userContext, conditions, error, showHiddenValues) == false)
     {
         error.addMeesage("Failed to get cluster-meta with UUID '"
                          + clusterUuid
@@ -122,9 +108,7 @@ ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
  *
  * @param result reference for the result-output in case that a cluster with this name was found
  * @param clusterName name of the requested cluster
- * @param userId user-id to filter
- * @param projectId project-id to filter
- * @param isAdmin true, if use who makes request is admin
+ * @param userContext context-object with all user specific information
  * @param error reference for error-output
  * @param showHiddenValues set to true to also show as hidden marked fields
  *
@@ -133,10 +117,7 @@ ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
 bool
 ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
                                const std::string &clusterName,
-                               const std::string &userId,
-                               const bool isAdmin,
-                               const std::string &projectId,
-                               const bool isProjectAdmin,
+                               const Kitsunemimi::Hanami::UserContext &userContext,
                                Kitsunemimi::ErrorContainer &error,
                                const bool showHiddenValues)
 {
@@ -144,14 +125,7 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
     conditions.emplace_back("name", clusterName);
 
     // get user from db
-    if(get(result,
-           userId,
-           isAdmin,
-           projectId,
-           isProjectAdmin,
-           conditions,
-           error,
-           showHiddenValues) == false)
+    if(get(result, userContext, conditions, error, showHiddenValues) == false)
     {
         error.addMeesage("Failed to get cluster-meta from database by name '" + clusterName + "'");
         return false;
@@ -164,23 +138,18 @@ ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
  * @brief get all clusters from the database table
  *
  * @param result reference for the result-output
- * @param userId user-id to filter
- * @param projectId project-id to filter
- * @param isAdmin true, if use who makes request is admin
+ * @param userContext context-object with all user specific information
  * @param error reference for error-output
  *
  * @return true, if successful, else false
  */
 bool
 ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
-                            const std::string &userId,
-                            const bool isAdmin,
-                            const std::string &projectId,
-                            const bool isProjectAdmin,
+                            const Kitsunemimi::Hanami::UserContext &userContext,
                             Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
-    if(getAll(result, userId, isAdmin, projectId, isProjectAdmin, conditions, error) == false)
+    if(getAll(result, userContext, conditions, error) == false)
     {
         error.addMeesage("Failed to get all cluster-meta from database");
         return false;
@@ -193,25 +162,20 @@ ClusterTable::getAllCluster(Kitsunemimi::TableItem &result,
  * @brief delete a cluster from the table
  *
  * @param clusterUuid uuid of the cluster to delete
- * @param userId user-id to filter
- * @param projectId project-id to filter
- * @param isAdmin true, if use who makes request is admin
+ * @param userContext context-object with all user specific information
  * @param error reference for error-output
  *
  * @return true, if successful, else false
  */
 bool
 ClusterTable::deleteCluster(const std::string &clusterUuid,
-                            const std::string &userId,
-                            const bool isAdmin,
-                            const std::string &projectId,
-                            const bool isProjectAdmin,
+                            const Kitsunemimi::Hanami::UserContext &userContext,
                             Kitsunemimi::ErrorContainer &error)
 {
     std::vector<RequestCondition> conditions;
     conditions.emplace_back("uuid", clusterUuid);
 
-    if(del(conditions, userId, isAdmin, projectId, isProjectAdmin, error) == false)
+    if(del(conditions, userContext, error) == false)
     {
         error.addMeesage("Failed to delete cluster-meta with UUID '"
                          + clusterUuid

@@ -87,18 +87,12 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
     // TODO: check type-field
 
     // get context-info
-    const std::string userId = context.getStringByKey("id");
-    const std::string projectId = context.getStringByKey("project_id");
-    const bool isAdmin = context.getBoolByKey("is_admin");
-    const bool isProjectAdmin = context.getBoolByKey("is_project_admin");
+    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // get data from table
     if(KyoukoRoot::templateTable->getTemplate(blossomLeaf.output,
                                               uuid,
-                                              userId,
-                                              isAdmin,
-                                              projectId,
-                                              isProjectAdmin,
+                                              userContext,
                                               error,
                                               true) == false)
     {

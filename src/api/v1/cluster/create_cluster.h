@@ -24,6 +24,7 @@
 #define KYOUKOMIND_CREATECLUSTER_H
 
 #include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiHanamiCommon/structs.h>
 
 class Cluster;
 
@@ -43,16 +44,13 @@ private:
     bool initCluster(Cluster* cluster,
                      const std::string &clusterUuid,
                      Kitsunemimi::Json::JsonItem &clusterDefinition,
-                     const Kitsunemimi::DataMap &context,
+                     const Kitsunemimi::Hanami::UserContext &userContext,
                      Kitsunemimi::Sakura::BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error);
 
     bool getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
                             const std::string &name,
-                            const std::string &userId,
-                            const bool isAdmin,
-                            const std::string &projectId,
-                            const bool isProjectAdmin,
+                            const Kitsunemimi::Hanami::UserContext &userContext,
                             Kitsunemimi::ErrorContainer &error);
 };
 
