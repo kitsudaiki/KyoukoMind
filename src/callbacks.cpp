@@ -21,134 +21,13 @@
  */
 
 #include <callbacks.h>
-
-#include <core/cluster/cluster.h>
-#include <core/segments/input_segment/input_segment.h>
-#include <core/segments/output_segment/output_segment.h>
-
 #include <libKitsunemimiSakuraNetwork/session.h>
-#include <../libKitsunemimiHanamiMessages/protobuffers/kyouko_messages.proto3.pb.h>
-#include <../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h>
+#include <libKitsunemimiHanamiCommon/messages.h>
 
-bool
-handleProtobufClusterIo(Cluster* cluster,
-                        const void* data,
-                        const uint64_t dataSize)
-{
-    ClusterIO_Message msg;
-    if(msg.ParseFromArray(data, dataSize) == false)
-    {
-        Kitsunemimi::ErrorContainer error;
-        error.addMeesage("Got invalid Protobuf-ClusterIO-Message");
-        LOG_ERROR(error);
-        return false;
-    }
+#include <io/hanami_messages.h>
+#include <io/protobuf_messages.h>
 
-    // fill given data into the target-segment
-    if(msg.datatype() == ClusterDataType::INPUT_TYPE)
-    {
-        std::map<std::string, InputSegment*>::iterator it;
-        it = cluster->inputSegments.find(msg.segmentname());
-        if(it != cluster->inputSegments.end())
-        {
-            InputNode* inputNodes = it->second->inputs;
-            for(uint64_t i = 0; i < msg.numberofvalues(); i++) {
-                inputNodes[i].weight = msg.values(i);
-            }
-        }
-    }
-    if(msg.datatype() == ClusterDataType::SHOULD_TYPE)
-    {
-        std::map<std::string, OutputSegment*>::iterator it;
-        it = cluster->outputSegments.find(msg.segmentname());
-        if(it != cluster->outputSegments.end())
-        {
-            OutputNode* outputNodes = it->second->outputs;
-            for(uint64_t i = 0; i < msg.numberofvalues(); i++) {
-                outputNodes[i].shouldValue = msg.values(i);
-            }
-        }
-    }
-
-    if(msg.islast())
-    {
-        // start request
-        if(msg.processtype() == ClusterProcessType::REQUEST_TYPE)
-        {
-            cluster->mode = Cluster::NORMAL_MODE;
-            cluster->startForwardCycle();
-        }
-
-        // start learn
-        if(msg.processtype() == ClusterProcessType::LEARN_TYPE)
-        {
-            cluster->mode = Cluster::LEARN_FORWARD_MODE;
-            cluster->startForwardCycle();
-        }
-    }
-
-    return true;
-}
-
-bool
-handleHanamiClusterIo(Cluster* cluster,
-                      const void* data,
-                      const uint64_t dataSize)
-{
-    Kitsunemimi::Hanami::ClusterIO_Message msg;
-    if(msg.read(const_cast<void*>(data), dataSize) == false)
-    {
-        Kitsunemimi::ErrorContainer error;
-        error.addMeesage("Got invalid Hanami-ClusterIO-Message");
-        LOG_ERROR(error);
-        return false;
-    }
-
-    // fill given data into the target-segment
-    if(msg.dataType == Kitsunemimi::Hanami::ClusterIO_Message::DataType::INPUT_TYPE)
-    {
-        std::map<std::string, InputSegment*>::iterator it;
-        it = cluster->inputSegments.find(msg.segmentName);
-        if(it != cluster->inputSegments.end())
-        {
-            InputNode* inputNodes = it->second->inputs;
-            for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-                inputNodes[i].weight = msg.values[i];
-            }
-        }
-    }
-    if(msg.dataType == Kitsunemimi::Hanami::ClusterIO_Message::DataType::SHOULD_TYPE)
-    {
-        std::map<std::string, OutputSegment*>::iterator it;
-        it = cluster->outputSegments.find(msg.segmentName);
-        if(it != cluster->outputSegments.end())
-        {
-            OutputNode* outputNodes = it->second->outputs;
-            for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-                outputNodes[i].shouldValue = msg.values[i];
-            }
-        }
-    }
-
-    if(msg.isLast)
-    {
-        // start request
-        if(msg.processType == Kitsunemimi::Hanami::ClusterIO_Message::ProcessType::REQUEST_TYPE)
-        {
-            cluster->mode = Cluster::NORMAL_MODE;
-            cluster->startForwardCycle();
-        }
-
-        // start learn
-        if(msg.processType == Kitsunemimi::Hanami::ClusterIO_Message::ProcessType::LEARN_TYPE)
-        {
-            cluster->mode = Cluster::LEARN_FORWARD_MODE;
-            cluster->startForwardCycle();
-        }
-    }
-
-    return true;
-}
+class Cluster;
 
 /**
  * @brief process stream-message
@@ -166,9 +45,9 @@ streamDataCallback(void* target,
     Cluster* cluster = static_cast<Cluster*>(target);
 
     if(Kitsunemimi::Hanami::isHanamiProtocol(data, dataSize)) {
-        handleHanamiClusterIo(cluster, data, dataSize);
+        recvHanamiInputMessage(cluster, data, dataSize);
     } else {
-        handleProtobufClusterIo(cluster, data, dataSize);
+        recvProtobufInputMessage(cluster, data, dataSize);
     }
 
     /**std::cout<<"#################################################"<<std::endl;

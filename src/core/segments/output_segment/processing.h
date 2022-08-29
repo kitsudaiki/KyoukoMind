@@ -32,8 +32,8 @@
 #include "objects.h"
 #include "output_segment.h"
 
-#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
-#include <../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h>
+#include <io/hanami_messages.h>
+#include <io/protobuf_messages.h>
 
 /**
  * @brief get position of the highest output-position
@@ -94,38 +94,13 @@ prcessOutputSegment(const OutputSegment &segment)
     if(segment.parentCluster->msgClient != nullptr
             && segment.parentCluster->mode == Cluster::NORMAL_MODE)
     {
-        // filter values for only necessary values
-        float outputData[segment.segmentHeader->outputs.count];
-        for(uint64_t outputNodeId = 0;
-            outputNodeId < segment.segmentHeader->outputs.count;
-            outputNodeId++)
-        {
-            node = &segment.outputs[outputNodeId];
-            outputData[outputNodeId] = node->outputWeight;
+        if(segment.parentCluster->useProtobuf) {
+            sendProtobufOutputMessage(segment);
+        } else {
+            sendHanamiOutputMessage(segment);
         }
-
-        Kitsunemimi::Hanami::ClusterIO_Message msg;
-        msg.segmentName = segment.getName();
-        msg.isLast = true;
-        msg.processType = Kitsunemimi::Hanami::ClusterIO_Message::ProcessType::REQUEST_TYPE;
-        msg.dataType = Kitsunemimi::Hanami::ClusterIO_Message::DataType::OUTPUT_TYPE;
-        msg.numberOfValues = segment.segmentHeader->outputs.count;
-        msg.values = outputData;
-
-        uint8_t buffer[96*1024];
-        const uint64_t size = msg.createBlob(buffer, 96*1024);
-        if(size == 0)
-        {
-            Kitsunemimi::ErrorContainer error;
-            error.addMeesage("Failed to serialize request-message");
-            return;
-        }
-
-        // send message
-        Kitsunemimi::Hanami::HanamiMessagingClient* client = segment.parentCluster->msgClient;
-        Kitsunemimi::ErrorContainer error;
-        client->sendStreamMessage(buffer, size, false, error);
     }
 }
+
 
 #endif // KYOUKOMIND_OUTPUT_PROCESSING_H

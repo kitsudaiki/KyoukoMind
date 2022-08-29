@@ -38,7 +38,8 @@
 #include <libKitsunemimiCommon/statemachine.h>
 #include <libKitsunemimiCommon/threading/thread.h>
 
-#include <../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h>
+#include <io/hanami_messages.h>
+#include <io/protobuf_messages.h>
 
 /**
  * @brief constructor
@@ -290,48 +291,22 @@ Cluster::updateClusterState()
         return;
     }
 
-    // if a client is configured for the cluster, send a reponse that the learning was finished
-    if(mode == Cluster::LEARN_BACKWARD_MODE
-            && msgClient != nullptr)
+    // send message, that process was finished
+    if(mode == Cluster::LEARN_BACKWARD_MODE)
     {
-        Kitsunemimi::Hanami::ClusterIO_Message msg;
-        msg.isLast = true;
-        msg.processType = Kitsunemimi::Hanami::ClusterIO_Message::ProcessType::LEARN_TYPE;
-        msg.dataType = Kitsunemimi::Hanami::ClusterIO_Message::DataType::OUTPUT_TYPE;
-
-        uint8_t buffer[96*1024];
-        const uint64_t size = msg.createBlob(buffer, 96*1024);
-        if(size == 0)
-        {
-            Kitsunemimi::ErrorContainer error;
-            error.addMeesage("Failed to serialize request-message");
-            return;
+        if(useProtobuf) {
+            sendProtobufLearnEndMessage(this);
+        } else {
+            sendHanamiLearnEndMessage(this);
         }
-
-        Kitsunemimi::ErrorContainer error;
-        msgClient->sendStreamMessage(buffer, size, false, error);
     }
-
-    // if a client is configured for the cluster, send a reponse that the request was finished
-    if(mode == Cluster::NORMAL_MODE
-            && msgClient != nullptr)
+    else if(mode == Cluster::NORMAL_MODE)
     {
-        Kitsunemimi::Hanami::ClusterIO_Message msg;
-        msg.isLast = true;
-        msg.processType = Kitsunemimi::Hanami::ClusterIO_Message::ProcessType::REQUEST_TYPE;
-        msg.dataType = Kitsunemimi::Hanami::ClusterIO_Message::DataType::OUTPUT_TYPE;
-
-        uint8_t buffer[96*1024];
-        const uint64_t size = msg.createBlob(buffer, 96*1024);
-        if(size == 0)
-        {
-            Kitsunemimi::ErrorContainer error;
-            error.addMeesage("Failed to serialize request-message");
-            return;
+        if(useProtobuf) {
+            sendProtobufNormalEndMessage(this);
+        } else {
+            sendHanamiNormalEndMessage(this);
         }
-
-        Kitsunemimi::ErrorContainer error;
-        msgClient->sendStreamMessage(buffer, size, false, error);
     }
 
     goToNextState(NEXT);

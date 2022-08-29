@@ -181,6 +181,8 @@ HEADERS += \
     src/core/struct_validation.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
+    src/io/hanami_messages.h \
+    src/io/protobuf_messages.h \
     src/kyouko_root.h \
     ../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h
 
@@ -227,6 +229,8 @@ SOURCES += \
     src/core/struct_validation.cpp \
     src/database/cluster_table.cpp \
     src/database/template_table.cpp \
+    src/io/hanami_messages.cpp \
+    src/io/protobuf_messages.cpp \
     src/kyouko_root.cpp \
     src/main.cpp
 
