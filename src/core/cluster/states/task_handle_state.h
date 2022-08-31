@@ -47,6 +47,7 @@ public:
     bool isFinish(const std::string &taskUuid);
     void setResultForActualCycle(const uint32_t result);
     TaskState getTaskState(const std::string &taskUuid);
+    void getAllProgress(std::map<std::string, TaskProgress> &result);
 
 private:
     Cluster* m_cluster = nullptr;

@@ -282,6 +282,22 @@ TaskHandle_State::getTaskState(const std::string &taskUuid)
 }
 
 /**
+ * @brief TaskHandle_State::getAllProgress
+ * @param result
+ */
+void
+TaskHandle_State::getAllProgress(std::map<std::string, TaskProgress> &result)
+{
+    std::map<std::string, Task>::const_iterator it;
+    for(it = m_taskMap.begin();
+        it != m_taskMap.end();
+        it++)
+    {
+        result.emplace(it->second.uuid.toString(), it->second.progress);
+    }
+}
+
+/**
  * @brief remove task from queue of abort the task, if actual in progress
  *
  * @param taskUuid UUID of the task
