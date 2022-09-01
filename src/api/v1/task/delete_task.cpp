@@ -38,7 +38,7 @@ DeleteTask::DeleteTask()
     registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster, which should process the request");
+                       "UUID of the task, which should be deleted");
     assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                  "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
@@ -77,7 +77,15 @@ DeleteTask::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    cluster->removeTask(taskUuid);
+    // delete task
+    if(cluster->removeTask(taskUuid) == false)
+    {
+        status.errorMessage = "Task with UUID '" + clusterUuid + "'not found in "
+                              "Cluster with UUID '" + clusterUuid;
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
 
     return true;
 }

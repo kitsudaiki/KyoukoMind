@@ -298,11 +298,11 @@ TaskHandle_State::getAllProgress(std::map<std::string, TaskProgress> &result)
 }
 
 /**
- * @brief remove task from queue of abort the task, if actual in progress
+ * @brief remove task from queue or abort the task, if actual in progress
  *
  * @param taskUuid UUID of the task
  *
- * @return always true
+ * @return false, if task-uuid was not found, else true
  */
 bool
 TaskHandle_State::removeTask(const std::string &taskUuid)
@@ -323,25 +323,36 @@ TaskHandle_State::removeTask(const std::string &taskUuid)
         {
             delete itMap->second.inputData;
             m_taskMap.erase(itMap);
+
+            // update queue
+            std::deque<std::string>::const_iterator itQueue;
+            itQueue = std::find(m_taskQueue.begin(), m_taskQueue.end(), taskUuid);
+            if(itQueue != m_taskQueue.end()) {
+                m_taskQueue.erase(itQueue);
+            }
+
+            return true;
         }
 
         // if task is active at the moment, then only mark it as aborted
-        if(state == ACTIVE_TASK_STATE) {
+        if(state == ACTIVE_TASK_STATE)
+        {
             itMap->second.progress.state = ABORTED_TASK_STATE;
+            return true;
+        }
+
+        // handle finished and aborted state
+        if(state == FINISHED_TASK_STATE
+                || state == ABORTED_TASK_STATE)
+        {
+            // input-data are automatically deleted, when the task was finished,
+            // so removing from the list is enough
+            m_taskMap.erase(itMap);
+            return true;
         }
     }
 
-    // check and update queue
-    if(state == QUEUED_TASK_STATE)
-    {
-        std::deque<std::string>::const_iterator itQueue;
-        itQueue = std::find(m_taskQueue.begin(), m_taskQueue.end(), taskUuid);
-        if(itQueue != m_taskQueue.end()) {
-            m_taskQueue.erase(itQueue);
-        }
-    }
-
-    return true;
+    return false;
 }
 
 /**
