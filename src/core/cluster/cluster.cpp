@@ -396,7 +396,7 @@ Cluster::addImageRequestTask(float* inputData,
 }
 
 /**
- * @brief create task to learn graph-data and add it to the task-queue
+ * @brief create task to learn table-data and add it to the task-queue
  *
  * @param inputData input-data
  * @param numberOfInputs number of inputs per cycle
@@ -405,7 +405,7 @@ Cluster::addImageRequestTask(float* inputData,
  * @return task-uuid
  */
 const std::string
-Cluster::addGraphLearnTask(float* inputData,
+Cluster::addTableLearnTask(float* inputData,
                            const uint64_t numberOfInputs,
                            const uint64_t numberOfCycle)
 {
@@ -433,7 +433,7 @@ Cluster::addGraphLearnTask(float* inputData,
 }
 
 /**
- * @brief create task to request graph-data and add it to the task-queue
+ * @brief create task to request table-data and add it to the task-queue
  *
  * @param inputData input-data
  * @param numberOfInputs number of inputs per cycle
@@ -442,7 +442,7 @@ Cluster::addGraphLearnTask(float* inputData,
  * @return task-uuid
  */
 const std::string
-Cluster::addGraphRequestTask(float* inputData,
+Cluster::addTableRequestTask(float* inputData,
                              const uint64_t numberOfInputs,
                              const uint64_t numberOfCycle)
 {

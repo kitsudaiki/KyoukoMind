@@ -24,8 +24,8 @@
 
 #include <core/cluster/states/task_handle_state.h>
 #include <core/cluster/states/cycle_finish_state.h>
-#include <core/cluster/states/graphs/graph_interpolation_state.h>
-#include <core/cluster/states/graphs/graph_learn_forward_state.h>
+#include <core/cluster/states/tables/table_interpolation_state.h>
+#include <core/cluster/states/tables/table_learn_forward_state.h>
 #include <core/cluster/states/images/image_identify_state.h>
 #include <core/cluster/states/images/image_learn_forward_state.h>
 #include <core/cluster/states/snapshots/save_cluster_state.h>
@@ -48,16 +48,16 @@ initStates(Kitsunemimi::Statemachine &sm)
     sm.createNewState(IMAGE_LEARN_STATE,                "Image-learn state");
     sm.createNewState(IMAGE_LEARN_FORWARD_STATE,        "Image-learn state: run");
     sm.createNewState(IMAGE_LEARN_CYCLE_FINISH_STATE,   "Image-learn state: finish-cycle");
-    sm.createNewState(GRAPH_LEARN_STATE,                "Graph-learn state");
-    sm.createNewState(GRAPH_LEARN_FORWARD_STATE,        "Graph-learn state: run");
-    sm.createNewState(GRAPH_LEARN_CYCLE_FINISH_STATE,   "Graph-learn state: finish-cycle");
+    sm.createNewState(GRAPH_LEARN_STATE,                "Table-learn state");
+    sm.createNewState(GRAPH_LEARN_FORWARD_STATE,        "Table-learn state: run");
+    sm.createNewState(GRAPH_LEARN_CYCLE_FINISH_STATE,   "Table-learn state: finish-cycle");
     sm.createNewState(REQUEST_STATE,                    "Request-State");
     sm.createNewState(IMAGE_REQUEST_STATE,              "Image-request state");
     sm.createNewState(IMAGE_REQUEST_FORWARD_STATE,      "Image-request state: forward-propagation");
     sm.createNewState(IMAGE_REQUEST_CYCLE_FINISH_STATE, "Image-request state: finish-cycle");
-    sm.createNewState(GRAPH_REQUEST_STATE,              "Graph-request state");
-    sm.createNewState(GRAPH_REQUEST_FORWARD_STATE,      "Graph-request state: forward-propagation");
-    sm.createNewState(GRAPH_REQUEST_CYCLE_FINISH_STATE, "Graph-request state: finish-cycle");
+    sm.createNewState(GRAPH_REQUEST_STATE,              "Table-request state");
+    sm.createNewState(GRAPH_REQUEST_FORWARD_STATE,      "Table-request state: forward-propagation");
+    sm.createNewState(GRAPH_REQUEST_CYCLE_FINISH_STATE, "Table-request state: finish-cycle");
     sm.createNewState(SNAPSHOT_STATE,                   "Snapshot state");
     sm.createNewState(CLUSTER_SNAPSHOT_STATE,           "Cluster-snapshot state");
     sm.createNewState(CLUSTER_SNAPSHOT_SAVE_STATE,      "Cluster-snapshot state: save");
@@ -79,9 +79,9 @@ initEvents(Kitsunemimi::Statemachine &sm,
 {
     sm.addEventToState(TASK_STATE,                       taskState);
     sm.addEventToState(IMAGE_LEARN_FORWARD_STATE,        new ImageLearnForward_State(cluster));
-    sm.addEventToState(GRAPH_LEARN_FORWARD_STATE,        new GraphLearnForward_State(cluster));
+    sm.addEventToState(GRAPH_LEARN_FORWARD_STATE,        new TableLearnForward_State(cluster));
     sm.addEventToState(IMAGE_REQUEST_FORWARD_STATE,      new ImageIdentify_State(cluster));
-    sm.addEventToState(GRAPH_REQUEST_FORWARD_STATE,      new GraphInterpolation_State(cluster));
+    sm.addEventToState(GRAPH_REQUEST_FORWARD_STATE,      new TableInterpolation_State(cluster));
     sm.addEventToState(IMAGE_LEARN_CYCLE_FINISH_STATE,   new CycleFinish_State(cluster));
     sm.addEventToState(GRAPH_LEARN_CYCLE_FINISH_STATE,   new CycleFinish_State(cluster));
     sm.addEventToState(IMAGE_REQUEST_CYCLE_FINISH_STATE, new CycleFinish_State(cluster));
@@ -103,7 +103,7 @@ initChildStates(Kitsunemimi::Statemachine &sm)
     sm.addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_FORWARD_STATE);
     sm.addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_CYCLE_FINISH_STATE);
 
-    // child states graph learn
+    // child states table learn
     sm.addChildState(LEARN_STATE,       GRAPH_LEARN_STATE);
     sm.addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_FORWARD_STATE);
     sm.addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_CYCLE_FINISH_STATE);
@@ -113,7 +113,7 @@ initChildStates(Kitsunemimi::Statemachine &sm)
     sm.addChildState(IMAGE_REQUEST_STATE, IMAGE_REQUEST_FORWARD_STATE);
     sm.addChildState(IMAGE_REQUEST_STATE, IMAGE_REQUEST_CYCLE_FINISH_STATE);
 
-    // child states graph request
+    // child states table request
     sm.addChildState(REQUEST_STATE,       GRAPH_REQUEST_STATE);
     sm.addChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_FORWARD_STATE);
     sm.addChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_CYCLE_FINISH_STATE);

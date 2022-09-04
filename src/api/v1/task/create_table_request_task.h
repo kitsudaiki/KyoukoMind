@@ -1,5 +1,5 @@
 /**
- * @file        create_graph_request_task.h
+ * @file        create_table_request_task.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -28,11 +28,11 @@
 
 class Cluster;
 
-class CreateGraphRequestTask
+class CreateTableRequestTask
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateGraphRequestTask();
+    CreateTableRequestTask();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,

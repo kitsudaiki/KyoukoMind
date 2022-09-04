@@ -1,5 +1,5 @@
 /**
- * @file        create_graph_request_task.cpp
+ * @file        create_table_request_task.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "create_graph_request_task.h"
+#include "create_table_request_task.h"
 #include <kyouko_root.h>
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
@@ -36,7 +36,7 @@
 using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
-CreateGraphRequestTask::CreateGraphRequestTask()
+CreateTableRequestTask::CreateTableRequestTask()
     : Blossom("Add new request-task to the task-queue of a cluster.")
 {
     //----------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ CreateGraphRequestTask::CreateGraphRequestTask()
  * @brief runTask
  */
 bool
-CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
+CreateTableRequestTask::runTask(BlossomLeaf &blossomLeaf,
                                 const Kitsunemimi::DataMap &context,
                                 BlossomStatus &status,
                                 Kitsunemimi::ErrorContainer &error)
@@ -133,7 +133,7 @@ CreateGraphRequestTask::runTask(BlossomLeaf &blossomLeaf,
 
     // init request-task
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-    const std::string taskUuid = cluster->addGraphRequestTask(static_cast<float*>(colBuffer->data),
+    const std::string taskUuid = cluster->addTableRequestTask(static_cast<float*>(colBuffer->data),
                                                               numberOfLines,
                                                               1);
 

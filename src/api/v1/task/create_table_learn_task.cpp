@@ -1,5 +1,5 @@
 /**
- * @file        create_graph_learn_task.cpp
+ * @file        create_table_learn_task.cpp
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,7 +20,7 @@
  *      limitations under the License.
  */
 
-#include "create_graph_learn_task.h"
+#include "create_table_learn_task.h"
 #include <kyouko_root.h>
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
@@ -36,7 +36,7 @@
 using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
-CreateGraphLearnTask::CreateGraphLearnTask()
+CreateTableLearnTask::CreateTableLearnTask()
     : Blossom("Add new learn-task to the task-queue of a cluster.")
 {
     //----------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ CreateGraphLearnTask::CreateGraphLearnTask()
  * @brief runTask
  */
 bool
-CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
+CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
                               const Kitsunemimi::DataMap &context,
                               BlossomStatus &status,
                               Kitsunemimi::ErrorContainer &error)
@@ -135,7 +135,7 @@ CreateGraphLearnTask::runTask(BlossomLeaf &blossomLeaf,
 
     // create task
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-    const std::string taskUuid = cluster->addGraphLearnTask(static_cast<float*>(colBuffer->data),
+    const std::string taskUuid = cluster->addTableLearnTask(static_cast<float*>(colBuffer->data),
                                                             numberOfLines,
                                                             numberOfLines - 100);
 

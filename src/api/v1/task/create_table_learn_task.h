@@ -1,5 +1,5 @@
 /**
- * @file        create_graph_learn_task.h
+ * @file        create_table_learn_task.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -28,11 +28,11 @@
 
 class Cluster;
 
-class CreateGraphLearnTask
+class CreateTableLearnTask
         : public Kitsunemimi::Sakura::Blossom
 {
 public:
-    CreateGraphLearnTask();
+    CreateTableLearnTask();
 
 protected:
     bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
