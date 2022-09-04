@@ -49,8 +49,8 @@
 
 #include <api/v1/task/create_image_learn_task.h>
 #include <api/v1/task/create_image_request_task.h>
-#include <api/v1/task/create_graph_learn_task.h>
-#include <api/v1/task/create_graph_request_task.h>
+#include <api/v1/task/create_table_learn_task.h>
+#include <api/v1/task/create_table_request_task.h>
 #include <api/v1/task/show_task.h>
 #include <api/v1/task/list_task.h>
 #include <api/v1/task/delete_task.h>
@@ -187,19 +187,19 @@ initTaskBlossoms()
                            group,
                            "create_image_request");
 
-    assert(interface->addBlossom(group, "create_graph_learn", new CreateGraphLearnTask()));
-    endpoints->addEndpoint("v1/task/graph/learn",
+    assert(interface->addBlossom(group, "create_table_learn", new CreateTableLearnTask()));
+    endpoints->addEndpoint("v1/task/table/learn",
                            Kitsunemimi::Hanami::POST_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
-                           "create_graph_learn");
+                           "create_table_learn");
 
-    assert(interface->addBlossom(group, "create_graph_request", new CreateGraphRequestTask()));
-    endpoints->addEndpoint("v1/task/graph/request",
+    assert(interface->addBlossom(group, "create_table_request", new CreateTableRequestTask()));
+    endpoints->addEndpoint("v1/task/table/request",
                            Kitsunemimi::Hanami::POST_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
-                           "create_graph_request");
+                           "create_table_request");
 
     assert(interface->addBlossom(group, "show", new ShowTask()));
     endpoints->addEndpoint("v1/task",

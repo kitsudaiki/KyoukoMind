@@ -123,10 +123,10 @@ HEADERS += \
     src/api/v1/cluster/save_cluster.h \
     src/api/v1/cluster/set_cluster_mode.h \
     src/api/v1/cluster/show_cluster.h \
-    src/api/v1/task/create_graph_learn_task.h \
-    src/api/v1/task/create_graph_request_task.h \
     src/api/v1/task/create_image_learn_task.h \
     src/api/v1/task/create_image_request_task.h \
+    src/api/v1/task/create_table_learn_task.h \
+    src/api/v1/task/create_table_request_task.h \
     src/api/v1/task/delete_task.h \
     src/api/v1/task/list_task.h \
     src/api/v1/task/show_task.h \
@@ -151,8 +151,8 @@ HEADERS += \
     src/core/cluster/cluster_init.h \
     src/core/cluster/statemachine_init.h \
     src/core/cluster/states/cycle_finish_state.h \
-    src/core/cluster/states/graphs/graph_interpolation_state.h \
-    src/core/cluster/states/graphs/graph_learn_forward_state.h \
+    src/core/cluster/states/tables/table_interpolation_state.h \
+    src/core/cluster/states/tables/table_learn_forward_state.h \
     src/core/cluster/states/images/image_identify_state.h \
     src/core/cluster/states/images/image_learn_forward_state.h \
     src/core/cluster/states/snapshots/restore_cluster_state.h \
@@ -194,10 +194,10 @@ SOURCES += \
     src/api/v1/cluster/save_cluster.cpp \
     src/api/v1/cluster/set_cluster_mode.cpp \
     src/api/v1/cluster/show_cluster.cpp \
-    src/api/v1/task/create_graph_learn_task.cpp \
-    src/api/v1/task/create_graph_request_task.cpp \
     src/api/v1/task/create_image_learn_task.cpp \
     src/api/v1/task/create_image_request_task.cpp \
+    src/api/v1/task/create_table_learn_task.cpp \
+    src/api/v1/task/create_table_request_task.cpp \
     src/api/v1/task/delete_task.cpp \
     src/api/v1/task/list_task.cpp \
     src/api/v1/task/show_task.cpp \
@@ -212,8 +212,8 @@ SOURCES += \
     src/core/cluster/cluster_init.cpp \
     src/core/cluster/statemachine_init.cpp \
     src/core/cluster/states/cycle_finish_state.cpp \
-    src/core/cluster/states/graphs/graph_interpolation_state.cpp \
-    src/core/cluster/states/graphs/graph_learn_forward_state.cpp \
+    src/core/cluster/states/tables/table_interpolation_state.cpp \
+    src/core/cluster/states/tables/table_learn_forward_state.cpp \
     src/core/cluster/states/images/image_identify_state.cpp \
     src/core/cluster/states/images/image_learn_forward_state.cpp \
     src/core/cluster/states/snapshots/restore_cluster_state.cpp \

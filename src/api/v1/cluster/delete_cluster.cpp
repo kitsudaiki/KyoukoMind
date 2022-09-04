@@ -61,10 +61,7 @@ DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
-    // get context-info
     const Kitsunemimi::Hanami::UserContext userContext(context);
-
-    // get information from request
     const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
 
     // check if user exist within the table

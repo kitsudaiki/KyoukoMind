@@ -25,9 +25,9 @@
 
 class TaskHandle_State;
 class CycleFinish_State;
-class GraphInterpolation_State;
-class GraphLearnBackward_State;
-class GraphLearnForward_State;
+class TableInterpolation_State;
+class TableLearnBackward_State;
+class TableLearnForward_State;
 class ImageIdentify_State;
 class ImageLearnBackward_State;
 class ImageLearnForward_State;
