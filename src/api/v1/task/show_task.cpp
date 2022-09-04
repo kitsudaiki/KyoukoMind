@@ -77,7 +77,7 @@ ShowTask::ShowTask()
     //----------------------------------------------------------------------------------------------
 }
 
-const std::string
+inline const std::string
 serializeTimePoint(const std::chrono::high_resolution_clock::time_point &time,
                    const std::string &format = "UTC: %Y-%m-%d %H:%M:%S")
 {

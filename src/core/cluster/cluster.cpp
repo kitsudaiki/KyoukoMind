@@ -642,6 +642,16 @@ Cluster::setResultForActualCycle(const uint32_t result)
 }
 
 /**
+ * @brief Cluster::getAllProgress
+ * @param result
+ */
+void
+Cluster::getAllProgress(std::map<std::string, TaskProgress> &result)
+{
+    return m_taskHandleState->getAllProgress(result);
+}
+
+/**
  * @brief switch statemachine of cluster to next state
  *
  * @param nextStateId id of the next state

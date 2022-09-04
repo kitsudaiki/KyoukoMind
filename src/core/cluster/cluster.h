@@ -133,6 +133,7 @@ public:
     bool removeTask(const std::string &taskUuid);
     bool isFinish(const std::string &taskUuid);
     void setResultForActualCycle(const uint32_t result);
+    void getAllProgress(std::map<std::string, TaskProgress> &result);
 
     bool goToNextState(const uint32_t nextStateId);
     void startForwardCycle();

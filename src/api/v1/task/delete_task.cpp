@@ -38,9 +38,16 @@ DeleteTask::DeleteTask()
     registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster, which should process the request");
+                       "UUID of the task, which should be deleted");
     assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                  "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+
+    registerInputField("cluster_uuid",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "UUID of the cluster, which should process the request");
+    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
+                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
     //----------------------------------------------------------------------------------------------
     //
@@ -53,18 +60,31 @@ DeleteTask::DeleteTask()
 bool
 DeleteTask::runTask(BlossomLeaf &blossomLeaf,
                     const Kitsunemimi::DataMap &context,
-                    BlossomStatus &,
-                    Kitsunemimi::ErrorContainer &)
+                    BlossomStatus &status,
+                    Kitsunemimi::ErrorContainer &error)
 {
-    const std::string uuid = blossomLeaf.input.get("uuid").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
+    const std::string taskUuid = blossomLeaf.input.get("uuid").getString();
+    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
 
     // get cluster
-    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(uuid);
+    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
     if(cluster == nullptr)
     {
-        //error.addMeesage("interface with uuid not found: " + uuid);
-        return true;
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "'not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
+
+    // delete task
+    if(cluster->removeTask(taskUuid) == false)
+    {
+        status.errorMessage = "Task with UUID '" + clusterUuid + "'not found in "
+                              "Cluster with UUID '" + clusterUuid;
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
+        return false;
     }
 
     return true;

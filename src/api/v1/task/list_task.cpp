@@ -59,16 +59,107 @@ ListTask::ListTask()
     //----------------------------------------------------------------------------------------------
 }
 
+const std::string
+serializeTimePoint(const std::chrono::high_resolution_clock::time_point &time,
+                   const std::string &format = "UTC: %Y-%m-%d %H:%M:%S")
+{
+    std::time_t tt = std::chrono::system_clock::to_time_t(time);
+    std::tm tm = *std::gmtime(&tt);
+    std::stringstream ss;
+    ss << std::put_time(&tm, format.c_str() );
+    return ss.str();
+}
+
 /**
  * @brief runTask
  */
 bool
-ListTask::runTask(BlossomLeaf &,
+ListTask::runTask(BlossomLeaf &blossomLeaf,
                   const Kitsunemimi::DataMap &context,
-                  BlossomStatus &,
-                  Kitsunemimi::ErrorContainer &)
+                  BlossomStatus &status,
+                  Kitsunemimi::ErrorContainer &error)
 {
     const Kitsunemimi::Hanami::UserContext userContext(context);
+    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
+
+    // get cluster
+    Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
+    if(cluster == nullptr)
+    {
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "'not found";
+        status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
+
+    // get progress of all tasks
+    std::map<std::string, TaskProgress> progressOverview;
+    cluster->getAllProgress(progressOverview);
+
+    // init table-header
+    Kitsunemimi::TableItem result;
+    result.addColumn("uuid");
+    result.addColumn("state");
+    result.addColumn("percentage");
+    result.addColumn("queued");
+    result.addColumn("start");
+    result.addColumn("end");
+
+    // build table-content
+    std::map<std::string, TaskProgress>::iterator it;
+    for(it = progressOverview.begin();
+        it != progressOverview.end();
+        it++)
+    {
+        if(it->second.state == QUEUED_TASK_STATE)
+        {
+            result.addRow(std::vector<std::string>{
+                              it->first,
+                              "queued",
+                              std::to_string(it->second.percentageFinished),
+                              serializeTimePoint(it->second.queuedTimeStamp),
+                              "-",
+                              "-"
+                          });
+        }
+        else if(it->second.state == ACTIVE_TASK_STATE)
+        {
+            result.addRow(std::vector<std::string>{
+                              it->first,
+                              "active",
+                              std::to_string(it->second.percentageFinished),
+                              serializeTimePoint(it->second.queuedTimeStamp),
+                              serializeTimePoint(it->second.startActiveTimeStamp),
+                              "-"
+                          });
+        }
+        else if(it->second.state == ABORTED_TASK_STATE)
+        {
+            result.addRow(std::vector<std::string>{
+                              it->first,
+                              "aborted",
+                              std::to_string(it->second.percentageFinished),
+                              serializeTimePoint(it->second.queuedTimeStamp),
+                              serializeTimePoint(it->second.startActiveTimeStamp),
+                              "-"
+                          });
+        }
+        else if(it->second.state == FINISHED_TASK_STATE)
+        {
+            result.addRow(std::vector<std::string>{
+                              it->first,
+                              "finished",
+                              std::to_string(it->second.percentageFinished),
+                              serializeTimePoint(it->second.queuedTimeStamp),
+                              serializeTimePoint(it->second.startActiveTimeStamp),
+                              serializeTimePoint(it->second.endActiveTimeStamp)
+                          });
+        }
+    }
+
+    // prepare for output
+    blossomLeaf.output.insert("header", result.getInnerHeader());
+    blossomLeaf.output.insert("body", result.getBody());
 
     return true;
 }

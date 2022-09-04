@@ -32,10 +32,10 @@ public:
     ListTask();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &,
+    bool runTask(Kitsunemimi::Sakura::BlossomLeaf &blossomLeaf,
                  const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &,
-                 Kitsunemimi::ErrorContainer &);
+                 Kitsunemimi::Sakura::BlossomStatus &status,
+                 Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // KYOUKOMIND_LISTTASK_H
