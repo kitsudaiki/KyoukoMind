@@ -24,10 +24,10 @@ LIBS += -L../libKitsumiAiSdk/src/debug -lKitsumiAiSdk
 LIBS += -L../libKitsumiAiSdk/src/release -lKitsumiAiSdk
 INCLUDEPATH += ../libKitsumiAiSdk/cpp/include
 
-LIBS += -L../libKitsunemimiHanamiMessaging/src -lKitsunemimiHanamiMessaging
-LIBS += -L../libKitsunemimiHanamiMessaging/src/debug -lKitsunemimiHanamiMessaging
-LIBS += -L../libKitsunemimiHanamiMessaging/src/release -lKitsunemimiHanamiMessaging
-INCLUDEPATH += ../libKitsunemimiHanamiMessaging/include
+LIBS += -L../libKitsunemimiHanamiNetwork/src -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiNetwork/src/release -lKitsunemimiHanamiMessaging
+INCLUDEPATH += ../libKitsunemimiHanamiNetwork/include
 
 LIBS += -L../libKitsunemimiHanamiEndpoints/src -lKitsunemimiHanamiEndpoints
 LIBS += -L../libKitsunemimiHanamiEndpoints/src/debug -lKitsunemimiHanamiEndpoints

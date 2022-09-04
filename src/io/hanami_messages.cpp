@@ -24,7 +24,7 @@
 
 #include <core/cluster/cluster.h>
 #include <../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h>
-#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
 #include <core/segments/input_segment/input_segment.h>
 #include <core/segments/output_segment/output_segment.h>
 

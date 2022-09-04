@@ -25,7 +25,7 @@
 
 #include <kyouko_root.h>
 
-#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 
 #include <libKitsunemimiCommon/logger.h>
 
@@ -50,16 +50,6 @@ void genericCallback(Kitsunemimi::Sakura::Session*,
                      const uint64_t)
 {
 
-}
-
-/**
- * @brief monitoringDataCallback
- */
-void
-monitoringDataCallback(Kitsunemimi::Sakura::Session*,
-                       const void*,
-                       const uint64_t)
-{
 }
 
 #endif // KYOUKOMIND_CALLBACKS_H

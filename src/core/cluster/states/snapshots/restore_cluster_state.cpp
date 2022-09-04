@@ -33,8 +33,8 @@
 
 #include <libSagiriArchive/snapshots.h>
 
-#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
-#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 
 #include <libKitsunemimiCrypto/hashes.h>
 

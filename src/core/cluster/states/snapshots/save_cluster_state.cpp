@@ -27,8 +27,8 @@
 #include <core/cluster/statemachine_init.h>
 #include <core/segments/abstract_segment.h>
 
-#include <libKitsunemimiHanamiMessaging/hanami_messaging_client.h>
-#include <libKitsunemimiHanamiMessaging/hanami_messaging.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
+#include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 
 #include <libKitsunemimiCrypto/hashes.h>
 
