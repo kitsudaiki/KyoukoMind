@@ -323,7 +323,10 @@ Cluster::updateClusterState()
  * @return task-uuid
  */
 const std::string
-Cluster::addImageLearnTask(float* inputData,
+Cluster::addImageLearnTask(const std::string &name,
+                           const std::string &userId,
+                           const std::string &projectId,
+                           float* inputData,
                            const uint64_t numberOfInputsPerCycle,
                            const uint64_t numberOfOuputsPerCycle,
                            const uint64_t numberOfCycle)
@@ -331,6 +334,9 @@ Cluster::addImageLearnTask(float* inputData,
     // create new learn-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.name = name;
+    newTask.userId = userId;
+    newTask.projectId = projectId;
     newTask.inputData = inputData;
     newTask.type = IMAGE_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
@@ -364,7 +370,10 @@ Cluster::addImageLearnTask(float* inputData,
  * @return task-uuid
  */
 const std::string
-Cluster::addImageRequestTask(float* inputData,
+Cluster::addImageRequestTask(const std::string &name,
+                             const std::string &userId,
+                             const std::string &projectId,
+                             float* inputData,
                              const uint64_t numberOfInputsPerCycle,
                              const uint64_t numberOfOuputsPerCycle,
                              const uint64_t numberOfCycle)
@@ -372,6 +381,9 @@ Cluster::addImageRequestTask(float* inputData,
     // create new request-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.name = name;
+    newTask.userId = userId;
+    newTask.projectId = projectId;
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
     newTask.type = IMAGE_REQUEST_TASK;
@@ -405,13 +417,19 @@ Cluster::addImageRequestTask(float* inputData,
  * @return task-uuid
  */
 const std::string
-Cluster::addTableLearnTask(float* inputData,
+Cluster::addTableLearnTask(const std::string &name,
+                           const std::string &userId,
+                           const std::string &projectId,
+                           float* inputData,
                            const uint64_t numberOfInputs,
                            const uint64_t numberOfCycle)
 {
     // create new learn-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.name = name;
+    newTask.userId = userId;
+    newTask.projectId = projectId;
     newTask.inputData = inputData;
     newTask.type = GRAPH_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
@@ -442,13 +460,19 @@ Cluster::addTableLearnTask(float* inputData,
  * @return task-uuid
  */
 const std::string
-Cluster::addTableRequestTask(float* inputData,
+Cluster::addTableRequestTask(const std::string &name,
+                             const std::string &userId,
+                             const std::string &projectId,
+                             float* inputData,
                              const uint64_t numberOfInputs,
                              const uint64_t numberOfCycle)
 {
     // create new request-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.name = name;
+    newTask.userId = userId;
+    newTask.projectId = projectId;
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
     newTask.type = GRAPH_REQUEST_TASK;
@@ -487,6 +511,9 @@ Cluster::addClusterSnapshotSaveTask(const std::string &snapshotName,
     // create new request-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.name = snapshotName;
+    newTask.userId = userId;
+    newTask.projectId = projectId;
     newTask.type = CLUSTER_SNAPSHOT_SAVE_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
@@ -515,13 +542,17 @@ Cluster::addClusterSnapshotSaveTask(const std::string &snapshotName,
  * @return task-uuid
  */
 const std::string
-Cluster::addClusterSnapshotRestoreTask(const std::string &snapshotInfo,
+Cluster::addClusterSnapshotRestoreTask(const std::string &name,
+                                       const std::string &snapshotInfo,
                                        const std::string &userId,
                                        const std::string &projectId)
 {
     // create new request-task
     Task newTask;
     newTask.uuid = Kitsunemimi::Hanami::generateUuid();
+    newTask.name = name;
+    newTask.userId = userId;
+    newTask.projectId = projectId;
     newTask.type = CLUSTER_SNAPSHOT_RESTORE_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
@@ -553,7 +584,7 @@ Cluster::request(float* inputData,
                  const uint64_t numberOfInputes)
 {
     // create new small request-task
-    const std::string taskUuid = addImageRequestTask(inputData, numberOfInputes, 0, 1);
+    const std::string taskUuid = addImageRequestTask("", "", "", inputData, numberOfInputes, 0, 1);
     segmentCounter = allSegments.size();
     updateClusterState();
 

@@ -58,6 +58,9 @@ struct TaskProgress
 struct Task
 {
     Kitsunemimi::Hanami::kuuid uuid;
+    std::string name = "";
+    std::string userId = "";
+    std::string projectId = "";
     bool isInit = false;
     float* inputData = nullptr;
     DataArray* resultData = nullptr;

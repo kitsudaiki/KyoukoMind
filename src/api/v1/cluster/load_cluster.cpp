@@ -118,7 +118,8 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
 
     // init request-task
     const std::string infoStr = parsedSnapshotInfo.toString();
-    const std::string taskUuid = cluster->addClusterSnapshotRestoreTask(infoStr,
+    const std::string taskUuid = cluster->addClusterSnapshotRestoreTask("",
+                                                                        infoStr,
                                                                         userContext.userId,
                                                                         userContext.projectId);
     blossomLeaf.output.insert("uuid", taskUuid);
