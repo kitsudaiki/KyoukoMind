@@ -103,24 +103,37 @@ public:
 
     // task-handling
     void updateClusterState();
-    const std::string addImageLearnTask(float* inputData,
+    const std::string addImageLearnTask(const std::string &name,
+                                        const std::string &userId,
+                                        const std::string &projectId,
+                                        float* inputData,
                                         const uint64_t numberOfInputsPerCycle,
                                         const uint64_t numberOfOuputsPerCycle,
                                         const uint64_t numberOfCycle);
-    const std::string addImageRequestTask(float* inputData,
+    const std::string addImageRequestTask(const std::string &name,
+                                          const std::string &userId,
+                                          const std::string &projectId,
+                                          float* inputData,
                                           const uint64_t numberOfInputsPerCycle,
                                           const uint64_t numberOfOuputsPerCycle,
                                           const uint64_t numberOfCycle);
-    const std::string addTableLearnTask(float* inputData,
+    const std::string addTableLearnTask(const std::string &name,
+                                        const std::string &userId,
+                                        const std::string &projectId,
+                                        float* inputData,
                                         const uint64_t numberOfInputs,
                                         const uint64_t numberOfCycle);
-    const std::string addTableRequestTask(float* inputData,
+    const std::string addTableRequestTask(const std::string &name,
+                                          const std::string &userId,
+                                          const std::string &projectId,
+                                          float* inputData,
                                           const uint64_t numberOfInputs,
                                           const uint64_t numberOfCycle);
     const std::string addClusterSnapshotSaveTask(const std::string &snapshotName,
                                                  const std::string &userId,
                                                  const std::string &projectId);
-    const std::string addClusterSnapshotRestoreTask(const std::string &snapshotInfo,
+    const std::string addClusterSnapshotRestoreTask(const std::string &name,
+                                                    const std::string &snapshotInfo,
                                                     const std::string &userId,
                                                     const std::string &projectId);
 

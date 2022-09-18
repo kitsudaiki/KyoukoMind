@@ -43,6 +43,14 @@ CreateTableLearnTask::CreateTableLearnTask()
     // input
     //----------------------------------------------------------------------------------------------
 
+    registerInputField("name",
+                       SAKURA_STRING_TYPE,
+                       true,
+                       "Name for the new cluster.");
+    // column in database is limited to 256 characters size
+    assert(addFieldBorder("name", 4, 256));
+    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
@@ -84,6 +92,7 @@ CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
                               BlossomStatus &status,
                               Kitsunemimi::ErrorContainer &error)
 {
+    const std::string name = blossomLeaf.input.get("name").getString();
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
     const std::string columnName = blossomLeaf.input.get("column_name").getString();
@@ -135,7 +144,10 @@ CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
 
     // create task
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
-    const std::string taskUuid = cluster->addTableLearnTask(static_cast<float*>(colBuffer->data),
+    const std::string taskUuid = cluster->addTableLearnTask(name,
+                                                            userContext.userId,
+                                                            userContext.projectId,
+                                                            static_cast<float*>(colBuffer->data),
                                                             numberOfLines,
                                                             numberOfLines - 100);
 

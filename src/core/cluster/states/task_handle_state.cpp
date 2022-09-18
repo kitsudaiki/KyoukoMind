@@ -216,11 +216,15 @@ TaskHandle_State::finishTask()
     {
         Kitsunemimi::ErrorContainer error;
         if(Sagiri::sendResults(actualTask->uuid.toString(),
+                               actualTask->name,
+                               actualTask->userId,
+                               actualTask->projectId,
                                *actualTask->resultData,
                                error) == false)
         {
             LOG_ERROR(error);
         }
+
         delete actualTask->resultData;
         actualTask->resultData = nullptr;
     }
