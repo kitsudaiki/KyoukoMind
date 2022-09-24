@@ -32,7 +32,7 @@
 
 #include <libKitsunemimiCrypto/hashes.h>
 
-#include <libSagiriArchive/snapshots.h>
+#include <libShioriArchive/snapshots.h>
 
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::HanamiMessagingClient;
@@ -69,7 +69,7 @@ SaveCluster_State::processEvent()
         uint64_t totalSize = 0;
         std::string headerMessage = "";
 
-        // create message to sagiri and calculate total size of storage of the cluster
+        // create message to shiori and calculate total size of storage of the cluster
         totalSize = m_cluster->clusterData.usedBufferSize;
         headerMessage = "{\"header\":" + std::to_string(totalSize) + ",\"segments\":[";
         for(uint64_t i = 0; i < m_cluster->allSegments.size(); i++)
@@ -87,9 +87,9 @@ SaveCluster_State::processEvent()
         }
         headerMessage += "]}";
 
-        // send snapshot to sagiri
+        // send snapshot to shiori
         std::string fileUuid = "";
-        if(Sagiri::runInitProcess(fileUuid,
+        if(Shiori::runInitProcess(fileUuid,
                                   actualTask->uuid.toString(),
                                   actualTask->metaData.getStringByKey("snapshot_name"),
                                   actualTask->metaData.getStringByKey("user_id"),
@@ -99,7 +99,7 @@ SaveCluster_State::processEvent()
                                   *KyoukoRoot::componentToken,
                                   error) == false)
         {
-            error.addMeesage("Failed to run initializing a snapshot-transfer to sagiri");
+            error.addMeesage("Failed to run initializing a snapshot-transfer to shiori");
             break;
         }
 
@@ -107,18 +107,18 @@ SaveCluster_State::processEvent()
                     fileUuid,
                     error) == false)
         {
-            error.addMeesage("Failed to send data of snapshot to sagiri");
+            error.addMeesage("Failed to send data of snapshot to shiori");
             break;
         }
 
-        if(Sagiri::runFinalizeProcess(actualTask->uuid.toString(),
+        if(Shiori::runFinalizeProcess(actualTask->uuid.toString(),
                                       fileUuid,
                                       *KyoukoRoot::componentToken,
                                       actualTask->metaData.getStringByKey("user_id"),
                                       actualTask->metaData.getStringByKey("project_id"),
                                       error) == false)
         {
-            error.addMeesage("Failed to run finalizing a snapshot-transfer to sagiri");
+            error.addMeesage("Failed to run finalizing a snapshot-transfer to shiori");
             break;
         }
 
@@ -141,7 +141,7 @@ SaveCluster_State::processEvent()
 }
 
 /**
- * @brief send all data of the snapshot to sagiri
+ * @brief send all data of the snapshot to shiori
  *
  * @param error reference for error-output
  *
@@ -156,20 +156,20 @@ SaveCluster_State::sendData(const std::string &snapshotUuid,
     uint64_t posCounter = 0;
 
     // send cluster-metadata
-    if(Sagiri::sendData(&m_cluster->clusterData,
+    if(Shiori::sendData(&m_cluster->clusterData,
                         posCounter,
                         snapshotUuid,
                         fileUuid,
                         error) == false)
     {
-        error.addMeesage("Failed to send metadata of cluster for snapshot to sagiri");
+        error.addMeesage("Failed to send metadata of cluster for snapshot to shiori");
         return false;
     }
 
     // send segments of cluster
     for(uint64_t i = 0; i < m_cluster->allSegments.size(); i++)
     {
-        if(Sagiri::sendData(&m_cluster->allSegments.at(i)->segmentData.buffer,
+        if(Shiori::sendData(&m_cluster->allSegments.at(i)->segmentData.buffer,
                             posCounter,
                             snapshotUuid,
                             fileUuid,
@@ -177,7 +177,7 @@ SaveCluster_State::sendData(const std::string &snapshotUuid,
         {
             error.addMeesage("Failed to send snapshot of segment '"
                              + std::to_string(i)
-                             + "' to sagiri");
+                             + "' to shiori");
             return false;
         }
     }

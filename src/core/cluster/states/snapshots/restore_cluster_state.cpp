@@ -31,7 +31,7 @@
 #include <core/segments/output_segment/output_segment.h>
 #include <core/segments/dynamic_segment/dynamic_segment.h>
 
-#include <libSagiriArchive/snapshots.h>
+#include <libShioriArchive/snapshots.h>
 
 #include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
 #include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
@@ -68,18 +68,18 @@ RestoreCluster_State::processEvent()
     Kitsunemimi::ErrorContainer error;
     const std::string originalUuid = m_cluster->getUuid();
 
-    // get client to sagiri
+    // get client to shiori
     HanamiMessaging* messaging = HanamiMessaging::getInstance();
-    m_client = messaging->sagiriClient;
+    m_client = messaging->shioriClient;
     if(m_client == nullptr)
     {
-        error.addMeesage("Failed to get client to sagiri");
-        error.addSolution("Check if sagiri is correctly configured");
+        error.addMeesage("Failed to get client to shiori");
+        error.addSolution("Check if shiori is correctly configured");
         m_cluster->goToNextState(FINISH_TASK);
         return false;
     }
 
-    // get meta-infos of data-set from sagiri
+    // get meta-infos of data-set from shiori
     const std::string snapshotInfo = actualTask->metaData.get("snapshot_info")->getString();
     Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
     parsedSnapshotInfo.parse(snapshotInfo, error);
@@ -100,10 +100,10 @@ RestoreCluster_State::processEvent()
     }
 
     // get snapshot-data
-    DataBuffer* snapshotBuffer = Sagiri::getSnapshotData(location, error);
+    DataBuffer* snapshotBuffer = Shiori::getSnapshotData(location, error);
     if(snapshotBuffer == nullptr)
     {
-        error.addMeesage("failed to get snapshot-data from sagiri");
+        error.addMeesage("failed to get snapshot-data from shiori");
         m_cluster->goToNextState(FINISH_TASK);
         return false;
     }

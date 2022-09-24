@@ -4,10 +4,10 @@ TARGET = KyoukoMind
 CONFIG += console
 CONFIG += c++17
 
-LIBS += -L../libSagiriArchive/src -lSagiriArchive
-LIBS += -L../libSagiriArchive/src/debug -lSagiriArchive
-LIBS += -L../libSagiriArchive/src/release -lSagiriArchive
-INCLUDEPATH += ../libSagiriArchive/include
+LIBS += -L../libShioriArchive/src -lShioriArchive
+LIBS += -L../libShioriArchive/src/debug -lShioriArchive
+LIBS += -L../libShioriArchive/src/release -lShioriArchive
+INCLUDEPATH += ../libShioriArchive/include
 
 LIBS += -L../libAzukiHeart/src -lAzukiHeart
 LIBS += -L../libAzukiHeart/src/debug -lAzukiHeart
@@ -19,10 +19,10 @@ LIBS += -L../libMisakiGuard/src/debug -lMisakiGuard
 LIBS += -L../libMisakiGuard/src/release -lMisakiGuard
 INCLUDEPATH += ../libMisakiGuard/include
 
-LIBS += -L../libKitsumiAiSdk/src -lKitsumiAiSdk
-LIBS += -L../libKitsumiAiSdk/src/debug -lKitsumiAiSdk
-LIBS += -L../libKitsumiAiSdk/src/release -lKitsumiAiSdk
-INCLUDEPATH += ../libKitsumiAiSdk/cpp/include
+LIBS += -L../libHanamiAiSdk/src -lKitsumiAiSdk
+LIBS += -L../libHanamiAiSdk/src/debug -lKitsumiAiSdk
+LIBS += -L../libHanamiAiSdk/src/release -lKitsumiAiSdk
+INCLUDEPATH += ../libHanamiAiSdk/cpp/include
 
 LIBS += -L../libKitsunemimiHanamiNetwork/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiMessaging
