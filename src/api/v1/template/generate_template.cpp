@@ -23,7 +23,7 @@
 #include "generate_template.h"
 #include <kyouko_root.h>
 
-#include <libSagiriArchive/datasets.h>
+#include <libShioriArchive/datasets.h>
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
@@ -113,12 +113,12 @@ GenerateTemplate::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }*/
 
-    // get meta-infos of data-set from sagiri
+    // get meta-infos of data-set from shiori
     Kitsunemimi::Json::JsonItem dataSetInfo;
-    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, userContext.token, error) == false)
+    if(Shiori::getDataSetInformation(dataSetInfo, dataSetUuid, userContext.token, error) == false)
     {
-        error.addMeesage("failed to get information from sagiri for uuid '" + dataSetUuid + "'");
-        // TODO: add status-error from response from sagiri
+        error.addMeesage("failed to get information from shiori for uuid '" + dataSetUuid + "'");
+        // TODO: add status-error from response from shiori
         status.statusCode = Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE;
         return false;
     }

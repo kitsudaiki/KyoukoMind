@@ -23,7 +23,7 @@
 #include "create_image_learn_task.h"
 #include <kyouko_root.h>
 
-#include <libSagiriArchive/datasets.h>
+#include <libShioriArchive/datasets.h>
 
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
@@ -62,7 +62,7 @@ CreateImageLearnTask::CreateImageLearnTask()
     registerInputField("data_set_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID to identifiy the train-data with the input in sagiri.");
+                       "UUID to identifiy the train-data with the input in shiori.");
     assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                           "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
@@ -93,12 +93,12 @@ CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
-    // check if sagiri is available
+    // check if shiori is available
     SupportedComponents* scomp = SupportedComponents::getInstance();
-    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+    if(scomp->support[Kitsunemimi::Hanami::SHIORI] == false)
     {
         status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
-        status.errorMessage = "Sagiri is not configured for Kyouko.";
+        status.errorMessage = "Shiori is not configured for Kyouko.";
         error.addMeesage(status.errorMessage);
         return false;
     }
@@ -113,12 +113,12 @@ CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    // get meta-infos of data-set from sagiri
+    // get meta-infos of data-set from shiori
     Kitsunemimi::Json::JsonItem dataSetInfo;
-    if(Sagiri::getDataSetInformation(dataSetInfo, dataSetUuid, userContext.token, error) == false)
+    if(Shiori::getDataSetInformation(dataSetInfo, dataSetUuid, userContext.token, error) == false)
     {
-        error.addMeesage("Failed to get information from sagiri for UUID '" + dataSetUuid + "'");
-        // TODO: add status-error from response from sagiri
+        error.addMeesage("Failed to get information from shiori for UUID '" + dataSetUuid + "'");
+        // TODO: add status-error from response from shiori
         status.statusCode = Kitsunemimi::Hanami::UNAUTHORIZED_RTYPE;
         return false;
     }
@@ -129,10 +129,10 @@ CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
 
     // get input-data
-    DataBuffer* dataSetBuffer = Sagiri::getDatasetData(userContext.token, dataSetUuid, "", error);
+    DataBuffer* dataSetBuffer = Shiori::getDatasetData(userContext.token, dataSetUuid, "", error);
     if(dataSetBuffer == nullptr)
     {
-        error.addMeesage("Failed to get data from sagiri for dataset with UUID '"
+        error.addMeesage("Failed to get data from shiori for dataset with UUID '"
                          + dataSetUuid
                          + "'");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;

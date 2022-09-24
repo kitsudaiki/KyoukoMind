@@ -50,7 +50,7 @@ SaveCluster::SaveCluster()
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster, which should be save to sagiri.");
+                       "UUID of the cluster, which should be save to shiori.");
     assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
@@ -83,12 +83,12 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
     const std::string backupName = blossomLeaf.input.get("name").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
-    // check if sagiri is available
+    // check if shiori is available
     SupportedComponents* scomp = SupportedComponents::getInstance();
-    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+    if(scomp->support[Kitsunemimi::Hanami::SHIORI] == false)
     {
         status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
-        status.errorMessage = "Sagiri is not configured for Kyouko.";
+        status.errorMessage = "Shiori is not configured for Kyouko.";
         error.addMeesage(status.errorMessage);
         return false;
     }

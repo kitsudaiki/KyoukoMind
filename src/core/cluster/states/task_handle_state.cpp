@@ -25,7 +25,7 @@
 #include <core/cluster/cluster.h>
 #include <core/cluster/statemachine_init.h>
 
-#include <libSagiriArchive/other.h>
+#include <libShioriArchive/other.h>
 
 /**
  * @brief constructor
@@ -211,11 +211,11 @@ TaskHandle_State::finishTask()
         return;
     }
 
-    // send results to sagiri, if some are attached to the task
+    // send results to shiori, if some are attached to the task
     if(actualTask->resultData != nullptr)
     {
         Kitsunemimi::ErrorContainer error;
-        if(Sagiri::sendResults(actualTask->uuid.toString(),
+        if(Shiori::sendResults(actualTask->uuid.toString(),
                                actualTask->name,
                                actualTask->userId,
                                actualTask->projectId,

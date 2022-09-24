@@ -23,7 +23,7 @@
 #include "upload_template.h"
 #include <kyouko_root.h>
 
-#include <libSagiriArchive/datasets.h>
+#include <libShioriArchive/datasets.h>
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>

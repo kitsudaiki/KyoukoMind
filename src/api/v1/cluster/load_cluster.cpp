@@ -25,7 +25,7 @@
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
 
-#include <libSagiriArchive/snapshots.h>
+#include <libShioriArchive/snapshots.h>
 
 #include <libKitsunemimiHanamiCommon/component_support.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
@@ -51,7 +51,7 @@ LoadCluster::LoadCluster()
     registerInputField("snapshot_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the snapshot, which should be loaded from sagiri into a new cluster.");
+                       "UUID of the snapshot, which should be loaded from shiori into a new cluster.");
     assert(addFieldRegex("snapshot_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
                                           "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
 
@@ -84,12 +84,12 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
     const std::string snapshotUuid = blossomLeaf.input.get("snapshot_uuid").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
-    // check if sagiri is available
+    // check if shiori is available
     SupportedComponents* scomp = SupportedComponents::getInstance();
-    if(scomp->support[Kitsunemimi::Hanami::SAGIRI] == false)
+    if(scomp->support[Kitsunemimi::Hanami::SHIORI] == false)
     {
         status.statusCode = Kitsunemimi::Hanami::SERVICE_UNAVAILABLE_RTYPE;
-        status.errorMessage = "Sagiri is not configured for Kyouko.";
+        status.errorMessage = "Shiori is not configured for Kyouko.";
         error.addMeesage(status.errorMessage);
         return false;
     }
@@ -104,14 +104,14 @@ LoadCluster::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    // get meta-infos of data-set from sagiri
+    // get meta-infos of data-set from shiori
     Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
-    if(Sagiri::getSnapshotInformation(parsedSnapshotInfo,
+    if(Shiori::getSnapshotInformation(parsedSnapshotInfo,
                                       snapshotUuid,
                                       userContext.token,
                                       error) == false)
     {
-        error.addMeesage("Failed to get information from sagiri for UUID '" + snapshotUuid + "'");
+        error.addMeesage("Failed to get information from shiori for UUID '" + snapshotUuid + "'");
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         return false;
     }
