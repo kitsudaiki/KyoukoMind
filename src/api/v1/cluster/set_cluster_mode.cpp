@@ -46,14 +46,12 @@ SetClusterMode::SetClusterMode()
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster.");
-    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+    assert(addFieldRegex("uuid", UUID_REGEX));
     registerInputField("connection_uuid",
                        SAKURA_STRING_TYPE,
                        false,
                        "UUID of the connection for input and output.");
-    assert(addFieldRegex("connection_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                            "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+    assert(addFieldRegex("connection_uuid", UUID_REGEX));
     registerInputField("new_state",
                        SAKURA_STRING_TYPE,
                        true,
@@ -71,8 +69,8 @@ SetClusterMode::SetClusterMode()
                         SAKURA_STRING_TYPE,
                         "Name of the cluster.");
     registerOutputField("new_state",
-                       SAKURA_STRING_TYPE,
-                       "New desired state for the cluster.");
+                        SAKURA_STRING_TYPE,
+                        "New desired state for the cluster.");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -154,7 +152,6 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
 
     // remove irrelevant fields
     blossomLeaf.output.remove("owner_id");
-    blossomLeaf.output.remove("template_uuid");
     blossomLeaf.output.remove("project_id");
     blossomLeaf.output.remove("visibility");
 

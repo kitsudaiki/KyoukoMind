@@ -79,25 +79,25 @@ SaveCluster_State::processEvent()
             }
             const uint64_t segSize = m_cluster->allSegments.at(i)->segmentData.buffer.usedBufferSize;
             headerMessage += "{\"size\":"
-                               + std::to_string(segSize)
-                               + ",\"type\":"
-                               + std::to_string(m_cluster->allSegments.at(i)->getType())
-                               + "}";
+                             + std::to_string(segSize)
+                             + ",\"type\":"
+                             + std::to_string(m_cluster->allSegments.at(i)->getType())
+                             + "}";
             totalSize += segSize;
         }
         headerMessage += "]}";
 
         // send snapshot to shiori
         std::string fileUuid = "";
-        if(Shiori::runInitProcess(fileUuid,
-                                  actualTask->uuid.toString(),
-                                  actualTask->metaData.getStringByKey("snapshot_name"),
-                                  actualTask->metaData.getStringByKey("user_id"),
-                                  actualTask->metaData.getStringByKey("project_id"),
-                                  totalSize,
-                                  headerMessage,
-                                  *KyoukoRoot::componentToken,
-                                  error) == false)
+        if(Shiori::runSnapshotInitProcess(fileUuid,
+                                          actualTask->uuid.toString(),
+                                          actualTask->metaData.getStringByKey("snapshot_name"),
+                                          actualTask->userId,
+                                          actualTask->projectId,
+                                          totalSize,
+                                          headerMessage,
+                                          *KyoukoRoot::componentToken,
+                                          error) == false)
         {
             error.addMeesage("Failed to run initializing a snapshot-transfer to shiori");
             break;
@@ -111,12 +111,12 @@ SaveCluster_State::processEvent()
             break;
         }
 
-        if(Shiori::runFinalizeProcess(actualTask->uuid.toString(),
-                                      fileUuid,
-                                      *KyoukoRoot::componentToken,
-                                      actualTask->metaData.getStringByKey("user_id"),
-                                      actualTask->metaData.getStringByKey("project_id"),
-                                      error) == false)
+        if(Shiori::runSnapshotFinalizeProcess(actualTask->uuid.toString(),
+                                              fileUuid,
+                                              *KyoukoRoot::componentToken,
+                                              actualTask->userId,
+                                              actualTask->projectId,
+                                              error) == false)
         {
             error.addMeesage("Failed to run finalizing a snapshot-transfer to shiori");
             break;

@@ -30,7 +30,7 @@
 using namespace Kitsunemimi::Sakura;
 
 ListTemplates::ListTemplates()
-    : Blossom("List all templates of a user.")
+    : Blossom("List all visible templates.")
 {
     //----------------------------------------------------------------------------------------------
     // output

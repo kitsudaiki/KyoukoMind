@@ -38,7 +38,7 @@
 using namespace Kitsunemimi::Sakura;
 
 CreateCluster::CreateCluster()
-    : Blossom("Create complete new cluster.")
+    : Blossom("Create new cluster.")
 {
     //----------------------------------------------------------------------------------------------
     // input
@@ -48,14 +48,13 @@ CreateCluster::CreateCluster()
                        SAKURA_STRING_TYPE,
                        true,
                        "Name for the new cluster.");
-    // column in database is limited to 256 characters size
     assert(addFieldBorder("name", 4, 256));
-    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+    assert(addFieldRegex("name", NAME_REGEX));
 
     registerInputField("cluster_definition",
                        SAKURA_MAP_TYPE,
                        false,
-                       "Definition, which describe the new cluster.");
+                       "Json-string, which describe the structure of the new cluster.");
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -67,6 +66,15 @@ CreateCluster::CreateCluster()
     registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the new created cluster.");
+    registerOutputField("owner_id",
+                        SAKURA_STRING_TYPE,
+                        "ID of the user, who created the new cluster.");
+    registerOutputField("project_id",
+                        SAKURA_STRING_TYPE,
+                        "ID of the project, where the new cluster belongs to.");
+    registerOutputField("visibility",
+                        SAKURA_STRING_TYPE,
+                        "Visibility of the new created cluster (private, shared, public).");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -99,8 +107,8 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     // convert values
     Kitsunemimi::Json::JsonItem clusterData;
     clusterData.insert("name", clusterName);
-    clusterData.insert("project_id", "-");
-    clusterData.insert("owner_id", "-");
+    clusterData.insert("project_id", userContext.projectId);
+    clusterData.insert("owner_id", userContext.userId);
     clusterData.insert("visibility", "private");
 
     // add new user to table

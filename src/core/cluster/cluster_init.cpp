@@ -202,8 +202,6 @@ initNewCluster(Cluster* cluster,
         }
     }
 
-    std::cout<<"############################# success"<<std::endl;
-
     return true;
 }
 

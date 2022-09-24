@@ -62,6 +62,15 @@ UploadTemplate::UploadTemplate()
     registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the new uploaded template.");
+    registerOutputField("owner_id",
+                        SAKURA_STRING_TYPE,
+                        "ID of the user, who created the new template.");
+    registerOutputField("project_id",
+                        SAKURA_STRING_TYPE,
+                        "ID of the project, where the new template belongs to.");
+    registerOutputField("visibility",
+                        SAKURA_STRING_TYPE,
+                        "Visibility of the new created template (private, shared, public).");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -119,11 +128,6 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
         return false;
     }
-
-    // remove irrelevant fields
-    blossomLeaf.output.remove("owner_id");
-    blossomLeaf.output.remove("project_id");
-    blossomLeaf.output.remove("visibility");
 
     return true;
 }

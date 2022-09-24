@@ -39,15 +39,13 @@ DeleteTask::DeleteTask()
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the task, which should be deleted");
-    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+    assert(addFieldRegex("uuid", UUID_REGEX));
 
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster, which should process the request");
-    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "UUID of the cluster, which contains the task in its queue");
+    assert(addFieldRegex("cluster_uuid", UUID_REGEX));
 
     //----------------------------------------------------------------------------------------------
     //

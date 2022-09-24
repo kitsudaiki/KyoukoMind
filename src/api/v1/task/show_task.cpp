@@ -27,6 +27,7 @@
 #include <kyouko_root.h>
 
 #include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiCommon/functions.h>
 
 using namespace Kitsunemimi::Sakura;
 
@@ -41,15 +42,13 @@ ShowTask::ShowTask()
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
-    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+    assert(addFieldRegex("uuid", UUID_REGEX));
 
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
-    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+    assert(addFieldRegex("cluster_uuid", UUID_REGEX));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -60,7 +59,7 @@ ShowTask::ShowTask()
                         "Percentation of the progress between 0.0 and 1.0.");
     registerOutputField("state",
                         SAKURA_STRING_TYPE,
-                        "Actual state of the task."); // TODO: add state-names
+                        "Actual state of the task (queued, active, aborted or finished).");
     registerOutputField("queue_timestamp",
                         SAKURA_STRING_TYPE,
                         "Timestamp in UTC when the task entered the queued state, "
@@ -77,16 +76,6 @@ ShowTask::ShowTask()
     //----------------------------------------------------------------------------------------------
 }
 
-inline const std::string
-serializeTimePoint(const std::chrono::high_resolution_clock::time_point &time,
-                   const std::string &format = "UTC: %Y-%m-%d %H:%M:%S")
-{
-    std::time_t tt = std::chrono::system_clock::to_time_t(time);
-    std::tm tm = *std::gmtime(&tt);
-    std::stringstream ss;
-    ss << std::put_time(&tm, format.c_str() );
-    return ss.str();
-}
 
 /**
  * @brief runTask

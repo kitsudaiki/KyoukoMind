@@ -35,7 +35,7 @@ using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
 LoadCluster::LoadCluster()
-    : Blossom("Load and import cluster.")
+    : Blossom("Load a snapshot from shiori into an existing cluster and override the old data.")
 {
     //----------------------------------------------------------------------------------------------
     // input
@@ -44,16 +44,15 @@ LoadCluster::LoadCluster()
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster.");
-    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "UUID of the cluster, where the snapshot should be loaded into.");
+    assert(addFieldRegex("cluster_uuid", UUID_REGEX));
 
     registerInputField("snapshot_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the snapshot, which should be loaded from shiori into a new cluster.");
-    assert(addFieldRegex("snapshot_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "UUID of the snapshot, which should be loaded from shiori "
+                       "into the cluster.");
+    assert(addFieldRegex("snapshot_uuid", UUID_REGEX));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -61,10 +60,7 @@ LoadCluster::LoadCluster()
 
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
-                        "UUID of the new created cluster.");
-    registerOutputField("name",
-                        SAKURA_STRING_TYPE,
-                        "Name of the new created cluster.");
+                        "UUID of the load-task in the queue of the cluster.");
 
     //----------------------------------------------------------------------------------------------
     //
