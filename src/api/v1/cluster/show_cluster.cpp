@@ -41,8 +41,7 @@ ShowCluster::ShowCluster()
                        SAKURA_STRING_TYPE,
                        true,
                        "uuid of the cluster.");
-    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+    assert(addFieldRegex("uuid", UUID_REGEX));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -54,9 +53,15 @@ ShowCluster::ShowCluster()
     registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the cluster.");
-    registerOutputField("template_uuid",
+    registerOutputField("owner_id",
                         SAKURA_STRING_TYPE,
-                        "UUID of the template, which should be used as base for the cluster.");
+                        "ID of the user, who created the cluster.");
+    registerOutputField("project_id",
+                        SAKURA_STRING_TYPE,
+                        "ID of the project, where the cluster belongs to.");
+    registerOutputField("visibility",
+                        SAKURA_STRING_TYPE,
+                        "Visibility of the cluster (private, shared, public).");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -72,10 +77,7 @@ ShowCluster::runTask(BlossomLeaf &blossomLeaf,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
-    // get context-info
     const Kitsunemimi::Hanami::UserContext userContext(context);
-
-    // get information from request
     const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
 
     // get data from table
@@ -84,16 +86,11 @@ ShowCluster::runTask(BlossomLeaf &blossomLeaf,
                                              userContext,
                                              error) == false)
     {
-        status.errorMessage = "Cluster with name '" + clusterUuid + "' not found.";
+        status.errorMessage = "Cluster with UUID '" + clusterUuid + "' not found.";
         status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
         error.addMeesage(status.errorMessage);
         return false;
     }
-
-    // remove irrelevant fields
-    blossomLeaf.output.remove("owner_id");
-    blossomLeaf.output.remove("project_id");
-    blossomLeaf.output.remove("visibility");
 
     return true;
 }

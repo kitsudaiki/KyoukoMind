@@ -43,9 +43,8 @@ DeleteCluster::DeleteCluster()
     registerInputField("uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "uuid of the cluster.");
-    assert(addFieldRegex("uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                 "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "UUID of the cluster.");
+    assert(addFieldRegex("uuid", UUID_REGEX));
 
     //----------------------------------------------------------------------------------------------
     //

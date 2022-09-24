@@ -29,7 +29,7 @@
 using namespace Kitsunemimi::Sakura;
 
 ListCluster::ListCluster()
-    : Blossom("List all clusters.")
+    : Blossom("List all visible clusters.")
 {
     //----------------------------------------------------------------------------------------------
     // output
@@ -37,12 +37,15 @@ ListCluster::ListCluster()
 
     registerOutputField("header",
                         SAKURA_ARRAY_TYPE,
-                        "Array with the namings all columns of the table.");
+                        "Array with the names all columns of the table.");
     assert(addFieldMatch("header", new Kitsunemimi::DataValue("[\"uuid\","
+                                                              "\"project_id\","
+                                                              "\"owner_id\","
+                                                              "\"visibility\","
                                                               "\"name\"]")));
     registerOutputField("body",
                         SAKURA_ARRAY_TYPE,
-                        "Array with all rows of the table, which array arrays too.");
+                        "Json-string with all information of all vilible clusters.");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -69,10 +72,7 @@ ListCluster::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    table.deleteColumn("visibility");
-    table.deleteColumn("owner_id");
-    table.deleteColumn("project_id");
-
+    // create output
     blossomLeaf.output.insert("header", table.getInnerHeader());
     blossomLeaf.output.insert("body", table.getBody());
 

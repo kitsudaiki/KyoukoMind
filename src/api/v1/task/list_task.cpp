@@ -26,10 +26,13 @@
 #include <core/cluster/cluster.h>
 #include <kyouko_root.h>
 
+#include <libKitsunemimiHanamiCommon/functions.h>
+#include <libKitsunemimiHanamiCommon/enums.h>
+
 using namespace Kitsunemimi::Sakura;
 
 ListTask::ListTask()
-    : Blossom("List all tasks of a cluster.")
+    : Blossom("List all visible tasks of a specific cluster.")
 {
     //----------------------------------------------------------------------------------------------
     // input
@@ -38,10 +41,8 @@ ListTask::ListTask()
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster, which should process the request");
-    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
-
+                       "UUID of the cluster, whos tasks should be listed");
+    assert(addFieldRegex("cluster_uuid", UUID_REGEX));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -50,6 +51,13 @@ ListTask::ListTask()
     registerOutputField("header",
                         SAKURA_ARRAY_TYPE,
                         "Array with the namings all columns of the table.");
+    assert(addFieldMatch("header", new Kitsunemimi::DataValue("[\"uuid\","
+                                                              "\"state\","
+                                                              "\"percentage\","
+                                                              "\"queued\","
+                                                              "\"start\","
+                                                              "\"end\"]")));
+
     registerOutputField("body",
                         SAKURA_ARRAY_TYPE,
                         "Array with all rows of the table, which array arrays too.");
@@ -57,17 +65,6 @@ ListTask::ListTask()
     //----------------------------------------------------------------------------------------------
     //
     //----------------------------------------------------------------------------------------------
-}
-
-const std::string
-serializeTimePoint(const std::chrono::high_resolution_clock::time_point &time,
-                   const std::string &format = "UTC: %Y-%m-%d %H:%M:%S")
-{
-    std::time_t tt = std::chrono::system_clock::to_time_t(time);
-    std::tm tm = *std::gmtime(&tt);
-    std::stringstream ss;
-    ss << std::put_time(&tm, format.c_str() );
-    return ss.str();
 }
 
 /**

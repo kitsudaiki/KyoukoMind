@@ -42,17 +42,15 @@ SaveCluster::SaveCluster()
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Name for the new snapshot.");
-    // column in database is limited to 256 characters size
+                       "Name for task, which is place in the task-queue and for the new snapshot.");
     assert(addFieldBorder("name", 4, 256));
-    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+    assert(addFieldRegex("name", NAME_REGEX));
 
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID of the cluster, which should be save to shiori.");
-    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "UUID of the cluster, which should be saved as new snapstho to shiori.");
+    assert(addFieldRegex("cluster_uuid", UUID_REGEX));
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -60,10 +58,11 @@ SaveCluster::SaveCluster()
 
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
-                        "UUID of the new created cluster.");
+                        "UUID of the save-task in the queue of the cluster.");
     registerOutputField("name",
                         SAKURA_STRING_TYPE,
-                        "Name of the new created cluster.");
+                        "Name of the new created task and of the snapshot, "
+                        "which should be created by the task.");
 
     //----------------------------------------------------------------------------------------------
     //
@@ -80,7 +79,7 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
                      Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string backupName = blossomLeaf.input.get("name").getString();
+    const std::string name = blossomLeaf.input.get("name").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if shiori is available
@@ -104,10 +103,11 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // init request-task
-    const std::string taskUuid = cluster->addClusterSnapshotSaveTask(backupName,
+    const std::string taskUuid = cluster->addClusterSnapshotSaveTask(name,
                                                                      userContext.userId,
                                                                      userContext.projectId);
     blossomLeaf.output.insert("uuid", taskUuid);
+    blossomLeaf.output.insert("name", name);
 
     return true;
 }

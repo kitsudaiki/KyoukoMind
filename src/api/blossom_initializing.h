@@ -41,7 +41,6 @@
 #include <api/v1/cluster/load_cluster.h>
 #include <api/v1/cluster/set_cluster_mode.h>
 
-#include <api/v1/template/generate_template.h>
 #include <api/v1/template/upload_template.h>
 #include <api/v1/template/delete_template.h>
 #include <api/v1/template/list_templates.h>
@@ -126,13 +125,6 @@ initTemplateBlossoms()
     Kitsunemimi::Hanami::Endpoint* endpoints = Kitsunemimi::Hanami::Endpoint::getInstance();
     SakuraLangInterface* interface = SakuraLangInterface::getInstance();
     const std::string group = "template";
-
-    /*assert(interface->addBlossom(group, "generate", new GenerateTemplate()));
-    endpoints->addEndpoint("v1/template/generate",
-                           Kitsunemimi::Hanami::POST_TYPE,
-                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
-                           group,
-                           "generate");*/
 
     assert(interface->addBlossom(group, "upload", new UploadTemplate()));
     endpoints->addEndpoint("v1/template/upload",

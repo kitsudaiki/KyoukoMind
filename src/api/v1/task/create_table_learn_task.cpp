@@ -37,7 +37,7 @@ using namespace Kitsunemimi::Sakura;
 using Kitsunemimi::Hanami::SupportedComponents;
 
 CreateTableLearnTask::CreateTableLearnTask()
-    : Blossom("Add new learn-task to the task-queue of a cluster.")
+    : Blossom("Add new table-learn-task to the task-queue of a cluster.")
 {
     //----------------------------------------------------------------------------------------------
     // input
@@ -46,24 +46,21 @@ CreateTableLearnTask::CreateTableLearnTask()
     registerInputField("name",
                        SAKURA_STRING_TYPE,
                        true,
-                       "Name for the new cluster.");
-    // column in database is limited to 256 characters size
+                       "Name for the new task for better identification.");
     assert(addFieldBorder("name", 4, 256));
-    assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
+    assert(addFieldRegex("name", NAME_REGEX));
 
     registerInputField("cluster_uuid",
                        SAKURA_STRING_TYPE,
                        true,
                        "UUID of the cluster, which should process the request");
-    assert(addFieldRegex("cluster_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                         "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+    assert(addFieldRegex("cluster_uuid", UUID_REGEX));
 
     registerInputField("data_set_uuid",
                        SAKURA_STRING_TYPE,
                        true,
-                       "UUID to identifiy the train-data with the input in shiori.");
-    assert(addFieldRegex("data_set_uuid", "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-"
-                                          "[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"));
+                       "UUID of the data-set with the input, which coming from shiori.");
+    assert(addFieldRegex("data_set_uuid", UUID_REGEX));
 
     registerInputField("column_name",
                        SAKURA_STRING_TYPE,
@@ -77,6 +74,10 @@ CreateTableLearnTask::CreateTableLearnTask()
     registerOutputField("uuid",
                         SAKURA_STRING_TYPE,
                         "UUID of the new created task.");
+    registerOutputField("name",
+                        SAKURA_STRING_TYPE,
+                        "Name of the new created task.");
+
 
     //----------------------------------------------------------------------------------------------
     //
@@ -155,6 +156,7 @@ CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
     delete colBuffer;
 
     blossomLeaf.output.insert("uuid", taskUuid);
+    blossomLeaf.output.insert("name", name);
 
     return true;
 }

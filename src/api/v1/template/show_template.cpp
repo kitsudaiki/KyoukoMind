@@ -60,13 +60,14 @@ ShowTemplate::ShowTemplate()
                         "The template itself.");
     registerOutputField("owner_id",
                         SAKURA_STRING_TYPE,
-                        "Owner of the template.");
+                        "ID of the user, who created the template.");
     registerOutputField("project_id",
                         SAKURA_STRING_TYPE,
-                        "Project of the template.");
+                        "ID of the project, where the template belongs to.");
     registerOutputField("visibility",
                         SAKURA_STRING_TYPE,
-                        "Visibility of the template.");
+                        "Visibility of the template (private, shared, public).");
+
 
     //----------------------------------------------------------------------------------------------
     //
@@ -82,12 +83,9 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
                       BlossomStatus &status,
                       Kitsunemimi::ErrorContainer &error)
 {
-    // get information from request
+    const Kitsunemimi::Hanami::UserContext userContext(context);
     const std::string uuid = blossomLeaf.input.get("uuid").getString();
     // TODO: check type-field
-
-    // get context-info
-    const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // get data from table
     if(KyoukoRoot::templateTable->getTemplate(blossomLeaf.output,
