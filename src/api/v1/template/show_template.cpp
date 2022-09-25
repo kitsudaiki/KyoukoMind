@@ -118,7 +118,7 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
         error.addMeesage("Failed to parse decoded template");
         return false;
     }
-    blossomLeaf.output.insert("template", parsedTemplate.getItemContent()->copy());
+    blossomLeaf.output.insert("template", parsedTemplate.stealItemContent());
 
     // remove irrelevant fields
     blossomLeaf.output.remove("data");
