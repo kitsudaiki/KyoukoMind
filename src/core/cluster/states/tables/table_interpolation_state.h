@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef GRAPHINTERPOLATION_STATE_H
-#define GRAPHINTERPOLATION_STATE_H
+#ifndef TABLEINTERPOLATION_STATE_H
+#define TABLEINTERPOLATION_STATE_H
 
 #include <libKitsunemimiCommon/threading/event.h>
 
@@ -40,4 +40,4 @@ private:
     Cluster* m_cluster = nullptr;
 };
 
-#endif // GRAPHINTERPOLATION_STATE_H
+#endif // TABLEINTERPOLATION_STATE_H

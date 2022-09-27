@@ -431,7 +431,7 @@ Cluster::addTableLearnTask(const std::string &name,
     newTask.userId = userId;
     newTask.projectId = projectId;
     newTask.inputData = inputData;
-    newTask.type = GRAPH_LEARN_TASK;
+    newTask.type = TABLE_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 
@@ -475,7 +475,7 @@ Cluster::addTableRequestTask(const std::string &name,
     newTask.projectId = projectId;
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
-    newTask.type = GRAPH_REQUEST_TASK;
+    newTask.type = TABLE_REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
 

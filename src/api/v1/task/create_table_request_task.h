@@ -20,8 +20,8 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATE_GRAPH_REQUESTTASK_H
-#define KYOUKOMIND_CREATE_GRAPH_REQUESTTASK_H
+#ifndef KYOUKOMIND_CREATE_TABLE_REQUESTTASK_H
+#define KYOUKOMIND_CREATE_TABLE_REQUESTTASK_H
 
 #include <common.h>
 #include <libKitsunemimiSakuraLang/blossom.h>
@@ -41,4 +41,4 @@ protected:
                  Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_CREATE_GRAPH_REQUESTTASK_H
+#endif // KYOUKOMIND_CREATE_TABLE_REQUESTTASK_H

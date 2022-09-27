@@ -48,16 +48,16 @@ initStates(Kitsunemimi::Statemachine &sm)
     sm.createNewState(IMAGE_LEARN_STATE,                "Image-learn state");
     sm.createNewState(IMAGE_LEARN_FORWARD_STATE,        "Image-learn state: run");
     sm.createNewState(IMAGE_LEARN_CYCLE_FINISH_STATE,   "Image-learn state: finish-cycle");
-    sm.createNewState(GRAPH_LEARN_STATE,                "Table-learn state");
-    sm.createNewState(GRAPH_LEARN_FORWARD_STATE,        "Table-learn state: run");
-    sm.createNewState(GRAPH_LEARN_CYCLE_FINISH_STATE,   "Table-learn state: finish-cycle");
+    sm.createNewState(TABLE_LEARN_STATE,                "Table-learn state");
+    sm.createNewState(TABLE_LEARN_FORWARD_STATE,        "Table-learn state: run");
+    sm.createNewState(TABLE_LEARN_CYCLE_FINISH_STATE,   "Table-learn state: finish-cycle");
     sm.createNewState(REQUEST_STATE,                    "Request-State");
     sm.createNewState(IMAGE_REQUEST_STATE,              "Image-request state");
     sm.createNewState(IMAGE_REQUEST_FORWARD_STATE,      "Image-request state: forward-propagation");
     sm.createNewState(IMAGE_REQUEST_CYCLE_FINISH_STATE, "Image-request state: finish-cycle");
-    sm.createNewState(GRAPH_REQUEST_STATE,              "Table-request state");
-    sm.createNewState(GRAPH_REQUEST_FORWARD_STATE,      "Table-request state: forward-propagation");
-    sm.createNewState(GRAPH_REQUEST_CYCLE_FINISH_STATE, "Table-request state: finish-cycle");
+    sm.createNewState(TABLE_REQUEST_STATE,              "Table-request state");
+    sm.createNewState(TABLE_REQUEST_FORWARD_STATE,      "Table-request state: forward-propagation");
+    sm.createNewState(TABLE_REQUEST_CYCLE_FINISH_STATE, "Table-request state: finish-cycle");
     sm.createNewState(SNAPSHOT_STATE,                   "Snapshot state");
     sm.createNewState(CLUSTER_SNAPSHOT_STATE,           "Cluster-snapshot state");
     sm.createNewState(CLUSTER_SNAPSHOT_SAVE_STATE,      "Cluster-snapshot state: save");
@@ -79,13 +79,13 @@ initEvents(Kitsunemimi::Statemachine &sm,
 {
     sm.addEventToState(TASK_STATE,                       taskState);
     sm.addEventToState(IMAGE_LEARN_FORWARD_STATE,        new ImageLearnForward_State(cluster));
-    sm.addEventToState(GRAPH_LEARN_FORWARD_STATE,        new TableLearnForward_State(cluster));
+    sm.addEventToState(TABLE_LEARN_FORWARD_STATE,        new TableLearnForward_State(cluster));
     sm.addEventToState(IMAGE_REQUEST_FORWARD_STATE,      new ImageIdentify_State(cluster));
-    sm.addEventToState(GRAPH_REQUEST_FORWARD_STATE,      new TableInterpolation_State(cluster));
+    sm.addEventToState(TABLE_REQUEST_FORWARD_STATE,      new TableInterpolation_State(cluster));
     sm.addEventToState(IMAGE_LEARN_CYCLE_FINISH_STATE,   new CycleFinish_State(cluster));
-    sm.addEventToState(GRAPH_LEARN_CYCLE_FINISH_STATE,   new CycleFinish_State(cluster));
+    sm.addEventToState(TABLE_LEARN_CYCLE_FINISH_STATE,   new CycleFinish_State(cluster));
     sm.addEventToState(IMAGE_REQUEST_CYCLE_FINISH_STATE, new CycleFinish_State(cluster));
-    sm.addEventToState(GRAPH_REQUEST_CYCLE_FINISH_STATE, new CycleFinish_State(cluster));
+    sm.addEventToState(TABLE_REQUEST_CYCLE_FINISH_STATE, new CycleFinish_State(cluster));
     sm.addEventToState(CLUSTER_SNAPSHOT_SAVE_STATE,      new SaveCluster_State(cluster));
     sm.addEventToState(CLUSTER_SNAPSHOT_RESTORE_STATE,   new RestoreCluster_State(cluster));
 }
@@ -104,9 +104,9 @@ initChildStates(Kitsunemimi::Statemachine &sm)
     sm.addChildState(IMAGE_LEARN_STATE, IMAGE_LEARN_CYCLE_FINISH_STATE);
 
     // child states table learn
-    sm.addChildState(LEARN_STATE,       GRAPH_LEARN_STATE);
-    sm.addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_FORWARD_STATE);
-    sm.addChildState(GRAPH_LEARN_STATE, GRAPH_LEARN_CYCLE_FINISH_STATE);
+    sm.addChildState(LEARN_STATE,       TABLE_LEARN_STATE);
+    sm.addChildState(TABLE_LEARN_STATE, TABLE_LEARN_FORWARD_STATE);
+    sm.addChildState(TABLE_LEARN_STATE, TABLE_LEARN_CYCLE_FINISH_STATE);
 
     // child states image request
     sm.addChildState(REQUEST_STATE,       IMAGE_REQUEST_STATE);
@@ -114,9 +114,9 @@ initChildStates(Kitsunemimi::Statemachine &sm)
     sm.addChildState(IMAGE_REQUEST_STATE, IMAGE_REQUEST_CYCLE_FINISH_STATE);
 
     // child states table request
-    sm.addChildState(REQUEST_STATE,       GRAPH_REQUEST_STATE);
-    sm.addChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_FORWARD_STATE);
-    sm.addChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_CYCLE_FINISH_STATE);
+    sm.addChildState(REQUEST_STATE,       TABLE_REQUEST_STATE);
+    sm.addChildState(TABLE_REQUEST_STATE, TABLE_REQUEST_FORWARD_STATE);
+    sm.addChildState(TABLE_REQUEST_STATE, TABLE_REQUEST_CYCLE_FINISH_STATE);
 
     // child states snapshot
     sm.addChildState(SNAPSHOT_STATE,         CLUSTER_SNAPSHOT_STATE);
@@ -133,9 +133,9 @@ void
 initInitialChildStates(Kitsunemimi::Statemachine &sm)
 {
     sm.setInitialChildState(IMAGE_LEARN_STATE,   IMAGE_LEARN_FORWARD_STATE);
-    sm.setInitialChildState(GRAPH_LEARN_STATE,   GRAPH_LEARN_FORWARD_STATE);
+    sm.setInitialChildState(TABLE_LEARN_STATE,   TABLE_LEARN_FORWARD_STATE);
     sm.setInitialChildState(IMAGE_REQUEST_STATE, IMAGE_REQUEST_FORWARD_STATE);
-    sm.setInitialChildState(GRAPH_REQUEST_STATE, GRAPH_REQUEST_FORWARD_STATE);
+    sm.setInitialChildState(TABLE_REQUEST_STATE, TABLE_REQUEST_FORWARD_STATE);
 }
 
 /**
@@ -149,12 +149,12 @@ initTransitions(Kitsunemimi::Statemachine &sm)
     // transtions learn init
     sm.addTransition(TASK_STATE,  LEARN, LEARN_STATE);
     sm.addTransition(LEARN_STATE, IMAGE, IMAGE_LEARN_STATE);
-    sm.addTransition(LEARN_STATE, GRAPH, GRAPH_LEARN_STATE);
+    sm.addTransition(LEARN_STATE, TABLE, TABLE_LEARN_STATE);
 
     // transitions request init
     sm.addTransition(TASK_STATE,    REQUEST, REQUEST_STATE);
     sm.addTransition(REQUEST_STATE, IMAGE,   IMAGE_REQUEST_STATE);
-    sm.addTransition(REQUEST_STATE, GRAPH,   GRAPH_REQUEST_STATE);
+    sm.addTransition(REQUEST_STATE, TABLE,   TABLE_REQUEST_STATE);
 
     // transitions snapshot init
     sm.addTransition(TASK_STATE,             SNAPSHOT, SNAPSHOT_STATE);
@@ -165,14 +165,14 @@ initTransitions(Kitsunemimi::Statemachine &sm)
     // trainsition learn-internal
     sm.addTransition(IMAGE_LEARN_FORWARD_STATE,      NEXT, IMAGE_LEARN_CYCLE_FINISH_STATE );
     sm.addTransition(IMAGE_LEARN_CYCLE_FINISH_STATE, NEXT, IMAGE_LEARN_FORWARD_STATE      );
-    sm.addTransition(GRAPH_LEARN_FORWARD_STATE,      NEXT, GRAPH_LEARN_CYCLE_FINISH_STATE );
-    sm.addTransition(GRAPH_LEARN_CYCLE_FINISH_STATE, NEXT, GRAPH_LEARN_FORWARD_STATE      );
+    sm.addTransition(TABLE_LEARN_FORWARD_STATE,      NEXT, TABLE_LEARN_CYCLE_FINISH_STATE );
+    sm.addTransition(TABLE_LEARN_CYCLE_FINISH_STATE, NEXT, TABLE_LEARN_FORWARD_STATE      );
 
     // trainsition request-internal
     sm.addTransition(IMAGE_REQUEST_FORWARD_STATE,      NEXT, IMAGE_REQUEST_CYCLE_FINISH_STATE );
     sm.addTransition(IMAGE_REQUEST_CYCLE_FINISH_STATE, NEXT, IMAGE_REQUEST_FORWARD_STATE      );
-    sm.addTransition(GRAPH_REQUEST_FORWARD_STATE,      NEXT, GRAPH_REQUEST_CYCLE_FINISH_STATE );
-    sm.addTransition(GRAPH_REQUEST_CYCLE_FINISH_STATE, NEXT, GRAPH_REQUEST_FORWARD_STATE      );
+    sm.addTransition(TABLE_REQUEST_FORWARD_STATE,      NEXT, TABLE_REQUEST_CYCLE_FINISH_STATE );
+    sm.addTransition(TABLE_REQUEST_CYCLE_FINISH_STATE, NEXT, TABLE_REQUEST_FORWARD_STATE      );
 
     // transition finish back to task-state
     sm.addTransition(LEARN_STATE,                    FINISH_TASK, TASK_STATE);

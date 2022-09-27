@@ -79,20 +79,20 @@ TaskHandle_State::processEvent()
                 }
                 break;
             }
-            case GRAPH_LEARN_TASK:
+            case TABLE_LEARN_TASK:
             {
                 if(m_cluster->goToNextState(LEARN)) {
-                    m_cluster->goToNextState(GRAPH);
+                    m_cluster->goToNextState(TABLE);
                 } else {
                     // TODO: error-message
                     return false;
                 }
                 break;
             }
-            case GRAPH_REQUEST_TASK:
+            case TABLE_REQUEST_TASK:
             {
                 if(m_cluster->goToNextState(REQUEST)) {
-                    m_cluster->goToNextState(GRAPH);
+                    m_cluster->goToNextState(TABLE);
                 } else {
                     // TODO: error-message
                     return false;
