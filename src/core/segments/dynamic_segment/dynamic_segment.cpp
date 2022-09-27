@@ -34,6 +34,12 @@ DynamicSegment::DynamicSegment()
     m_type = DYNAMIC_SEGMENT;
 }
 
+/**
+ * @brief constructor to create segment from a snapshot
+ *
+ * @param data pointer to data with snapshot
+ * @param dataSize size of snapshot in number of bytes
+ */
 DynamicSegment::DynamicSegment(const void* data, const uint64_t dataSize)
     : AbstractSegment(data, dataSize)
 {
@@ -252,7 +258,7 @@ DynamicSegment::initSettings(const JsonItem &parsedContent)
     settings.nodeCooldown = paredSettings.get("node_cooldown").getFloat();
     settings.memorizing = paredSettings.get("memorizing").getFloat();
     settings.gliaValue = paredSettings.get("glia_value").getFloat();
-    settings.maxSynapseWeight = paredSettings.get("max_synapse_weight").getFloat();
+    settings.maxSynapseSegmentation = paredSettings.get("max_synapse_segmentation").getFloat();
     settings.refractionTime = paredSettings.get("refraction_time").getInt();
     settings.signNeg = paredSettings.get("sign_neg").getFloat();
     settings.potentialOverflow = paredSettings.get("potential_overflow").getFloat();

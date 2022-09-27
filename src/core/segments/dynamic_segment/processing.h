@@ -65,9 +65,9 @@ createNewSynapse(SynapseSection &section,
                  Brick* bricks,
                  const DynamicNode &sourceNode,
                  const DynamicSegmentSettings &segmentSettings,
-                 const float remainingWeight)
+                 const float remainingWeight,
+                 const float outH)
 {
-    float randomMulti = 0.0f;
     float random = 0.0f;
     float doLearn = 0.0f;
     uint32_t targetNodeIdInBrick = 0;
@@ -75,8 +75,7 @@ createNewSynapse(SynapseSection &section,
     uint32_t signRand = 0;
     const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
-
-    const float maxWeight = segmentSettings.maxSynapseWeight;
+    const float maxWeight = outH / static_cast<float>(segmentSettings.maxSynapseSegmentation);
 
     // set new weight
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -88,10 +87,10 @@ createNewSynapse(SynapseSection &section,
     // set activation-border
     synapse->border = synapse->weight;
 
-    // update weight with multiplicator
+    // update weight with sign
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
     signRand = randomValues[section.randomPos] % 1000;
-    synapse->weight *= static_cast<float>(1 - (1000.0f * segmentSettings.signNeg > signRand) * 2);
+    synapse->weight *= static_cast<float>(1.0f - (1000.0f * segmentSettings.signNeg > signRand) * 2);
 
     // set target node id
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -203,7 +202,8 @@ synapseProcessing_withLearn(SynapseSection &section,
                              segment.bricks,
                              sourceNode,
                              *segment.dynamicSegmentSettings,
-                             netH);
+                             netH,
+                             outH);
         }
 
         synapseObj = *synapse;
