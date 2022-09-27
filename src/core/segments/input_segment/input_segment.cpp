@@ -31,6 +31,12 @@ InputSegment::InputSegment()
     m_type = INPUT_SEGMENT;
 }
 
+/**
+ * @brief constructor to create segment from a snapshot
+ *
+ * @param data pointer to data with snapshot
+ * @param dataSize size of snapshot in number of bytes
+ */
 InputSegment::InputSegment(const void* data, const uint64_t dataSize)
     : AbstractSegment(data, dataSize)
 {
