@@ -69,35 +69,34 @@ createNewSynapse(SynapseSection &section,
                  const float outH)
 {
     float random = 0.0f;
-    float doLearn = 0.0f;
+    float newWeight = 0.0f;
     uint32_t targetNodeIdInBrick = 0;
+    Brick* targetBrick = nullptr;
     Brick* nodeBrick = nullptr;
     uint32_t signRand = 0;
     const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
     const float maxWeight = outH / static_cast<float>(segmentSettings.maxSynapseSegmentation);
 
-    // set new weight
+    // set activation-border
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
     random = static_cast<float>(randomValues[section.randomPos]) / randMax;
-    doLearn = maxWeight * random;
-    synapse->weight = static_cast<float>(remainingWeight < doLearn) * remainingWeight
-                      + static_cast<float>(remainingWeight >= doLearn) * doLearn;
+    newWeight = maxWeight * random;
+    synapse->border = static_cast<float>(remainingWeight < newWeight) * remainingWeight
+                      + static_cast<float>(remainingWeight >= newWeight) * newWeight;
 
-    // set activation-border
-    synapse->border = synapse->weight;
+    // set new weight
+    synapse->weight = random / 10.0f;
 
     // update weight with sign
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
     signRand = randomValues[section.randomPos] % 1000;
     synapse->weight *= static_cast<float>(1.0f - (1000.0f * segmentSettings.signNeg > signRand) * 2);
 
-    // set target node id
+    // set target node
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
     nodeBrick = &bricks[sourceNode.brickId];
-    const uint32_t targetBrickId = nodeBrick->possibleTargetNodeBrickIds[section.brickBufferPos];
-
-    Brick* targetBrick = &bricks[targetBrickId];
+    targetBrick = &bricks[nodeBrick->possibleTargetNodeBrickIds[section.brickBufferPos]];
     targetNodeIdInBrick = randomValues[section.randomPos] % targetBrick->numberOfNodes;
 
     synapse->targetNodeId = static_cast<uint16_t>(targetNodeIdInBrick + targetBrick->nodePos);
@@ -147,7 +146,7 @@ synapseProcessing(SynapseSection &section,
 
         // update target-node
         targetNode = &segment.nodes[synapseObj.targetNodeId];
-        targetNode->input += outH * synapseObj.weight;
+        targetNode->input += synapseObj.weight;
 
         // update loop-counter
         netH -= synapseObj.border;
@@ -221,7 +220,7 @@ synapseProcessing_withLearn(SynapseSection &section,
 
         // update target-node
         targetNode = &segment.nodes[synapseObj.targetNodeId];
-        targetNode->input += outH * synapseObj.weight;
+        targetNode->input += synapseObj.weight;
 
         // update active-counter
         active = (synapse->weight > 0) == (targetNode->potential > targetNode->border);

@@ -50,7 +50,7 @@ prcessInputSegment(const InputSegment &segment)
         if(node->weight > node->maxWeight) {
             node->maxWeight = node->weight;
         }
-        outputTransfers[node->targetBorderId] = log2((node->weight / node->maxWeight) + 1.0f);
+        outputTransfers[node->targetBorderId] = node->weight;
     }
 }
 
