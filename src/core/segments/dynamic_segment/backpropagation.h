@@ -104,7 +104,6 @@ backpropagateSection(SynapseSection* section,
     Synapse* synapse = nullptr;
     float learnValue = 0.2f;
     uint16_t pos = 0;
-    // uint8_t invert = 0;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -122,23 +121,9 @@ backpropagateSection(SynapseSection* section,
             continue;
         }
 
-        /**if(synapse->activeCounter <= 2)
-        {
-            invert = (segment.nodes[synapse->targetNodeId].delta < 0.0f && synapse->weight < 0.0f)
-                    || (segment.nodes[synapse->targetNodeId].delta > 0.0f && synapse->weight > 0.0f);
-
-            if(invert) {
-                synapse->weight *= -1.0f;
-            }
-
-            pos++;
-            netH -= static_cast<float>(synapse->border) * BORDER_STEP;
-            continue;
-        }*/
-
         // update weight
-        learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0005f;
-        learnValue += 0.05f;
+        learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0002f;
+        learnValue += 0.025f;
         sourceNode->delta += segment.nodes[synapse->targetNodeId].delta * synapse->weight;
         synapse->weight -= learnValue * segment.nodes[synapse->targetNodeId].delta * outH;
 
@@ -170,6 +155,7 @@ backpropagateNodes(const Brick &brick,
 {
     DynamicNode* sourceNode = nullptr;
     SynapseSection* section = nullptr;
+    float outH = 0.0f;
 
     // iterate over all nodes within the brick
     for(uint32_t nodeId = brick.nodePos;
@@ -184,13 +170,18 @@ backpropagateNodes(const Brick &brick,
         section = &segment.synapseSections[sourceNode->targetSectionId];
         sourceNode->delta = 0.0f;
 
+        outH = sourceNode->potential;
+        if(outH > 2.0f) {
+            outH = 2.0f;
+        }
+
         // set start-values
         if(sourceNode->active)
         {
             backpropagateSection(section,
                                  sourceNode,
                                  sourceNode->potential,
-                                 sourceNode->potential,
+                                 outH,
                                  brick,
                                  segment);
 
