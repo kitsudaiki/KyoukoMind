@@ -52,95 +52,25 @@ bool
 TableLearnForward_State::processEvent()
 {
     Task* actualTask = m_cluster->getActualTask();
-
-    float lastVal = actualTask->inputData[actualTask->actualCycle + 1];
-
-    float actualVal = 0.0f;
-    float newVal = 0.0f;
-    uint64_t pos = 0;
+    const uint64_t numberOfInputsPerCycle = actualTask->getIntVal("number_of_inputs_per_cycle");
+    const uint64_t numberOfOuputsPerCycle = actualTask->getIntVal("number_of_outputs_per_cycle");
+    uint64_t offset = actualTask->actualCycle;
+    if(numberOfInputsPerCycle > numberOfOuputsPerCycle) {
+        offset += numberOfInputsPerCycle;
+    } else {
+        offset += numberOfOuputsPerCycle;
+    }
 
     // set input
     InputNode* inputNodes = m_cluster->inputSegments.begin()->second->inputs;
-    OutputNode* outputNodes = m_cluster->outputSegments.begin()->second->outputs;
-    uint64_t i = actualTask->actualCycle + 1;
-
-    while(i < actualTask->actualCycle + 1 + 365)
-    {
-        // open-part
-        actualVal = actualTask->inputData[i * 2];
-        newVal = (100.0f / actualVal) * lastVal;
-
-        if(newVal > 100.0f)
-        {
-            inputNodes[pos * 2].weight = newVal - 100.0f;
-            if(inputNodes[pos * 2].weight > 2.0f) {
-                inputNodes[pos * 2].weight = 2.0f;
-            }
-            inputNodes[pos * 2 + 1].weight = 0.0f;
-        }
-        else
-        {
-            inputNodes[pos * 2].weight = 0.0f;
-            inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
-            if(inputNodes[pos * 2+1].weight > 2.0f) {
-                inputNodes[pos * 2+1].weight = 2.0f;
-            }
-        }
-
-        lastVal = actualVal;
-        pos++;
-
-        // close-part
-        actualVal = actualTask->inputData[i * 2 + 1];
-        newVal = (100.0f / actualVal) * lastVal;
-
-        if(newVal > 100.0f)
-        {
-            inputNodes[pos * 2].weight = newVal - 100.0f;
-            if(inputNodes[pos * 2].weight > 2.0f) {
-                inputNodes[pos * 2].weight = 2.0f;
-            }
-            inputNodes[pos * 2 + 1].weight = 0.0f;
-        }
-        else
-        {
-            inputNodes[pos * 2].weight = 0.0f;
-            inputNodes[pos * 2 + 1].weight = 100.0f - newVal;
-            if(inputNodes[pos * 2+1].weight > 2.0f) {
-                inputNodes[pos * 2+1].weight = 2.0f;
-            }
-        }
-
-        lastVal = actualVal;
-        pos++;
-
-        i++;
+    for(uint64_t i = 0; i < numberOfInputsPerCycle; i++) {
+        inputNodes[i].weight = actualTask->inputData[(offset - numberOfInputsPerCycle) + i];
     }
 
     // set exprected output
-    actualVal = actualTask->inputData[i * 2];
-    if(actualVal > lastVal)
-    {
-        outputNodes[0].shouldValue = 1.0f;
-        outputNodes[1].shouldValue = 0.0f;
-    }
-    else
-    {
-        outputNodes[0].shouldValue = 0.0f;
-        outputNodes[1].shouldValue = 1.0f;
-    }
-    lastVal = actualVal;
-
-    actualVal = actualTask->inputData[i * 2 + 1];
-    if(actualVal > lastVal)
-    {
-        outputNodes[2].shouldValue = 1.0f;
-        outputNodes[3].shouldValue = 0.0f;
-    }
-    else
-    {
-        outputNodes[2].shouldValue = 0.0f;
-        outputNodes[3].shouldValue = 1.0f;
+    OutputNode* outputNodes = m_cluster->outputSegments.begin()->second->outputs;
+    for(uint64_t i = 0; i < numberOfOuputsPerCycle; i++) {
+        outputNodes[i].shouldValue = actualTask->outputData[(offset - numberOfOuputsPerCycle) + i];
     }
 
     m_cluster->mode = Cluster::LEARN_FORWARD_MODE;

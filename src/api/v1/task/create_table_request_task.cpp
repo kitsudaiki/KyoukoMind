@@ -24,6 +24,8 @@
 #include <kyouko_root.h>
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
+#include <core/segments/input_segment/input_segment.h>
+#include <core/segments/output_segment/output_segment.h>
 
 #include <libShioriArchive/datasets.h>
 
@@ -62,11 +64,6 @@ CreateTableRequestTask::CreateTableRequestTask()
                        "UUID of the data-set with the input, which coming from shiori.");
     assert(addFieldRegex("data_set_uuid", UUID_REGEX));
 
-    registerInputField("column_name",
-                       SAKURA_STRING_TYPE,
-                       true,
-                       "Name of the column of the table, which should work as input");
-
     //----------------------------------------------------------------------------------------------
     // output
     //----------------------------------------------------------------------------------------------
@@ -96,7 +93,6 @@ CreateTableRequestTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string name = blossomLeaf.input.get("name").getString();
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
-    const std::string columnName = blossomLeaf.input.get("column_name").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     SupportedComponents* scomp = SupportedComponents::getInstance();
@@ -129,7 +125,11 @@ CreateTableRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* colBuffer = Shiori::getDatasetData(userContext.token, dataSetUuid, columnName, error);
+    const std::string columnName = cluster->inputSegments.begin()->second->getName();
+    DataBuffer* colBuffer = Shiori::getDatasetData(userContext.token,
+                                                   dataSetUuid,
+                                                   columnName,
+                                                   error);
     if(colBuffer == nullptr)
     {
         error.addMeesage("Failed to get data for dataset with UUID '"
@@ -142,13 +142,18 @@ CreateTableRequestTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // init request-task
+    InputSegment* inSegment = cluster->inputSegments.begin()->second;
+    OutputSegment* outSegment = cluster->outputSegments.begin()->second;
+    const uint64_t numberOfInputs = inSegment->segmentHeader->inputs.count;
+    const uint64_t numberOfOutputs = outSegment->segmentHeader->outputs.count;
     const uint64_t numberOfLines = dataSetInfo.get("lines").getLong();
     const std::string taskUuid = cluster->addTableRequestTask(name,
                                                               userContext.userId,
                                                               userContext.projectId,
                                                               static_cast<float*>(colBuffer->data),
-                                                              numberOfLines,
-                                                              1);
+                                                              numberOfInputs,
+                                                              numberOfOutputs,
+                                                              numberOfLines - numberOfInputs);
 
     blossomLeaf.output.insert("uuid", taskUuid);
     blossomLeaf.output.insert("name", name);

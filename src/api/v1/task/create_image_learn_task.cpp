@@ -140,10 +140,11 @@ CreateImageLearnTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // create task
+    float* floatData = static_cast<float*>(dataSetBuffer->data);
     const std::string taskUuid = cluster->addImageLearnTask(name,
                                                             userContext.userId,
                                                             userContext.projectId,
-                                                            static_cast<float*>(dataSetBuffer->data),
+                                                            floatData,
                                                             numberOfInputs,
                                                             numberOfOutputs,
                                                             numberOfLines);

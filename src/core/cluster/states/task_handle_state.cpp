@@ -214,6 +214,21 @@ TaskHandle_State::finishTask()
     // send results to shiori, if some are attached to the task
     if(actualTask->resultData != nullptr)
     {
+        // results of tables a aggregated values, so they have to be fixed to its average value
+        if(actualTask->type == TABLE_REQUEST_TASK)
+        {
+            const long outputC = actualTask->metaData.get("number_of_outputs_per_cycle")->getLong();
+            const float numberOfOutputs = static_cast<float>(outputC);
+            float val = 0.0f;
+            for(uint64_t i = 0; i < actualTask->resultData->array.size(); i++)
+            {
+                DataValue* value = actualTask->resultData->array[i]->toValue();
+                val = value->getFloat() / numberOfOutputs;
+                value->setValue(val);
+            }
+        }
+
+        // send result to shiori
         Kitsunemimi::ErrorContainer error;
         if(Shiori::sendResults(actualTask->uuid.toString(),
                                actualTask->name,
@@ -372,21 +387,4 @@ TaskHandle_State::isFinish(const std::string &taskUuid)
     std::lock_guard<std::mutex> guard(m_task_mutex);
 
     return getTaskState(taskUuid) == FINISHED_TASK_STATE;
-}
-
-/**
- * @brief add new value to the list of results in the current task
- *
- * @param result new resulting values of the actual cycle
- */
-void
-TaskHandle_State::setResultForActualCycle(const uint32_t result)
-{
-    std::lock_guard<std::mutex> guard(m_task_mutex);
-
-    if(actualTask->resultData == nullptr) {
-        return;
-    }
-
-    actualTask->resultData->append(new DataValue(static_cast<long>(result)));
 }

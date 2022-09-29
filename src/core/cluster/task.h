@@ -61,8 +61,8 @@ struct Task
     std::string name = "";
     std::string userId = "";
     std::string projectId = "";
-    bool isInit = false;
     float* inputData = nullptr;
+    float* outputData = nullptr;
     DataArray* resultData = nullptr;
     DataMap metaData;
     uint64_t actualCycle = 0;
