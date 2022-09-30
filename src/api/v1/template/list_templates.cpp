@@ -54,12 +54,12 @@ ListTemplates::ListTemplates()
  * @brief runTask
  */
 bool
-ListTemplates::runTask(BlossomLeaf &blossomLeaf,
+ListTemplates::runTask(BlossomIO &blossomIO,
                        const Kitsunemimi::DataMap &context,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
-    const std::string type = blossomLeaf.input.get("template").get("type").getString();
+    const std::string type = blossomIO.input.get("template").get("type").getString();
     // TODO: check type-field
 
     const Kitsunemimi::Hanami::UserContext userContext(context);
@@ -77,8 +77,8 @@ ListTemplates::runTask(BlossomLeaf &blossomLeaf,
     table.deleteColumn("owner_id");
     table.deleteColumn("project_id");
 
-    blossomLeaf.output.insert("header", table.getInnerHeader());
-    blossomLeaf.output.insert("body", table.getBody());
+    blossomIO.output.insert("header", table.getInnerHeader());
+    blossomIO.output.insert("body", table.getBody());
 
     return true;
 }

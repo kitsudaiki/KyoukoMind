@@ -78,17 +78,17 @@ ShowTemplate::ShowTemplate()
  * @brief runTask
  */
 bool
-ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
+ShowTemplate::runTask(BlossomIO &blossomIO,
                       const Kitsunemimi::DataMap &context,
                       BlossomStatus &status,
                       Kitsunemimi::ErrorContainer &error)
 {
     const Kitsunemimi::Hanami::UserContext userContext(context);
-    const std::string uuid = blossomLeaf.input.get("uuid").getString();
+    const std::string uuid = blossomIO.input.get("uuid").getString();
     // TODO: check type-field
 
     // get data from table
-    if(KyoukoRoot::templateTable->getTemplate(blossomLeaf.output,
+    if(KyoukoRoot::templateTable->getTemplate(blossomIO.output,
                                               uuid,
                                               userContext,
                                               error,
@@ -103,7 +103,7 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
     // decode template
     std::string decodedTemplate;
     if(Kitsunemimi::Crypto::decodeBase64(decodedTemplate,
-                                         blossomLeaf.output.get("data").getString()) == false)
+                                         blossomIO.output.get("data").getString()) == false)
     {
         error.addMeesage("base64-decoding of the template failed");
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
@@ -118,10 +118,10 @@ ShowTemplate::runTask(BlossomLeaf &blossomLeaf,
         error.addMeesage("Failed to parse decoded template");
         return false;
     }
-    blossomLeaf.output.insert("template", parsedTemplate.stealItemContent());
+    blossomIO.output.insert("template", parsedTemplate.stealItemContent());
 
     // remove irrelevant fields
-    blossomLeaf.output.remove("data");
+    blossomIO.output.remove("data");
 
     return true;
 }

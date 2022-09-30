@@ -85,13 +85,13 @@ CreateCluster::CreateCluster()
  * @brief runTask
  */
 bool
-CreateCluster::runTask(BlossomLeaf &blossomLeaf,
+CreateCluster::runTask(BlossomIO &blossomIO,
                        const Kitsunemimi::DataMap &context,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
-    const std::string clusterName = blossomLeaf.input.get("name").getString();
-    Kitsunemimi::Json::JsonItem clusterDefinition = blossomLeaf.input.get("cluster_definition");
+    const std::string clusterName = blossomIO.input.get("name").getString();
+    Kitsunemimi::Json::JsonItem clusterDefinition = blossomIO.input.get("cluster_definition");
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if user already exist within the table
@@ -120,7 +120,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get new created user from database
-    if(KyoukoRoot::clustersTable->getClusterByName(blossomLeaf.output,
+    if(KyoukoRoot::clustersTable->getClusterByName(blossomIO.output,
                                                    clusterName,
                                                    userContext,
                                                    error) == false)
@@ -130,7 +130,7 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
         return false;
     }
 
-    const std::string uuid = blossomLeaf.output.get("uuid").getString();
+    const std::string uuid = blossomIO.output.get("uuid").getString();
     Cluster* newCluster = new Cluster();
     if(clusterDefinition.size() != 0)
     {
@@ -145,9 +145,9 @@ CreateCluster::runTask(BlossomLeaf &blossomLeaf,
     KyoukoRoot::m_clusterHandler->addCluster(uuid, newCluster);
 
     // remove irrelevant fields
-    blossomLeaf.output.remove("owner_id");
-    blossomLeaf.output.remove("project_id");
-    blossomLeaf.output.remove("visibility");
+    blossomIO.output.remove("owner_id");
+    blossomIO.output.remove("project_id");
+    blossomIO.output.remove("visibility");
 
     return true;
 }

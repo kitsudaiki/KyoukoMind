@@ -72,16 +72,16 @@ ShowCluster::ShowCluster()
  * @brief runTask
  */
 bool
-ShowCluster::runTask(BlossomLeaf &blossomLeaf,
+ShowCluster::runTask(BlossomIO &blossomIO,
                      const Kitsunemimi::DataMap &context,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
     const Kitsunemimi::Hanami::UserContext userContext(context);
-    const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
+    const std::string clusterUuid = blossomIO.input.get("uuid").getString();
 
     // get data from table
-    if(KyoukoRoot::clustersTable->getCluster(blossomLeaf.output,
+    if(KyoukoRoot::clustersTable->getCluster(blossomIO.output,
                                              clusterUuid,
                                              userContext,
                                              error) == false)

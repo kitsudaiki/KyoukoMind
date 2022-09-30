@@ -53,13 +53,13 @@ DeleteTemplate::DeleteTemplate()
  * @brief runTask
  */
 bool
-DeleteTemplate::runTask(BlossomLeaf &blossomLeaf,
+DeleteTemplate::runTask(BlossomIO &blossomIO,
                         const Kitsunemimi::DataMap &context,
                         BlossomStatus &status,
                         Kitsunemimi::ErrorContainer &error)
 {
     // get information from request
-    const std::string templateUuid = blossomLeaf.input.get("uuid").getString();
+    const std::string templateUuid = blossomIO.input.get("uuid").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if user exist within the table

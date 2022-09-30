@@ -81,18 +81,18 @@ SetClusterMode::SetClusterMode()
  * @brief runTask
  */
 bool
-SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
+SetClusterMode::runTask(BlossomIO &blossomIO,
                         const Kitsunemimi::DataMap &context,
                         BlossomStatus &status,
                         Kitsunemimi::ErrorContainer &error)
 {
-    const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
-    const std::string connectionUuid = blossomLeaf.input.get("connection_uuid").getString();
-    const std::string newState = blossomLeaf.input.get("new_state").getString();
+    const std::string clusterUuid = blossomIO.input.get("uuid").getString();
+    const std::string connectionUuid = blossomIO.input.get("connection_uuid").getString();
+    const std::string newState = blossomIO.input.get("new_state").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // get data from table
-    if(KyoukoRoot::clustersTable->getCluster(blossomLeaf.output,
+    if(KyoukoRoot::clustersTable->getCluster(blossomIO.output,
                                              clusterUuid,
                                              userContext,
                                              error) == false)
@@ -148,12 +148,12 @@ SetClusterMode::runTask(BlossomLeaf &blossomLeaf,
         cluster->msgClient = nullptr;
     }
 
-    blossomLeaf.output.insert("new_state", newState);
+    blossomIO.output.insert("new_state", newState);
 
     // remove irrelevant fields
-    blossomLeaf.output.remove("owner_id");
-    blossomLeaf.output.remove("project_id");
-    blossomLeaf.output.remove("visibility");
+    blossomIO.output.remove("owner_id");
+    blossomIO.output.remove("project_id");
+    blossomIO.output.remove("visibility");
 
     return true;
 }

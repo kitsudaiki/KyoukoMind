@@ -84,14 +84,14 @@ CreateTableLearnTask::CreateTableLearnTask()
  * @brief runTask
  */
 bool
-CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
+CreateTableLearnTask::runTask(BlossomIO &blossomIO,
                               const Kitsunemimi::DataMap &context,
                               BlossomStatus &status,
                               Kitsunemimi::ErrorContainer &error)
 {
-    const std::string name = blossomLeaf.input.get("name").getString();
-    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
+    const std::string name = blossomIO.input.get("name").getString();
+    const std::string clusterUuid = blossomIO.input.get("cluster_uuid").getString();
+    const std::string dataSetUuid = blossomIO.input.get("data_set_uuid").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if shiori is available
@@ -182,8 +182,8 @@ CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
     delete outputBuffer;
 
     // fill output
-    blossomLeaf.output.insert("uuid", taskUuid);
-    blossomLeaf.output.insert("name", name);
+    blossomIO.output.insert("uuid", taskUuid);
+    blossomIO.output.insert("name", name);
 
     return true;
 }

@@ -56,14 +56,14 @@ DeleteTask::DeleteTask()
  * @brief runTask
  */
 bool
-DeleteTask::runTask(BlossomLeaf &blossomLeaf,
+DeleteTask::runTask(BlossomIO &blossomIO,
                     const Kitsunemimi::DataMap &context,
                     BlossomStatus &status,
                     Kitsunemimi::ErrorContainer &error)
 {
     const Kitsunemimi::Hanami::UserContext userContext(context);
-    const std::string taskUuid = blossomLeaf.input.get("uuid").getString();
-    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
+    const std::string taskUuid = blossomIO.input.get("uuid").getString();
+    const std::string clusterUuid = blossomIO.input.get("cluster_uuid").getString();
 
     // get cluster
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
