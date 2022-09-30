@@ -55,13 +55,13 @@ DeleteCluster::DeleteCluster()
  * @brief runTask
  */
 bool
-DeleteCluster::runTask(BlossomLeaf &blossomLeaf,
+DeleteCluster::runTask(BlossomIO &blossomIO,
                        const Kitsunemimi::DataMap &context,
                        BlossomStatus &status,
                        Kitsunemimi::ErrorContainer &error)
 {
     const Kitsunemimi::Hanami::UserContext userContext(context);
-    const std::string clusterUuid = blossomLeaf.input.get("uuid").getString();
+    const std::string clusterUuid = blossomIO.input.get("uuid").getString();
 
     // check if user exist within the table
     Kitsunemimi::Json::JsonItem getResult;

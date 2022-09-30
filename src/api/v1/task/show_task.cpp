@@ -81,13 +81,13 @@ ShowTask::ShowTask()
  * @brief runTask
  */
 bool
-ShowTask::runTask(BlossomLeaf &blossomLeaf,
+ShowTask::runTask(BlossomIO &blossomIO,
                   const Kitsunemimi::DataMap &context,
                   BlossomStatus &status,
                   Kitsunemimi::ErrorContainer &error)
 {
-    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string taskUuid = blossomLeaf.input.get("uuid").getString();
+    const std::string clusterUuid = blossomIO.input.get("cluster_uuid").getString();
+    const std::string taskUuid = blossomIO.input.get("uuid").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // get cluster
@@ -103,36 +103,36 @@ ShowTask::runTask(BlossomLeaf &blossomLeaf,
     const TaskProgress progress = cluster->getProgress(taskUuid);
 
     // get basic information
-    blossomLeaf.output.insert("percentage_finished", progress.percentageFinished);
-    blossomLeaf.output.insert("queue_timestamp", serializeTimePoint(progress.queuedTimeStamp));
+    blossomIO.output.insert("percentage_finished", progress.percentageFinished);
+    blossomIO.output.insert("queue_timestamp", serializeTimePoint(progress.queuedTimeStamp));
 
     // get timestamps
     if(progress.state == QUEUED_TASK_STATE)
     {
-        blossomLeaf.output.insert("state", "queued");
-        blossomLeaf.output.insert("start_timestamp", "-");
-        blossomLeaf.output.insert("end_timestamp", "-");
+        blossomIO.output.insert("state", "queued");
+        blossomIO.output.insert("start_timestamp", "-");
+        blossomIO.output.insert("end_timestamp", "-");
     }
     else if(progress.state == ACTIVE_TASK_STATE)
     {
-        blossomLeaf.output.insert("state", "active");
-        blossomLeaf.output.insert("start_timestamp",
+        blossomIO.output.insert("state", "active");
+        blossomIO.output.insert("start_timestamp",
                                   serializeTimePoint(progress.startActiveTimeStamp));
-        blossomLeaf.output.insert("end_timestamp", "-");
+        blossomIO.output.insert("end_timestamp", "-");
     }
     else if(progress.state == ABORTED_TASK_STATE)
     {
-        blossomLeaf.output.insert("state", "aborted");
-        blossomLeaf.output.insert("start_timestamp",
+        blossomIO.output.insert("state", "aborted");
+        blossomIO.output.insert("start_timestamp",
                                   serializeTimePoint(progress.startActiveTimeStamp));
-        blossomLeaf.output.insert("end_timestamp", "-");
+        blossomIO.output.insert("end_timestamp", "-");
     }
     else if(progress.state == FINISHED_TASK_STATE)
     {
-        blossomLeaf.output.insert("state", "finished");
-        blossomLeaf.output.insert("start_timestamp",
+        blossomIO.output.insert("state", "finished");
+        blossomIO.output.insert("start_timestamp",
                                   serializeTimePoint(progress.startActiveTimeStamp));
-        blossomLeaf.output.insert("end_timestamp", serializeTimePoint(progress.endActiveTimeStamp));
+        blossomIO.output.insert("end_timestamp", serializeTimePoint(progress.endActiveTimeStamp));
     }
 
     return true;

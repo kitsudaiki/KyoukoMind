@@ -71,13 +71,13 @@ ListTask::ListTask()
  * @brief runTask
  */
 bool
-ListTask::runTask(BlossomLeaf &blossomLeaf,
+ListTask::runTask(BlossomIO &blossomIO,
                   const Kitsunemimi::DataMap &context,
                   BlossomStatus &status,
                   Kitsunemimi::ErrorContainer &error)
 {
     const Kitsunemimi::Hanami::UserContext userContext(context);
-    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
+    const std::string clusterUuid = blossomIO.input.get("cluster_uuid").getString();
 
     // get cluster
     Cluster* cluster = KyoukoRoot::m_clusterHandler->getCluster(clusterUuid);
@@ -155,8 +155,8 @@ ListTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // prepare for output
-    blossomLeaf.output.insert("header", result.getInnerHeader());
-    blossomLeaf.output.insert("body", result.getBody());
+    blossomIO.output.insert("header", result.getInnerHeader());
+    blossomIO.output.insert("body", result.getBody());
 
     return true;
 }

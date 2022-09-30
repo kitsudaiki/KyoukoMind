@@ -73,13 +73,13 @@ SaveCluster::SaveCluster()
  * @brief runTask
  */
 bool
-SaveCluster::runTask(BlossomLeaf &blossomLeaf,
+SaveCluster::runTask(BlossomIO &blossomIO,
                      const Kitsunemimi::DataMap &context,
                      BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error)
 {
-    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string name = blossomLeaf.input.get("name").getString();
+    const std::string clusterUuid = blossomIO.input.get("cluster_uuid").getString();
+    const std::string name = blossomIO.input.get("name").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if shiori is available
@@ -106,8 +106,8 @@ SaveCluster::runTask(BlossomLeaf &blossomLeaf,
     const std::string taskUuid = cluster->addClusterSnapshotSaveTask(name,
                                                                      userContext.userId,
                                                                      userContext.projectId);
-    blossomLeaf.output.insert("uuid", taskUuid);
-    blossomLeaf.output.insert("name", name);
+    blossomIO.output.insert("uuid", taskUuid);
+    blossomIO.output.insert("name", name);
 
     return true;
 }

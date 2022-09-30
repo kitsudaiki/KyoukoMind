@@ -81,13 +81,13 @@ UploadTemplate::UploadTemplate()
  * @brief runTask
  */
 bool
-UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
+UploadTemplate::runTask(BlossomIO &blossomIO,
                         const Kitsunemimi::DataMap &context,
                         BlossomStatus &status,
                         Kitsunemimi::ErrorContainer &error)
 {
-    const std::string name = blossomLeaf.input.get("name").getString();
-    const std::string stringContent = blossomLeaf.input.get("template").toString();
+    const std::string name = blossomIO.input.get("name").getString();
+    const std::string stringContent = blossomIO.input.get("template").toString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if template with the name already exist within the table
@@ -119,7 +119,7 @@ UploadTemplate::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get new created user from database
-    if(KyoukoRoot::templateTable->getTemplateByName(blossomLeaf.output,
+    if(KyoukoRoot::templateTable->getTemplateByName(blossomIO.output,
                                                     name,
                                                     userContext,
                                                     error) == false)

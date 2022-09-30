@@ -85,14 +85,14 @@ CreateTableRequestTask::CreateTableRequestTask()
  * @brief runTask
  */
 bool
-CreateTableRequestTask::runTask(BlossomLeaf &blossomLeaf,
+CreateTableRequestTask::runTask(BlossomIO &blossomIO,
                                 const Kitsunemimi::DataMap &context,
                                 BlossomStatus &status,
                                 Kitsunemimi::ErrorContainer &error)
 {
-    const std::string name = blossomLeaf.input.get("name").getString();
-    const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
-    const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
+    const std::string name = blossomIO.input.get("name").getString();
+    const std::string clusterUuid = blossomIO.input.get("cluster_uuid").getString();
+    const std::string dataSetUuid = blossomIO.input.get("data_set_uuid").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     SupportedComponents* scomp = SupportedComponents::getInstance();
@@ -155,8 +155,8 @@ CreateTableRequestTask::runTask(BlossomLeaf &blossomLeaf,
                                                               numberOfOutputs,
                                                               numberOfLines - numberOfInputs);
 
-    blossomLeaf.output.insert("uuid", taskUuid);
-    blossomLeaf.output.insert("name", name);
+    blossomIO.output.insert("uuid", taskUuid);
+    blossomIO.output.insert("name", name);
 
     return true;
 }
