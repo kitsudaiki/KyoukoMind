@@ -386,6 +386,9 @@ Cluster::addImageRequestTask(const std::string &name,
     newTask.projectId = projectId;
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
+    for(uint64_t i = 0; i < numberOfCycle; i++) {
+        newTask.resultData->append(new DataValue(0));
+    }
     newTask.type = IMAGE_REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
@@ -421,7 +424,9 @@ Cluster::addTableLearnTask(const std::string &name,
                            const std::string &userId,
                            const std::string &projectId,
                            float* inputData,
+                           float* outputData,
                            const uint64_t numberOfInputs,
+                           const uint64_t numberOfOutputs,
                            const uint64_t numberOfCycle)
 {
     // create new learn-task
@@ -431,6 +436,7 @@ Cluster::addTableLearnTask(const std::string &name,
     newTask.userId = userId;
     newTask.projectId = projectId;
     newTask.inputData = inputData;
+    newTask.outputData = outputData;
     newTask.type = TABLE_LEARN_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
@@ -440,6 +446,8 @@ Cluster::addTableLearnTask(const std::string &name,
                             new DataValue(static_cast<long>(numberOfCycle)));
     newTask.metaData.insert("number_of_inputs_per_cycle",
                             new DataValue(static_cast<long>(numberOfInputs)));
+    newTask.metaData.insert("number_of_outputs_per_cycle",
+                            new DataValue(static_cast<long>(numberOfOutputs)));
 
     // add task to queue
     const std::string uuid = newTask.uuid.toString();
@@ -465,6 +473,7 @@ Cluster::addTableRequestTask(const std::string &name,
                              const std::string &projectId,
                              float* inputData,
                              const uint64_t numberOfInputs,
+                             const uint64_t numberOfOutputs,
                              const uint64_t numberOfCycle)
 {
     // create new request-task
@@ -475,6 +484,9 @@ Cluster::addTableRequestTask(const std::string &name,
     newTask.projectId = projectId;
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
+    for(uint64_t i = 0; i < numberOfOutputs + numberOfCycle; i++) {
+        newTask.resultData->append(new DataValue(0.0f));
+    }
     newTask.type = TABLE_REQUEST_TASK;
     newTask.progress.state = QUEUED_TASK_STATE;
     newTask.progress.queuedTimeStamp = std::chrono::system_clock::now();
@@ -484,6 +496,8 @@ Cluster::addTableRequestTask(const std::string &name,
                             new DataValue(static_cast<long>(numberOfCycle)));
     newTask.metaData.insert("number_of_inputs_per_cycle",
                             new DataValue(static_cast<long>(numberOfInputs)));
+    newTask.metaData.insert("number_of_outputs_per_cycle",
+                            new DataValue(static_cast<long>(numberOfOutputs)));
 
     // add tasgetNextTaskk to queue
     const std::string uuid = newTask.uuid.toString();
@@ -572,35 +586,6 @@ Cluster::addClusterSnapshotRestoreTask(const std::string &name,
 }
 
 /**
- * @brief run request-task with only one cycle
- *
- * @param inputData input-data
- * @param numberOfInputsPerCycle number of inputs, which belongs to one cycle
- *
- * @return result of the request
- */
-uint32_t
-Cluster::request(float* inputData,
-                 const uint64_t numberOfInputes)
-{
-    // create new small request-task
-    const std::string taskUuid = addImageRequestTask("", "", "", inputData, numberOfInputes, 0, 1);
-    segmentCounter = allSegments.size();
-    updateClusterState();
-
-    // wait until task is finished
-    while(isFinish(taskUuid) == false) {
-        usleep(10000);
-    }
-
-    // get result and clear backend
-    // TODO: get result
-    removeTask(taskUuid);
-
-    return 0;
-}
-
-/**
  * @brief get actual task
  *
  * @return pointer to the actual task
@@ -659,17 +644,6 @@ bool
 Cluster::isFinish(const std::string &taskUuid)
 {
     return m_taskHandleState->isFinish(taskUuid);
-}
-
-/**
- * @brief NetworkCluster::setResultForActualCycle
- *
- * @param result
- */
-void
-Cluster::setResultForActualCycle(const uint32_t result)
-{
-    return m_taskHandleState->setResultForActualCycle(result);
 }
 
 /**

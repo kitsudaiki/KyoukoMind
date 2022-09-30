@@ -24,6 +24,8 @@
 #include <kyouko_root.h>
 #include <core/cluster/cluster_handler.h>
 #include <core/cluster/cluster.h>
+#include <core/segments/input_segment/input_segment.h>
+#include <core/segments/output_segment/output_segment.h>
 
 #include <libShioriArchive/datasets.h>
 
@@ -62,11 +64,6 @@ CreateTableLearnTask::CreateTableLearnTask()
                        "UUID of the data-set with the input, which coming from shiori.");
     assert(addFieldRegex("data_set_uuid", UUID_REGEX));
 
-    registerInputField("column_name",
-                       SAKURA_STRING_TYPE,
-                       true,
-                       "Name of the column of the table, which should work as input");
-
     //----------------------------------------------------------------------------------------------
     // output
     //----------------------------------------------------------------------------------------------
@@ -77,7 +74,6 @@ CreateTableLearnTask::CreateTableLearnTask()
     registerOutputField("name",
                         SAKURA_STRING_TYPE,
                         "Name of the new created task.");
-
 
     //----------------------------------------------------------------------------------------------
     //
@@ -96,7 +92,6 @@ CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string name = blossomLeaf.input.get("name").getString();
     const std::string clusterUuid = blossomLeaf.input.get("cluster_uuid").getString();
     const std::string dataSetUuid = blossomLeaf.input.get("data_set_uuid").getString();
-    const std::string columnName = blossomLeaf.input.get("column_name").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if shiori is available
@@ -132,14 +127,40 @@ CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
     }
 
     // get input-data
-    DataBuffer* colBuffer = Shiori::getDatasetData(userContext.token,
-                                                   dataSetUuid,
-                                                   columnName,
-                                                   error);
-    if(colBuffer == nullptr)
+    InputSegment* inSegment = cluster->inputSegments.begin()->second;
+    const std::string inputColumnName = inSegment->getName();
+    const uint64_t numberOfInputs = inSegment->segmentHeader->inputs.count;
+    DataBuffer* inputBuffer = Shiori::getDatasetData(userContext.token,
+                                                     dataSetUuid,
+                                                     inputColumnName,
+                                                     error);
+    if(inputBuffer == nullptr)
     {
         status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        error.addMeesage("Got NO data from shiori for dataset with UUID '" + dataSetUuid + "'");
+        error.addMeesage("Got no data from shiori for dataset with UUID '"
+                         + dataSetUuid
+                         + "' and column with name '"
+                         + inputColumnName
+                         + "'");
+        return false;
+    }
+
+    // get output-data
+    OutputSegment* outSegment = cluster->outputSegments.begin()->second;
+    const std::string outputColumnName = outSegment->getName();
+    const uint64_t numberOfOutputs = outSegment->segmentHeader->outputs.count;
+    DataBuffer* outputBuffer = Shiori::getDatasetData(userContext.token,
+                                                      dataSetUuid,
+                                                      outputColumnName,
+                                                      error);
+    if(outputBuffer == nullptr)
+    {
+        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+        error.addMeesage("Got no data from shiori for dataset with UUID '"
+                         + dataSetUuid
+                         + "' and column with name '"
+                         + outputColumnName
+                         + "'");
         return false;
     }
 
@@ -148,13 +169,19 @@ CreateTableLearnTask::runTask(BlossomLeaf &blossomLeaf,
     const std::string taskUuid = cluster->addTableLearnTask(name,
                                                             userContext.userId,
                                                             userContext.projectId,
-                                                            static_cast<float*>(colBuffer->data),
-                                                            numberOfLines,
-                                                            numberOfLines - 100);
+                                                            static_cast<float*>(inputBuffer->data),
+                                                            static_cast<float*>(outputBuffer->data),
+                                                            numberOfInputs,
+                                                            numberOfOutputs,
+                                                            numberOfLines - numberOfInputs);
 
-    colBuffer->data = nullptr;
-    delete colBuffer;
+    // clear leftover of the buffer
+    inputBuffer->data = nullptr;
+    outputBuffer->data = nullptr;
+    delete inputBuffer;
+    delete outputBuffer;
 
+    // fill output
     blossomLeaf.output.insert("uuid", taskUuid);
     blossomLeaf.output.insert("name", name);
 

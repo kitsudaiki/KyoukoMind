@@ -121,13 +121,16 @@ public:
                                         const std::string &userId,
                                         const std::string &projectId,
                                         float* inputData,
+                                        float* outputData,
                                         const uint64_t numberOfInputs,
+                                        const uint64_t numberOfOutputs,
                                         const uint64_t numberOfCycle);
     const std::string addTableRequestTask(const std::string &name,
                                           const std::string &userId,
                                           const std::string &projectId,
                                           float* inputData,
                                           const uint64_t numberOfInputs,
+                                          const uint64_t numberOfOutputs,
                                           const uint64_t numberOfCycle);
     const std::string addClusterSnapshotSaveTask(const std::string &snapshotName,
                                                  const std::string &userId,
@@ -137,15 +140,12 @@ public:
                                                     const std::string &userId,
                                                     const std::string &projectId);
 
-    uint32_t request(float* inputData, const uint64_t numberOfInputes);
-
     // tasks
     Task* getActualTask() const;
     uint64_t getActualTaskCycle() const;
     const TaskProgress getProgress(const std::string &taskUuid);
     bool removeTask(const std::string &taskUuid);
     bool isFinish(const std::string &taskUuid);
-    void setResultForActualCycle(const uint32_t result);
     void getAllProgress(std::map<std::string, TaskProgress> &result);
 
     bool goToNextState(const uint32_t nextStateId);

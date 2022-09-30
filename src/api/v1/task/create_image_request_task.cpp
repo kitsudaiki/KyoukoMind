@@ -141,10 +141,11 @@ CreateImageRequestTask::runTask(BlossomLeaf &blossomLeaf,
 
     // init request-task
     // TODO: fix line limitation
+    float* floatData = static_cast<float*>(dataSetBuffer->data);
     const std::string taskUuid = cluster->addImageRequestTask(name,
                                                               userContext.userId,
                                                               userContext.projectId,
-                                                              static_cast<float*>(dataSetBuffer->data),
+                                                              floatData,
                                                               numberOfInputs,
                                                               numberOfOutputs,
                                                               numberOfLines);

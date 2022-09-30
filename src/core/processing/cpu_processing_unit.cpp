@@ -147,9 +147,25 @@ CpuProcessingUnit::processSegment(AbstractSegment* segment)
             prcessOutputSegment(*seg);
             if(seg->parentCluster->msgClient == nullptr)
             {
-                // TODO: check for cluster-state instead of client
-                const uint32_t hightest = getHighestOutput(*seg);
-                seg->parentCluster->setResultForActualCycle(hightest);
+                Task* actualTask = seg->parentCluster->getActualTask();
+                const uint64_t cycle = actualTask->actualCycle;
+                if(actualTask->type == IMAGE_REQUEST_TASK)
+                {
+                    // TODO: check for cluster-state instead of client
+                    const uint32_t hightest = getHighestOutput(*seg);
+                    DataValue* value = actualTask->resultData->array[cycle]->toValue();
+                    value->setValue(static_cast<long>(hightest));
+                }
+                else if(actualTask->type == TABLE_REQUEST_TASK)
+                {
+                    float val = 0.0f;
+                    for(uint64_t i = 0; i < seg->segmentHeader->outputs.count; i++)
+                    {
+                        DataValue* value = actualTask->resultData->array[cycle]->toValue();
+                        val = value->getFloat() + seg->outputs[i].outputWeight;
+                        value->setValue(val);
+                    }
+                }
             }
             break;
         }

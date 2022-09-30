@@ -45,7 +45,6 @@ public:
     const TaskProgress getProgress(const std::string &taskUuid);
     bool removeTask(const std::string &taskUuid);
     bool isFinish(const std::string &taskUuid);
-    void setResultForActualCycle(const uint32_t result);
     TaskState getTaskState(const std::string &taskUuid);
     void getAllProgress(std::map<std::string, TaskProgress> &result);
 
