@@ -215,7 +215,7 @@ CpuProcessingUnit::run()
         else
         {
             // if no segments are available then sleep
-            sleepThread(10000);
+            sleepThread(1000);
         }
     }
 }
