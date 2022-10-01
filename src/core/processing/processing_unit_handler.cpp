@@ -49,8 +49,6 @@ ProcessingUnitHandler::initProcessingUnits(const uint16_t numberOfThreads)
         CpuProcessingUnit* newUnit = new CpuProcessingUnit();
         m_processingUnits.push_back(newUnit);
         newUnit->startThread();
-        sleep(1);
-        newUnit->bindThreadToCore(2);
     }
 
     return true;
