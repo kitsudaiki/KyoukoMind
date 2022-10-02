@@ -78,6 +78,32 @@ sendHanamiOutputMessage(const OutputSegment &segment)
 }
 
 void
+sendHanamiGotInputMessage(Cluster* cluster)
+{
+    if(cluster->msgClient == nullptr) {
+        return;
+    }
+
+    // build message
+    Kitsunemimi::Hanami::ClusterIO_Message msg;
+    msg.isLast = false;
+
+    // serialize message
+    uint8_t buffer[96*1024];
+    const uint64_t size = msg.createBlob(buffer, 96*1024);
+    if(size == 0)
+    {
+        Kitsunemimi::ErrorContainer error;
+        error.addMeesage("Failed to serialize request-message");
+        return;
+    }
+
+    // send message
+    Kitsunemimi::ErrorContainer error;
+    cluster->msgClient->sendStreamMessage(buffer, size, false, error);
+}
+
+void
 sendHanamiNormalEndMessage(Cluster* cluster)
 {
     if(cluster->msgClient == nullptr) {
@@ -201,6 +227,10 @@ recvHanamiInputMessage(Cluster* cluster,
             cluster->mode = Cluster::LEARN_FORWARD_MODE;
             cluster->startForwardCycle();
         }
+    }
+    else
+    {
+        sendHanamiGotInputMessage(cluster);
     }
 
     return true;
