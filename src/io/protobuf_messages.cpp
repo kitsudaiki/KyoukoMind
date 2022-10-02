@@ -71,6 +71,32 @@ sendProtobufOutputMessage(const OutputSegment &segment)
     client->sendStreamMessage(buffer, size, false, error);
 }
 
+void
+sendProtobufGotInputMessage(Cluster* cluster)
+{
+    if(cluster->msgClient == nullptr) {
+        return;
+    }
+
+    // build message
+    ClusterIO_Message msg;
+    msg.set_islast(false);
+
+    // serialize message
+    uint8_t buffer[96*1024];
+    const uint64_t size = msg.ByteSizeLong();
+    if(msg.SerializeToArray(buffer, size) == false)
+    {
+        Kitsunemimi::ErrorContainer error;
+        error.addMeesage("Failed to serialize request-message");
+        return;
+    }
+
+    // send message
+    Kitsunemimi::ErrorContainer error;
+    cluster->msgClient->sendStreamMessage(buffer, size, false, error);
+}
+
 /**
  * @brief sendProtobufNormalEndMessage
  * @param cluster
@@ -203,6 +229,10 @@ recvProtobufInputMessage(Cluster* cluster,
             cluster->mode = Cluster::LEARN_FORWARD_MODE;
             cluster->startForwardCycle();
         }
+    }
+    else
+    {
+        sendProtobufGotInputMessage(cluster);
     }
 
     return true;
