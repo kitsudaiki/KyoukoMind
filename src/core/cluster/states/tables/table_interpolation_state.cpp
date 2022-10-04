@@ -63,9 +63,9 @@ TableInterpolation_State::processEvent()
     }
 
     // set input
-    InputNode* inputNodes = m_cluster->inputSegments.begin()->second->inputs;
+    InputNeuron* inputNeurons = m_cluster->inputSegments.begin()->second->inputs;
     for(uint64_t i = 0; i < numberOfInputsPerCycle; i++) {
-        inputNodes[i].weight = actualTask->inputData[(offset - numberOfInputsPerCycle) + i];
+        inputNeurons[i].weight = actualTask->inputData[(offset - numberOfInputsPerCycle) + i];
     }
 
     m_cluster->mode = Cluster::NORMAL_MODE;

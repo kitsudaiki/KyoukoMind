@@ -25,7 +25,7 @@
 
 #include <common.h>
 
-struct InputNode
+struct InputNeuron
 {
     float weight = 0.0f;
     uint32_t targetBorderId = 0;

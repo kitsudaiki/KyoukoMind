@@ -40,16 +40,16 @@ sendHanamiOutputMessage(const OutputSegment &segment)
         return;
     }
 
-    OutputNode* node = nullptr;
+    OutputNeuron* neuron = nullptr;
 
     // filter values for only necessary values
     float outputData[segment.segmentHeader->outputs.count];
-    for(uint64_t outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
+    for(uint64_t outputNeuronId = 0;
+        outputNeuronId < segment.segmentHeader->outputs.count;
+        outputNeuronId++)
     {
-        node = &segment.outputs[outputNodeId];
-        outputData[outputNodeId] = node->outputWeight;
+        neuron = &segment.outputs[outputNeuronId];
+        outputData[outputNeuronId] = neuron->outputWeight;
     }
 
     // build message
@@ -190,9 +190,9 @@ recvHanamiInputMessage(Cluster* cluster,
         it = cluster->inputSegments.find(msg.segmentName);
         if(it != cluster->inputSegments.end())
         {
-            InputNode* inputNodes = it->second->inputs;
+            InputNeuron* inputNeurons = it->second->inputs;
             for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-                inputNodes[i].weight = msg.values[i];
+                inputNeurons[i].weight = msg.values[i];
             }
         }
     }
@@ -202,9 +202,9 @@ recvHanamiInputMessage(Cluster* cluster,
         it = cluster->outputSegments.find(msg.segmentName);
         if(it != cluster->outputSegments.end())
         {
-            OutputNode* outputNodes = it->second->outputs;
+            OutputNeuron* outputNeurons = it->second->outputs;
             for(uint64_t i = 0; i < msg.numberOfValues; i++) {
-                outputNodes[i].shouldValue = msg.values[i];
+                outputNeurons[i].shouldValue = msg.values[i];
             }
         }
     }

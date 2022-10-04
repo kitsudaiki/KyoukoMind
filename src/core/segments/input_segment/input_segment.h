@@ -37,7 +37,7 @@ public:
     InputSegment(const void* data, const uint64_t dataSize);
     ~InputSegment();
 
-    InputNode* inputs = nullptr;
+    InputNeuron* inputs = nullptr;
 
     bool initSegment(const JsonItem &segmentTemplate, const std::string &name);
     bool reinitPointer(const uint64_t numberOfBytes);

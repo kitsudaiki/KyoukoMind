@@ -48,11 +48,11 @@ sendProtobufOutputMessage(const OutputSegment &segment)
     msg.set_datatype(ClusterDataType::OUTPUT_TYPE);
     msg.set_numberofvalues(segment.segmentHeader->outputs.count);
 
-    for(uint64_t outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
+    for(uint64_t outputNeuronId = 0;
+        outputNeuronId < segment.segmentHeader->outputs.count;
+        outputNeuronId++)
     {
-        msg.add_values(segment.outputs[outputNodeId].outputWeight);
+        msg.add_values(segment.outputs[outputNeuronId].outputWeight);
     }
 
     // serialize message
@@ -192,9 +192,9 @@ recvProtobufInputMessage(Cluster* cluster,
         it = cluster->inputSegments.find(msg.segmentname());
         if(it != cluster->inputSegments.end())
         {
-            InputNode* inputNodes = it->second->inputs;
+            InputNeuron* inputNeurons = it->second->inputs;
             for(uint64_t i = 0; i < msg.numberofvalues(); i++) {
-                inputNodes[i].weight = msg.values(i);
+                inputNeurons[i].weight = msg.values(i);
             }
         }
     }
@@ -204,9 +204,9 @@ recvProtobufInputMessage(Cluster* cluster,
         it = cluster->outputSegments.find(msg.segmentname());
         if(it != cluster->outputSegments.end())
         {
-            OutputNode* outputNodes = it->second->outputs;
+            OutputNeuron* outputNeurons = it->second->outputs;
             for(uint64_t i = 0; i < msg.numberofvalues(); i++) {
-                outputNodes[i].shouldValue = msg.values(i);
+                outputNeurons[i].shouldValue = msg.values(i);
             }
         }
     }

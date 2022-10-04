@@ -62,7 +62,7 @@ struct SegmentHeader
 
     SegmentHeaderEntry bricks;
     SegmentHeaderEntry brickOrder;
-    SegmentHeaderEntry nodes;
+    SegmentHeaderEntry neurons;
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
 
@@ -91,7 +91,7 @@ struct SegmentSlot
     bool inUse = false;
     bool inputReady = false;
 
-    uint32_t numberOfNodes = 0;
+    uint32_t numberOfNeurons = 0;
     uint32_t length = 0;
     char name[32];
 

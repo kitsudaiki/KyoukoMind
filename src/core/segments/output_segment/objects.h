@@ -25,7 +25,7 @@
 
 #include <common.h>
 
-struct OutputNode
+struct OutputNeuron
 {
     float outputWeight = 0.0f;
     float shouldValue = 0.0f;

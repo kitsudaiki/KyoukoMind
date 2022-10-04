@@ -42,13 +42,13 @@ public:
 
     Brick* bricks = nullptr;
     uint32_t* brickOrder = nullptr;
-    DynamicNode* nodes = nullptr;
+    DynamicNeuron* neurons = nullptr;
     SynapseSection* synapseSections = nullptr;
 
 private:
     DynamicSegmentSettings initSettings(const JsonItem &parsedContent);
     SegmentHeader createNewHeader(const uint32_t numberOfBricks,
-                                  const uint32_t numberOfNodes,
+                                  const uint32_t numberOfNeurons,
                                   const uint64_t numberOfSynapseSections,
                                   const uint64_t borderbufferSize);
     void initSegmentPointer(const SegmentHeader &header);
@@ -62,7 +62,7 @@ private:
     Brick createNewBrick(const JsonItem &brickDef, const uint32_t id);
     void connectBrick(Brick *sourceBrick, const uint8_t side);
     void connectAllBricks();
-    bool initializeNodes();
+    bool initializeNeurons();
     uint32_t goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength);
     bool initSlots(const JsonItem &segmentTemplate);
 };

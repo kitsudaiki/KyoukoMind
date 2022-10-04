@@ -40,7 +40,7 @@ public:
     float lastTotalError = 0.0f;
     float actualTotalError = 0.0f;
 
-    OutputNode* outputs = nullptr;
+    OutputNeuron* outputs = nullptr;
 
     bool initSegment(const JsonItem &segmentTemplate, const std::string &name);
     bool reinitPointer(const uint64_t numberOfBytes);

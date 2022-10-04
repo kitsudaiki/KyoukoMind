@@ -38,9 +38,9 @@ struct Brick
     Position brickPos;
     uint32_t neighbors[12];
 
-    uint32_t possibleTargetNodeBrickIds[1000];
-    uint32_t nodePos = UNINIT_STATE_32;
-    uint32_t numberOfNodes = 0;
+    uint32_t possibleTargetNeuronBrickIds[1000];
+    uint32_t neuronPos = UNINIT_STATE_32;
+    uint32_t numberOfNeurons = 0;
 
     // total size: 4096 Bytes
 };

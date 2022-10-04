@@ -28,7 +28,7 @@
 
 //==================================================================================================
 
-struct DynamicNode
+struct DynamicNeuron
 {
     float input = 0.0f;
     float border = 100.0f;
@@ -53,7 +53,7 @@ struct Synapse
 {
     float weight = 0.0f;
     float border = 0.0f;
-    uint16_t targetNodeId = UNINIT_STATE_16;
+    uint16_t targetNeuronId = UNINIT_STATE_16;
     int8_t activeCounter = 0;
     uint8_t padding[1];
     // total size: 12 Byte
@@ -89,7 +89,7 @@ struct DynamicSegmentSettings
 {
     uint64_t maxSynapseSections = 0;
     float synapseDeleteBorder = 1.0f;
-    float nodeCooldown = 100.0f;
+    float neuronCooldown = 100.0f;
     float memorizing = 0.1f;
     float gliaValue = 1.0f;
     float signNeg = 0.6f;

@@ -58,9 +58,9 @@ ImageIdentify_State::processEvent()
     const uint64_t offsetInput = entriesPerCycle * actualTask->actualCycle;
 
     // set input
-    InputNode* inputNodes = m_cluster->inputSegments.begin()->second->inputs;
+    InputNeuron* inputNeurons = m_cluster->inputSegments.begin()->second->inputs;
     for(uint64_t i = 0; i < numberOfInputsPerCycle; i++) {
-        inputNodes[i].weight = actualTask->inputData[offsetInput + i];
+        inputNeurons[i].weight = actualTask->inputData[offsetInput + i];
     }
 
     m_cluster->mode = Cluster::NORMAL_MODE;
