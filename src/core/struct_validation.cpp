@@ -38,7 +38,7 @@ validateStructSizes()
     assert(sizeof(SegmentHeader) == 512);
     assert(sizeof(SegmentName) == 256);
     assert(sizeof(Brick) == 4096);
-    assert(sizeof(DynamicNode) == 32);
+    assert(sizeof(DynamicNeuron) == 32);
     assert(sizeof(SegmentSlot) == 64);
     assert(sizeof(SegmentSlotList) == 1024);
 

@@ -58,7 +58,7 @@ OutputSegment::~OutputSegment() {}
 bool
 OutputSegment::initSegment(const JsonItem &segmentTemplate, const std::string &name)
 {
-    const uint32_t numberOfOutputs = segmentTemplate.get("number_of_nodes").getInt();
+    const uint32_t numberOfOutputs = segmentTemplate.get("number_of_neurons").getInt();
     const uint32_t totalBorderSize = numberOfOutputs;
 
     SegmentHeader header = createNewHeader(numberOfOutputs, totalBorderSize);
@@ -110,8 +110,8 @@ OutputSegment::reinitPointer(const uint64_t numberOfBytes)
     byteCounter += segmentHeader->outputTransfers.count * sizeof(float);
 
     pos = segmentHeader->outputs.bytePos;
-    outputs = reinterpret_cast<OutputNode*>(dataPtr + pos);
-    byteCounter += segmentHeader->outputs.count * sizeof(OutputNode);
+    outputs = reinterpret_cast<OutputNeuron*>(dataPtr + pos);
+    byteCounter += segmentHeader->outputs.count * sizeof(OutputNeuron);
 
     // check result
     if(byteCounter != numberOfBytes) {
@@ -131,7 +131,7 @@ OutputSegment::connectBorderBuffer()
 {
     for(uint32_t i = 0; i < segmentHeader->outputs.count; i++)
     {
-        outputs[i] = OutputNode();
+        outputs[i] = OutputNeuron();
         outputs[i].targetBorderId = i;
     }
 
@@ -157,7 +157,7 @@ OutputSegment::createNewHeader(const uint32_t numberOfOutputs,
     // init outputs
     segmentHeader.outputs.count = numberOfOutputs;
     segmentHeader.outputs.bytePos = segmentDataPos;
-    segmentDataPos += numberOfOutputs * sizeof(OutputNode);
+    segmentDataPos += numberOfOutputs * sizeof(OutputNeuron);
 
     // set total size of the segment
     segmentHeader.staticDataSize = segmentDataPos;
@@ -195,7 +195,7 @@ OutputSegment::initSegmentPointer(const SegmentHeader &header)
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
 
     pos = segmentHeader->outputs.bytePos;
-    outputs = reinterpret_cast<OutputNode*>(dataPtr + pos);
+    outputs = reinterpret_cast<OutputNeuron*>(dataPtr + pos);
 }
 
 /**
@@ -229,7 +229,7 @@ OutputSegment::initSlots(const uint32_t numberOfInputs)
         SegmentSlot* currentSlot = &segmentSlots->slots[i];
         currentSlot->setName("input");
         currentSlot->inUse = false;
-        currentSlot->numberOfNodes = size;
+        currentSlot->numberOfNeurons = size;
         currentSlot->inputTransferBufferPos = 0;
         currentSlot->outputTransferBufferPos = 0;
         currentSlot->direction = INPUT_DIRECTION;

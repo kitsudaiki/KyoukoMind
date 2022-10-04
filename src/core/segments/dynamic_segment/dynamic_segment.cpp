@@ -63,28 +63,28 @@ DynamicSegment::initSegment(const JsonItem &segmentTemplate, const std::string &
 {
     const JsonItem paredBricks = segmentTemplate.get("bricks");
 
-    uint32_t totalNumberOfNodes = 0;
+    uint32_t totalNumberOfNeurons = 0;
     uint32_t totalBorderSize = 0;
 
-    const uint32_t numberOfNodeBricks = paredBricks.size();
-    for(uint32_t i = 0; i < numberOfNodeBricks; i++)
+    const uint32_t numberOfNeuronBricks = paredBricks.size();
+    for(uint32_t i = 0; i < numberOfNeuronBricks; i++)
     {
-        const int numberOfNodes = paredBricks.get(i).get("number_of_nodes").getInt();
+        const int numberOfNeurons = paredBricks.get(i).get("number_of_neurons").getInt();
         const std::string type = paredBricks.get(i).get("type").getString();
 
-        totalNumberOfNodes += numberOfNodes;
+        totalNumberOfNeurons += numberOfNeurons;
 
         if(type == "input"
                 || type == "output")
         {
-            totalBorderSize += numberOfNodes;
+            totalBorderSize += numberOfNeurons;
         }
     }
 
     // create segment metadata
     const DynamicSegmentSettings settings = initSettings(segmentTemplate);
-    SegmentHeader header = createNewHeader(numberOfNodeBricks,
-                                           totalNumberOfNodes,
+    SegmentHeader header = createNewHeader(numberOfNeuronBricks,
+                                           totalNumberOfNeurons,
                                            settings.maxSynapseSections,
                                            totalBorderSize);
 
@@ -95,7 +95,7 @@ DynamicSegment::initSegment(const JsonItem &segmentTemplate, const std::string &
     dynamicSegmentSettings[0] = settings;
 
     // init content
-    initializeNodes();
+    initializeNeurons();
     addBricksToSegment(segmentTemplate);
     connectAllBricks();
     initTargetBrickList();
@@ -153,9 +153,9 @@ DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
     brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
     byteCounter += segmentHeader->brickOrder.count * sizeof(uint32_t);
 
-    pos = segmentHeader->nodes.bytePos;
-    nodes = reinterpret_cast<DynamicNode*>(dataPtr + pos);
-    byteCounter += segmentHeader->nodes.count * sizeof(DynamicNode);
+    pos = segmentHeader->neurons.bytePos;
+    neurons = reinterpret_cast<DynamicNeuron*>(dataPtr + pos);
+    byteCounter += segmentHeader->neurons.count * sizeof(DynamicNeuron);
 
     dataPtr = static_cast<uint8_t*>(segmentData.itemData);
     //pos = segmentHeader->synapseSections.bytePos;
@@ -171,20 +171,20 @@ DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
 }
 
 /**
- * @brief init all nodes with activation-border
+ * @brief init all neurons with activation-border
  *
  * @return true, if successful, else false
  */
 bool
-DynamicSegment::initializeNodes()
+DynamicSegment::initializeNeurons()
 {
-    const uint32_t numberOfNodes = segmentHeader->nodes.count;
+    const uint32_t numberOfNeurons = segmentHeader->neurons.count;
 
-    for(uint32_t i = 0; i < numberOfNodes; i++)
+    for(uint32_t i = 0; i < numberOfNeurons; i++)
     {
-        //nodes[i].border = ((static_cast<float>(rand() % 10000)) / 10000.0f) * range;
-        //nodes[i].border -= 0.25f;
-        nodes[i].border = 0.0f;
+        //neurons[i].border = ((static_cast<float>(rand() % 10000)) / 10000.0f) * range;
+        //neurons[i].border -= 0.25f;
+        neurons[i].border = 0.0f;
     }
 
     return true;
@@ -198,7 +198,7 @@ DynamicSegment::initializeNodes()
 bool
 DynamicSegment::connectBorderBuffer()
 {
-    DynamicNode* node = nullptr;
+    DynamicNeuron* neuron = nullptr;
     Brick* brick = nullptr;
 
     uint64_t transferCounter = 0;
@@ -210,13 +210,13 @@ DynamicSegment::connectBorderBuffer()
         // connect input-bricks with border-buffer
         if(brick->isInputBrick)
         {
-            for(uint32_t j = 0; j < brick->numberOfNodes; j++)
+            for(uint32_t j = 0; j < brick->numberOfNeurons; j++)
             {
                 if(transferCounter >= segmentHeader->inputTransfers.count) {
                     break;
                 }
-                node = &nodes[brick->nodePos + j];
-                node->targetBorderId = transferCounter;
+                neuron = &neurons[brick->neuronPos + j];
+                neuron->targetBorderId = transferCounter;
                 transferCounter++;
             }
         }
@@ -225,13 +225,13 @@ DynamicSegment::connectBorderBuffer()
         if(brick->isOutputBrick
                 || brick->isTransactionBrick)
         {
-            for(uint32_t j = 0; j < brick->numberOfNodes; j++)
+            for(uint32_t j = 0; j < brick->numberOfNeurons; j++)
             {
                 if(transferCounter >= segmentHeader->outputTransfers.count) {
                     break;
                 }
-                node = &nodes[brick->nodePos + j];
-                node->targetBorderId = transferCounter;
+                neuron = &neurons[brick->neuronPos + j];
+                neuron->targetBorderId = transferCounter;
                 transferCounter++;
             }
         }
@@ -255,7 +255,7 @@ DynamicSegment::initSettings(const JsonItem &parsedContent)
     // parse settings
     JsonItem paredSettings = parsedContent.get("settings");
     settings.synapseDeleteBorder = paredSettings.get("synapse_delete_border").getFloat();
-    settings.nodeCooldown = paredSettings.get("node_cooldown").getFloat();
+    settings.neuronCooldown = paredSettings.get("neuron_cooldown").getFloat();
     settings.memorizing = paredSettings.get("memorizing").getFloat();
     settings.gliaValue = paredSettings.get("glia_value").getFloat();
     settings.maxSynapseSegmentation = paredSettings.get("max_synapse_segmentation").getFloat();
@@ -271,7 +271,7 @@ DynamicSegment::initSettings(const JsonItem &parsedContent)
  * @brief create new segment-header with size and position information
  *
  * @param numberOfBricks number of bricks
- * @param numberOfNodes number of nodes
+ * @param numberOfNeurons number of neurons
  * @param numberOfSynapseSections number of synapse-sections
  * @param borderbufferSize size of border-buffer
  *
@@ -279,7 +279,7 @@ DynamicSegment::initSettings(const JsonItem &parsedContent)
  */
 SegmentHeader
 DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
-                                const uint32_t numberOfNodes,
+                                const uint32_t numberOfNeurons,
                                 const uint64_t numberOfSynapseSections,
                                 const uint64_t borderbufferSize)
 {
@@ -297,10 +297,10 @@ DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
     segmentHeader.brickOrder.bytePos = segmentDataPos;
     segmentDataPos += numberOfBricks * sizeof(uint32_t);
 
-    // init nodes
-    segmentHeader.nodes.count = numberOfNodes;
-    segmentHeader.nodes.bytePos = segmentDataPos;
-    segmentDataPos += numberOfNodes * sizeof(DynamicNode);
+    // init neurons
+    segmentHeader.neurons.count = numberOfNeurons;
+    segmentHeader.neurons.bytePos = segmentDataPos;
+    segmentDataPos += numberOfNeurons * sizeof(DynamicNeuron);
 
     segmentHeader.staticDataSize = segmentDataPos;
 
@@ -347,8 +347,8 @@ DynamicSegment::initSegmentPointer(const SegmentHeader &header)
     pos = segmentHeader->brickOrder.bytePos;
     brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
 
-    pos = segmentHeader->nodes.bytePos;
-    nodes = reinterpret_cast<DynamicNode*>(dataPtr + pos);
+    pos = segmentHeader->neurons.bytePos;
+    neurons = reinterpret_cast<DynamicNeuron*>(dataPtr + pos);
 
     dataPtr = static_cast<uint8_t*>(segmentData.itemData);
     pos = segmentHeader->synapseSections.bytePos;
@@ -386,9 +386,9 @@ DynamicSegment::initDefaultValues()
         brickOrder[i] = i;
     }
 
-    // init nodes
-    for(uint32_t i = 0; i < segmentHeader->nodes.count; i++) {
-        nodes[i] = DynamicNode();
+    // init neurons
+    for(uint32_t i = 0; i < segmentHeader->neurons.count; i++) {
+        neurons[i] = DynamicNeuron();
     }
 }
 
@@ -419,7 +419,7 @@ DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
 
     // convert other values
     newBrick.brickPos = convertPosition(brickDef);
-    newBrick.numberOfNodes = brickDef.get("number_of_nodes").getInt();
+    newBrick.numberOfNeurons = brickDef.get("number_of_neurons").getInt();
     for(uint8_t side = 0; side < 12; side++) {
         newBrick.neighbors[side] = UNINIT_STATE_32;
     }
@@ -435,26 +435,26 @@ DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
 void
 DynamicSegment::addBricksToSegment(const JsonItem &metaBase)
 {
-    uint32_t nodeBrickIdCounter = 0;
-    uint32_t nodePosCounter = 0;
+    uint32_t neuronBrickIdCounter = 0;
+    uint32_t neuronPosCounter = 0;
     const JsonItem brickDef = metaBase.get("bricks");
 
     for(uint32_t i = 0; i < brickDef.size(); i++)
     {
         Brick newBrick = createNewBrick(brickDef.get(i), i);
 
-        // handle node-brick
-        newBrick.nodePos = nodePosCounter;
+        // handle neuron-brick
+        newBrick.neuronPos = neuronPosCounter;
 
-        for(uint32_t j = 0; j < newBrick.numberOfNodes; j++) {
-            nodes[j + nodePosCounter].brickId = newBrick.brickId;
+        for(uint32_t j = 0; j < newBrick.numberOfNeurons; j++) {
+            neurons[j + neuronPosCounter].brickId = newBrick.brickId;
         }
 
         // copy new brick to segment
-        bricks[nodeBrickIdCounter] = newBrick;
-        assert(nodeBrickIdCounter == newBrick.brickId);
-        nodeBrickIdCounter++;
-        nodePosCounter += newBrick.numberOfNodes;
+        bricks[neuronBrickIdCounter] = newBrick;
+        assert(neuronBrickIdCounter == newBrick.brickId);
+        neuronBrickIdCounter++;
+        neuronPosCounter += newBrick.numberOfNeurons;
     }
 
     return;
@@ -572,7 +572,7 @@ DynamicSegment::initTargetBrickList()
                 LOG_WARNING("brick has no next brick and is a dead-end. Brick-ID: "
                             + std::to_string(brickId));
             }
-            baseBrick->possibleTargetNodeBrickIds[counter] = brickId;
+            baseBrick->possibleTargetNeuronBrickIds[counter] = brickId;
         }
     }
 
@@ -602,10 +602,10 @@ DynamicSegment::initSlots(const JsonItem &segmentTemplate)
             continue;
         }
 
-        const uint32_t numberOfNodes = brick.get("number_of_nodes").getInt();
+        const uint32_t numberOfNeurons = brick.get("number_of_neurons").getInt();
         SegmentSlot* currentSlot = &segmentSlots->slots[slotCounter];
         currentSlot->setName(brick.get("name").getString());
-        currentSlot->numberOfNodes = numberOfNodes;
+        currentSlot->numberOfNeurons = numberOfNeurons;
         currentSlot->inputTransferBufferPos = posCounter;
         currentSlot->outputTransferBufferPos = posCounter;
 
@@ -617,7 +617,7 @@ DynamicSegment::initSlots(const JsonItem &segmentTemplate)
 
         // update total position pointer, because all border-buffers are in the same blog
         // beside each other
-        posCounter += numberOfNodes;
+        posCounter += numberOfNeurons;
         slotCounter++;
     }
 

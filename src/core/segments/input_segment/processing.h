@@ -32,25 +32,25 @@
 #include "input_segment.h"
 
 /**
- * @brief process all nodes within a specific brick and also all synapse-sections,
- *        which are connected to an active node
+ * @brief process all neurons within a specific brick and also all synapse-sections,
+ *        which are connected to an active neuron
  *
  * @param segment input-segment to process
  */
 void
 prcessInputSegment(const InputSegment &segment)
 {
-    InputNode* node = nullptr;
+    InputNeuron* neuron = nullptr;
     const uint64_t numberOfInputs = segment.segmentHeader->inputs.count;
     float* outputTransfers = segment.outputTransfers;
 
     for(uint64_t pos = 0; pos < numberOfInputs; pos++)
     {
-        node = &segment.inputs[pos];
-        if(node->weight > node->maxWeight) {
-            node->maxWeight = node->weight;
+        neuron = &segment.inputs[pos];
+        if(neuron->weight > neuron->maxWeight) {
+            neuron->maxWeight = neuron->weight;
         }
-        outputTransfers[node->targetBorderId] = node->weight;
+        outputTransfers[neuron->targetBorderId] = neuron->weight;
     }
 }
 

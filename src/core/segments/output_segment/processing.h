@@ -47,17 +47,17 @@ getHighestOutput(const OutputSegment &segment)
 {
     float hightest = -0.1f;
     uint32_t hightestPos = 0;
-    OutputNode* out = nullptr;
+    OutputNeuron* out = nullptr;
 
-    for(uint32_t outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
+    for(uint32_t outputNeuronId = 0;
+        outputNeuronId < segment.segmentHeader->outputs.count;
+        outputNeuronId++)
     {
-        out = &segment.outputs[outputNodeId];
+        out = &segment.outputs[outputNeuronId];
         if(out->outputWeight > hightest)
         {
             hightest = out->outputWeight;
-            hightestPos = outputNodeId;
+            hightestPos = outputNeuronId;
         }
     }
 
@@ -65,29 +65,29 @@ getHighestOutput(const OutputSegment &segment)
 }
 
 /**
- * @brief process all nodes within a specific brick and also all synapse-sections,
- *        which are connected to an active node
+ * @brief process all neurons within a specific brick and also all synapse-sections,
+ *        which are connected to an active neuron
  *
  * @param segment segment to process
  */
 inline void
 prcessOutputSegment(const OutputSegment &segment)
 {
-    OutputNode* node = nullptr;
+    OutputNeuron* neuron = nullptr;
 
     float* inputTransfers = segment.inputTransfers;
-    for(uint64_t outputNodeId = 0;
-        outputNodeId < segment.segmentHeader->outputs.count;
-        outputNodeId++)
+    for(uint64_t outputNeuronId = 0;
+        outputNeuronId < segment.segmentHeader->outputs.count;
+        outputNeuronId++)
     {
-        node = &segment.outputs[outputNodeId];
-        if(node->shouldValue > node->maxWeight) {
-            node->maxWeight = node->shouldValue;
+        neuron = &segment.outputs[outputNeuronId];
+        if(neuron->shouldValue > neuron->maxWeight) {
+            neuron->maxWeight = neuron->shouldValue;
         }
 
-        node->outputWeight = inputTransfers[node->targetBorderId];
-        node->outputWeight = 1.0f / (1.0f + exp(-1.0f * node->outputWeight));
-        node->shouldValue /= node->maxWeight;
+        neuron->outputWeight = inputTransfers[neuron->targetBorderId];
+        neuron->outputWeight = 1.0f / (1.0f + exp(-1.0f * neuron->outputWeight));
+        neuron->shouldValue /= neuron->maxWeight;
     }
 
     // send output back if a client-connection is set

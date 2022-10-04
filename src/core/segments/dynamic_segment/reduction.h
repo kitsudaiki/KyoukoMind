@@ -66,14 +66,14 @@ reduceSynapses(DynamicSegment &segment,
     {
         // skip not connected synapses
         synapse = &section.synapses[pos];
-        if(synapse->targetNodeId == UNINIT_STATE_16) {
+        if(synapse->targetNeuronId == UNINIT_STATE_16) {
             continue;
         }
 
         synapse->activeCounter -= synapse->activeCounter < 100;
-        synapse->targetNodeId = synapse->targetNodeId * (synapse->activeCounter >= 2);
-        if(synapse->targetNodeId == 0) {
-            synapse->targetNodeId = UNINIT_STATE_16;
+        synapse->targetNeuronId = synapse->targetNeuronId * (synapse->activeCounter >= 2);
+        if(synapse->targetNeuronId == 0) {
+            synapse->targetNeuronId = UNINIT_STATE_16;
         } else {
             foundEnd = true;
         }
@@ -88,28 +88,28 @@ reduceSynapses(DynamicSegment &segment,
  * @param segment current segemnt to process
  */
 inline void
-reduceNodes(DynamicSegment &segment)
+reduceNeurons(DynamicSegment &segment)
 {
     SynapseSection* section = nullptr;
-    DynamicNode* sourceNode = nullptr;
+    DynamicNeuron* sourceNeuron = nullptr;
 
-    for(uint32_t nodeId = 0;
-        nodeId < segment.segmentHeader->nodes.count;
-        nodeId++)
+    for(uint32_t neuronId = 0;
+        neuronId < segment.segmentHeader->neurons.count;
+        neuronId++)
     {
-        sourceNode = &segment.nodes[nodeId];
-        if(sourceNode->targetSectionId == UNINIT_STATE_32) {
+        sourceNeuron = &segment.neurons[neuronId];
+        if(sourceNeuron->targetSectionId == UNINIT_STATE_32) {
             continue;
         }
 
         // set start-values
-        section = &segment.synapseSections[sourceNode->targetSectionId];
+        section = &segment.synapseSections[sourceNeuron->targetSectionId];
 
         // delete if sections is empty
         if(reduceSynapses(segment, *section) == false)
         {
-            segment.segmentData.deleteItem(sourceNode->targetSectionId);
-            sourceNode->targetSectionId = UNINIT_STATE_32;
+            segment.segmentData.deleteItem(sourceNeuron->targetSectionId);
+            sourceNeuron->targetSectionId = UNINIT_STATE_32;
         }
     }
 }

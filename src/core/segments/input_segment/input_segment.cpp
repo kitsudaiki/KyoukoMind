@@ -58,7 +58,7 @@ InputSegment::~InputSegment() {}
 bool
 InputSegment::initSegment(const JsonItem &segmentTemplate, const std::string &name)
 {
-    const uint32_t numberOfInputs = segmentTemplate.get("number_of_nodes").getInt();
+    const uint32_t numberOfInputs = segmentTemplate.get("number_of_neurons").getInt();
     const uint32_t totalBorderSize = numberOfInputs;
 
     SegmentHeader header = createNewHeader(numberOfInputs, totalBorderSize);
@@ -110,8 +110,8 @@ InputSegment::reinitPointer(const uint64_t numberOfBytes)
     byteCounter += segmentHeader->outputTransfers.count * sizeof(float);
 
     pos = segmentHeader->inputs.bytePos;
-    inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
-    byteCounter += segmentHeader->inputs.count * sizeof(InputNode);
+    inputs = reinterpret_cast<InputNeuron*>(dataPtr + pos);
+    byteCounter += segmentHeader->inputs.count * sizeof(InputNeuron);
 
     // check result
     if(byteCounter != numberOfBytes) {
@@ -131,7 +131,7 @@ InputSegment::connectBorderBuffer()
 {
     for(uint32_t i = 0; i < segmentHeader->inputs.count; i++)
     {
-        inputs[i] = InputNode();
+        inputs[i] = InputNeuron();
         inputs[i].targetBorderId = i;
     }
 
@@ -157,7 +157,7 @@ InputSegment::createNewHeader(const uint32_t numberOfInputs,
     // init bricks
     segmentHeader.inputs.count = numberOfInputs;
     segmentHeader.inputs.bytePos = segmentDataPos;
-    segmentDataPos += numberOfInputs * sizeof(InputNode);
+    segmentDataPos += numberOfInputs * sizeof(InputNeuron);
 
     segmentHeader.staticDataSize = segmentDataPos;
 
@@ -194,7 +194,7 @@ InputSegment::initSegmentPointer(const SegmentHeader &header)
     outputTransfers = reinterpret_cast<float*>(dataPtr + pos);
 
     pos = segmentHeader->inputs.bytePos;
-    inputs = reinterpret_cast<InputNode*>(dataPtr + pos);
+    inputs = reinterpret_cast<InputNeuron*>(dataPtr + pos);
 }
 
 /**
@@ -228,7 +228,7 @@ InputSegment::initSlots(const uint32_t numberOfInputs)
         SegmentSlot* currentSlot = &segmentSlots->slots[i];
         currentSlot->setName("output");
         currentSlot->inUse = false;
-        currentSlot->numberOfNodes = size;
+        currentSlot->numberOfNeurons = size;
         currentSlot->inputTransferBufferPos = 0;
         currentSlot->outputTransferBufferPos = 0;
         currentSlot->direction = OUTPUT_DIRECTION;

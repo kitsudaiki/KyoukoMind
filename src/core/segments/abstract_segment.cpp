@@ -143,10 +143,10 @@ AbstractSegment::finishSegment()
             targetBuffer = &targetSegment->inputTransfers[targetBufferPos];
             memcpy(targetBuffer,
                    sourceBuffer,
-                   segmentSlots->slots[i].numberOfNodes * sizeof(float));
+                   segmentSlots->slots[i].numberOfNeurons * sizeof(float));
             memset(sourceBuffer,
                    0,
-                   segmentSlots->slots[i].numberOfNodes * sizeof(float));
+                   segmentSlots->slots[i].numberOfNeurons * sizeof(float));
 
             // mark the target as ready for processing
             targetSegment->segmentSlots->slots[targetSide].inputReady = true;

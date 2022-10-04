@@ -62,15 +62,15 @@ TableLearnForward_State::processEvent()
     }
 
     // set input
-    InputNode* inputNodes = m_cluster->inputSegments.begin()->second->inputs;
+    InputNeuron* inputNeurons = m_cluster->inputSegments.begin()->second->inputs;
     for(uint64_t i = 0; i < numberOfInputsPerCycle; i++) {
-        inputNodes[i].weight = actualTask->inputData[(offset - numberOfInputsPerCycle) + i];
+        inputNeurons[i].weight = actualTask->inputData[(offset - numberOfInputsPerCycle) + i];
     }
 
     // set exprected output
-    OutputNode* outputNodes = m_cluster->outputSegments.begin()->second->outputs;
+    OutputNeuron* outputNeurons = m_cluster->outputSegments.begin()->second->outputs;
     for(uint64_t i = 0; i < numberOfOuputsPerCycle; i++) {
-        outputNodes[i].shouldValue = actualTask->outputData[(offset - numberOfOuputsPerCycle) + i];
+        outputNeurons[i].shouldValue = actualTask->outputData[(offset - numberOfOuputsPerCycle) + i];
     }
 
     m_cluster->mode = Cluster::LEARN_FORWARD_MODE;

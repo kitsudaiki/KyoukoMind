@@ -58,17 +58,17 @@ ImageLearnForward_State::processEvent()
     const uint64_t offsetInput = entriesPerCycle * actualTask->actualCycle;
 
     // set input
-    InputNode* inputNodes = m_cluster->inputSegments.begin()->second->inputs;
+    InputNeuron* inputNeurons = m_cluster->inputSegments.begin()->second->inputs;
     for(uint64_t i = 0; i < numberOfInputsPerCycle; i++) {
-        inputNodes[i].weight = actualTask->inputData[offsetInput + i];
+        inputNeurons[i].weight = actualTask->inputData[offsetInput + i];
     }
 
     // set exprected output
-    OutputNode* outputNodes = m_cluster->outputSegments.begin()->second->outputs;
+    OutputNeuron* outputNeurons = m_cluster->outputSegments.begin()->second->outputs;
     for(uint64_t i = 0; i < numberOfOuputsPerCycle; i++)
     {
         const uint64_t numberOfCycles = numberOfInputsPerCycle;
-        outputNodes[i].shouldValue = actualTask->inputData[offsetInput + numberOfCycles + i];
+        outputNeurons[i].shouldValue = actualTask->inputData[offsetInput + numberOfCycles + i];
     }
 
     m_cluster->mode = Cluster::LEARN_FORWARD_MODE;
