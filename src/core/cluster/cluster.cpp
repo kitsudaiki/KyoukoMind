@@ -484,7 +484,7 @@ Cluster::addTableRequestTask(const std::string &name,
     newTask.projectId = projectId;
     newTask.inputData = inputData;
     newTask.resultData = new DataArray();
-    for(uint64_t i = 0; i < numberOfOutputs + numberOfCycle; i++) {
+    for(uint64_t i = 0; i < numberOfCycle; i++) {
         newTask.resultData->append(new DataValue(0.0f));
     }
     newTask.type = TABLE_REQUEST_TASK;
