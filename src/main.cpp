@@ -28,6 +28,8 @@
 #include <core/callbacks.h>
 #include <callbacks.h>
 
+#include <libAzukiHeart/azuki_send.h>
+
 #include <api/blossom_initializing.h>
 
 #include <libKitsunemimiArgs/arg_parser.h>
@@ -74,7 +76,7 @@ main(int argc, char *argv[])
     rootObj.initThreads();
 
     // initialize server and connections based on the config-file
-    const std::vector<std::string> groupNames = {"misaki", "shiori"};
+    const std::vector<std::string> groupNames = {"misaki", "shiori", "azuki"};
     if(HanamiMessaging::getInstance()->initialize("kyouko",
                                                   groupNames,
                                                   nullptr,
@@ -86,6 +88,8 @@ main(int argc, char *argv[])
         LOG_ERROR(error);
         return 1;
     }
+
+    Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
 
     // init internal token for access to other components
     std::string token = "";
