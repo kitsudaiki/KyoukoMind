@@ -94,7 +94,7 @@ struct DynamicSegmentSettings
     float gliaValue = 1.0f;
     float signNeg = 0.6f;
     float potentialOverflow = 20.0f;
-    float maxSynapseSegmentation = 10.0f;
+    float synapseSegmentation = 10.0f;
     float backpropagationBorder = 0.00001f;
     uint8_t refractionTime = 1;
     uint8_t doLearn = 0;

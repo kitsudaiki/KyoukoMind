@@ -86,7 +86,7 @@ public:
     Cluster::Settings* networkSettings = nullptr;
     std::map<std::string, InputSegment*> inputSegments;
     std::map<std::string, OutputSegment*> outputSegments;
-    std::map<std::string, AbstractSegment*> internalSegments;
+    std::map<std::string, AbstractSegment*> coreSegments;
     std::vector<AbstractSegment*> allSegments;
 
     const std::string getUuid();

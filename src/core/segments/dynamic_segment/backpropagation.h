@@ -125,7 +125,7 @@ backpropagateSection(SynapseSection* section,
         learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0002f;
         learnValue += 0.025f;
         sourceNeuron->delta += segment.neurons[synapse->targetNeuronId].delta * synapse->weight;
-        synapse->weight -= learnValue * segment.neurons[synapse->targetNeuronId].delta * outH;
+        synapse->weight -= learnValue * segment.neurons[synapse->targetNeuronId].delta;
 
         netH -= synapse->border;
         pos++;

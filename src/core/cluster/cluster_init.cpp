@@ -284,7 +284,7 @@ addDynamicSegment(Cluster* cluster,
     if(newSegment->initSegment(segmentTemplate,
                                clusterTemplatePart.get("name").getString()))
     {
-        cluster->internalSegments.insert(std::make_pair(name, newSegment));
+        cluster->coreSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
     }
     else

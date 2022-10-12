@@ -26,6 +26,7 @@
 #include <core/cluster/statemachine_init.h>
 
 #include <libShioriArchive/other.h>
+#include <libAzukiHeart/azuki_send.h>
 
 /**
  * @brief constructor
@@ -55,84 +56,95 @@ TaskHandle_State::processEvent()
     const bool hasNextState = getNextTask();
     m_task_mutex.unlock();
 
-    if(hasNextState)
+    // handle empty queue
+    if(hasNextState == false)
+    {   
+        Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+        return true;
+    }
+
+    switch(actualTask->type)
     {
-        switch(actualTask->type)
+        case IMAGE_LEARN_TASK:
         {
-            case IMAGE_LEARN_TASK:
-            {
-                if(m_cluster->goToNextState(LEARN)) {
-                    m_cluster->goToNextState(IMAGE);
-                } else {
-                    // TODO: error-message
-                    return false;
-                }
-                break;
-            }
-            case IMAGE_REQUEST_TASK:
-            {
-                if(m_cluster->goToNextState(REQUEST)) {
-                    m_cluster->goToNextState(IMAGE);
-                } else {
-                    // TODO: error-message
-                    return false;
-                }
-                break;
-            }
-            case TABLE_LEARN_TASK:
-            {
-                if(m_cluster->goToNextState(LEARN)) {
-                    m_cluster->goToNextState(TABLE);
-                } else {
-                    // TODO: error-message
-                    return false;
-                }
-                break;
-            }
-            case TABLE_REQUEST_TASK:
-            {
-                if(m_cluster->goToNextState(REQUEST)) {
-                    m_cluster->goToNextState(TABLE);
-                } else {
-                    // TODO: error-message
-                    return false;
-                }
-                break;
-            }
-            case CLUSTER_SNAPSHOT_SAVE_TASK:
-            {
-                if(m_cluster->goToNextState(SNAPSHOT)) {
-                    if(m_cluster->goToNextState(CLUSTER)) {
-                        m_cluster->goToNextState(SAVE);
-                    } else {
-                        // TODO: error-message
-                        return false;
-                    }
-                } else {
-                    // TODO: error-message
-                    return false;
-                }
-                break;
-            }
-            case CLUSTER_SNAPSHOT_RESTORE_TASK:
-            {
-                if(m_cluster->goToNextState(SNAPSHOT)) {
-                    if(m_cluster->goToNextState(CLUSTER)) {
-                        m_cluster->goToNextState(RESTORE);
-                    } else {
-                        // TODO: error-message
-                        return false;
-                    }
-                } else {
-                    // TODO: error-message
-                    return false;
-                }
-                break;
-            }
-            default: {
+            if(m_cluster->goToNextState(LEARN)) {
+                m_cluster->goToNextState(IMAGE);
+                Azuki::sendSetCpuSpeedMessage(Azuki::AUTOMATIC_SPEED);
+            } else {
                 // TODO: error-message
                 return false;
             }
+            break;
+        }
+        case IMAGE_REQUEST_TASK:
+        {
+            if(m_cluster->goToNextState(REQUEST)) {
+                m_cluster->goToNextState(IMAGE);
+                Azuki::sendSetCpuSpeedMessage(Azuki::AUTOMATIC_SPEED);
+            } else {
+                // TODO: error-message
+                return false;
+            }
+            break;
+        }
+        case TABLE_LEARN_TASK:
+        {
+            if(m_cluster->goToNextState(LEARN)) {
+                m_cluster->goToNextState(TABLE);
+                Azuki::sendSetCpuSpeedMessage(Azuki::AUTOMATIC_SPEED);
+            } else {
+                // TODO: error-message
+                return false;
+            }
+            break;
+        }
+        case TABLE_REQUEST_TASK:
+        {
+            if(m_cluster->goToNextState(REQUEST)) {
+                m_cluster->goToNextState(TABLE);
+                Azuki::sendSetCpuSpeedMessage(Azuki::AUTOMATIC_SPEED);
+            } else {
+                // TODO: error-message
+                return false;
+            }
+            break;
+        }
+        case CLUSTER_SNAPSHOT_SAVE_TASK:
+        {
+            if(m_cluster->goToNextState(SNAPSHOT)) {
+                if(m_cluster->goToNextState(CLUSTER)) {
+                    m_cluster->goToNextState(SAVE);
+                    Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+                } else {
+                    // TODO: error-message
+                    return false;
+                }
+            } else {
+                // TODO: error-message
+                return false;
+            }
+            break;
+        }
+        case CLUSTER_SNAPSHOT_RESTORE_TASK:
+        {
+            if(m_cluster->goToNextState(SNAPSHOT)) {
+                if(m_cluster->goToNextState(CLUSTER)) {
+                    m_cluster->goToNextState(RESTORE);
+                    Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+                } else {
+                    // TODO: error-message
+                    return false;
+                }
+            } else {
+                // TODO: error-message
+                return false;
+            }
+            break;
+        }
+        default: {
+            // TODO: error-message
+            Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+            return false;
         }
     }
 

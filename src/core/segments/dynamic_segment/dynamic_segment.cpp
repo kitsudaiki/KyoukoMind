@@ -258,7 +258,7 @@ DynamicSegment::initSettings(const JsonItem &parsedContent)
     settings.neuronCooldown = paredSettings.get("neuron_cooldown").getFloat();
     settings.memorizing = paredSettings.get("memorizing").getFloat();
     settings.gliaValue = paredSettings.get("glia_value").getFloat();
-    settings.maxSynapseSegmentation = paredSettings.get("max_synapse_segmentation").getFloat();
+    settings.synapseSegmentation = paredSettings.get("max_synapse_segmentation").getFloat();
     settings.refractionTime = paredSettings.get("refraction_time").getInt();
     settings.signNeg = paredSettings.get("sign_neg").getFloat();
     settings.potentialOverflow = paredSettings.get("potential_overflow").getFloat();

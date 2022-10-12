@@ -76,7 +76,7 @@ createNewSynapse(SynapseSection &section,
     uint32_t signRand = 0;
     const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
-    const float maxWeight = outH / static_cast<float>(segmentSettings.maxSynapseSegmentation);
+    const float maxWeight = outH / static_cast<float>(segmentSettings.synapseSegmentation);
 
     // set activation-border
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
