@@ -101,7 +101,6 @@ createNewSynapse(SynapseSection &section,
 
     synapse->targetNeuronId = static_cast<uint16_t>(targetNeuronIdInBrick + targetBrick->neuronPos);
     synapse->activeCounter = 1;
-    section.updated = 1;
 }
 
 /**
@@ -124,7 +123,6 @@ synapseProcessing(SynapseSection &section,
     Synapse* synapse = nullptr;
     DynamicNeuron* targetNeuron = nullptr;
     Synapse synapseObj;
-    section.updated = 0;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -165,6 +163,35 @@ synapseProcessing(SynapseSection &section,
 }
 
 /**
+ * @brief check the load on the section. If it would tigger not enough synapses inside the section
+ *        then it is no good trained and should be cleared to try it again.
+ *
+ * @param section current processed synapse-section
+ * @param netH wight-value, which comes into the section
+ */
+inline void
+synapsePreprocessing(SynapseSection &section,
+                     float netH)
+{
+    uint32_t pos = 0;
+
+    // in case there are not enough interaction, delete section an try it again
+    while(pos < SYNAPSES_PER_SYNAPSESECTION
+          && netH > 0.0f)
+    {
+        netH -= section.synapses[pos].border;
+        pos++;
+    }
+
+    if(pos < 2)
+    {
+        for(uint16_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++) {
+            section.synapses[i].targetNeuronId = UNINIT_STATE_16;
+        }
+    }
+}
+
+/**
  * @brief process synapse-section
  *
  * @param section current processed synapse-section
@@ -184,8 +211,9 @@ synapseProcessing_withLearn(SynapseSection &section,
     Synapse* synapse = nullptr;
     DynamicNeuron* targetNeuron = nullptr;
     Synapse synapseObj;
-    section.updated = 0;
     uint8_t active = 0;
+
+    synapsePreprocessing(section, netH);
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -262,7 +290,7 @@ synapseProcessing_withLearn(SynapseSection &section,
  */
 inline void
 processSingleNeuron(DynamicNeuron* neuron,
-                  DynamicSegment &segment)
+                    DynamicSegment &segment)
 {
     // handle active-state
     if(neuron->active == 0) {

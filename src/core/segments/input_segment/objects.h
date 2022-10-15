@@ -30,8 +30,7 @@ struct InputNeuron
     float weight = 0.0f;
     uint32_t targetBorderId = 0;
 
-    float maxWeight = 0.000001f;
-    uint8_t padding[4];
+    uint8_t padding[8];
 
     // total size: 16 Byte
 };

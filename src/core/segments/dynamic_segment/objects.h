@@ -64,8 +64,7 @@ struct Synapse
 struct SynapseSection
 {
     uint8_t active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-    uint8_t updated = 0;
-    uint8_t padding[2];
+    uint8_t padding[3];
     uint32_t randomPos = 0;
 
     uint32_t brickBufferPos = UNINIT_STATE_32;
@@ -93,7 +92,7 @@ struct DynamicSegmentSettings
     float memorizing = 0.1f;
     float gliaValue = 1.0f;
     float signNeg = 0.6f;
-    float potentialOverflow = 20.0f;
+    float potentialOverflow = 1.0f;
     float synapseSegmentation = 10.0f;
     float backpropagationBorder = 0.00001f;
     uint8_t refractionTime = 1;

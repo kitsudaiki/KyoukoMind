@@ -47,9 +47,6 @@ prcessInputSegment(const InputSegment &segment)
     for(uint64_t pos = 0; pos < numberOfInputs; pos++)
     {
         neuron = &segment.inputs[pos];
-        if(neuron->weight > neuron->maxWeight) {
-            neuron->maxWeight = neuron->weight;
-        }
         outputTransfers[neuron->targetBorderId] = neuron->weight;
     }
 }
