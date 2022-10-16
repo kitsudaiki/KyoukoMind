@@ -213,7 +213,7 @@ synapseProcessing_withLearn(SynapseSection &section,
     Synapse synapseObj;
     uint8_t active = 0;
 
-    synapsePreprocessing(section, netH);
+    //synapsePreprocessing(section, netH);
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
