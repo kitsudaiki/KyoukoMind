@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.9.0] - 2022-10-17
+
+### Added
+- names to input- and output-segments
+- allow protobuf-messages for direct-io
+- list- and delete-endpoints for tasks
+
+### Chnaged
+- rework cluster-initializing for more flexibility for the neighbor-connections
+- cluster-templates now only temporary while creation
+- pack user-information into structs
+- renamings coming from dependencies
+- change visibility-identification in database form int to string
+- border-values of synapses from 8-bit-int to float
+- move cluster-metadata into cluster-class
+- renamed graph-tasks to table-tasks
+- renamed nodes to neurons
+
+### Removed
+- removed upper size-limitation for input-values
+- results of table-request-tasks had too much values (all 0)
+
+
+### Fixed
+- fixed low performance of learning over direct-io
+
+
 ## [0.8.1] - 2022-07-02
 
 ### Changed
@@ -105,7 +132,7 @@
 
 ### Added
 - PoC-state:
-    - this is basically the PoC-state with tcp-connection to ToriiGateway/KistuneClien/MiyuMonitoring
+    - this is basically the first PoC-state from febrary additional with tcp-connection to ToriiGateway/KistuneClient/MiyuMonitoring
     - its primary to have a consistent tagged state which is linked against tagged versions of kitsune-repos
     - at the moment it can only learn simple outputs and is still really static
 
