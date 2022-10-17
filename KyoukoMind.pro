@@ -19,11 +19,6 @@ LIBS += -L../libMisakiGuard/src/debug -lMisakiGuard
 LIBS += -L../libMisakiGuard/src/release -lMisakiGuard
 INCLUDEPATH += ../libMisakiGuard/include
 
-LIBS += -L../libHanamiAiSdk/src -lKitsumiAiSdk
-LIBS += -L../libHanamiAiSdk/src/debug -lKitsumiAiSdk
-LIBS += -L../libHanamiAiSdk/src/release -lKitsumiAiSdk
-INCLUDEPATH += ../libHanamiAiSdk/cpp/include
-
 LIBS += -L../libKitsunemimiHanamiNetwork/src -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiMessaging
 LIBS += -L../libKitsunemimiHanamiNetwork/src/release -lKitsunemimiHanamiMessaging
