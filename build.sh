@@ -73,35 +73,6 @@ function download_repo_github () {
 }
 
 #-----------------------------------------------------------------------------------------------------------------
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.27.1" 8
-get_required_kitsune_lib_repo "libKitsunemimiJson" "v0.12.0" 1
-get_required_kitsune_lib_repo "libKitsunemimiJinja2" "v0.10.0" 1
-get_required_kitsune_lib_repo "libKitsunemimiIni" "v0.6.0" 1
-get_required_kitsune_lib_repo "libKitsunemimiNetwork" "v0.9.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiArgs" "v0.5.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiConfig" "v0.5.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiCrypto" "v0.3.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiJwt" "v0.5.1" 8
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_kitsune_lib_repo "libKitsunemimiSakuraNetwork" "v0.9.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiSakuraLang" "v0.13.0" 1
-echo ""
-echo "###########################################################################################################"
-echo ""
-get_required_kitsune_lib_repo "libKitsunemimiHanamiCommon" "v0.3.0" 8
-get_required_kitsune_lib_repo "libKitsunemimiHanamiEndpoints" "v0.2.0" 1
-get_required_kitsune_lib_repo "libKitsunemimiHanamiNetwork" "v0.5.0" 8
-download_repo_github "libKitsunemimiHanamiMessages" "v0.1.0"
-echo ""
-echo "###########################################################################################################"
-
-
-
 echo "###########################################################################################################"
 echo ""
 get_required_kitsune_lib_repo "libKitsunemimiCommon" "v0.27.1" 8
