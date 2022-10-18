@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.1] - 2022-10-18
+
+### Fixed
+- disabled additional debug-output
+
+
 ## [0.9.0] - 2022-10-17
 
 ### Added
