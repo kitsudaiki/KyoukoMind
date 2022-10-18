@@ -64,7 +64,7 @@ CycleFinish_State::processEvent()
     if(actualTask->actualCycle == numberOfCycles) {
         m_cluster->goToNextState(FINISH_TASK);
 
-        DynamicSegment* segment = static_cast<DynamicSegment*>(m_cluster->coreSegments.begin()->second);
+        /*DynamicSegment* segment = static_cast<DynamicSegment*>(m_cluster->coreSegments.begin()->second);
         u_int64_t counter = 0;
         for(uint64_t i = 0; i < segment->segmentHeader->synapseSections.count; i++) {
             for(uint64_t j = 0; j < SYNAPSES_PER_SYNAPSESECTION; j++) {
@@ -73,7 +73,7 @@ CycleFinish_State::processEvent()
         }
         std::cout<<"============================================"<<std::endl;
         std::cout<<counter<<std::endl;
-        std::cout<<"============================================"<<std::endl;
+        std::cout<<"============================================"<<std::endl;*/
     } else {
         m_cluster->goToNextState(NEXT);
     }
