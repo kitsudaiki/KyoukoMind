@@ -30,16 +30,13 @@
 #include <core/cluster/statemachine_init.h>
 
 #include <core/cluster/states/task_handle_state.h>
-
 #include <core/processing/segment_queue.h>
 #include <core/segments/output_segment/processing.h>
+#include <io/protobuf_messages.h>
 
 #include <libKitsunemimiCommon/logger.h>
 #include <libKitsunemimiCommon/statemachine.h>
 #include <libKitsunemimiCommon/threading/thread.h>
-
-#include <io/hanami_messages.h>
-#include <io/protobuf_messages.h>
 
 /**
  * @brief constructor
@@ -292,21 +289,10 @@ Cluster::updateClusterState()
     }
 
     // send message, that process was finished
-    if(mode == Cluster::LEARN_BACKWARD_MODE)
-    {
-        if(useProtobuf) {
-            sendProtobufLearnEndMessage(this);
-        } else {
-            sendHanamiLearnEndMessage(this);
-        }
-    }
-    else if(mode == Cluster::NORMAL_MODE)
-    {
-        if(useProtobuf) {
-            sendProtobufNormalEndMessage(this);
-        } else {
-            sendHanamiNormalEndMessage(this);
-        }
+    if(mode == Cluster::LEARN_BACKWARD_MODE) {
+        sendClusterLearnEndMessage(this);
+    } else if(mode == Cluster::NORMAL_MODE) {
+        sendClusterNormalEndMessage(this);
     }
 
     goToNextState(NEXT);

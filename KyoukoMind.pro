@@ -19,9 +19,9 @@ LIBS += -L../libMisakiGuard/src/debug -lMisakiGuard
 LIBS += -L../libMisakiGuard/src/release -lMisakiGuard
 INCLUDEPATH += ../libMisakiGuard/include
 
-LIBS += -L../libKitsunemimiHanamiNetwork/src -lKitsunemimiHanamiMessaging
-LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiMessaging
-LIBS += -L../libKitsunemimiHanamiNetwork/src/release -lKitsunemimiHanamiMessaging
+LIBS += -L../libKitsunemimiHanamiNetwork/src -lKitsunemimiHanamiNetwork
+LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiNetwork
+LIBS += -L../libKitsunemimiHanamiNetwork/src/release -lKitsunemimiHanamiNetwork
 INCLUDEPATH += ../libKitsunemimiHanamiNetwork/include
 
 LIBS += -L../libKitsunemimiHanamiEndpoints/src -lKitsunemimiHanamiEndpoints
@@ -104,7 +104,7 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -pthread -lprotobuf -lpthread
+LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -pthread -lprotobuf
 
 INCLUDEPATH += $$PWD \
                src
@@ -175,10 +175,8 @@ HEADERS += \
     src/core/struct_validation.h \
     src/database/cluster_table.h \
     src/database/template_table.h \
-    src/io/hanami_messages.h \
     src/io/protobuf_messages.h \
-    src/kyouko_root.h \
-    ../libKitsunemimiHanamiMessages/hanami_messages/kyouko_messages.h
+    src/kyouko_root.h
 
 SOURCES += \
     src/api/v1/cluster/create_cluster.cpp \
@@ -222,7 +220,6 @@ SOURCES += \
     src/core/struct_validation.cpp \
     src/database/cluster_table.cpp \
     src/database/template_table.cpp \
-    src/io/hanami_messages.cpp \
     src/io/protobuf_messages.cpp \
     src/kyouko_root.cpp \
     src/main.cpp

@@ -51,6 +51,7 @@ TaskHandle_State::~TaskHandle_State() {}
 bool
 TaskHandle_State::processEvent()
 {
+    Kitsunemimi::ErrorContainer error;
     m_task_mutex.lock();
     finishTask();
     const bool hasNextState = getNextTask();
@@ -59,7 +60,7 @@ TaskHandle_State::processEvent()
     // handle empty queue
     if(hasNextState == false)
     {   
-        Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+        Azuki::setSpeedToMinimum(error);
         return true;
     }
 
@@ -69,7 +70,7 @@ TaskHandle_State::processEvent()
         {
             if(m_cluster->goToNextState(LEARN)) {
                 m_cluster->goToNextState(IMAGE);
-                Azuki::sendSetCpuSpeedMessage(Azuki::AUTOMATIC_SPEED);
+                Azuki::setSpeedToAutomatic(error);
             } else {
                 // TODO: error-message
                 return false;
@@ -80,7 +81,7 @@ TaskHandle_State::processEvent()
         {
             if(m_cluster->goToNextState(REQUEST)) {
                 m_cluster->goToNextState(IMAGE);
-                Azuki::sendSetCpuSpeedMessage(Azuki::AUTOMATIC_SPEED);
+                Azuki::setSpeedToAutomatic(error);
             } else {
                 // TODO: error-message
                 return false;
@@ -91,7 +92,7 @@ TaskHandle_State::processEvent()
         {
             if(m_cluster->goToNextState(LEARN)) {
                 m_cluster->goToNextState(TABLE);
-                Azuki::sendSetCpuSpeedMessage(Azuki::AUTOMATIC_SPEED);
+                Azuki::setSpeedToAutomatic(error);
             } else {
                 // TODO: error-message
                 return false;
@@ -102,7 +103,7 @@ TaskHandle_State::processEvent()
         {
             if(m_cluster->goToNextState(REQUEST)) {
                 m_cluster->goToNextState(TABLE);
-                Azuki::sendSetCpuSpeedMessage(Azuki::AUTOMATIC_SPEED);
+                Azuki::setSpeedToAutomatic(error);
             } else {
                 // TODO: error-message
                 return false;
@@ -114,7 +115,7 @@ TaskHandle_State::processEvent()
             if(m_cluster->goToNextState(SNAPSHOT)) {
                 if(m_cluster->goToNextState(CLUSTER)) {
                     m_cluster->goToNextState(SAVE);
-                    Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+                    Azuki::setSpeedToAutomatic(error);
                 } else {
                     // TODO: error-message
                     return false;
@@ -130,7 +131,7 @@ TaskHandle_State::processEvent()
             if(m_cluster->goToNextState(SNAPSHOT)) {
                 if(m_cluster->goToNextState(CLUSTER)) {
                     m_cluster->goToNextState(RESTORE);
-                    Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+                    Azuki::setSpeedToAutomatic(error);
                 } else {
                     // TODO: error-message
                     return false;
@@ -143,7 +144,7 @@ TaskHandle_State::processEvent()
         }
         default: {
             // TODO: error-message
-            Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+            Azuki::setSpeedToMinimum(error);
             return false;
         }
     }
