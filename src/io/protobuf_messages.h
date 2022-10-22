@@ -25,11 +25,11 @@
 
 #include <core/segments/output_segment/output_segment.h>
 
-void sendProtobufOutputMessage(const OutputSegment &segment);
-void sendProtobufNormalEndMessage(Cluster* cluster);
-void sendProtobufLearnEndMessage(Cluster* cluster);
+void sendClusterOutputMessage(const OutputSegment &segment);
+void sendClusterNormalEndMessage(Cluster* cluster);
+void sendClusterLearnEndMessage(Cluster* cluster);
 
-bool recvProtobufInputMessage(Cluster* cluster,
+bool recvClusterInputMessage(Cluster* cluster,
                               const void* data,
                               const uint64_t dataSize);
 

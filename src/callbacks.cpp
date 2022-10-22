@@ -22,9 +22,7 @@
 
 #include <callbacks.h>
 #include <libKitsunemimiSakuraNetwork/session.h>
-#include <libKitsunemimiHanamiCommon/messages.h>
 
-#include <io/hanami_messages.h>
 #include <io/protobuf_messages.h>
 
 class Cluster;
@@ -43,12 +41,7 @@ streamDataCallback(void* target,
                    const uint64_t dataSize)
 {
     Cluster* cluster = static_cast<Cluster*>(target);
-
-    if(Kitsunemimi::Hanami::isHanamiProtocol(data, dataSize)) {
-        recvHanamiInputMessage(cluster, data, dataSize);
-    } else {
-        recvProtobufInputMessage(cluster, data, dataSize);
-    }
+    recvClusterInputMessage(cluster, data, dataSize);
 
     /**std::cout<<"#################################################"<<std::endl;
     std::cout<<"number of values: "<<msg.numberOfValues<<std::endl;

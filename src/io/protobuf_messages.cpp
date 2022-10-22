@@ -34,7 +34,7 @@
  * @param segment segment, which output-data should send
  */
 void
-sendProtobufOutputMessage(const OutputSegment &segment)
+sendClusterOutputMessage(const OutputSegment &segment)
 {
     if(segment.parentCluster->msgClient == nullptr) {
         return;
@@ -80,7 +80,12 @@ sendProtobufGotInputMessage(Cluster* cluster)
 
     // build message
     ClusterIO_Message msg;
+    msg.set_segmentname("output");
     msg.set_islast(false);
+    msg.set_processtype(ClusterProcessType::LEARN_TYPE);
+    msg.set_datatype(ClusterDataType::SHOULD_TYPE);
+    msg.set_numberofvalues(1);
+    msg.add_values(0.0);
 
     // serialize message
     uint8_t buffer[96*1024];
@@ -89,6 +94,7 @@ sendProtobufGotInputMessage(Cluster* cluster)
     {
         Kitsunemimi::ErrorContainer error;
         error.addMeesage("Failed to serialize request-message");
+        LOG_ERROR(error);
         return;
     }
 
@@ -102,7 +108,7 @@ sendProtobufGotInputMessage(Cluster* cluster)
  * @param cluster
  */
 void
-sendProtobufNormalEndMessage(Cluster* cluster)
+sendClusterNormalEndMessage(Cluster* cluster)
 {
     if(cluster->msgClient == nullptr) {
         return;
@@ -134,7 +140,7 @@ sendProtobufNormalEndMessage(Cluster* cluster)
  * @param cluster
  */
 void
-sendProtobufLearnEndMessage(Cluster* cluster)
+sendClusterLearnEndMessage(Cluster* cluster)
 {
     if(cluster->msgClient == nullptr) {
         return;
@@ -171,7 +177,7 @@ sendProtobufLearnEndMessage(Cluster* cluster)
  * @return false, if message is broken, else true
  */
 bool
-recvProtobufInputMessage(Cluster* cluster,
+recvClusterInputMessage(Cluster* cluster,
                          const void* data,
                          const uint64_t dataSize)
 {
@@ -210,9 +216,6 @@ recvProtobufInputMessage(Cluster* cluster,
             }
         }
     }
-
-    // mark that a protobuf-response is required
-    cluster->useProtobuf = true;
 
     if(msg.islast())
     {

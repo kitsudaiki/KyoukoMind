@@ -89,7 +89,7 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    Azuki::sendSetCpuSpeedMessage(Azuki::MINIMUM_SPEED);
+    Azuki::setSpeedToMinimum(error);
 
     // init internal token for access to other components
     std::string token = "";

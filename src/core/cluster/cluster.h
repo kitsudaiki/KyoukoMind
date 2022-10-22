@@ -155,7 +155,6 @@ public:
 
     uint32_t segmentCounter = 0;
     ClusterProcessingMode mode = NORMAL_MODE;
-    bool useProtobuf = false;
     Kitsunemimi::Hanami::HanamiMessagingClient* msgClient = nullptr;
 
 private:

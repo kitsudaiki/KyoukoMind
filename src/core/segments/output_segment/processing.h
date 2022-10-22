@@ -28,12 +28,9 @@
 #include <kyouko_root.h>
 #include <core/segments/brick.h>
 #include <core/cluster/cluster.h>
-
+#include <io/protobuf_messages.h>
 #include "objects.h"
 #include "output_segment.h"
-
-#include <io/hanami_messages.h>
-#include <io/protobuf_messages.h>
 
 /**
  * @brief get position of the highest output-position
@@ -94,11 +91,7 @@ prcessOutputSegment(const OutputSegment &segment)
     if(segment.parentCluster->msgClient != nullptr
             && segment.parentCluster->mode == Cluster::NORMAL_MODE)
     {
-        if(segment.parentCluster->useProtobuf) {
-            sendProtobufOutputMessage(segment);
-        } else {
-            sendHanamiOutputMessage(segment);
-        }
+        sendClusterOutputMessage(segment);
     }
 }
 
