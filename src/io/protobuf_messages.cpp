@@ -119,6 +119,8 @@ sendClusterNormalEndMessage(Cluster* cluster)
     msg.set_islast(true);
     msg.set_processtype(ClusterProcessType::REQUEST_TYPE);
     msg.set_datatype(ClusterDataType::OUTPUT_TYPE);
+    msg.add_values(0.0);
+    msg.set_numberofvalues(1);
 
     // serialize message
     uint8_t buffer[96*1024];
@@ -151,6 +153,8 @@ sendClusterLearnEndMessage(Cluster* cluster)
     msg.set_islast(true);
     msg.set_processtype(ClusterProcessType::LEARN_TYPE);
     msg.set_datatype(ClusterDataType::OUTPUT_TYPE);
+    msg.add_values(0.0);
+    msg.set_numberofvalues(1);
 
     // serialize message
     uint8_t buffer[96*1024];
