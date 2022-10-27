@@ -65,25 +65,20 @@ createNewSynapse(SynapseSection &section,
                  Brick* bricks,
                  const DynamicNeuron &sourceNeuron,
                  const DynamicSegmentSettings &segmentSettings,
-                 const float remainingWeight,
-                 const float outH)
+                 const float maxSegmentSize)
 {
     float random = 0.0f;
-    float newWeight = 0.0f;
     uint32_t targetNeuronIdInBrick = 0;
     Brick* targetBrick = nullptr;
     Brick* neuronBrick = nullptr;
     uint32_t signRand = 0;
     const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
-    const float maxWeight = outH / static_cast<float>(segmentSettings.synapseSegmentation);
 
     // set activation-border
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
     random = static_cast<float>(randomValues[section.randomPos]) / randMax;
-    newWeight = maxWeight * random;
-    synapse->border = static_cast<float>(remainingWeight < newWeight) * remainingWeight
-                      + static_cast<float>(remainingWeight >= newWeight) * newWeight;
+    synapse->border = (maxSegmentSize * 2.0f) * random;
 
     // set new weight
     synapse->weight = random / 10.0f;
@@ -117,7 +112,7 @@ synapseProcessing(SynapseSection &section,
                   DynamicSegment &segment,
                   const DynamicNeuron &sourceNeuron,
                   float netH,
-                  const float outH)
+                  const float maxSegmentSize)
 {
     uint32_t pos = 0;
     Synapse* synapse = nullptr;
@@ -126,10 +121,12 @@ synapseProcessing(SynapseSection &section,
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
-          && netH > 0.0f)
+          && netH > maxSegmentSize)
     {
         synapse = &section.synapses[pos];
         synapseObj = *synapse;
+
+        netH -= synapseObj.border;
 
         // break loop, if learning is disabled to the loop has reached an inactive synapse
         if(synapseObj.targetNeuronId == UNINIT_STATE_16) {
@@ -138,7 +135,6 @@ synapseProcessing(SynapseSection &section,
         else if(synapseObj.targetNeuronId == 0)
         {
             pos++;
-            netH -= synapseObj.border;
             continue;
         }
 
@@ -147,18 +143,17 @@ synapseProcessing(SynapseSection &section,
         targetNeuron->input += synapseObj.weight;
 
         // update loop-counter
-        netH -= synapseObj.border;
         pos++;
     }
 
-    if(netH > 0.01f
+    if(netH > maxSegmentSize
             && section.next != UNINIT_STATE_32)
     {
         synapseProcessing(segment.synapseSections[section.next],
                           segment,
                           sourceNeuron,
                           netH,
-                          outH);
+                          maxSegmentSize);
     }
 }
 
@@ -205,7 +200,7 @@ synapseProcessing_withLearn(SynapseSection &section,
                             DynamicSegment &segment,
                             const DynamicNeuron &sourceNeuron,
                             float netH,
-                            const float outH)
+                            const float maxSegmentSize)
 {
     uint32_t pos = 0;
     Synapse* synapse = nullptr;
@@ -217,7 +212,7 @@ synapseProcessing_withLearn(SynapseSection &section,
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
-          && netH > 0.0f)
+          && netH > maxSegmentSize)
     {
         synapse = &section.synapses[pos];
 
@@ -229,11 +224,11 @@ synapseProcessing_withLearn(SynapseSection &section,
                              segment.bricks,
                              sourceNeuron,
                              *segment.dynamicSegmentSettings,
-                             netH,
-                             outH);
+                             maxSegmentSize);
         }
 
         synapseObj = *synapse;
+        netH -= synapseObj.border;
 
         // break loop, if learning is disabled to the loop has reached an inactive synapse
         if(synapseObj.targetNeuronId == UNINIT_STATE_16) {
@@ -242,7 +237,6 @@ synapseProcessing_withLearn(SynapseSection &section,
         else if(synapseObj.targetNeuronId == 0)
         {
             pos++;
-            netH -= synapseObj.border;
             continue;
         }
 
@@ -255,11 +249,10 @@ synapseProcessing_withLearn(SynapseSection &section,
         synapse->activeCounter += active * static_cast<uint8_t>(synapseObj.activeCounter < 126);
 
         // update loop-counter
-        netH -= synapseObj.border;
         pos++;
     }
 
-    if(netH > 0.01f)
+    if(netH > maxSegmentSize)
     {
         // if no next section exist for the neuron, then create and a attach a new synapse-section
         if(section.next == UNINIT_STATE_32)
@@ -278,7 +271,7 @@ synapseProcessing_withLearn(SynapseSection &section,
                                     segment,
                                     sourceNeuron,
                                     netH,
-                                    outH);
+                                    maxSegmentSize);
     }
 }
 
@@ -317,13 +310,15 @@ processSingleNeuron(DynamicNeuron* neuron,
         return;
     }
 
+    const float segm = static_cast<float>(segment.dynamicSegmentSettings->synapseSegmentation);
+    const float maxSegmentSize = (neuron->potential / segm) / 2.0f;
     if(segment.dynamicSegmentSettings->doLearn > 0)
     {
         synapseProcessing_withLearn(segment.synapseSections[neuron->targetSectionId],
                                     segment,
                                     *neuron,
                                     neuron->potential,
-                                    neuron->potential);
+                                    maxSegmentSize);
     }
     else
     {
@@ -331,7 +326,7 @@ processSingleNeuron(DynamicNeuron* neuron,
                           segment,
                           *neuron,
                           neuron->potential,
-                          neuron->potential);
+                          maxSegmentSize);
     }
 }
 

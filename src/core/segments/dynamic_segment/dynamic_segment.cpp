@@ -101,7 +101,7 @@ DynamicSegment::initSegment(const JsonItem &segmentTemplate, const std::string &
     initTargetBrickList();
 
     // init border
-    initSlots(segmentTemplate);
+    connectBricksToSlots(segmentTemplate);
     connectBorderBuffer();
 
     // TODO: check result
@@ -586,7 +586,7 @@ DynamicSegment::initTargetBrickList()
  * @return true, if successful, else false
  */
 bool
-DynamicSegment::initSlots(const JsonItem &segmentTemplate)
+DynamicSegment::connectBricksToSlots(const JsonItem &segmentTemplate)
 {
     uint64_t posCounter = 0;
     const JsonItem bricks = segmentTemplate.get("bricks");

@@ -64,7 +64,7 @@ private:
     void connectAllBricks();
     bool initializeNeurons();
     uint32_t goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength);
-    bool initSlots(const JsonItem &segmentTemplate);
+    bool connectBricksToSlots(const JsonItem &segmentTemplate);
 };
 
 #endif // KYOUKOMIND_DYNAMIC_SEGMENTS_H

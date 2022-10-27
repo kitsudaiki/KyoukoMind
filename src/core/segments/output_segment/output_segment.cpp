@@ -223,13 +223,10 @@ OutputSegment::initSlots(const uint32_t numberOfInputs)
 {
     for(uint32_t i = 0; i < 1; i++)
     {
-        const uint32_t size  = numberOfInputs;
-
-        // init new segment-neighbor
         SegmentSlot* currentSlot = &segmentSlots->slots[i];
         currentSlot->setName("input");
         currentSlot->inUse = false;
-        currentSlot->numberOfNeurons = size;
+        currentSlot->numberOfNeurons = numberOfInputs;
         currentSlot->inputTransferBufferPos = 0;
         currentSlot->outputTransferBufferPos = 0;
         currentSlot->direction = INPUT_DIRECTION;

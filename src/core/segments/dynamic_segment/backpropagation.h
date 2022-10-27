@@ -98,25 +98,29 @@ backpropagateSection(SynapseSection* section,
                      DynamicNeuron* sourceNeuron,
                      float netH,
                      const Brick &brick,
-                     const DynamicSegment &segment)
+                     const DynamicSegment &segment,
+                     const float maxSegmentSize)
 {
     Synapse* synapse = nullptr;
     float learnValue = 0.2f;
     uint16_t pos = 0;
+    bool positive = true;
+    bool removeSynapse = false;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
-          && netH > 0.0f)
+          && netH > maxSegmentSize)
     {
         // break look, if no more synapses to process
         synapse = &section->synapses[pos];
+        netH -= synapse->border;
+
         if(synapse->targetNeuronId == UNINIT_STATE_16) {
             break;
         }
         else if(synapse->targetNeuronId == 0)
         {
             pos++;
-            netH -= synapse->border;
             continue;
         }
 
@@ -124,20 +128,27 @@ backpropagateSection(SynapseSection* section,
         learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0002f;
         learnValue += 0.05f;
         sourceNeuron->delta += segment.neurons[synapse->targetNeuronId].delta * synapse->weight;
+        positive = synapse->weight >= 0.0f;
         synapse->weight -= learnValue * segment.neurons[synapse->targetNeuronId].delta;
 
-        netH -= synapse->border;
+
+
+        if(abs(synapse->weight) < 0.01f) {
+            synapse->targetNeuronId = UNINIT_STATE_16;
+        }
+
         pos++;
     }
 
     if(section->next != UNINIT_STATE_32
-            && netH > 0.01f)
+            && netH > maxSegmentSize)
     {
         backpropagateSection(&segment.synapseSections[section->next],
                              sourceNeuron,
                              netH,
                              brick,
-                             segment);
+                             segment,
+                             maxSegmentSize);
     }
 }
 
@@ -153,6 +164,7 @@ backpropagateNeurons(const Brick &brick,
 {
     DynamicNeuron* sourceNeuron = nullptr;
     SynapseSection* section = nullptr;
+    const float segm = static_cast<float>(segment.dynamicSegmentSettings->synapseSegmentation);
 
     // iterate over all neurons within the brick
     for(uint32_t neuronId = brick.neuronPos;
@@ -171,11 +183,13 @@ backpropagateNeurons(const Brick &brick,
         // set start-values
         if(sourceNeuron->active)
         {
+            const float maxSegmentSize = (sourceNeuron->potential / segm) / 2.0f;
             backpropagateSection(section,
                                  sourceNeuron,
                                  sourceNeuron->potential,
                                  brick,
-                                 segment);
+                                 segment,
+                                 maxSegmentSize);
 
             sourceNeuron->delta *= 1.4427f * pow(0.5f, sourceNeuron->potential);
         }
