@@ -54,7 +54,7 @@ function download_repo_github () {
     cd "$PARENT_DIR/$REPO_NAME"
 
     # checkout branch
-    if [[ $CURRENT_BRANCH =~ ^tag.* ]] || [[ $CURRENT_BRANCH =~ ^hotfix.* ]] || [[ $CURRENT_BRANCH =~ ^v.* ]]; then
+    if [[ $CURRENT_BRANCH =~ ^tag.* ]] || [[ $CURRENT_BRANCH =~ ^hotfix.* ]] || [[ $CURRENT_BRANCH =~ ^v.* ]] || [[ $CURRENT_BRANCH =~ ^rolling$ ]] || [[ $CURRENT_BRANCH =~ ^staging$ ]]; then
         # if a stable branch, then use the defined tag of branch
         # check if defined branch even exist
         BRANCH_EXIST=$(git ls-remote --heads origin $TAG_OR_BRANCH)
