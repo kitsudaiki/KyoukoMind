@@ -29,6 +29,7 @@
 #include <callbacks.h>
 
 #include <libAzukiHeart/azuki_send.h>
+#include <libMisakiGuard/misaki_input.h>
 
 #include <api/blossom_initializing.h>
 
@@ -93,9 +94,7 @@ main(int argc, char *argv[])
 
     // init internal token for access to other components
     std::string token = "";
-    if(HanamiMessaging::getInstance()->getInternalToken(token,
-                                                        "kyouko",
-                                                        error) == false)
+    if(Misaki::getInternalToken(token, "kyouko", error) == false)
     {
         error.addMeesage("Failed to get internal token");
         LOG_ERROR(error);
