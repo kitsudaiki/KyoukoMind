@@ -27,6 +27,7 @@
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
+#include <libKitsunemimiHanamiSegmentParser/segment_meta.h>
 
 #include <libKitsunemimiCrypto/common.h>
 
@@ -50,7 +51,7 @@ UploadTemplate::UploadTemplate()
     registerInputField("template",
                        SAKURA_MAP_TYPE,
                        true,
-                       "New template to upload.");
+                       "New template to upload as base64 string.");
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -100,14 +101,33 @@ UploadTemplate::runTask(BlossomIO &blossomIO,
         return false;
     }
 
-    // convert template to base64 to be storage into database
-    std::string base64Content;
-    Kitsunemimi::Crypto::encodeBase64(base64Content, stringContent.c_str(), stringContent.size());
+    // decode base64 formated template to check if valid base64-string
+    DataBuffer convertedTemplate;
+    if(Kitsunemimi::Crypto::decodeBase64(convertedTemplate, stringContent) == false)
+    {
+        status.errorMessage = "Uploaded template is not a valid base64-String.";
+        status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
+
+    // parse segment-template to validate syntax
+    Kitsunemimi::Hanami::SegmentMeta parsedSegment;
+    const std::string convertedTemplateStr(static_cast<const char*>(convertedTemplate.data),
+                                           convertedTemplate.usedBufferSize);
+    if(Kitsunemimi::Hanami::parseSegment(&parsedSegment, convertedTemplateStr, error) == false)
+    {
+        status.errorMessage = "Uploaded template is not a valid segment-template: \n";
+        status.errorMessage += error.toString();
+        status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
+        error.addMeesage(status.errorMessage);
+        return false;
+    }
 
     // convert values
     Kitsunemimi::Json::JsonItem templateData;
     templateData.insert("name", name);
-    templateData.insert("data", base64Content);
+    templateData.insert("data", stringContent);
     templateData.insert("visibility", "private");
 
     // add new user to table
