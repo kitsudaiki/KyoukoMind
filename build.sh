@@ -116,6 +116,8 @@ echo ""
 echo "###########################################################################################################"
 echo ""
 get_required_kitsune_lib_repo "libKitsunemimiHanamiCommon" "develop" 8
+get_required_kitsune_lib_repo "libKitsunemimiHanamiClusterParser" "develop" 1
+get_required_kitsune_lib_repo "libKitsunemimiHanamiSegmentParser" "develop" 1
 get_required_kitsune_lib_repo "libKitsunemimiHanamiEndpoints" "develop" 1
 get_required_kitsune_lib_repo "libKitsunemimiHanamiDatabase" "develop" 8
 download_repo_github "libKitsunemimiHanamiMessages" "develop"
