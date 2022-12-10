@@ -56,9 +56,10 @@ OutputSegment::~OutputSegment() {}
  * @return true, if successful, else false
  */
 bool
-OutputSegment::initSegment(const JsonItem &segmentTemplate, const std::string &name)
+OutputSegment::initSegment(const std::string &name,
+                           const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
-    const uint32_t numberOfOutputs = segmentTemplate.get("number_of_neurons").getInt();
+    const uint32_t numberOfOutputs = segmentMeta.bricks.at(0).numberOfNeurons;
     const uint32_t totalBorderSize = numberOfOutputs;
 
     SegmentHeader header = createNewHeader(numberOfOutputs, totalBorderSize);

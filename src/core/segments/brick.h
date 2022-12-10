@@ -35,7 +35,7 @@ struct Brick
     bool isInputBrick = false;
     uint8_t padding1[17];
 
-    Position brickPos;
+    Kitsunemimi::Hanami::Position brickPos;
     uint32_t neighbors[12];
 
     uint32_t possibleTargetNeuronBrickIds[1000];

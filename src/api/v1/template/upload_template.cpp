@@ -49,7 +49,7 @@ UploadTemplate::UploadTemplate()
     assert(addFieldRegex("name", "[a-zA-Z][a-zA-Z_0-9]*"));
 
     registerInputField("template",
-                       SAKURA_MAP_TYPE,
+                       SAKURA_STRING_TYPE,
                        true,
                        "New template to upload as base64 string.");
 

@@ -114,8 +114,8 @@ initHeader(Cluster* cluster,
  */
 bool
 initNewCluster(Cluster* cluster,
-               const JsonItem &clusterTemplate,
-               const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
+               const Kitsunemimi::Hanami::ClusterMeta &clusterTemplate,
+               const std::map<std::string, Kitsunemimi::Hanami::SegmentMeta> &segmentTemplates,
                const std::string &uuid)
 {
     // meta-data
@@ -125,7 +125,6 @@ initNewCluster(Cluster* cluster,
 
     // settings
     Cluster::Settings newSettings;
-
     initHeader(cluster, newMetaData, newSettings);
 
     //const std::string clusterName = clusterTemplate.get("name").getString();
@@ -133,37 +132,33 @@ initNewCluster(Cluster* cluster,
 
     LOG_INFO("create new cluster with uuid: " + cluster->networkMetaData->uuid.toString());
 
-    const JsonItem segmentsDef = clusterTemplate.get("segments");
-
     // parse and create segments
-    for(uint32_t i = 0; i < segmentsDef.size(); i++)
+    for(const Kitsunemimi::Hanami::SegmentMetaPtr& segmentPtr : clusterTemplate.segments)
     {
-        const JsonItem segmentDef = segmentsDef.get(i);
-        const std::string type = segmentDef.get("type").getString();
-        const std::string name = segmentDef.get("name").getString();
-
         AbstractSegment* newSegment = nullptr;
-        if(type == "input")
+        std::map<std::string, Kitsunemimi::Hanami::SegmentMeta>::const_iterator it;
+        it = segmentTemplates.find(segmentPtr.type);
+        if(it != segmentTemplates.end())
         {
-            newSegment = addInputSegment(cluster, name, segmentDef);
-        }
-        else if(type == "output")
-        {
-            newSegment = addOutputSegment(cluster, name, segmentDef);
+            if(segmentPtr.type == "input") {
+                newSegment = addInputSegment(cluster, segmentPtr.name, it->second);
+            } else if(segmentPtr.type == "output") {
+                newSegment = addOutputSegment(cluster, segmentPtr.name, it->second);
+            } else {
+                newSegment = addDynamicSegment(cluster, segmentPtr.name, it->second);
+            }
         }
         else
         {
-            std::map<std::string, Kitsunemimi::Json::JsonItem>::const_iterator it;
-            it = segmentTemplates.find(name);
-            if(it != segmentTemplates.end()) {
-                newSegment = addDynamicSegment(cluster, name, segmentDef, it->second);
-            }
+            // TODO: error-handling
+            std::cout<<"failed to init segment 1"<<std::endl;
+            return false;
         }
 
         if(newSegment == nullptr)
         {
             // TODO: error-handling
-            std::cout<<"failed to init segment"<<std::endl;
+            std::cout<<"failed to init segment 2"<<std::endl;
             return false;
         }
 
@@ -173,31 +168,31 @@ initNewCluster(Cluster* cluster,
     }
 
     // connect all segments
-    for(uint32_t i = 0; i < segmentsDef.size(); i++)
+    for(const Kitsunemimi::Hanami::SegmentMetaPtr& sourceSegmentPtr : clusterTemplate.segments)
     {
-        const JsonItem segmentDef = segmentsDef.get(i);
-        const std::string sourceSegment = segmentDef.get("name").getString();
-        const JsonItem outputs = segmentDef.get("out");
+        const std::string sourceSegment = sourceSegmentPtr.name;
 
-        for(uint32_t o = 0; o < outputs.size(); o++)
+        for(const Kitsunemimi::Hanami::ClusterConnection &conn : sourceSegmentPtr.outputs)
         {
-            const std::string targetSegment = outputs.get(o).get("target_segment").getString();
-            std::string targetSlot = outputs.get(o).get("target_brick").getString();
-            if(targetSlot == "") {
+            std::string targetSlot = conn.targetBrick;
+            if(targetSlot == "x") {
                 targetSlot = "input";
             }
-            std::string sourceSlot = outputs.get(o).get("source_brick").getString();
-            if(sourceSlot == "") {
+            std::string sourceSlot = conn.sourceBrick;
+            if(sourceSlot == "x") {
                 sourceSlot = "output";
             }
 
-            if(cluster->connectSlot(sourceSegment, sourceSlot, targetSegment, targetSlot) == false)
+            if(cluster->connectSlot(sourceSegment,
+                                    sourceSlot,
+                                    conn.targetSegment,
+                                    targetSlot) == false)
             {
                 std::cout<<"Faild to connect segment '"
                          << sourceSegment
-                         << "' with \n\n"
-                         << outputs.toString(true)
-                         << "\n\n"<<std::endl;
+                         << "' with  segment '"
+                         << conn.targetSegment
+                         << "'"<<std::endl;
             }
         }
     }
@@ -216,12 +211,11 @@ initNewCluster(Cluster* cluster,
 AbstractSegment*
 addInputSegment(Cluster* cluster,
                 const std::string &name,
-                const JsonItem &clusterTemplatePart)
+                const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
     InputSegment* newSegment = new InputSegment();
 
-    if(newSegment->initSegment(clusterTemplatePart,
-                               clusterTemplatePart.get("name").getString()))
+    if(newSegment->initSegment(name, segmentMeta))
     {
         cluster->inputSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
@@ -246,13 +240,12 @@ addInputSegment(Cluster* cluster,
 AbstractSegment*
 addOutputSegment(Cluster* cluster,
                  const std::string &name,
-                 const JsonItem &clusterTemplatePart)
+                 const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
     OutputSegment* newSegment = new OutputSegment();
     JsonItem placeHolder;
 
-    if(newSegment->initSegment(clusterTemplatePart,
-                               clusterTemplatePart.get("name").getString()))
+    if(newSegment->initSegment(name, segmentMeta))
     {
         cluster->outputSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
@@ -277,12 +270,10 @@ addOutputSegment(Cluster* cluster,
 AbstractSegment*
 addDynamicSegment(Cluster* cluster,
                   const std::string &name,
-                  const JsonItem &clusterTemplatePart,
-                  const JsonItem &segmentTemplate)
+                  const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
     DynamicSegment* newSegment = new DynamicSegment();
-    if(newSegment->initSegment(segmentTemplate,
-                               clusterTemplatePart.get("name").getString()))
+    if(newSegment->initSegment(name, segmentMeta))
     {
         cluster->coreSegments.insert(std::make_pair(name, newSegment));
         cluster->allSegments.push_back(newSegment);
@@ -294,24 +285,4 @@ addDynamicSegment(Cluster* cluster,
     }
 
     return newSegment;
-}
-
-/**
- * @brief convert position information from json to position-item
- *
- * @param parsedContent json of the segment
- *
- * @return postion-objectfor the segment
- */
-Position
-convertPosition(const JsonItem &parsedContent)
-{
-    const JsonItem parsedPosition = parsedContent.get("position");
-
-    Position currentPosition;
-    currentPosition.x = parsedPosition.get(0).getInt();
-    currentPosition.y = parsedPosition.get(1).getInt();
-    currentPosition.z = parsedPosition.get(2).getInt();
-
-    return currentPosition;
 }

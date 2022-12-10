@@ -26,28 +26,6 @@
 #include <stdint.h>
 #include <common/defines.h>
 
-struct Position
-{
-    int32_t x = UNINTI_POINT_32;
-    int32_t y = UNINTI_POINT_32;
-    int32_t z = UNINTI_POINT_32;
-    int32_t w = UNINTI_POINT_32;
-
-    bool isValid() const
-    {
-        return(x != UNINTI_POINT_32
-               && y != UNINTI_POINT_32
-               && z != UNINTI_POINT_32);
-    }
-
-    bool operator==(const Position &other)
-    {
-        return(this->x == other.x
-               && this->y == other.y
-               && this->z == other.z);
-    }
-};
-
 struct NextSides
 {
     uint8_t sides[5];

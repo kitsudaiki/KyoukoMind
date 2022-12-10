@@ -28,6 +28,9 @@
 #include <libKitsunemimiCommon/buffer/data_buffer.h>
 #include <libKitsunemimiCommon/buffer/item_buffer.h>
 
+#include <libKitsunemimiHanamiSegmentParser/segment_meta.h>
+#include <libKitsunemimiHanamiClusterParser/cluster_meta.h>
+
 #include <core/segments/brick.h>
 #include <core/segments/segment_meta.h>
 
@@ -57,7 +60,8 @@ public:
     float* outputTransfers = nullptr;
     Cluster* parentCluster = nullptr;
 
-    virtual bool initSegment(const JsonItem &segmentTemplate, const std::string &name) = 0;
+    virtual bool initSegment(const std::string &name,
+                             const Kitsunemimi::Hanami::SegmentMeta &segmentMeta) = 0;
     virtual bool reinitPointer(const uint64_t numberOfBytes) = 0;
     uint8_t getSlotId(const std::string &name);
 
@@ -69,7 +73,6 @@ protected:
 
     uint32_t createGenericNewHeader(SegmentHeader &header,
                                     const uint64_t borderbufferSize);
-    Position convertPosition(const JsonItem &parsedContent);
     bool reinitGenericPointer();
 
 private:

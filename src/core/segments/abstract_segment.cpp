@@ -200,20 +200,3 @@ AbstractSegment::createGenericNewHeader(SegmentHeader &header,
 
     return segmentDataPos;
 }
-
-/**
- * @brief NetworkCluster::convertPosition
- * @param parsedContent
- * @return
- */
-Position
-AbstractSegment::convertPosition(const JsonItem &parsedContent)
-{
-    JsonItem parsedPosition = parsedContent.get("position");
-    Position currentPosition;
-    currentPosition.x = parsedPosition.get(0).getInt();
-    currentPosition.y = parsedPosition.get(1).getInt();
-    currentPosition.z = parsedPosition.get(2).getInt();
-
-    return currentPosition;
-}

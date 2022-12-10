@@ -56,7 +56,7 @@ ShowTemplate::ShowTemplate()
                         SAKURA_STRING_TYPE,
                         "Name of the template.");
     registerOutputField("template",
-                        SAKURA_MAP_TYPE,
+                        SAKURA_STRING_TYPE,
                         "The template itself.");
     registerOutputField("owner_id",
                         SAKURA_STRING_TYPE,
@@ -100,25 +100,7 @@ ShowTemplate::runTask(BlossomIO &blossomIO,
         return false;
     }
 
-    // decode template
-    std::string decodedTemplate;
-    if(Kitsunemimi::Crypto::decodeBase64(decodedTemplate,
-                                         blossomIO.output.get("data").getString()) == false)
-    {
-        error.addMeesage("base64-decoding of the template failed");
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        return false;
-    }
-
-    // parse template
-    JsonItem parsedTemplate;
-    if(parsedTemplate.parse(decodedTemplate, error) == false)
-    {
-        status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
-        error.addMeesage("Failed to parse decoded template");
-        return false;
-    }
-    blossomIO.output.insert("template", parsedTemplate.stealItemContent());
+    blossomIO.output.insert("template", blossomIO.output.get("data").getString());
 
     // remove irrelevant fields
     blossomIO.output.remove("data");

@@ -25,6 +25,8 @@
 #include <core/routing_functions.h>
 #include <libKitsunemimiCommon/logger.h>
 
+#include <libKitsunemimiHanamiCommon/structs.h>
+
 /**
  * @brief constructor
  */
@@ -59,31 +61,27 @@ DynamicSegment::~DynamicSegment() {}
  * @return true, if successful, else false
  */
 bool
-DynamicSegment::initSegment(const JsonItem &segmentTemplate, const std::string &name)
+DynamicSegment::initSegment(const std::string &name,
+                            const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
-    const JsonItem paredBricks = segmentTemplate.get("bricks");
-
     uint32_t totalNumberOfNeurons = 0;
     uint32_t totalBorderSize = 0;
 
-    const uint32_t numberOfNeuronBricks = paredBricks.size();
-    for(uint32_t i = 0; i < numberOfNeuronBricks; i++)
+    for(uint32_t i = 0; i < segmentMeta.bricks.size(); i++)
     {
-        const int numberOfNeurons = paredBricks.get(i).get("number_of_neurons").getInt();
-        const std::string type = paredBricks.get(i).get("type").getString();
-
+        const int numberOfNeurons = segmentMeta.bricks.at(i).numberOfNeurons;
         totalNumberOfNeurons += numberOfNeurons;
 
-        if(type == "input"
-                || type == "output")
+        if(segmentMeta.bricks.at(i).type == Kitsunemimi::Hanami::INPUT_BRICK_TYPE
+                || segmentMeta.bricks.at(i).type == Kitsunemimi::Hanami::OUTPUT_BRICK_TYPE)
         {
             totalBorderSize += numberOfNeurons;
         }
     }
 
     // create segment metadata
-    const DynamicSegmentSettings settings = initSettings(segmentTemplate);
-    SegmentHeader header = createNewHeader(numberOfNeuronBricks,
+    const DynamicSegmentSettings settings = initSettings(segmentMeta);
+    SegmentHeader header = createNewHeader(segmentMeta.bricks.size(),
                                            totalNumberOfNeurons,
                                            settings.maxSynapseSections,
                                            totalBorderSize);
@@ -96,12 +94,12 @@ DynamicSegment::initSegment(const JsonItem &segmentTemplate, const std::string &
 
     // init content
     initializeNeurons();
-    addBricksToSegment(segmentTemplate);
+    addBricksToSegment(segmentMeta);
     connectAllBricks();
     initTargetBrickList();
 
     // init border
-    initSlots(segmentTemplate);
+    initSlots(segmentMeta);
     connectBorderBuffer();
 
     // TODO: check result
@@ -248,20 +246,14 @@ DynamicSegment::connectBorderBuffer()
  * @return settings-object
  */
 DynamicSegmentSettings
-DynamicSegment::initSettings(const JsonItem &parsedContent)
+DynamicSegment::initSettings(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
     DynamicSegmentSettings settings;
 
     // parse settings
-    JsonItem paredSettings = parsedContent.get("settings");
-    settings.synapseDeleteBorder = paredSettings.get("synapse_delete_border").getFloat();
-    settings.neuronCooldown = paredSettings.get("neuron_cooldown").getFloat();
-    settings.memorizing = paredSettings.get("memorizing").getFloat();
-    settings.gliaValue = paredSettings.get("glia_value").getFloat();
-    settings.synapseSegmentation = paredSettings.get("synapse_segmentation").getFloat();
-    settings.refractionTime = paredSettings.get("refraction_time").getInt();
-    settings.signNeg = paredSettings.get("sign_neg").getFloat();
-    settings.maxSynapseSections = paredSettings.get("max_synapse_sections").getInt();
+    settings.synapseSegmentation = segmentMeta.synapseSegmentation;
+    settings.signNeg = segmentMeta.signNeg;
+    settings.maxSynapseSections = segmentMeta.maxSynapseSections;
 
     return settings;
 }
@@ -400,25 +392,25 @@ DynamicSegment::initDefaultValues()
  * @return new brick with parsed information
  */
 Brick
-DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
+DynamicSegment::createNewBrick(const Kitsunemimi::Hanami::BrickMeta &brickMeta, const uint32_t id)
 {
     Brick newBrick;
 
     // copy metadata
     newBrick.brickId = id;
-    if(brickDef.get("type").getString() == "output") {
+    if(brickMeta.type == Kitsunemimi::Hanami::OUTPUT_BRICK_TYPE) {
         newBrick.isOutputBrick = true;
     }
-    if(brickDef.get("type").getString() == "transaction") {
+    /*if(brickDef.get("type").getString() == "transaction") {
         newBrick.isTransactionBrick = true;
-    }
-    if(brickDef.get("type").getString() == "input") {
+    }*/
+    if(brickMeta.type == Kitsunemimi::Hanami::INPUT_BRICK_TYPE) {
         newBrick.isInputBrick = true;
     }
 
     // convert other values
-    newBrick.brickPos = convertPosition(brickDef);
-    newBrick.numberOfNeurons = brickDef.get("number_of_neurons").getInt();
+    newBrick.brickPos = brickMeta.position;
+    newBrick.numberOfNeurons = brickMeta.numberOfNeurons;
     for(uint8_t side = 0; side < 12; side++) {
         newBrick.neighbors[side] = UNINIT_STATE_32;
     }
@@ -432,15 +424,14 @@ DynamicSegment::createNewBrick(const JsonItem &brickDef, const uint32_t id)
  * @param metaBase json with all brick-definitions
  */
 void
-DynamicSegment::addBricksToSegment(const JsonItem &metaBase)
+DynamicSegment::addBricksToSegment(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
     uint32_t neuronBrickIdCounter = 0;
     uint32_t neuronPosCounter = 0;
-    const JsonItem brickDef = metaBase.get("bricks");
 
-    for(uint32_t i = 0; i < brickDef.size(); i++)
+    for(uint32_t i = 0; i < segmentMeta.bricks.size(); i++)
     {
-        Brick newBrick = createNewBrick(brickDef.get(i), i);
+        Brick newBrick = createNewBrick(segmentMeta.bricks.at(i), i);
 
         // handle neuron-brick
         newBrick.neuronPos = neuronPosCounter;
@@ -469,7 +460,7 @@ void
 DynamicSegment::connectBrick(Brick* sourceBrick,
                              const uint8_t side)
 {
-    const Position next = getNeighborPos(sourceBrick->brickPos, side);
+    const Kitsunemimi::Hanami::Position next = getNeighborPos(sourceBrick->brickPos, side);
     // debug-output
     // std::cout<<next.x<<" : "<<next.y<<" : "<<next.z<<std::endl;
 
@@ -586,29 +577,27 @@ DynamicSegment::initTargetBrickList()
  * @return true, if successful, else false
  */
 bool
-DynamicSegment::initSlots(const JsonItem &segmentTemplate)
+DynamicSegment::initSlots(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
     uint64_t posCounter = 0;
-    const JsonItem bricks = segmentTemplate.get("bricks");
     uint32_t slotCounter = 0;
 
-    for(uint32_t i = 0; i < bricks.size(); i++)
+    for(uint32_t i = 0; i < segmentMeta.bricks.size(); i++)
     {
-        JsonItem brick = bricks.get(i);
-        if(brick.get("type").getString() != "input"
-                && brick.get("type").getString() != "output")
+        if(segmentMeta.bricks.at(i).type != Kitsunemimi::Hanami::INPUT_BRICK_TYPE
+                && segmentMeta.bricks.at(i).type != Kitsunemimi::Hanami::OUTPUT_BRICK_TYPE)
         {
             continue;
         }
 
-        const uint32_t numberOfNeurons = brick.get("number_of_neurons").getInt();
+        const uint32_t numberOfNeurons = segmentMeta.bricks.at(i).numberOfNeurons;
         SegmentSlot* currentSlot = &segmentSlots->slots[slotCounter];
-        currentSlot->setName(brick.get("name").getString());
+        currentSlot->setName(segmentMeta.bricks.at(i).name);
         currentSlot->numberOfNeurons = numberOfNeurons;
         currentSlot->inputTransferBufferPos = posCounter;
         currentSlot->outputTransferBufferPos = posCounter;
 
-        if(brick.get("type").getString() == "input") {
+        if(segmentMeta.bricks.at(i).type == Kitsunemimi::Hanami::INPUT_BRICK_TYPE) {
             currentSlot->direction = INPUT_DIRECTION;
         } else {
             currentSlot->direction = OUTPUT_DIRECTION;
