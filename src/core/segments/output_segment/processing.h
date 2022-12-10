@@ -74,17 +74,18 @@ prcessOutputSegment(const OutputSegment &segment)
 
     float* inputTransfers = segment.inputTransfers;
     for(uint64_t outputNeuronId = 0;
-        outputNeuronId < segment.segmentHeader->outputs.count;
+        outputNeuronId < segment.segmentHeader->outputs.count / 2;
         outputNeuronId++)
     {
         neuron = &segment.outputs[outputNeuronId];
-        if(neuron->shouldValue > neuron->maxWeight) {
-            neuron->maxWeight = neuron->shouldValue;
+        neuron->outputWeight = 0;
+        for(uint64_t i = 0;
+            i < 2;
+            i++)
+        {
+            neuron->weights[i] = 1.0f / (1.0f + exp(-1.0f * inputTransfers[(outputNeuronId + (10 * i))]));
+            neuron->outputWeight += neuron->weights[i];
         }
-
-        neuron->outputWeight = inputTransfers[neuron->targetBorderId];
-        neuron->outputWeight = 1.0f / (1.0f + exp(-1.0f * neuron->outputWeight));
-        neuron->shouldValue /= neuron->maxWeight;
     }
 
     // send output back if a client-connection is set

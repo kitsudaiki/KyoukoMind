@@ -40,18 +40,23 @@
 inline void
 backpropagateOutput(const OutputSegment &segment)
 {
-    OutputNeuron out;
+    OutputNeuron* neuron = nullptr;
     float delta = 0.0f;
 
     // iterate over all output-neurons
     for(uint64_t outputNeuronId = 0;
-        outputNeuronId < segment.segmentHeader->outputs.count;
+        outputNeuronId < segment.segmentHeader->outputs.count / 2;
         outputNeuronId++)
     {
-        out = segment.outputs[outputNeuronId];
-        delta = (out.outputWeight - out.shouldValue);
-        delta *= out.outputWeight * (1.0f - out.outputWeight);
-        segment.outputTransfers[out.targetBorderId] = delta;
+        neuron = &segment.outputs[outputNeuronId];
+        for(uint64_t i = 0;
+            i < 2;
+            i++)
+        {
+            delta = (neuron->weights[i] - neuron->shouldValue);
+            delta *= neuron->weights[i] * (1.0f - neuron->weights[i]);
+            segment.outputTransfers[(outputNeuronId + (10 * i))] = delta;
+        }
     }
 }
 

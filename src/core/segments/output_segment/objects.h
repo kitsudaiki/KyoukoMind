@@ -27,12 +27,15 @@
 
 struct OutputNeuron
 {
-    float outputWeight = 0.0f;
     float shouldValue = 0.0f;
-    uint32_t targetBorderId = 0;    
-    float maxWeight = 0.00001f;
+    uint32_t targetBorderId = 0;
 
-    // total size: 16 Byte
+    float outputWeight;
+    float padding[1];
+
+    float weights[16];
+
+    // total size: 80 Byte
 };
 
 //==================================================================================================
