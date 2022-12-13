@@ -103,6 +103,8 @@ CreateCluster::runTask(BlossomIO &blossomIO,
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
         return false;
     }
+    error._errorMessages.clear();
+    error._possibleSolution.clear();
 
     Kitsunemimi::Hanami::ClusterMeta parsedCluster;
     if(base64Template != "")

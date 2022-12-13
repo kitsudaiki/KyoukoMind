@@ -100,6 +100,8 @@ UploadTemplate::runTask(BlossomIO &blossomIO,
         error.addMeesage(status.errorMessage);
         return false;
     }
+    error._errorMessages.clear();
+    error._possibleSolution.clear();
 
     // decode base64 formated template to check if valid base64-string
     DataBuffer convertedTemplate;
