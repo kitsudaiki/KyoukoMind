@@ -59,31 +59,6 @@ backpropagateOutput(const Brick &brick,
 }
 
 /**
- * @brief backpropagate values of an transaction-brick
- *
- * @param brick brick to process
- * @param segment segment where the brick belongs to
- */
-inline bool
-backpropagateTransaction(const Brick &brick,
-                         const DynamicSegment &segment)
-{
-    DynamicNeuron* neuron = nullptr;
-
-    // iterate over all neurons within the brick
-    for(uint32_t neuronId = brick.neuronPos;
-        neuronId < brick.numberOfNeurons + brick.neuronPos;
-        neuronId++)
-    {
-        neuron = &segment.neurons[neuronId];
-        neuron->delta = segment.inputTransfers[neuron->targetBorderId];
-        neuron->delta *= 1.4427f * pow(0.5f, neuron->potential);
-    }
-
-    return true;
-}
-
-/**
  * @brief run backpropagation for a single synapse-section
  *
  * @param section pointer to section to process
@@ -110,15 +85,6 @@ backpropagateSection(SynapseSection* section,
     {
         // break look, if no more synapses to process
         synapse = &section->synapses[pos];
-        if(synapse->targetNeuronId == UNINIT_STATE_16) {
-            break;
-        }
-        else if(synapse->targetNeuronId == 0)
-        {
-            pos++;
-            netH -= synapse->border;
-            continue;
-        }
 
         // update weight
         learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0002f;
@@ -167,7 +133,6 @@ backpropagateNeurons(const Brick &brick,
         section = &segment.synapseSections[sourceNeuron->targetSectionId];
         sourceNeuron->delta = 0.0f;
 
-
         // set start-values
         if(sourceNeuron->active)
         {
@@ -206,14 +171,7 @@ rewightDynamicSegment(const DynamicSegment &segment)
                 return;
             }
         }
-        if(brick->isTransactionBrick)
-        {
-            backpropagateTransaction(*brick, segment);
-        }
-        else
-        {
-            backpropagateNeurons(*brick, segment);
-        }
+        backpropagateNeurons(*brick, segment);
     }
 }
 

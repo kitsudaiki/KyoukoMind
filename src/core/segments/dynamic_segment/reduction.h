@@ -72,11 +72,6 @@ reduceSynapses(DynamicSegment &segment,
 
         synapse->activeCounter -= synapse->activeCounter < 100;
         synapse->targetNeuronId = synapse->targetNeuronId * (synapse->activeCounter >= 5);
-        if(synapse->targetNeuronId == 0) {
-            synapse->targetNeuronId = UNINIT_STATE_16;
-        } else {
-            foundEnd = true;
-        }
     }
 
     return foundEnd;

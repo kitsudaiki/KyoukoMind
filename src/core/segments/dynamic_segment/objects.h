@@ -53,7 +53,7 @@ struct Synapse
 {
     float weight = 0.0f;
     float border = 0.0f;
-    uint16_t targetNeuronId = UNINIT_STATE_16;
+    uint16_t targetNeuronId = 0;
     int8_t activeCounter = 0;
     uint8_t padding[1];
     // total size: 12 Byte
