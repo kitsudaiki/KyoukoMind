@@ -53,7 +53,7 @@ struct Synapse
 {
     float weight = 0.0f;
     float border = 0.0f;
-    uint16_t targetNeuronId = 0;
+    uint16_t targetNeuronId = UNINIT_STATE_16;
     int8_t activeCounter = 0;
     uint8_t padding[1];
     // total size: 12 Byte
@@ -67,11 +67,11 @@ struct SynapseSection
     uint8_t padding[3];
     uint32_t randomPos = 0;
 
-    uint32_t brickBufferPos = UNINIT_STATE_32;
+    uint32_t neuronOffset = 0;
     uint32_t next = UNINIT_STATE_32;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
-    uint8_t padding2[4];
+    uint32_t brickId = UNINIT_STATE_32;
 
     SynapseSection()
     {
