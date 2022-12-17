@@ -88,8 +88,8 @@ backpropagateSection(SynapseSection* section,
         synapse = &section->synapses[pos];
 
         // update weight
-        learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0002f;
-        learnValue += 0.05f;
+        //learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0002f;
+        learnValue = 0.05f;
         nodePos = static_cast<uint32_t>(synapse->targetNeuronId) + section->neuronOffset;
         sourceNeuron->delta += segment.neurons[nodePos].delta * synapse->weight;
         synapse->weight -= learnValue * segment.neurons[nodePos].delta;
@@ -120,7 +120,6 @@ backpropagateNeurons(const Brick &brick,
                    const DynamicSegment &segment)
 {
     DynamicNeuron* sourceNeuron = nullptr;
-    SynapseSection* section = nullptr;
 
     // iterate over all neurons within the brick
     for(uint32_t neuronId = brick.neuronPos;
@@ -132,13 +131,13 @@ backpropagateNeurons(const Brick &brick,
         if(sourceNeuron->targetSectionId == UNINIT_STATE_32) {
             continue;
         }
-        section = &segment.synapseSections[sourceNeuron->targetSectionId];
+
         sourceNeuron->delta = 0.0f;
 
         // set start-values
         if(sourceNeuron->active)
         {
-            backpropagateSection(section,
+            backpropagateSection(&segment.synapseSections[sourceNeuron->targetSectionId],
                                  sourceNeuron,
                                  sourceNeuron->potential,
                                  brick,

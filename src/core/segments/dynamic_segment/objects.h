@@ -44,7 +44,7 @@ struct DynamicNeuron
     uint32_t targetBorderId = UNINIT_STATE_32;
     uint32_t targetSectionId = UNINIT_STATE_32;
 
-    // total size: 40 Byte
+    // total size: 32 Byte
 };
 
 //==================================================================================================
