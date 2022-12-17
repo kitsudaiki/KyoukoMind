@@ -124,7 +124,7 @@ synapseProcessing(SynapseSection &section,
     uint32_t pos = 0;
     Synapse* synapse = nullptr;
     DynamicNeuron* targetNeuron = nullptr;
-    //uint8_t active = 0;
+    uint8_t active = 0;
     uint32_t nodePos = 0;
 
     //synapsePreprocessing(section, netH);
@@ -152,8 +152,8 @@ synapseProcessing(SynapseSection &section,
         targetNeuron->input += synapse->weight;
 
         // update active-counter
-        //active = (synapse->weight > 0) == (targetNeuron->potential > targetNeuron->border);
-        //synapse->activeCounter += active * static_cast<uint8_t>(synapse->activeCounter < 126);
+        active = (synapse->weight > 0) == (targetNeuron->potential > targetNeuron->border);
+        synapse->activeCounter += active * static_cast<uint8_t>(synapse->activeCounter < 126);
 
         // update loop-counter
         netH -= synapse->border;
