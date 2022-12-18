@@ -39,7 +39,8 @@ public:
 
     InputNeuron* inputs = nullptr;
 
-    bool initSegment(const JsonItem &segmentTemplate, const std::string &name);
+    bool initSegment(const std::string &name,
+                     const Kitsunemimi::Hanami::SegmentMeta &segmentMeta);
     bool reinitPointer(const uint64_t numberOfBytes);
 
 private:

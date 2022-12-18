@@ -85,8 +85,8 @@ std::string Cluster::getUuid()
  * @return true, if successful, else false
  */
 bool
-Cluster::init(const JsonItem &clusterTemplate,
-              const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
+Cluster::init(const Kitsunemimi::Hanami::ClusterMeta &clusterTemplate,
+              const std::map<std::string, Kitsunemimi::Hanami::SegmentMeta> &segmentTemplates,
               const std::string &uuid)
 {
     return initNewCluster(this, clusterTemplate, segmentTemplates, uuid);

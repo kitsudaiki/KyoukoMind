@@ -25,8 +25,14 @@
 
 #include <libKitsunemimiSakuraLang/blossom.h>
 #include <libKitsunemimiHanamiCommon/structs.h>
+#include <libKitsunemimiHanamiClusterParser/cluster_meta.h>
+#include <libKitsunemimiHanamiSegmentParser/segment_meta.h>
 
 class Cluster;
+
+using Kitsunemimi::Hanami::SegmentMeta;
+using Kitsunemimi::Hanami::SegmentMetaPtr;
+using Kitsunemimi::Hanami::BrickMeta;
 
 class CreateCluster
         : public Kitsunemimi::Sakura::Blossom
@@ -43,15 +49,20 @@ protected:
 private:
     bool initCluster(Cluster* cluster,
                      const std::string &clusterUuid,
-                     Kitsunemimi::Json::JsonItem &clusterDefinition,
+                     Kitsunemimi::Hanami::ClusterMeta &clusterDefinition,
                      const Kitsunemimi::Hanami::UserContext &userContext,
                      Kitsunemimi::Sakura::BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error);
 
-    bool getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
+    bool getSegmentTemplate(Kitsunemimi::Hanami::SegmentMeta* segmentMeta,
                             const std::string &name,
                             const Kitsunemimi::Hanami::UserContext &userContext,
                             Kitsunemimi::ErrorContainer &error);
+
+    bool checkConnections(Kitsunemimi::Hanami::ClusterMeta &clusterTemplate,
+                          std::map<std::string, SegmentMeta> &segmentTemplates,
+                          Kitsunemimi::Sakura::BlossomStatus &status,
+                          Kitsunemimi::ErrorContainer &error);
 };
 
 #endif // KYOUKOMIND_CREATECLUSTER_H

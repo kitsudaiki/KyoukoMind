@@ -26,6 +26,8 @@
 #include <stdint.h>
 #include <common.h>
 
+#include <libKitsunemimiHanamiCommon/structs.h>
+
 /**
  * @brief get neighbor-position for a specific side in the hexagon-grid
  *
@@ -34,10 +36,10 @@
  *
  * @return position of the object, which is connected to this side
  */
-inline Position
-getNeighborPos(const Position sourcePos, const uint8_t side)
+inline Kitsunemimi::Hanami::Position
+getNeighborPos(const Kitsunemimi::Hanami::Position sourcePos, const uint8_t side)
 {
-    Position result;
+    Kitsunemimi::Hanami::Position result;
 
     switch(side)
     {

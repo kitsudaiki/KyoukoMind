@@ -66,15 +66,13 @@ reduceSynapses(DynamicSegment &segment,
     {
         // skip not connected synapses
         synapse = &section.synapses[pos];
-        if(synapse->targetNeuronId == UNINIT_STATE_16) {
-            continue;
-        }
 
         synapse->activeCounter -= synapse->activeCounter < 100;
-        synapse->targetNeuronId = synapse->targetNeuronId * (synapse->activeCounter >= 5);
-        if(synapse->targetNeuronId == 0) {
+        if(synapse->activeCounter < 5) {
             synapse->targetNeuronId = UNINIT_STATE_16;
-        } else {
+        }
+
+        if(synapse->targetNeuronId != UNINIT_STATE_16) {
             foundEnd = true;
         }
     }

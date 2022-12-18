@@ -37,7 +37,8 @@ public:
     DynamicSegment(const void* data, const uint64_t dataSize);
     ~DynamicSegment();
 
-    bool initSegment(const JsonItem &segmentTemplate, const std::string &name);
+    bool initSegment(const std::string &name,
+                     const Kitsunemimi::Hanami::SegmentMeta &segmentMeta);
     bool reinitPointer(const uint64_t numberOfBytes);
 
     Brick* bricks = nullptr;
@@ -46,7 +47,7 @@ public:
     SynapseSection* synapseSections = nullptr;
 
 private:
-    DynamicSegmentSettings initSettings(const JsonItem &parsedContent);
+    DynamicSegmentSettings initSettings(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta);
     SegmentHeader createNewHeader(const uint32_t numberOfBricks,
                                   const uint32_t numberOfNeurons,
                                   const uint64_t numberOfSynapseSections,
@@ -56,15 +57,15 @@ private:
     void allocateSegment(SegmentHeader &header);
     void initDefaultValues();
 
-    void addBricksToSegment(const JsonItem &metaBase);
+    void addBricksToSegment(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta);
     bool initTargetBrickList();
 
-    Brick createNewBrick(const JsonItem &brickDef, const uint32_t id);
+    Brick createNewBrick(const Kitsunemimi::Hanami::BrickMeta &brickMeta, const uint32_t id);
     void connectBrick(Brick *sourceBrick, const uint8_t side);
     void connectAllBricks();
     bool initializeNeurons();
     uint32_t goToNextInitBrick(Brick* currentBrick, uint32_t* maxPathLength);
-    bool initSlots(const JsonItem &segmentTemplate);
+    bool initSlots(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta);
 };
 
 #endif // KYOUKOMIND_DYNAMIC_SEGMENTS_H

@@ -25,6 +25,8 @@
 
 #include <common.h>
 
+#include <libKitsunemimiHanamiCommon/structs.h>
+
 enum SegmentTypes
 {
     UNDEFINED_SEGMENT = 0,
@@ -49,7 +51,7 @@ struct SegmentHeader
     uint8_t padding;
     uint32_t segmentID = UNINIT_STATE_32;
     uint64_t staticDataSize = 0;
-    Position position;
+    Kitsunemimi::Hanami::Position position;
 
     Kitsunemimi::Hanami::kuuid parentClusterId;
 

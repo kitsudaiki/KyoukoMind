@@ -39,6 +39,16 @@ LIBS += -L../libKitsunemimiHanamiCommon/src/debug -lKitsunemimiHanamiCommon
 LIBS += -L../libKitsunemimiHanamiCommon/src/release -lKitsunemimiHanamiCommon
 INCLUDEPATH += ../libKitsunemimiHanamiCommon/include
 
+LIBS += -L../libKitsunemimiHanamiSegmentParser/src -lKitsunemimiHanamiSegmentParser
+LIBS += -L../libKitsunemimiHanamiSegmentParser/src/debug -lKitsunemimiHanamiSegmentParser
+LIBS += -L../libKitsunemimiHanamiSegmentParser/src/release -lKitsunemimiHanamiSegmentParser
+INCLUDEPATH += ../libKitsunemimiHanamiSegmentParser/include
+
+LIBS += -L../libKitsunemimiHanamiClusterParser/src -lKitsunemimiHanamiClusterParser
+LIBS += -L../libKitsunemimiHanamiClusterParser/src/debug -lKitsunemimiHanamiClusterParser
+LIBS += -L../libKitsunemimiHanamiClusterParser/src/release -lKitsunemimiHanamiClusterParser
+INCLUDEPATH += ../libKitsunemimiHanamiClusterParser/include
+
 LIBS += -L../libKitsunemimiArgs/src -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/debug -lKitsunemimiArgs
 LIBS += -L../libKitsunemimiArgs/src/release -lKitsunemimiArgs

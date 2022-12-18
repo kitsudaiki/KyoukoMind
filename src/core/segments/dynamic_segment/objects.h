@@ -44,7 +44,7 @@ struct DynamicNeuron
     uint32_t targetBorderId = UNINIT_STATE_32;
     uint32_t targetSectionId = UNINIT_STATE_32;
 
-    // total size: 40 Byte
+    // total size: 32 Byte
 };
 
 //==================================================================================================
@@ -67,11 +67,11 @@ struct SynapseSection
     uint8_t padding[3];
     uint32_t randomPos = 0;
 
-    uint32_t brickBufferPos = UNINIT_STATE_32;
+    uint32_t neuronOffset = 0;
     uint32_t next = UNINIT_STATE_32;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
-    uint8_t padding2[4];
+    uint32_t brickId = UNINIT_STATE_32;
 
     SynapseSection()
     {

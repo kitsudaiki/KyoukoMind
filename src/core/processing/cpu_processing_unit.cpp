@@ -103,7 +103,8 @@ CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             rewightDynamicSegment(*seg);
             if(reductionCounter == 100) {
-                reduceNeurons(*seg);
+                //reduceNeurons(*seg);
+                reductionCounter = 0;
             }
             reductionCounter++;
             break;

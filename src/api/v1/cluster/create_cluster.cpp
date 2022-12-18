@@ -51,10 +51,10 @@ CreateCluster::CreateCluster()
     assert(addFieldBorder("name", 4, 256));
     assert(addFieldRegex("name", NAME_REGEX));
 
-    registerInputField("cluster_definition",
-                       SAKURA_MAP_TYPE,
+    registerInputField("template",
+                       SAKURA_STRING_TYPE,
                        false,
-                       "Json-string, which describe the structure of the new cluster.");
+                       "Cluster-template as base64-string.");
 
     //----------------------------------------------------------------------------------------------
     // output
@@ -91,7 +91,7 @@ CreateCluster::runTask(BlossomIO &blossomIO,
                        Kitsunemimi::ErrorContainer &error)
 {
     const std::string clusterName = blossomIO.input.get("name").getString();
-    Kitsunemimi::Json::JsonItem clusterDefinition = blossomIO.input.get("cluster_definition");
+    const std::string base64Template = blossomIO.input.get("template").getString();
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if user already exist within the table
@@ -102,6 +102,34 @@ CreateCluster::runTask(BlossomIO &blossomIO,
         error.addMeesage(status.errorMessage);
         status.statusCode = Kitsunemimi::Hanami::CONFLICT_RTYPE;
         return false;
+    }
+    error._errorMessages.clear();
+    error._possibleSolution.clear();
+
+    Kitsunemimi::Hanami::ClusterMeta parsedCluster;
+    if(base64Template != "")
+    {
+        // decode base64 formated template to check if valid base64-string
+        DataBuffer convertedTemplate;
+        if(Kitsunemimi::Crypto::decodeBase64(convertedTemplate, base64Template) == false)
+        {
+            status.errorMessage = "Uploaded template is not a valid base64-String.";
+            status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
+            error.addMeesage(status.errorMessage);
+            return false;
+        }
+
+        // parse segment-template to validate syntax
+        const std::string convertedTemplateStr(static_cast<const char*>(convertedTemplate.data),
+                                               convertedTemplate.usedBufferSize);
+        if(Kitsunemimi::Hanami::parseCluster(&parsedCluster, convertedTemplateStr, error) == false)
+        {
+            status.errorMessage = "Uploaded template is not a valid cluster-template: \n";
+            status.errorMessage += error.toString();
+            status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
+            error.addMeesage(status.errorMessage);
+            return false;
+        }
     }
 
     // convert values
@@ -131,13 +159,16 @@ CreateCluster::runTask(BlossomIO &blossomIO,
     }
 
     const std::string uuid = blossomIO.output.get("uuid").getString();
+
+    // create new cluster
     Cluster* newCluster = new Cluster();
-    if(clusterDefinition.size() != 0)
+    if(base64Template != "")
     {
-        if(initCluster(newCluster, uuid, clusterDefinition, userContext, status, error) == false)
+        if(initCluster(newCluster, uuid, parsedCluster, userContext, status, error) == false)
         {
             delete newCluster;
             error.addMeesage("Failed to initialize cluster");
+            KyoukoRoot::clustersTable->deleteCluster(uuid, userContext, error);
             return false;
         }
     }
@@ -167,38 +198,44 @@ CreateCluster::runTask(BlossomIO &blossomIO,
 bool
 CreateCluster::initCluster(Cluster* cluster,
                            const std::string &clusterUuid,
-                           Kitsunemimi::Json::JsonItem &clusterDefinition,
+                           Kitsunemimi::Hanami::ClusterMeta &clusterDefinition,
                            const Kitsunemimi::Hanami::UserContext &userContext,
                            Kitsunemimi::Sakura::BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
 {
     // collect all segment-templates, which are required by the cluster-template
-    Kitsunemimi::Json::JsonItem segments = clusterDefinition.get("segments");
-    std::map<std::string, Kitsunemimi::Json::JsonItem> segmentTemplates;
-    for(uint64_t i = 0; i < segments.size(); i++)
+    std::map<std::string, Kitsunemimi::Hanami::SegmentMeta> segmentTemplates;
+    for(const Kitsunemimi::Hanami::SegmentMetaPtr& segmentCon : clusterDefinition.segments)
     {
-        const std::string type = segments.get(i).get("type").getString();
-
         // skip input- and output-segments, because they are generated anyway
-        if(type == "input"
-                || type == "output")
+        if(segmentCon.type == "input"
+                || segmentCon.type == "output")
         {
             continue;
         }
 
         // get the content of the segment-template
-        Kitsunemimi::Json::JsonItem parsedTemplate;
-        if(getSegmentTemplate(parsedTemplate, type, userContext, error) == false)
+        Kitsunemimi::Hanami::SegmentMeta segmentMeta;
+        if(getSegmentTemplate(&segmentMeta, segmentCon.type, userContext, error) == false)
         {
-            // TODO: set status-message and maybe change to not-found-error
-            status.statusCode = Kitsunemimi::Hanami::INTERNAL_SERVER_ERROR_RTYPE;
+            status.errorMessage = "Failed to get segment-template with name '"
+                                  + segmentCon.type
+                                  + "'";
+            status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+            error.addMeesage(status.errorMessage);
             return false;
         }
 
         // add segment-template to a map, which is generated later when creating the segments
         // based on these templates
-        const std::string name = segments.get(i).get("name").getString();
-        segmentTemplates.emplace(name, parsedTemplate);
+        segmentTemplates.emplace(segmentCon.type, segmentMeta);
+    }
+
+    // check if all connections within the cluster-definition are valid
+    if(checkConnections(clusterDefinition, segmentTemplates, status, error) == false)
+    {
+        error.addMeesage("Validation of the connections within the cluster-definition failed");
+        return false;
     }
 
     // generate and initialize the cluster based on the cluster- and segment-templates
@@ -213,17 +250,17 @@ CreateCluster::initCluster(Cluster* cluster,
 }
 
 /**
- * @brief CreateCluster::getSegmentTemplate
- * @param parsedTemplate
- * @param name
- * @param userId
- * @param projectId
- * @param isAdmin
- * @param error
- * @return
+ * @brief Request a segment-template from the database and convert and parse the content
+ *
+ * @param segmentMeta pointer of the output of the result
+ * @param name name of the segment-template, which should be loaded from the database
+ * @param userContext user-context for filtering database-access
+ * @param error reference for internal error-output
+ *
+ * @return true, if successful, else false
  */
 bool
-CreateCluster::getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
+CreateCluster::getSegmentTemplate(Kitsunemimi::Hanami::SegmentMeta* segmentMeta,
                                   const std::string &name,
                                   const Kitsunemimi::Hanami::UserContext &userContext,
                                   Kitsunemimi::ErrorContainer &error)
@@ -249,11 +286,145 @@ CreateCluster::getSegmentTemplate(Kitsunemimi::Json::JsonItem &parsedTemplate,
         return false;
     }
 
-    // parse json-formated-template
-    if(parsedTemplate.parse(decodedTemplate, error) == false)
+    // parse segment-template
+    if(Kitsunemimi::Hanami::parseSegment(segmentMeta, decodedTemplate, error) == false)
     {
-        error.addMeesage("Failed to parse decoded template");
+        error.addMeesage("Failed to parse decoded segment-template");
         return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Check all connections of the cluster-definition and initialize input- and output-segments
+ *
+ * @param clusterTemplate template with the cluster-definition
+ * @param segmentTemplates list with all required segment-templates for the cluster
+ * @param status reference for status-output in case of an error
+ * @param error reference for internal error-output
+ *
+ * @return true, if successful, else false
+ */
+bool
+CreateCluster::checkConnections(Kitsunemimi::Hanami::ClusterMeta &clusterTemplate,
+                                std::map<std::string, SegmentMeta> &segmentTemplates,
+                                Kitsunemimi::Sakura::BlossomStatus &status,
+                                Kitsunemimi::ErrorContainer &error)
+{
+    for(Kitsunemimi::Hanami::SegmentMetaPtr &sourceSegmentPtr : clusterTemplate.segments)
+    {
+        for(Kitsunemimi::Hanami::ClusterConnection &conn : sourceSegmentPtr.outputs)
+        {
+            // skip output-segments, because they have not outgoing connections
+            if(sourceSegmentPtr.type == "output") {
+                continue;
+            }
+
+            // get segment-meta-data of the target-segment
+            SegmentMetaPtr* targetSegmentPtr = clusterTemplate.getSegmentMetaPtr(conn.targetSegment);
+            if(targetSegmentPtr == nullptr)
+            {
+                status.errorMessage = "Segment-template with name '"
+                                      + conn.targetSegment
+                                      + "' not found.";
+                status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+                error.addMeesage(status.errorMessage);
+                return false;
+            }
+
+            // check that input is not directly connected to output
+            if(sourceSegmentPtr.type == "input"
+                    && targetSegmentPtr->type == "output")
+            {
+                status.errorMessage = "Input- and Output-segments are not allowed to be directly "
+                                      "connected with each other.";
+                status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
+                error.addMeesage(status.errorMessage);
+                return false;
+            }
+
+            if(targetSegmentPtr->type != "output")
+            {
+                // get segment-meta-data of the target-segment
+                std::map<std::string, SegmentMeta>::iterator targetSegmentIt;
+                targetSegmentIt = segmentTemplates.find(targetSegmentPtr->type);
+                if(targetSegmentIt == segmentTemplates.end())
+                {
+                    status.errorMessage = "Segment-template with name '"
+                                          + targetSegmentPtr->type
+                                          + "' not found.";
+                    status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+                    error.addMeesage(status.errorMessage);
+                    return false;
+                }
+
+                // get target-brick of the target-segment
+                BrickMeta* brickMeta = targetSegmentIt->second.getBrick(conn.targetBrick);
+                if(brickMeta == nullptr)
+                {
+                    status.errorMessage = "Segment-template with name '"
+                                          + targetSegmentPtr->type
+                                          + "' has no brick with name '"
+                                          + conn.targetBrick
+                                          + "'";
+                    status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+                    error.addMeesage(status.errorMessage);
+                    return false;
+                }
+
+                // if source of the connection is an input-segment, then create a new segment-meta-
+                // object for this input with the number of inputs depending on the target-brick
+                if(sourceSegmentPtr.type == "input")
+                {
+                    BrickMeta inputBrick;
+                    inputBrick.numberOfNeurons = brickMeta->numberOfNeurons;
+                    SegmentMeta inputSegment;
+                    inputSegment.bricks.push_back(inputBrick);
+                    // TODO: check if name already exist
+                    segmentTemplates.emplace(sourceSegmentPtr.name, inputSegment);
+                }
+            }
+            else
+            {
+                // get segment-meta-data of the source-segment
+                std::map<std::string, SegmentMeta>::iterator sourceSegmentIt;
+                sourceSegmentIt = segmentTemplates.find(sourceSegmentPtr.type);
+                if(sourceSegmentIt == segmentTemplates.end())
+                {
+                    status.errorMessage = "Segment-template with name '"
+                                          + sourceSegmentPtr.type
+                                          + "' not found.";
+                    status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+                    error.addMeesage(status.errorMessage);
+                    return false;
+                }
+
+                // get source-brick of the source-segment
+                BrickMeta* brickMeta = sourceSegmentIt->second.getBrick(conn.sourceBrick);
+                if(brickMeta == nullptr)
+                {
+                    status.errorMessage = "Segment-template with name '"
+                                          + sourceSegmentPtr.type
+                                          + "' has no brick with name '"
+                                          + conn.sourceBrick
+                                          + "'";
+                    status.statusCode = Kitsunemimi::Hanami::NOT_FOUND_RTYPE;
+                    error.addMeesage(status.errorMessage);
+                    return false;
+                }
+
+                // if target of the connection is an output-segment, then create a new segment-meta-
+                // object for this output with the number of outputs depending on the source-brick
+                Kitsunemimi::Hanami::BrickMeta outputBrick;
+                outputBrick.numberOfNeurons = brickMeta->numberOfNeurons;
+                SegmentMeta inputSegment;
+                inputSegment.bricks.push_back(outputBrick);
+                // TODO: check if name already exist
+                segmentTemplates.emplace(targetSegmentPtr->name, inputSegment);
+            }
+
+        }
     }
 
     return true;

@@ -26,6 +26,9 @@
 #include <common.h>
 #include <core/cluster/task.h>
 
+#include <libKitsunemimiHanamiClusterParser/cluster_meta.h>
+#include <libKitsunemimiHanamiSegmentParser/segment_meta.h>
+
 class AbstractSegment;
 class InputSegment;
 class OutputSegment;
@@ -92,8 +95,8 @@ public:
     const std::string getUuid();
     const std::string getName();
     bool setName(const std::string newName);
-    bool init(const JsonItem &clusterTemplate,
-              const std::map<std::string, Kitsunemimi::Json::JsonItem> &segmentTemplates,
+    bool init(const Kitsunemimi::Hanami::ClusterMeta &clusterTemplate,
+              const std::map<std::string, Kitsunemimi::Hanami::SegmentMeta> &segmentTemplates,
               const std::string &uuid);
     bool connectSlot(const std::string &sourceSegmentName,
                      const std::string &sourceSlotName,

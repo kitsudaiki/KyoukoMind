@@ -25,6 +25,9 @@
 
 #include <common.h>
 
+#include <libKitsunemimiHanamiClusterParser/cluster_meta.h>
+#include <libKitsunemimiHanamiSegmentParser/segment_meta.h>
+
 class InputSegment;
 class OutputSegment;
 class AbstractSegment;
@@ -34,21 +37,18 @@ class Cluster;
 bool reinitPointer(Cluster* cluster, const std::string &uuid);
 
 bool initNewCluster(Cluster* cluster,
-                    const JsonItem &clusterTemplate,
-                    const std::map<std::string, JsonItem> &segmentTemplates,
+                    const Kitsunemimi::Hanami::ClusterMeta &clusterTemplate,
+                    const std::map<std::string, Kitsunemimi::Hanami::SegmentMeta> &segmentTemplates,
                     const std::string &uuid);
 
 AbstractSegment* addInputSegment(Cluster* cluster,
                                  const std::string &name,
-                                 const JsonItem &clusterTemplatePart);
+                                 const Kitsunemimi::Hanami::SegmentMeta &segmentMeta);
 AbstractSegment* addOutputSegment(Cluster* cluster,
                                   const std::string &name,
-                                  const JsonItem &clusterTemplatePart);
+                                  const Kitsunemimi::Hanami::SegmentMeta &segmentMeta);
 AbstractSegment* addDynamicSegment(Cluster* cluster,
                                    const std::string &name,
-                                   const JsonItem &clusterTemplatePart,
-                                   const JsonItem &segmentTemplate);
-
-Position convertPosition(const JsonItem &parsedContent);
+                                   const Kitsunemimi::Hanami::SegmentMeta &segmentMeta);
 
 #endif // KYOUKOMIND_CLUSTERINIT_H

@@ -39,14 +39,34 @@
  * @return position in buffer, where the section was added
  */
 inline uint64_t
-createNewSection(DynamicSegment &segment)
+createNewSection(DynamicSegment &segment,
+                 const Brick &currentBrick)
 {
-    SynapseSection newSection;
-    newSection.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
-    newSection.randomPos = rand() % NUMBER_OF_RAND_VALUES;
-    newSection.brickBufferPos = KyoukoRoot::m_randomValues[newSection.randomPos] % 1000;
+    SynapseSection section;
+    section.active = Kitsunemimi::ItemBuffer::ACTIVE_SECTION;
+    section.randomPos = rand() % NUMBER_OF_RAND_VALUES;
+    section.brickId = KyoukoRoot::m_randomValues[section.randomPos] % 1000;
+    section.brickId = currentBrick.possibleTargetNeuronBrickIds[section.brickId];
+    section.neuronOffset = segment.bricks[section.brickId].neuronPos;
 
-    return segment.segmentData.addNewItem(newSection);
+    uint32_t signRand = 0;
+    const uint32_t* randomValues = KyoukoRoot::m_randomValues;
+    const float randMax = static_cast<float>(RAND_MAX);
+    const float sigNeg = segment.dynamicSegmentSettings->signNeg;
+
+    for(uint32_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++)
+    {
+        Synapse* synapse = &section.synapses[i];
+        section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+        synapse->weight = (static_cast<float>(randomValues[section.randomPos]) / randMax) / 10.0f;
+
+        // update weight with sign
+        section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
+        signRand = randomValues[section.randomPos] % 1000;
+        synapse->weight *= static_cast<float>(1.0f - (1000.0f * sigNeg > signRand) * 2);
+    }
+
+    return segment.segmentData.addNewItem(section);
 }
 
 /**
@@ -63,43 +83,24 @@ inline void
 createNewSynapse(SynapseSection &section,
                  Synapse* synapse,
                  Brick* bricks,
-                 const DynamicNeuron &sourceNeuron,
                  const DynamicSegmentSettings &segmentSettings,
                  const float remainingWeight,
                  const float outH)
 {
-    float random = 0.0f;
-    float newWeight = 0.0f;
-    uint32_t targetNeuronIdInBrick = 0;
-    Brick* targetBrick = nullptr;
-    Brick* neuronBrick = nullptr;
-    uint32_t signRand = 0;
     const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
     const float maxWeight = outH / static_cast<float>(segmentSettings.synapseSegmentation);
 
     // set activation-border
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    random = static_cast<float>(randomValues[section.randomPos]) / randMax;
-    newWeight = maxWeight * random;
+    float newWeight = maxWeight * (static_cast<float>(randomValues[section.randomPos]) / randMax);
     synapse->border = static_cast<float>(remainingWeight < newWeight) * remainingWeight
                       + static_cast<float>(remainingWeight >= newWeight) * newWeight;
 
-    // set new weight
-    synapse->weight = random / 10.0f;
-
-    // update weight with sign
-    section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    signRand = randomValues[section.randomPos] % 1000;
-    synapse->weight *= static_cast<float>(1.0f - (1000.0f * segmentSettings.signNeg > signRand) * 2);
-
     // set target neuron
     section.randomPos = (section.randomPos + 1) % NUMBER_OF_RAND_VALUES;
-    neuronBrick = &bricks[sourceNeuron.brickId];
-    targetBrick = &bricks[neuronBrick->possibleTargetNeuronBrickIds[section.brickBufferPos]];
-    targetNeuronIdInBrick = randomValues[section.randomPos] % targetBrick->numberOfNeurons;
-
-    synapse->targetNeuronId = static_cast<uint16_t>(targetNeuronIdInBrick + targetBrick->neuronPos);
+    synapse->targetNeuronId = static_cast<uint16_t>(randomValues[section.randomPos]
+                                                    % bricks[section.brickId].numberOfNeurons);
     synapse->activeCounter = 1;
 }
 
@@ -114,6 +115,7 @@ createNewSynapse(SynapseSection &section,
  */
 inline void
 synapseProcessing(SynapseSection &section,
+                  const Brick &brick,
                   DynamicSegment &segment,
                   const DynamicNeuron &sourceNeuron,
                   float netH,
@@ -122,96 +124,8 @@ synapseProcessing(SynapseSection &section,
     uint32_t pos = 0;
     Synapse* synapse = nullptr;
     DynamicNeuron* targetNeuron = nullptr;
-    Synapse synapseObj;
-
-    // iterate over all synapses in the section
-    while(pos < SYNAPSES_PER_SYNAPSESECTION
-          && netH > 0.0f)
-    {
-        synapse = &section.synapses[pos];
-        synapseObj = *synapse;
-
-        // break loop, if learning is disabled to the loop has reached an inactive synapse
-        if(synapseObj.targetNeuronId == UNINIT_STATE_16) {
-            break;
-        }
-        else if(synapseObj.targetNeuronId == 0)
-        {
-            pos++;
-            netH -= synapseObj.border;
-            continue;
-        }
-
-        // update target-neuron
-        targetNeuron = &segment.neurons[synapseObj.targetNeuronId];
-        targetNeuron->input += synapseObj.weight;
-
-        // update loop-counter
-        netH -= synapseObj.border;
-        pos++;
-    }
-
-    if(netH > 0.01f
-            && section.next != UNINIT_STATE_32)
-    {
-        synapseProcessing(segment.synapseSections[section.next],
-                          segment,
-                          sourceNeuron,
-                          netH,
-                          outH);
-    }
-}
-
-/**
- * @brief check the load on the section. If it would tigger not enough synapses inside the section
- *        then it is no good trained and should be cleared to try it again.
- *
- * @param section current processed synapse-section
- * @param netH wight-value, which comes into the section
- */
-inline void
-synapsePreprocessing(SynapseSection &section,
-                     float netH)
-{
-    uint32_t pos = 0;
-
-    // in case there are not enough interaction, delete section an try it again
-    while(pos < SYNAPSES_PER_SYNAPSESECTION
-          && netH > 0.0f)
-    {
-        netH -= section.synapses[pos].border;
-        pos++;
-    }
-
-    if(pos < 2)
-    {
-        for(uint16_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++) {
-            section.synapses[i].targetNeuronId = UNINIT_STATE_16;
-        }
-    }
-}
-
-/**
- * @brief process synapse-section
- *
- * @param section current processed synapse-section
- * @param segment refernece to the processed segment
- * @param sourceNeuron source-neuron, who triggered the section
- * @param netH wight-value, which comes into the section
- * @param outH multiplicator
- */
-inline void
-synapseProcessing_withLearn(SynapseSection &section,
-                            DynamicSegment &segment,
-                            const DynamicNeuron &sourceNeuron,
-                            float netH,
-                            const float outH)
-{
-    uint32_t pos = 0;
-    Synapse* synapse = nullptr;
-    DynamicNeuron* targetNeuron = nullptr;
-    Synapse synapseObj;
     uint8_t active = 0;
+    uint32_t nodePos = 0;
 
     //synapsePreprocessing(section, netH);
 
@@ -227,35 +141,22 @@ synapseProcessing_withLearn(SynapseSection &section,
             createNewSynapse(section,
                              synapse,
                              segment.bricks,
-                             sourceNeuron,
                              *segment.dynamicSegmentSettings,
                              netH,
                              outH);
         }
 
-        synapseObj = *synapse;
-
-        // break loop, if learning is disabled to the loop has reached an inactive synapse
-        if(synapseObj.targetNeuronId == UNINIT_STATE_16) {
-            break;
-        }
-        else if(synapseObj.targetNeuronId == 0)
-        {
-            pos++;
-            netH -= synapseObj.border;
-            continue;
-        }
-
         // update target-neuron
-        targetNeuron = &segment.neurons[synapseObj.targetNeuronId];
-        targetNeuron->input += synapseObj.weight;
+        nodePos = static_cast<uint32_t>(synapse->targetNeuronId) + section.neuronOffset;
+        targetNeuron = &segment.neurons[nodePos];
+        targetNeuron->input += synapse->weight;
 
         // update active-counter
         active = (synapse->weight > 0) == (targetNeuron->potential > targetNeuron->border);
-        synapse->activeCounter += active * static_cast<uint8_t>(synapseObj.activeCounter < 126);
+        synapse->activeCounter += active * static_cast<uint8_t>(synapse->activeCounter < 126);
 
         // update loop-counter
-        netH -= synapseObj.border;
+        netH -= synapse->border;
         pos++;
     }
 
@@ -264,7 +165,7 @@ synapseProcessing_withLearn(SynapseSection &section,
         // if no next section exist for the neuron, then create and a attach a new synapse-section
         if(section.next == UNINIT_STATE_32)
         {
-            const uint64_t newPos = createNewSection(segment);
+            const uint64_t newPos = createNewSection(segment, brick);
             // handle problem while allocating a new item for the section, for example if the
             // maximum number of items in the buffer is already in use
             if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
@@ -274,11 +175,12 @@ synapseProcessing_withLearn(SynapseSection &section,
             section.next = newPos;
         }
 
-        synapseProcessing_withLearn(segment.synapseSections[section.next],
-                                    segment,
-                                    sourceNeuron,
-                                    netH,
-                                    outH);
+        synapseProcessing(segment.synapseSections[section.next],
+                          brick,
+                          segment,
+                          sourceNeuron,
+                          netH,
+                          outH);
     }
 }
 
@@ -290,6 +192,7 @@ synapseProcessing_withLearn(SynapseSection &section,
  */
 inline void
 processSingleNeuron(DynamicNeuron* neuron,
+                    const Brick &brick,
                     DynamicSegment &segment)
 {
     // handle active-state
@@ -297,42 +200,29 @@ processSingleNeuron(DynamicNeuron* neuron,
         return;
     }
 
-    if(segment.dynamicSegmentSettings->doLearn > 0)
+    // if no target exist for the neuron, then create and a attach a new synapse-section
+    if(neuron->targetSectionId == UNINIT_STATE_32)
     {
-        // if no target exist for the neuron, then create and a attach a new synapse-section
-        if(neuron->targetSectionId == UNINIT_STATE_32)
-        {
-            const uint64_t newPos = createNewSection(segment);
-            // handle problem while allocating a new item for the section, for example if the
-            // maximum number of items in the buffer is already in use
-            if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
-                return;
-            }
-
-            neuron->targetSectionId = newPos;
+        const uint64_t newPos = createNewSection(segment, brick);
+        // handle problem while allocating a new item for the section, for example if the
+        // maximum number of items in the buffer is already in use
+        if(newPos == ITEM_BUFFER_UNDEFINE_POS) {
+            return;
         }
+
+        neuron->targetSectionId = newPos;
     }
 
     if(neuron->targetSectionId == UNINIT_STATE_32) {
         return;
     }
 
-    if(segment.dynamicSegmentSettings->doLearn > 0)
-    {
-        synapseProcessing_withLearn(segment.synapseSections[neuron->targetSectionId],
-                                    segment,
-                                    *neuron,
-                                    neuron->potential,
-                                    neuron->potential);
-    }
-    else
-    {
-        synapseProcessing(segment.synapseSections[neuron->targetSectionId],
-                          segment,
-                          *neuron,
-                          neuron->potential,
-                          neuron->potential);
-    }
+    synapseProcessing(segment.synapseSections[neuron->targetSectionId],
+                      brick,
+                      segment,
+                      *neuron,
+                      neuron->potential,
+                      neuron->potential);
 }
 
 /**
@@ -342,17 +232,11 @@ processSingleNeuron(DynamicNeuron* neuron,
  */
 inline void
 processNeuron(DynamicNeuron* neuron,
-            const DynamicSegment &segment)
+              const DynamicSegment &segment)
 {
     neuron->potential /= segment.dynamicSegmentSettings->neuronCooldown;
-
-    // init border, if not set
-    if(neuron->border == 0.00f) {
-        neuron->border = neuron->input * 0.5f;
-    }
-
-    // handle refraction-time
     neuron->refractionTime = neuron->refractionTime >> 1;
+
     if(neuron->refractionTime == 0)
     {
         neuron->potential = segment.dynamicSegmentSettings->potentialOverflow * neuron->input;
@@ -374,7 +258,7 @@ processNeuron(DynamicNeuron* neuron,
  */
 inline void
 processNeuronsOfOutputBrick(const Brick &brick,
-                          const DynamicSegment &segment)
+                            const DynamicSegment &segment)
 {
     DynamicNeuron* neuron = nullptr;
 
@@ -384,30 +268,6 @@ processNeuronsOfOutputBrick(const Brick &brick,
     {
         neuron = &segment.neurons[neuronId];
         neuron->potential = segment.dynamicSegmentSettings->potentialOverflow * neuron->input;
-        segment.outputTransfers[neuron->targetBorderId] = neuron->potential;
-        neuron->input = 0.0f;
-    }
-}
-
-/**
- * @brief reset neurons of a transaction brick
- *
- * @param brick pointer to the brick
- * @param segment segment where the brick belongs to
- */
-inline void
-processNeuronsOfTransactionBrick(const Brick &brick,
-                               const DynamicSegment &segment)
-{
-    DynamicNeuron* neuron = nullptr;
-
-    for(uint32_t neuronId = brick.neuronPos;
-        neuronId < brick.numberOfNeurons + brick.neuronPos;
-        neuronId++)
-    {
-        neuron = &segment.neurons[neuronId];
-        neuron->potential = segment.dynamicSegmentSettings->potentialOverflow * neuron->input;
-        processNeuron(neuron, segment);
         segment.outputTransfers[neuron->targetBorderId] = neuron->potential;
         neuron->input = 0.0f;
     }
@@ -421,7 +281,7 @@ processNeuronsOfTransactionBrick(const Brick &brick,
  */
 inline void
 processNeuronsOfInputBrick(const Brick &brick,
-                         DynamicSegment &segment)
+                           DynamicSegment &segment)
 {
     DynamicNeuron* neuron = nullptr;
 
@@ -433,7 +293,7 @@ processNeuronsOfInputBrick(const Brick &brick,
         neuron->potential = segment.inputTransfers[neuron->targetBorderId];
         neuron->active = neuron->potential > 0.0f;
 
-        processSingleNeuron(neuron, segment);
+        processSingleNeuron(neuron, brick, segment);
     }
 }
 
@@ -455,7 +315,7 @@ processNeuronsOfNormalBrick(const Brick &brick,
     {
         neuron = &segment.neurons[neuronId];
         processNeuron(neuron, segment);
-        processSingleNeuron(neuron, segment);
+        processSingleNeuron(neuron, brick, segment);
     }
 }
 
@@ -477,8 +337,6 @@ prcessDynamicSegment(DynamicSegment &segment)
             processNeuronsOfInputBrick(*brick, segment);
         } else if(brick->isOutputBrick) {
             processNeuronsOfOutputBrick(*brick, segment);
-        } else if(brick->isTransactionBrick) {
-            processNeuronsOfTransactionBrick(*brick, segment);
         } else {
             processNeuronsOfNormalBrick(*brick, segment);
         }
