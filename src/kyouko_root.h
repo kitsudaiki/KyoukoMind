@@ -50,8 +50,6 @@ public:
     static TemplateTable* templateTable;
     static std::string* componentToken;
 
-    bool initializeSakuraFiles(Kitsunemimi::ErrorContainer &error);
-
 private:
     uint32_t m_serverId = 0;
     bool initDatabase(Kitsunemimi::ErrorContainer &error);

@@ -26,7 +26,7 @@
 #include <core/cluster/cluster.h>
 #include <kyouko_root.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 DeleteTask::DeleteTask()
     : Blossom("Delete a task or abort a task, if it is actually running.")

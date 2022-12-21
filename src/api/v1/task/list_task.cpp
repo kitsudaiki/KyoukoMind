@@ -29,7 +29,7 @@
 #include <libKitsunemimiHanamiCommon/functions.h>
 #include <libKitsunemimiHanamiCommon/enums.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 ListTask::ListTask()
     : Blossom("List all visible tasks of a specific cluster.")

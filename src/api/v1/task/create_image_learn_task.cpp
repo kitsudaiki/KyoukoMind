@@ -34,7 +34,7 @@
 
 #include <libKitsunemimiCrypto/common.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 using Kitsunemimi::Hanami::SupportedComponents;
 
 CreateImageLearnTask::CreateImageLearnTask()

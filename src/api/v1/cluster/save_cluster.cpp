@@ -29,7 +29,7 @@
 #include <libKitsunemimiHanamiCommon/enums.h>
 #include <libKitsunemimiHanamiNetwork/hanami_messaging.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 using Kitsunemimi::Hanami::SupportedComponents;
 
 SaveCluster::SaveCluster()

@@ -40,14 +40,11 @@
 #include <libKitsunemimiHanamiNetwork/hanami_messaging_client.h>
 #include <libKitsunemimiHanamiCommon/component_support.h>
 
-#include <libKitsunemimiSakuraLang/sakura_lang_interface.h>
 #include <libKitsunemimiSakuraDatabase/sql_database.h>
 
-using Kitsunemimi::Sakura::SakuraLangInterface;
 using Kitsunemimi::Hanami::SupportedComponents;
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::HanamiMessagingClient;
-using Kitsunemimi::Sakura::SakuraLangInterface;
 
 // init static variables
 ClusterHandler* KyoukoRoot::m_clusterHandler = nullptr;
@@ -159,40 +156,6 @@ KyoukoRoot::initDatabase(Kitsunemimi::ErrorContainer &error)
     if(templateTable->initTable(error) == false)
     {
         error.addMeesage("Failed to initialize template-table in database.");
-        LOG_ERROR(error);
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * @brief read local sakura-files
- *
- * @param error reference for error-output
- *
- * @return true, if successful, else false
- */
-bool
-KyoukoRoot::initializeSakuraFiles(Kitsunemimi::ErrorContainer &error)
-{
-    bool success = false;
-    // get directory from config
-    const std::string sakuraDir = GET_STRING_CONFIG("DEFAULT", "sakura-file-locaion", success);
-    if(success == false)
-    {
-        error.addMeesage("Failed to get 'sakura-file-locaion' from config");
-        LOG_ERROR(error);
-        return false;
-    }
-
-    // read files in directory
-    success = SakuraLangInterface::getInstance()->readFilesInDir(sakuraDir, error);
-    if(success == false)
-    {
-        error.addMeesage("Failed to read files in 'sakura-file-locaion', which is '"
-                         + sakuraDir
-                         + "'");
         LOG_ERROR(error);
         return false;
     }

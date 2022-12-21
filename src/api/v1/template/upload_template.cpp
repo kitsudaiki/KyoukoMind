@@ -31,7 +31,7 @@
 
 #include <libKitsunemimiCrypto/common.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 UploadTemplate::UploadTemplate()
     : Blossom("Upload a new template and store it within the database.")

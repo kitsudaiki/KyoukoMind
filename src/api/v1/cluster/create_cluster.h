@@ -23,7 +23,7 @@
 #ifndef KYOUKOMIND_CREATECLUSTER_H
 #define KYOUKOMIND_CREATECLUSTER_H
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiHanamiNetwork/blossom.h>
 #include <libKitsunemimiHanamiCommon/structs.h>
 #include <libKitsunemimiHanamiClusterParser/cluster_meta.h>
 #include <libKitsunemimiHanamiSegmentParser/segment_meta.h>
@@ -35,15 +35,15 @@ using Kitsunemimi::Hanami::SegmentMetaPtr;
 using Kitsunemimi::Hanami::BrickMeta;
 
 class CreateCluster
-        : public Kitsunemimi::Sakura::Blossom
+        : public Kitsunemimi::Hanami::Blossom
 {
 public:
     CreateCluster();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomIO &blossomIO,
+    bool runTask(Kitsunemimi::Hanami::BlossomIO &blossomIO,
                  const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
+                 Kitsunemimi::Hanami::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
 
 private:
@@ -51,7 +51,7 @@ private:
                      const std::string &clusterUuid,
                      Kitsunemimi::Hanami::ClusterMeta &clusterDefinition,
                      const Kitsunemimi::Hanami::UserContext &userContext,
-                     Kitsunemimi::Sakura::BlossomStatus &status,
+                     Kitsunemimi::Hanami::BlossomStatus &status,
                      Kitsunemimi::ErrorContainer &error);
 
     bool getSegmentTemplate(Kitsunemimi::Hanami::SegmentMeta* segmentMeta,
@@ -61,7 +61,7 @@ private:
 
     bool checkConnections(Kitsunemimi::Hanami::ClusterMeta &clusterTemplate,
                           std::map<std::string, SegmentMeta> &segmentTemplates,
-                          Kitsunemimi::Sakura::BlossomStatus &status,
+                          Kitsunemimi::Hanami::BlossomStatus &status,
                           Kitsunemimi::ErrorContainer &error);
 };
 
