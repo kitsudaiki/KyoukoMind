@@ -23,18 +23,18 @@
 #ifndef KYOUKOMIND_SHOW_TEMPLATE_H
 #define KYOUKOMIND_SHOW_TEMPLATE_H
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiHanamiNetwork/blossom.h>
 
 class ShowTemplate
-        : public Kitsunemimi::Sakura::Blossom
+        : public Kitsunemimi::Hanami::Blossom
 {
 public:
     ShowTemplate();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomIO &blossomIO,
+    bool runTask(Kitsunemimi::Hanami::BlossomIO &blossomIO,
                  const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
+                 Kitsunemimi::Hanami::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
 };
 

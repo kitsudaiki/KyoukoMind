@@ -29,7 +29,7 @@
 
 #include <kyouko_root.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 ShowTemplate::ShowTemplate()
     : Blossom("Show a specific template.")

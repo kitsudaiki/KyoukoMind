@@ -64,12 +64,6 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    if(rootObj.initializeSakuraFiles(error) == false)
-    {
-        LOG_ERROR(error);
-        return 1;
-    }
-
     // init included components
     Azuki::initAzukiBlossoms();
     Misaki::initMisakiBlossoms();

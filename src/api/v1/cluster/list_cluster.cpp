@@ -26,7 +26,7 @@
 
 #include <libKitsunemimiHanamiCommon/enums.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 ListCluster::ListCluster()
     : Blossom("List all visible clusters.")

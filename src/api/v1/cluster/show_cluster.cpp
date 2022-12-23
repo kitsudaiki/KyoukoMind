@@ -28,7 +28,7 @@
 
 #include <libKitsunemimiHanamiCommon/enums.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 ShowCluster::ShowCluster()
     : Blossom("Show information of a specific cluster.")

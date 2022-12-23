@@ -33,11 +33,6 @@ void
 registerConfigs(Kitsunemimi::ErrorContainer &error)
 {
     Kitsunemimi::Hanami::registerBasicConfigs(error);
-
-    REGISTER_STRING_CONFIG("DEFAULT",
-                           "sakura-file-locaion",
-                           error,
-                           "/etc/KyoukoMind/sakura-files");
 }
 
 #endif // KYOUKOMIND_CONFIG_H

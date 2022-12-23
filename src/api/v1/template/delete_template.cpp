@@ -29,7 +29,7 @@
 
 #include <kyouko_root.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 DeleteTemplate::DeleteTemplate()
     : Blossom("Delete a template from the database.")

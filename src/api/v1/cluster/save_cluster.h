@@ -23,18 +23,18 @@
 #ifndef SAVECLUSTER_H
 #define SAVECLUSTER_H
 
-#include <libKitsunemimiSakuraLang/blossom.h>
+#include <libKitsunemimiHanamiNetwork/blossom.h>
 
 class SaveCluster
-        : public Kitsunemimi::Sakura::Blossom
+        : public Kitsunemimi::Hanami::Blossom
 {
 public:
     SaveCluster();
 
 protected:
-    bool runTask(Kitsunemimi::Sakura::BlossomIO &blossomIO,
+    bool runTask(Kitsunemimi::Hanami::BlossomIO &blossomIO,
                  const Kitsunemimi::DataMap &context,
-                 Kitsunemimi::Sakura::BlossomStatus &status,
+                 Kitsunemimi::Hanami::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
 };
 

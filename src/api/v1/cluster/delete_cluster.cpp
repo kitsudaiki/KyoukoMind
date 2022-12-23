@@ -31,7 +31,7 @@
 
 #include <libKitsunemimiHanamiCommon/enums.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 DeleteCluster::DeleteCluster()
     : Blossom("Delete a cluster.")

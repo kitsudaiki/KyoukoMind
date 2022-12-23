@@ -24,11 +24,6 @@ LIBS += -L../libKitsunemimiHanamiNetwork/src/debug -lKitsunemimiHanamiNetwork
 LIBS += -L../libKitsunemimiHanamiNetwork/src/release -lKitsunemimiHanamiNetwork
 INCLUDEPATH += ../libKitsunemimiHanamiNetwork/include
 
-LIBS += -L../libKitsunemimiHanamiEndpoints/src -lKitsunemimiHanamiEndpoints
-LIBS += -L../libKitsunemimiHanamiEndpoints/src/debug -lKitsunemimiHanamiEndpoints
-LIBS += -L../libKitsunemimiHanamiEndpoints/src/release -lKitsunemimiHanamiEndpoints
-INCLUDEPATH += ../libKitsunemimiHanamiEndpoints/include
-
 LIBS += -L../libKitsunemimiHanamiDatabase/src -lKitsunemimiHanamiDatabase
 LIBS += -L../libKitsunemimiHanamiDatabase/src/debug -lKitsunemimiHanamiDatabase
 LIBS += -L../libKitsunemimiHanamiDatabase/src/release -lKitsunemimiHanamiDatabase
@@ -69,11 +64,6 @@ LIBS += -L../libKitsunemimiSakuraNetwork/src/debug -lKitsunemimiSakuraNetwork
 LIBS += -L../libKitsunemimiSakuraNetwork/src/release -lKitsunemimiSakuraNetwork
 INCLUDEPATH += ../libKitsunemimiSakuraNetwork/include
 
-LIBS += -L../libKitsunemimiSakuraLang/src -lKitsunemimiSakuraLang
-LIBS += -L../libKitsunemimiSakuraLang/src/debug -lKitsunemimiSakuraLang
-LIBS += -L../libKitsunemimiSakuraLang/src/release -lKitsunemimiSakuraLang
-INCLUDEPATH += ../libKitsunemimiSakuraLang/include
-
 LIBS += -L../libKitsunemimiNetwork/src -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/debug -lKitsunemimiNetwork
 LIBS += -L../libKitsunemimiNetwork/src/release -lKitsunemimiNetwork
@@ -93,11 +83,6 @@ LIBS += -L../libKitsunemimiIni/src -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/debug -lKitsunemimiIni
 LIBS += -L../libKitsunemimiIni/src/release -lKitsunemimiIni
 INCLUDEPATH += ../libKitsunemimiIni/include
-
-LIBS += -L../libKitsunemimiJinja2/src -lKitsunemimiJinja2
-LIBS += -L../libKitsunemimiJinja2/src/debug -lKitsunemimiJinja2
-LIBS += -L../libKitsunemimiJinja2/src/release -lKitsunemimiJinja2
-INCLUDEPATH += ../libKitsunemimiJinja2/include
 
 LIBS += -L../libKitsunemimiJson/src -lKitsunemimiJson
 LIBS += -L../libKitsunemimiJson/src/debug -lKitsunemimiJson

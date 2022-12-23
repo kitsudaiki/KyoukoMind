@@ -27,7 +27,7 @@
 
 #include <kyouko_root.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 ListTemplates::ListTemplates()
     : Blossom("List all visible templates.")

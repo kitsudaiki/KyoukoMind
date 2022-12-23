@@ -35,7 +35,7 @@
 
 #include <kyouko_root.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 CreateCluster::CreateCluster()
     : Blossom("Create new cluster.")
@@ -200,7 +200,7 @@ CreateCluster::initCluster(Cluster* cluster,
                            const std::string &clusterUuid,
                            Kitsunemimi::Hanami::ClusterMeta &clusterDefinition,
                            const Kitsunemimi::Hanami::UserContext &userContext,
-                           Kitsunemimi::Sakura::BlossomStatus &status,
+                           Kitsunemimi::Hanami::BlossomStatus &status,
                            Kitsunemimi::ErrorContainer &error)
 {
     // collect all segment-templates, which are required by the cluster-template
@@ -309,7 +309,7 @@ CreateCluster::getSegmentTemplate(Kitsunemimi::Hanami::SegmentMeta* segmentMeta,
 bool
 CreateCluster::checkConnections(Kitsunemimi::Hanami::ClusterMeta &clusterTemplate,
                                 std::map<std::string, SegmentMeta> &segmentTemplates,
-                                Kitsunemimi::Sakura::BlossomStatus &status,
+                                Kitsunemimi::Hanami::BlossomStatus &status,
                                 Kitsunemimi::ErrorContainer &error)
 {
     for(Kitsunemimi::Hanami::SegmentMetaPtr &sourceSegmentPtr : clusterTemplate.segments)

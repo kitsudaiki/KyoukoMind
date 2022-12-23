@@ -29,7 +29,7 @@
 #include <libKitsunemimiHanamiCommon/enums.h>
 #include <libKitsunemimiHanamiCommon/functions.h>
 
-using namespace Kitsunemimi::Sakura;
+using namespace Kitsunemimi::Hanami;
 
 ShowTask::ShowTask()
     : Blossom("Show information of a specific task.")
