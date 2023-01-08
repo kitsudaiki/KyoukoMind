@@ -1,5 +1,5 @@
 /**
- * @file        create_request_task.h
+ * @file        create_image_learn_task.h
  *
  * @author      Tobias Anker <tobias.anker@kitsunemimi.moe>
  *
@@ -20,25 +20,46 @@
  *      limitations under the License.
  */
 
-#ifndef KYOUKOMIND_CREATE_IMAGE_REQUESTTASK_H
-#define KYOUKOMIND_CREATE_IMAGE_REQUESTTASK_H
+#ifndef KYOUKOMIND_CREATE_IMAGE_LEARNTASK_H
+#define KYOUKOMIND_CREATE_IMAGE_LEARNTASK_H
 
 #include <common.h>
 #include <libKitsunemimiHanamiNetwork/blossom.h>
 
 class Cluster;
 
-class CreateImageRequestTask
+class CreateTask
         : public Kitsunemimi::Hanami::Blossom
 {
 public:
-    CreateImageRequestTask();
+    CreateTask();
 
 protected:
     bool runTask(Kitsunemimi::Hanami::BlossomIO &blossomIO,
                  const Kitsunemimi::DataMap &context,
                  Kitsunemimi::Hanami::BlossomStatus &status,
                  Kitsunemimi::ErrorContainer &error);
+
+private:
+    bool imageTask(std::string &taskUuid,
+                   const std::string &name,
+                   const std::string &taskType,
+                   const std::string &dataSetUuid,
+                   const Kitsunemimi::Hanami::UserContext &userContext,
+                   Cluster* cluster,
+                   JsonItem &dataSetInfo,
+                   Kitsunemimi::Hanami::BlossomStatus &status,
+                   Kitsunemimi::ErrorContainer &error);
+
+    bool tableTask(std::string &taskUuid,
+                   const std::string &name,
+                   const std::string &taskType,
+                   const std::string &dataSetUuid,
+                   const Kitsunemimi::Hanami::UserContext &userContext,
+                   Cluster* cluster,
+                   JsonItem &dataSetInfo,
+                   Kitsunemimi::Hanami::BlossomStatus &status,
+                   Kitsunemimi::ErrorContainer &error);
 };
 
-#endif // KYOUKOMIND_CREATE_IMAGE_REQUESTTASK_H
+#endif // KYOUKOMIND_CREATE_IMAGE_LEARNTASK_H

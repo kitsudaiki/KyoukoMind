@@ -45,10 +45,7 @@
 #include <api/v1/template/list_templates.h>
 #include <api/v1/template/show_template.h>
 
-#include <api/v1/task/create_image_learn_task.h>
-#include <api/v1/task/create_image_request_task.h>
-#include <api/v1/task/create_table_learn_task.h>
-#include <api/v1/task/create_table_request_task.h>
+#include <api/v1/task/create_task.h>
 #include <api/v1/task/show_task.h>
 #include <api/v1/task/list_task.h>
 #include <api/v1/task/delete_task.h>
@@ -161,33 +158,12 @@ initTaskBlossoms()
     HanamiMessaging* interface = HanamiMessaging::getInstance();
     const std::string group = "task";
 
-    assert(interface->addBlossom(group, "create_image_learn", new CreateImageLearnTask()));
-    interface->addEndpoint("v1/task/image/learn",
+    assert(interface->addBlossom(group, "create", new CreateTask()));
+    interface->addEndpoint("v1/task",
                            Kitsunemimi::Hanami::POST_TYPE,
                            Kitsunemimi::Hanami::BLOSSOM_TYPE,
                            group,
-                           "create_image_learn");
-
-    assert(interface->addBlossom(group, "create_image_request", new CreateImageRequestTask()));
-    interface->addEndpoint("v1/task/image/request",
-                           Kitsunemimi::Hanami::POST_TYPE,
-                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
-                           group,
-                           "create_image_request");
-
-    assert(interface->addBlossom(group, "create_table_learn", new CreateTableLearnTask()));
-    interface->addEndpoint("v1/task/table/learn",
-                           Kitsunemimi::Hanami::POST_TYPE,
-                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
-                           group,
-                           "create_table_learn");
-
-    assert(interface->addBlossom(group, "create_table_request", new CreateTableRequestTask()));
-    interface->addEndpoint("v1/task/table/request",
-                           Kitsunemimi::Hanami::POST_TYPE,
-                           Kitsunemimi::Hanami::BLOSSOM_TYPE,
-                           group,
-                           "create_table_request");
+                           "create");
 
     assert(interface->addBlossom(group, "show", new ShowTask()));
     interface->addEndpoint("v1/task",

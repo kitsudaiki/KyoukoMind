@@ -113,10 +113,7 @@ HEADERS += \
     src/api/v1/cluster/save_cluster.h \
     src/api/v1/cluster/set_cluster_mode.h \
     src/api/v1/cluster/show_cluster.h \
-    src/api/v1/task/create_image_learn_task.h \
-    src/api/v1/task/create_image_request_task.h \
-    src/api/v1/task/create_table_learn_task.h \
-    src/api/v1/task/create_table_request_task.h \
+    src/api/v1/task/create_task.h \
     src/api/v1/task/delete_task.h \
     src/api/v1/task/list_task.h \
     src/api/v1/task/show_task.h \
@@ -181,10 +178,7 @@ SOURCES += \
     src/api/v1/cluster/save_cluster.cpp \
     src/api/v1/cluster/set_cluster_mode.cpp \
     src/api/v1/cluster/show_cluster.cpp \
-    src/api/v1/task/create_image_learn_task.cpp \
-    src/api/v1/task/create_image_request_task.cpp \
-    src/api/v1/task/create_table_learn_task.cpp \
-    src/api/v1/task/create_table_request_task.cpp \
+    src/api/v1/task/create_task.cpp \
     src/api/v1/task/delete_task.cpp \
     src/api/v1/task/list_task.cpp \
     src/api/v1/task/show_task.cpp \
