@@ -57,7 +57,7 @@ ClusterTable::~ClusterTable() {}
  * @return true, if successful, else false
  */
 bool
-ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
+ClusterTable::addCluster(Kitsunemimi::JsonItem &clusterData,
                          const Kitsunemimi::Hanami::UserContext &userContext,
                          Kitsunemimi::ErrorContainer &error)
 {
@@ -82,7 +82,7 @@ ClusterTable::addCluster(Kitsunemimi::Json::JsonItem &clusterData,
  * @return true, if successful, else false
  */
 bool
-ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
+ClusterTable::getCluster(Kitsunemimi::JsonItem &result,
                          const std::string &clusterUuid,
                          const Kitsunemimi::Hanami::UserContext &userContext,
                          Kitsunemimi::ErrorContainer &error,
@@ -115,7 +115,7 @@ ClusterTable::getCluster(Kitsunemimi::Json::JsonItem &result,
  * @return true, if successful, else false
  */
 bool
-ClusterTable::getClusterByName(Kitsunemimi::Json::JsonItem &result,
+ClusterTable::getClusterByName(Kitsunemimi::JsonItem &result,
                                const std::string &clusterName,
                                const Kitsunemimi::Hanami::UserContext &userContext,
                                Kitsunemimi::ErrorContainer &error,

@@ -95,7 +95,7 @@ CreateCluster::runTask(BlossomIO &blossomIO,
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if user already exist within the table
-    Kitsunemimi::Json::JsonItem getResult;
+    JsonItem getResult;
     if(KyoukoRoot::clustersTable->getClusterByName(getResult, clusterName, userContext, error))
     {
         status.errorMessage = "Cluster with name '" + clusterName + "' already exist.";
@@ -111,7 +111,7 @@ CreateCluster::runTask(BlossomIO &blossomIO,
     {
         // decode base64 formated template to check if valid base64-string
         DataBuffer convertedTemplate;
-        if(Kitsunemimi::Crypto::decodeBase64(convertedTemplate, base64Template) == false)
+        if(Kitsunemimi::decodeBase64(convertedTemplate, base64Template) == false)
         {
             status.errorMessage = "Uploaded template is not a valid base64-String.";
             status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
@@ -133,7 +133,7 @@ CreateCluster::runTask(BlossomIO &blossomIO,
     }
 
     // convert values
-    Kitsunemimi::Json::JsonItem clusterData;
+    JsonItem clusterData;
     clusterData.insert("name", clusterName);
     clusterData.insert("project_id", userContext.projectId);
     clusterData.insert("owner_id", userContext.userId);
@@ -278,8 +278,8 @@ CreateCluster::getSegmentTemplate(Kitsunemimi::Hanami::SegmentMeta* segmentMeta,
 
     // decode template
     std::string decodedTemplate = "";
-    if(Kitsunemimi::Crypto::decodeBase64(decodedTemplate,
-                                         templateData.get("data").getString()) == false)
+    if(Kitsunemimi::decodeBase64(decodedTemplate,
+                                 templateData.get("data").getString()) == false)
     {
         // TODO: better error-messages with uuid
         error.addMeesage("base64-decoding of the template failes");

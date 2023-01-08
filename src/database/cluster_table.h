@@ -27,9 +27,7 @@
 #include <libKitsunemimiHanamiDatabase/hanami_sql_table.h>
 
 namespace Kitsunemimi {
-namespace Json {
 class JsonItem;
-}
 }
 class ClusterTable
         : public Kitsunemimi::Hanami::HanamiSqlTable
@@ -38,15 +36,15 @@ public:
     ClusterTable(Kitsunemimi::Sakura::SqlDatabase* db);
     ~ClusterTable();
 
-    bool addCluster(Kitsunemimi::Json::JsonItem &clusterData,
+    bool addCluster(Kitsunemimi::JsonItem &clusterData,
                     const Kitsunemimi::Hanami::UserContext &userContext,
                     Kitsunemimi::ErrorContainer &error);
-    bool getCluster(Kitsunemimi::Json::JsonItem &result,
+    bool getCluster(Kitsunemimi::JsonItem &result,
                     const std::string &clusterUuid,
                     const Kitsunemimi::Hanami::UserContext &userContext,
                     Kitsunemimi::ErrorContainer &error,
                     const bool showHiddenValues = false);
-    bool getClusterByName(Kitsunemimi::Json::JsonItem &result,
+    bool getClusterByName(Kitsunemimi::JsonItem &result,
                           const std::string &clusterName,
                           const Kitsunemimi::Hanami::UserContext &userContext,
                           Kitsunemimi::ErrorContainer &error,

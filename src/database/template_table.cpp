@@ -62,7 +62,7 @@ TemplateTable::~TemplateTable() {}
  * @return true, if successful, else false
  */
 bool
-TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
+TemplateTable::addTemplate(Kitsunemimi::JsonItem &clusterData,
                            const Kitsunemimi::Hanami::UserContext &userContext,
                            Kitsunemimi::ErrorContainer &error)
 {
@@ -87,7 +87,7 @@ TemplateTable::addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
  * @return true, if successful, else false
  */
 bool
-TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
+TemplateTable::getTemplate(Kitsunemimi::JsonItem &result,
                            const std::string &templateUuid,
                            const Kitsunemimi::Hanami::UserContext &userContext,
                            Kitsunemimi::ErrorContainer &error,
@@ -120,7 +120,7 @@ TemplateTable::getTemplate(Kitsunemimi::Json::JsonItem &result,
  * @return true, if successful, else false
  */
 bool
-TemplateTable::getTemplateByName(Kitsunemimi::Json::JsonItem &result,
+TemplateTable::getTemplateByName(Kitsunemimi::JsonItem &result,
                                  const std::string &templateName,
                                  const Kitsunemimi::Hanami::UserContext &userContext,
                                  Kitsunemimi::ErrorContainer &error,

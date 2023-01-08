@@ -115,7 +115,7 @@ CreateTableRequestTask::runTask(BlossomIO &blossomIO,
     }
 
     // get meta-infos of data-set from shiori
-    Kitsunemimi::Json::JsonItem dataSetInfo;
+    JsonItem dataSetInfo;
     if(Shiori::getDataSetInformation(dataSetInfo, dataSetUuid, userContext.token, error) == false)
     {
         error.addMeesage("Failed to get information from shiori for UUID '" + dataSetUuid + "'");

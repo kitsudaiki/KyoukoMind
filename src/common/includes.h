@@ -67,7 +67,7 @@ using Kitsunemimi::DataValue;
 using Kitsunemimi::DataMap;
 
 #include <libKitsunemimiJson/json_item.h>
-using Kitsunemimi::Json::JsonItem;
+using Kitsunemimi::JsonItem;
 
 #include <libKitsunemimiHanamiCommon/uuid.h>
 
