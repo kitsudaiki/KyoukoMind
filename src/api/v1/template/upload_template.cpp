@@ -92,7 +92,7 @@ UploadTemplate::runTask(BlossomIO &blossomIO,
     const Kitsunemimi::Hanami::UserContext userContext(context);
 
     // check if template with the name already exist within the table
-    Kitsunemimi::Json::JsonItem getResult;
+    JsonItem getResult;
     if(KyoukoRoot::templateTable->getTemplateByName(getResult, name, userContext, error))
     {
         status.errorMessage = "Template with name '" + name + "' already exist.";
@@ -105,7 +105,7 @@ UploadTemplate::runTask(BlossomIO &blossomIO,
 
     // decode base64 formated template to check if valid base64-string
     DataBuffer convertedTemplate;
-    if(Kitsunemimi::Crypto::decodeBase64(convertedTemplate, stringContent) == false)
+    if(Kitsunemimi::decodeBase64(convertedTemplate, stringContent) == false)
     {
         status.errorMessage = "Uploaded template is not a valid base64-String.";
         status.statusCode = Kitsunemimi::Hanami::BAD_REQUEST_RTYPE;
@@ -127,7 +127,7 @@ UploadTemplate::runTask(BlossomIO &blossomIO,
     }
 
     // convert values
-    Kitsunemimi::Json::JsonItem templateData;
+    JsonItem templateData;
     templateData.insert("name", name);
     templateData.insert("data", stringContent);
     templateData.insert("visibility", "private");

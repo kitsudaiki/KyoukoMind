@@ -34,7 +34,7 @@
  * @return false, if registering argument failed, else true
  */
 bool
-registerArguments(Kitsunemimi::Args::ArgParser* argparser,
+registerArguments(Kitsunemimi::ArgParser* argparser,
                   Kitsunemimi::ErrorContainer &error)
 {
     if(Kitsunemimi::Hanami::registerArguments(*argparser, error) == false) {

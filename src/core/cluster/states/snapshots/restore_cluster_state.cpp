@@ -81,7 +81,7 @@ RestoreCluster_State::processEvent()
 
     // get meta-infos of data-set from shiori
     const std::string snapshotInfo = actualTask->metaData.get("snapshot_info")->getString();
-    Kitsunemimi::Json::JsonItem parsedSnapshotInfo;
+    JsonItem parsedSnapshotInfo;
     parsedSnapshotInfo.parse(snapshotInfo, error);
 
     // get other information
@@ -92,7 +92,7 @@ RestoreCluster_State::processEvent()
 
     // get header
     const std::string header = parsedSnapshotInfo.get("header").toString();
-    Kitsunemimi::Json::JsonItem parsedHeader;
+    JsonItem parsedHeader;
     if(parsedHeader.parse(header, error) == false)
     {
         m_cluster->goToNextState(FINISH_TASK);

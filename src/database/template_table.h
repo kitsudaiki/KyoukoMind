@@ -27,9 +27,7 @@
 #include <libKitsunemimiHanamiDatabase/hanami_sql_table.h>
 
 namespace Kitsunemimi {
-namespace Json {
 class JsonItem;
-}
 }
 class TemplateTable
         : public Kitsunemimi::Hanami::HanamiSqlTable
@@ -38,15 +36,15 @@ public:
     TemplateTable(Kitsunemimi::Sakura::SqlDatabase* db);
     ~TemplateTable();
 
-    bool addTemplate(Kitsunemimi::Json::JsonItem &clusterData,
+    bool addTemplate(Kitsunemimi::JsonItem &clusterData,
                      const Kitsunemimi::Hanami::UserContext &userContext,
                      Kitsunemimi::ErrorContainer &error);
-    bool getTemplate(Kitsunemimi::Json::JsonItem &result,
+    bool getTemplate(Kitsunemimi::JsonItem &result,
                      const std::string &templateUuid,
                      const Kitsunemimi::Hanami::UserContext &userContext,
                      Kitsunemimi::ErrorContainer &error,
                      const bool showHiddenValues = false);
-    bool getTemplateByName(Kitsunemimi::Json::JsonItem &result,
+    bool getTemplateByName(Kitsunemimi::JsonItem &result,
                            const std::string &templateName,
                            const Kitsunemimi::Hanami::UserContext &userContext,
                            Kitsunemimi::ErrorContainer &error,
