@@ -174,8 +174,8 @@ AbstractSegment::createGenericNewHeader(SegmentHeader &header,
     segmentDataPos += sizeof(SegmentHeader);
 
     // init name
-    header.settings.count = 1;
-    header.settings.bytePos = segmentDataPos;
+    header.name.count = 1;
+    header.name.bytePos = segmentDataPos;
     segmentDataPos += sizeof(SegmentName);
 
     // init settings
