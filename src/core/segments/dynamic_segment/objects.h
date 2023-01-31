@@ -39,12 +39,32 @@ struct DynamicNeuron
     uint8_t active = 0;
     uint8_t padding[2];
 
-    uint32_t brickId = 0;
+    uint32_t id = 0;
 
     uint32_t targetBorderId = UNINIT_STATE_32;
     uint32_t targetSectionId = UNINIT_STATE_32;
 
     // total size: 32 Byte
+};
+
+//==================================================================================================
+
+struct NeuronSection
+{
+    DynamicNeuron neurons[NEURONS_PER_NEURONSECTION];
+    uint32_t numberOfNeurons = 0;
+    uint32_t id = 0;
+    uint32_t brickId = 0;
+    uint32_t backwardNextId = UNINIT_STATE_32;
+    uint8_t padding[48];
+
+    NeuronSection()
+    {
+        for(uint32_t i = 0; i < NEURONS_PER_NEURONSECTION; i++) {
+            neurons[i] = DynamicNeuron();
+        }
+    }
+    // total size: 2048 Byte
 };
 
 //==================================================================================================
@@ -55,9 +75,9 @@ struct Synapse
     float border = 0.0f;
     uint16_t targetNeuronId = UNINIT_STATE_16;
     int8_t activeCounter = 0;
-    uint8_t padding[1];
-    // total size: 12 Byte
-} __attribute__ ((__packed__));
+    uint8_t padding[5];
+    // total size: 16 Byte
+};
 
 //==================================================================================================
 
@@ -67,16 +87,45 @@ struct SynapseSection
     uint8_t padding[3];
     uint32_t randomPos = 0;
 
-    uint32_t neuronOffset = 0;
-    uint32_t next = UNINIT_STATE_32;
+    uint32_t targetNeuronSectionId = 0;
+    uint32_t brickId = UNINIT_STATE_32;
+    uint8_t padding2[8];
+    uint32_t forwardNext = UNINIT_STATE_32;
+    uint32_t backwardNext = UNINIT_STATE_32;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
-    uint32_t brickId = UNINIT_STATE_32;
 
     SynapseSection()
     {
         for(uint32_t i = 0; i < SYNAPSES_PER_SYNAPSESECTION; i++) {
             synapses[i] = Synapse();
+        }
+    }
+    // total size: 512 Byte
+};
+
+//==================================================================================================
+
+struct UpdatePos
+{
+    uint32_t type = 0;
+    uint32_t forwardNewId = UNINIT_STATE_32;
+    // total size: 8 Byte
+};
+
+//==================================================================================================
+
+struct UpdatePosSection
+{
+    UpdatePos positions[NEURONS_PER_NEURONSECTION];
+    uint32_t numberOfPositions = 0;
+    uint32_t backwardNewId = UNINIT_STATE_32;
+    uint8_t padding[8];
+
+    UpdatePosSection()
+    {
+        for(uint32_t i = 0; i < NEURONS_PER_NEURONSECTION; i++) {
+            positions[i] = UpdatePos();
         }
     }
     // total size: 512 Byte
@@ -97,8 +146,9 @@ struct DynamicSegmentSettings
     float backpropagationBorder = 0.00001f;
     uint8_t refractionTime = 1;
     uint8_t doLearn = 0;
+    uint8_t updateSections = 0;
 
-    uint8_t padding[214];
+    uint8_t padding[213];
 
     // total size: 256 Byte
 };

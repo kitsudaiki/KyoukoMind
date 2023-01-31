@@ -64,14 +64,14 @@ struct SegmentHeader
 
     SegmentHeaderEntry bricks;
     SegmentHeaderEntry brickOrder;
-    SegmentHeaderEntry neurons;
+    SegmentHeaderEntry neuronSections;
     SegmentHeaderEntry inputs;
     SegmentHeaderEntry outputs;
+    SegmentHeaderEntry updatePosSections;
 
     SegmentHeaderEntry synapseSections;
-    SegmentHeaderEntry connections;
 
-    uint8_t padding2[248];
+    uint8_t padding2[246];
 
     // total size: 512 Byte
 };

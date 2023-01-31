@@ -31,6 +31,10 @@ class ClusterHandler;
 class SegmentQueue;
 class ProcessingUnitHandler;
 
+namespace Kitsunemimi {
+class GpuInterface;
+}
+
 class KyoukoRoot
 {
 
@@ -49,6 +53,7 @@ public:
     static ClusterTable* clustersTable;
     static TemplateTable* templateTable;
     static std::string* componentToken;
+    static Kitsunemimi::GpuInterface* gpuInterface;
 
 private:
     uint32_t m_serverId = 0;

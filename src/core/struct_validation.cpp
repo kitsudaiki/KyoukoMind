@@ -39,6 +39,7 @@ validateStructSizes()
     assert(sizeof(SegmentName) == 256);
     assert(sizeof(Brick) == 4096);
     assert(sizeof(DynamicNeuron) == 32);
+    assert(sizeof(NeuronSection) == 2048);
     assert(sizeof(SegmentSlot) == 64);
     assert(sizeof(SegmentSlotList) == 1024);
 
@@ -46,9 +47,7 @@ validateStructSizes()
     assert(sizeof(Cluster::Settings) == 256);
     assert(sizeof(DynamicSegmentSettings) == 256);
     assert(sizeof(Kitsunemimi::Hanami::kuuid) == 40);
-
-    // only exception for the 2^x rule, because absulute critical in space consumption
-    assert(sizeof(Synapse) == 12);
-
+    assert(sizeof(Synapse) == 16);
+    assert(sizeof(UpdatePosSection) == 512);
     return;
 }

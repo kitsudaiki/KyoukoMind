@@ -156,6 +156,7 @@ HEADERS += \
     src/core/segments/dynamic_segment/objects.h \
     src/core/segments/dynamic_segment/processing.h \
     src/core/segments/dynamic_segment/reduction.h \
+    src/core/segments/dynamic_segment/section_update.h \
     src/core/segments/input_segment/input_segment.h \
     src/core/segments/input_segment/objects.h \
     src/core/segments/input_segment/processing.h \
