@@ -41,6 +41,11 @@
 
 #include <core/segments/input_segment/processing.h>
 
+#include <libKitsunemimiOpencl/gpu_interface.h>
+#include <libKitsunemimiOpencl/gpu_handler.h>
+
+uint32_t counter = 0;
+
 /**
  * @brief constructor
  */
@@ -68,11 +73,27 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             seg->dynamicSegmentSettings->doLearn = 1;
+            /*seg->dynamicSegmentSettings->doLearn = 1;
             prcessDynamicSegment(*seg);
             if(seg->dynamicSegmentSettings->updateSections != 0) {
                 updateSections_Cpu(*seg);
             }
-            seg->dynamicSegmentSettings->updateSections = 0;
+            seg->dynamicSegmentSettings->updateSections = 0;*/
+            assert(KyoukoRoot::gpuInterface->updateBufferOnDevice(*(seg->data), "dynamicSegmentSettings", error));
+            assert(KyoukoRoot::gpuInterface->updateBufferOnDevice(*(seg->data), "inputTransfers", error));
+            assert(KyoukoRoot::gpuInterface->run(*(seg->data), "prcessDynamicSegment", error));
+            assert(KyoukoRoot::gpuInterface->copyFromDevice(*(seg->data), "outputTransfers", error));
+            //assert(KyoukoRoot::gpuInterface->copyFromDevice(*(seg->data), "dynamicSegmentSettings", error));
+            //usleep(10000);
+            counter++;
+            std::cout<<"poi: "<<counter<<std::endl;
+
+            //if(seg->dynamicSegmentSettings->updateSections != 0)
+            //{
+            assert(KyoukoRoot::gpuInterface->copyFromDevice(*(seg->data), "updatePosSections", error));
+            updateSections_Gpu(*seg);
+            assert(KyoukoRoot::gpuInterface->updateBufferOnDevice(*(seg->data), "updatePosSections", error));
+            //}
 
             seg->dynamicSegmentSettings->doLearn = 0;
             break;
@@ -110,7 +131,15 @@ CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
         case DYNAMIC_SEGMENT:
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-            rewightDynamicSegment(*seg);
+            //rewightDynamicSegment(*seg);
+            //std::cout<<"poi4"<<std::endl;
+            KyoukoRoot::gpuInterface->updateBufferOnDevice(*(seg->data), "inputTransfers", error);
+            KyoukoRoot::gpuInterface->run(*(seg->data), "rewightDynamicSegment", error);
+            KyoukoRoot::gpuInterface->copyFromDevice(*(seg->data), "outputTransfers", error);
+            KyoukoRoot::gpuInterface->copyFromDevice(*(seg->data), "inputTransfers", error);
+            //prcessDynamicSegment(*seg);
+            //std::cout<<"poi5"<<std::endl;
+
             if(reductionCounter == 100) {
                 //reduceNeurons(*seg);
                 reductionCounter = 0;
@@ -144,7 +173,12 @@ CpuProcessingUnit::processSegment(AbstractSegment* segment)
         case DYNAMIC_SEGMENT:
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
-            prcessDynamicSegment(*seg);
+            KyoukoRoot::gpuInterface->updateBufferOnDevice(*(seg->data), "inputTransfers", error);
+            KyoukoRoot::gpuInterface->run(*(seg->data), "prcessDynamicSegment", error);
+            KyoukoRoot::gpuInterface->copyFromDevice(*(seg->data), "outputTransfers", error);
+            //prcessDynamicSegment(*seg);
+            counter++;
+            std::cout<<"poi: "<<counter<<std::endl;
             break;
         }
         case INPUT_SEGMENT:

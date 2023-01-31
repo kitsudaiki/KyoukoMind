@@ -224,6 +224,8 @@ updateSections_Gpu(DynamicSegment &segment)
 
                 targetUpdatePosSection->backwardNewId = newId;
                 updatePos->forwardNewId = newId;
+                updatePos->randomPos = newSection.randomPos;
+                updatePos->targetNeuronSectionId = newSection.targetNeuronSectionId;
             }
         }
     }

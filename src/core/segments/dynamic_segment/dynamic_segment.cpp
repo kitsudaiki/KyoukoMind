@@ -28,6 +28,8 @@
 #include <core/segments/dynamic_segment/section_update.h>
 
 #include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiOpencl/gpu_interface.h>
+#include <libKitsunemimiOpencl/gpu_handler.h>
 
 #include <libKitsunemimiHanamiCommon/structs.h>
 #include <core/segments/dynamic_segment/processing.h>
@@ -67,6 +69,75 @@ getNumberOfNeuronSections(const uint32_t numberOfNeurons)
     }
 
     return numberOfSections;
+}
+
+/**
+ * @brief DynamicSegment::initGpu
+ */
+void
+DynamicSegment::initGpu()
+{
+    Kitsunemimi::ErrorContainer error;
+
+    // create data-object
+    data = new Kitsunemimi::GpuData();
+    data->numberOfWg.x = 20;
+    data->threadsPerWg.x = 10;
+    const std::string kernelString(reinterpret_cast<const char*>(gpu_kernel_cl),
+                                   gpu_kernel_cl_len);
+    if(KyoukoRoot::gpuInterface->addKernel(*data,
+                                           "prcessDynamicSegment",
+                                           kernelString,
+                                           error) == false)
+    {
+        LOG_ERROR(error);
+        error._errorMessages.clear();
+    }
+
+    if(KyoukoRoot::gpuInterface->addKernel(*data,
+                                           "rewightDynamicSegment",
+                                           kernelString,
+                                           error) == false)
+    {
+        LOG_ERROR(error);
+        error._errorMessages.clear();
+    }
+
+    assert(data->addBuffer("bricks",                 segmentHeader->bricks.count,             sizeof(Brick),                  false, bricks                    ));
+    assert(data->addBuffer("brickOrder",             segmentHeader->brickOrder.count,         sizeof(uint32_t),               false, brickOrder                ));
+    assert(data->addBuffer("neuronSections",         segmentHeader->neuronSections.count,     sizeof(NeuronSection),          false, neuronSections            ));
+    assert(data->addBuffer("synapseSections",        segmentHeader->synapseSections.count,    sizeof(SynapseSection),         false, synapseSections           ));
+    assert(data->addBuffer("segmentHeader",          1,                                       sizeof(SegmentHeader),          false, segmentHeader             ));
+    assert(data->addBuffer("dynamicSegmentSettings", 1,                                       sizeof(DynamicSegmentSettings), false, dynamicSegmentSettings    ));
+    assert(data->addBuffer("inputTransfers",         segmentHeader->inputTransfers.count,     sizeof(float),                  false, inputTransfers            ));
+    assert(data->addBuffer("outputTransfers",        segmentHeader->outputTransfers.count,    sizeof(float),                  false, outputTransfers           ));
+    assert(data->addBuffer("updatePosSections",      segmentHeader->updatePosSections.count,  sizeof(UpdatePosSection),       false, updatePosSections         ));
+    assert(data->addBuffer("randomValues",           NUMBER_OF_RAND_VALUES,                   sizeof(uint32_t),               false, KyoukoRoot::m_randomValues));
+
+    if(KyoukoRoot::gpuInterface->initCopyToDevice(*data, error) == false) {
+        LOG_ERROR(error);
+    }
+
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "bricks",                 error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "brickOrder",             error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "neuronSections",         error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "synapseSections",        error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "updatePosSections",      error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "segmentHeader",          error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "dynamicSegmentSettings", error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "inputTransfers",         error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "outputTransfers",        error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "randomValues",           error));
+
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "bricks",                 error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "brickOrder",             error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "neuronSections",         error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "synapseSections",        error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "updatePosSections",      error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "segmentHeader",          error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "dynamicSegmentSettings", error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "inputTransfers",         error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "outputTransfers",        error));
 }
 
 /**
@@ -126,6 +197,8 @@ DynamicSegment::initSegment(const std::string &name,
     // TODO: check result
     setName(name);
 
+    initGpu();
+
     return true;
 }
 
@@ -184,6 +257,8 @@ DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
     //pos = segmentHeader->synapseSections.bytePos;
     synapseSections = reinterpret_cast<SynapseSection*>(dataPtr);
     byteCounter += segmentHeader->synapseSections.count * sizeof(SynapseSection);
+
+    initGpu();
 
     // check result
     if(byteCounter != numberOfBytes - 48) {

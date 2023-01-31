@@ -42,6 +42,9 @@
 
 #include <libKitsunemimiSakuraDatabase/sql_database.h>
 
+#include <libKitsunemimiOpencl/gpu_interface.h>
+#include <libKitsunemimiOpencl/gpu_handler.h>
+
 using Kitsunemimi::Hanami::SupportedComponents;
 using Kitsunemimi::Hanami::HanamiMessaging;
 using Kitsunemimi::Hanami::HanamiMessagingClient;
@@ -55,6 +58,7 @@ Kitsunemimi::Sakura::SqlDatabase* KyoukoRoot::database = nullptr;
 ClusterTable* KyoukoRoot::clustersTable = nullptr;
 TemplateTable* KyoukoRoot::templateTable = nullptr;
 std::string* KyoukoRoot::componentToken = nullptr;
+Kitsunemimi::GpuInterface* KyoukoRoot::gpuInterface = nullptr;
 
 /**
  * @brief KyoukoRoot::KyoukoRoot
@@ -76,6 +80,11 @@ KyoukoRoot::~KyoukoRoot() {}
 bool
 KyoukoRoot::init(Kitsunemimi::ErrorContainer &error)
 {
+    Kitsunemimi::GpuHandler oclHandler;
+    assert(oclHandler.initDevice(error));
+    assert(oclHandler.m_interfaces.size() == 1);
+    gpuInterface = oclHandler.m_interfaces.at(0);
+
     validateStructSizes();
 
     // init predefinde random-values

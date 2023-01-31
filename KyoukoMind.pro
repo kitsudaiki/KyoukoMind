@@ -99,7 +99,12 @@ LIBS += -L../libKitsunemimiCrypto/src/debug -lKitsunemimiCrypto
 LIBS += -L../libKitsunemimiCrypto/src/release -lKitsunemimiCrypto
 INCLUDEPATH += ../libKitsunemimiCrypto/include
 
-LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -pthread -lprotobuf
+LIBS += -L../libKitsunemimiOpencl/src -lKitsunemimiOpencl
+LIBS += -L../libKitsunemimiOpencl/src/debug -lKitsunemimiOpencl
+LIBS += -L../libKitsunemimiOpencl/src/release -lKitsunemimiOpencl
+INCLUDEPATH += ../libKitsunemimiOpencl/include
+
+LIBS += -lcryptopp -lssl -lsqlite3 -luuid -lcrypto -pthread -lprotobuf -lOpenCL
 
 INCLUDEPATH += $$PWD \
                src
@@ -215,8 +220,10 @@ SOURCES += \
     src/main.cpp
 
 KYOUKO_PROTO_BUFFER = ../libKitsunemimiHanamiMessages/protobuffers/kyouko_messages.proto3
+GPU_KERNEL = src/core/segments/dynamic_segment/gpu_kernel.cl
 
-OTHER_FILES += $$KYOUKO_PROTO_BUFFER
+OTHER_FILES += $$KYOUKO_PROTO_BUFFER \
+               $$GPU_KERNEL
 
 protobuf_decl.name = protobuf headers
 protobuf_decl.name = protobuf headers
@@ -233,3 +240,19 @@ protobuf_impl.depends = ${QMAKE_FILE_IN_PATH}/${QMAKE_FILE_BASE}.proto3.pb.h
 protobuf_impl.commands = $$escape_expand(\n)
 protobuf_impl.variable_out = SOURCES
 QMAKE_EXTRA_COMPILERS += protobuf_impl
+
+gpu_processing.input = GPU_KERNEL
+gpu_processing.output = ${QMAKE_FILE_BASE}.h
+gpu_processing.commands = xxd -i ${QMAKE_FILE_IN} \
+   | sed 's/_________Hanami_AI_KyoukoMind_src_core_segments_dynamic_segment_//g' \
+   | sed 's/________KyoukoMind_src_core_segments_dynamic_segment_//g' \
+   | sed 's/_______KyoukoMind_src_core_segments_dynamic_segment_//g' \
+   | sed 's/______KyoukoMind_src_core_segments_dynamic_segment_//g' \
+   | sed 's/_____KyoukoMind_src_core_segments_dynamic_segment_//g' \
+   | sed 's/____KyoukoMind_src_core_segments_dynamic_segment_//g' \
+   | sed 's/___KyoukoMind_src_core_segments_dynamic_segment_//g' > ${QMAKE_FILE_BASE}.h
+gpu_processing.variable_out = HEADERS
+gpu_processing.CONFIG += target_predeps no_link
+
+QMAKE_EXTRA_COMPILERS += gpu_processing
+

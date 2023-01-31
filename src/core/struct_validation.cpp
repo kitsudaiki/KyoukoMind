@@ -48,6 +48,6 @@ validateStructSizes()
     assert(sizeof(DynamicSegmentSettings) == 256);
     assert(sizeof(Kitsunemimi::Hanami::kuuid) == 40);
     assert(sizeof(Synapse) == 16);
-    assert(sizeof(UpdatePosSection) == 512);
+    assert(sizeof(UpdatePosSection) == 1024);
     return;
 }

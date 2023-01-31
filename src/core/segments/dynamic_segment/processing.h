@@ -125,9 +125,15 @@ synapseProcessing(const uint32_t neuronId,
 
     if(section->forwardNext == UNINIT_STATE_32)
     {
-        updatePosSections[neuronSectionId].positions[neuronId].type = 1;
-        dynamicSegmentSettings->updateSections = 1;
-        return;
+        section->forwardNext = updatePosSections[neuronSectionId].positions[neuronId].forwardNewId;
+        updatePosSections[neuronSectionId].positions[neuronId].forwardNewId = UNINIT_STATE_32;
+
+        if(section->forwardNext == UNINIT_STATE_32)
+        {
+            updatePosSections[neuronSectionId].positions[neuronId].type = 1;
+            dynamicSegmentSettings->updateSections = 1;
+            return;
+        }
     }
 
     if(netH > 0.01f)
@@ -167,9 +173,15 @@ processSingleNeuron(const uint32_t neuronId,
 
     if(neuron->targetSectionId == UNINIT_STATE_32)
     {
-        updatePosSections[neuronSectionId].positions[neuronId].type = 1;
-        dynamicSegmentSettings->updateSections = 1;
-        return;
+        neuron->targetSectionId = updatePosSections[neuronSectionId].positions[neuronId].forwardNewId;
+        updatePosSections[neuronSectionId].positions[neuronId].forwardNewId = UNINIT_STATE_32;
+
+        if(neuron->targetSectionId == UNINIT_STATE_32)
+        {
+            updatePosSections[neuronSectionId].positions[neuronId].type = 1;
+            dynamicSegmentSettings->updateSections = 1;
+            return;
+        }
     }
 
     synapseProcessing(neuronId,
