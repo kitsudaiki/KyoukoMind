@@ -52,6 +52,8 @@ createNewSynapse(SynapseSection* section,
     const uint32_t* randomValues = KyoukoRoot::m_randomValues;
     const float randMax = static_cast<float>(RAND_MAX);
     const float maxWeight = outH / static_cast<float>(segmentSettings->synapseSegmentation);
+    uint32_t signRand = 0;
+    const float sigNeg = segmentSettings->signNeg;
 
     // set activation-border
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
@@ -63,6 +65,16 @@ createNewSynapse(SynapseSection* section,
     section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
     synapse->targetNeuronId = static_cast<uint16_t>(randomValues[section->randomPos]
                               % neuronSections[section->targetNeuronSectionId].numberOfNeurons);
+
+
+    section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    synapse->weight = (static_cast<float>(randomValues[section->randomPos]) / randMax) / 10.0f;
+
+    // update weight with sign
+    section->randomPos = (section->randomPos + 1) % NUMBER_OF_RAND_VALUES;
+    signRand = randomValues[section->randomPos] % 1000;
+    synapse->weight *= static_cast<float>(1.0f - (1000.0f * sigNeg > signRand) * 2);
+
 
     synapse->activeCounter = 1;
 }
@@ -123,24 +135,18 @@ synapseProcessing(const uint32_t neuronId,
         pos++;
     }
 
-    if(section->forwardNext == UNINIT_STATE_32)
+    if(netH > 0.01f)
     {
-        section->forwardNext = updatePosSections[neuronSectionId].positions[neuronId].forwardNewId;
-        updatePosSections[neuronSectionId].positions[neuronId].forwardNewId = UNINIT_STATE_32;
-
-        if(section->forwardNext == UNINIT_STATE_32)
+        if(section->nextId == UNINIT_STATE_32)
         {
             updatePosSections[neuronSectionId].positions[neuronId].type = 1;
             dynamicSegmentSettings->updateSections = 1;
             return;
         }
-    }
 
-    if(netH > 0.01f)
-    {
         synapseProcessing(neuronId,
                           neuronSectionId,
-                          &synapseSections[section->forwardNext],
+                          &synapseSections[section->nextId],
                           sourceNeuron,
                           neuronSections,
                           synapseSections,
@@ -173,15 +179,9 @@ processSingleNeuron(const uint32_t neuronId,
 
     if(neuron->targetSectionId == UNINIT_STATE_32)
     {
-        neuron->targetSectionId = updatePosSections[neuronSectionId].positions[neuronId].forwardNewId;
-        updatePosSections[neuronSectionId].positions[neuronId].forwardNewId = UNINIT_STATE_32;
-
-        if(neuron->targetSectionId == UNINIT_STATE_32)
-        {
-            updatePosSections[neuronSectionId].positions[neuronId].type = 1;
-            dynamicSegmentSettings->updateSections = 1;
-            return;
-        }
+        updatePosSections[neuronSectionId].positions[neuronId].type = 1;
+        dynamicSegmentSettings->updateSections = 1;
+        return;
     }
 
     synapseProcessing(neuronId,

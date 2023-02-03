@@ -88,10 +88,7 @@ struct SynapseSection
     uint32_t randomPos = 0;
 
     uint32_t targetNeuronSectionId = 0;
-    uint32_t brickId = UNINIT_STATE_32;
-    uint8_t padding2[8];
-    uint32_t forwardNext = UNINIT_STATE_32;
-    uint32_t backwardNext = UNINIT_STATE_32;
+    uint32_t nextId = UNINIT_STATE_32;
 
     Synapse synapses[SYNAPSES_PER_SYNAPSESECTION];
 
