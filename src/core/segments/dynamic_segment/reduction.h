@@ -45,7 +45,7 @@ reduceSynapses(DynamicSegment &segment,
 {
     bool foundEnd = false;
 
-    if(section.next != UNINIT_STATE_32)
+    /*if(section.next != UNINIT_STATE_32)
     {
         // delete if sections is empty
         foundEnd = true;
@@ -75,7 +75,7 @@ reduceSynapses(DynamicSegment &segment,
         if(synapse->targetNeuronId != UNINIT_STATE_16) {
             foundEnd = true;
         }
-    }
+    }*/
 
     return foundEnd;
 }
@@ -91,11 +91,11 @@ reduceNeurons(DynamicSegment &segment)
     SynapseSection* section = nullptr;
     DynamicNeuron* sourceNeuron = nullptr;
 
-    for(uint32_t neuronId = 0;
-        neuronId < segment.segmentHeader->neurons.count;
+    /*for(uint32_t neuronId = 0;
+        neuronId < segment.segmentHeader->neuronSections.count;
         neuronId++)
     {
-        sourceNeuron = &segment.neurons[neuronId];
+        //sourceNeuron = &segment.neurons[neuronId];
         if(sourceNeuron->targetSectionId == UNINIT_STATE_32) {
             continue;
         }
@@ -109,7 +109,7 @@ reduceNeurons(DynamicSegment &segment)
             segment.segmentData.deleteItem(sourceNeuron->targetSectionId);
             sourceNeuron->targetSectionId = UNINIT_STATE_32;
         }
-    }
+    }*/
 }
 
 #endif // KYOUKOMIND_CREATE_REDUCE_H

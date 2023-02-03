@@ -38,23 +38,33 @@
  * @param segment segment where the brick belongs to
  */
 inline bool
-backpropagateOutput(const Brick &brick,
-                    const DynamicSegment &segment)
+backpropagateOutput(const Brick* brick,
+                    float* inputTransfers,
+                    NeuronSection* neuronSections,
+                    DynamicSegmentSettings* dynamicSegmentSettings)
 {
     DynamicNeuron* neuron = nullptr;
+    NeuronSection* section = nullptr;
     float totalDelta = 0.0f;
 
     // iterate over all neurons within the brick
-    for(uint32_t neuronId = brick.neuronPos;
-        neuronId < brick.numberOfNeurons + brick.neuronPos;
-        neuronId++)
+    for(uint32_t neuronSectionId = brick->neuronSectionPos;
+        neuronSectionId < brick->numberOfNeuronSections + brick->neuronSectionPos;
+        neuronSectionId++)
     {
-        neuron = &segment.neurons[neuronId];
-        neuron->delta = segment.inputTransfers[neuron->targetBorderId];
-        totalDelta += abs(neuron->delta);
+        section = &neuronSections[neuronSectionId];
+        for(uint32_t neuronId = 0;
+            neuronId < section->numberOfNeurons;
+            neuronId++)
+        {
+            neuron = &section->neurons[neuronId];
+            neuron->delta = inputTransfers[neuron->targetBorderId];
+            inputTransfers[neuron->targetBorderId] = 0.0f;
+            totalDelta += abs(neuron->delta);
+        }
     }
 
-    return totalDelta > segment.dynamicSegmentSettings->backpropagationBorder;
+    return totalDelta > dynamicSegmentSettings->backpropagationBorder;
     //return true;
 }
 
@@ -72,13 +82,15 @@ inline void
 backpropagateSection(SynapseSection* section,
                      DynamicNeuron* sourceNeuron,
                      float netH,
-                     const Brick &brick,
-                     const DynamicSegment &segment)
+                     const Brick* brick,
+                     NeuronSection* neuronSections,
+                     SynapseSection* synapseSections)
 {
     Synapse* synapse = nullptr;
+    DynamicNeuron* targetNeuron = nullptr;
+    NeuronSection* neuronSection = &neuronSections[section->targetNeuronSectionId];
     float learnValue = 0.2f;
     uint16_t pos = 0;
-    uint32_t nodePos = 0;
 
     // iterate over all synapses in the section
     while(pos < SYNAPSES_PER_SYNAPSESECTION
@@ -90,22 +102,23 @@ backpropagateSection(SynapseSection* section,
         // update weight
         learnValue = static_cast<float>(126 - synapse->activeCounter) * 0.0002f;
         learnValue += 0.05f;
-        nodePos = static_cast<uint32_t>(synapse->targetNeuronId) + section->neuronOffset;
-        sourceNeuron->delta += segment.neurons[nodePos].delta * synapse->weight;
-        synapse->weight -= learnValue * segment.neurons[nodePos].delta;
+        targetNeuron = &neuronSection->neurons[synapse->targetNeuronId];
+        sourceNeuron->delta += targetNeuron->delta * synapse->weight;
+        synapse->weight -= learnValue * targetNeuron->delta;
 
         netH -= synapse->border;
         pos++;
     }
 
-    if(section->next != UNINIT_STATE_32
+    if(section->nextId != UNINIT_STATE_32
             && netH > 0.01f)
     {
-        backpropagateSection(&segment.synapseSections[section->next],
+        backpropagateSection(&synapseSections[section->nextId],
                              sourceNeuron,
                              netH,
                              brick,
-                             segment);
+                             neuronSections,
+                             synapseSections);
     }
 }
 
@@ -116,38 +129,52 @@ backpropagateSection(SynapseSection* section,
  * @param segment pointer to currect segment to process, which contains the brick
  */
 inline void
-backpropagateNeurons(const Brick &brick,
-                   const DynamicSegment &segment)
+backpropagateNeurons(const Brick* brick,
+                     NeuronSection* neuronSections,
+                     SynapseSection* synapseSections,
+                     UpdatePosSection* updatePosSections,
+                     float* outputTransfers)
 {
     DynamicNeuron* sourceNeuron = nullptr;
+    NeuronSection* neuronSection = nullptr;
+    UpdatePosSection* updatePosSection = nullptr;
 
     // iterate over all neurons within the brick
-    for(uint32_t neuronId = brick.neuronPos;
-        neuronId < brick.numberOfNeurons + brick.neuronPos;
-        neuronId++)
+    for(uint32_t neuronSectionId = brick->neuronSectionPos;
+        neuronSectionId < brick->numberOfNeuronSections + brick->neuronSectionPos;
+        neuronSectionId++)
     {
-        // skip section, if not active
-        sourceNeuron = &segment.neurons[neuronId];
-        if(sourceNeuron->targetSectionId == UNINIT_STATE_32) {
-            continue;
-        }
-
-        sourceNeuron->delta = 0.0f;
-
-        // set start-values
-        if(sourceNeuron->active)
+        neuronSection = &neuronSections[neuronSectionId];
+        updatePosSection = &updatePosSections[neuronSectionId];
+        for(uint32_t neuronId = 0;
+            neuronId < neuronSection->numberOfNeurons;
+            neuronId++)
         {
-            backpropagateSection(&segment.synapseSections[sourceNeuron->targetSectionId],
-                                 sourceNeuron,
-                                 sourceNeuron->potential,
-                                 brick,
-                                 segment);
+            // skip section, if not active
+            sourceNeuron = &neuronSection->neurons[neuronId];
+            //UpdatePos* updatePos = &updatePosSection->positions[neuronId];
+            if(sourceNeuron->targetSectionId == UNINIT_STATE_32) {
+                continue;
+            }
 
-            sourceNeuron->delta *= 1.4427f * pow(0.5f, sourceNeuron->potential);
-        }
+            sourceNeuron->delta = 0.0f;
 
-        if(brick.isInputBrick) {
-            segment.outputTransfers[sourceNeuron->targetBorderId] = sourceNeuron->delta;
+            // set start-values
+            if(sourceNeuron->active)
+            {
+                backpropagateSection(&synapseSections[sourceNeuron->targetSectionId],
+                                     sourceNeuron,
+                                     sourceNeuron->potential,
+                                     brick,
+                                     neuronSections,
+                                     synapseSections);
+
+                sourceNeuron->delta *= 1.4427f * pow(0.5f, sourceNeuron->potential);
+            }
+
+            if(brick->isInputBrick) {
+                outputTransfers[sourceNeuron->targetBorderId] = sourceNeuron->delta;
+            }
         }
     }
 }
@@ -160,19 +187,37 @@ backpropagateNeurons(const Brick &brick,
 void
 rewightDynamicSegment(const DynamicSegment &segment)
 {
+    Brick* bricks = segment.bricks;
+    uint32_t* brickOrder = segment.brickOrder;
+    NeuronSection* neuronSections = segment.neuronSections;
+    SynapseSection* synapseSections = segment.synapseSections;
+    SegmentHeader* segmentHeader = segment.segmentHeader;
+    DynamicSegmentSettings* dynamicSegmentSettings = segment.dynamicSegmentSettings;
+    UpdatePosSection* updatePosSections = segment.updatePosSections;
+    float* inputTransfers = segment.inputTransfers;
+    float* outputTransfers = segment.outputTransfers;
+
     // run back-propagation over all internal neurons and synapses
-    const uint32_t numberOfBricks = segment.segmentHeader->bricks.count;
+    const uint32_t numberOfBricks = segmentHeader->bricks.count;
     for(int32_t pos = numberOfBricks - 1; pos >= 0; pos--)
     {
-        const uint32_t brickId = segment.brickOrder[pos];
-        Brick* brick = &segment.bricks[brickId];
+        const uint32_t brickId = brickOrder[pos];
+        Brick* brick = &bricks[brickId];
         if(brick->isOutputBrick)
         {
-            if(backpropagateOutput(*brick, segment) == false) {
+            if(backpropagateOutput(brick,
+                                   inputTransfers,
+                                   neuronSections,
+                                   dynamicSegmentSettings) == false)
+            {
                 return;
             }
         }
-        backpropagateNeurons(*brick, segment);
+        backpropagateNeurons(brick,
+                             neuronSections,
+                             synapseSections,
+                             updatePosSections,
+                             outputTransfers);
     }
 }
 

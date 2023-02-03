@@ -23,9 +23,16 @@
 #include "dynamic_segment.h"
 
 #include <core/routing_functions.h>
+#include <gpu_kernel.h>
+
+#include <core/segments/dynamic_segment/section_update.h>
+
 #include <libKitsunemimiCommon/logger.h>
+#include <libKitsunemimiOpencl/gpu_interface.h>
+#include <libKitsunemimiOpencl/gpu_handler.h>
 
 #include <libKitsunemimiHanamiCommon/structs.h>
+#include <core/segments/dynamic_segment/processing.h>
 
 /**
  * @brief constructor
@@ -53,6 +60,86 @@ DynamicSegment::DynamicSegment(const void* data, const uint64_t dataSize)
  */
 DynamicSegment::~DynamicSegment() {}
 
+uint32_t
+getNumberOfNeuronSections(const uint32_t numberOfNeurons)
+{
+    uint32_t numberOfSections = numberOfNeurons / NEURONS_PER_NEURONSECTION;
+    if(numberOfNeurons % NEURONS_PER_NEURONSECTION != 0) {
+        numberOfSections++;
+    }
+
+    return numberOfSections;
+}
+
+/**
+ * @brief DynamicSegment::initGpu
+ */
+void
+DynamicSegment::initGpu()
+{
+    Kitsunemimi::ErrorContainer error;
+
+    // create data-object
+    data = new Kitsunemimi::GpuData();
+    data->numberOfWg.x = 20;
+    data->threadsPerWg.x = 10;
+    const std::string kernelString(reinterpret_cast<const char*>(gpu_kernel_cl),
+                                   gpu_kernel_cl_len);
+    if(KyoukoRoot::gpuInterface->addKernel(*data,
+                                           "prcessDynamicSegment",
+                                           kernelString,
+                                           error) == false)
+    {
+        LOG_ERROR(error);
+        error._errorMessages.clear();
+    }
+
+    if(KyoukoRoot::gpuInterface->addKernel(*data,
+                                           "rewightDynamicSegment",
+                                           kernelString,
+                                           error) == false)
+    {
+        LOG_ERROR(error);
+        error._errorMessages.clear();
+    }
+
+    assert(data->addBuffer("bricks",                 segmentHeader->bricks.count,             sizeof(Brick),                  false, bricks                    ));
+    assert(data->addBuffer("brickOrder",             segmentHeader->brickOrder.count,         sizeof(uint32_t),               false, brickOrder                ));
+    assert(data->addBuffer("neuronSections",         segmentHeader->neuronSections.count,     sizeof(NeuronSection),          false, neuronSections            ));
+    assert(data->addBuffer("synapseSections",        segmentHeader->synapseSections.count,    sizeof(SynapseSection),         false, synapseSections           ));
+    assert(data->addBuffer("segmentHeader",          1,                                       sizeof(SegmentHeader),          false, segmentHeader             ));
+    assert(data->addBuffer("dynamicSegmentSettings", 1,                                       sizeof(DynamicSegmentSettings), false, dynamicSegmentSettings    ));
+    assert(data->addBuffer("inputTransfers",         segmentHeader->inputTransfers.count,     sizeof(float),                  false, inputTransfers            ));
+    assert(data->addBuffer("outputTransfers",        segmentHeader->outputTransfers.count,    sizeof(float),                  false, outputTransfers           ));
+    assert(data->addBuffer("updatePosSections",      segmentHeader->updatePosSections.count,  sizeof(UpdatePosSection),       false, updatePosSections         ));
+    assert(data->addBuffer("randomValues",           NUMBER_OF_RAND_VALUES,                   sizeof(uint32_t),               false, KyoukoRoot::m_randomValues));
+
+    if(KyoukoRoot::gpuInterface->initCopyToDevice(*data, error) == false) {
+        LOG_ERROR(error);
+    }
+
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "bricks",                 error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "brickOrder",             error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "neuronSections",         error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "synapseSections",        error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "updatePosSections",      error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "segmentHeader",          error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "dynamicSegmentSettings", error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "inputTransfers",         error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "outputTransfers",        error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "prcessDynamicSegment", "randomValues",           error));
+
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "bricks",                 error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "brickOrder",             error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "neuronSections",         error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "synapseSections",        error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "updatePosSections",      error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "segmentHeader",          error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "dynamicSegmentSettings", error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "inputTransfers",         error));
+    assert(KyoukoRoot::gpuInterface->bindKernelToBuffer(*data, "rewightDynamicSegment", "outputTransfers",        error));
+}
+
 /**
  * @brief initalize segment
  *
@@ -64,25 +151,30 @@ bool
 DynamicSegment::initSegment(const std::string &name,
                             const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
-    uint32_t totalNumberOfNeurons = 0;
+    uint32_t numberOfNeurons = 0;
+    uint32_t numberOfNeuronSections = 0;
     uint32_t totalBorderSize = 0;
+    Kitsunemimi::ErrorContainer error;
 
+    // calculate sizes
+    uint32_t neuronsInBrick = 0;
     for(uint32_t i = 0; i < segmentMeta.bricks.size(); i++)
     {
-        const int numberOfNeurons = segmentMeta.bricks.at(i).numberOfNeurons;
-        totalNumberOfNeurons += numberOfNeurons;
+        neuronsInBrick = segmentMeta.bricks.at(i).numberOfNeurons;
+        numberOfNeurons += neuronsInBrick;
+        numberOfNeuronSections += getNumberOfNeuronSections(neuronsInBrick);
 
         if(segmentMeta.bricks.at(i).type == Kitsunemimi::Hanami::INPUT_BRICK_TYPE
                 || segmentMeta.bricks.at(i).type == Kitsunemimi::Hanami::OUTPUT_BRICK_TYPE)
         {
-            totalBorderSize += numberOfNeurons;
+            totalBorderSize += neuronsInBrick;
         }
     }
 
     // create segment metadata
     const DynamicSegmentSettings settings = initSettings(segmentMeta);
     SegmentHeader header = createNewHeader(segmentMeta.bricks.size(),
-                                           totalNumberOfNeurons,
+                                           numberOfNeuronSections,
                                            settings.maxSynapseSections,
                                            totalBorderSize);
 
@@ -93,7 +185,7 @@ DynamicSegment::initSegment(const std::string &name,
     dynamicSegmentSettings[0] = settings;
 
     // init content
-    initializeNeurons();
+    initializeNeurons(segmentMeta);
     addBricksToSegment(segmentMeta);
     connectAllBricks();
     initTargetBrickList();
@@ -104,6 +196,8 @@ DynamicSegment::initSegment(const std::string &name,
 
     // TODO: check result
     setName(name);
+
+    initGpu();
 
     return true;
 }
@@ -151,17 +245,24 @@ DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
     brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
     byteCounter += segmentHeader->brickOrder.count * sizeof(uint32_t);
 
-    pos = segmentHeader->neurons.bytePos;
-    neurons = reinterpret_cast<DynamicNeuron*>(dataPtr + pos);
-    byteCounter += segmentHeader->neurons.count * sizeof(DynamicNeuron);
+    pos = segmentHeader->neuronSections.bytePos;
+    neuronSections = reinterpret_cast<NeuronSection*>(dataPtr + pos);
+    byteCounter += segmentHeader->neuronSections.count * sizeof(NeuronSection);
+
+    pos = segmentHeader->updatePosSections.bytePos;
+    updatePosSections = reinterpret_cast<UpdatePosSection*>(dataPtr + pos);
+    byteCounter += segmentHeader->updatePosSections.count * sizeof(UpdatePosSection);
 
     dataPtr = static_cast<uint8_t*>(segmentData.itemData);
     //pos = segmentHeader->synapseSections.bytePos;
     synapseSections = reinterpret_cast<SynapseSection*>(dataPtr);
     byteCounter += segmentHeader->synapseSections.count * sizeof(SynapseSection);
 
+    initGpu();
+
     // check result
-    if(byteCounter != numberOfBytes) {
+    if(byteCounter != numberOfBytes - 48) {
+        std::cout<<"fail!!!!!!!!!!! byteCounter: "<<byteCounter<<"      numberOfBytes: "<<numberOfBytes<<std::endl;
         return false;
     }
 
@@ -174,15 +275,43 @@ DynamicSegment::reinitPointer(const uint64_t numberOfBytes)
  * @return true, if successful, else false
  */
 bool
-DynamicSegment::initializeNeurons()
+DynamicSegment::initializeNeurons(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
-    const uint32_t numberOfNeurons = segmentHeader->neurons.count;
+    uint32_t sectionPositionOffset = 0;
 
-    for(uint32_t i = 0; i < numberOfNeurons; i++)
+    for(uint32_t i = 0; i < segmentMeta.bricks.size(); i++)
     {
-        //neurons[i].border = ((static_cast<float>(rand() % 10000)) / 10000.0f) * range;
-        //neurons[i].border -= 0.25f;
-        neurons[i].border = 0.0f;
+        int64_t neuronsInBrick = segmentMeta.bricks.at(i).numberOfNeurons;
+        const uint32_t numberOfNeuronSectionsInBrick = getNumberOfNeuronSections(neuronsInBrick);
+
+        uint32_t sectionCounter = 0;
+        while(sectionCounter < numberOfNeuronSectionsInBrick)
+        {
+            const uint32_t sectionId = sectionPositionOffset + sectionCounter;
+            NeuronSection* section = &neuronSections[sectionId];
+            UpdatePosSection* updatePosSection = &updatePosSections[sectionId];
+
+            if(neuronsInBrick >= NEURONS_PER_NEURONSECTION)
+            {
+                for(uint32_t i = 0; i < NEURONS_PER_NEURONSECTION; i++) {
+                    section->neurons[i].border = 0.0f;
+                }
+                section->numberOfNeurons = NEURONS_PER_NEURONSECTION;
+                updatePosSection->numberOfPositions = NEURONS_PER_NEURONSECTION;
+                neuronsInBrick -= NEURONS_PER_NEURONSECTION;
+            }
+            else
+            {
+                for(uint32_t i = 0; i < neuronsInBrick; i++) {
+                    section->neurons[i].border = 0.0f;
+                }
+                section->numberOfNeurons = neuronsInBrick;
+                updatePosSection->numberOfPositions = neuronsInBrick;
+                break;
+            }
+            sectionCounter++;
+        }
+        sectionPositionOffset += numberOfNeuronSectionsInBrick;
     }
 
     return true;
@@ -196,7 +325,7 @@ DynamicSegment::initializeNeurons()
 bool
 DynamicSegment::connectBorderBuffer()
 {
-    DynamicNeuron* neuron = nullptr;
+    NeuronSection* section = nullptr;
     Brick* brick = nullptr;
 
     uint64_t transferCounter = 0;
@@ -204,18 +333,21 @@ DynamicSegment::connectBorderBuffer()
     for(uint32_t i = 0; i < segmentHeader->bricks.count; i++)
     {
         brick = &bricks[i];
-
-        // connect input-bricks with border-buffer
         if(brick->isInputBrick)
         {
-            for(uint32_t j = 0; j < brick->numberOfNeurons; j++)
+            const uint32_t numberOfNeuronSections = getNumberOfNeuronSections(brick->numberOfNeurons);
+            for(uint32_t j = 0; j < numberOfNeuronSections; j++)
             {
                 if(transferCounter >= segmentHeader->inputTransfers.count) {
                     break;
                 }
-                neuron = &neurons[brick->neuronPos + j];
-                neuron->targetBorderId = transferCounter;
-                transferCounter++;
+
+                section = &neuronSections[brick->neuronSectionPos + j];
+                for(uint32_t k = 0; k < section->numberOfNeurons; k++)
+                {
+                    section->neurons[k].targetBorderId = transferCounter;
+                    transferCounter++;
+                }
             }
         }
 
@@ -223,14 +355,19 @@ DynamicSegment::connectBorderBuffer()
         if(brick->isOutputBrick
                 || brick->isTransactionBrick)
         {
-            for(uint32_t j = 0; j < brick->numberOfNeurons; j++)
+            const uint32_t numberOfNeuronSections = getNumberOfNeuronSections(brick->numberOfNeurons);
+            for(uint32_t j = 0; j < numberOfNeuronSections; j++)
             {
                 if(transferCounter >= segmentHeader->outputTransfers.count) {
                     break;
                 }
-                neuron = &neurons[brick->neuronPos + j];
-                neuron->targetBorderId = transferCounter;
-                transferCounter++;
+
+                section = &neuronSections[brick->neuronSectionPos + j];
+                for(uint32_t k = 0; k < section->numberOfNeurons; k++)
+                {
+                    section->neurons[k].targetBorderId = transferCounter;
+                    transferCounter++;
+                }
             }
         }
     }
@@ -270,7 +407,7 @@ DynamicSegment::initSettings(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta
  */
 SegmentHeader
 DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
-                                const uint32_t numberOfNeurons,
+                                const uint32_t numberOfNeuronSections,
                                 const uint64_t numberOfSynapseSections,
                                 const uint64_t borderbufferSize)
 {
@@ -289,9 +426,14 @@ DynamicSegment::createNewHeader(const uint32_t numberOfBricks,
     segmentDataPos += numberOfBricks * sizeof(uint32_t);
 
     // init neurons
-    segmentHeader.neurons.count = numberOfNeurons;
-    segmentHeader.neurons.bytePos = segmentDataPos;
-    segmentDataPos += numberOfNeurons * sizeof(DynamicNeuron);
+    segmentHeader.neuronSections.count = numberOfNeuronSections;
+    segmentHeader.neuronSections.bytePos = segmentDataPos;
+    segmentDataPos += numberOfNeuronSections * sizeof(NeuronSection);
+
+    // init section-updates
+    segmentHeader.updatePosSections.count = numberOfNeuronSections;
+    segmentHeader.updatePosSections.bytePos = segmentDataPos;
+    segmentDataPos += numberOfNeuronSections * sizeof(UpdatePosSection);
 
     segmentHeader.staticDataSize = segmentDataPos;
 
@@ -338,8 +480,11 @@ DynamicSegment::initSegmentPointer(const SegmentHeader &header)
     pos = segmentHeader->brickOrder.bytePos;
     brickOrder = reinterpret_cast<uint32_t*>(dataPtr + pos);
 
-    pos = segmentHeader->neurons.bytePos;
-    neurons = reinterpret_cast<DynamicNeuron*>(dataPtr + pos);
+    pos = segmentHeader->neuronSections.bytePos;
+    neuronSections = reinterpret_cast<NeuronSection*>(dataPtr + pos);
+
+    pos = segmentHeader->updatePosSections.bytePos;
+    updatePosSections = reinterpret_cast<UpdatePosSection*>(dataPtr + pos);
 
     dataPtr = static_cast<uint8_t*>(segmentData.itemData);
     pos = segmentHeader->synapseSections.bytePos;
@@ -378,8 +523,14 @@ DynamicSegment::initDefaultValues()
     }
 
     // init neurons
-    for(uint32_t i = 0; i < segmentHeader->neurons.count; i++) {
-        neurons[i] = DynamicNeuron();
+    for(uint32_t i = 0; i < segmentHeader->neuronSections.count; i++) {
+        neuronSections[i] = NeuronSection();
+        neuronSections[i].id = i;
+    }
+
+    // init section-updates
+    for(uint32_t i = 0; i < segmentHeader->updatePosSections.count; i++) {
+        updatePosSections[i] = UpdatePosSection();
     }
 }
 
@@ -392,7 +543,8 @@ DynamicSegment::initDefaultValues()
  * @return new brick with parsed information
  */
 Brick
-DynamicSegment::createNewBrick(const Kitsunemimi::Hanami::BrickMeta &brickMeta, const uint32_t id)
+DynamicSegment::createNewBrick(const Kitsunemimi::Hanami::BrickMeta &brickMeta,
+                               const uint32_t id)
 {
     Brick newBrick;
 
@@ -411,6 +563,8 @@ DynamicSegment::createNewBrick(const Kitsunemimi::Hanami::BrickMeta &brickMeta, 
     // convert other values
     newBrick.brickPos = brickMeta.position;
     newBrick.numberOfNeurons = brickMeta.numberOfNeurons;
+    newBrick.numberOfNeuronSections = getNumberOfNeuronSections(brickMeta.numberOfNeurons);
+
     for(uint8_t side = 0; side < 12; side++) {
         newBrick.neighbors[side] = UNINIT_STATE_32;
     }
@@ -427,24 +581,31 @@ void
 DynamicSegment::addBricksToSegment(const Kitsunemimi::Hanami::SegmentMeta &segmentMeta)
 {
     uint32_t neuronBrickIdCounter = 0;
-    uint32_t neuronPosCounter = 0;
+    uint32_t neuronSectionPosCounter = 0;
+    NeuronSection* section = nullptr;
+    uint32_t neuronIdCounter = 0;
 
     for(uint32_t i = 0; i < segmentMeta.bricks.size(); i++)
     {
         Brick newBrick = createNewBrick(segmentMeta.bricks.at(i), i);
+        newBrick.neuronSectionPos = neuronSectionPosCounter;
 
-        // handle neuron-brick
-        newBrick.neuronPos = neuronPosCounter;
-
-        for(uint32_t j = 0; j < newBrick.numberOfNeurons; j++) {
-            neurons[j + neuronPosCounter].brickId = newBrick.brickId;
+        for(uint32_t j = 0; j < newBrick.numberOfNeuronSections; j++)
+        {
+            section = &neuronSections[j + neuronSectionPosCounter];
+            section->brickId = newBrick.brickId;
+            for(uint32_t k = 0; k < section->numberOfNeurons; k++)
+            {
+                section->neurons[k].id = neuronIdCounter;
+                neuronIdCounter++;
+            }
         }
 
         // copy new brick to segment
         bricks[neuronBrickIdCounter] = newBrick;
         assert(neuronBrickIdCounter == newBrick.brickId);
         neuronBrickIdCounter++;
-        neuronPosCounter += newBrick.numberOfNeurons;
+        neuronSectionPosCounter += newBrick.numberOfNeuronSections;
     }
 
     return;

@@ -27,19 +27,24 @@
 #include <core/segments/output_segment/output_segment.h>
 
 #include <core/cluster/cluster.h>
+#include <core/processing/segment_queue.h>
 
 #include <kyouko_root.h>
-
-#include <core/processing/segment_queue.h>
 
 #include <core/segments/dynamic_segment/backpropagation.h>
 #include <core/segments/dynamic_segment/processing.h>
 #include <core/segments/dynamic_segment/reduction.h>
+#include <core/segments/dynamic_segment/section_update.h>
 
 #include <core/segments/output_segment/backpropagation.h>
 #include <core/segments/output_segment/processing.h>
 
 #include <core/segments/input_segment/processing.h>
+
+#include <libKitsunemimiOpencl/gpu_interface.h>
+#include <libKitsunemimiOpencl/gpu_handler.h>
+
+uint32_t counter = 0;
 
 /**
  * @brief constructor
@@ -60,13 +65,21 @@ CpuProcessingUnit::~CpuProcessingUnit() {}
 void
 CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
 {
+    Kitsunemimi::ErrorContainer error;
+
     switch(segment->getType())
     {
         case DYNAMIC_SEGMENT:
         {
             DynamicSegment* seg = static_cast<DynamicSegment*>(segment);
             seg->dynamicSegmentSettings->doLearn = 1;
+            seg->dynamicSegmentSettings->doLearn = 1;
             prcessDynamicSegment(*seg);
+            if(seg->dynamicSegmentSettings->updateSections != 0) {
+                updateSections(*seg);
+            }
+            seg->dynamicSegmentSettings->updateSections = 0;
+
             seg->dynamicSegmentSettings->doLearn = 0;
             break;
         }
@@ -96,6 +109,8 @@ CpuProcessingUnit::learnSegmentForward(AbstractSegment* segment)
 void
 CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
 {
+    Kitsunemimi::ErrorContainer error;
+
     switch(segment->getType())
     {
         case DYNAMIC_SEGMENT:
@@ -128,6 +143,8 @@ CpuProcessingUnit::learnSegmentBackward(AbstractSegment* segment)
 void
 CpuProcessingUnit::processSegment(AbstractSegment* segment)
 {
+    Kitsunemimi::ErrorContainer error;
+
     switch(segment->getType())
     {
         case DYNAMIC_SEGMENT:

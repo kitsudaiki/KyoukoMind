@@ -99,6 +99,7 @@ get_required_kitsune_lib_repo "libKitsunemimiNetwork" "develop" 8
 get_required_kitsune_lib_repo "libKitsunemimiArgs" "develop" 8
 get_required_kitsune_lib_repo "libKitsunemimiConfig" "develop" 8
 get_required_kitsune_lib_repo "libKitsunemimiObj" "develop" 8
+get_required_kitsune_lib_repo "libKitsunemimiOpencl" "develop" 8
 echo ""
 echo "###########################################################################################################"
 echo ""
